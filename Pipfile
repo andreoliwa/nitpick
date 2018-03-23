@@ -21,6 +21,9 @@ ipdb = "*"
 [dev-packages]
 pipfile = "*"
 pytest = "*"
+twine = "*"
+keyring = "*"
+wheel = "*"
 
 [requires]
 python_version = "3.6"
