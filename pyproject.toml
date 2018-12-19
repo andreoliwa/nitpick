@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "flake8-nitpick"
+version = "0.1.0"
+description = "Flake8 plugin to share the same code style for multiple Python projects"
+authors = ["Augusto Wagner Andreoli <andreoliwa@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+"flake8" = "*"
+"flake8-blind-except" = "*"
+"flake8-bugbear" = "*"
+"flake8-comprehensions" = "*"
+"flake8-debugger" = "*"
+"flake8-docstrings" = "*"
+"flake8-isort" = "*"
+"flake8-mypy" = "*"
+"flake8-polyfill" = "*"
+"flake8-pytest" = "*"
+ipython = "*"
+ipdb = "*"
+pytest = "*"
+twine = "*"
+keyring = "*"
+wheel = "*"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
