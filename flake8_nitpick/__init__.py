@@ -4,7 +4,7 @@ from typing import Optional
 import attr
 import os
 from pathlib import Path
-from nitpick.__version__ import __version__
+from flake8_nitpick.__version__ import __version__
 from functools import lru_cache
 
 
@@ -12,7 +12,7 @@ from functools import lru_cache
 class NitpickChecker:
     """Main plugin class."""
 
-    name = "nitpick"
+    name = "flake8-nitpick"
     version = __version__
 
     tree = attr.ib(default=None)

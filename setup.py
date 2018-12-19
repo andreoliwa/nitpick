@@ -13,11 +13,11 @@ from shutil import rmtree
 from setuptools import Command, find_packages, setup
 
 # Package meta-data.
-NAME = "nitpick"
-DESCRIPTION = "A code style guide for Python projects."
-URL = "https://github.com/andreoliwa/python-nitpick"
+NAME = "flake8_nitpick"
+DESCRIPTION = "Flake8 plugin to share the same code style for multiple Python projects"
+URL = "https://github.com/andreoliwa/flake8-nitpick"
 EMAIL = "andreoliwa@gmail.com"
-AUTHOR = "Wagner Augusto Andreoli"
+AUTHOR = "W. Augusto Andreoli"
 REQUIRES_PYTHON = ">=3.6.0"
 VERSION = None
 
