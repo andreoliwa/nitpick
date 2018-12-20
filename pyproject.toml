@@ -1,3 +1,6 @@
+[tool.black]
+line-length = 120
+
 [tool.poetry]
 name = "flake8-nitpick"
 version = "0.1.0"
@@ -24,10 +27,33 @@ pytest = "*"
 twine = "*"
 keyring = "*"
 wheel = "*"
+pre_commit = "*"
+black = {version = "*", allows-prereleases = true}
+pylint = "*"
 
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.nitpick."pyproject.toml".tool.black]
+line-length = 120
+
+[tool.nitpick."pyproject.toml".tool.poetry.dev-dependencies]
+black = {version = "*", allows-prereleases = true}
+"flake8-blind-except" = "*"
+"flake8-bugbear" = "*"
+"flake8-comprehensions" = "*"
+"flake8-debugger" = "*"
+"flake8-docstrings" = "*"
+"flake8-isort" = "*"
+"flake8-mypy" = "*"
+"flake8-polyfill" = "*"
+"flake8-pytest" = "*"
+"flake8" = "*"
+pre_commit = "*"
+ipython = "*"
+ipdb = "*"
+pylint = "*"
 
 [tool.nitpick."setup.cfg".flake8]
 ignore = "D107,D202,D203,D401,E203,E402,E501,W503"

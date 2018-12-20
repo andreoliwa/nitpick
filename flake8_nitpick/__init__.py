@@ -9,6 +9,7 @@ from pathlib import Path
 import toml
 
 from flake8_nitpick.__version__ import __version__
+from flake8_nitpick.generic import get_subclasses, flatten, unflatten
 
 # Types
 NitpickError = Tuple[int, int, str, Type]
@@ -16,27 +17,13 @@ NitpickError = Tuple[int, int, str, Type]
 # Constants
 ERROR_PREFIX = "NIP"
 PYPROJECT_TOML = "pyproject.toml"
-ROOT_PYTHON_FILES = ("setup.py", "manage.py")
-ROOT_FILES = (
-    PYPROJECT_TOML,
-    "setup.cfg",
-    "requirements*.txt",
-    "Pipfile",
-) + ROOT_PYTHON_FILES
+ROOT_PYTHON_FILES = ("setup.py", "manage.py", "autoapp.py")
+ROOT_FILES = (PYPROJECT_TOML, "setup.cfg", "requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 
 
 def nitpick_error(error_number: int, error_message: str) -> NitpickError:
     """Return a nitpick error as a tuple"""
     return 1, 0, f"{ERROR_PREFIX}{error_number} {error_message}", NitpickChecker
-
-
-def get_subclasses(cls):
-    """Recursively get subclasses of a parent class."""
-    subclasses = []
-    for subclass in cls.__subclasses__():
-        subclasses.append(subclass)
-        subclasses += get_subclasses(subclass)
-    return subclasses
 
 
 class NitpickCache:
@@ -82,10 +69,10 @@ class NitpickConfig:
         """Init instance."""
         pyproject_toml_file = root_dir / PYPROJECT_TOML
         toml_dict = toml.load(str(pyproject_toml_file))
-        config = toml_dict.get("tool", {}).get("nitpick", {})
+        self.nitpick_config = toml_dict.get("tool", {}).get("nitpick", {})
 
         self.root_dir = root_dir
-        self.files: Dict[str, bool] = config.get("files", {})
+        self.files: Dict[str, bool] = self.nitpick_config.get("files", {})
 
 
 @attr.s(hash=False)
@@ -110,17 +97,16 @@ class NitpickChecker:
         current_python_file = Path(self.filename)
         main_python_file = self.find_main_python_file(root_dir, current_python_file)
         if not main_python_file:
-            yield nitpick_error(
-                100, f"No Python file was found in the root dir {root_dir}"
-            )
+            yield nitpick_error(100, f"No Python file was found in the root dir {root_dir}")
             return
         if current_python_file.resolve() != main_python_file.resolve():
             # Only report warnings once, for the main Python file of this project.
             return
 
         config = NitpickConfig(root_dir)
-        for file_checker in get_subclasses(BaseChecker):
-            for error in file_checker(config).check_exists():
+        for checker_class in get_subclasses(BaseChecker):
+            checker = checker_class(config)
+            for error in itertools.chain(checker.check_exists(), checker.check_rules()):
                 yield error
 
         return []
@@ -151,8 +137,7 @@ class NitpickChecker:
             return main_python_file
 
         for the_file in itertools.chain(
-            [root_dir / root_file for root_file in ROOT_PYTHON_FILES],
-            root_dir.glob("*.py"),
+            [root_dir / root_file for root_file in ROOT_PYTHON_FILES], root_dir.glob("*.py")
         ):
             if the_file.exists():
                 found = the_file
@@ -165,47 +150,65 @@ class NitpickChecker:
 class BaseChecker:
     """Base class for file checkers."""
 
-    filename: str
+    file_name: str
     should_exist_default: bool
 
     def __init__(self, config: NitpickConfig) -> None:
         """Init instance."""
         self.config = config
+        self.file_path: Path = self.config.root_dir / self.file_name
+        self.file_config = self.config.nitpick_config.get(self.file_name, {})
 
     def check_exists(self) -> Generator[List[NitpickError], Any, Any]:
         """Check if the file should exist or not."""
-        should_exist = self.config.files.get(self.filename, self.should_exist_default)
-        file_exists = (self.config.root_dir / self.filename).exists()
+        should_exist = self.config.files.get(self.file_name, self.should_exist_default)
+        file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
-            yield nitpick_error(102, f"Missing file {self.filename!r}")
+            yield nitpick_error(102, f"Missing file {self.file_name!r}")
         elif not should_exist and file_exists:
-            yield nitpick_error(103, f"File {self.filename!r} should be deleted")
+            yield nitpick_error(103, f"File {self.file_name!r} should be deleted")
+
+    def check_rules(self):
+        """Check rules for this file. It should be overridden by inherited class if they need."""
+        return []
 
 
 class PyProjectTomlChecker(BaseChecker):
     """Check pyproject.toml."""
 
-    filename = "pyproject.toml"
+    file_name = "pyproject.toml"
     should_exist_default = True
+
+    def check_rules(self):
+        """Check missing key/value pairs in pyproject.toml."""
+        pyproject_toml_dict = toml.load(str(self.file_path))
+        actual = flatten(pyproject_toml_dict)
+        expected = flatten(self.file_config)
+        if expected.items() <= actual.items():
+            return []
+
+        missing_dict = unflatten({k: v for k, v in expected.items() if k not in actual})
+        missing_toml = toml.dumps(missing_dict)
+        yield nitpick_error(104, f"Missing values in {self.file_name!r}:\n{missing_toml}")
 
 
 class SetupCfgChecker(BaseChecker):
     """Check setup.cfg."""
 
-    filename = "setup.cfg"
+    file_name = "setup.cfg"
     should_exist_default = True
 
 
 class PipfileChecker(BaseChecker):
     """Check Pipfile."""
 
-    filename = "Pipfile"
+    file_name = "Pipfile"
     should_exist_default = False
 
 
 class PipfileLockChecker(BaseChecker):
     """Check Pipfile.lock."""
 
-    filename = "Pipfile.lock"
+    file_name = "Pipfile.lock"
     should_exist_default = False
