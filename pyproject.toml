@@ -30,6 +30,7 @@ wheel = "*"
 pre_commit = "*"
 black = {version = "*", allows-prereleases = true}
 pylint = "*"
+mypy = "*"
 
 [build-system]
 requires = ["poetry>=0.12"]
@@ -54,6 +55,7 @@ pre_commit = "*"
 ipython = "*"
 ipdb = "*"
 pylint = "*"
+mypy = "*"
 
 [tool.nitpick."setup.cfg".flake8]
 ignore = "D107,D202,D203,D401,E203,E402,E501,W503"

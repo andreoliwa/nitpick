@@ -1,6 +1,6 @@
 """Main package."""
 import itertools
-from typing import Optional, Tuple, Type, Any, Dict, List, Generator
+from typing import Optional, Tuple, Type, Any, Dict, Generator
 
 import os
 import attr
@@ -22,7 +22,7 @@ ROOT_FILES = (PYPROJECT_TOML, "setup.cfg", "requirements*.txt", "Pipfile") + ROO
 
 
 def nitpick_error(error_number: int, error_message: str) -> NitpickError:
-    """Return a nitpick error as a tuple"""
+    """Return a nitpick error as a tuple."""
     return 1, 0, f"{ERROR_PREFIX}{error_number} {error_message}", NitpickChecker
 
 
@@ -34,7 +34,7 @@ class NitpickCache:
         self.cache_file: Path = Path(os.getcwd()) / ".cache/flake8-nitpick.toml"
         self.cache_file.parent.mkdir(exist_ok=True)
         self.cache_file.touch(exist_ok=True)
-        self.toml_dict: dict = toml.load(str(self.cache_file))
+        self.toml_dict = toml.load(str(self.cache_file))
 
         self.key = key
 
@@ -159,7 +159,7 @@ class BaseChecker:
         self.file_path: Path = self.config.root_dir / self.file_name
         self.file_config = self.config.nitpick_config.get(self.file_name, {})
 
-    def check_exists(self) -> Generator[List[NitpickError], Any, Any]:
+    def check_exists(self) -> Generator[NitpickError, Any, Any]:
         """Check if the file should exist or not."""
         should_exist = self.config.files.get(self.file_name, self.should_exist_default)
         file_exists = self.file_path.exists()
