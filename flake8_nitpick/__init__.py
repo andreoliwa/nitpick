@@ -1,8 +1,11 @@
 """Main package."""
 import itertools
-from typing import Optional, Tuple, Type, Any, Dict, Generator
+from configparser import ConfigParser
+from io import StringIO
+from typing import Optional, Tuple, Type, Any, Dict, Generator, List
 
 import os
+import dictdiffer
 import attr
 from pathlib import Path
 
@@ -61,7 +64,11 @@ class NitpickCache:
 
     def dump_path(self, path: Path) -> Path:
         """Save the path relative to the current working dir."""
-        value = path.resolve().relative_to(os.getcwd())
+        try:
+            value = path.resolve().relative_to(os.getcwd())
+        except ValueError:
+            # If the path is outside the current directory, use the absolute path.
+            value = path.resolve()
         self.dump(value)
         return path
 
@@ -222,12 +229,12 @@ class PyProjectTomlChecker(BaseChecker):
 
     def check_rules(self):
         """Check missing key/value pairs in pyproject.toml."""
-        project = flatten(self.config.pyproject_toml)
-        style = flatten(self.file_toml)
-        if style.items() <= project.items():
+        actual = flatten(self.config.pyproject_toml)
+        expected = flatten(self.file_toml)
+        if expected.items() <= actual.items():
             return []
 
-        missing_dict = unflatten({k: v for k, v in style.items() if k not in project})
+        missing_dict = unflatten({k: v for k, v in expected.items() if k not in actual})
         missing_toml = toml.dumps(missing_dict)
         yield nitpick_error(104, f"Missing values in {self.file_name!r}:\n{missing_toml}")
 
@@ -237,6 +244,77 @@ class SetupCfgChecker(BaseChecker):
 
     file_name = "setup.cfg"
     should_exist_default = True
+
+    COMMA_SEPARATED_KEYS = {"flake8.ignore"}
+
+    def check_rules(self):
+        """Check missing sections and missing key/value pairs in setup.cfg."""
+        setup_cfg = ConfigParser()
+        setup_cfg.read_file(self.file_path.open())
+
+        actual_sections = set(setup_cfg.sections())
+        expected_sections = set(self.file_toml.keys())
+        missing_sections = expected_sections - actual_sections
+
+        if missing_sections:
+            missing_cfg = ConfigParser()
+            for section in missing_sections:
+                missing_cfg[section] = self.file_toml[section]
+            output = self.get_example_cfg(missing_cfg)
+            yield nitpick_error(105, f"Missing sections in {self.file_name!r}:\n{output}")
+
+        generators = []
+        for section in expected_sections:
+            expected_dict = self.file_toml[section]
+            actual_dict = dict(setup_cfg[section])
+            for diff_type, key, values in dictdiffer.diff(expected_dict, actual_dict):
+                if diff_type == dictdiffer.CHANGE:
+                    generators.append(self.compare_different_keys(section, key, values[0], values[1]))
+                elif diff_type == dictdiffer.REMOVE:
+                    generators.append(self.show_missing_keys(section, key, values))
+        for error in itertools.chain(*generators):
+            yield error
+
+    def compare_different_keys(self, section, key, raw_expected, raw_actual):
+        """Compare different keys, with special treatment when they are lists or numeric."""
+        combined = f"{section}.{key}"
+        if combined in self.COMMA_SEPARATED_KEYS:
+            actual = set(raw_actual.split(","))
+            expected = set(raw_expected.split(","))
+            missing = expected - actual
+            if missing:
+                yield nitpick_error(
+                    106, f"{self.file_name}: Missing values in key\n[{section}]\n{key} = {','.join(sorted(missing))}"
+                )
+                return
+        elif isinstance(raw_actual, (int, float)) or isinstance(raw_expected, (int, float)):
+            actual = str(raw_actual)
+            expected = str(raw_expected)
+        else:
+            actual = raw_actual
+            expected = raw_expected
+
+        if actual != expected:
+            yield nitpick_error(
+                107,
+                f"{self.file_name}: Expected value {raw_expected!r} in key,"
+                + f" got {raw_actual!r}\n[{section}]\n{key} = {raw_expected}",
+            )
+
+    def show_missing_keys(self, section, key, values: List[Tuple[str, Any]]):
+        """Show the keys that are not present in a section."""
+        missing_cfg = ConfigParser()
+        missing_cfg[section] = dict(values)
+        output = self.get_example_cfg(missing_cfg)
+        yield nitpick_error(108, f"{self.file_name}: Missing keys in section:\n{output}")
+
+    @staticmethod
+    def get_example_cfg(config_parser: ConfigParser) -> str:
+        """Print an example of a config parser in a string instead of a file."""
+        string_stream = StringIO()
+        config_parser.write(string_stream)
+        output = string_stream.getvalue().strip()
+        return output
 
 
 class PipfileChecker(BaseChecker):

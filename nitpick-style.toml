@@ -12,20 +12,44 @@ black = {version = "*", allows-prereleases = true}
 "flake8-mypy" = "*"
 "flake8-polyfill" = "*"
 "flake8-pytest" = "*"
-"flake8" = "*"
-pre_commit = "*"
+# Raising [TooManyRedirects] Exceeded 30 redirects. on poetry 0.12.10
+#pre_commit = "*"
 ipython = "*"
 ipdb = "*"
 pylint = "*"
 mypy = "*"
 
 ["setup.cfg".flake8]
+# http://www.pydocstyle.org/en/2.1.1/error_codes.html
+# Ignoring W503: https://github.com/ambv/black#line-breaks--binary-operators
+# Ignoring "D202 No blank lines allowed after function docstring": black inserts a blank line.
 ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
 max-line-length = 120
 
 ["setup.cfg".isort]
 line_length = 120
+
+# The configuration below is needed for compatibility with black.
+# https://github.com/ambv/black#how-black-wraps-lines
+# https://github.com/timothycrosley/isort#multi-line-output-modes
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0
 combine_as_imports = true
+
+["setup.cfg".mypy]
+python_version = 3.6
+ignore_missing_imports = true
+
+# Do not follow imports (except for ones found in typeshed)
+follow_imports = "skip"
+
+# Treat Optional per PEP 484
+strict_optional = true
+
+# Ensure all execution paths are returning
+warn_no_return = true
+
+# Lint-style cleanliness for typing
+warn_redundant_casts = true
+warn_unused_ignores = true

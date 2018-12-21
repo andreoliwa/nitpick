@@ -9,9 +9,13 @@ authors = ["Augusto Wagner Andreoli <andreoliwa@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
+"flake8" = ">=3.0.0"
+attrs = "*"
+toml  = "*"
+requests = "*"
+dictdiffer = "*"
 
 [tool.poetry.dev-dependencies]
-"flake8" = "*"
 "flake8-blind-except" = "*"
 "flake8-bugbear" = "*"
 "flake8-comprehensions" = "*"
@@ -27,7 +31,6 @@ pytest = "*"
 twine = "*"
 keyring = "*"
 wheel = "*"
-pre_commit = "*"
 black = {version = "*", allows-prereleases = true}
 pylint = "*"
 mypy = "*"
