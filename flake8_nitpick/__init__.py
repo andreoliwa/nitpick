@@ -6,17 +6,21 @@ import os
 import attr
 from pathlib import Path
 
+import requests
 import toml
 
 from flake8_nitpick.__version__ import __version__
-from flake8_nitpick.generic import get_subclasses, flatten, unflatten
+from flake8_nitpick.generic import get_subclasses, flatten, unflatten, climb_directory_tree
 
 # Types
 NitpickError = Tuple[int, int, str, Type]
 
 # Constants
+NAME = "flake8-nitpick"
 ERROR_PREFIX = "NIP"
+CACHE_DIR: Path = Path(os.getcwd()) / ".cache" / NAME
 PYPROJECT_TOML = "pyproject.toml"
+NITPICK_STYLE_TOML = "nitpick-style.toml"
 ROOT_PYTHON_FILES = ("setup.py", "manage.py", "autoapp.py")
 ROOT_FILES = (PYPROJECT_TOML, "setup.cfg", "requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 
@@ -31,8 +35,8 @@ class NitpickCache:
 
     def __init__(self, key: str) -> None:
         """Init the cache file."""
-        self.cache_file: Path = Path(os.getcwd()) / ".cache/flake8-nitpick.toml"
-        self.cache_file.parent.mkdir(exist_ok=True)
+        self.cache_file: Path = CACHE_DIR / "variables.toml"
+        self.cache_file.parent.mkdir(parents=True, exist_ok=True)
         self.cache_file.touch(exist_ok=True)
         self.toml_dict = toml.load(str(self.cache_file))
 
@@ -67,12 +71,46 @@ class NitpickConfig:
 
     def __init__(self, root_dir: Path) -> None:
         """Init instance."""
-        pyproject_toml_file = root_dir / PYPROJECT_TOML
-        toml_dict = toml.load(str(pyproject_toml_file))
-        self.nitpick_config = toml_dict.get("tool", {}).get("nitpick", {})
-
         self.root_dir = root_dir
-        self.files: Dict[str, bool] = self.nitpick_config.get("files", {})
+
+        self.pyproject_toml = toml.load(str(self.root_dir / PYPROJECT_TOML))
+        self.tool_nitpick_toml = self.pyproject_toml.get("tool", {}).get("nitpick", {})
+
+        style_path = self.find_style()
+        self.style_toml = toml.load(str(style_path))
+
+        self.files: Dict[str, bool] = self.style_toml.get("files", {})
+
+    def find_style(self) -> Optional[Path]:
+        """Search for a style file."""
+        cache = NitpickCache("style")
+        style_path = cache.load_path()
+        if style_path is not None:
+            return style_path
+
+        style: str = self.pyproject_toml.get("style", "")
+        if style.startswith("http"):
+            # If the style is a URL, save the contents in the cache dir
+            response = requests.get(style)
+            if not response.ok:
+                raise RuntimeError(f"Error {response} fetching style URL {style}")
+            contents = response.text
+            style_path = CACHE_DIR / "style.toml"
+            style_path.write_text(contents)
+        elif style:
+            style_path = Path(style)
+            if not style_path.exists():
+                raise RuntimeError(f"Style file does not exist: {style}")
+        else:
+            paths = climb_directory_tree(self.root_dir, [NITPICK_STYLE_TOML])
+            if not paths:
+                raise RuntimeError(
+                    f"Style not configured on {PYPROJECT_TOML} and {NITPICK_STYLE_TOML} not found in directory tree"
+                )
+            style_path = paths[0]
+
+        cache.dump_path(style_path)
+        return style_path
 
 
 @attr.s(hash=False)
@@ -80,7 +118,7 @@ class NitpickChecker:
     """Main plugin class."""
 
     # Plugin config
-    name = "flake8-nitpick"
+    name = NAME
     version = __version__
 
     # Plugin arguments passed by Flake8
@@ -103,7 +141,12 @@ class NitpickChecker:
             # Only report warnings once, for the main Python file of this project.
             return
 
-        config = NitpickConfig(root_dir)
+        try:
+            config = NitpickConfig(root_dir)
+        except RuntimeError as err:
+            yield nitpick_error(100, str(err))
+            return
+
         for checker_class in get_subclasses(BaseChecker):
             checker = checker_class(config)
             for error in itertools.chain(checker.check_exists(), checker.check_rules()):
@@ -111,23 +154,20 @@ class NitpickChecker:
 
         return []
 
-    def find_root_dir(self, python_file: str) -> Optional[Path]:
+    @staticmethod
+    def find_root_dir(python_file: str) -> Optional[Path]:
         """Find the root dir of the Python project: the dir that has one of the `ROOT_FILES`."""
         cache = NitpickCache("root_dir")
         root_dir = cache.load_path()
         if root_dir is not None:
             return root_dir
 
-        current_dir: Path = Path(python_file).resolve().parent
-        while current_dir.root != str(current_dir):
-            for root_file in ROOT_FILES:
-                found_files = list(current_dir.glob(root_file))
-                if found_files:
-                    root_dir = found_files[0].parent
-                    cache.dump_path(root_dir)
-                    return root_dir
-            current_dir = current_dir.parent
-        return None
+        found_files = climb_directory_tree(python_file, ROOT_FILES)
+        if not found_files:
+            return None
+        root_dir = found_files[0].parent
+        cache.dump_path(root_dir)
+        return root_dir
 
     def find_main_python_file(self, root_dir: Path, current_file: Path) -> Path:
         """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings."""
@@ -157,7 +197,7 @@ class BaseChecker:
         """Init instance."""
         self.config = config
         self.file_path: Path = self.config.root_dir / self.file_name
-        self.file_config = self.config.nitpick_config.get(self.file_name, {})
+        self.file_toml = self.config.style_toml.get(self.file_name, {})
 
     def check_exists(self) -> Generator[NitpickError, Any, Any]:
         """Check if the file should exist or not."""
@@ -182,13 +222,12 @@ class PyProjectTomlChecker(BaseChecker):
 
     def check_rules(self):
         """Check missing key/value pairs in pyproject.toml."""
-        pyproject_toml_dict = toml.load(str(self.file_path))
-        actual = flatten(pyproject_toml_dict)
-        expected = flatten(self.file_config)
-        if expected.items() <= actual.items():
+        project = flatten(self.config.pyproject_toml)
+        style = flatten(self.file_toml)
+        if style.items() <= project.items():
             return []
 
-        missing_dict = unflatten({k: v for k, v in expected.items() if k not in actual})
+        missing_dict = unflatten({k: v for k, v in style.items() if k not in project})
         missing_toml = toml.dumps(missing_dict)
         yield nitpick_error(104, f"Missing values in {self.file_name!r}:\n{missing_toml}")
 

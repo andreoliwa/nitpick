@@ -22,7 +22,7 @@ REQUIRES_PYTHON = ">=3.6.0"
 VERSION = None
 
 # What packages are required for this module to be executed?
-REQUIRED = ["flake8 > 3.0.0", "attrs", "toml"]
+REQUIRED = ["flake8 > 3.0.0", "attrs", "toml", "requests"]
 
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
