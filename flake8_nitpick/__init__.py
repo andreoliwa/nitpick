@@ -1,5 +1,6 @@
 """Main package."""
 import itertools
+import logging
 from configparser import ConfigParser
 from io import StringIO
 from typing import Optional, Tuple, Type, Any, Dict, Generator, List
@@ -26,6 +27,8 @@ PYPROJECT_TOML = "pyproject.toml"
 NITPICK_STYLE_TOML = "nitpick-style.toml"
 ROOT_PYTHON_FILES = ("setup.py", "manage.py", "autoapp.py")
 ROOT_FILES = (PYPROJECT_TOML, "setup.cfg", "requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
+
+LOG = logging.getLogger("flake8.nitpick")
 
 
 def nitpick_error(error_number: int, error_message: str) -> NitpickError:
@@ -93,6 +96,7 @@ class NitpickConfig:
         cache = NitpickCache("style")
         style_path = cache.load_path()
         if style_path is not None:
+            LOG.info("Loading cached style: %s", style_path)
             return style_path
 
         style: str = self.pyproject_toml.get("style", "")
@@ -100,21 +104,27 @@ class NitpickConfig:
             # If the style is a URL, save the contents in the cache dir
             response = requests.get(style)
             if not response.ok:
+                LOG.error("Error %r fetching style URL %s", response, style)
                 raise RuntimeError(f"Error {response} fetching style URL {style}")
             contents = response.text
             style_path = CACHE_DIR / "style.toml"
             style_path.write_text(contents)
+            LOG.info("Loading style from URL: %s", style_path)
         elif style:
             style_path = Path(style)
             if not style_path.exists():
+                LOG.error("Style file not found %s", style_path)
                 raise RuntimeError(f"Style file does not exist: {style}")
+            LOG.info("Loading style from file: %s", style_path)
         else:
             paths = climb_directory_tree(self.root_dir, [NITPICK_STYLE_TOML])
             if not paths:
+                LOG.error("Style file not found on the directory tree above %s", self.root_dir)
                 raise RuntimeError(
                     f"Style not configured on {PYPROJECT_TOML} and {NITPICK_STYLE_TOML} not found in directory tree"
                 )
             style_path = paths[0]
+            LOG.info("Loading style from directory tree: %s", style_path)
 
         cache.dump_path(style_path)
         return style_path
@@ -167,10 +177,12 @@ class NitpickChecker:
         cache = NitpickCache("root_dir")
         root_dir = cache.load_path()
         if root_dir is not None:
+            LOG.info("Loading cached root dir: %s", root_dir)
             return root_dir
 
         found_files = climb_directory_tree(python_file, ROOT_FILES)
         if not found_files:
+            LOG.error("No files found while climbing directory tree from %s", python_file)
             return None
         root_dir = found_files[0].parent
         cache.dump_path(root_dir)
@@ -181,6 +193,7 @@ class NitpickChecker:
         cache = NitpickCache("main_python_file")
         main_python_file = cache.load_path()
         if main_python_file is not None:
+            LOG.info("Loading cached main Python file: %s", main_python_file)
             return main_python_file
 
         for the_file in itertools.chain(
@@ -188,8 +201,10 @@ class NitpickChecker:
         ):
             if the_file.exists():
                 found = the_file
+                LOG.info("Found the file %s", the_file)
                 break
         else:
+            LOG.info("Using current file as main file %s", current_file)
             found = current_file
         return cache.dump_path(found)
 

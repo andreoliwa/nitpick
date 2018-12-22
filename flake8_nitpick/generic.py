@@ -1,7 +1,7 @@
 """Generic functions and classes."""
 import collections
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 
 
 def get_subclasses(cls):
@@ -43,7 +43,7 @@ def unflatten(dict_, separator="."):
     return items
 
 
-def climb_directory_tree(starting_path: Path, file_patterns: Iterable[str]) -> Optional[Iterable[Path]]:
+def climb_directory_tree(starting_path: Union[str, Path], file_patterns: Iterable[str]) -> Optional[Iterable[Path]]:
     """Climb the directory tree looking for file patterns."""
     current_dir: Path = Path(starting_path).resolve()
     if current_dir.is_file():
