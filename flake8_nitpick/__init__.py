@@ -100,7 +100,7 @@ class NitpickConfig:
             LOG.info("Loading cached style: %s", style_path)
             return style_path
 
-        style: str = self.pyproject_toml.get("style", "")
+        style: str = self.tool_nitpick_toml.get("style", "")
         if style.startswith("http"):
             # If the style is a URL, save the contents in the cache dir
             style_path = self.load_style_from_url(style)

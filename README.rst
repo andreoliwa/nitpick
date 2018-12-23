@@ -9,21 +9,81 @@ flake8-nitpick
      :target: https://pyup.io/repos/github/andreoliwa/flake8-nitpick/
      :alt: Updates
 
-A code style guide for Python projects.
+Flake8 plugin to reuse the same lint configuration across multiple Python projects.
 
-A central place to keep all linting and doc generation tools, so you don't need to install these dependencies in every project you create.
+A "nitpick code style" is a `TOML <https://github.com/toml-lang/toml>`_ file with settings that should be present in config files from other tools. E.g.:
 
-Setup
------
+- ``pyproject.toml`` and ``setup.cfg`` (used by `flake8 <http://flake8.pycqa.org/>`_, `black <https://black.readthedocs.io/>`_, `isort <https://isort.readthedocs.io/>`_, `mypy <https://mypy.readthedocs.io/>`_);
+- ``.pylintrc`` (used by `pylint <https://pylint.readthedocs.io/>`_ config);
+- more files to come.
 
-To install flake8-nitpick, run:
+Quick setup
+-----------
+
+Simply install the package (in a virtualenv or globally, wherever) and run ``flake8``:
 
 .. code-block:: console
 
-    $ pip install flake8-nitpick
+    $ pip install -U flake8-nitpick
+    $ flake8
 
-To nitpick your project:
+You will see warnings if your project configuration is different than `the default style file <https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml>`_.
 
-- Add ``flake8-nitpick`` to your ``Pipfile`` or ``requirements.txt``;
-- Configure your ``setup.cfg`` file;
-- Tools like ``flake8`` and `isort`` will be available on the CLI.
+Configure your own style file
+-----------------------------
+
+Change your project config on ``pyproject.toml``, and configure your own style like this:
+
+.. code-block:: ini
+
+    [tool.nitpick]
+    style = "https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml"
+
+You can set ``style`` with any local file or URL. E.g.: you can use the raw URL of a `GitHub Gist <https://gist.github.com>`_.
+
+Default search order for a style file
+-------------------------------------
+
+1. A file or URL configured in the ``pyproject.toml`` file, ``[tool.nitpick]`` section, ``style`` key, as `described above <Configure your own style file>`_.
+
+2. Any ``nitpick-style.toml`` file found in the current directory (the one in which ``flake8`` runs from) or above.
+
+3. If no style is found, then `the default style file from GitHub <https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml>`_ is used.
+
+Style file syntax
+-----------------
+
+A style file contains basically the configuration options you want to enforce in all your projects.
+
+They are just the config to the tool, prefixed with the name of the config file.
+
+E.g.: To `configure the black formatter <https://github.com/ambv/black#configuration-format>`_ with a line length of 120, you use this in your ``pyproject.toml``:
+
+.. code-block:: ini
+
+    [tool.black]
+    line-length = 120
+
+To enforce that all your projects use this same line length, add this to your ``nitpick-style.toml`` file:
+
+.. code-block:: ini
+
+    ["pyproject.toml".tool.black]
+    line-length = 120
+
+It's the same exact section/key, just prefixed with the config file name (``"pyproject.toml".``)
+
+The same works for ``setup.cfg``.
+To `configure mypy <https://mypy.readthedocs.io/en/latest/config_file.html#config-file-format>`_ to ignore missing imports in your project:
+
+.. code-block:: ini
+
+    [mypy]
+    ignore_missing_imports = true
+
+To enforce all your projects to ignore missing imports, add this to your ``nitpick-style.toml`` file:
+
+.. code-block:: ini
+
+    ["setup.cfg".mypy]
+    ignore_missing_imports = true

@@ -14,7 +14,7 @@ from setuptools import Command, find_packages, setup
 
 # Package meta-data.
 NAME = "flake8_nitpick"
-DESCRIPTION = "Flake8 plugin to share the same code style for multiple Python projects"
+DESCRIPTION = "Flake8 plugin to reuse the same lint configuration across multiple Python projects"
 URL = "https://github.com/andreoliwa/flake8-nitpick"
 EMAIL = "andreoliwa@gmail.com"
 AUTHOR = "W. Augusto Andreoli"
@@ -105,12 +105,17 @@ setup(
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        "Development Status :: 3 - Alpha",
+        "Environment :: Plugins",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
+        "Operating System :: MacOS",
+        "Operating System :: Unix",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Software Development :: Quality Assurance",
     ],
     # $ setup.py publish support.
     cmdclass={"upload": UploadCommand},
