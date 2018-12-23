@@ -25,6 +25,7 @@ ERROR_PREFIX = "NIP"
 CACHE_DIR: Path = Path(os.getcwd()) / ".cache" / NAME
 PYPROJECT_TOML = "pyproject.toml"
 NITPICK_STYLE_TOML = "nitpick-style.toml"
+DEFAULT_NITPICK_STYLE_URL = "https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml"
 ROOT_PYTHON_FILES = ("setup.py", "manage.py", "autoapp.py")
 ROOT_FILES = (PYPROJECT_TOML, "setup.cfg", "requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 
@@ -102,31 +103,34 @@ class NitpickConfig:
         style: str = self.pyproject_toml.get("style", "")
         if style.startswith("http"):
             # If the style is a URL, save the contents in the cache dir
-            response = requests.get(style)
-            if not response.ok:
-                LOG.error("Error %r fetching style URL %s", response, style)
-                raise RuntimeError(f"Error {response} fetching style URL {style}")
-            contents = response.text
-            style_path = CACHE_DIR / "style.toml"
-            style_path.write_text(contents)
+            style_path = self.load_style_from_url(style)
             LOG.info("Loading style from URL: %s", style_path)
         elif style:
             style_path = Path(style)
             if not style_path.exists():
-                LOG.error("Style file not found %s", style_path)
                 raise RuntimeError(f"Style file does not exist: {style}")
             LOG.info("Loading style from file: %s", style_path)
         else:
             paths = climb_directory_tree(self.root_dir, [NITPICK_STYLE_TOML])
-            if not paths:
-                LOG.error("Style file not found on the directory tree above %s", self.root_dir)
-                raise RuntimeError(
-                    f"Style not configured on {PYPROJECT_TOML} and {NITPICK_STYLE_TOML} not found in directory tree"
-                )
-            style_path = paths[0]
-            LOG.info("Loading style from directory tree: %s", style_path)
+            if paths:
+                style_path = paths[0]
+                LOG.info("Loading style from directory tree: %s", style_path)
+            else:
+                style_path = self.load_style_from_url(DEFAULT_NITPICK_STYLE_URL)
+                LOG.info("Loading default Nitpick style %s into local file %s", DEFAULT_NITPICK_STYLE_URL, style_path)
 
         cache.dump_path(style_path)
+        return style_path
+
+    @staticmethod
+    def load_style_from_url(url: str) -> Path:
+        """Load a style file from a URL."""
+        response = requests.get(url)
+        if not response.ok:
+            raise RuntimeError(f"Error {response} fetching style URL {url}")
+        contents = response.text
+        style_path = CACHE_DIR / "style.toml"
+        style_path.write_text(contents)
         return style_path
 
 

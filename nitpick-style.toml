@@ -1,3 +1,6 @@
+# Default style file for flake8-nitpick
+# https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml
+
 ["pyproject.toml".tool.black]
 line-length = 120
 
