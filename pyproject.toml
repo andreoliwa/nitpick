@@ -34,6 +34,7 @@ wheel = "*"
 black = {version = "*", allows-prereleases = true}
 pylint = "*"
 mypy = "*"
+pre-commit = {git = "https://github.com/pre-commit/pre-commit"}
 
 [build-system]
 requires = ["poetry>=0.12"]
