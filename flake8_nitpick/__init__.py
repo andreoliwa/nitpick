@@ -293,7 +293,7 @@ class SetupCfgChecker(BaseChecker):
             yield self.file_error(105, f"Missing sections:\n{output}")
 
         generators = []
-        for section in expected_sections:
+        for section in expected_sections - missing_sections:
             expected_dict = self.file_toml[section]
             actual_dict = dict(setup_cfg[section])
             for diff_type, key, values in dictdiffer.diff(expected_dict, actual_dict):
