@@ -365,17 +365,3 @@ class SetupCfgChecker(BaseChecker):
         config_parser.write(string_stream)
         output = string_stream.getvalue().strip()
         return output
-
-
-class PipfileChecker(BaseChecker):
-    """Check Pipfile."""
-
-    file_name = "Pipfile"
-    should_exist_default = False
-
-
-class PipfileLockChecker(BaseChecker):
-    """Check Pipfile.lock."""
-
-    file_name = "Pipfile.lock"
-    should_exist_default = False

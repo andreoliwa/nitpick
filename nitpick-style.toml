@@ -5,6 +5,14 @@
 file = ".isort.cfg"
 message = "Move values to setup.cfg, section [isort]"
 
+[[files.absent]]
+file = "Pipfile"
+message = "Use pyproject.toml instead"
+
+[[files.absent]]
+file = "Pipfile.lock"
+message = "Use pyproject.toml instead"
+
 ["pyproject.toml".tool.black]
 line-length = 120
 
