@@ -87,3 +87,20 @@ To enforce all your projects to ignore missing imports, add this to your ``nitpi
 
     ["setup.cfg".mypy]
     ignore_missing_imports = true
+
+Absent files
+------------
+
+To enforce that certain files should not exist in the project, you can add them to the style file.
+
+.. code-block:: ini
+
+    [[files.absent]]
+    file = "myfile1.txt"
+
+    [[files.absent]]
+    file = "another_file.env"
+    message = "This is an optional extra string to display after the warning"
+
+Multiple files can be configured as above.
+The ``message`` is optional.

@@ -133,6 +133,24 @@ class NitpickConfig:
         style_path.write_text(contents)
         return style_path
 
+    def check_absent_files(self) -> Generator[Flake8Error, Any, Any]:
+        """Check absent files."""
+        for file_dict in self.files.get("absent", []):
+            file_name = file_dict.get("file")
+            if not file_name:
+                continue
+
+            file: Path = self.root_dir / file_name
+            if not file.exists():
+                continue
+
+            config_message = file_dict.get("message")
+            full_message = f"File {file_name} should be deleted"
+            if config_message:
+                full_message += f": {config_message}"
+
+            yield flake8_error(101, full_message)
+
 
 @attr.s(hash=False)
 class NitpickChecker:
@@ -167,6 +185,9 @@ class NitpickChecker:
         except RuntimeError as err:
             yield flake8_error(100, str(err))
             return
+
+        for error in config.check_absent_files():
+            yield error
 
         for checker_class in get_subclasses(BaseChecker):
             checker = checker_class(config)
