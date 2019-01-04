@@ -238,7 +238,6 @@ class BaseChecker:
     """Base class for file checkers."""
 
     file_name: str
-    should_exist_default: bool
 
     def __init__(self, config: NitpickConfig) -> None:
         """Init instance."""
@@ -251,8 +250,8 @@ class BaseChecker:
         return flake8_error(error_number, f"File {self.file_name}: {error_message}")
 
     def check_exists(self) -> Generator[Flake8Error, Any, Any]:
-        """Check if the file should exist or not."""
-        should_exist = self.config.files.get(self.file_name, self.should_exist_default)
+        """Check if the file should exist; if there is style configuration for the file, then it should exist."""
+        should_exist: bool = self.config.files.get(self.file_name, bool(self.file_toml))
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
@@ -269,7 +268,6 @@ class PyProjectTomlChecker(BaseChecker):
     """Check pyproject.toml."""
 
     file_name = "pyproject.toml"
-    should_exist_default = True
 
     def check_rules(self):
         """Check missing key/value pairs in pyproject.toml."""
@@ -293,7 +291,6 @@ class SetupCfgChecker(BaseChecker):
     """Check setup.cfg."""
 
     file_name = "setup.cfg"
-    should_exist_default = True
 
     COMMA_SEPARATED_KEYS = {"flake8.ignore"}
 
