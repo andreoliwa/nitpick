@@ -217,7 +217,7 @@ class NitpickChecker(NitpickMixin):
 
         for checker_class in get_subclasses(BaseChecker):
             checker = checker_class(config)
-            for error in itertools.chain(checker.check_exists(), checker.check_rules()):
+            for error in checker.check_exists():
                 yield error
 
         return []
@@ -287,6 +287,9 @@ class BaseChecker(NitpickMixin):
             yield self.flake8_error(1, f"Missing file")
         elif not should_exist and file_exists:
             yield self.flake8_error(2, f"File should be deleted")
+        elif file_exists:
+            for error in self.check_rules():
+                yield error
 
     def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited class if they need."""
