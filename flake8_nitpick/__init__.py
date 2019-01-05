@@ -91,18 +91,22 @@ class NitpickConfig(NitpickMixin):
     error_base_number = 200
 
     pyproject_path: Path
-    pyproject_toml: dict
-    tool_nitpick_toml: dict
-    style_toml: dict
-    files: dict
 
     def __init__(self, root_dir: Path) -> None:
         """Init instance."""
         self.root_dir = root_dir
+        self.pyproject_toml = {}
+        self.tool_nitpick_toml = {}
+        self.style_toml = {}
+        self.files = {}
 
     def load_toml(self) -> YieldFlake8Error:
         """Load TOML configuration from files."""
         self.pyproject_path: Path = self.root_dir / PYPROJECT_TOML
+        if not self.pyproject_path.exists():
+            yield self.flake8_error(1, f"{PYPROJECT_TOML} does not exist")
+            return
+
         self.pyproject_toml = toml.load(str(self.pyproject_path))
         self.tool_nitpick_toml = self.pyproject_toml.get("tool", {}).get("nitpick", {})
 
@@ -317,6 +321,9 @@ class SetupCfgChecker(BaseChecker):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing sections and missing key/value pairs in setup.cfg."""
+        if not self.file_path.exists():
+            return
+
         setup_cfg = ConfigParser()
         setup_cfg.read_file(self.file_path.open())
 
