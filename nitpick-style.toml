@@ -2,6 +2,10 @@
 # https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml
 
 [[files.absent]]
+file = "requirements.txt"
+message = "Use 'poetry init' to create pyproject.toml and move dependencies to it"
+
+[[files.absent]]
 file = ".isort.cfg"
 message = "Move values to setup.cfg, section [isort]"
 
