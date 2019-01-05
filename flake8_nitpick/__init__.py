@@ -18,6 +18,7 @@ from flake8_nitpick.generic import get_subclasses, flatten, unflatten, climb_dir
 
 # Types
 Flake8Error = Tuple[int, int, str, Type]
+YieldFlake8Error = Generator[Flake8Error, Any, Any]
 
 # Constants
 NAME = "flake8-nitpick"
@@ -32,9 +33,16 @@ ROOT_FILES = (PYPROJECT_TOML, "setup.cfg", "requirements*.txt", "Pipfile") + ROO
 LOG = logging.getLogger("flake8.nitpick")
 
 
-def flake8_error(error_number: int, error_message: str) -> Flake8Error:
-    """Return a nitpick error as a tuple."""
-    return 1, 0, f"{ERROR_PREFIX}{error_number} {error_message}", NitpickChecker
+class NitpickMixin:
+    """A helper mixin to raise flake8 errors."""
+
+    error_base_number: int = 0
+    error_prefix: str = ""
+
+    def flake8_error(self, error_number: int, error_message: str, error_base_number: int = None) -> Flake8Error:
+        """Return a flake8 error as a tuple."""
+        final_number = (error_base_number or self.error_base_number) + error_number
+        return 1, 0, f"{ERROR_PREFIX}{final_number} {self.error_prefix}{error_message}", NitpickChecker
 
 
 class NitpickCache:
@@ -77,17 +85,32 @@ class NitpickCache:
         return path
 
 
-class NitpickConfig:
+class NitpickConfig(NitpickMixin):
     """Plugin configuration, read from the project config."""
+
+    error_base_number = 200
+
+    pyproject_path: Path
+    pyproject_toml: dict
+    tool_nitpick_toml: dict
+    style_toml: dict
+    files: dict
 
     def __init__(self, root_dir: Path) -> None:
         """Init instance."""
         self.root_dir = root_dir
 
-        self.pyproject_toml = toml.load(str(self.root_dir / PYPROJECT_TOML))
+    def load_toml(self) -> YieldFlake8Error:
+        """Load TOML configuration from files."""
+        self.pyproject_path: Path = self.root_dir / PYPROJECT_TOML
+        self.pyproject_toml = toml.load(str(self.pyproject_path))
         self.tool_nitpick_toml = self.pyproject_toml.get("tool", {}).get("nitpick", {})
 
-        style_path = self.find_style()
+        try:
+            style_path = self.find_style()
+        except FileNotFoundError as err:
+            yield self.flake8_error(2, str(err))
+            return
         self.style_toml = toml.load(str(style_path))
 
         self.files: Dict[str, bool] = self.style_toml.get("files", {})
@@ -108,7 +131,7 @@ class NitpickConfig:
         elif style:
             style_path = Path(style)
             if not style_path.exists():
-                raise RuntimeError(f"Style file does not exist: {style}")
+                raise FileNotFoundError(f"Style file does not exist: {style}")
             LOG.info("Loading style from file: %s", style_path)
         else:
             paths = climb_directory_tree(self.root_dir, [NITPICK_STYLE_TOML])
@@ -127,13 +150,13 @@ class NitpickConfig:
         """Load a style file from a URL."""
         response = requests.get(url)
         if not response.ok:
-            raise RuntimeError(f"Error {response} fetching style URL {url}")
+            raise FileNotFoundError(f"Error {response} fetching style URL {url}")
         contents = response.text
         style_path = CACHE_DIR / "style.toml"
         style_path.write_text(contents)
         return style_path
 
-    def check_absent_files(self) -> Generator[Flake8Error, Any, Any]:
+    def check_absent_files(self) -> YieldFlake8Error:
         """Check absent files."""
         for file_dict in self.files.get("absent", []):
             file_name = file_dict.get("file")
@@ -149,11 +172,11 @@ class NitpickConfig:
             if config_message:
                 full_message += f": {config_message}"
 
-            yield flake8_error(101, full_message)
+            yield self.flake8_error(1, full_message)
 
 
 @attr.s(hash=False)
-class NitpickChecker:
+class NitpickChecker(NitpickMixin):
     """Main plugin class."""
 
     # Plugin config
@@ -164,29 +187,27 @@ class NitpickChecker:
     tree = attr.ib(default=None)
     filename = attr.ib(default="(none)")
 
-    def run(self):
+    # NitpickMixin
+    error_base_number = 100
+
+    def run(self) -> YieldFlake8Error:
         """Run the check plugin."""
         root_dir = self.find_root_dir(self.filename)
         if not root_dir:
-            yield flake8_error(100, "No root dir found (is this a Python project?)")
+            yield self.flake8_error(1, "No root dir found (is this a Python project?)")
             return
 
         current_python_file = Path(self.filename)
         main_python_file = self.find_main_python_file(root_dir, current_python_file)
         if not main_python_file:
-            yield flake8_error(100, f"No Python file was found in the root dir {root_dir}")
+            yield self.flake8_error(2, f"No Python file was found in the root dir {root_dir}")
             return
         if current_python_file.resolve() != main_python_file.resolve():
             # Only report warnings once, for the main Python file of this project.
             return
 
-        try:
-            config = NitpickConfig(root_dir)
-        except RuntimeError as err:
-            yield flake8_error(100, str(err))
-            return
-
-        for error in config.check_absent_files():
+        config = NitpickConfig(root_dir)
+        for error in itertools.chain(config.load_toml(), config.check_absent_files()):
             yield error
 
         for checker_class in get_subclasses(BaseChecker):
@@ -234,32 +255,30 @@ class NitpickChecker:
         return cache.dump_path(found)
 
 
-class BaseChecker:
+class BaseChecker(NitpickMixin):
     """Base class for file checkers."""
 
     file_name: str
+    error_base_number = 300
 
     def __init__(self, config: NitpickConfig) -> None:
         """Init instance."""
         self.config = config
         self.file_path: Path = self.config.root_dir / self.file_name
         self.file_toml = self.config.style_toml.get(self.file_name, {})
+        self.error_prefix = f"File: {self.file_name}: "
 
-    def file_error(self, error_number: int, error_message: str) -> Flake8Error:
-        """Return an error with the file name as a prefix."""
-        return flake8_error(error_number, f"File {self.file_name}: {error_message}")
-
-    def check_exists(self) -> Generator[Flake8Error, Any, Any]:
+    def check_exists(self) -> YieldFlake8Error:
         """Check if the file should exist; if there is style configuration for the file, then it should exist."""
         should_exist: bool = self.config.files.get(self.file_name, bool(self.file_toml))
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
-            yield self.file_error(102, f"Missing file")
+            yield self.flake8_error(1, f"Missing file")
         elif not should_exist and file_exists:
-            yield self.file_error(103, f"File should be deleted")
+            yield self.flake8_error(2, f"File should be deleted")
 
-    def check_rules(self):
+    def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited class if they need."""
         return []
 
@@ -268,8 +287,9 @@ class PyProjectTomlChecker(BaseChecker):
     """Check pyproject.toml."""
 
     file_name = "pyproject.toml"
+    error_base_number = 310
 
-    def check_rules(self):
+    def check_rules(self) -> YieldFlake8Error:
         """Check missing key/value pairs in pyproject.toml."""
         actual = flatten(self.config.pyproject_toml)
         expected = flatten(self.file_toml)
@@ -279,22 +299,23 @@ class PyProjectTomlChecker(BaseChecker):
         missing_dict = unflatten({k: v for k, v in expected.items() if k not in actual})
         if missing_dict:
             missing_toml = toml.dumps(missing_dict)
-            yield self.file_error(104, f"Missing values:\n{missing_toml}")
+            yield self.flake8_error(1, f"Missing values:\n{missing_toml}")
 
         diff_dict = unflatten({k: v for k, v in expected.items() if k in actual and expected[k] != actual[k]})
         if diff_dict:
             diff_toml = toml.dumps(diff_dict)
-            yield self.file_error(104, f"Different values:\n{diff_toml}")
+            yield self.flake8_error(2, f"Different values:\n{diff_toml}")
 
 
 class SetupCfgChecker(BaseChecker):
     """Check setup.cfg."""
 
     file_name = "setup.cfg"
+    error_base_number = 320
 
     COMMA_SEPARATED_KEYS = {"flake8.ignore"}
 
-    def check_rules(self):
+    def check_rules(self) -> YieldFlake8Error:
         """Check missing sections and missing key/value pairs in setup.cfg."""
         setup_cfg = ConfigParser()
         setup_cfg.read_file(self.file_path.open())
@@ -308,7 +329,7 @@ class SetupCfgChecker(BaseChecker):
             for section in missing_sections:
                 missing_cfg[section] = self.file_toml[section]
             output = self.get_example_cfg(missing_cfg)
-            yield self.file_error(105, f"Missing sections:\n{output}")
+            yield self.flake8_error(2, f"Missing sections:\n{output}")
 
         generators = []
         for section in expected_sections - missing_sections:
@@ -331,7 +352,7 @@ class SetupCfgChecker(BaseChecker):
             expected = {s.strip() for s in raw_expected.split(",")}
             missing = expected - actual
             if missing:
-                yield self.file_error(106, f"Missing values in key\n[{section}]\n{key} = {','.join(sorted(missing))}")
+                yield self.flake8_error(3, f"Missing values in key\n[{section}]\n{key} = {','.join(sorted(missing))}")
             return
 
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
@@ -342,10 +363,8 @@ class SetupCfgChecker(BaseChecker):
             actual = raw_actual
             expected = raw_expected
         if actual != expected:
-            yield self.file_error(
-                107,
-                f"Expected value {raw_expected!r} in key,"
-                + f" got {raw_actual!r}\n[{section}]\n{key} = {raw_expected}",
+            yield self.flake8_error(
+                4, f"Expected value {raw_expected!r} in key, got {raw_actual!r}\n[{section}]\n{key} = {raw_expected}"
             )
 
     def show_missing_keys(self, section, key, values: List[Tuple[str, Any]]):
@@ -353,7 +372,7 @@ class SetupCfgChecker(BaseChecker):
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield self.file_error(108, f"Missing keys in section:\n{output}")
+        yield self.flake8_error(5, f"Missing keys in section:\n{output}")
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:
