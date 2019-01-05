@@ -1,0 +1,41 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+- repo: local
+  hooks:
+  - id: isort
+    entry: isort -sp setup.cfg
+    language: system
+    language_version: python
+    name: isort
+    types: [python]
+
+  - id: black
+    entry: black
+    language: system
+    language_version: python
+    name: black
+    types: [python]
+
+  - id: pylint
+    entry: pylint --rcfile=.pylintrc --reports=n --disable=locally-disabled
+    language: system
+    language_version: python
+    name: pylint
+    types: [python]
+
+  - id: mypy
+    entry: python -c 'import sys; import subprocess; subprocess.run(["mypy", "--ignore-missing-imports"]
+      + sys.argv[1:])'
+    language: system
+    language_version: python
+    name: mypy
+    types: [python]
+    verbose: true
+
+  - id: flake8
+    entry: flake8
+    language: system
+    language_version: python
+    name: flake8
+    types: [python]

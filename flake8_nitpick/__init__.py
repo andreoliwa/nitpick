@@ -3,7 +3,7 @@ import itertools
 import logging
 from configparser import ConfigParser
 from io import StringIO
-from typing import Optional, Tuple, Type, Any, Dict, Generator, List
+from typing import Optional, Tuple, Type, Any, Dict, Generator, List, MutableMapping, Union
 
 import os
 import dictdiffer
@@ -12,13 +12,14 @@ from pathlib import Path
 
 import requests
 import toml
+import yaml
 
 from flake8_nitpick.__version__ import __version__
-from flake8_nitpick.generic import get_subclasses, flatten, unflatten, climb_directory_tree
+from flake8_nitpick.generic import get_subclasses, flatten, unflatten, climb_directory_tree, find_object_by_key
 
 # Types
 Flake8Error = Tuple[int, int, str, Type]
-YieldFlake8Error = Generator[Flake8Error, Any, Any]
+YieldFlake8Error = Union[List, Generator[Flake8Error, Any, Any]]
 
 # Constants
 NAME = "flake8-nitpick"
@@ -39,9 +40,9 @@ class NitpickMixin:
     error_base_number: int = 0
     error_prefix: str = ""
 
-    def flake8_error(self, error_number: int, error_message: str, error_base_number: int = None) -> Flake8Error:
+    def flake8_error(self, error_number: int, error_message: str) -> Flake8Error:
         """Return a flake8 error as a tuple."""
-        final_number = (error_base_number or self.error_base_number) + error_number
+        final_number = self.error_base_number + error_number
         return 1, 0, f"{ERROR_PREFIX}{final_number} {self.error_prefix}{error_message}", NitpickChecker
 
 
@@ -95,10 +96,10 @@ class NitpickConfig(NitpickMixin):
     def __init__(self, root_dir: Path) -> None:
         """Init instance."""
         self.root_dir = root_dir
-        self.pyproject_toml = {}
-        self.tool_nitpick_toml = {}
-        self.style_toml = {}
-        self.files = {}
+        self.pyproject_toml: MutableMapping[str, Any] = {}
+        self.tool_nitpick_toml: Dict[str, Any] = {}
+        self.style_toml: MutableMapping[str, Any] = {}
+        self.files: Dict[str, Any] = {}
 
     def load_toml(self) -> YieldFlake8Error:
         """Load TOML configuration from files."""
@@ -117,7 +118,7 @@ class NitpickConfig(NitpickMixin):
             return
         self.style_toml = toml.load(str(style_path))
 
-        self.files: Dict[str, bool] = self.style_toml.get("files", {})
+        self.files = self.style_toml.get("files", {})
 
     def find_style(self) -> Optional[Path]:
         """Search for a style file."""
@@ -176,7 +177,7 @@ class NitpickConfig(NitpickMixin):
             if config_message:
                 full_message += f": {config_message}"
 
-            yield self.flake8_error(1, full_message)
+            yield self.flake8_error(3, full_message)
 
 
 @attr.s(hash=False)
@@ -268,13 +269,18 @@ class BaseChecker(NitpickMixin):
     def __init__(self, config: NitpickConfig) -> None:
         """Init instance."""
         self.config = config
-        self.file_path: Path = self.config.root_dir / self.file_name
-        self.file_toml = self.config.style_toml.get(self.file_name, {})
         self.error_prefix = f"File: {self.file_name}: "
+        self.file_path: Path = self.config.root_dir / self.file_name
+        self.file_toml = self.config.style_toml.get(self.toml_key, {})
+
+    @property
+    def toml_key(self):
+        """Remove the dot in the beginning of the file name, otherwise it's an invalid TOML key."""
+        return self.file_name.lstrip(".")
 
     def check_exists(self) -> YieldFlake8Error:
         """Check if the file should exist; if there is style configuration for the file, then it should exist."""
-        should_exist: bool = self.config.files.get(self.file_name, bool(self.file_toml))
+        should_exist: bool = self.config.files.get(self.toml_key, bool(self.file_toml))
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
@@ -336,7 +342,7 @@ class SetupCfgChecker(BaseChecker):
             for section in missing_sections:
                 missing_cfg[section] = self.file_toml[section]
             output = self.get_example_cfg(missing_cfg)
-            yield self.flake8_error(2, f"Missing sections:\n{output}")
+            yield self.flake8_error(1, f"Missing sections:\n{output}")
 
         generators = []
         for section in expected_sections - missing_sections:
@@ -350,16 +356,16 @@ class SetupCfgChecker(BaseChecker):
         for error in itertools.chain(*generators):
             yield error
 
-    def compare_different_keys(self, section, key, raw_expected, raw_actual):
+    def compare_different_keys(self, section, key, raw_expected: Any, raw_actual: Any) -> YieldFlake8Error:
         """Compare different keys, with special treatment when they are lists or numeric."""
         combined = f"{section}.{key}"
         if combined in self.COMMA_SEPARATED_KEYS:
             # The values might contain spaces
-            actual = {s.strip() for s in raw_actual.split(",")}
-            expected = {s.strip() for s in raw_expected.split(",")}
-            missing = expected - actual
+            actual_set = {s.strip() for s in raw_actual.split(",")}
+            expected_set = {s.strip() for s in raw_expected.split(",")}
+            missing = expected_set - actual_set
             if missing:
-                yield self.flake8_error(3, f"Missing values in key\n[{section}]\n{key} = {','.join(sorted(missing))}")
+                yield self.flake8_error(2, f"Missing values in key\n[{section}]\n{key} = {','.join(sorted(missing))}")
             return
 
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
@@ -371,15 +377,15 @@ class SetupCfgChecker(BaseChecker):
             expected = raw_expected
         if actual != expected:
             yield self.flake8_error(
-                4, f"Expected value {raw_expected!r} in key, got {raw_actual!r}\n[{section}]\n{key} = {raw_expected}"
+                3, f"Expected value {raw_expected!r} in key, got {raw_actual!r}\n[{section}]\n{key} = {raw_expected}"
             )
 
-    def show_missing_keys(self, section, key, values: List[Tuple[str, Any]]):
+    def show_missing_keys(self, section, key, values: List[Tuple[str, Any]]) -> YieldFlake8Error:
         """Show the keys that are not present in a section."""
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield self.flake8_error(5, f"Missing keys in section:\n{output}")
+        yield self.flake8_error(4, f"Missing keys in section:\n{output}")
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:
@@ -388,3 +394,64 @@ class SetupCfgChecker(BaseChecker):
         config_parser.write(string_stream)
         output = string_stream.getvalue().strip()
         return output
+
+
+class PreCommitChecker(BaseChecker):
+    """Check the pre-commit config file."""
+
+    file_name = ".pre-commit-config.yaml"
+    error_base_number = 330
+
+    def check_rules(self) -> YieldFlake8Error:
+        """Check the rules for the pre-commit hooks."""
+        actual = yaml.load(self.file_path.open()) or {}
+        if "repos" not in actual:
+            yield self.flake8_error(1, "Missing 'repos' in file")
+            return
+
+        actual_repos: List[dict] = actual["repos"] or []
+        expected_repos: List[dict] = self.file_toml.get("repos", [])
+        for index, expected_repo_dict in enumerate(expected_repos):
+            repo_name = expected_repo_dict.get("repo")
+            if not repo_name:
+                yield self.flake8_error(2, f"Style file is missing 'repo' key in repo #{index}")
+                continue
+
+            actual_repo_dict = find_object_by_key(actual_repos, "repo", repo_name)
+            if not actual_repo_dict:
+                yield self.flake8_error(3, f"Repo {repo_name!r} does not exist under 'repos'")
+                continue
+
+            if "hooks" not in actual_repo_dict:
+                yield self.flake8_error(4, f"Missing 'hooks' in repo {repo_name!r}")
+                continue
+
+            actual_hooks = actual_repo_dict.get("hooks") or []
+            yaml_expected_hooks = expected_repo_dict.get("hooks")
+            if not yaml_expected_hooks:
+                yield self.flake8_error(5, f"Style file is missing 'hooks' in repo {repo_name!r}")
+                continue
+
+            expected_hooks: List[dict] = yaml.load(yaml_expected_hooks)
+            for expected_dict in expected_hooks:
+                hook_id = expected_dict.get("id")
+                if not hook_id:
+                    yield self.flake8_error(6, f"Style file is missing 'id' in hook:\n{expected_dict!r}")
+                    continue
+                actual_dict = find_object_by_key(actual_hooks, "id", hook_id)
+                if not actual_dict:
+                    expected_yaml = self.format_hook(expected_dict)
+                    yield self.flake8_error(7, f"Missing hook with id {hook_id!r}:\n{expected_yaml}")
+                    continue
+
+    @staticmethod
+    def format_hook(expected_dict: dict) -> str:
+        """Format the hook so it's easy to copy and paste it to the .yaml file: ID goes first, indent with spaces."""
+        lines = yaml.dump(expected_dict)
+        output: List[str] = []
+        for line in lines.split("\n"):
+            if line.startswith("id:"):
+                output.insert(0, f"  - {line}")
+            else:
+                output.append(f"    {line}")
+        return "\n".join(output)
