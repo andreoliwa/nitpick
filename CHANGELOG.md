@@ -1,3 +1,26 @@
+<a name="0.4.0"></a>
+# [0.4.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.3.0...v0.4.0) (2019-01-07)
+
+
+### feat
+
+* Check files that should not exist (like .isort.cfg) ([1901bb8](https://github.com/andreoliwa/flake8-nitpick/commit/1901bb8))
+* Check pre-commit config file and the presence of hooks ([b1333db](https://github.com/andreoliwa/flake8-nitpick/commit/b1333db))
+* Warn about replacing requirements.txt by pyproject.toml ([dacb091](https://github.com/andreoliwa/flake8-nitpick/commit/dacb091))
+
+### fix
+
+* Don't break when pyproject.toml or setup.cfg don't exist ([6a546c1](https://github.com/andreoliwa/flake8-nitpick/commit/6a546c1))
+* Only check rules if the file exists ([66e42d2](https://github.com/andreoliwa/flake8-nitpick/commit/66e42d2))
+
+### refactor
+
+* Check absence of pipenv files using the .toml config ([4002015](https://github.com/andreoliwa/flake8-nitpick/commit/4002015))
+* Remove should_exist_default, consider existence of a config ([8b22926](https://github.com/andreoliwa/flake8-nitpick/commit/8b22926))
+* Use a mixin with a base error number for each class ([bb7e73d](https://github.com/andreoliwa/flake8-nitpick/commit/bb7e73d))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.2.0...v0.3.0) (2019-01-03)
 
