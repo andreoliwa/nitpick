@@ -17,6 +17,9 @@ message = "Use pyproject.toml instead"
 file = "Pipfile.lock"
 message = "Use pyproject.toml instead"
 
+[[files.absent]]
+file = ".venv"
+
 ["pyproject.toml".tool.black]
 line-length = 120
 
