@@ -25,16 +25,16 @@ line-length = 120
 
 ["pyproject.toml".tool.poetry.dev-dependencies]
 black = {version = "*", allows-prereleases = true}
-"flake8-blind-except" = "*"
-"flake8-bugbear" = "*"
-"flake8-comprehensions" = "*"
-"flake8-debugger" = "*"
-"flake8-docstrings" = "*"
-"flake8-isort" = "*"
-"flake8-mypy" = "*"
-"flake8-polyfill" = "*"
-"flake8-pytest" = "*"
-"flake8-quotes" = "*"
+flake8-blind-except = "*"
+flake8-bugbear = "*"
+flake8-comprehensions = "*"
+flake8-debugger = "*"
+flake8-docstrings = "*"
+flake8-isort = "*"
+flake8-mypy = "*"
+flake8-polyfill = "*"
+flake8-pytest = "*"
+flake8-quotes = "*"
 
 # TODO pre_commit = "*" raises [TooManyRedirects] Exceeded 30 redirects. on poetry 0.12.10
 pre-commit = {git = "https://github.com/pre-commit/pre-commit"}
