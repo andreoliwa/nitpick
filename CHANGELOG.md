@@ -1,3 +1,20 @@
+<a name="0.5.0"></a>
+# [0.5.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.4.0...v0.5.0) (2019-01-09)
+
+
+### build
+
+* Add flake8-quotes ([7c39870](https://github.com/andreoliwa/flake8-nitpick/commit/7c39870))
+* Bump version in pyproject.toml ([eef3d3d](https://github.com/andreoliwa/flake8-nitpick/commit/eef3d3d))
+* Create but don't push git tag, it is needed by the changelog ([f60382f](https://github.com/andreoliwa/flake8-nitpick/commit/f60382f))
+
+### feat
+
+* Add .venv to the absent files list ([153a7ca](https://github.com/andreoliwa/flake8-nitpick/commit/153a7ca))
+* Add flake8-quotes to the default style ([60b3726](https://github.com/andreoliwa/flake8-nitpick/commit/60b3726))
+
+
+
 <a name="0.4.0"></a>
 # [0.4.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.3.0...v0.4.0) (2019-01-07)
 
