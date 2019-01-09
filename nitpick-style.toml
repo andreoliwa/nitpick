@@ -31,6 +31,7 @@ black = {version = "*", allows-prereleases = true}
 "flake8-mypy" = "*"
 "flake8-polyfill" = "*"
 "flake8-pytest" = "*"
+"flake8-quotes" = "*"
 
 # TODO pre_commit = "*" raises [TooManyRedirects] Exceeded 30 redirects. on poetry 0.12.10
 pre-commit = {git = "https://github.com/pre-commit/pre-commit"}
@@ -46,6 +47,7 @@ mypy = "*"
 # Ignoring "D202 No blank lines allowed after function docstring": black inserts a blank line.
 ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
 max-line-length = 120
+inline-quotes = "double"
 
 ["setup.cfg".isort]
 line_length = 120
