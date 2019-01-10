@@ -1,7 +1,5 @@
 # https://docs.travis-ci.com/user/reference/xenial/
 dist: xenial
-# Compatibility with pythons that aren't 3.6 https://github.com/ambv/flake8-mypy/pull/22
-sudo: required
 
 cache:
   directories:
