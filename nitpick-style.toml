@@ -63,6 +63,7 @@ include_trailing_comma = true
 force_grid_wrap = 0
 combine_as_imports = true
 
+# https://mypy.readthedocs.io/en/latest/config_file.html
 ["setup.cfg".mypy]
 ignore_missing_imports = true
 
