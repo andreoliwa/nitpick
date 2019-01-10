@@ -292,7 +292,7 @@ isort = ">=4.3.0"
 testfixtures = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "A plugin for flake8 integrating mypy."
 name = "flake8-mypy"
 optional = false
@@ -304,6 +304,10 @@ attrs = "*"
 flake8 = ">=3.0.0"
 mypy = "*"
 
+[package.source]
+reference = "616eeb98092edfa0affc00c6cf4f7073f4de26a6"
+type = "git"
+url = "https://github.com/ambv/flake8-mypy"
 [[package]]
 category = "dev"
 description = "Polyfill package for Flake8 plugins"
@@ -489,7 +493,7 @@ version = "5.0.0"
 six = ">=1.0.0,<2.0.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Optional static typing for Python"
 name = "mypy"
 optional = false
@@ -501,7 +505,7 @@ mypy-extensions = ">=0.4.0,<0.5.0"
 typed-ast = ">=1.1.0,<1.2.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
 name = "mypy-extensions"
 optional = false
@@ -558,7 +562,7 @@ description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.8.0"
+version = "0.8.1"
 
 [[package]]
 category = "main"
@@ -584,7 +588,7 @@ python = "<3.7"
 version = "*"
 
 [package.source]
-reference = "1cf4b54cba8726ef67840c807589a56dabbbd2cf"
+reference = "f1f299c4b8bc52ea8cd1d0efe94be1ccb2603730"
 type = "git"
 url = "https://github.com/pre-commit/pre-commit"
 [[package]]
@@ -784,7 +788,7 @@ description = "A collection of helpers and mock objects for unit tests and doc t
 name = "testfixtures"
 optional = false
 python-versions = "*"
-version = "6.4.2"
+version = "6.4.3"
 
 [[package]]
 category = "main"
@@ -832,7 +836,7 @@ setuptools = ">=0.7.0"
 tqdm = ">=4.14"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "a fork of Python 2 and 3 ast modules with type comment support"
 name = "typed-ast"
 optional = false
@@ -888,7 +892,7 @@ description = "Module for decorators, wrappers and monkey patching."
 name = "wrapt"
 optional = false
 python-versions = "*"
-version = "1.10.11"
+version = "1.11.0"
 
 [[package]]
 category = "main"
@@ -899,7 +903,7 @@ python-versions = ">=2.7"
 version = "0.3.3"
 
 [metadata]
-content-hash = "1ce564864013aa6b6955c0645e614dd8fbb74a0814dd8781287087617f20aba3"
+content-hash = "08d859b82e57266c9b2b25dd859bbd0fa4e346492e9bd0051ffbe3b07e5fa06a"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -931,7 +935,7 @@ flake8-comprehensions = ["b83891fec0e680b07aa1fd92e53eb6993be29a0f3673a09badbe8d
 flake8-debugger = ["be4fb88de3ee8f6dd5053a2d347e2c0a2b54bab6733a2280bb20ebd3c4ca1d97"]
 flake8-docstrings = ["4e0ce1476b64e6291520e5570cf12b05016dd4e8ae454b8a8a9a48bc5f84e1cd", "8436396b5ecad51a122a2c99ba26e5b4e623bf6e913b0fea0cb6c2c4050f91eb"]
 flake8-isort = ["3c107c405dd6e3dbdcccb2f84549d76d58a07120cd997a0560fab8b84c305f2a", "76d7dd6aec2762c608b442abebb0aaedb72fc75f9a075241a89e4784d8a39900"]
-flake8-mypy = ["47120db63aff631ee1f84bac6fe8e64731dc66da3efc1c51f85e15ade4a3ba18", "cff009f4250e8391bf48990093cff85802778c345c8449d6498b62efefeebcbc"]
+flake8-mypy = []
 flake8-polyfill = ["12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9", "e44b087597f6da52ec6393a709e7108b2905317d0c0b744cdca6208e670d8eda"]
 flake8-pytest = ["61686128a79e1513db575b2bcac351081d5a293811ddce2d5dfc25e8c762d33e", "b4d6703f7d7b646af1e2660809e795886dd349df11843613dbe6515efa82c0f3"]
 flake8-quotes = ["fd9127ad8bbcf3b546fa7871a5266fd8623ce765ebe3d5aa5eabb80c01212b26"]
@@ -956,7 +960,7 @@ parso = ["35704a43a3c113cce4de228ddb39aab374b8004f4f2407d070b6a2ca784ce8a2", "89
 pexpect = ["2a8e88259839571d1251d278476f3eec5db26deb73a70be5ed5dc5435e418aba", "3fbd41d4caf27fa4a377bfd16fef87271099463e6fa73e92a52f92dfee5d425b"]
 pickleshare = ["87683d47965c1da65cdacaf31c8441d12b8044cdec9aca500cd78fc2c683afca", "9649af414d74d4df115d5d718f82acb59c9d418196b7b4290ed47a12ce62df56"]
 pkginfo = ["7424f2c8511c186cd5424bbf31045b77435b37a8d604990b79d4e70d741148bb", "a6d9e40ca61ad3ebd0b72fbadd4fba16e4c0e4df0428c041e01e06eb6ee71f32"]
-pluggy = ["447ba94990e8014ee25ec853339faf7b0fc8050cdc3289d4d71f7f410fb90095", "bde19360a8ec4dfd8a20dcb811780a30998101f078fc7ded6162f0076f50508f"]
+pluggy = ["8ddc32f03971bfdf900a81961a48ccf2fb677cf7715108f85295c67405798616", "980710797ff6a041e9a73a5787804f848996ecaa6f8a1b1e08224a5894f2074a"]
 pre-commit = []
 prompt-toolkit = ["c1d6aff5252ab2ef391c2fe498ed8c088066f66bc64a8d5c095bbf795d9fec34", "d4c47f79b635a0e70b84fdb97ebd9a274203706b1ee5ed44c10da62755cf3ec9", "fd17048d8335c1e6d5ee403c3569953ba3eb8555d710bfc548faf0712666ea39"]
 ptyprocess = ["923f299cc5ad920c68f2bc0bc98b75b9f838b93b599941a6b63ddbc2476394c0", "d7cc528d76e76342423ca640335bd3633420dc1366f258cb31d05e865ef5ca1f"]
@@ -976,7 +980,7 @@ requests-toolbelt = ["42c9c170abc2cacb78b8ab23ac957945c7716249206f90874651971a4a
 secretstorage = ["20196abd1a9d1310df7573d58ca6e7ed9292218c98ca3638eea07beb16080343", "29aa3cbd36dd5e54ac17d69161f9a150548f4ffba21fa8b5fdd5add854fe7d8b"]
 six = ["3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c", "d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"]
 snowballstemmer = ["919f26a68b2c17a7634da993d91339e288964f93c274f1343e3bbbe2096e1128", "9f3bcd3c401c3e862ec0ebe6d2c069ebc012ce142cce209c098ccb5b09136e89"]
-testfixtures = ["5e21e2d011615517b1323a3a8c7061fe5c07d24afd7c5c7696ec1e2062b10d99", "cb086a10a229481384d2bb98bc0910a4fe571a36efd92f236e9d28247c36bd99"]
+testfixtures = ["969e967df5d8e12012b5c90986428919b1068c20841b0077b3e29e9a928605d3", "b6c05222ce8d3c34a1353ff30c73da55f61ef58153229a5664ef7110ec340cdd"]
 toml = ["229f81c57791a41d65e399fc06bf0848bab550a9dfd5ed66df18ce5f05e73d5c", "235682dd292d5899d361a811df37e04a8828a5b1da3115886b73cf81ebc9100e", "f1db651f9657708513243e61e6cc67d101a39bad662eaa9b5546f789338e07a3"]
 tqdm = ["79420109a762f82e20e8ecdc3b3bc1bc6c6536884a8de5fa86a50eb99386376a", "7fa801cf60e318bf7d2ac7498254df0f3d7a3ad23c622ae63666257d5f833967"]
 traitlets = ["9c4bd2d267b7153df9152698efb1050a5d84982d3384a37b2c1f7723ba3e7835", "c6cb5e6f57c5a9bdaa40fa71ce7b4af30298fbab9ece9815b5d995ab6217c7d9"]
@@ -987,5 +991,5 @@ virtualenv = ["34b9ae3742abed2f95d3970acf4d80533261d6061b51160b197f84e5b4c98b4c"
 wcwidth = ["3df37372226d6e63e1b1e1eda15c594bca98a22d33a23832a90998faa96bc65e", "f4ebe71925af7b40a864553f761ed559b43544f8f71746c2d756c7fe788ade7c"]
 webencodings = ["a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78", "b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923"]
 wheel = ["029703bf514e16c8271c3821806a1c171220cc5bdd325cbf4e7da1e056a01db6", "1e53cdb3f808d5ccd0df57f964263752aa74ea7359526d3da6c02114ec1e1d44"]
-wrapt = ["d4d560d479f2c21e1b5443bbd15fe7ec4b37fe7e53d335d3b9b0a7b1226fe3c6"]
+wrapt = ["e03f19f64d81d0a3099518ca26b04550026f131eced2e76ced7b85c6b8d32128"]
 zipp = ["55ca87266c38af6658b84db8cfb7343cdb0bf275f93c7afaea0d8e7a209c7478", "682b3e1c62b7026afe24eadf6be579fb45fec54c07ea218bded8092af07a68c4"]

@@ -23,7 +23,7 @@ flake8-comprehensions = "*"
 flake8-debugger = "*"
 flake8-docstrings = "*"
 flake8-isort = "*"
-flake8-mypy = "*"
+flake8-mypy = {git = "https://github.com/ambv/flake8-mypy"}
 flake8-polyfill = "*"
 flake8-pytest = "*"
 flake8-quotes = "*"

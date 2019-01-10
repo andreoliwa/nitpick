@@ -31,7 +31,8 @@ flake8-comprehensions = "*"
 flake8-debugger = "*"
 flake8-docstrings = "*"
 flake8-isort = "*"
-flake8-mypy = "*"
+# TODO Go back to * when https://github.com/ambv/flake8-mypy/issues/21 is merged, or on a new release
+flake8-mypy = {git = "https://github.com/ambv/flake8-mypy"}
 flake8-polyfill = "*"
 flake8-pytest = "*"
 flake8-quotes = "*"
@@ -63,8 +64,8 @@ include_trailing_comma = true
 force_grid_wrap = 0
 combine_as_imports = true
 
+# https://mypy.readthedocs.io/en/latest/config_file.html
 ["setup.cfg".mypy]
-python_version = 3.6
 ignore_missing_imports = true
 
 # Do not follow imports (except for ones found in typeshed)

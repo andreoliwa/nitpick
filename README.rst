@@ -5,6 +5,9 @@ flake8-nitpick
 .. image:: https://img.shields.io/pypi/v/flake8-nitpick.svg
         :target: https://pypi.python.org/pypi/flake8-nitpick
 
+.. image:: https://travis-ci.com/andreoliwa/flake8-nitpick.svg?branch=master
+    :target: https://travis-ci.com/andreoliwa/flake8-nitpick
+
 .. image:: https://pyup.io/repos/github/andreoliwa/flake8-nitpick/shield.svg
      :target: https://pyup.io/repos/github/andreoliwa/flake8-nitpick/
      :alt: Updates
