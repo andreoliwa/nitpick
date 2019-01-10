@@ -11,11 +11,9 @@ python:
   - "3.6"
   - "3.7"
 script:
-  - flake8
-  - pytest
+  - poetry run flake8
+  - poetry run pytest
 
 install:
   - pip install -U poetry
   - poetry install
-  # Update mypy installation on Python 3.7
-  - pip install -U mypy
