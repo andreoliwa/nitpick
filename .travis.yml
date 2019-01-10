@@ -17,3 +17,5 @@ script:
 install:
   - pip install -U poetry
   - poetry install
+  # Update mypy installation on Python 3.7
+  - pip install -U mypy
