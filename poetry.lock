@@ -292,7 +292,7 @@ isort = ">=4.3.0"
 testfixtures = "*"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "A plugin for flake8 integrating mypy."
 name = "flake8-mypy"
 optional = false
@@ -304,6 +304,10 @@ attrs = "*"
 flake8 = ">=3.0.0"
 mypy = "*"
 
+[package.source]
+reference = "616eeb98092edfa0affc00c6cf4f7073f4de26a6"
+type = "git"
+url = "https://github.com/ambv/flake8-mypy"
 [[package]]
 category = "dev"
 description = "Polyfill package for Flake8 plugins"
@@ -489,7 +493,7 @@ version = "5.0.0"
 six = ">=1.0.0,<2.0.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Optional static typing for Python"
 name = "mypy"
 optional = false
@@ -501,7 +505,7 @@ mypy-extensions = ">=0.4.0,<0.5.0"
 typed-ast = ">=1.1.0,<1.2.0"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
 name = "mypy-extensions"
 optional = false
@@ -584,7 +588,7 @@ python = "<3.7"
 version = "*"
 
 [package.source]
-reference = "1cf4b54cba8726ef67840c807589a56dabbbd2cf"
+reference = "f1f299c4b8bc52ea8cd1d0efe94be1ccb2603730"
 type = "git"
 url = "https://github.com/pre-commit/pre-commit"
 [[package]]
@@ -832,7 +836,7 @@ setuptools = ">=0.7.0"
 tqdm = ">=4.14"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "a fork of Python 2 and 3 ast modules with type comment support"
 name = "typed-ast"
 optional = false
@@ -899,7 +903,7 @@ python-versions = ">=2.7"
 version = "0.3.3"
 
 [metadata]
-content-hash = "1ce564864013aa6b6955c0645e614dd8fbb74a0814dd8781287087617f20aba3"
+content-hash = "08d859b82e57266c9b2b25dd859bbd0fa4e346492e9bd0051ffbe3b07e5fa06a"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -931,7 +935,7 @@ flake8-comprehensions = ["b83891fec0e680b07aa1fd92e53eb6993be29a0f3673a09badbe8d
 flake8-debugger = ["be4fb88de3ee8f6dd5053a2d347e2c0a2b54bab6733a2280bb20ebd3c4ca1d97"]
 flake8-docstrings = ["4e0ce1476b64e6291520e5570cf12b05016dd4e8ae454b8a8a9a48bc5f84e1cd", "8436396b5ecad51a122a2c99ba26e5b4e623bf6e913b0fea0cb6c2c4050f91eb"]
 flake8-isort = ["3c107c405dd6e3dbdcccb2f84549d76d58a07120cd997a0560fab8b84c305f2a", "76d7dd6aec2762c608b442abebb0aaedb72fc75f9a075241a89e4784d8a39900"]
-flake8-mypy = ["47120db63aff631ee1f84bac6fe8e64731dc66da3efc1c51f85e15ade4a3ba18", "cff009f4250e8391bf48990093cff85802778c345c8449d6498b62efefeebcbc"]
+flake8-mypy = []
 flake8-polyfill = ["12be6a34ee3ab795b19ca73505e7b55826d5f6ad7230d31b18e106400169b9e9", "e44b087597f6da52ec6393a709e7108b2905317d0c0b744cdca6208e670d8eda"]
 flake8-pytest = ["61686128a79e1513db575b2bcac351081d5a293811ddce2d5dfc25e8c762d33e", "b4d6703f7d7b646af1e2660809e795886dd349df11843613dbe6515efa82c0f3"]
 flake8-quotes = ["fd9127ad8bbcf3b546fa7871a5266fd8623ce765ebe3d5aa5eabb80c01212b26"]
