@@ -48,19 +48,24 @@ class NitpickMixin:
 class NitpickCache:
     """A cache file in the current dir (in .toml format), to store data that will be reused by the plugin."""
 
-    cache_dir: Path
+    _cache_dir: Path
 
     def __init__(self, key: str) -> None:
         """Init the cache file."""
-        if not hasattr(self, "cache_dir"):
-            self.cache_dir: Path = Path(os.getcwd()) / ".cache" / NAME
-            self.cache_dir.mkdir(parents=True, exist_ok=True)
-
-        self.cache_file: Path = self.cache_dir / "variables.toml"
+        self.cache_file: Path = self.cache_dir() / "variables.toml"
         self.cache_file.touch(exist_ok=True)
         self.toml_dict = toml.load(str(self.cache_file))
 
         self.key = key
+
+    @classmethod
+    def cache_dir(cls) -> Path:
+        """Init the cache directory."""
+        if hasattr(cls, "_cache_dir"):
+            return cls._cache_dir
+        cls._cache_dir = Path(os.getcwd()) / ".cache" / NAME
+        cls._cache_dir.mkdir(parents=True, exist_ok=True)
+        return cls._cache_dir
 
     def load(self) -> Optional[str]:
         """Load the key from the cache file."""
@@ -161,7 +166,7 @@ class NitpickConfig(NitpickMixin):
         if not response.ok:
             raise FileNotFoundError(f"Error {response} fetching style URL {url}")
         contents = response.text
-        style_path = NitpickCache.cache_dir / "style.toml"
+        style_path = NitpickCache.cache_dir() / "style.toml"
         style_path.write_text(contents)
         return style_path
 
@@ -209,7 +214,9 @@ class NitpickChecker(NitpickMixin):
         current_python_file = Path(self.filename)
         main_python_file = self.find_main_python_file(root_dir, current_python_file)
         if not main_python_file:
-            yield self.flake8_error(2, f"No Python file was found in the root dir {root_dir}")
+            yield self.flake8_error(
+                2, f"None of those Python files was found in the root dir {root_dir}: {', '.join(ROOT_PYTHON_FILES)}"
+            )
             return
         if current_python_file.absolute() != main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
@@ -243,7 +250,7 @@ class NitpickChecker(NitpickMixin):
         cache.dump_path(root_dir)
         return root_dir
 
-    def find_main_python_file(self, root_dir: Path, current_file: Path) -> Path:
+    def find_main_python_file(self, root_dir: Path, current_file: Path) -> Optional[Path]:
         """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings."""
         cache = NitpickCache("main_python_file")
         main_python_file = cache.load_path()
@@ -257,11 +264,8 @@ class NitpickChecker(NitpickMixin):
             if the_file.exists():
                 found = the_file
                 LOG.info("Found the file %s", the_file)
-                break
-        else:
-            LOG.info("Using current file as main file %s", current_file)
-            found = current_file
-        return cache.dump_path(found)
+                return cache.dump_path(found)
+        return None
 
 
 class BaseChecker(NitpickMixin):
