@@ -1,0 +1,19 @@
+# https://docs.travis-ci.com/user/reference/xenial/
+dist: xenial
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+# https://docs.travis-ci.com/user/languages/python/
+language: python
+python:
+  - "3.6"
+  - "3.7"
+script:
+  - flake8
+  - pytest
+
+install:
+  - pip install -U poetry
+  - poetry install
