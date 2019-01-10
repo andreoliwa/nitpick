@@ -24,7 +24,6 @@ YieldFlake8Error = Union[List, Generator[Flake8Error, Any, Any]]
 # Constants
 NAME = "flake8-nitpick"
 ERROR_PREFIX = "NIP"
-CACHE_DIR: Path = Path(os.getcwd()) / ".cache" / NAME
 PYPROJECT_TOML = "pyproject.toml"
 NITPICK_STYLE_TOML = "nitpick-style.toml"
 DEFAULT_NITPICK_STYLE_URL = "https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml"
@@ -49,10 +48,15 @@ class NitpickMixin:
 class NitpickCache:
     """A cache file in the current dir (in .toml format), to store data that will be reused by the plugin."""
 
+    cache_dir: Path
+
     def __init__(self, key: str) -> None:
         """Init the cache file."""
-        self.cache_file: Path = CACHE_DIR / "variables.toml"
-        self.cache_file.parent.mkdir(parents=True, exist_ok=True)
+        if not hasattr(self, "cache_dir"):
+            self.cache_dir: Path = Path(os.getcwd()) / ".cache" / NAME
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        self.cache_file: Path = self.cache_dir / "variables.toml"
         self.cache_file.touch(exist_ok=True)
         self.toml_dict = toml.load(str(self.cache_file))
 
@@ -67,7 +71,7 @@ class NitpickCache:
         value = self.load()
         if value is None:
             return value
-        return Path(value).resolve()
+        return Path(value).absolute()
 
     def dump(self, value: Any) -> Any:
         """Save the value (as a string) to the cache file."""
@@ -78,10 +82,10 @@ class NitpickCache:
     def dump_path(self, path: Path) -> Path:
         """Save the path relative to the current working dir."""
         try:
-            value = path.resolve().relative_to(os.getcwd())
+            value = path.absolute().relative_to(os.getcwd())
         except ValueError:
             # If the path is outside the current directory, use the absolute path.
-            value = path.resolve()
+            value = path.absolute()
         self.dump(value)
         return path
 
@@ -157,7 +161,7 @@ class NitpickConfig(NitpickMixin):
         if not response.ok:
             raise FileNotFoundError(f"Error {response} fetching style URL {url}")
         contents = response.text
-        style_path = CACHE_DIR / "style.toml"
+        style_path = NitpickCache.cache_dir / "style.toml"
         style_path.write_text(contents)
         return style_path
 
@@ -207,7 +211,7 @@ class NitpickChecker(NitpickMixin):
         if not main_python_file:
             yield self.flake8_error(2, f"No Python file was found in the root dir {root_dir}")
             return
-        if current_python_file.resolve() != main_python_file.resolve():
+        if current_python_file.absolute() != main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
             return
 

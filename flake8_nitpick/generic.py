@@ -45,7 +45,7 @@ def unflatten(dict_, separator="."):
 
 def climb_directory_tree(starting_path: Union[str, Path], file_patterns: Iterable[str]) -> Optional[Iterable[Path]]:
     """Climb the directory tree looking for file patterns."""
-    current_dir: Path = Path(starting_path).resolve()
+    current_dir: Path = Path(starting_path).absolute()
     if current_dir.is_file():
         current_dir = current_dir.parent
 
