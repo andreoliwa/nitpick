@@ -11,7 +11,7 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-#  - "3.7" # TODO T499 mypy: error: failed to find a Python executable matching version (3, 6), perhaps try --python-executable, or --no-site-packages?
+  - "3.7"
 script:
   - flake8
   - pytest

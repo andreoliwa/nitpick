@@ -64,7 +64,6 @@ force_grid_wrap = 0
 combine_as_imports = true
 
 ["setup.cfg".mypy]
-python_version = 3.6
 ignore_missing_imports = true
 
 # Do not follow imports (except for ones found in typeshed)
