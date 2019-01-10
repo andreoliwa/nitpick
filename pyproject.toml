@@ -8,7 +8,7 @@ description = "Flake8 plugin to share the same code style for multiple Python pr
 authors = ["Augusto Wagner Andreoli <andreoliwa@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.4"
+python = "^3.6"
 flake8 = ">=3.0.0"
 attrs = "*"
 toml  = "*"
