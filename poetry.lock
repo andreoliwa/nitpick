@@ -570,7 +570,7 @@ description = "A framework for managing and maintaining multi-language pre-commi
 name = "pre-commit"
 optional = false
 python-versions = "*"
-version = "1.14.0"
+version = "1.14.2"
 
 [package.dependencies]
 "aspy.yaml" = "*"
@@ -588,7 +588,7 @@ python = "<3.7"
 version = "*"
 
 [package.source]
-reference = "f1f299c4b8bc52ea8cd1d0efe94be1ccb2603730"
+reference = "90cfe677bc2c22f56064b9922b8cbf1ff12a1254"
 type = "git"
 url = "https://github.com/pre-commit/pre-commit"
 [[package]]

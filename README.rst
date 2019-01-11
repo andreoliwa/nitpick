@@ -8,6 +8,9 @@ flake8-nitpick
 .. image:: https://travis-ci.com/andreoliwa/flake8-nitpick.svg?branch=master
     :target: https://travis-ci.com/andreoliwa/flake8-nitpick
 
+.. image:: https://coveralls.io/repos/github/andreoliwa/flake8-nitpick/badge.svg
+    :target: https://coveralls.io/github/andreoliwa/flake8-nitpick
+
 .. image:: https://pyup.io/repos/github/andreoliwa/flake8-nitpick/shield.svg
      :target: https://pyup.io/repos/github/andreoliwa/flake8-nitpick/
      :alt: Updates
