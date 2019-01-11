@@ -58,14 +58,13 @@ class NitpickCache:
 
         self.key = key
 
-    @classmethod
-    def cache_dir(cls) -> Path:
+    def cache_dir(self) -> Path:
         """Init the cache directory."""
-        if hasattr(cls, "_cache_dir"):
-            return cls._cache_dir
-        cls._cache_dir = Path(os.getcwd()) / ".cache" / NAME
-        cls._cache_dir.mkdir(parents=True, exist_ok=True)
-        return cls._cache_dir
+        if hasattr(self, "_cache_dir"):
+            return self._cache_dir
+        self._cache_dir = Path(os.getcwd()) / ".cache" / NAME
+        self._cache_dir.mkdir(parents=True, exist_ok=True)
+        return self._cache_dir
 
     def load(self) -> Optional[str]:
         """Load the key from the cache file."""
@@ -166,7 +165,7 @@ class NitpickConfig(NitpickMixin):
         if not response.ok:
             raise FileNotFoundError(f"Error {response} fetching style URL {url}")
         contents = response.text
-        style_path = NitpickCache.cache_dir() / "style.toml"
+        style_path = NitpickCache("").cache_dir() / "style.toml"
         style_path.write_text(contents)
         return style_path
 
