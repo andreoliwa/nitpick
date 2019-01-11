@@ -12,7 +12,7 @@ python:
   - "3.7"
 script:
   - flake8
-  - coverage run -m pytest
+  - coverage run --source=flake8_nitpick -m pytest
 
 install:
   - pip install -U poetry coveralls
