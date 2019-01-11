@@ -45,6 +45,9 @@ ipdb = "*"
 pylint = "*"
 mypy = "*"
 
+["setup.cfg"]
+comma_separated_values = ["flake8.ignore"]
+
 ["setup.cfg".flake8]
 # http://www.pydocstyle.org/en/2.1.1/error_codes.html
 # Ignoring W503: https://github.com/ambv/black#line-breaks--binary-operators

@@ -110,3 +110,16 @@ To enforce that certain files should not exist in the project, you can add them 
 
 Multiple files can be configured as above.
 The ``message`` is optional.
+
+Comma separated values (setup.cfg)
+----------------------------------
+
+On ``setup.cfg``, some keys are lists of multiple values separated by commas, like ``flake8.ignore``.
+
+On the style file, it's possible to indicate which key/value pairs should be treated as multiple values instead of an exact string.
+Multiple keys can be added.
+
+.. code-block:: ini
+
+    ["setup.cfg"]
+    comma_separated_values = ["flake8.ignore", "isort.some_key", "another_section.another_key"]

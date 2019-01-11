@@ -1,11 +1,19 @@
 """Test helpers."""
 import os
 from pathlib import Path
+from pprint import pprint
 from typing import List, Set
 
 from _pytest.fixtures import FixtureRequest
 
-from flake8_nitpick import NITPICK_STYLE_TOML, Flake8Error, NitpickChecker, PyProjectTomlChecker, SetupCfgChecker
+from flake8_nitpick import (
+    ERROR_PREFIX,
+    NITPICK_STYLE_TOML,
+    Flake8Error,
+    NitpickChecker,
+    PyProjectTomlChecker,
+    SetupCfgChecker,
+)
 from tests.conftest import TEMP_ROOT_PATH
 
 
@@ -48,9 +56,9 @@ class ProjectMock:
         self.errors = set()
         for flake8_error in self.original_errors:
             line, col, message, class_ = flake8_error
-            assert line
+            assert line == 1
             assert col == 0
-            assert message
+            assert message.startswith(ERROR_PREFIX)
             assert class_ is NitpickChecker
             self.errors.add(message)
         return self
@@ -74,3 +82,13 @@ class ProjectMock:
     def pyproject_toml(self, file_contents: str):
         """Save pyproject.toml."""
         return self.save_file(PyProjectTomlChecker.file_name, file_contents)
+
+    def assert_errors_contain(self, error: str) -> None:
+        """Assert the error is in the error set."""
+        if error in self.errors:
+            return
+
+        print(f"Expected error:\n{error}")
+        print("\nAll errors:")
+        pprint(self.errors, width=150)
+        assert False

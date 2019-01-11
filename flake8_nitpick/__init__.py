@@ -3,7 +3,7 @@ import itertools
 import logging
 from configparser import ConfigParser
 from io import StringIO
-from typing import Optional, Tuple, Type, Any, Dict, Generator, List, MutableMapping, Union
+from typing import Optional, Tuple, Type, Any, Dict, Generator, List, MutableMapping, Union, Set
 
 import os
 import dictdiffer
@@ -333,12 +333,15 @@ class SetupCfgChecker(BaseChecker):
     file_name = "setup.cfg"
     error_base_number = 320
 
-    COMMA_SEPARATED_KEYS = {"flake8.ignore"}
+    COMMA_SEPARATED_VALUES = "comma_separated_values"
+    comma_separated_values: Set[str]
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing sections and missing key/value pairs in setup.cfg."""
         if not self.file_path.exists():
             return
+
+        self.comma_separated_values = set(self.file_toml.pop(self.COMMA_SEPARATED_VALUES, []))
 
         setup_cfg = ConfigParser()
         setup_cfg.read_file(self.file_path.open())
@@ -369,7 +372,7 @@ class SetupCfgChecker(BaseChecker):
     def compare_different_keys(self, section, key, raw_expected: Any, raw_actual: Any) -> YieldFlake8Error:
         """Compare different keys, with special treatment when they are lists or numeric."""
         combined = f"{section}.{key}"
-        if combined in self.COMMA_SEPARATED_KEYS:
+        if combined in self.comma_separated_values:
             # The values might contain spaces
             actual_set = {s.strip() for s in raw_actual.split(",")}
             expected_set = {s.strip() for s in raw_expected.split(",")}

@@ -19,27 +19,29 @@ def test_no_main_python_file_root_dir(request):
     }
 
 
-def test_comma_separated_keys(request):
-    """Comma separated keys on setup.cfg."""
+def test_comma_separated_keys_on_style_file(request):
+    """Comma separated keys on the style file."""
     project = (
         ProjectMock(request)
         .style(
             """
-["setup.cfg".flake8]
-ignore = "salt,ham,eggs"
+["setup.cfg"]
+comma_separated_values = ["food.eat"]
+
+["setup.cfg".food]
+eat = "salt,ham,eggs"
 """
         )
         .setup_cfg(
             """
-[flake8]
-ignore = spam,eggs,cheese
+[food]
+eat = spam,eggs,cheese
 """
         )
         .lint()
     )
-    assert (
+    project.assert_errors_contain(
         """NIP322 File: setup.cfg: Missing values in key
-[flake8]
-ignore = ham,salt"""
-        in project.errors
+[food]
+eat = ham,salt"""
     )
