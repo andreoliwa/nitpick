@@ -46,7 +46,7 @@ pylint = "*"
 mypy = "*"
 
 ["setup.cfg"]
-comma_separated_values = ["flake8.ignore"]
+comma_separated_values = ["flake8.ignore", "flake8.exclude", "isort.skip", "isort.known_first_party"]
 
 ["setup.cfg".flake8]
 # http://www.pydocstyle.org/en/2.1.1/error_codes.html
@@ -55,9 +55,12 @@ comma_separated_values = ["flake8.ignore"]
 ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
 max-line-length = 120
 inline-quotes = "double"
+exclude = ".tox"
 
 ["setup.cfg".isort]
 line_length = 120
+skip = ".tox"
+known_first_party = "tests"
 
 # The configuration below is needed for compatibility with black.
 # https://github.com/ambv/black#how-black-wraps-lines
