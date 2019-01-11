@@ -12,7 +12,6 @@ python:
   - "3.7"
 script:
   - flake8
-  - pytest
   - coverage run -m pytest
 
 install:
