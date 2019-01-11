@@ -11,9 +11,17 @@ python:
   - "3.6"
   - "3.7"
 script:
-  - poetry run flake8
-  - poetry run pytest
+  - flake8
+  - pytest
+  - coverage run -m pytest
 
 install:
-  - pip install -U poetry
+  - pip install -U poetry coveralls
   - poetry install
+
+after_success:
+  - coverage combine
+  - "COVERALLS_PARALLEL=true coveralls"
+
+notifications:
+  webhooks: https://coveralls.io/webhook
