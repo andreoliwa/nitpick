@@ -24,11 +24,10 @@ YieldFlake8Error = Union[List, Generator[Flake8Error, Any, Any]]
 # Constants
 NAME = "flake8-nitpick"
 ERROR_PREFIX = "NIP"
-PYPROJECT_TOML = "pyproject.toml"
 NITPICK_STYLE_TOML = "nitpick-style.toml"
 DEFAULT_NITPICK_STYLE_URL = "https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml"
 ROOT_PYTHON_FILES = ("setup.py", "manage.py", "autoapp.py")
-ROOT_FILES = (PYPROJECT_TOML, "setup.cfg", "requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
+ROOT_FILES = ("requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 
 LOG = logging.getLogger("flake8.nitpick")
 
@@ -111,9 +110,11 @@ class NitpickConfig(NitpickMixin):
 
     def load_toml(self) -> YieldFlake8Error:
         """Load TOML configuration from files."""
-        self.pyproject_path: Path = self.root_dir / PYPROJECT_TOML
+        self.pyproject_path: Path = self.root_dir / PyProjectTomlChecker.file_name
         if not self.pyproject_path.exists():
-            yield self.flake8_error(1, f"{PYPROJECT_TOML} does not exist")
+            yield self.flake8_error(
+                1, f"{PyProjectTomlChecker.file_name} does not exist. Run 'poetry init' to create one."
+            )
             return
 
         self.pyproject_toml = toml.load(str(self.pyproject_path))
@@ -241,7 +242,9 @@ class NitpickChecker(NitpickMixin):
             LOG.info("Loading cached root dir: %s", root_dir)
             return root_dir
 
-        found_files = climb_directory_tree(python_file, ROOT_FILES)
+        found_files = climb_directory_tree(
+            python_file, ROOT_FILES + (PyProjectTomlChecker.file_name, SetupCfgChecker.file_name)
+        )
         if not found_files:
             LOG.error("No files found while climbing directory tree from %s", python_file)
             return None
