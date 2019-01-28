@@ -3,7 +3,7 @@ line-length = 120
 
 [tool.poetry]
 name = "flake8-nitpick"
-version = "0.5.0"
+version = "0.6.0"
 description = "Flake8 plugin to share the same code style for multiple Python projects"
 authors = ["Augusto Wagner Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"

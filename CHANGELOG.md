@@ -1,3 +1,45 @@
+<a name="0.6.0"></a>
+# [0.6.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.5.0...v0.6.0) (2019-01-28)
+
+
+### build
+
+* Ignore .tox dir on flake8 and isort ([462233e](https://github.com/andreoliwa/flake8-nitpick/commit/462233e))
+* Update packages ([36bd5ba](https://github.com/andreoliwa/flake8-nitpick/commit/36bd5ba))
+
+### ci
+
+* Add code coverage with Coveralls (#5) ([3995e13](https://github.com/andreoliwa/flake8-nitpick/commit/3995e13))
+* Fix Coveralls badge (point to master) ([bae533d](https://github.com/andreoliwa/flake8-nitpick/commit/bae533d))
+* Run flake8 and pytest on Travis ([dbb6000](https://github.com/andreoliwa/flake8-nitpick/commit/dbb6000))
+
+### docs
+
+* Add more info to pyproject.toml ([1e0d1a2](https://github.com/andreoliwa/flake8-nitpick/commit/1e0d1a2))
+
+### feat
+
+* Configure comma separated values on the style file ([7ae6622](https://github.com/andreoliwa/flake8-nitpick/commit/7ae6622))
+* Suggest poetry init when pyproject.toml does not exist ([366c2b6](https://github.com/andreoliwa/flake8-nitpick/commit/366c2b6))
+
+### fix
+
+* DeprecationWarning: Using or importing the ABCs from 'collections' in ([80f7e24](https://github.com/andreoliwa/flake8-nitpick/commit/80f7e24))
+
+### style
+
+* Ignore build dir on flake8 and isort ([1c18ce3](https://github.com/andreoliwa/flake8-nitpick/commit/1c18ce3))
+* Ignore tox dir (flake8), set tests module as first party (isort) ([4fbad20](https://github.com/andreoliwa/flake8-nitpick/commit/4fbad20))
+
+### test
+
+* Comma separated keys on setup.cfg (flake8.ignore) ([b5d8ce7](https://github.com/andreoliwa/flake8-nitpick/commit/b5d8ce7))
+* No main Python file on the root dir ([f67f870](https://github.com/andreoliwa/flake8-nitpick/commit/f67f870))
+* Test a project with no root dir ([6ccf977](https://github.com/andreoliwa/flake8-nitpick/commit/6ccf977))
+* Test most generic functions ([3704c9f](https://github.com/andreoliwa/flake8-nitpick/commit/3704c9f))
+
+
+
 <a name="0.5.0"></a>
 # [0.5.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.4.0...v0.5.0) (2019-01-09)
 
