@@ -55,11 +55,11 @@ comma_separated_values = ["flake8.ignore", "flake8.exclude", "isort.skip", "isor
 ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
 max-line-length = 120
 inline-quotes = "double"
-exclude = ".tox"
+exclude = ".tox,build"
 
 ["setup.cfg".isort]
 line_length = 120
-skip = ".tox"
+skip = ".tox,build"
 known_first_party = "tests"
 
 # The configuration below is needed for compatibility with black.
