@@ -294,9 +294,13 @@ class BaseChecker(NitpickMixin):
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
-            yield self.flake8_error(1, f"Missing file")
+            suggestion = self.suggest_initial_file()
+            message = "Missing file"
+            if suggestion:
+                message = f"{message}. Suggested initial content:\n{suggestion}"
+            yield self.flake8_error(1, message)
         elif not should_exist and file_exists:
-            yield self.flake8_error(2, f"File should be deleted")
+            yield self.flake8_error(2, "File should be deleted")
         elif file_exists:
             for error in self.check_rules():
                 yield error
@@ -304,6 +308,10 @@ class BaseChecker(NitpickMixin):
     def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited class if they need."""
         return []
+
+    def suggest_initial_file(self) -> str:
+        """Suggest the initial content for a missing file."""
+        return ""
 
 
 class PyProjectTomlChecker(BaseChecker):
@@ -417,6 +425,13 @@ class PreCommitChecker(BaseChecker):
 
     file_name = ".pre-commit-config.yaml"
     error_base_number = 330
+
+    def suggest_initial_file(self) -> str:
+        """Suggest the initial content for a missing file."""
+        suggested = self.file_toml.copy()
+        for repo in suggested.get("repos", []):
+            repo["hooks"] = yaml.load(repo["hooks"])
+        return yaml.dump(suggested, default_flow_style=False)
 
     def check_rules(self) -> YieldFlake8Error:
         """Check the rules for the pre-commit hooks."""

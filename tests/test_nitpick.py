@@ -1,5 +1,5 @@
 """Nitpick tests."""
-from flake8_nitpick import ROOT_PYTHON_FILES, PyProjectTomlChecker
+from flake8_nitpick import ROOT_PYTHON_FILES
 from tests.helpers import ProjectMock
 
 
@@ -45,10 +45,3 @@ eat = spam,eggs,cheese
 [food]
 eat = ham,salt"""
     )
-
-
-def test_suggest_poetry_init(request):
-    """Suggest poetry init when pyproject.toml does not exist."""
-    assert ProjectMock(request, pyproject_toml=False).lint().errors == {
-        f"NIP201 {PyProjectTomlChecker.file_name} does not exist. Run 'poetry init' to create one."
-    }
