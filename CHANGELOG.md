@@ -1,3 +1,13 @@
+<a name="0.7.0"></a>
+# [0.7.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.6.0...v0.7.0) (2019-02-14)
+
+
+### Features
+
+* Suggest initial contents for missing .pre-commit-config.yaml ([16a6256](https://github.com/andreoliwa/flake8-nitpick/commit/16a6256))
+
+
+
 <a name="0.6.0"></a>
 # [0.6.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.5.0...v0.6.0) (2019-01-28)
 
