@@ -20,8 +20,11 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
 ]
 
+[tool.poetry.plugins."flake8.extension"]
+NIP = "flake8_nitpick:NitpickChecker"
+
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.6 || ^3.7"
 flake8 = ">=3.0.0"
 attrs = "*"
 toml  = "*"

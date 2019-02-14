@@ -15,7 +15,7 @@ flake8-nitpick
      :target: https://pyup.io/repos/github/andreoliwa/flake8-nitpick/
      :alt: Updates
 
-Flake8 plugin to reuse the same lint configuration across multiple Python projects.
+Flake8 plugin to share the same code style for multiple Python projects.
 
 A "nitpick code style" is a `TOML <https://github.com/toml-lang/toml>`_ file with settings that should be present in config files from other tools. E.g.:
 
