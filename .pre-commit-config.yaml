@@ -17,13 +17,6 @@ repos:
     name: black
     types: [python]
 
-  - id: pylint
-    entry: pylint --rcfile=.pylintrc --reports=n --disable=locally-disabled
-    language: system
-    language_version: python
-    name: pylint
-    types: [python]
-
   - id: mypy
     entry: python -c 'import sys; import subprocess; subprocess.run(["mypy", "--ignore-missing-imports"]
       + sys.argv[1:])'

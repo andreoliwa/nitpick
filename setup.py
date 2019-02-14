@@ -9,6 +9,7 @@ import io
 import os
 import sys
 from shutil import rmtree
+from typing import Dict, List, Tuple
 
 from setuptools import Command, find_packages, setup
 
@@ -37,7 +38,7 @@ with io.open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = "\n" + f.read()
 
 # Load the package's __version__.py module as a dictionary.
-about = {}
+about: Dict[str, str] = {}
 if not VERSION:
     with open(os.path.join(here, NAME, "__version__.py")) as f:
         exec(f.read(), about)
@@ -49,7 +50,7 @@ class UploadCommand(Command):
     """Support setup.py upload."""
 
     description = "Build and publish the package."
-    user_options = []
+    user_options: List[Tuple[str, str, str]] = []
 
     @staticmethod
     def status(s):
