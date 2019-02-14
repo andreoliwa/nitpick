@@ -1,3 +1,13 @@
+<a name="0.7.1"></a>
+## [0.7.1](https://github.com/andreoliwa/flake8-nitpick/compare/v0.7.0...v0.7.1) (2019-02-14)
+
+
+### Bug Fixes
+
+* Missing flake8 entry point on pyproject.toml ([a416007](https://github.com/andreoliwa/flake8-nitpick/commit/a416007))
+
+
+
 <a name="0.7.0"></a>
 # [0.7.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.6.0...v0.7.0) (2019-02-14)
 
