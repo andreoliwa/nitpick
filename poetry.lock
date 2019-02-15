@@ -900,8 +900,8 @@ python-versions = ">=2.7"
 version = "0.3.3"
 
 [metadata]
-content-hash = "08d859b82e57266c9b2b25dd859bbd0fa4e346492e9bd0051ffbe3b07e5fa06a"
-python-versions = "^3.6"
+content-hash = "1cc21b7a39fa89b51ae18ea2d36fb97707bce216805e19c4282c10b64ce86f26"
+python-versions = "^3.6 || ^3.7"
 
 [metadata.hashes]
 appdirs = ["9e5896d1372858f8dd3344faf4e5014d21849c756c8d5701f78f8a103b372d92", "d8b24664561d0d34ddfaec54636d502d7cea6e29c3eaf68f3df6180863e2166e"]
