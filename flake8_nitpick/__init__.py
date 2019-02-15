@@ -426,41 +426,59 @@ class PreCommitChecker(BaseChecker):
     file_name = ".pre-commit-config.yaml"
     error_base_number = 330
 
+    KEY_REPOS = "repos"
+    KEY_HOOKS = "hooks"
+    KEY_REPO = "repo"
+
     def suggest_initial_file(self) -> str:
         """Suggest the initial content for a missing file."""
         suggested = self.file_toml.copy()
-        for repo in suggested.get("repos", []):
-            repo["hooks"] = yaml.load(repo["hooks"])
+        for repo in suggested.get(self.KEY_REPOS, []):
+            repo[self.KEY_HOOKS] = yaml.load(repo[self.KEY_HOOKS])
         return yaml.dump(suggested, default_flow_style=False)
 
     def check_rules(self) -> YieldFlake8Error:
         """Check the rules for the pre-commit hooks."""
         actual = yaml.load(self.file_path.open()) or {}
-        if "repos" not in actual:
+        if self.KEY_REPOS not in actual:
             yield self.flake8_error(1, "Missing 'repos' in file")
             return
 
-        actual_repos: List[dict] = actual["repos"] or []
-        expected_repos: List[dict] = self.file_toml.get("repos", [])
+        actual_root = actual.copy()
+        actual_root.pop(self.KEY_REPOS, None)
+        expected_root = self.file_toml.copy()
+        expected_root.pop(self.KEY_REPOS, None)
+        for diff_type, key, values in dictdiffer.diff(expected_root, actual_root):
+            if diff_type == dictdiffer.REMOVE:
+                yield from self.show_missing_keys(key, values)
+            elif diff_type == dictdiffer.CHANGE:
+                yield from self.compare_different_keys(key, values[0], values[1])
+
+        yield from self.check_repos(actual)
+
+    def check_repos(self, actual: Dict[str, Any]):
+        """Check the repositories configured in pre-commit."""
+        actual_repos: List[dict] = actual[self.KEY_REPOS] or []
+        expected_repos: List[dict] = self.file_toml.get(self.KEY_REPOS, [])
         for index, expected_repo_dict in enumerate(expected_repos):
-            repo_name = expected_repo_dict.get("repo")
+            repo_name = expected_repo_dict.get(self.KEY_REPO)
             if not repo_name:
-                yield self.flake8_error(2, f"Style file is missing 'repo' key in repo #{index}")
+                yield self.flake8_error(2, f"Style file is missing {self.KEY_REPO!r} key in repo #{index}")
                 continue
 
-            actual_repo_dict = find_object_by_key(actual_repos, "repo", repo_name)
+            actual_repo_dict = find_object_by_key(actual_repos, self.KEY_REPO, repo_name)
             if not actual_repo_dict:
-                yield self.flake8_error(3, f"Repo {repo_name!r} does not exist under 'repos'")
+                yield self.flake8_error(3, f"Repo {repo_name!r} does not exist under {self.KEY_REPOS!r}")
                 continue
 
-            if "hooks" not in actual_repo_dict:
-                yield self.flake8_error(4, f"Missing 'hooks' in repo {repo_name!r}")
+            if self.KEY_HOOKS not in actual_repo_dict:
+                yield self.flake8_error(4, f"Missing {self.KEY_HOOKS!r} in repo {repo_name!r}")
                 continue
 
-            actual_hooks = actual_repo_dict.get("hooks") or []
-            yaml_expected_hooks = expected_repo_dict.get("hooks")
+            actual_hooks = actual_repo_dict.get(self.KEY_HOOKS) or []
+            yaml_expected_hooks = expected_repo_dict.get(self.KEY_HOOKS)
             if not yaml_expected_hooks:
-                yield self.flake8_error(5, f"Style file is missing 'hooks' in repo {repo_name!r}")
+                yield self.flake8_error(5, f"Style file is missing {self.KEY_HOOKS!r} in repo {repo_name!r}")
                 continue
 
             expected_hooks: List[dict] = yaml.load(yaml_expected_hooks)
@@ -474,6 +492,25 @@ class PreCommitChecker(BaseChecker):
                     expected_yaml = self.format_hook(expected_dict)
                     yield self.flake8_error(7, f"Missing hook with id {hook_id!r}:\n{expected_yaml}")
                     continue
+
+    def show_missing_keys(self, key, values: List[Tuple[str, Any]]):
+        """Show the keys that are not present in a section."""
+        missing = dict(values)
+        output = yaml.dump(missing, default_flow_style=False)
+        yield self.flake8_error(8, f"Missing keys:\n{output}")
+
+    def compare_different_keys(self, key, raw_expected: Any, raw_actual: Any):
+        """Compare different keys."""
+        if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
+            # A boolean "True" or "true" might have the same effect on YAML.
+            actual = str(raw_actual).lower()
+            expected = str(raw_expected).lower()
+        else:
+            actual = raw_actual
+            expected = raw_expected
+        if actual != expected:
+            example = yaml.dump({key: raw_expected}, default_flow_style=False)
+            yield self.flake8_error(9, f"Expected value {raw_expected!r} in key, got {raw_actual!r}\n{example}")
 
     @staticmethod
     def format_hook(expected_dict: dict) -> str:

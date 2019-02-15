@@ -93,6 +93,9 @@ warn_unused_ignores = true
 
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+["pre-commit-config.yaml"]
+fail_fast = true
+
 [["pre-commit-config.yaml".repos]]
 repo = "local"
 hooks = """

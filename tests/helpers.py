@@ -11,6 +11,7 @@ from flake8_nitpick import (
     NITPICK_STYLE_TOML,
     Flake8Error,
     NitpickChecker,
+    PreCommitChecker,
     PyProjectTomlChecker,
     SetupCfgChecker,
 )
@@ -82,6 +83,10 @@ class ProjectMock:
     def pyproject_toml(self, file_contents: str):
         """Save pyproject.toml."""
         return self.save_file(PyProjectTomlChecker.file_name, file_contents)
+
+    def pre_commit(self, file_contents: str):
+        """Save .pre-commit-config.yaml."""
+        return self.save_file(PreCommitChecker.file_name, file_contents)
 
     def assert_errors_contain(self, error: str) -> None:
         """Assert the error is in the error set."""
