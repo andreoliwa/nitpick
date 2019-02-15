@@ -11,6 +11,10 @@ python:
   - "3.6"
   - "3.7"
 script:
+  # Run some of the pre-commit hooks on Travis.
+  # Running "pre-commit run --all-files" checks more files than expected;
+  # e.g. it doesn't respect flake8's exclude config on setup.cfg.
+  - black .
   - flake8
   - coverage run --source=flake8_nitpick -m pytest
   - safety check
