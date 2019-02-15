@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 from pprint import pprint
+from textwrap import dedent
 from typing import List, Set
 
 from _pytest.fixtures import FixtureRequest
@@ -69,7 +70,7 @@ class ProjectMock:
         path: Path = self.root_dir / file_name
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
-        path.write_text(file_contents)
+        path.write_text(dedent(file_contents))
         return self
 
     def style(self, file_contents: str) -> "ProjectMock":
@@ -88,8 +89,9 @@ class ProjectMock:
         """Save .pre-commit-config.yaml."""
         return self.save_file(PreCommitChecker.file_name, file_contents)
 
-    def assert_errors_contain(self, error: str) -> None:
+    def assert_errors_contain(self, raw_error: str) -> None:
         """Assert the error is in the error set."""
+        error = dedent(raw_error).strip()
         if error in self.errors:
             return
 

@@ -25,23 +25,24 @@ def test_comma_separated_keys_on_style_file(request):
         ProjectMock(request)
         .style(
             """
-["setup.cfg"]
-comma_separated_values = ["food.eat"]
-
-["setup.cfg".food]
-eat = "salt,ham,eggs"
-"""
+            ["setup.cfg"]
+            comma_separated_values = ["food.eat"]
+            ["setup.cfg".food]
+            eat = "salt,ham,eggs"
+            """
         )
         .setup_cfg(
             """
-[food]
-eat = spam,eggs,cheese
-"""
+            [food]
+            eat = spam,eggs,cheese
+            """
         )
         .lint()
     )
     project.assert_errors_contain(
-        """NIP322 File: setup.cfg: Missing values in key
-[food]
-eat = ham,salt"""
+        """
+        NIP322 File: setup.cfg: Missing values in key
+        [food]
+        eat = ham,salt
+        """
     )

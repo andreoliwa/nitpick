@@ -41,7 +41,7 @@ class NitpickMixin:
     def flake8_error(self, error_number: int, error_message: str) -> Flake8Error:
         """Return a flake8 error as a tuple."""
         final_number = self.error_base_number + error_number
-        return 1, 0, f"{ERROR_PREFIX}{final_number} {self.error_prefix}{error_message}", NitpickChecker
+        return 1, 0, f"{ERROR_PREFIX}{final_number} {self.error_prefix}{error_message.strip()}", NitpickChecker
 
 
 class NitpickCache:
