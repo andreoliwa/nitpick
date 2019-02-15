@@ -13,9 +13,11 @@ python:
 script:
   - flake8
   - coverage run --source=flake8_nitpick -m pytest
+  - safety check
 
 install:
   - pip install -U poetry coveralls
+  - pip install safety
   - poetry install
 
 after_success:

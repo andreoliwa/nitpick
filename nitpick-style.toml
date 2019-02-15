@@ -20,6 +20,10 @@ message = "Use pyproject.toml instead"
 [[files.absent]]
 file = ".venv"
 
+[[files.absent]]
+file = ".pyup.yml"
+message = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
+
 ["pyproject.toml".tool.black]
 line-length = 120
 
