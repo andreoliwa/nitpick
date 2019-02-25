@@ -1,21 +1,20 @@
 """Main package."""
 import itertools
 import logging
+import os
 from configparser import ConfigParser
 from io import StringIO
-from typing import Optional, Tuple, Type, Any, Dict, Generator, List, MutableMapping, Union, Set
-
-import os
-import dictdiffer
-import attr
 from pathlib import Path
+from typing import Any, Dict, Generator, List, MutableMapping, Optional, Set, Tuple, Type, Union
 
+import attr
+import dictdiffer
 import requests
 import toml
 import yaml
 
 from flake8_nitpick.__version__ import __version__
-from flake8_nitpick.generic import get_subclasses, flatten, unflatten, climb_directory_tree, find_object_by_key
+from flake8_nitpick.generic import climb_directory_tree, find_object_by_key, flatten, get_subclasses, unflatten
 
 # Types
 Flake8Error = Tuple[int, int, str, Type]

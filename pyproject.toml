@@ -52,7 +52,7 @@ wheel = "*"
 black = {version = "*", allows-prereleases = true}
 pylint = "*"
 mypy = "*"
-pre-commit = "*"
+pre-commit = {version = "*", allows-prereleases = true}
 
 [build-system]
 requires = ["poetry>=0.12"]

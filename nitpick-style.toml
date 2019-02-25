@@ -39,7 +39,7 @@ flake8-mypy = "*"
 flake8-polyfill = "*"
 flake8-pytest = "*"
 flake8-quotes = "*"
-pre-commit = "*"
+pre-commit = {version = "*", allows-prereleases = true}
 
 ipython = "*"
 ipdb = "*"
