@@ -1,5 +1,5 @@
 """Nitpick tests."""
-from flake8_nitpick import ROOT_PYTHON_FILES
+from flake8_nitpick.constants import ROOT_PYTHON_FILES
 from tests.helpers import ProjectMock
 
 

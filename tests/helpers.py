@@ -7,15 +7,12 @@ from typing import List, Set
 
 from _pytest.fixtures import FixtureRequest
 
-from flake8_nitpick import (
-    ERROR_PREFIX,
-    NITPICK_STYLE_TOML,
-    Flake8Error,
-    NitpickChecker,
-    PreCommitChecker,
-    PyProjectTomlChecker,
-    SetupCfgChecker,
-)
+from flake8_nitpick.constants import ERROR_PREFIX, NITPICK_STYLE_TOML
+from flake8_nitpick.files.pre_commit import PreCommitFile
+from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
+from flake8_nitpick.files.setup_cfg import SetupCfgFile
+from flake8_nitpick.plugin import NitpickChecker
+from flake8_nitpick.types import Flake8Error
 from tests.conftest import TEMP_ROOT_PATH
 
 
@@ -79,15 +76,15 @@ class ProjectMock:
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""
-        return self.save_file(SetupCfgChecker.file_name, file_contents)
+        return self.save_file(SetupCfgFile.file_name, file_contents)
 
     def pyproject_toml(self, file_contents: str):
         """Save pyproject.toml."""
-        return self.save_file(PyProjectTomlChecker.file_name, file_contents)
+        return self.save_file(PyProjectTomlFile.file_name, file_contents)
 
     def pre_commit(self, file_contents: str):
         """Save .pre-commit-config.yaml."""
-        return self.save_file(PreCommitChecker.file_name, file_contents)
+        return self.save_file(PreCommitFile.file_name, file_contents)
 
     def assert_errors_contain(self, raw_error: str) -> None:
         """Assert the error is in the error set."""

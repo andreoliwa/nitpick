@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.plugins."flake8.extension"]
-NIP = "flake8_nitpick:NitpickChecker"
+NIP = "flake8_nitpick.plugin:NitpickChecker"
 
 [tool.poetry.dependencies]
 python = "^3.6 || ^3.7"

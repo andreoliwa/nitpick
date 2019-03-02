@@ -64,3 +64,15 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
         if obj.get(search_key) == search_value:
             return obj
     return {}
+
+
+def rmdir_if_empty(path_or_str: Union[str, Path]):
+    """Remove the directory if empty."""
+    path = Path(path_or_str)
+    if not path.exists():
+        return
+
+    try:
+        next(path.iterdir())
+    except StopIteration:
+        path.rmdir()
