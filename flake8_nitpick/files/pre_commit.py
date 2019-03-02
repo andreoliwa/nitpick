@@ -14,7 +14,7 @@ class PreCommitFile(BaseFile):
 
     file_name = ".pre-commit-config.yaml"
     error_base_number = 330
-    missing_file_extra_message = "Run 'pre-commit install' to install the hooks"
+    missing_file_extra_message = "Run 'pre-commit install' after creating the file"
 
     KEY_REPOS = "repos"
     KEY_HOOKS = "hooks"

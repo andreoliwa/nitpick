@@ -73,8 +73,8 @@ class NitpickConfig(NitpickMixin):
         if not self.root_dir:
             return
         cache_root: Path = self.root_dir / ".cache"
-        nitpick_cache_dir = cache_root / NAME
-        rmtree(nitpick_cache_dir, ignore_errors=True)
+        self.cache_dir = cache_root / NAME
+        rmtree(str(self.cache_dir), ignore_errors=True)
         rmdir_if_empty(cache_root)
 
     def load_toml(self) -> YieldFlake8Error:
@@ -84,10 +84,9 @@ class NitpickConfig(NitpickMixin):
             yield self.flake8_error(
                 1, f"{PyProjectTomlFile.file_name} does not exist. Install poetry and run 'poetry init' to create it."
             )
-            return
-
-        self.pyproject_toml = toml.load(str(pyproject_path))
-        self.tool_nitpick_toml = self.pyproject_toml.get("tool", {}).get("nitpick", {})
+        else:
+            self.pyproject_toml = toml.load(str(pyproject_path))
+            self.tool_nitpick_toml = self.pyproject_toml.get("tool", {}).get("nitpick", {})
 
         try:
             style_path = self.find_style()

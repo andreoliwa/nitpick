@@ -53,12 +53,10 @@ class NitpickChecker(NitpickMixin):
             return
         LOG.info("Nitpicking file: %s", self.filename)
 
-        for error in itertools.chain(config.load_toml(), config.check_absent_files()):
-            yield error
+        yield from itertools.chain(config.load_toml(), config.check_absent_files())
 
         for checker_class in get_subclasses(BaseFile):
             checker = checker_class()
-            for error in checker.check_exists():
-                yield error
+            yield from checker.check_exists()
 
         return []
