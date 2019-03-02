@@ -4,10 +4,10 @@ line-length = 120
 [tool.poetry]
 name = "flake8-nitpick"
 version = "0.7.1"
-description = "Flake8 plugin to share the same code style for multiple Python projects"
-authors = ["Augusto Wagner Andreoli <andreoliwa@gmail.com>"]
+description = "Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects"
+authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"
-readme = "README.rst"
+readme = "README.md"
 repository = "https://github.com/andreoliwa/flake8-nitpick"
 keywords = ["python3", "flake8", "linter", "styleguide"]
 classifiers = [
