@@ -112,7 +112,8 @@ class NitpickConfig(NitpickMixin):
         self.pyproject_path: Path = self.root_dir / PyProjectTomlChecker.file_name
         if not self.pyproject_path.exists():
             yield self.flake8_error(
-                1, f"{PyProjectTomlChecker.file_name} does not exist. Run 'poetry init' to create one."
+                1,
+                f"{PyProjectTomlChecker.file_name} does not exist. Install poetry and run 'poetry init' to create it.",
             )
             return
 
