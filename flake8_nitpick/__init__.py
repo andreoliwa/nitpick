@@ -274,6 +274,7 @@ class BaseChecker(NitpickMixin):
 
     file_name: str
     error_base_number = 300
+    missing_file_extra_message: Optional[str] = None
 
     def __init__(self, config: NitpickConfig) -> None:
         """Init instance."""
@@ -294,10 +295,12 @@ class BaseChecker(NitpickMixin):
 
         if should_exist and not file_exists:
             suggestion = self.suggest_initial_file()
-            message = "Missing file"
+            phrases = ["Missing file"]
+            if self.missing_file_extra_message:
+                phrases.append(self.missing_file_extra_message)
             if suggestion:
-                message = f"{message}. Suggested initial content:\n{suggestion}"
-            yield self.flake8_error(1, message)
+                phrases.append(f"Suggested initial content:\n{suggestion}")
+            yield self.flake8_error(1, ". ".join(phrases))
         elif not should_exist and file_exists:
             yield self.flake8_error(2, "File should be deleted")
         elif file_exists:
@@ -424,6 +427,7 @@ class PreCommitChecker(BaseChecker):
 
     file_name = ".pre-commit-config.yaml"
     error_base_number = 330
+    missing_file_extra_message = "Run 'pre-commit install' to install the hooks"
 
     KEY_REPOS = "repos"
     KEY_HOOKS = "hooks"
