@@ -94,5 +94,7 @@ class ProjectMock:
 
         print(f"Expected error:\n{error}")
         print("\nAll errors:")
-        pprint(self.errors, width=150)
+        print(sorted(self.errors))
+        print("\nAll errors (pprint):")
+        pprint(sorted(self.errors), width=150)
         assert False

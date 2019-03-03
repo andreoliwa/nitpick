@@ -40,7 +40,7 @@ class BaseFile(NitpickMixin):
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
-            suggestion = self.suggest_initial_file()
+            suggestion = self.suggest_initial_contents()
             phrases = ["Missing file"]
             missing_message = self.nitpick_toml.get("missing_message", "")
             if missing_message:
@@ -57,6 +57,6 @@ class BaseFile(NitpickMixin):
         """Check rules for this file. It should be overridden by inherited class if they need."""
         return []
 
-    def suggest_initial_file(self) -> str:
-        """Suggest the initial content for a missing file."""
+    def suggest_initial_contents(self) -> str:
+        """Suggest the initial content for this missing file."""
         return ""

@@ -19,6 +19,25 @@ class SetupCfgFile(BaseFile):
     COMMA_SEPARATED_VALUES = "comma_separated_values"
     comma_separated_values: Set[str]
 
+    expected_sections: Set[str]
+    missing_sections: Set[str]
+
+    def suggest_initial_contents(self) -> str:
+        """Suggest the initial content for this missing file."""
+        return self.get_missing_output()
+
+    def get_missing_output(self, actual_sections: Set[str] = None) -> str:
+        """Get a missing output string example from the missing sections in setup.cfg."""
+        self.expected_sections = set(self.file_toml.keys())
+        self.missing_sections = self.expected_sections - (actual_sections or set())
+
+        if self.missing_sections:
+            missing_cfg = ConfigParser()
+            for section in sorted(self.missing_sections):
+                missing_cfg[section] = self.file_toml[section]
+            return self.get_example_cfg(missing_cfg)
+        return ""
+
     def check_rules(self) -> YieldFlake8Error:
         """Check missing sections and missing key/value pairs in setup.cfg."""
         if not self.file_path.exists():
@@ -30,18 +49,12 @@ class SetupCfgFile(BaseFile):
         setup_cfg.read_file(self.file_path.open())
 
         actual_sections = set(setup_cfg.sections())
-        expected_sections = set(self.file_toml.keys())
-        missing_sections = expected_sections - actual_sections
-
-        if missing_sections:
-            missing_cfg = ConfigParser()
-            for section in missing_sections:
-                missing_cfg[section] = self.file_toml[section]
-            output = self.get_example_cfg(missing_cfg)
-            yield self.flake8_error(1, f"Missing sections:\n{output}")
+        missing = self.get_missing_output(actual_sections)
+        if missing:
+            yield self.flake8_error(1, f"Missing sections:\n{missing}")
 
         generators = []
-        for section in expected_sections - missing_sections:
+        for section in self.expected_sections - self.missing_sections:
             expected_dict = self.file_toml[section]
             actual_dict = dict(setup_cfg[section])
             for diff_type, key, values in dictdiffer.diff(expected_dict, actual_dict):

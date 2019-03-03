@@ -30,3 +30,34 @@ def test_comma_separated_keys_on_style_file(request):
         eat = ham,salt
         """
     )
+
+
+def test_missing_setup_cfg(request):
+    """Suggest contents when setup.cfg does not exist."""
+    ProjectMock(request).style(
+        """
+        [nitpick.files."setup.cfg"]
+        "missing_message" = "Do something here"
+
+        ["setup.cfg".mypy]
+        ignore_missing_imports = true
+
+        ["setup.cfg".isort]
+        line_length = 120
+
+        ["setup.cfg".flake8]
+        max-line-length = 120
+        """
+    ).lint().assert_errors_contain(
+        """
+        NIP321 File: setup.cfg: Missing file. Do something here. Suggested content:
+        [flake8]
+        max-line-length = 120
+
+        [isort]
+        line_length = 120
+
+        [mypy]
+        ignore_missing_imports = True
+        """
+    )

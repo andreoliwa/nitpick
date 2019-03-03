@@ -19,8 +19,8 @@ class PreCommitFile(BaseFile):
     KEY_HOOKS = "hooks"
     KEY_REPO = "repo"
 
-    def suggest_initial_file(self) -> str:
-        """Suggest the initial content for a missing file."""
+    def suggest_initial_contents(self) -> str:
+        """Suggest the initial content for this missing file."""
         suggested = self.file_toml.copy()
         for repo in suggested.get(self.KEY_REPOS, []):
             repo[self.KEY_HOOKS] = yaml.load(repo[self.KEY_HOOKS])
