@@ -1,8 +1,9 @@
 # flake8-nitpick
 
-<a href="https://pypi.python.org/pypi/flake8-nitpick"><img alt="PyPI" src="https://img.shields.io/pypi/v/flake8-nitpick.svg"></a>
-<a href="https://travis-ci.com/andreoliwa/flake8-nitpick"><img alt="Travis CI" src="https://travis-ci.com/andreoliwa/flake8-nitpick.svg?branch=master"></a>
-<a href="https://coveralls.io/github/andreoliwa/flake8-nitpick?branch=master"><img alt="Coveralls" src="https://coveralls.io/repos/github/andreoliwa/flake8-nitpick/badge.svg?branch=master"></a>
+[![PyPI](https://img.shields.io/pypi/v/flake8-nitpick.svg)](https://pypi.python.org/pypi/flake8-nitpick)
+[![Travis CI](https://travis-ci.com/andreoliwa/flake8-nitpick.svg?branch=master)](https://travis-ci.com/andreoliwa/flake8-nitpick)
+[![Coveralls](https://coveralls.io/repos/github/andreoliwa/flake8-nitpick/badge.svg?branch=master)](https://coveralls.io/github/andreoliwa/flake8-nitpick?branch=master)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects.
 
