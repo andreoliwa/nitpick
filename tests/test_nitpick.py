@@ -25,7 +25,7 @@ def test_comma_separated_keys_on_style_file(request):
         ProjectMock(request)
         .style(
             """
-            ["setup.cfg"]
+            ["setup.cfg".nitpick]
             comma_separated_values = ["food.eat"]
             ["setup.cfg".food]
             eat = "salt,ham,eggs"

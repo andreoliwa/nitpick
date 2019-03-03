@@ -23,7 +23,7 @@ def test_missing_pre_commit_config_yaml(request):
     )
     project.assert_errors_contain(
         """
-        NIP331 File: .pre-commit-config.yaml: Missing file. Run 'pre-commit install' after creating the file. Suggested initial content:
+        NIP331 File: .pre-commit-config.yaml: Missing file. Suggested content:
         repos:
         - hooks:
           - any: valid
@@ -51,7 +51,7 @@ def test_root_values_on_missing_file(request):
     )
     project.assert_errors_contain(
         """
-        NIP331 File: .pre-commit-config.yaml: Missing file. Run 'pre-commit install' after creating the file. Suggested initial content:
+        NIP331 File: .pre-commit-config.yaml: Missing file. Suggested content:
         fail_fast: true
         whatever: '1'
         """

@@ -80,11 +80,7 @@ class NitpickConfig(NitpickMixin):
     def load_toml(self) -> YieldFlake8Error:
         """Load TOML configuration from files."""
         pyproject_path: Path = self.root_dir / PyProjectTomlFile.file_name
-        if not pyproject_path.exists():
-            yield self.flake8_error(
-                1, f"{PyProjectTomlFile.file_name} does not exist. Install poetry and run 'poetry init' to create it."
-            )
-        else:
+        if pyproject_path.exists():
             self.pyproject_toml = toml.load(str(pyproject_path))
             self.tool_nitpick_toml = self.pyproject_toml.get("tool", {}).get("nitpick", {})
 

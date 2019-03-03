@@ -5,6 +5,9 @@ from tests.helpers import ProjectMock
 
 def test_missing_pyproject_toml(request):
     """Suggest poetry init when pyproject.toml does not exist."""
-    ProjectMock(request, pyproject_toml=False).lint().assert_errors_contain(
-        f"NIP201 {PyProjectTomlFile.file_name} does not exist. Install poetry and run 'poetry init' to create it."
-    )
+    ProjectMock(request, pyproject_toml=False).style(
+        """
+        ["pyproject.toml".nitpick]
+        "missing_message" = "Do something"
+        """
+    ).lint().assert_errors_contain(f"NIP311 File: {PyProjectTomlFile.file_name}: Missing file. Do something")

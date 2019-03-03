@@ -24,7 +24,7 @@ class SetupCfgFile(BaseFile):
         if not self.file_path.exists():
             return
 
-        self.comma_separated_values = set(self.file_toml.pop(self.COMMA_SEPARATED_VALUES, []))
+        self.comma_separated_values = set(self.nitpick_toml.pop(self.COMMA_SEPARATED_VALUES, []))
 
         setup_cfg = ConfigParser()
         setup_cfg.read_file(self.file_path.open())
