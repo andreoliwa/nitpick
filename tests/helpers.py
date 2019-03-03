@@ -12,7 +12,7 @@ from flake8_nitpick.files.pre_commit import PreCommitFile
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.files.setup_cfg import SetupCfgFile
 from flake8_nitpick.plugin import NitpickChecker
-from flake8_nitpick.types import Flake8Error
+from flake8_nitpick.types import Flake8Error, PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
 
 
@@ -62,13 +62,17 @@ class ProjectMock:
             self.errors.add(message)
         return self
 
-    def save_file(self, file_name: str, file_contents: str, lint: bool = None) -> "ProjectMock":
+    def save_file(self, file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents."""
         path: Path = self.root_dir / file_name
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
         path.write_text(dedent(file_contents))
         return self
+
+    def touch_file(self, file_name: PathOrStr):
+        """Save an empty file (like the ``touch`` command)."""
+        return self.save_file(file_name, "")
 
     def style(self, file_contents: str) -> "ProjectMock":
         """Save the default style file."""
@@ -86,11 +90,11 @@ class ProjectMock:
         """Save .pre-commit-config.yaml."""
         return self.save_file(PreCommitFile.file_name, file_contents)
 
-    def assert_errors_contain(self, raw_error: str) -> None:
+    def assert_errors_contain(self, raw_error: str) -> "ProjectMock":
         """Assert the error is in the error set."""
         error = dedent(raw_error).strip()
         if error in self.errors:
-            return
+            return self
 
         print(f"Expected error:\n{error}")
         print("\nAll errors:")

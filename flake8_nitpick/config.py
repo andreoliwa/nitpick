@@ -3,7 +3,7 @@ import itertools
 import logging
 from pathlib import Path
 from shutil import rmtree
-from typing import Any, Dict, MutableMapping, Optional, Union
+from typing import Any, Dict, MutableMapping, Optional
 
 import requests
 import toml
@@ -12,7 +12,7 @@ from flake8_nitpick.constants import DEFAULT_NITPICK_STYLE_URL, NAME, NITPICK_ST
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.files.setup_cfg import SetupCfgFile
 from flake8_nitpick.generic import climb_directory_tree, rmdir_if_empty
-from flake8_nitpick.types import YieldFlake8Error
+from flake8_nitpick.types import PathOrStr, YieldFlake8Error
 from flake8_nitpick.utils import NitpickMixin
 
 LOG = logging.getLogger("flake8.nitpick")
@@ -34,9 +34,10 @@ class NitpickConfig(NitpickMixin):
         self.pyproject_toml: MutableMapping[str, Any] = {}
         self.tool_nitpick_toml: Dict[str, Any] = {}
         self.style_toml: MutableMapping[str, Any] = {}
+        self.nitpick_toml: MutableMapping[str, Any] = {}
         self.files: Dict[str, Any] = {}
 
-    def find_root_dir(self, starting_file: Union[str, Path]) -> bool:
+    def find_root_dir(self, starting_file: PathOrStr) -> bool:
         """Find the root dir of the Python project: the dir that has one of the `ROOT_FILES`.
 
         Also clear the cache dir the first time the root dir is found.
@@ -90,8 +91,8 @@ class NitpickConfig(NitpickMixin):
             yield self.flake8_error(2, str(err))
             return
         self.style_toml = toml.load(str(style_path))
-
-        self.files = self.style_toml.get("files", {})
+        self.nitpick_toml = self.style_toml.get("nitpick", {})
+        self.files = self.nitpick_toml.get("files", {})
 
     def find_style(self) -> Optional[Path]:
         """Search for a style file."""
@@ -130,24 +131,6 @@ class NitpickConfig(NitpickMixin):
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
         return style_path
-
-    def check_absent_files(self) -> YieldFlake8Error:
-        """Check absent files."""
-        for file_dict in self.files.get("absent", []):
-            file_name = file_dict.get("file")
-            if not file_name:
-                continue
-
-            file: Path = self.root_dir / file_name
-            if not file.exists():
-                continue
-
-            config_message = file_dict.get("message")
-            full_message = f"File {file_name} should be deleted"
-            if config_message:
-                full_message += f": {config_message}"
-
-            yield self.flake8_error(3, full_message)
 
     @classmethod
     def get_singleton(cls):

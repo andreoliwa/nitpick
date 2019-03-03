@@ -1,7 +1,9 @@
 """Generic functions and classes."""
 import collections
 from pathlib import Path
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Optional
+
+from flake8_nitpick.types import PathOrStr
 
 
 def get_subclasses(cls):
@@ -43,7 +45,7 @@ def unflatten(dict_, separator="."):
     return items
 
 
-def climb_directory_tree(starting_path: Union[str, Path], file_patterns: Iterable[str]) -> Optional[List[Path]]:
+def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[List[Path]]:
     """Climb the directory tree looking for file patterns."""
     current_dir: Path = Path(starting_path).absolute()
     if current_dir.is_file():
@@ -66,7 +68,7 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
     return {}
 
 
-def rmdir_if_empty(path_or_str: Union[str, Path]):
+def rmdir_if_empty(path_or_str: PathOrStr):
     """Remove the directory if empty."""
     path = Path(path_or_str)
     if not path.exists():

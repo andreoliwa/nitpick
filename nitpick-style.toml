@@ -1,28 +1,13 @@
 # Default style file for flake8-nitpick
 # https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml
 
-[[files.absent]]
-file = "requirements.txt"
-message = "Install poetry, run 'poetry init' to create pyproject.toml, and move dependencies to it"
-
-[[files.absent]]
-file = ".isort.cfg"
-message = "Move values to setup.cfg, section [isort]"
-
-[[files.absent]]
-file = "Pipfile"
-message = "Use pyproject.toml instead"
-
-[[files.absent]]
-file = "Pipfile.lock"
-message = "Use pyproject.toml instead"
-
-[[files.absent]]
-file = ".venv"
-
-[[files.absent]]
-file = ".pyup.yml"
-message = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
+[nitpick.files.absent]
+"requirements.txt" = "Install poetry, run 'poetry init' to create pyproject.toml, and move dependencies to it"
+".isort.cfg" = "Move values to setup.cfg, section [isort]"
+"Pipfile" = "Use pyproject.toml instead"
+"Pipfile.lock" = "Use pyproject.toml instead"
+".venv" = ""
+".pyup.yml" = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
 [nitpick.files."pyproject.toml"]
 missing_message = "Install poetry and run 'poetry init' to create it"

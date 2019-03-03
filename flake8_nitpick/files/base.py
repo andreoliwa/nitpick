@@ -23,7 +23,7 @@ class BaseFile(NitpickMixin):
         self.file_toml = self.config.style_toml.get(self.toml_key, {})
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
-        self.nitpick_toml = self.config.style_toml.get("nitpick", {}).get("files", {}).get(self.file_name, {})
+        self.nitpick_file_toml = self.config.nitpick_toml.get("files", {}).get(self.file_name, {})
 
     @property
     def toml_key(self):
@@ -36,13 +36,13 @@ class BaseFile(NitpickMixin):
         The file should exist when there is any rule configured for it in the style file,
         TODO: add this to the docs
         """
-        should_exist: bool = self.config.files.get(self.toml_key, bool(self.file_toml or self.nitpick_toml))
+        should_exist: bool = self.config.files.get(self.toml_key, bool(self.file_toml or self.nitpick_file_toml))
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
             suggestion = self.suggest_initial_contents()
             phrases = ["Missing file"]
-            missing_message = self.nitpick_toml.get("missing_message", "")
+            missing_message = self.nitpick_file_toml.get("missing_message", "")
             if missing_message:
                 phrases.append(missing_message)
             if suggestion:
