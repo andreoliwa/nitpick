@@ -23,7 +23,7 @@ class BaseFile(NitpickMixin):
         self.file_toml = self.config.style_toml.get(self.toml_key, {})
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
-        self.nitpick_toml = self.file_toml.get("nitpick", {})
+        self.nitpick_toml = self.config.style_toml.get("nitpick", {}).get("files", {}).get(self.file_name, {})
 
     @property
     def toml_key(self):
@@ -31,11 +31,12 @@ class BaseFile(NitpickMixin):
         return self.file_name.lstrip(".")
 
     def check_exists(self) -> YieldFlake8Error:
-        """Check if the file should exist; if there is style configuration for the file, then it should exist."""
-        # The file should exist when there is any rule configured for it in the style file,
-        # or when this flag is manually set
-        # TODO: add this to the docs
-        should_exist: bool = self.config.files.get(self.toml_key, bool(self.file_toml))
+        """Check if the file should exist; if there is style configuration for the file, then it should exist.
+
+        The file should exist when there is any rule configured for it in the style file,
+        TODO: add this to the docs
+        """
+        should_exist: bool = self.config.files.get(self.toml_key, bool(self.file_toml or self.nitpick_toml))
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:

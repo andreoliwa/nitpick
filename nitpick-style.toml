@@ -24,8 +24,8 @@ file = ".venv"
 file = ".pyup.yml"
 message = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
-["pyproject.toml".nitpick]
-"missing_message" = "Install poetry and run 'poetry init' to create it"
+[nitpick.files."pyproject.toml"]
+missing_message = "Install poetry and run 'poetry init' to create it"
 
 ["pyproject.toml".tool.black]
 line-length = 120
@@ -49,7 +49,7 @@ ipdb = "*"
 pylint = "*"
 mypy = "*"
 
-["setup.cfg"]
+[nitpick.files."setup.cfg"]
 comma_separated_values = ["flake8.ignore", "flake8.exclude", "isort.skip", "isort.known_first_party"]
 
 ["setup.cfg".flake8]
@@ -91,8 +91,8 @@ warn_no_return = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 
-["pre-commit-config.yaml".nitpick]
-"missing_message" = "Create the file with the contents below, then run 'pre-commit install'"
+[nitpick.files."pre-commit-config.yaml"]
+missing_message = "Create the file with the contents below, then run 'pre-commit install'"
 
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
