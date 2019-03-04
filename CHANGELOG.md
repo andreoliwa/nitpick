@@ -1,3 +1,58 @@
+<a name="0.8.0"></a>
+# [0.8.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.7.1...v0.8.0) (2019-03-04)
+
+
+### Bug Fixes
+
+* keep showing other errors when pyproject.toml doesn't exist ([dc7f02f](https://github.com/andreoliwa/flake8-nitpick/commit/dc7f02f))
+* move nitpick config to an exclusive section on the style file ([cd64361](https://github.com/andreoliwa/flake8-nitpick/commit/cd64361))
+* use only yield to return values ([af7d8d2](https://github.com/andreoliwa/flake8-nitpick/commit/af7d8d2))
+* use yaml.safe_load() ([b1df589](https://github.com/andreoliwa/flake8-nitpick/commit/b1df589))
+
+
+### Features
+
+* allow configuration of a missing message for each file ([fd053aa](https://github.com/andreoliwa/flake8-nitpick/commit/fd053aa))
+* allow multiple style files ([22505ce](https://github.com/andreoliwa/flake8-nitpick/commit/22505ce))
+* check root keys on pre-commit file (e.g.: fail_fast) ([9470aed](https://github.com/andreoliwa/flake8-nitpick/commit/9470aed))
+* invalidate cache on every run ([e985a0a](https://github.com/andreoliwa/flake8-nitpick/commit/e985a0a))
+* suggest initial contents for missing setup.cfg ([8d33b18](https://github.com/andreoliwa/flake8-nitpick/commit/8d33b18))
+* suggest installing poetry ([5b6038c](https://github.com/andreoliwa/flake8-nitpick/commit/5b6038c))
+* **pre-commit:** suggest pre-commit install ([76b980f](https://github.com/andreoliwa/flake8-nitpick/commit/76b980f))
+
+
+### Tests
+
+* absent files ([d3ca8c4](https://github.com/andreoliwa/flake8-nitpick/commit/d3ca8c4))
+
+
+### BREAKING CHANGES
+
+* Comma separated values was moved to a different section in the TOML file:
+
+Before:
+["setup.cfg".nitpick]
+comma_separated_values = ["food.eat"]
+
+Now:
+[nitpick.files."setup.cfg"]
+comma_separated_values = ["food.eat"]
+* The format of the absent files has changed in the style TOML file.
+
+Before:
+[[files.absent]]
+file = "remove-this.txt"
+message = "This file should be removed because of some reason"
+[[files.absent]]
+file = "another-useless-file-without-message.cfg"
+
+Now:
+[nitpick.files.absent]
+"remove-this.txt" = "This file should be removed because of some reason"
+"another-useless-file-without-message.cfg" = ""
+
+
+
 <a name="0.7.1"></a>
 ## [0.7.1](https://github.com/andreoliwa/flake8-nitpick/compare/v0.7.0...v0.7.1) (2019-02-14)
 
