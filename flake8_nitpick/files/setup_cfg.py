@@ -22,6 +22,11 @@ class SetupCfgFile(BaseFile):
     expected_sections: Set[str]
     missing_sections: Set[str]
 
+    def __init__(self) -> None:
+        """Init the instance."""
+        super().__init__()
+        self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))
+
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         return self.get_missing_output()
@@ -42,8 +47,6 @@ class SetupCfgFile(BaseFile):
         """Check missing sections and missing key/value pairs in setup.cfg."""
         if not self.file_path.exists():
             return
-
-        self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, set()))
 
         setup_cfg = ConfigParser()
         setup_cfg.read_file(self.file_path.open())
