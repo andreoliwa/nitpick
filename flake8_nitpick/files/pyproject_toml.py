@@ -17,7 +17,7 @@ class PyProjectTomlFile(BaseFile):
         actual = flatten(self.config.pyproject_dict)
         expected = flatten(self.file_dict)
         if expected.items() <= actual.items():
-            return []
+            return
 
         missing_dict = unflatten({k: v for k, v in expected.items() if k not in actual})
         if missing_dict:
