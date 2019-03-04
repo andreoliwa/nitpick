@@ -23,12 +23,12 @@ class PreCommitFile(BaseFile):
         """Suggest the initial content for this missing file."""
         suggested = self.file_dict.copy()
         for repo in suggested.get(self.KEY_REPOS, []):
-            repo[self.KEY_HOOKS] = yaml.load(repo[self.KEY_HOOKS])
+            repo[self.KEY_HOOKS] = yaml.safe_load(repo[self.KEY_HOOKS])
         return yaml.dump(suggested, default_flow_style=False)
 
     def check_rules(self) -> YieldFlake8Error:
         """Check the rules for the pre-commit hooks."""
-        actual = yaml.load(self.file_path.open()) or {}
+        actual = yaml.safe_load(self.file_path.open()) or {}
         if self.KEY_REPOS not in actual:
             yield self.flake8_error(1, "Missing 'repos' in file")
             return
@@ -70,7 +70,7 @@ class PreCommitFile(BaseFile):
                 yield self.flake8_error(5, f"Style file is missing {self.KEY_HOOKS!r} in repo {repo_name!r}")
                 continue
 
-            expected_hooks: List[dict] = yaml.load(yaml_expected_hooks)
+            expected_hooks: List[dict] = yaml.safe_load(yaml_expected_hooks)
             for expected_dict in expected_hooks:
                 hook_id = expected_dict.get("id")
                 if not hook_id:
