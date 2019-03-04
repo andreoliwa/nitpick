@@ -1,32 +1,33 @@
 # https://docs.travis-ci.com/user/reference/xenial/
 dist: xenial
-
 cache:
   directories:
     - $HOME/.cache/pip
-
 # https://docs.travis-ci.com/user/languages/python/
 language: python
 python:
   - "3.6"
   - "3.7"
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
   # Run some of the pre-commit hooks on Travis.
   # Running "pre-commit run --all-files" checks more files than expected;
   # e.g. it doesn't respect flake8's exclude config on setup.cfg.
-  - black .
+  - black --check .
   - flake8
   - coverage run --source=flake8_nitpick -m pytest
   - safety check
-
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 install:
   - pip install -U poetry coveralls
   - pip install safety
   - poetry install
-
 after_success:
   - coverage combine
   - "COVERALLS_PARALLEL=true coveralls"
-
 notifications:
   webhooks: https://coveralls.io/webhook
