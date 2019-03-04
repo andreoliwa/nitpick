@@ -43,7 +43,7 @@ class SetupCfgFile(BaseFile):
         if not self.file_path.exists():
             return
 
-        self.comma_separated_values = set(self.nitpick_file_dict.pop(self.COMMA_SEPARATED_VALUES, []))
+        self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, set()))
 
         setup_cfg = ConfigParser()
         setup_cfg.read_file(self.file_path.open())
