@@ -1,5 +1,8 @@
 # https://docs.travis-ci.com/user/reference/xenial/
 dist: xenial
+env:
+  global:
+    - CC_TEST_REPORTER_ID=7fce1e2ce7b59adf493538b312343e4efc38b297c1c07cfd8e5913305c086ce2
 cache:
   directories:
     - $HOME/.cache/pip
@@ -21,7 +24,8 @@ script:
   - coverage run --source=flake8_nitpick -m pytest
   - safety check
 after_script:
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - coverage xml
+  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 install:
   - pip install -U poetry coveralls
   - pip install safety
