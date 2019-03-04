@@ -1,3 +1,14 @@
+<a name="0.8.1"></a>
+## [0.8.1](https://github.com/andreoliwa/flake8-nitpick/compare/v0.8.0...v0.8.1) (2019-03-04)
+
+
+### Bug Fixes
+
+* **setup.cfg:** comma separated values check failing on pre-commit ([27a37b6](https://github.com/andreoliwa/flake8-nitpick/commit/27a37b6))
+* **setup.cfg:** comma separated values still failing on pre-commit, only on the first run ([36ea6f0](https://github.com/andreoliwa/flake8-nitpick/commit/36ea6f0))
+
+
+
 <a name="0.8.0"></a>
 # [0.8.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.7.1...v0.8.0) (2019-03-04)
 
