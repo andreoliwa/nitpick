@@ -41,6 +41,14 @@ Change your project config on `pyproject.toml`, and configure your own style lik
 
 You can set `style` with any local file or URL. E.g.: you can use the raw URL of a [GitHub Gist](https://gist.github.com).
 
+You can also use multiple styles and mix local files and URLs:
+
+    [tool.nitpick]
+    style = ["/path/to/first.toml", "/another/path/to/second.toml", "https://example.com/on/the/web/third.toml"]
+
+The order is important: each style will override any keys that might be set by the previous .toml file.
+If a key is defined in more than one file, the value from the last file will prevail. 
+
 ### Default search order for a style file
 
 1. A file or URL configured in the `pyproject.toml` file, `[tool.nitpick]` section, `style` key, as [described above](#configure-your-own-style-file).

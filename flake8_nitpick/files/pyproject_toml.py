@@ -14,8 +14,8 @@ class PyProjectTomlFile(BaseFile):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing key/value pairs in pyproject.toml."""
-        actual = flatten(self.config.pyproject_toml)
-        expected = flatten(self.file_toml)
+        actual = flatten(self.config.pyproject_dict)
+        expected = flatten(self.file_dict)
         if expected.items() <= actual.items():
             return []
 

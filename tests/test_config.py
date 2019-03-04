@@ -12,8 +12,72 @@ def test_no_root_dir(request):
 
 def test_no_main_python_file_root_dir(request):
     """No main Python file on the root dir."""
-    project = ProjectMock(request, setup_py=False).save_file("whatever.sh", "", lint=True).lint()
+    project = ProjectMock(request, setup_py=False).pyproject_toml("").save_file("whatever.sh", "", lint=True).lint()
     assert project.errors == {
         "NIP102 None of those Python files was found in the root dir "
         + f"{project.root_dir}: {', '.join(ROOT_PYTHON_FILES)}"
     }
+
+
+def test_multiple_styles(request):
+    """Test multiple style files with precedence (the latest ones overrides the previous ones)."""
+    project = (
+        ProjectMock(request)
+        .named_style(
+            "isort1",
+            """
+            ["setup.cfg".isort]
+            line_length = 80
+            known_first_party = "tests"
+            xxx = "aaa"
+            """,
+        )
+        .named_style(
+            "isort2",
+            """
+            ["setup.cfg".isort]
+            line_length = 120
+            xxx = "yyy"
+            """,
+        )
+        .named_style(
+            "flake8",
+            """
+            ["setup.cfg".flake8]
+            inline-quotes = "double"
+            something = 123
+            """,
+        )
+        .named_style(
+            "black",
+            """
+            ["pyproject.toml".tool.black]
+            line-length = 100
+            """,
+        )
+        .pyproject_toml(
+            """
+            [tool.nitpick]
+            style = ["isort1.toml", "isort2.toml", "flake8.toml", "black.toml"]
+            """
+        )
+    )
+    project.lint().assert_errors_contain(
+        """
+        NIP311 File: pyproject.toml: Missing values:
+        [tool.black]
+        line-length = 100
+        """
+    ).assert_errors_contain(
+        """
+        NIP321 File: setup.cfg: Missing file. Suggested content:
+        [flake8]
+        inline-quotes = double
+        something = 123
+
+        [isort]
+        line_length = 120
+        known_first_party = tests
+        xxx = yyy
+        """
+    )

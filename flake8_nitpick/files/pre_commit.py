@@ -21,7 +21,7 @@ class PreCommitFile(BaseFile):
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        suggested = self.file_toml.copy()
+        suggested = self.file_dict.copy()
         for repo in suggested.get(self.KEY_REPOS, []):
             repo[self.KEY_HOOKS] = yaml.load(repo[self.KEY_HOOKS])
         return yaml.dump(suggested, default_flow_style=False)
@@ -35,7 +35,7 @@ class PreCommitFile(BaseFile):
 
         actual_root = actual.copy()
         actual_root.pop(self.KEY_REPOS, None)
-        expected_root = self.file_toml.copy()
+        expected_root = self.file_dict.copy()
         expected_root.pop(self.KEY_REPOS, None)
         for diff_type, key, values in dictdiffer.diff(expected_root, actual_root):
             if diff_type == dictdiffer.REMOVE:
@@ -48,7 +48,7 @@ class PreCommitFile(BaseFile):
     def check_repos(self, actual: Dict[str, Any]):
         """Check the repositories configured in pre-commit."""
         actual_repos: List[dict] = actual[self.KEY_REPOS] or []
-        expected_repos: List[dict] = self.file_toml.get(self.KEY_REPOS, [])
+        expected_repos: List[dict] = self.file_dict.get(self.KEY_REPOS, [])
         for index, expected_repo_dict in enumerate(expected_repos):
             repo_name = expected_repo_dict.get(self.KEY_REPO)
             if not repo_name:

@@ -22,20 +22,18 @@ class ProjectMock:
     original_errors: List[Flake8Error]
     errors: Set[str]
 
+    fixture_dir: Path = Path(__file__).parent / "fixtures"
+
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         self.root_dir: Path = TEMP_ROOT_PATH / pytest_request.node.name
         self.root_dir.mkdir()
         os.chdir(str(self.root_dir))
 
-        self.fixture_dir: Path = Path(__file__).parent / "fixtures"
-
         self.files_to_lint: List[Path] = []
 
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
-        if kwargs.get("pyproject_toml", True):
-            self.pyproject_toml("")
 
     def create_symlink_to_fixture(self, file_name: str) -> "ProjectMock":
         """Create a symlink to a fixture file inside the temp dir, instead of creating a file."""
@@ -77,6 +75,11 @@ class ProjectMock:
     def style(self, file_contents: str) -> "ProjectMock":
         """Save the default style file."""
         return self.save_file(NITPICK_STYLE_TOML, file_contents)
+
+    def named_style(self, file_name: PathOrStr, file_contents: str) -> "ProjectMock":
+        """Save a style file with a name. Add the .toml extension if needed."""
+        clean_file_name = file_name if str(file_name).endswith(".toml") else f"{file_name}.toml"
+        return self.save_file(clean_file_name, file_contents)
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""

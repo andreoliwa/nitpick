@@ -3,16 +3,24 @@ import itertools
 import logging
 from pathlib import Path
 from shutil import rmtree
-from typing import Any, Dict, MutableMapping, Optional
+from typing import Any, Dict, List, MutableMapping, Optional, Union
 
 import requests
 import toml
+from slugify import slugify
 
-from flake8_nitpick.constants import DEFAULT_NITPICK_STYLE_URL, NAME, NITPICK_STYLE_TOML, ROOT_FILES, ROOT_PYTHON_FILES
+from flake8_nitpick.constants import (
+    DEFAULT_NITPICK_STYLE_URL,
+    NAME,
+    NITPICK_STYLE_TOML,
+    ROOT_FILES,
+    ROOT_PYTHON_FILES,
+    UNIQUE_SEPARATOR,
+)
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.files.setup_cfg import SetupCfgFile
-from flake8_nitpick.generic import climb_directory_tree, rmdir_if_empty
-from flake8_nitpick.types import PathOrStr, YieldFlake8Error
+from flake8_nitpick.generic import climb_directory_tree, flatten, rmdir_if_empty, unflatten
+from flake8_nitpick.types import PathOrStr, TomlDict, YieldFlake8Error
 from flake8_nitpick.utils import NitpickMixin
 
 LOG = logging.getLogger("flake8.nitpick")
@@ -31,10 +39,10 @@ class NitpickConfig(NitpickMixin):
         self.cache_dir: Optional[Path] = None
         self.main_python_file: Optional[Path] = None
 
-        self.pyproject_toml: MutableMapping[str, Any] = {}
-        self.tool_nitpick_toml: Dict[str, Any] = {}
-        self.style_toml: MutableMapping[str, Any] = {}
-        self.nitpick_toml: MutableMapping[str, Any] = {}
+        self.pyproject_dict: MutableMapping[str, Any] = {}
+        self.tool_nitpick_dict: Dict[str, Any] = {}
+        self.style_dict: MutableMapping[str, Any] = {}
+        self.nitpick_dict: MutableMapping[str, Any] = {}
         self.files: Dict[str, Any] = {}
 
     def find_root_dir(self, starting_file: PathOrStr) -> bool:
@@ -82,40 +90,46 @@ class NitpickConfig(NitpickMixin):
         """Load TOML configuration from files."""
         pyproject_path: Path = self.root_dir / PyProjectTomlFile.file_name
         if pyproject_path.exists():
-            self.pyproject_toml = toml.load(str(pyproject_path))
-            self.tool_nitpick_toml = self.pyproject_toml.get("tool", {}).get("nitpick", {})
+            self.pyproject_dict: TomlDict = toml.load(str(pyproject_path))
+            self.tool_nitpick_dict: TomlDict = self.pyproject_dict.get("tool", {}).get("nitpick", {})
 
         try:
-            style_path = self.find_style()
+            self.style_dict: TomlDict = self.find_styles()
         except FileNotFoundError as err:
             yield self.flake8_error(2, str(err))
             return
-        self.style_toml = toml.load(str(style_path))
-        self.nitpick_toml = self.style_toml.get("nitpick", {})
-        self.files = self.nitpick_toml.get("files", {})
+        self.nitpick_dict: TomlDict = self.style_dict.get("nitpick", {})
+        self.files = self.nitpick_dict.get("files", {})
 
-    def find_style(self) -> Optional[Path]:
-        """Search for a style file."""
-        configured_style: str = self.tool_nitpick_toml.get("style", "")
-        if configured_style.startswith("http"):
-            # If the style is a URL, save the contents in the cache dir
-            style_path = self.load_style_from_url(configured_style)
-            LOG.info("Loading style from URL: %s", style_path)
-        elif configured_style:
-            style_path = Path(configured_style)
-            if not style_path.exists():
-                raise FileNotFoundError(f"Style file does not exist: {configured_style}")
-            LOG.info("Loading style from file: %s", style_path)
-        else:
-            paths = climb_directory_tree(self.root_dir, [NITPICK_STYLE_TOML])
-            if paths:
-                style_path = paths[0]
-                LOG.info("Loading style from directory tree: %s", style_path)
+    def find_styles(self) -> TomlDict:
+        """Search for one or multiple style files."""
+        style_value: Union[str, List[str]] = self.tool_nitpick_dict.get("style", "")
+        styles: List[str] = [style_value] if isinstance(style_value, str) else style_value
+
+        all_flattened: TomlDict = {}
+        for style in styles:
+            if style.startswith("http"):
+                # If the style is a URL, save the contents in the cache dir
+                style_path = self.load_style_from_url(style)
+                LOG.info("Loading style from URL: %s", style_path)
+            elif style:
+                style_path = Path(style)
+                if not style_path.exists():
+                    raise FileNotFoundError(f"Style file does not exist: {style}")
+                LOG.info("Loading style from file: %s", style_path)
             else:
-                style_path = self.load_style_from_url(DEFAULT_NITPICK_STYLE_URL)
-                LOG.info("Loading default Nitpick style %s into local file %s", DEFAULT_NITPICK_STYLE_URL, style_path)
-
-        return style_path
+                paths = climb_directory_tree(self.root_dir, [NITPICK_STYLE_TOML])
+                if paths:
+                    style_path = paths[0]
+                    LOG.info("Loading style from directory tree: %s", style_path)
+                else:
+                    style_path = self.load_style_from_url(DEFAULT_NITPICK_STYLE_URL)
+                    LOG.info(
+                        "Loading default Nitpick style %s into local file %s", DEFAULT_NITPICK_STYLE_URL, style_path
+                    )
+            flattened_style_dict: TomlDict = flatten(toml.load(str(style_path)), separator=UNIQUE_SEPARATOR)
+            all_flattened.update(flattened_style_dict)
+        return unflatten(all_flattened, separator=UNIQUE_SEPARATOR)
 
     def load_style_from_url(self, url: str) -> Path:
         """Load a style file from a URL."""
@@ -127,13 +141,13 @@ class NitpickConfig(NitpickMixin):
             raise FileNotFoundError(f"Error {response} fetching style URL {url}")
 
         contents = response.text
-        style_path = self.cache_dir / "cached_style.toml"
+        style_path = self.cache_dir / f"{slugify(url)}.toml"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
         return style_path
 
     @classmethod
-    def get_singleton(cls):
+    def get_singleton(cls) -> "NitpickConfig":
         """Init the global singleton instance of the plugin configuration, needed by all file checkers."""
         if cls._singleton_instance is None:
             cls._singleton_instance = cls()

@@ -31,6 +31,7 @@ toml  = "*"
 requests = "*"
 dictdiffer = "*"
 pyyaml = "*"
+python-slugify = "*"
 
 [tool.poetry.dev-dependencies]
 flake8-blind-except = "*"

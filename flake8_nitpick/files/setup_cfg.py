@@ -28,13 +28,13 @@ class SetupCfgFile(BaseFile):
 
     def get_missing_output(self, actual_sections: Set[str] = None) -> str:
         """Get a missing output string example from the missing sections in setup.cfg."""
-        self.expected_sections = set(self.file_toml.keys())
+        self.expected_sections = set(self.file_dict.keys())
         self.missing_sections = self.expected_sections - (actual_sections or set())
 
         if self.missing_sections:
             missing_cfg = ConfigParser()
             for section in sorted(self.missing_sections):
-                missing_cfg[section] = self.file_toml[section]
+                missing_cfg[section] = self.file_dict[section]
             return self.get_example_cfg(missing_cfg)
         return ""
 
@@ -43,7 +43,7 @@ class SetupCfgFile(BaseFile):
         if not self.file_path.exists():
             return
 
-        self.comma_separated_values = set(self.nitpick_file_toml.pop(self.COMMA_SEPARATED_VALUES, []))
+        self.comma_separated_values = set(self.nitpick_file_dict.pop(self.COMMA_SEPARATED_VALUES, []))
 
         setup_cfg = ConfigParser()
         setup_cfg.read_file(self.file_path.open())
@@ -55,7 +55,7 @@ class SetupCfgFile(BaseFile):
 
         generators = []
         for section in self.expected_sections - self.missing_sections:
-            expected_dict = self.file_toml[section]
+            expected_dict = self.file_dict[section]
             actual_dict = dict(setup_cfg[section])
             for diff_type, key, values in dictdiffer.diff(expected_dict, actual_dict):
                 if diff_type == dictdiffer.CHANGE:
