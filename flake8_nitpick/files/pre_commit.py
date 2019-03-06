@@ -86,7 +86,7 @@ class PreCommitFile(BaseFile):
         """Show the keys that are not present in a section."""
         missing = dict(values)
         output = yaml.dump(missing, default_flow_style=False)
-        yield self.flake8_error(8, f"Missing keys:\n{output}")
+        yield self.flake8_error(8, f" has missing values:\n{output}")
 
     def compare_different_keys(self, key, raw_expected: Any, raw_actual: Any):
         """Compare different keys."""
@@ -99,7 +99,7 @@ class PreCommitFile(BaseFile):
             expected = raw_expected
         if actual != expected:
             example = yaml.dump({key: raw_expected}, default_flow_style=False)
-            yield self.flake8_error(9, f"Expected value {raw_expected!r} in key, got {raw_actual!r}\n{example}")
+            yield self.flake8_error(9, f": {key!r} is {raw_actual!r} but it should be like this:\n{example}")
 
     @staticmethod
     def format_hook(expected_dict: dict) -> str:

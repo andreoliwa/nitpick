@@ -17,7 +17,7 @@ class BaseFile(NitpickMixin):
         from flake8_nitpick.config import NitpickConfig
 
         self.config = NitpickConfig.get_singleton()
-        self.error_prefix = f"File: {self.file_name}: "
+        self.error_prefix = f"File {self.file_name}"
         self.file_path: Path = self.config.root_dir / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
@@ -42,12 +42,12 @@ class BaseFile(NitpickMixin):
 
         if should_exist and not file_exists:
             suggestion = self.suggest_initial_contents()
-            phrases = ["Missing file"]
+            phrases = [" was not found"]
             missing_message = self.nitpick_file_dict.get("missing_message", "")
             if missing_message:
                 phrases.append(missing_message)
             if suggestion:
-                phrases.append(f"Suggested content:\n{suggestion}")
+                phrases.append(f"Create it with this content:\n{suggestion}")
             yield self.flake8_error(1, ". ".join(phrases))
         elif not should_exist and file_exists:
             yield self.flake8_error(2, "File should be deleted")

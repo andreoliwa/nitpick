@@ -25,9 +25,9 @@ def test_comma_separated_keys_on_style_file(request):
     )
     project.assert_errors_contain(
         """
-        NIP322 File: setup.cfg: Missing values in key
+        NIP322 File setup.cfg has missing values in the 'eat' key. Include those values:
         [food]
-        eat = ham,salt
+        eat = (...),ham,salt
         """
     )
 
@@ -50,7 +50,7 @@ def test_missing_setup_cfg(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP321 File: setup.cfg: Missing file. Do something here. Suggested content:
+        NIP321 File setup.cfg was not found. Do something here. Create it with this content:
         [flake8]
         max-line-length = 120
 

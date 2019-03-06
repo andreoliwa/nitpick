@@ -10,4 +10,4 @@ def test_missing_pyproject_toml(request):
         [nitpick.files."pyproject.toml"]
         "missing_message" = "Do something"
         """
-    ).lint().assert_errors_contain(f"NIP311 File: {PyProjectTomlFile.file_name}: Missing file. Do something")
+    ).lint().assert_errors_contain(f"NIP311 File {PyProjectTomlFile.file_name} was not found. Do something")

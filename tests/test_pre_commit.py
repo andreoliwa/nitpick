@@ -18,7 +18,7 @@ def test_missing_pre_commit_config_yaml(request):
         '''
     ).lint().assert_errors_contain(
         """
-        NIP331 File: .pre-commit-config.yaml: Missing file. Suggested content:
+        NIP331 File .pre-commit-config.yaml was not found. Create it with this content:
         repos:
         - hooks:
           - any: valid
@@ -41,7 +41,7 @@ def test_root_values_on_missing_file(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP331 File: .pre-commit-config.yaml: Missing file. Suggested content:
+        NIP331 File .pre-commit-config.yaml was not found. Create it with this content:
         fail_fast: true
         whatever: '1'
         """
@@ -66,13 +66,13 @@ def test_root_values_on_existing_file(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP338 File: .pre-commit-config.yaml: Missing keys:
+        NIP338 File .pre-commit-config.yaml has missing values:
         blabla: what
         fail_fast: true
         """
     ).assert_errors_contain(
         """
-        NIP339 File: .pre-commit-config.yaml: Expected value True in key, got False
+        NIP339 File .pre-commit-config.yaml: 'something' is False but it should be like this:
         something: true
         """
     )

@@ -59,13 +59,13 @@ def test_multiple_styles(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP311 File: pyproject.toml: Missing values:
+        NIP311 File pyproject.toml has missing values. Use this:
         [tool.black]
         line-length = 100
         """
     ).assert_errors_contain(
         """
-        NIP321 File: setup.cfg: Missing file. Suggested content:
+        NIP321 File setup.cfg was not found. Create it with this content:
         [flake8]
         inline-quotes = double
         something = 123
@@ -123,13 +123,13 @@ def test_include_styles(request):
             """
     ).lint().assert_errors_contain(
         """
-        NIP311 File: pyproject.toml: Missing values:
+        NIP311 File pyproject.toml has missing values. Use this:
         [tool.black]
         line-length = 100
         """
     ).assert_errors_contain(
         """
-        NIP321 File: setup.cfg: Missing file. Suggested content:
+        NIP321 File setup.cfg was not found. Create it with this content:
         [flake8]
         inline-quotes = double
         something = 123

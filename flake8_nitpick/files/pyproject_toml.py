@@ -22,7 +22,7 @@ class PyProjectTomlFile(BaseFile):
         missing_dict = unflatten({k: v for k, v in expected.items() if k not in actual})
         if missing_dict:
             missing_toml = toml.dumps(missing_dict)
-            yield self.flake8_error(1, f"Missing values:\n{missing_toml}")
+            yield self.flake8_error(1, f" has missing values. Use this:\n{missing_toml}")
 
         diff_dict = unflatten({k: v for k, v in expected.items() if k in actual and expected[k] != actual[k]})
         if diff_dict:

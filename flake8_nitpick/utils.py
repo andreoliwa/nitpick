@@ -15,4 +15,4 @@ class NitpickMixin:
 
         from flake8_nitpick.plugin import NitpickChecker
 
-        return 1, 0, f"{ERROR_PREFIX}{final_number} {self.error_prefix}{error_message.strip()}", NitpickChecker
+        return 1, 0, f"{ERROR_PREFIX}{final_number} {self.error_prefix}{error_message.rstrip()}", NitpickChecker

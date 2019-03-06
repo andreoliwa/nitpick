@@ -77,7 +77,11 @@ class SetupCfgFile(BaseFile):
             expected_set = {s.strip() for s in raw_expected.split(",")}
             missing = expected_set - actual_set
             if missing:
-                yield self.flake8_error(2, f"Missing values in key\n[{section}]\n{key} = {','.join(sorted(missing))}")
+                yield self.flake8_error(
+                    2,
+                    f" has missing values in the {key!r} key."
+                    + f" Include those values:\n[{section}]\n{key} = (...),{','.join(sorted(missing))}",
+                )
             return
 
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
