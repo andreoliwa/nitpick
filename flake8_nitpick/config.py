@@ -3,7 +3,7 @@ import itertools
 import logging
 from pathlib import Path
 from shutil import rmtree
-from typing import Any, Dict, List, MutableMapping, Optional, Union
+from typing import Any, Dict, List, MutableMapping, Optional, Set
 
 import requests
 import toml
@@ -13,14 +13,16 @@ from flake8_nitpick.constants import (
     DEFAULT_NITPICK_STYLE_URL,
     NAME,
     NITPICK_STYLE_TOML,
+    NITPICK_STYLES_INCLUDE_JMEX,
     ROOT_FILES,
     ROOT_PYTHON_FILES,
+    TOOL_NITPICK_JMEX,
     UNIQUE_SEPARATOR,
 )
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.files.setup_cfg import SetupCfgFile
-from flake8_nitpick.generic import climb_directory_tree, flatten, rmdir_if_empty, unflatten
-from flake8_nitpick.types import PathOrStr, TomlDict, YieldFlake8Error
+from flake8_nitpick.generic import climb_directory_tree, flatten, rmdir_if_empty, search_dict, unflatten
+from flake8_nitpick.types import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
 from flake8_nitpick.utils import NitpickMixin
 
 LOG = logging.getLogger("flake8.nitpick")
@@ -44,6 +46,18 @@ class NitpickConfig(NitpickMixin):
         self.style_dict: MutableMapping[str, Any] = {}
         self.nitpick_dict: MutableMapping[str, Any] = {}
         self.files: Dict[str, Any] = {}
+
+    @classmethod
+    def get_singleton(cls) -> "NitpickConfig":
+        """Init the global singleton instance of the plugin configuration, needed by all file checkers."""
+        if cls._singleton_instance is None:
+            cls._singleton_instance = cls()
+        return cls._singleton_instance
+
+    @classmethod
+    def reset_singleton(cls):
+        """Reset the singleton instance. Useful on automated tests, to simulate ``flake8`` execution."""
+        cls._singleton_instance = None
 
     def find_root_dir(self, starting_file: PathOrStr) -> bool:
         """Find the root dir of the Python project: the dir that has one of the `ROOT_FILES`.
@@ -90,46 +104,78 @@ class NitpickConfig(NitpickMixin):
         """Load TOML configuration from files."""
         pyproject_path: Path = self.root_dir / PyProjectTomlFile.file_name
         if pyproject_path.exists():
-            self.pyproject_dict: TomlDict = toml.load(str(pyproject_path))
-            self.tool_nitpick_dict: TomlDict = self.pyproject_dict.get("tool", {}).get("nitpick", {})
+            self.pyproject_dict: JsonDict = toml.load(str(pyproject_path))
+            self.tool_nitpick_dict: JsonDict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})
 
         try:
-            self.style_dict: TomlDict = self.find_styles()
+            self.style_dict: JsonDict = self.fetch_initial_style()
         except FileNotFoundError as err:
             yield self.flake8_error(2, str(err))
             return
-        self.nitpick_dict: TomlDict = self.style_dict.get("nitpick", {})
+        self.nitpick_dict: JsonDict = self.style_dict.get("nitpick", {})
         self.files = self.nitpick_dict.get("files", {})
 
-    def find_styles(self) -> TomlDict:
-        """Search for one or multiple style files."""
-        style_value: Union[str, List[str]] = self.tool_nitpick_dict.get("style", "")
-        styles: List[str] = [style_value] if isinstance(style_value, str) else style_value
-
-        all_flattened: TomlDict = {}
-        for style in styles:
-            if style.startswith("http"):
-                # If the style is a URL, save the contents in the cache dir
-                style_path = self.load_style_from_url(style)
-                LOG.info("Loading style from URL: %s", style_path)
-            elif style:
-                style_path = Path(style)
-                if not style_path.exists():
-                    raise FileNotFoundError(f"Style file does not exist: {style}")
-                LOG.info("Loading style from file: %s", style_path)
+    def fetch_initial_style(self) -> JsonDict:
+        """Fetch the initial for one or multiple style files."""
+        configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
+        if configured_styles:
+            chosen_styles = configured_styles
+        else:
+            paths = climb_directory_tree(self.root_dir, [NITPICK_STYLE_TOML])
+            if paths:
+                chosen_styles = str(paths[0])
+                LOG.info("Found style climbing the directory tree: %s", chosen_styles)
             else:
-                paths = climb_directory_tree(self.root_dir, [NITPICK_STYLE_TOML])
-                if paths:
-                    style_path = paths[0]
-                    LOG.info("Loading style from directory tree: %s", style_path)
-                else:
-                    style_path = self.load_style_from_url(DEFAULT_NITPICK_STYLE_URL)
-                    LOG.info(
-                        "Loading default Nitpick style %s into local file %s", DEFAULT_NITPICK_STYLE_URL, style_path
-                    )
-            flattened_style_dict: TomlDict = flatten(toml.load(str(style_path)), separator=UNIQUE_SEPARATOR)
-            all_flattened.update(flattened_style_dict)
-        return unflatten(all_flattened, separator=UNIQUE_SEPARATOR)
+                chosen_styles = DEFAULT_NITPICK_STYLE_URL
+                LOG.info("Loading default Nitpick style %s", DEFAULT_NITPICK_STYLE_URL)
+
+        assert self.cache_dir
+        tree = StyleTree(self.cache_dir)
+        tree.include_styles(chosen_styles)
+        return tree.merge_toml_dict()
+
+
+class StyleTree:
+    """Class to include styles recursively from one another."""
+
+    def __init__(self, cache_dir: Path) -> None:
+        self.cache_dir: Path = cache_dir
+        self._all_flattened: JsonDict = {}
+        self._already_included: Set[str] = set()
+
+    def include_styles(self, chosen_styles: StrOrList) -> None:
+        """Include one style or a list of styles into this style tree."""
+        style_uris: List[str] = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles
+
+        for style_uri in style_uris:
+            clean_style_uri = style_uri.strip()
+            if clean_style_uri.startswith("http"):
+                if clean_style_uri in self._already_included:
+                    continue
+
+                # If the style is a URL, save the contents in the cache dir
+                style_path = self.load_style_from_url(clean_style_uri)
+                LOG.info("Loading style from URL %s into %s", clean_style_uri, style_path)
+                self._already_included.add(clean_style_uri)
+            elif clean_style_uri:
+                style_path = Path(clean_style_uri).absolute()
+                if str(style_path) in self._already_included:
+                    continue
+                if not style_path.exists():
+                    raise FileNotFoundError(f"Style file does not exist: {clean_style_uri}")
+                LOG.info("Loading style from file: %s", style_path)
+                self._already_included.add(str(style_path))
+            else:
+                # If the style is an empty string, skip it
+                continue
+            toml_dict = toml.load(str(style_path))
+
+            sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
+
+            flattened_style_dict: JsonDict = flatten(toml_dict, separator=UNIQUE_SEPARATOR)
+            self._all_flattened.update(flattened_style_dict)
+
+            self.include_styles(sub_styles)
 
     def load_style_from_url(self, url: str) -> Path:
         """Load a style file from a URL."""
@@ -146,14 +192,6 @@ class NitpickConfig(NitpickMixin):
         style_path.write_text(contents)
         return style_path
 
-    @classmethod
-    def get_singleton(cls) -> "NitpickConfig":
-        """Init the global singleton instance of the plugin configuration, needed by all file checkers."""
-        if cls._singleton_instance is None:
-            cls._singleton_instance = cls()
-        return cls._singleton_instance
-
-    @classmethod
-    def reset_singleton(cls):
-        """Reset the singleton instance. Useful on automated tests, to simulate ``flake8`` execution."""
-        cls._singleton_instance = None
+    def merge_toml_dict(self) -> JsonDict:
+        """Merge all included styles into a TOML (actually JSON) dictionary."""
+        return unflatten(self._all_flattened, separator=UNIQUE_SEPARATOR)

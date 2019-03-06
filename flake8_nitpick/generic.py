@@ -1,9 +1,12 @@
 """Generic functions and classes."""
 import collections
 from pathlib import Path
-from typing import Any, Iterable, List, Optional
+from typing import Any, Iterable, List, Optional, Union
 
-from flake8_nitpick.types import PathOrStr
+import jmespath
+from jmespath.parser import ParsedResult
+
+from flake8_nitpick.types import JsonDict, PathOrStr
 
 
 def get_subclasses(cls):
@@ -16,7 +19,11 @@ def get_subclasses(cls):
 
 
 def flatten(dict_, parent_key="", separator="."):
-    """Flatten a nested dict."""
+    """Flatten a nested dict.
+
+    >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False})
+    {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
+    """
     items = []
     for key, value in dict_.items():
         new_key = parent_key + separator + key if parent_key else key
@@ -28,7 +35,11 @@ def flatten(dict_, parent_key="", separator="."):
 
 
 def unflatten(dict_, separator="."):
-    """Turn back a flattened dict into a nested dict."""
+    """Turn back a flattened dict into a nested dict.
+
+    >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4})
+    {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
+    """
     items = {}
     for k, v in dict_.items():
         keys = k.split(separator)
@@ -61,7 +72,18 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
 
 
 def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) -> dict:
-    """Find an object in a list, using a key/value pair to search."""
+    """Find an object in a list, using a key/value pair to search.
+
+    >>> fruits = [{"id": 1, "fruit": "banana"}, {"id": 2, "fruit": "apple"}, {"id": 3, "fruit": "mango"}]
+    >>> find_object_by_key(fruits, "id", 1)
+    {'id': 1, 'fruit': 'banana'}
+    >>> find_object_by_key(fruits, "fruit", "banana")
+    {'id': 1, 'fruit': 'banana'}
+    >>> find_object_by_key(fruits, "fruit", "pear")
+    {}
+    >>> find_object_by_key(fruits, "fruit", "mango")
+    {'id': 3, 'fruit': 'mango'}
+    """
     for obj in list_:
         if obj.get(search_key) == search_value:
             return obj
@@ -78,3 +100,32 @@ def rmdir_if_empty(path_or_str: PathOrStr):
         next(path.iterdir())
     except StopIteration:
         path.rmdir()
+
+
+def search_dict(jmespath_expression: Union[ParsedResult, str], data: JsonDict, default: Any) -> Any:
+    """Search a dictionary using a JMESPath expression, and returning a default value.
+
+    >>> data = {"root": {"app": [1, 2], "test": "something"}}
+    >>> search_dict("root.app", data, None)
+    [1, 2]
+    >>> search_dict("root.test", data, None)
+    'something'
+    >>> search_dict("root.unknown", data, "")
+    ''
+    >>> search_dict("root.unknown", data, None)
+
+    >>> search_dict(jmespath.compile("root.app"), data, [])
+    [1, 2]
+    >>> search_dict(jmespath.compile("root.whatever"), data, "xxx")
+    'xxx'
+
+    :param jmespath_expression: A compiled JMESPath expression or a string with an expression.
+    :param data: The dictionary to be searched.
+    :param default: Default value in case nothing is found.
+    :return: The object that was found or the default value.
+    """
+    if isinstance(jmespath_expression, str):
+        rv = jmespath.search(jmespath_expression, data)
+    else:
+        rv = jmespath_expression.search(data)
+    return rv or default

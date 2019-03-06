@@ -32,6 +32,7 @@ requests = "*"
 dictdiffer = "*"
 pyyaml = "*"
 python-slugify = "*"
+jmespath = "*"
 
 [tool.poetry.dev-dependencies]
 flake8-blind-except = "*"

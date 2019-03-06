@@ -1,7 +1,8 @@
 """Base file checker."""
 from pathlib import Path
 
-from flake8_nitpick.types import TomlDict, YieldFlake8Error
+from flake8_nitpick.generic import search_dict
+from flake8_nitpick.types import JsonDict, YieldFlake8Error
 from flake8_nitpick.utils import NitpickMixin
 
 
@@ -20,10 +21,10 @@ class BaseFile(NitpickMixin):
         self.file_path: Path = self.config.root_dir / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict: TomlDict = self.config.style_dict.get(self.toml_key, {})
+        self.file_dict: JsonDict = self.config.style_dict.get(self.toml_key, {})
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
-        self.nitpick_file_dict: TomlDict = self.config.nitpick_dict.get("files", {}).get(self.file_name, {})
+        self.nitpick_file_dict: JsonDict = search_dict(f'files."{self.file_name}"', self.config.nitpick_dict, {})
 
     @property
     def toml_key(self):

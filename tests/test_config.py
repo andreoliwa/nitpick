@@ -81,3 +81,75 @@ def test_multiple_styles(request):
         xxx = yyy
         """
     )
+
+
+def test_include_styles(request):
+    """One style file can include another (also recursively). Ignore styles that were already included."""
+    project = (
+        ProjectMock(request)
+        .named_style(
+            "isort1",
+            """
+            [nitpick.styles]
+            include = "isort2.toml"
+            ["setup.cfg".isort]
+            line_length = 80
+            known_first_party = "tests"
+            xxx = "aaa"
+            """,
+        )
+        .named_style(
+            "isort2",
+            """
+            [nitpick.styles]
+            include = ["isort2.toml", "flake8.toml"]
+            ["setup.cfg".isort]
+            line_length = 120
+            xxx = "yyy"
+            """,
+        )
+        .named_style(
+            "flake8",
+            """
+            [nitpick.styles]
+            include = ["black.toml", "", " "]
+            ["setup.cfg".flake8]
+            inline-quotes = "double"
+            something = 123
+            """,
+        )
+        .named_style(
+            "black",
+            """
+            [nitpick.styles]
+            include = ["isort2.toml", "isort1.toml"]
+            ["pyproject.toml".tool.black]
+            line-length = 100
+            """,
+        )
+        .pyproject_toml(
+            """
+            [tool.nitpick]
+            style = "isort1.toml"
+            """
+        )
+    )
+    project.lint().assert_errors_contain(
+        """
+        NIP311 File: pyproject.toml: Missing values:
+        [tool.black]
+        line-length = 100
+        """
+    ).assert_errors_contain(
+        """
+        NIP321 File: setup.cfg: Missing file. Suggested content:
+        [flake8]
+        inline-quotes = double
+        something = 123
+
+        [isort]
+        line_length = 120
+        known_first_party = tests
+        xxx = yyy
+        """
+    )
