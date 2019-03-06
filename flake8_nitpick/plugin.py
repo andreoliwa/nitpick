@@ -7,7 +7,7 @@ import attr
 
 from flake8_nitpick import __version__
 from flake8_nitpick.config import NitpickConfig
-from flake8_nitpick.constants import NAME, ROOT_PYTHON_FILES
+from flake8_nitpick.constants import PROJECT_NAME, ROOT_PYTHON_FILES
 from flake8_nitpick.files.base import BaseFile
 from flake8_nitpick.generic import get_subclasses
 from flake8_nitpick.types import YieldFlake8Error
@@ -21,7 +21,7 @@ class NitpickChecker(NitpickMixin):
     """Main plugin class."""
 
     # Plugin config
-    name = NAME
+    name = PROJECT_NAME
     version = __version__
 
     # NitpickMixin

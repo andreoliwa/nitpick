@@ -1,7 +1,7 @@
 """Constants."""
 import jmespath
 
-NAME = "flake8-nitpick"
+PROJECT_NAME = "flake8-nitpick"
 ERROR_PREFIX = "NIP"
 NITPICK_STYLE_TOML = "nitpick-style.toml"
 DEFAULT_NITPICK_STYLE_URL = f"https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/{NITPICK_STYLE_TOML}"
@@ -15,3 +15,4 @@ UNIQUE_SEPARATOR = "$#@"
 # JMESPath expressions
 TOOL_NITPICK_JMEX = jmespath.compile("tool.nitpick")
 NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
+NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")

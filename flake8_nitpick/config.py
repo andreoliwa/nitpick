@@ -11,9 +11,10 @@ from slugify import slugify
 
 from flake8_nitpick.constants import (
     DEFAULT_NITPICK_STYLE_URL,
-    NAME,
+    NITPICK_MINIMUM_VERSION_JMEX,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
+    PROJECT_NAME,
     ROOT_FILES,
     ROOT_PYTHON_FILES,
     TOOL_NITPICK_JMEX,
@@ -21,7 +22,14 @@ from flake8_nitpick.constants import (
 )
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.files.setup_cfg import SetupCfgFile
-from flake8_nitpick.generic import climb_directory_tree, flatten, rmdir_if_empty, search_dict, unflatten
+from flake8_nitpick.generic import (
+    climb_directory_tree,
+    flatten,
+    rmdir_if_empty,
+    search_dict,
+    unflatten,
+    version_to_tuple,
+)
 from flake8_nitpick.types import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
 from flake8_nitpick.utils import NitpickMixin
 
@@ -96,27 +104,17 @@ class NitpickConfig(NitpickMixin):
         if not self.root_dir:
             return
         cache_root: Path = self.root_dir / ".cache"
-        self.cache_dir = cache_root / NAME
+        self.cache_dir = cache_root / PROJECT_NAME
         rmtree(str(self.cache_dir), ignore_errors=True)
         rmdir_if_empty(cache_root)
 
-    def load_toml(self) -> YieldFlake8Error:
-        """Load TOML configuration from files."""
+    def load_toml(self) -> YieldFlake8Error:  # FIXME: fetch_initial_style
+        """Fetch the initial style for one or multiple style files."""
         pyproject_path: Path = self.root_dir / PyProjectTomlFile.file_name
         if pyproject_path.exists():
             self.pyproject_dict: JsonDict = toml.load(str(pyproject_path))
             self.tool_nitpick_dict: JsonDict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})
 
-        try:
-            self.style_dict: JsonDict = self.fetch_initial_style()
-        except FileNotFoundError as err:
-            yield self.flake8_error(2, str(err))
-            return
-        self.nitpick_dict: JsonDict = self.style_dict.get("nitpick", {})
-        self.files = self.nitpick_dict.get("files", {})
-
-    def fetch_initial_style(self) -> JsonDict:
-        """Fetch the initial for one or multiple style files."""
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
         if configured_styles:
             chosen_styles = configured_styles
@@ -129,17 +127,29 @@ class NitpickConfig(NitpickMixin):
                 chosen_styles = DEFAULT_NITPICK_STYLE_URL
                 LOG.info("Loading default Nitpick style %s", DEFAULT_NITPICK_STYLE_URL)
 
-        assert self.cache_dir
         tree = StyleTree(self.cache_dir)
         tree.include_styles(chosen_styles)
-        return tree.merge_toml_dict()
+        self.style_dict = tree.merge_toml_dict()
+
+        minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
+        from flake8_nitpick.plugin import NitpickChecker
+
+        if minimum_version and version_to_tuple(NitpickChecker.version) < version_to_tuple(minimum_version):
+            yield self.flake8_error(
+                3,
+                f"The style file you're using requires {PROJECT_NAME}>={minimum_version}"
+                + f" (you have {NitpickChecker.version}). Please upgrade",
+            )
+
+        self.nitpick_dict: JsonDict = self.style_dict.get("nitpick", {})
+        self.files = self.nitpick_dict.get("files", {})
 
 
 class StyleTree:
     """Class to include styles recursively from one another."""
 
-    def __init__(self, cache_dir: Path) -> None:
-        self.cache_dir: Path = cache_dir
+    def __init__(self, cache_dir: Optional[Path]) -> None:
+        self.cache_dir: Optional[Path] = cache_dir
         self._all_flattened: JsonDict = {}
         self._already_included: Set[str] = set()
 

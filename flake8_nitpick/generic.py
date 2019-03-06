@@ -1,7 +1,7 @@
 """Generic functions and classes."""
 import collections
 from pathlib import Path
-from typing import Any, Iterable, List, Optional, Union
+from typing import Any, Iterable, List, Optional, Tuple, Union
 
 import jmespath
 from jmespath.parser import ParsedResult
@@ -129,3 +129,30 @@ def search_dict(jmespath_expression: Union[ParsedResult, str], data: JsonDict, d
     else:
         rv = jmespath_expression.search(data)
     return rv or default
+
+
+def version_to_tuple(version: str = None) -> Tuple[int, ...]:
+    """Transform a version number into a tuple of integers, for comparison.
+
+    >>> version_to_tuple("")
+    ()
+    >>> version_to_tuple("  ")
+    ()
+    >>> version_to_tuple(None)
+    ()
+    >>> version_to_tuple("1.0.1")
+    (1, 0, 1)
+    >>> version_to_tuple(" 0.2 ")
+    (0, 2)
+    >>> version_to_tuple(" 2 ")
+    (2,)
+
+    :param version: String with the version number. It must be integers split by dots.
+    :return: Tuple with the version number.
+    """
+    if not version:
+        return ()
+    clean_version = version.strip()
+    if not clean_version:
+        return ()
+    return tuple(int(part) for part in clean_version.split("."))
