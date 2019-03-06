@@ -1,3 +1,15 @@
+<a name="0.9.0"></a>
+# [0.9.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.8.1...v0.9.0) (2019-03-06)
+
+
+### Features
+
+* improve error messages ([8a1ea4e](https://github.com/andreoliwa/flake8-nitpick/commit/8a1ea4e))
+* minimum required version on style file ([4090cdc](https://github.com/andreoliwa/flake8-nitpick/commit/4090cdc))
+* one style file can include another (also recursively) ([d963a8d](https://github.com/andreoliwa/flake8-nitpick/commit/d963a8d))
+
+
+
 <a name="0.8.1"></a>
 ## [0.8.1](https://github.com/andreoliwa/flake8-nitpick/compare/v0.8.0...v0.8.1) (2019-03-04)
 
