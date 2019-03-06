@@ -15,6 +15,9 @@ missing_message = "Install poetry and run 'poetry init' to create it"
 ["pyproject.toml".tool.black]
 line-length = 120
 
+["pyproject.toml".tool.poetry.dependencies]
+python = "^3.6 || ^3.7"
+
 ["pyproject.toml".tool.poetry.dev-dependencies]
 black = {version = "*", allows-prereleases = true}
 flake8-blind-except = "*"
