@@ -50,7 +50,7 @@ class BaseFile(NitpickMixin):
                 phrases.append(f"Create it with this content:\n{suggestion}")
             yield self.flake8_error(1, ". ".join(phrases))
         elif not should_exist and file_exists:
-            yield self.flake8_error(2, "File should be deleted")
+            yield self.flake8_error(2, " should be deleted")
         elif file_exists:
             yield from self.check_rules()
 

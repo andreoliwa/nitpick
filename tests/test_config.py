@@ -51,17 +51,26 @@ def test_multiple_styles(request):
         """
         ["pyproject.toml".tool.black]
         line-length = 100
+        something = 11
         """,
     ).pyproject_toml(
         """
         [tool.nitpick]
         style = ["isort1.toml", "isort2.toml", "flake8.toml", "black.toml"]
+        [tool.black]
+        something = 22
         """
     ).lint().assert_errors_contain(
         """
         NIP311 File pyproject.toml has missing values. Use this:
         [tool.black]
         line-length = 100
+        """
+    ).assert_errors_contain(
+        """
+        NIP312 File pyproject.toml has different values. Use this:
+        [tool.black]
+        something = 11
         """
     ).assert_errors_contain(
         """

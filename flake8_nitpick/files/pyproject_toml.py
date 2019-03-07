@@ -27,4 +27,4 @@ class PyProjectTomlFile(BaseFile):
         diff_dict = unflatten({k: v for k, v in expected.items() if k in actual and expected[k] != actual[k]})
         if diff_dict:
             diff_toml = toml.dumps(diff_dict)
-            yield self.flake8_error(2, f"Different values:\n{diff_toml}")
+            yield self.flake8_error(2, f" has different values. Use this:\n{diff_toml}")
