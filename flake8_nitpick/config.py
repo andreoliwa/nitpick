@@ -108,7 +108,7 @@ class NitpickConfig(NitpickMixin):
         rmtree(str(self.cache_dir), ignore_errors=True)
         rmdir_if_empty(cache_root)
 
-    def load_toml(self) -> YieldFlake8Error:  # FIXME: fetch_initial_style
+    def fetch_initial_style(self) -> YieldFlake8Error:
         """Fetch the initial style for one or multiple style files."""
         pyproject_path: Path = self.root_dir / PyProjectTomlFile.file_name
         if pyproject_path.exists():

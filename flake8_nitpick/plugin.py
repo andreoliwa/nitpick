@@ -56,7 +56,7 @@ class NitpickChecker(NitpickMixin):
             return
         LOG.info("Nitpicking file: %s", self.filename)
 
-        yield from itertools.chain(self.config.load_toml(), self.check_absent_files())
+        yield from itertools.chain(self.config.fetch_initial_style(), self.check_absent_files())
 
         for checker_class in get_subclasses(BaseFile):
             checker = checker_class()
