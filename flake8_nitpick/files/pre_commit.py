@@ -1,4 +1,4 @@
-"""Checker for the .pre-commit-config.yaml config file."""
+"""Checker for the pre-commit config file."""
 from typing import Any, Dict, List, Tuple
 
 import dictdiffer

@@ -21,15 +21,15 @@ class BaseFile(NitpickMixin):
         self.file_path: Path = self.config.root_dir / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict: JsonDict = self.config.style_dict.get(self.toml_key, {})
+        self.file_dict: JsonDict = self.config.style_dict.get(self.toml_key(), {})
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
         self.nitpick_file_dict: JsonDict = search_dict(f'files."{self.file_name}"', self.config.nitpick_dict, {})
 
-    @property
-    def toml_key(self):
+    @classmethod
+    def toml_key(cls):
         """Remove the dot in the beginning of the file name, otherwise it's an invalid TOML key."""
-        return self.file_name.lstrip(".")
+        return cls.file_name.lstrip(".")
 
     def check_exists(self) -> YieldFlake8Error:
         """Check if the file should exist; if there is style configuration for the file, then it should exist.
@@ -37,7 +37,7 @@ class BaseFile(NitpickMixin):
         The file should exist when there is any rule configured for it in the style file,
         TODO: add this to the docs
         """
-        should_exist: bool = self.config.files.get(self.toml_key, bool(self.file_dict or self.nitpick_file_dict))
+        should_exist: bool = self.config.files.get(self.toml_key(), bool(self.file_dict or self.nitpick_file_dict))
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
