@@ -5,6 +5,8 @@
 [![Coveralls](https://coveralls.io/repos/github/andreoliwa/flake8-nitpick/badge.svg?branch=master)](https://coveralls.io/github/andreoliwa/flake8-nitpick?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/maintainability)](https://codeclimate.com/github/andreoliwa/flake8-nitpick/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/test_coverage)](https://codeclimate.com/github/andreoliwa/flake8-nitpick/test_coverage)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/flake8-nitpick.svg)](https://pypi.org/project/flake8-nitpick/)
+[![Project License](https://img.shields.io/pypi/l/flake8-nitpick.svg)](https://pypi.org/project/flake8-nitpick/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects.
