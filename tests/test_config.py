@@ -22,7 +22,7 @@ def test_no_main_python_file_root_dir(request):
     }
 
 
-def test_multiple_styles(request):
+def test_multiple_styles_overriding_values(request):
     """Test multiple style files with precedence (the latest ones overrides the previous ones)."""
     ProjectMock(request).named_style(
         "isort1",
@@ -33,7 +33,7 @@ def test_multiple_styles(request):
         xxx = "aaa"
         """,
     ).named_style(
-        "isort2",
+        "styles/isort2",
         """
         ["setup.cfg".isort]
         line_length = 120
@@ -56,7 +56,7 @@ def test_multiple_styles(request):
     ).pyproject_toml(
         """
         [tool.nitpick]
-        style = ["isort1.toml", "isort2.toml", "flake8.toml", "black.toml"]
+        style = ["isort1.toml", "styles/isort2.toml", "flake8.toml", "black.toml"]
         [tool.black]
         something = 22
         """
@@ -87,23 +87,23 @@ def test_multiple_styles(request):
     )
 
 
-def test_include_styles(request):
+def test_include_styles_overriding_values(request):
     """One style file can include another (also recursively). Ignore styles that were already included."""
     ProjectMock(request).named_style(
         "isort1",
         """
         [nitpick.styles]
-        include = "isort2.toml"
+        include = "styles/isort2.toml"
         ["setup.cfg".isort]
         line_length = 80
         known_first_party = "tests"
         xxx = "aaa"
         """,
     ).named_style(
-        "isort2",
+        "styles/isort2",
         """
         [nitpick.styles]
-        include = ["isort2.toml", "flake8.toml"]
+        include = ["styles/isort2.toml", "flake8.toml"]
         ["setup.cfg".isort]
         line_length = 120
         xxx = "yyy"
@@ -121,7 +121,7 @@ def test_include_styles(request):
         "black",
         """
         [nitpick.styles]
-        include = ["isort2.toml", "isort1.toml"]
+        include = ["styles/isort2.toml", "isort1.toml"]
         ["pyproject.toml".tool.black]
         line-length = 100
         """,

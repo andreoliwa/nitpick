@@ -63,6 +63,8 @@ class ProjectMock:
     def save_file(self, file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents."""
         path: Path = self.root_dir / file_name
+        if "/" in file_name:
+            path.parent.mkdir(parents=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
         path.write_text(dedent(file_contents))
