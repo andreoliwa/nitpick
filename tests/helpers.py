@@ -19,8 +19,8 @@ from tests.conftest import TEMP_ROOT_PATH
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
-    original_errors: List[Flake8Error]
-    errors: Set[str]
+    _original_errors: List[Flake8Error]
+    _errors: Set[str]
 
     fixture_dir: Path = Path(__file__).parent / "fixtures"
 
@@ -49,25 +49,35 @@ class ProjectMock:
     def lint(self, file_index: int = 0) -> "ProjectMock":
         """Lint one of the project files. If no index is provided, use the default file that's always created."""
         npc = NitpickChecker(filename=str(self.files_to_lint[file_index]))
-        self.original_errors = list(npc.run())
-        self.errors = set()
-        for flake8_error in self.original_errors:
+        self._original_errors = list(npc.run())
+        self._errors = set()
+        for flake8_error in self._original_errors:
             line, col, message, class_ = flake8_error
             assert line == 1
             assert col == 0
             assert message.startswith(ERROR_PREFIX)
             assert class_ is NitpickChecker
-            self.errors.add(message)
+            self._errors.add(message)
         return self
 
-    def save_file(self, file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
-        """Save a file in the root dir with the desired contents."""
-        path: Path = self.root_dir / file_name
-        if "/" in file_name:
-            path.parent.mkdir(parents=True)
+    def save_file(self, partial_file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
+        """Save a file in the root dir with the desired contents.
+
+        Create the parent dirs if the file name contains a slash.
+
+        :param partial_file_name: If it starts with a slash, then it's already a root.
+            If it doesn't, then we add the root dir before the partial name.
+        :param file_contents: Contents to save in the file.
+        :param lint: Should we lint the file or not? Python (.py) files are always linted.
+        """
+        if str(partial_file_name).startswith("/"):
+            path: Path = Path(partial_file_name)
+        else:
+            path = self.root_dir / partial_file_name
+        path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
-        path.write_text(dedent(file_contents))
+        path.write_text(dedent(file_contents).strip())
         return self
 
     def touch_file(self, file_name: PathOrStr):
@@ -95,15 +105,22 @@ class ProjectMock:
         """Save .pre-commit-config.yaml."""
         return self.save_file(PreCommitFile.file_name, file_contents)
 
-    def assert_errors_contain(self, raw_error: str) -> "ProjectMock":
+    def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
         """Assert the error is in the error set."""
         error = dedent(raw_error).strip()
-        if error in self.errors:
+        if error in self._errors:
+            if expected_count is not None:
+                actual = len(self._errors)
+                assert expected_count == actual, f"Expected {expected_count} errors, got {actual}"
             return self
 
         print(f"Expected error:\n{error}")
         print("\nAll errors:")
-        print(sorted(self.errors))
+        print(sorted(self._errors))
         print("\nAll errors (pprint):")
-        pprint(sorted(self.errors), width=150)
+        pprint(sorted(self._errors), width=150)
         assert False
+
+    def assert_single_error(self, raw_error: str) -> "ProjectMock":
+        """Assert there is only one error."""
+        return self.assert_errors_contain(raw_error, 1)

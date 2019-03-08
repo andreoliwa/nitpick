@@ -128,7 +128,7 @@ class NitpickConfig(NitpickMixin):
                 LOG.info("Loading default Nitpick style %s", DEFAULT_NITPICK_STYLE_URL)
 
         tree = StyleTree(self.cache_dir)
-        tree.include_styles(chosen_styles)
+        tree.include_multiple_styles(chosen_styles)
         self.style_dict = tree.merge_toml_dict()
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
@@ -152,43 +152,39 @@ class StyleTree:
         self.cache_dir: Optional[Path] = cache_dir
         self._all_flattened: JsonDict = {}
         self._already_included: Set[str] = set()
+        self._first_full_path: Optional[Path] = None
 
-    def include_styles(self, chosen_styles: StrOrList) -> None:
-        """Include one style or a list of styles into this style tree."""
+    def include_multiple_styles(self, chosen_styles: StrOrList) -> None:
+        """Include a list of styles (or just one) into this style tree."""
         style_uris: List[str] = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles
-
         for style_uri in style_uris:
-            clean_style_uri = style_uri.strip()
-            if clean_style_uri.startswith("http"):
-                if clean_style_uri in self._already_included:
-                    continue
-
-                # If the style is a URL, save the contents in the cache dir
-                style_path = self.load_style_from_url(clean_style_uri)
-                LOG.info("Loading style from URL %s into %s", clean_style_uri, style_path)
-                self._already_included.add(clean_style_uri)
-            elif clean_style_uri:
-                style_path = Path(clean_style_uri).absolute()
-                if str(style_path) in self._already_included:
-                    continue
-                if not style_path.exists():
-                    raise FileNotFoundError(f"Style file does not exist: {clean_style_uri}")
-                LOG.info("Loading style from file: %s", style_path)
-                self._already_included.add(str(style_path))
-            else:
-                # If the style is an empty string, skip it
+            style_path: Optional[Path] = self.get_style_path(style_uri)
+            if not style_path:
                 continue
+
             toml_dict = toml.load(str(style_path))
-
-            sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
-
             flattened_style_dict: JsonDict = flatten(toml_dict, separator=UNIQUE_SEPARATOR)
             self._all_flattened.update(flattened_style_dict)
 
-            self.include_styles(sub_styles)
+            sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
+            if sub_styles:
+                self.include_multiple_styles(sub_styles)
 
-    def load_style_from_url(self, url: str) -> Path:
-        """Load a style file from a URL."""
+    def get_style_path(self, style_uri: str) -> Optional[Path]:
+        """Get the style path from the URI."""
+        clean_style_uri = style_uri.strip()
+        style_path = None
+        if clean_style_uri.startswith("http"):
+            style_path = self.fetch_style_from_url(clean_style_uri)
+        elif clean_style_uri:
+            style_path = self.fetch_style_from_local_path(clean_style_uri)
+        return style_path
+
+    def fetch_style_from_url(self, url: str) -> Optional[Path]:
+        """Fetch a style file from a URL, saving the contents in the cache dir."""
+        if url in self._already_included:
+            return None
+
         if not self.cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
@@ -200,6 +196,35 @@ class StyleTree:
         style_path = self.cache_dir / f"{slugify(url)}.toml"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
+
+        LOG.info("Loading style from URL %s into %s", url, style_path)
+        self._already_included.add(url)
+
+        return style_path
+
+    def fetch_style_from_local_path(self, partial_file_name: str) -> Optional[Path]:
+        """Fetch a style file from a local path."""
+        expanded_path = Path(partial_file_name).expanduser()
+
+        if not str(expanded_path).startswith("/") and self._first_full_path:
+            # Prepend the previous path to the partial file name.
+            style_path = Path(self._first_full_path) / expanded_path
+        else:
+            # Get the absolute path, be it from a root path (starting with slash) or from the current dir.
+            style_path = Path(expanded_path).absolute()
+
+        # Save the first full path to be used by the next files without parent.
+        if not self._first_full_path:
+            self._first_full_path = style_path.parent
+
+        if str(style_path) in self._already_included:
+            return None
+
+        if not style_path.exists():
+            raise FileNotFoundError(f"Local style file does not exist: {style_path}")
+
+        LOG.info("Loading style from file: %s", style_path)
+        self._already_included.add(str(style_path))
         return style_path
 
     def merge_toml_dict(self) -> JsonDict:

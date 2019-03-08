@@ -1,25 +1,27 @@
 """Config tests."""
+from pathlib import Path
 from unittest import mock
 from unittest.mock import PropertyMock
 
 from flake8_nitpick.constants import ROOT_PYTHON_FILES
+from tests.conftest import TEMP_ROOT_PATH
 from tests.helpers import ProjectMock
 
 
 def test_no_root_dir(request):
     """No root dir."""
-    assert ProjectMock(request, pyproject_toml=False, setup_py=False).create_symlink_to_fixture(
+    ProjectMock(request, pyproject_toml=False, setup_py=False).create_symlink_to_fixture(
         "hello.py"
-    ).lint().errors == {"NIP101 No root dir found (is this a Python project?)"}
+    ).lint().assert_single_error("NIP101 No root dir found (is this a Python project?)")
 
 
 def test_no_main_python_file_root_dir(request):
     """No main Python file on the root dir."""
     project = ProjectMock(request, setup_py=False).pyproject_toml("").save_file("whatever.sh", "", lint=True).lint()
-    assert project.errors == {
+    project.assert_single_error(
         "NIP102 None of those Python files was found in the root dir "
         + f"{project.root_dir}: {', '.join(ROOT_PYTHON_FILES)}"
-    }
+    )
 
 
 def test_multiple_styles_overriding_values(request):
@@ -182,6 +184,89 @@ def test_minimum_version(mocked_version, request):
         """
         )
         .lint()
-        .errors
-        == {"NIP203 The style file you're using requires flake8-nitpick>=1.0 (you have 0.5.3). Please upgrade"}
+        .assert_single_error(
+            "NIP203 The style file you're using requires flake8-nitpick>=1.0 (you have 0.5.3). Please upgrade"
+        )
+    )
+
+
+def test_relative_and_other_root_dirs(request):
+    """Test styles in relative and in other root dirs."""
+    another_dir: Path = TEMP_ROOT_PATH / "another_dir"
+    project = (
+        ProjectMock(request)
+        .named_style(
+            f"{another_dir}/main",
+            """
+            [nitpick.styles]
+            include = "styles/pytest.toml"
+            """,
+        )
+        .named_style(
+            f"{another_dir}/styles/pytest",
+            """
+            ["pyproject.toml".tool.pytest]
+            some-option = 123
+            """,
+        )
+        .named_style(
+            f"{another_dir}/styles/black",
+            """
+            ["pyproject.toml".tool.black]
+            line-length = 99
+            missing = "value"
+            """,
+        )
+        .named_style(
+            f"{another_dir}/poetry",
+            """
+            ["pyproject.toml".tool.poetry]
+            version = "1.0"
+            """,
+        )
+    )
+
+    common_pyproject = """
+        [tool.black]
+        line-length = 99
+        [tool.pytest]
+        some-option = 123
+    """
+    expected_error = """
+        NIP311 File pyproject.toml has missing values. Use this:
+        [tool.black]
+        missing = "value"
+    """
+
+    # Use full path on initial styles
+    project.pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = ["{another_dir}/main.toml", "{another_dir}/styles/black.toml"]
+        {common_pyproject}
+        """
+    ).lint().assert_single_error(expected_error)
+
+    # Reuse the first full path that appears
+    project.pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = ["{another_dir}/main.toml", "styles/black.toml"]
+        {common_pyproject}
+        """
+    ).lint().assert_single_error(expected_error)
+
+    # Allow relative paths
+    project.pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = ["{another_dir}/styles/black.toml", "../poetry.toml"]
+        {common_pyproject}
+        """
+    ).lint().assert_single_error(
+        f"""
+        {expected_error}
+        [tool.poetry]
+        version = "1.0"
+        """
     )
