@@ -7,13 +7,13 @@ import attr
 
 from flake8_nitpick import __version__
 from flake8_nitpick.config import NitpickConfig
-from flake8_nitpick.constants import PROJECT_NAME, ROOT_PYTHON_FILES
+from flake8_nitpick.constants import LOG_ROOT, PROJECT_NAME, ROOT_PYTHON_FILES
 from flake8_nitpick.files.base import BaseFile
 from flake8_nitpick.generic import get_subclasses
 from flake8_nitpick.types import YieldFlake8Error
 from flake8_nitpick.utils import NitpickMixin
 
-LOG = logging.getLogger("flake8.nitpick")
+LOGGER = logging.getLogger(f"{LOG_ROOT}.plugin")
 
 
 @attr.s(hash=False)
@@ -52,11 +52,11 @@ class NitpickChecker(NitpickMixin):
         current_python_file = Path(self.filename)
         if current_python_file.absolute() != self.config.main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
-            LOG.info("Ignoring file: %s", self.filename)
+            LOGGER.info("Ignoring file: %s", self.filename)
             return
-        LOG.info("Nitpicking file: %s", self.filename)
+        LOGGER.info("Nitpicking file: %s", self.filename)
 
-        yield from itertools.chain(self.config.fetch_initial_style(), self.check_absent_files())
+        yield from itertools.chain(self.config.merge_styles(), self.check_absent_files())
 
         for checker_class in get_subclasses(BaseFile):
             checker = checker_class()

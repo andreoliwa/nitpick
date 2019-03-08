@@ -10,9 +10,9 @@ from tests.helpers import ProjectMock
 
 def test_no_root_dir(request):
     """No root dir."""
-    ProjectMock(request, pyproject_toml=False, setup_py=False).create_symlink_to_fixture(
-        "hello.py"
-    ).lint().assert_single_error("NIP101 No root dir found (is this a Python project?)")
+    ProjectMock(request, pyproject_toml=False, setup_py=False).create_symlink("hello.py").lint().assert_single_error(
+        "NIP101 No root dir found (is this a Python project?)"
+    )
 
 
 def test_no_main_python_file_root_dir(request):
@@ -268,5 +268,36 @@ def test_relative_and_other_root_dirs(request):
         {expected_error}
         [tool.poetry]
         version = "1.0"
+        """
+    )
+
+
+def test_symlink_subdir(request):
+    """Test relative styles in subdirectories of a symlink dir."""
+    target_dir: Path = TEMP_ROOT_PATH / "target_dir"
+    ProjectMock(request).named_style(
+        f"{target_dir}/parent",
+        """
+        [nitpick.styles]
+        include = "styles/child.toml"
+        """,
+    ).named_style(
+        f"{target_dir}/styles/child",
+        """
+        ["pyproject.toml".tool.black]
+        line-length = 86
+        """,
+    ).create_symlink(
+        "symlinked-style.toml", target_dir, "parent.toml"
+    ).pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = "symlinked-style.toml"
+        """
+    ).lint().assert_single_error(
+        """
+        NIP311 File pyproject.toml has missing values. Use this:
+        [tool.black]
+        line-length = 86
         """
     )

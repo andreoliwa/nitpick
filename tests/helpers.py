@@ -35,13 +35,18 @@ class ProjectMock:
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
 
-    def create_symlink_to_fixture(self, file_name: str) -> "ProjectMock":
-        """Create a symlink to a fixture file inside the temp dir, instead of creating a file."""
-        path: Path = self.root_dir / file_name
-        fixture_file = self.fixture_dir / file_name
-        if not fixture_file.exists():
-            raise RuntimeError(f"Fixture file does not exist: {fixture_file}")
-        path.symlink_to(fixture_file)
+    def create_symlink(self, link_name: str, target_dir: Path = None, target_file: str = None) -> "ProjectMock":
+        """Create a symlink to a target file.
+
+        :param link_name: Link file name.
+        :param target_dir: Target directory (default: fixture directory).
+        :param target_file: Target file name (default: source file name).
+        """
+        path: Path = self.root_dir / link_name
+        full_source_path = Path(target_dir or self.fixture_dir) / (target_file or link_name)
+        if not full_source_path.exists():
+            raise RuntimeError(f"Source file does not exist: {full_source_path}")
+        path.symlink_to(full_source_path)
         if path.suffix == ".py":
             self.files_to_lint.append(path)
         return self
