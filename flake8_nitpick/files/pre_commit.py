@@ -18,6 +18,7 @@ class PreCommitFile(BaseFile):
     KEY_REPOS = "repos"
     KEY_HOOKS = "hooks"
     KEY_REPO = "repo"
+    KEY_ID = "id"
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
@@ -30,7 +31,7 @@ class PreCommitFile(BaseFile):
         """Check the rules for the pre-commit hooks."""
         actual = yaml.safe_load(self.file_path.open()) or {}
         if self.KEY_REPOS not in actual:
-            yield self.flake8_error(1, "Missing 'repos' in file")
+            yield self.flake8_error(1, f" doesn't have the {self.KEY_REPOS!r} root key")
             return
 
         actual_root = actual.copy()
@@ -52,34 +53,35 @@ class PreCommitFile(BaseFile):
         for index, expected_repo_dict in enumerate(expected_repos):
             repo_name = expected_repo_dict.get(self.KEY_REPO)
             if not repo_name:
-                yield self.flake8_error(2, f"Style file is missing {self.KEY_REPO!r} key in repo #{index}")
+                yield self.flake8_error(2, f": style file is missing {self.KEY_REPO!r} key in repo #{index}")
                 continue
 
             actual_repo_dict = find_object_by_key(actual_repos, self.KEY_REPO, repo_name)
             if not actual_repo_dict:
-                yield self.flake8_error(3, f"Repo {repo_name!r} does not exist under {self.KEY_REPOS!r}")
+                yield self.flake8_error(3, f": repo {repo_name!r} does not exist under {self.KEY_REPOS!r}")
                 continue
 
             if self.KEY_HOOKS not in actual_repo_dict:
-                yield self.flake8_error(4, f"Missing {self.KEY_HOOKS!r} in repo {repo_name!r}")
+                yield self.flake8_error(4, f": missing {self.KEY_HOOKS!r} in repo {repo_name!r}")
                 continue
 
             actual_hooks = actual_repo_dict.get(self.KEY_HOOKS) or []
             yaml_expected_hooks = expected_repo_dict.get(self.KEY_HOOKS)
             if not yaml_expected_hooks:
-                yield self.flake8_error(5, f"Style file is missing {self.KEY_HOOKS!r} in repo {repo_name!r}")
+                yield self.flake8_error(5, f": style file is missing {self.KEY_HOOKS!r} in repo {repo_name!r}")
                 continue
 
             expected_hooks: List[dict] = yaml.safe_load(yaml_expected_hooks)
             for expected_dict in expected_hooks:
-                hook_id = expected_dict.get("id")
+                hook_id = expected_dict.get(self.KEY_ID)
                 if not hook_id:
-                    yield self.flake8_error(6, f"Style file is missing 'id' in hook:\n{expected_dict!r}")
+                    expected_yaml = self.format_hook(expected_dict)
+                    yield self.flake8_error(6, f": style file is missing {self.KEY_ID!r} in hook:\n{expected_yaml}")
                     continue
-                actual_dict = find_object_by_key(actual_hooks, "id", hook_id)
+                actual_dict = find_object_by_key(actual_hooks, self.KEY_ID, hook_id)
                 if not actual_dict:
                     expected_yaml = self.format_hook(expected_dict)
-                    yield self.flake8_error(7, f"Missing hook with id {hook_id!r}:\n{expected_yaml}")
+                    yield self.flake8_error(7, f": missing hook with id {hook_id!r}:\n{expected_yaml}")
                     continue
 
     def show_missing_keys(self, key, values: List[Tuple[str, Any]]):
@@ -104,7 +106,7 @@ class PreCommitFile(BaseFile):
     @staticmethod
     def format_hook(expected_dict: dict) -> str:
         """Format the hook so it's easy to copy and paste it to the .yaml file: ID goes first, indent with spaces."""
-        lines = yaml.dump(expected_dict)
+        lines = yaml.dump(expected_dict, default_flow_style=False)
         output: List[str] = []
         for line in lines.split("\n"):
             if line.startswith("id:"):
