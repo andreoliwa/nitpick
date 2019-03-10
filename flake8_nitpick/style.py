@@ -15,7 +15,7 @@ from flake8_nitpick.constants import (
     UNIQUE_SEPARATOR,
 )
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
-from flake8_nitpick.generic import climb_directory_tree, flatten, search_dict, unflatten
+from flake8_nitpick.generic import climb_directory_tree, flatten, is_url, search_dict, unflatten
 from flake8_nitpick.types import JsonDict, StrOrList
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ class Style:
         self.config = config
         self._all_flattened: JsonDict = {}
         self._already_included: Set[str] = set()
-        self._first_full_path: Optional[Path] = None
+        self._first_full_path: str = ""
 
     def find_initial_styles(self, configured_styles: StrOrList):
         """Find the initial style(s) and include them."""
@@ -70,7 +70,7 @@ class Style:
         """Get the style path from the URI."""
         clean_style_uri = style_uri.strip()
         style_path = None
-        if clean_style_uri.startswith("http"):
+        if is_url(clean_style_uri) or is_url(self._first_full_path):
             style_path = self.fetch_style_from_url(clean_style_uri)
         elif clean_style_uri:
             style_path = self.fetch_style_from_local_path(clean_style_uri)
@@ -78,6 +78,11 @@ class Style:
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
+        if self._first_full_path and not is_url(url):
+            prefix, rest = self._first_full_path.split(":/")
+            resolved = (Path(rest) / url).resolve()
+            url = f"{prefix}:/{resolved}"
+
         if url in self._already_included:
             return None
 
@@ -87,6 +92,10 @@ class Style:
         response = requests.get(url)
         if not response.ok:
             raise FileNotFoundError(f"Error {response} fetching style URL {url}")
+
+        # Save the first full path to be used by the next files without parent.
+        if not self._first_full_path:
+            self._first_full_path = url.rsplit("/", 1)[0]
 
         contents = response.text
         style_path = self.config.cache_dir / f"{slugify(url)}.toml"
@@ -111,7 +120,7 @@ class Style:
 
         # Save the first full path to be used by the next files without parent.
         if not self._first_full_path:
-            self._first_full_path = style_path.resolve().parent
+            self._first_full_path = str(style_path.resolve().parent)
 
         if str(style_path) in self._already_included:
             return None

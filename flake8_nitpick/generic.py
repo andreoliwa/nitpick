@@ -156,3 +156,16 @@ def version_to_tuple(version: str = None) -> Tuple[int, ...]:
     if not clean_version:
         return ()
     return tuple(int(part) for part in clean_version.split("."))
+
+
+def is_url(url: str) -> bool:
+    """Return True if a string is a URL.
+
+    >>> is_url("")
+    False
+    >>> is_url("  ")
+    False
+    >>> is_url("http://example.com")
+    True
+    """
+    return url.startswith("http")
