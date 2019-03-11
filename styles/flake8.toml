@@ -1,0 +1,17 @@
+["pyproject.toml".tool.poetry.dev-dependencies]
+flake8-blind-except = "*"
+flake8-bugbear = "*"
+flake8-comprehensions = "*"
+flake8-debugger = "*"
+flake8-docstrings = "*"
+flake8-polyfill = "*"
+flake8-quotes = "*"
+
+["setup.cfg".flake8]
+# http://www.pydocstyle.org/en/2.1.1/error_codes.html
+# Ignoring W503: https://github.com/ambv/black#line-breaks--binary-operators
+# Ignoring "D202 No blank lines allowed after function docstring": black inserts a blank line.
+ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
+max-line-length = 120
+inline-quotes = "double"
+exclude = ".tox,build"

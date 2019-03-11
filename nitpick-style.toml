@@ -1,123 +1,20 @@
 # Default style file for flake8-nitpick
 # https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml
 
-[nitpick.files.absent]
-"requirements.txt" = "Install poetry, run 'poetry init' to create pyproject.toml, and move dependencies to it"
-".isort.cfg" = "Move values to setup.cfg, section [isort]"
-"Pipfile" = "Use pyproject.toml instead"
-"Pipfile.lock" = "Use pyproject.toml instead"
-".venv" = ""
-".pyup.yml" = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
-
-[nitpick.files."pyproject.toml"]
-missing_message = "Install poetry and run 'poetry init' to create it"
-
-["pyproject.toml".tool.black]
-line-length = 120
-
-["pyproject.toml".tool.poetry.dependencies]
-python = "^3.6 || ^3.7"
-
-["pyproject.toml".tool.poetry.dev-dependencies]
-black = {version = "*", allows-prereleases = true}
-flake8-blind-except = "*"
-flake8-bugbear = "*"
-flake8-comprehensions = "*"
-flake8-debugger = "*"
-flake8-docstrings = "*"
-flake8-isort = "*"
-flake8-mypy = "*"
-flake8-polyfill = "*"
-flake8-pytest = "*"
-flake8-quotes = "*"
-pre-commit = {version = "*", allows-prereleases = true}
-
-ipython = "*"
-ipdb = "*"
-pylint = "*"
-mypy = "*"
+[nitpick.styles]
+include = [
+    "styles/python36-37",
+    "styles/poetry",
+    "styles/absent-files",
+    "styles/black",
+    "styles/flake8",
+    "styles/pylint",
+    "styles/isort",
+    "styles/mypy",
+    "styles/pre-commit",
+    "styles/pytest",
+    "styles/ipython",
+]
 
 [nitpick.files."setup.cfg"]
 comma_separated_values = ["flake8.ignore", "flake8.exclude", "isort.skip", "isort.known_first_party"]
-
-["setup.cfg".flake8]
-# http://www.pydocstyle.org/en/2.1.1/error_codes.html
-# Ignoring W503: https://github.com/ambv/black#line-breaks--binary-operators
-# Ignoring "D202 No blank lines allowed after function docstring": black inserts a blank line.
-ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
-max-line-length = 120
-inline-quotes = "double"
-exclude = ".tox,build"
-
-["setup.cfg".isort]
-line_length = 120
-skip = ".tox,build"
-known_first_party = "tests"
-
-# The configuration below is needed for compatibility with black.
-# https://github.com/ambv/black#how-black-wraps-lines
-# https://github.com/timothycrosley/isort#multi-line-output-modes
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-combine_as_imports = true
-
-# https://mypy.readthedocs.io/en/latest/config_file.html
-["setup.cfg".mypy]
-ignore_missing_imports = true
-
-# Do not follow imports (except for ones found in typeshed)
-follow_imports = "skip"
-
-# Treat Optional per PEP 484
-strict_optional = true
-
-# Ensure all execution paths are returning
-warn_no_return = true
-
-# Lint-style cleanliness for typing
-warn_redundant_casts = true
-warn_unused_ignores = true
-
-[nitpick.files."pre-commit-config.yaml"]
-missing_message = "Create the file with the contents below, then run 'pre-commit install'"
-
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
-["pre-commit-config.yaml"]
-fail_fast = true
-
-[["pre-commit-config.yaml".repos]]
-repo = "local"
-hooks = """
-- id: isort
-  name: isort
-  entry: isort -sp setup.cfg
-  language: system
-  language_version: python
-  types: [python]
-
-- id: black
-  name: black
-  entry: black
-  language: system
-  language_version: python
-  types: [python]
-
-- id: mypy
-  name: mypy
-  # For now this should always ignore the exit code and I could not find a way to ignore if a hook fail on the docs
-  entry: python -c 'import sys; import subprocess;
-    subprocess.run(["mypy", "--ignore-missing-imports"] + sys.argv[1:])'
-  language: system
-  language_version: python
-  verbose: True
-  types: [python]
-
-- id: flake8
-  name: flake8
-  entry: flake8
-  language: system
-  language_version: python
-  types: [python]
-"""

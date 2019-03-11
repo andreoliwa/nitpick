@@ -1,0 +1,2 @@
+["pyproject.toml".tool.poetry.dev-dependencies]
+flake8-pytest = "*"

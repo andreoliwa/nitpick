@@ -1,3 +1,16 @@
+<a name="0.10.0"></a>
+# [0.10.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.9.0...v0.10.0) (2019-03-11)
+
+
+### Features
+
+* assume style has a .toml extension when it's missing ([5a584ac](https://github.com/andreoliwa/flake8-nitpick/commit/5a584ac))
+* read local style files from relative and other root dirs ([82d3675](https://github.com/andreoliwa/flake8-nitpick/commit/82d3675))
+* read relative styles in subdirectories of a symlink dir ([55634e1](https://github.com/andreoliwa/flake8-nitpick/commit/55634e1))
+* read styles from relative paths on URLs ([46d1b84](https://github.com/andreoliwa/flake8-nitpick/commit/46d1b84))
+
+
+
 <a name="0.9.0"></a>
 # [0.9.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.8.1...v0.9.0) (2019-03-06)
 

@@ -1,0 +1,15 @@
+["pyproject.toml".tool.poetry.dev-dependencies]
+flake8-isort = "*"
+
+["setup.cfg".isort]
+line_length = 120
+skip = ".tox,build"
+known_first_party = "tests"
+
+# The configuration below is needed for compatibility with black.
+# https://github.com/ambv/black#how-black-wraps-lines
+# https://github.com/timothycrosley/isort#multi-line-output-modes
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+combine_as_imports = true

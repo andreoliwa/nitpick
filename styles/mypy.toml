@@ -1,0 +1,20 @@
+["pyproject.toml".tool.poetry.dev-dependencies]
+mypy = "*"
+flake8-mypy = "*"
+
+# https://mypy.readthedocs.io/en/latest/config_file.html
+["setup.cfg".mypy]
+ignore_missing_imports = true
+
+# Do not follow imports (except for ones found in typeshed)
+follow_imports = "skip"
+
+# Treat Optional per PEP 484
+strict_optional = true
+
+# Ensure all execution paths are returning
+warn_no_return = true
+
+# Lint-style cleanliness for typing
+warn_redundant_casts = true
+warn_unused_ignores = true

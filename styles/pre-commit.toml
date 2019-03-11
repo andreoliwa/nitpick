@@ -1,0 +1,45 @@
+[nitpick.files."pre-commit-config.yaml"]
+missing_message = "Create the file with the contents below, then run 'pre-commit install'"
+
+["pyproject.toml".tool.poetry.dev-dependencies]
+pre-commit = {version = "*", allows-prereleases = true}
+
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+["pre-commit-config.yaml"]
+fail_fast = true
+
+[["pre-commit-config.yaml".repos]]
+repo = "local"
+hooks = """
+- id: isort
+  name: isort
+  entry: isort -sp setup.cfg
+  language: system
+  language_version: python
+  types: [python]
+
+- id: black
+  name: black
+  entry: black
+  language: system
+  language_version: python
+  types: [python]
+
+- id: mypy
+  name: mypy
+  # For now this should always ignore the exit code and I could not find a way to ignore if a hook fail on the docs
+  entry: python -c 'import sys; import subprocess;
+    subprocess.run(["mypy", "--ignore-missing-imports"] + sys.argv[1:])'
+  language: system
+  language_version: python
+  verbose: True
+  types: [python]
+
+- id: flake8
+  name: flake8
+  entry: flake8
+  language: system
+  language_version: python
+  types: [python]
+"""

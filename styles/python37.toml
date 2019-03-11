@@ -1,0 +1,2 @@
+["pyproject.toml".tool.poetry.dependencies]
+python = "^3.7"
