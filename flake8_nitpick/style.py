@@ -2,6 +2,7 @@
 import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Set
+from urllib.parse import urlparse, urlunparse
 
 import requests
 import toml
@@ -71,9 +72,6 @@ class Style:
         """Get the style path from the URI. Add the .toml extension if it's missing."""
         clean_style_uri = style_uri.strip()
 
-        if clean_style_uri and not clean_style_uri.endswith(TOML_EXTENSION):
-            clean_style_uri += TOML_EXTENSION
-
         style_path = None
         if is_url(clean_style_uri) or is_url(self._first_full_path):
             style_path = self.fetch_style_from_url(clean_style_uri)
@@ -86,34 +84,43 @@ class Style:
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
             resolved = (Path(rest) / url).resolve()
-            url = f"{prefix}:/{resolved}"
+            new_url = f"{prefix}:/{resolved}"
+        else:
+            new_url = url
 
-        if url in self._already_included:
+        parsed_url = list(urlparse(new_url))
+        if not parsed_url[2].endswith(TOML_EXTENSION):
+            parsed_url[2] += TOML_EXTENSION
+        new_url = urlunparse(parsed_url)
+
+        if new_url in self._already_included:
             return None
 
         if not self.config.cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
-        response = requests.get(url)
+        response = requests.get(new_url)
         if not response.ok:
-            raise FileNotFoundError(f"Error {response} fetching style URL {url}")
+            raise FileNotFoundError(f"Error {response} fetching style URL {new_url}")
 
         # Save the first full path to be used by the next files without parent.
         if not self._first_full_path:
-            self._first_full_path = url.rsplit("/", 1)[0]
+            self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = self.config.cache_dir / f"{slugify(url)}.toml"
+        style_path = self.config.cache_dir / f"{slugify(new_url)}.toml"
         self.config.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
-        LOGGER.info("Loading style from URL %s into %s", url, style_path)
-        self._already_included.add(url)
+        LOGGER.info("Loading style from URL %s into %s", new_url, style_path)
+        self._already_included.add(new_url)
 
         return style_path
 
     def fetch_style_from_local_path(self, partial_file_name: str) -> Optional[Path]:
         """Fetch a style file from a local path."""
+        if partial_file_name and not partial_file_name.endswith(TOML_EXTENSION):
+            partial_file_name += TOML_EXTENSION
         expanded_path = Path(partial_file_name).expanduser()
 
         if not str(expanded_path).startswith("/") and self._first_full_path:

@@ -6,6 +6,7 @@ from unittest.mock import PropertyMock
 
 import responses
 
+from flake8_nitpick.constants import TOML_EXTENSION
 from tests.conftest import TEMP_ROOT_PATH
 from tests.helpers import ProjectMock
 
@@ -360,4 +361,30 @@ def test_relative_style_on_urls(request):
         [tool.poetry]
         version = "1.0"
         """
+    )
+
+
+@responses.activate
+def test_fetch_private_github_urls(request):
+    """Fetch private GitHub URLs with a token on the query string."""
+    base_url = "https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style"
+    token = "?token=xxx"
+    full_private_url = f"{base_url}{TOML_EXTENSION}{token}"
+    body = """
+        ["pyproject.toml".tool.black]
+        missing = "thing"
+        """
+    responses.add(responses.GET, f"{full_private_url}", dedent(body), status=200)
+
+    ProjectMock(request).pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = "{base_url}{token}"
+        """
+    ).lint().assert_single_error(
+        """
+        NIP311 File pyproject.toml has missing values. Use this:
+        [tool.black]
+        missing = "thing"
+    """
     )
