@@ -45,16 +45,13 @@ class SetupCfgFile(BaseFile):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing sections and missing key/value pairs in setup.cfg."""
-        if not self.file_path.exists():
-            return
-
         setup_cfg = ConfigParser()
         setup_cfg.read_file(self.file_path.open())
 
         actual_sections = set(setup_cfg.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
-            yield self.flake8_error(1, f"Missing sections:\n{missing}")
+            yield self.flake8_error(1, f" has some missing sections. Use this:\n{missing}")
 
         generators = []
         for section in self.expected_sections - self.missing_sections:
@@ -93,7 +90,9 @@ class SetupCfgFile(BaseFile):
             expected = raw_expected
         if actual != expected:
             yield self.flake8_error(
-                3, f"Expected value {raw_expected!r} in key, got {raw_actual!r}\n[{section}]\n{key} = {raw_expected}"
+                3,
+                f": [{section}]{key} is {raw_actual} but it should be like this:"
+                + f"\n[{section}]\n{key} = {raw_expected}",
             )
 
     def show_missing_keys(self, section, key, values: List[Tuple[str, Any]]) -> YieldFlake8Error:
@@ -101,7 +100,7 @@ class SetupCfgFile(BaseFile):
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield self.flake8_error(4, f"Missing keys in section:\n{output}")
+        yield self.flake8_error(4, f": section [{section}] has some missing key/value pairs. Use this:\n{output}")
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:
