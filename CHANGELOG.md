@@ -1,3 +1,13 @@
+<a name="0.10.1"></a>
+## [0.10.1](https://github.com/andreoliwa/flake8-nitpick/compare/v0.10.0...v0.10.1) (2019-03-11)
+
+
+### Bug Fixes
+
+* fetch private GitHub URLs with a token on the query string ([4cfc118](https://github.com/andreoliwa/flake8-nitpick/commit/4cfc118))
+
+
+
 <a name="0.10.0"></a>
 # [0.10.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.9.0...v0.10.0) (2019-03-11)
 
