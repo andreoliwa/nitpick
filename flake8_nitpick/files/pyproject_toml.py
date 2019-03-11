@@ -28,3 +28,7 @@ class PyProjectTomlFile(BaseFile):
         if diff_dict:
             diff_toml = toml.dumps(diff_dict)
             yield self.flake8_error(2, f" has different values. Use this:\n{diff_toml}")
+
+    def suggest_initial_contents(self) -> str:
+        """Suggest the initial content for this missing file."""
+        return ""

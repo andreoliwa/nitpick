@@ -1,4 +1,5 @@
 """Base file checker."""
+import abc
 from pathlib import Path
 
 from flake8_nitpick.generic import search_dict
@@ -6,7 +7,7 @@ from flake8_nitpick.types import JsonDict, YieldFlake8Error
 from flake8_nitpick.utils import NitpickMixin
 
 
-class BaseFile(NitpickMixin):
+class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     """Base class for file checkers."""
 
     file_name: str
@@ -54,10 +55,12 @@ class BaseFile(NitpickMixin):
         elif file_exists:
             yield from self.check_rules()
 
+    @abc.abstractmethod
     def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited class if they need."""
-        return []
+        pass
 
+    @abc.abstractmethod
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        return ""
+        pass
