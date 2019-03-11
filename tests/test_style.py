@@ -44,7 +44,7 @@ def test_multiple_styles_overriding_values(request):
     ).pyproject_toml(
         """
         [tool.nitpick]
-        style = ["isort1.toml", "styles/isort2.toml", "flake8.toml", "black.toml"]
+        style = ["isort1", "styles/isort2", "flake8.toml", "black"]
         [tool.black]
         something = 22
         """
@@ -115,9 +115,9 @@ def test_include_styles_overriding_values(request):
         """,
     ).pyproject_toml(
         """
-            [tool.nitpick]
-            style = "isort1.toml"
-            """
+        [tool.nitpick]
+        style = "isort1"
+        """
     ).lint().assert_errors_contain(
         """
         NIP311 File pyproject.toml has missing values. Use this:
@@ -148,26 +148,26 @@ def test_minimum_version(mocked_version, request):
         .named_style(
             "parent",
             """
-        [nitpick.styles]
-        include = "child.toml"
-        ["pyproject.toml".tool.black]
-        line-length = 100
-        """,
+            [nitpick.styles]
+            include = "child.toml"
+            ["pyproject.toml".tool.black]
+            line-length = 100
+            """,
         )
         .named_style(
             "child",
             """
-        [nitpick]
-        minimum_version = "1.0"
-        """,
+            [nitpick]
+            minimum_version = "1.0"
+            """,
         )
         .pyproject_toml(
             """
-        [tool.nitpick]
-        style = "parent.toml"
-        [tool.black]
-        line-length = 100
-        """
+            [tool.nitpick]
+            style = "parent"
+            [tool.black]
+            line-length = 100
+            """
         )
         .lint()
         .assert_single_error(
@@ -228,7 +228,7 @@ def test_relative_and_other_root_dirs(request):
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{another_dir}/main.toml", "{another_dir}/styles/black.toml"]
+        style = ["{another_dir}/main", "{another_dir}/styles/black"]
         {common_pyproject}
         """
     ).lint().assert_single_error(expected_error)
@@ -237,7 +237,7 @@ def test_relative_and_other_root_dirs(request):
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{another_dir}/main.toml", "styles/black.toml"]
+        style = ["{another_dir}/main", "styles/black.toml"]
         {common_pyproject}
         """
     ).lint().assert_single_error(expected_error)
@@ -246,7 +246,7 @@ def test_relative_and_other_root_dirs(request):
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{another_dir}/styles/black.toml", "../poetry.toml"]
+        style = ["{another_dir}/styles/black", "../poetry"]
         {common_pyproject}
         """
     ).lint().assert_single_error(
@@ -278,7 +278,7 @@ def test_symlink_subdir(request):
     ).pyproject_toml(
         f"""
         [tool.nitpick]
-        style = "symlinked-style.toml"
+        style = "symlinked-style"
         """
     ).lint().assert_single_error(
         """
@@ -333,7 +333,7 @@ def test_relative_style_on_urls(request):
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{base_url}/main.toml", "{base_url}/styles/black.toml"]
+        style = ["{base_url}/main", "{base_url}/styles/black.toml"]
         {common_pyproject}
         """
     ).lint().assert_single_error(expected_error)
@@ -342,7 +342,7 @@ def test_relative_style_on_urls(request):
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{base_url}/main.toml", "styles/black.toml"]
+        style = ["{base_url}/main.toml", "styles/black"]
         {common_pyproject}
         """
     ).lint().assert_single_error(expected_error)
@@ -351,7 +351,7 @@ def test_relative_style_on_urls(request):
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{base_url}/styles/black.toml", "../poetry.toml"]
+        style = ["{base_url}/styles/black.toml", "../poetry"]
         {common_pyproject}
         """
     ).lint().assert_single_error(

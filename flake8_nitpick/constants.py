@@ -4,7 +4,8 @@ import jmespath
 PROJECT_NAME = "flake8-nitpick"
 ERROR_PREFIX = "NIP"
 LOG_ROOT = PROJECT_NAME.replace("-", ".")
-NITPICK_STYLE_TOML = "nitpick-style.toml"
+TOML_EXTENSION = ".toml"
+NITPICK_STYLE_TOML = f"nitpick-style{TOML_EXTENSION}"
 DEFAULT_NITPICK_STYLE_URL = f"https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/{NITPICK_STYLE_TOML}"
 ROOT_PYTHON_FILES = ("setup.py", "manage.py", "autoapp.py")
 ROOT_FILES = ("requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES

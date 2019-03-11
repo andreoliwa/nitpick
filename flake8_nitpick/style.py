@@ -12,6 +12,7 @@ from flake8_nitpick.constants import (
     LOG_ROOT,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
+    TOML_EXTENSION,
     UNIQUE_SEPARATOR,
 )
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
@@ -67,8 +68,12 @@ class Style:
                 self.include_multiple_styles(sub_styles)
 
     def get_style_path(self, style_uri: str) -> Optional[Path]:
-        """Get the style path from the URI."""
+        """Get the style path from the URI. Add the .toml extension if it's missing."""
         clean_style_uri = style_uri.strip()
+
+        if clean_style_uri and not clean_style_uri.endswith(TOML_EXTENSION):
+            clean_style_uri += TOML_EXTENSION
+
         style_path = None
         if is_url(clean_style_uri) or is_url(self._first_full_path):
             style_path = self.fetch_style_from_url(clean_style_uri)
