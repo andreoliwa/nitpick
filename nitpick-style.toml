@@ -1,6 +1,9 @@
 # Default style file for flake8-nitpick
 # https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/master/nitpick-style.toml
 
+[nitpick]
+minimum_version = "0.10.0"
+
 [nitpick.styles]
 include = [
     "styles/python36-37",
