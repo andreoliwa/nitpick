@@ -1,4 +1,4 @@
-"""Plugin module."""
+"""Flake8 plugin to check files."""
 import itertools
 import logging
 from pathlib import Path
@@ -10,8 +10,8 @@ from flake8_nitpick.config import NitpickConfig
 from flake8_nitpick.constants import LOG_ROOT, PROJECT_NAME, ROOT_PYTHON_FILES
 from flake8_nitpick.files.base import BaseFile
 from flake8_nitpick.generic import get_subclasses
+from flake8_nitpick.mixin import NitpickMixin
 from flake8_nitpick.types import YieldFlake8Error
-from flake8_nitpick.utils import NitpickMixin
 
 LOGGER = logging.getLogger(f"{LOG_ROOT}.plugin")
 

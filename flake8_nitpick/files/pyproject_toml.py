@@ -1,4 +1,4 @@
-"""Checker for the pyproject.toml config file."""
+"""Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file (`PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_)."""
 import toml
 
 from flake8_nitpick.files.base import BaseFile
@@ -7,7 +7,7 @@ from flake8_nitpick.types import YieldFlake8Error
 
 
 class PyProjectTomlFile(BaseFile):
-    """Check pyproject.toml."""
+    """Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file (`PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_)."""
 
     file_name = "pyproject.toml"
     error_base_number = 310

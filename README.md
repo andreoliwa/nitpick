@@ -2,6 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/flake8-nitpick.svg)](https://pypi.python.org/pypi/flake8-nitpick)
 [![Travis CI](https://travis-ci.com/andreoliwa/flake8-nitpick.svg?branch=master)](https://travis-ci.com/andreoliwa/flake8-nitpick)
+[![Documentation Status](https://readthedocs.org/projects/flake8-nitpick/badge/?version=latest)](https://flake8-nitpick.readthedocs.io/en/latest/?badge=latest)
 [![Coveralls](https://coveralls.io/repos/github/andreoliwa/flake8-nitpick/badge.svg?branch=master)](https://coveralls.io/github/andreoliwa/flake8-nitpick?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/maintainability)](https://codeclimate.com/github/andreoliwa/flake8-nitpick/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/test_coverage)](https://codeclimate.com/github/andreoliwa/flake8-nitpick/test_coverage)

@@ -1,4 +1,9 @@
-"""Generic functions and classes."""
+"""Generic functions and classes.
+
+.. testsetup::
+
+    from flake8_nitpick.generic import *
+"""
 import collections
 from pathlib import Path
 from typing import Any, Iterable, List, Optional, Tuple, Union
@@ -21,6 +26,8 @@ def get_subclasses(cls):
 def flatten(dict_, parent_key="", separator="."):
     """Flatten a nested dict.
 
+    Use :py:meth:`unflatten()` to revert.
+
     >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False})
     {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
     """
@@ -35,7 +42,7 @@ def flatten(dict_, parent_key="", separator="."):
 
 
 def unflatten(dict_, separator="."):
-    """Turn back a flattened dict into a nested dict.
+    """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
 
     >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4})
     {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}

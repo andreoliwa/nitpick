@@ -1,10 +1,10 @@
-"""Utilities."""
+"""Mixin to raise flake8 errors."""
 from flake8_nitpick.constants import ERROR_PREFIX
 from flake8_nitpick.types import Flake8Error
 
 
 class NitpickMixin:
-    """A helper mixin to raise flake8 errors."""
+    """Mixin to raise flake8 errors."""
 
     error_base_number: int = 0
     error_prefix: str = ""

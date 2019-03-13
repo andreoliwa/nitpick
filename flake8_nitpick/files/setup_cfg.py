@@ -1,4 +1,4 @@
-"""Checker for the setup.cfg config file."""
+"""Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
 import itertools
 from configparser import ConfigParser
 from io import StringIO
@@ -11,7 +11,7 @@ from flake8_nitpick.types import YieldFlake8Error
 
 
 class SetupCfgFile(BaseFile):
-    """Check setup.cfg."""
+    """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
 
     file_name = "setup.cfg"
     error_base_number = 320

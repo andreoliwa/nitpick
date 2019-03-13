@@ -67,11 +67,6 @@
 * **pre-commit:** suggest pre-commit install ([76b980f](https://github.com/andreoliwa/flake8-nitpick/commit/76b980f))
 
 
-### Tests
-
-* absent files ([d3ca8c4](https://github.com/andreoliwa/flake8-nitpick/commit/d3ca8c4))
-
-
 ### BREAKING CHANGES
 
 * Comma separated values was moved to a different section in the TOML file:
@@ -123,41 +118,14 @@ Now:
 # [0.6.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.5.0...v0.6.0) (2019-01-28)
 
 
-### build
-
-* Ignore .tox dir on flake8 and isort ([462233e](https://github.com/andreoliwa/flake8-nitpick/commit/462233e))
-* Update packages ([36bd5ba](https://github.com/andreoliwa/flake8-nitpick/commit/36bd5ba))
-
-### ci
-
-* Add code coverage with Coveralls (#5) ([3995e13](https://github.com/andreoliwa/flake8-nitpick/commit/3995e13))
-* Fix Coveralls badge (point to master) ([bae533d](https://github.com/andreoliwa/flake8-nitpick/commit/bae533d))
-* Run flake8 and pytest on Travis ([dbb6000](https://github.com/andreoliwa/flake8-nitpick/commit/dbb6000))
-
-### docs
-
-* Add more info to pyproject.toml ([1e0d1a2](https://github.com/andreoliwa/flake8-nitpick/commit/1e0d1a2))
-
-### feat
+### Features
 
 * Configure comma separated values on the style file ([7ae6622](https://github.com/andreoliwa/flake8-nitpick/commit/7ae6622))
 * Suggest poetry init when pyproject.toml does not exist ([366c2b6](https://github.com/andreoliwa/flake8-nitpick/commit/366c2b6))
 
-### fix
+### Bug Fixes
 
 * DeprecationWarning: Using or importing the ABCs from 'collections' in ([80f7e24](https://github.com/andreoliwa/flake8-nitpick/commit/80f7e24))
-
-### style
-
-* Ignore build dir on flake8 and isort ([1c18ce3](https://github.com/andreoliwa/flake8-nitpick/commit/1c18ce3))
-* Ignore tox dir (flake8), set tests module as first party (isort) ([4fbad20](https://github.com/andreoliwa/flake8-nitpick/commit/4fbad20))
-
-### test
-
-* Comma separated keys on setup.cfg (flake8.ignore) ([b5d8ce7](https://github.com/andreoliwa/flake8-nitpick/commit/b5d8ce7))
-* No main Python file on the root dir ([f67f870](https://github.com/andreoliwa/flake8-nitpick/commit/f67f870))
-* Test a project with no root dir ([6ccf977](https://github.com/andreoliwa/flake8-nitpick/commit/6ccf977))
-* Test most generic functions ([3704c9f](https://github.com/andreoliwa/flake8-nitpick/commit/3704c9f))
 
 
 
@@ -165,13 +133,7 @@ Now:
 # [0.5.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.4.0...v0.5.0) (2019-01-09)
 
 
-### build
-
-* Add flake8-quotes ([7c39870](https://github.com/andreoliwa/flake8-nitpick/commit/7c39870))
-* Bump version in pyproject.toml ([eef3d3d](https://github.com/andreoliwa/flake8-nitpick/commit/eef3d3d))
-* Create but don't push git tag, it is needed by the changelog ([f60382f](https://github.com/andreoliwa/flake8-nitpick/commit/f60382f))
-
-### feat
+### Features
 
 * Add .venv to the absent files list ([153a7ca](https://github.com/andreoliwa/flake8-nitpick/commit/153a7ca))
 * Add flake8-quotes to the default style ([60b3726](https://github.com/andreoliwa/flake8-nitpick/commit/60b3726))
@@ -182,22 +144,16 @@ Now:
 # [0.4.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.3.0...v0.4.0) (2019-01-07)
 
 
-### feat
+### Features
 
 * Check files that should not exist (like .isort.cfg) ([1901bb8](https://github.com/andreoliwa/flake8-nitpick/commit/1901bb8))
 * Check pre-commit config file and the presence of hooks ([b1333db](https://github.com/andreoliwa/flake8-nitpick/commit/b1333db))
 * Warn about replacing requirements.txt by pyproject.toml ([dacb091](https://github.com/andreoliwa/flake8-nitpick/commit/dacb091))
 
-### fix
+### Bug Fixes
 
 * Don't break when pyproject.toml or setup.cfg don't exist ([6a546c1](https://github.com/andreoliwa/flake8-nitpick/commit/6a546c1))
 * Only check rules if the file exists ([66e42d2](https://github.com/andreoliwa/flake8-nitpick/commit/66e42d2))
-
-### refactor
-
-* Check absence of pipenv files using the .toml config ([4002015](https://github.com/andreoliwa/flake8-nitpick/commit/4002015))
-* Remove should_exist_default, consider existence of a config ([8b22926](https://github.com/andreoliwa/flake8-nitpick/commit/8b22926))
-* Use a mixin with a base error number for each class ([bb7e73d](https://github.com/andreoliwa/flake8-nitpick/commit/bb7e73d))
 
 
 
@@ -205,11 +161,11 @@ Now:
 # [0.3.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.2.0...v0.3.0) (2019-01-03)
 
 
-### feat
+### Features
 
 * Show different key/value pairs on pyproject.toml, case insensitive boolean values ([30e03eb](https://github.com/andreoliwa/flake8-nitpick/commit/30e03eb))
 
-### fix
+### Bug Fixes
 
 * KeyError when section does not exist on setup.cfg ([e652604](https://github.com/andreoliwa/flake8-nitpick/commit/e652604))
 
@@ -219,16 +175,7 @@ Now:
 # [0.2.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.1.1...v0.2.0) (2018-12-23)
 
 
-### build
-
-* Upgrade packages and lint with flake8 ([22f4c62](https://github.com/andreoliwa/flake8-nitpick/commit/22f4c62))
-* v0.2.0 (with conventional-changelog and bumpversion) ([bc8a8a8](https://github.com/andreoliwa/flake8-nitpick/commit/bc8a8a8))
-
-### docs
-
-* Add docs on how to configure pyproject.toml and style ([4a1d221](https://github.com/andreoliwa/flake8-nitpick/commit/4a1d221))
-
-### feat
+### Features
 
 * Check missing key/value pairs in pyproject.toml ([190aa6c](https://github.com/andreoliwa/flake8-nitpick/commit/190aa6c))
 * Compare setup.cfg configuration ([2bf144a](https://github.com/andreoliwa/flake8-nitpick/commit/2bf144a))
@@ -238,14 +185,6 @@ Now:
 * Respect the files section on nitpick.toml ([9e36a02](https://github.com/andreoliwa/flake8-nitpick/commit/9e36a02))
 * Use nitpick's own default style file if none is provided ([4701b86](https://github.com/andreoliwa/flake8-nitpick/commit/4701b86))
 
-### refactor
-
-* Rename to flake8-nitpick ([1e4f42e](https://github.com/andreoliwa/flake8-nitpick/commit/1e4f42e))
-
-### test
-
-* Setup logging ([5472518](https://github.com/andreoliwa/flake8-nitpick/commit/5472518))
-
 
 
 <a name="0.1.1"></a>
@@ -254,6 +193,6 @@ Now:
 README badges.
 
 <a name="0.1.0"></a>
-# 0.1.0 (2018-03-23)
+## 0.1.0 (2018-03-23)
 
 First release.
