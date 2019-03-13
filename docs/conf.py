@@ -199,9 +199,9 @@ epub_exclude_files = ["search.html"]
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {"https://docs.python.org/3/": None}
 
-# -- Options for todo extension ----------------------------------------------
+# -- Options for to do extension ----------------------------------------------
 
-# If true, `todo` and `todoList` produce output, else they produce nothing.
+# If true, `to do` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
 # http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#confval-autosummary_generate

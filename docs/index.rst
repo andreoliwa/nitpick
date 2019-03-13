@@ -7,7 +7,6 @@ Welcome to flake8-nitpick's documentation!
 
    contributing
    authors
-   changelog
 
 .. toctree::
    :maxdepth: 1
