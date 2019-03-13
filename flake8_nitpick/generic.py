@@ -1,4 +1,9 @@
-"""Generic functions and classes."""
+"""Generic functions and classes.
+
+.. testsetup::
+
+    from flake8_nitpick.generic import *
+"""
 import collections
 from pathlib import Path
 from typing import Any, Iterable, List, Optional, Tuple, Union

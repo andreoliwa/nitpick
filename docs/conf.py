@@ -16,17 +16,6 @@ from typing import Dict
 # import os
 # sys.path.insert(0, os.path.abspath('.'))
 
-# # Get the project root dir, which is the parent dir of this
-# # cwd = os.getcwd()
-# # project_root = os.path.dirname(cwd)
-# project_root = Path.cwd().parent
-#
-# # Insert the project root dir as the first element in the PYTHONPATH.
-# # This lets us ensure that the source package is imported, and that its
-# # version is used.
-# # sys.path.insert(0, str(project_root))
-# # raise RuntimeError(sys.path)
-
 # -- Project information -----------------------------------------------------
 project = "flake8-nitpick"
 copyright = "2019, W. Augusto Andreoli"
@@ -50,15 +39,23 @@ release = version
 extensions = [
     # http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
     "sphinx.ext.autodoc",
-    # FIXME: add urls
+    # http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
     "sphinx.ext.autosummary",
+    # http://www.sphinx-doc.org/en/master/usage/extensions/coverage.html
     "sphinx.ext.coverage",
+    # http://www.sphinx-doc.org/en/master/usage/extensions/doctest.html
     "sphinx.ext.doctest",
+    # http://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html
+    "sphinx.ext.extlinks",
+    # http://www.sphinx-doc.org/en/master/usage/extensions/ifconfig.html
     "sphinx.ext.ifconfig",
+    # http://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     "sphinx.ext.intersphinx",
     # http://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html#module-sphinx.ext.napoleon
     "sphinx.ext.napoleon",
+    # http://www.sphinx-doc.org/en/master/usage/extensions/to do.html
     "sphinx.ext.todo",
+    # http://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
     "sphinx.ext.viewcode",
 ]
 
@@ -197,14 +194,28 @@ epub_exclude_files = ["search.html"]
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"https://docs.python.org/3/": None}
+intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 # -- Options for to do extension ----------------------------------------------
 
+# http://www.sphinx-doc.org/en/master/usage/extensions/to do.html#confval-todo_include_todos
 # If true, `to do` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# -- Options for autodoc extension ---------------------------------------
+
+# http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autoclass_content
+autoclass_content = "both"
+
+# http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_default_options
+autodoc_default_options = {"members": None, "inherited-members": None, "show-inheritance": None}
+
+# -- Options for autosummary extension ---------------------------------------
 
 # http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#confval-autosummary_generate
 autosummary_generate = True
 
-autodoc_default_options = {"members": None, "inherited-members": None, "show-inheritance": None}
+# -- Options for extlinks extension ---------------------------------------
+
+# http://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html#confval-extlinks
+extlinks = {"issue": ("https://github.com/andreoliwa/flake8-nitpick/issues/%s", "issue ")}

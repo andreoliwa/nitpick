@@ -2,6 +2,10 @@
 Contributing
 ============
 
+.. todo::
+
+    Review the contributing guidelines.
+
 Contributions are welcome, and they are greatly appreciated! Every
 little bit helps, and credit will always be given.
 
@@ -83,10 +87,6 @@ For merging, you should:
 Tips
 ----
 
-To run a subset of tests::
+To run tests::
 
-    tox -e envname -- py.test -k test_myfeature
-
-To run all the test environments in *parallel* (you need to ``pip install detox``)::
-
-    detox
+    pytest
