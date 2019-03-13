@@ -106,7 +106,8 @@ def rmdir_if_empty(path_or_str: PathOrStr):
     try:
         next(path.iterdir())
     except StopIteration:
-        path.rmdir()
+        if path.exists():
+            path.rmdir()
 
 
 def search_dict(jmespath_expression: Union[ParsedResult, str], data: JsonDict, default: Any) -> Any:
