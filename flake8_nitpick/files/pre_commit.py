@@ -1,4 +1,4 @@
-"""Checker for the pre-commit config file."""
+"""Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 from typing import Any, Dict, List, Tuple
 
 import dictdiffer
@@ -10,7 +10,7 @@ from flake8_nitpick.types import YieldFlake8Error
 
 
 class PreCommitFile(BaseFile):
-    """Check the pre-commit config file."""
+    """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 
     file_name = ".pre-commit-config.yaml"
     error_base_number = 330

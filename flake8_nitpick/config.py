@@ -1,4 +1,4 @@
-"""Configuration of the plugin itself."""
+"""Configuration of the plugin."""
 import itertools
 import logging
 from pathlib import Path
@@ -18,9 +18,9 @@ from flake8_nitpick.constants import (
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.files.setup_cfg import SetupCfgFile
 from flake8_nitpick.generic import climb_directory_tree, rmdir_if_empty, search_dict, version_to_tuple
+from flake8_nitpick.mixin import NitpickMixin
 from flake8_nitpick.style import Style
 from flake8_nitpick.types import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
-from flake8_nitpick.utils import NitpickMixin
 
 LOGGER = logging.getLogger(f"{LOG_ROOT}.config")
 
