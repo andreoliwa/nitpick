@@ -104,10 +104,13 @@ def rmdir_if_empty(path_or_str: PathOrStr):
         return
 
     try:
-        next(path.iterdir())
-    except StopIteration:
-        if path.exists():
+        has_items = next(path.iterdir(), False)
+        if has_items is False:
+            # If the directory has no more files/directories inside, try to remove the parent.
             path.rmdir()
+    except FileNotFoundError:
+        # If any removal attempt fails, just ignore it. Some other flake8 thread might have deleted the directory.
+        pass
 
 
 def search_dict(jmespath_expression: Union[ParsedResult, str], data: JsonDict, default: Any) -> Any:
