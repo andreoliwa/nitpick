@@ -2,21 +2,14 @@
 Contributing
 ============
 
-.. todo::
+Contributions are welcome, and they are greatly appreciated!
+Every little bit helps, and credit will always be given.
 
-    Improve the contributing guidelines.
+Bug reports or feature requests
+===============================
 
-Contributions are welcome, and they are greatly appreciated! Every
-little bit helps, and credit will always be given.
-
-Bug reports
-===========
-
-When `reporting a bug <https://github.com/andreoliwa/flake8-nitpick/issues>`_ please include:
-
-    * Your operating system name and version.
-    * Any details about your local setup that might be helpful in troubleshooting.
-    * Detailed steps to reproduce the bug.
+* First, search the `GitHub issue tracker <https://github.com/andreoliwa/flake8-nitpick/issues>`_ to see if your bug/feature is already there.
+* If nothing is found, just `add a new issue and follow the instructions there <https://github.com/andreoliwa/flake8-nitpick/issues/new/choose>`_.
 
 Documentation improvements
 ==========================
@@ -25,17 +18,6 @@ flake8-nitpick could always use more documentation, whether as part of the
 official docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
-Feature requests and feedback
-=============================
-
-The best way to send feedback is to file an issue at https://github.com/andreoliwa/flake8-nitpick/issues.
-
-If you are proposing a feature:
-
-* Explain in detail how it would work.
-* Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that code contributions are welcome :)
-
 Development
 ===========
 
@@ -43,36 +25,55 @@ To set up `flake8-nitpick` for local development:
 
 1. Fork `flake8-nitpick <https://github.com/andreoliwa/flake8-nitpick>`_
    (look for the "Fork" button).
+
 2. Clone your fork locally::
 
+    cd ~/Code
     git clone git@github.com:your_name_here/flake8-nitpick.git
+    cd flake8-nitpick
 
-3. Create a branch for local development::
+3. `Install Poetry globally using the recommended way <https://github.com/sdispater/poetry#installation>`_.
+
+4. Create your virtualenv with pyenv (or some other tool you prefer)::
+
+    pyenv virtualenv 3.6.8 flake8-nitpick
+    pyenv activate flake8-nitpick
+
+5. Install packages::
+
+    poetry install
+
+    # Output:
+    # Installing dependencies from lock file
+    # ...
+
+6. Install the pre-commit hooks::
+
+    pre-commit install
+
+    # Output:
+    # pre-commit installed at .git/hooks/pre-commit
+
+7. Create a branch for local development::
 
     git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
-4. Install the pre-commit hooks:
+7. When you're done making changes, run those linting/testing commands::
 
-    pre-commit install
+    black . && isort -y && pre-commit run --all-files && pytest
 
-5. When you're done making changes, run those commands::
-
-    black . && isort -y
-    pre-commit run --all-files
-    pytest
-    make html
-
-5. Commit your changes and push your branch to GitHub::
+8. Commit your changes and push your branch to GitHub::
 
     git add .
     git commit -m "Your detailed description of your changes."
     git push origin name-of-your-bugfix-or-feature
 
-6. Submit a pull request through the GitHub website.
+9. Submit a pull request through the GitHub website.
 
-7. If your pull request is accepted, all your commits will be squashed into one.
+10. If your pull request is accepted, all your commits will be squashed into one,
+    and the `Angular Convention will be used on the commit message <https://github.com/conventional-changelog/conventional-changelog/tree/0e05028f70bbd3109e1a4b16262a9450153060de/packages/conventional-changelog-angular#angular-convention>`_.
 
 Pull Request Guidelines
 -----------------------
@@ -89,10 +90,3 @@ For merging, you should:
        `run the tests <https://travis-ci.com/andreoliwa/flake8-nitpick/pull_requests>`_ for each change you add in the pull request.
 
        It will be slower though ...
-
-Tips
-----
-
-To run tests::
-
-    pytest

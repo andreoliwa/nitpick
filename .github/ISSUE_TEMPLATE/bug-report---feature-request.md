@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 Your issue or feature may already be reported!
-Please search on the [issue tracker](../) before creating one.
+Please search on the [issue tracker](https://github.com/andreoliwa/flake8-nitpick/issues) before creating one.
 
 ## Expected Behavior
 
@@ -49,6 +49,6 @@ Please search on the [issue tracker](../) before creating one.
 - Operating System and version:
 - Link to your project:
 
-For more information, see the [CONTRIBUTING](../../blob/master/CONTRIBUTING.rst) guide.
+For more information, see the [CONTRIBUTING](https://github.com/andreoliwa/flake8-nitpick/blob/master/CONTRIBUTING.rst) guide.
 
 <!-- Thanks to https://github.com/stevemao/github-issue-templates/ for this template -->
