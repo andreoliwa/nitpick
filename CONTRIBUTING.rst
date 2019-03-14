@@ -5,6 +5,8 @@ Contributing
 Contributions are welcome, and they are greatly appreciated!
 Every little bit helps, and credit will always be given.
 
+Check the `projects on GitHub <https://github.com/andreoliwa/flake8-nitpick/projects>`_, you might help coding a planned feature.
+
 Bug reports or feature requests
 ===============================
 

@@ -1,31 +1,28 @@
 ---
-name: Bug report / Feature request
-about: Create a bug report or suggest a feature to help us improve
+name: Bug report
+about: Create a bug report to help us improve
 title: ''
-labels: ''
+labels: 'bug'
 assignees: ''
 
 ---
 
-Your issue or feature may already be reported!
+Your bug may already be reported!
 Please search on the [issue tracker](https://github.com/andreoliwa/flake8-nitpick/issues) before creating one.
 
 ## Expected Behavior
 
-<!--- If you're describing a bug, tell us what should happen -->
-<!--- If you're suggesting a change/improvement, tell us how it should work -->
+<!--- Tell us what should happen -->
 
 ## Current Behavior
 
-<!--- If describing a bug, tell us what happens instead of the expected behaviour -->
-<!--- If suggesting a change/improvement, explain the difference from current behaviour -->
+<!--- Tell us what happens instead of the expected behaviour -->
 
 ## Possible Solution
 
-<!--- Not obligatory, but suggest a fix/reason for the bug, -->
-<!--- or ideas how to implement the addition or change -->
+<!--- Not obligatory, but suggest a fix/reason for the bug -->
 
-## Steps to Reproduce (for bugs)
+## Steps to Reproduce
 
 <!--- Provide a link to a live example or an unambiguous set of steps to -->
 <!--- reproduce this bug. Include code to reproduce, if relevant -->
