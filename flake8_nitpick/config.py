@@ -99,10 +99,11 @@ class NitpickConfig(NitpickMixin):
 
     def merge_styles(self) -> YieldFlake8Error:
         """Merge one or multiple style files."""
-        pyproject_path: Path = self.root_dir / PyProjectTomlFile.file_name
-        if pyproject_path.exists():
-            self.pyproject_dict: JsonDict = toml.load(str(pyproject_path))
-            self.tool_nitpick_dict: JsonDict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})
+        if self.root_dir:
+            pyproject_paths = climb_directory_tree(self.root_dir, file_patterns=[PyProjectTomlFile.file_name])
+            if pyproject_paths:
+                self.pyproject_dict: JsonDict = toml.load(str(pyproject_paths[0]))
+                self.tool_nitpick_dict: JsonDict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
         style = Style(self)
