@@ -9,6 +9,7 @@ import toml
 
 from flake8_nitpick.constants import (
     LOG_ROOT,
+    MANAGE_PY,
     NITPICK_MINIMUM_VERSION_JMEX,
     PROJECT_NAME,
     ROOT_FILES,
@@ -68,19 +69,31 @@ class NitpickConfig(NitpickMixin):
             starting_file, ROOT_FILES + (PyProjectTomlFile.file_name, SetupCfgFile.file_name)
         )
         if not found_files:
-            LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
-            return False
+            # If none of the root files were found, try again with manage.py.
+            # On Django projects, it can be in another dir inside the root dir.
+            found_files = climb_directory_tree(starting_file, [MANAGE_PY])
+            if not found_files:
+                LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
+                return False
 
         self.root_dir = found_files[0].parent
         self.clear_cache_dir()
         return True
 
     def find_main_python_file(self) -> bool:
-        """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings."""
+        """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.
+
+        The search order is:
+        1. Python files that belong to the root dir of the project (e.g.: ``setup.py``, ``autoapp.py``).
+        2. ``manage.py``: they can be on the root or on a subdir (Django projects).
+        3. Any other ``*.py`` Python file.
+        """
         if not self.root_dir:
             return False
         for the_file in itertools.chain(
-            [self.root_dir / root_file for root_file in ROOT_PYTHON_FILES], self.root_dir.glob("*.py")
+            [self.root_dir / root_file for root_file in ROOT_PYTHON_FILES],
+            self.root_dir.glob(f"*/{MANAGE_PY}"),
+            self.root_dir.glob("*/*.py"),
         ):
             if the_file.exists():
                 self.main_python_file = Path(the_file)
@@ -99,11 +112,10 @@ class NitpickConfig(NitpickMixin):
 
     def merge_styles(self) -> YieldFlake8Error:
         """Merge one or multiple style files."""
-        if self.root_dir:
-            pyproject_paths = climb_directory_tree(self.root_dir, file_patterns=[PyProjectTomlFile.file_name])
-            if pyproject_paths:
-                self.pyproject_dict: JsonDict = toml.load(str(pyproject_paths[0]))
-                self.tool_nitpick_dict: JsonDict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})
+        pyproject_path: Path = self.root_dir / PyProjectTomlFile.file_name
+        if pyproject_path.exists():
+            self.pyproject_dict: JsonDict = toml.load(str(pyproject_path))
+            self.tool_nitpick_dict: JsonDict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
         style = Style(self)

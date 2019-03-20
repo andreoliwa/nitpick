@@ -129,3 +129,12 @@ class ProjectMock:
     def assert_single_error(self, raw_error: str) -> "ProjectMock":
         """Assert there is only one error."""
         return self.assert_errors_contain(raw_error, 1)
+
+    def assert_no_errors(self) -> "ProjectMock":
+        """Assert that there are no errors."""
+        if not self._errors:
+            return self
+
+        print("\nAll errors:")
+        print(sorted(self._errors))
+        assert False

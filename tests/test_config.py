@@ -17,3 +17,27 @@ def test_no_main_python_file_root_dir(request):
         "NIP102 None of those Python files was found in the root dir "
         + f"{project.root_dir}: {', '.join(ROOT_PYTHON_FILES)}"
     )
+
+
+def test_django_project_structure(request):
+    """Django project with pyproject.toml in the parent dir of manage.py's dir."""
+    ProjectMock(request, setup_py=False).pyproject_toml(
+        """
+        [tool.black]
+        lines = 100
+        """
+    ).setup_cfg(
+        """
+        [flake8]
+        some = thing
+        """
+    ).save_file(
+        "my_django_project/manage.py", ""
+    ).style(
+        """
+        ["pyproject.toml".tool.black]
+        lines = 100
+        ["setup.cfg".flake8]
+        some = "thing"
+        """
+    ).lint().assert_no_errors()
