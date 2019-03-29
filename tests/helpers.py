@@ -124,7 +124,7 @@ class ProjectMock:
         print(sorted(self._errors))
         print("\nAll errors (pprint):")
         pprint(sorted(self._errors), width=150)
-        assert False
+        raise AssertionError
 
     def assert_single_error(self, raw_error: str) -> "ProjectMock":
         """Assert there is only one error."""
@@ -137,4 +137,4 @@ class ProjectMock:
 
         print("\nAll errors:")
         print(sorted(self._errors))
-        assert False
+        raise AssertionError
