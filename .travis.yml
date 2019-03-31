@@ -41,8 +41,10 @@ jobs:
   include:
     # Define the release stage that runs semantic-release
     - stage: release
+      script: skip
       deploy:
         provider: script
+        skip_cleanup: true
         script: ./semantic-release.sh
         on:
           branch: master
