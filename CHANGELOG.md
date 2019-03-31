@@ -1,3 +1,10 @@
+# [0.11.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.10.3...v0.11.0) (2019-03-31)
+
+
+### Features
+
+* allow pyproject.toml to be located in root dir's parents (thanks [@michael-k](https://github.com/michael-k)) ([#21](https://github.com/andreoliwa/flake8-nitpick/issues/21)) ([d3c4d74](https://github.com/andreoliwa/flake8-nitpick/commit/d3c4d74))
+
 <a name="0.10.3"></a>
 ## [0.10.3](https://github.com/andreoliwa/flake8-nitpick/compare/v0.10.2...v0.10.3) (2019-03-13)
 
