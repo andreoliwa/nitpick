@@ -36,3 +36,20 @@ after_success:
   - "COVERALLS_PARALLEL=true coveralls"
 notifications:
   webhooks: https://coveralls.io/webhook
+# https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
+jobs:
+  include:
+    # Define the release stage that runs semantic-release
+    - stage: release
+      # Advanced: optionally overwrite your default `script` step to skip the tests
+      # script:
+      #   - make
+      deploy:
+        provider: script
+        on:
+          branch: master
+        skip_cleanup: true
+        script:
+          # Use nvm to install and use the Node LTS version (nvm is installed on all Travis images)
+          - nvm install lts/*
+          - npx semantic-release -d
