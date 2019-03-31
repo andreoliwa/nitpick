@@ -34,8 +34,7 @@ after_success:
   - coverage combine
   - "COVERALLS_PARALLEL=true coveralls"
 notifications:
-  webhooks:
-    - https://coveralls.io/webhook
+  webhooks: https://coveralls.io/webhook
 # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
 jobs:
   include:
