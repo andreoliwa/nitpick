@@ -28,28 +28,23 @@ after_script:
   - coverage xml
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 install:
-  - pip install -U poetry coveralls
-  - pip install safety
+  - pip install -U poetry coveralls safety
   - poetry install
 after_success:
   - coverage combine
   - "COVERALLS_PARALLEL=true coveralls"
 notifications:
-  webhooks: https://coveralls.io/webhook
+  webhooks:
+    - https://coveralls.io/webhook
 # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
 jobs:
   include:
     # Define the release stage that runs semantic-release
     - stage: release
-      # Advanced: optionally overwrite your default `script` step to skip the tests
-      # script:
-      #   - make
+      script: skip
       deploy:
         provider: script
+        skip_cleanup: true
+        script: ./semantic-release.sh
         on:
           branch: master
-        skip_cleanup: true
-        script:
-          # Use nvm to install and use the Node LTS version (nvm is installed on all Travis images)
-          - nvm install lts/*
-          - npx semantic-release -d
