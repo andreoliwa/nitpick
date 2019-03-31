@@ -44,6 +44,7 @@ jobs:
       # Advanced: optionally overwrite your default `script` step to skip the tests
       # script:
       #   - make
+      script: echo "Preparing semantic release..."
       deploy:
         provider: script
         on:
