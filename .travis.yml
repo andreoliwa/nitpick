@@ -37,6 +37,7 @@ after_success:
   - "COVERALLS_PARALLEL=true coveralls"
 notifications:
   webhooks:
+    # https://docs.coveralls.io/parallel-build-webhook
     - https://coveralls.io/webhook
 stages:
   - name: release
