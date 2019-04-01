@@ -4,6 +4,7 @@ env:
   global:
     - CC_TEST_REPORTER_ID=7fce1e2ce7b59adf493538b312343e4efc38b297c1c07cfd8e5913305c086ce2
 cache:
+  npm: true
   directories:
     - $HOME/.cache/pip
 # https://docs.travis-ci.com/user/languages/python/
@@ -35,16 +36,18 @@ after_success:
   - coverage combine
   - "COVERALLS_PARALLEL=true coveralls"
 notifications:
-  webhooks: https://coveralls.io/webhook
-# https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
+  webhooks:
+    - https://coveralls.io/webhook
+stages:
+  - name: release
+    if: branch = master
 jobs:
   include:
     # Define the release stage that runs semantic-release
+    # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
     - stage: release
       script: skip
       deploy:
         provider: script
         skip_cleanup: true
         script: semantic-release
-        on:
-          branch: master
