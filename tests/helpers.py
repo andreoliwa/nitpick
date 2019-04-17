@@ -12,7 +12,7 @@ from flake8_nitpick.files.pre_commit import PreCommitFile
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.files.setup_cfg import SetupCfgFile
 from flake8_nitpick.plugin import NitpickChecker
-from flake8_nitpick.types import Flake8Error, PathOrStr
+from flake8_nitpick.typedefs import Flake8Error, PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
 
 
