@@ -21,7 +21,7 @@ from flake8_nitpick.files.setup_cfg import SetupCfgFile
 from flake8_nitpick.generic import climb_directory_tree, rmdir_if_empty, search_dict, version_to_tuple
 from flake8_nitpick.mixin import NitpickMixin
 from flake8_nitpick.style import Style
-from flake8_nitpick.types import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
+from flake8_nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
 
 LOGGER = logging.getLogger(f"{LOG_ROOT}.config")
 

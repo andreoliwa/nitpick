@@ -3,7 +3,7 @@ import toml
 
 from flake8_nitpick.files.base import BaseFile
 from flake8_nitpick.generic import flatten, unflatten
-from flake8_nitpick.types import YieldFlake8Error
+from flake8_nitpick.typedefs import YieldFlake8Error
 
 
 class PyProjectTomlFile(BaseFile):

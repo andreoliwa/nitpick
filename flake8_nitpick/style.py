@@ -18,7 +18,7 @@ from flake8_nitpick.constants import (
 )
 from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
 from flake8_nitpick.generic import climb_directory_tree, flatten, is_url, search_dict, unflatten
-from flake8_nitpick.types import JsonDict, StrOrList
+from flake8_nitpick.typedefs import JsonDict, StrOrList
 
 if TYPE_CHECKING:
     from flake8_nitpick.config import NitpickConfig

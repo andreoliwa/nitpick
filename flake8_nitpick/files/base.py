@@ -4,7 +4,7 @@ from pathlib import Path
 
 from flake8_nitpick.generic import search_dict
 from flake8_nitpick.mixin import NitpickMixin
-from flake8_nitpick.types import JsonDict, YieldFlake8Error
+from flake8_nitpick.typedefs import JsonDict, YieldFlake8Error
 
 
 class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
