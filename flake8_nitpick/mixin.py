@@ -1,6 +1,6 @@
 """Mixin to raise flake8 errors."""
 from flake8_nitpick.constants import ERROR_PREFIX
-from flake8_nitpick.types import Flake8Error
+from flake8_nitpick.typedefs import Flake8Error
 
 
 class NitpickMixin:

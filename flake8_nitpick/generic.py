@@ -11,7 +11,7 @@ from typing import Any, Iterable, List, Optional, Tuple, Union
 import jmespath
 from jmespath.parser import ParsedResult
 
-from flake8_nitpick.types import JsonDict, PathOrStr
+from flake8_nitpick.typedefs import JsonDict, PathOrStr
 
 
 def get_subclasses(cls):
