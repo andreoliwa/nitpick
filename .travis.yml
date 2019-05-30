@@ -17,11 +17,8 @@ before_script:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 script:
-  # Run some of the pre-commit hooks on Travis.
-  # Running "pre-commit run --all-files" checks more files than expected;
-  # e.g. it doesn't respect flake8's exclude config on setup.cfg.
-  - black --check .
-  - flake8
+  # Run all pre-commit hooks on Travis.
+  - pre-commit run --all-files
   - coverage run --source=flake8_nitpick -m pytest
   # TODO: disable safety check for now; it is complaining about numpy, which is not a direct part of the project (used by napoleon Sphinx extension?)
 #  - safety check
@@ -30,7 +27,7 @@ after_script:
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 install:
   - npm install -g semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
-  - pip install -U poetry coveralls safety
+  - pip install -U poetry coveralls safety pre-commit
   - poetry install
 after_success:
   - coverage combine
