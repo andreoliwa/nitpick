@@ -32,6 +32,14 @@ repos:
     rev: v4.3.20
     hooks:
       - id: isort
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.4.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-check-mock-methods
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: rst-backticks
   - repo: local
     hooks:
       - id: flake8

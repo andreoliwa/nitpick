@@ -23,7 +23,7 @@ articles, and such.
 Development
 ===========
 
-To set up `flake8-nitpick` for local development:
+To set up ``flake8-nitpick`` for local development:
 
 1. Fork `flake8-nitpick <https://github.com/andreoliwa/flake8-nitpick>`_
    (look for the "Fork" button).
