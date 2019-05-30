@@ -1,6 +1,3 @@
-["pyproject.toml".tool.poetry.dev-dependencies]
-flake8-isort = "*"
-
 ["setup.cfg".isort]
 line_length = 120
 skip = ".tox,build"

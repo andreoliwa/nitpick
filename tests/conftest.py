@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-# Fixed temporary dir to help debugging, or a temporary dir
 from flake8_nitpick.config import NitpickConfig
 
+# Fixed temporary dir to help debugging, or a temporary dir
 ENV_TEST_DIR = os.environ.get("NITPICK_TEST_DIR")
 TEMP_ROOT_PATH = Path(ENV_TEST_DIR or tempfile.mkdtemp()).expanduser().absolute()
 

@@ -2,34 +2,32 @@
 # See https://pre-commit.com/hooks.html for more hooks
 fail_fast: true
 repos:
-- repo: local
-  hooks:
-  - id: isort
-    entry: isort -sp setup.cfg
-    language: system
-    language_version: python
-    name: isort
-    types: [python]
-
-  - id: black
-    entry: black
-    language: system
-    language_version: python
-    name: black
-    types: [python]
-
-  - id: mypy
-    entry: python -c 'import sys; import subprocess; subprocess.run(["mypy", "--ignore-missing-imports"]
-      + sys.argv[1:])'
-    language: system
-    language_version: python
-    name: mypy
-    types: [python]
-    verbose: true
-
-  - id: flake8
-    entry: flake8
-    language: system
-    language_version: python
-    name: flake8
-    types: [python]
+  - repo: https://github.com/ambv/black
+    rev: 19.3b0
+    hooks:
+      - id: black
+        args: [--safe, --quiet]
+  - repo: https://github.com/asottile/seed-isort-config
+    rev: v1.9.1
+    hooks:
+      - id: seed-isort-config
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v4.3.20
+    hooks:
+      - id: isort
+  - repo: local
+    hooks:
+      - id: mypy
+        entry: python -c 'import sys; import subprocess; subprocess.run(["mypy", "--ignore-missing-imports"]
+          + sys.argv[1:])'
+        language: system
+        language_version: python
+        name: mypy
+        types: [python]
+        verbose: true
+      - id: flake8
+        entry: flake8
+        language: system
+        language_version: python
+        name: flake8
+        types: [python]

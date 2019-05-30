@@ -1,5 +1,2 @@
 ["pyproject.toml".tool.black]
 line-length = 120
-
-["pyproject.toml".tool.poetry.dev-dependencies]
-black = {version = "*", allows-prereleases = true}
