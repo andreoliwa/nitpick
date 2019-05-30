@@ -3,11 +3,12 @@ dist: xenial
 env:
   global:
     - CC_TEST_REPORTER_ID=7fce1e2ce7b59adf493538b312343e4efc38b297c1c07cfd8e5913305c086ce2
+    - PRE_COMMIT_HOME=$HOME/.cache/pre-commit
 cache:
   npm: true
   directories:
     - $HOME/.cache/pip
-    - $HOME/.cache/pre-commit
+    - $PRE_COMMIT_HOME
 # https://docs.travis-ci.com/user/languages/python/
 language: python
 python:
