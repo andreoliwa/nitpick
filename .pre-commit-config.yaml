@@ -3,6 +3,13 @@
 # Thanks to https://github.com/sloria/environs/blob/master/.pre-commit-config.yaml
 fail_fast: true
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: fix-encoding-pragma
+      - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
     rev: v1.17.1
     hooks:
@@ -27,17 +34,13 @@ repos:
       - id: isort
   - repo: local
     hooks:
-      - id: mypy
-        entry: python -c 'import sys; import subprocess; subprocess.run(["mypy", "--ignore-missing-imports"]
-          + sys.argv[1:])'
-        language: system
-        language_version: python
-        name: mypy
-        types: [python]
-        verbose: true
       - id: flake8
         entry: flake8
         language: system
         language_version: python
         name: flake8
         types: [python]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.701
+    hooks:
+      - id: mypy

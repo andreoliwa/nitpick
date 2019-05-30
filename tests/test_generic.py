@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Generic functions tests."""
 from flake8_nitpick.generic import get_subclasses
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Plugin tests."""
 from tests.helpers import ProjectMock
 

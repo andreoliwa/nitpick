@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """setup.cfg tests."""
 from tests.helpers import ProjectMock
 

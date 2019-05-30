@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Type definitions."""
 from pathlib import Path
 from typing import Any, Iterator, List, MutableMapping, Tuple, Type, Union

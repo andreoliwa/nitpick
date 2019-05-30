@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file (`PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_)."""
 import toml
 

@@ -1,5 +1,4 @@
 ["pyproject.toml".tool.poetry.dev-dependencies]
-mypy = "*"
 flake8-mypy = "*"
 
 # https://mypy.readthedocs.io/en/latest/config_file.html

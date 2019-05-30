@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Pre-commit tests."""
 from tests.helpers import ProjectMock
 

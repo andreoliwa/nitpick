@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Generic functions and classes.
 
 .. testsetup::
@@ -6,12 +7,12 @@
 """
 import collections
 from pathlib import Path
-from typing import Any, Iterable, List, Optional, Tuple, Union
+from typing import Any, Iterable, List, MutableMapping, Optional, Tuple, Union
 
 import jmespath
 from jmespath.parser import ParsedResult
 
-from flake8_nitpick.typedefs import JsonDict, PathOrStr
+from flake8_nitpick.typedefs import PathOrStr
 
 
 def get_subclasses(cls):
@@ -113,7 +114,7 @@ def rmdir_if_empty(path_or_str: PathOrStr):
         pass
 
 
-def search_dict(jmespath_expression: Union[ParsedResult, str], data: JsonDict, default: Any) -> Any:
+def search_dict(jmespath_expression: Union[ParsedResult, str], data: MutableMapping[str, Any], default: Any) -> Any:
     """Search a dictionary using a JMESPath expression, and returning a default value.
 
     >>> data = {"root": {"app": [1, 2], "test": "something"}}

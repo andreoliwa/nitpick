@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 from typing import Any, Dict, List, Tuple
 
@@ -22,7 +23,7 @@ class PreCommitFile(BaseFile):
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        suggested = self.file_dict.copy()
+        suggested = dict(self.file_dict).copy()
         for repo in suggested.get(self.KEY_REPOS, []):
             repo[self.KEY_HOOKS] = yaml.safe_load(repo[self.KEY_HOOKS])
         return yaml.dump(suggested, default_flow_style=False)
@@ -36,7 +37,7 @@ class PreCommitFile(BaseFile):
 
         actual_root = actual.copy()
         actual_root.pop(self.KEY_REPOS, None)
-        expected_root = self.file_dict.copy()
+        expected_root = dict(self.file_dict).copy()
         expected_root.pop(self.KEY_REPOS, None)
         for diff_type, key, values in dictdiffer.diff(expected_root, actual_root):
             if diff_type == dictdiffer.REMOVE:

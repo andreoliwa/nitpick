@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Style files."""
 import logging
 from pathlib import Path

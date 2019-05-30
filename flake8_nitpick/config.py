@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Configuration of the plugin."""
 import itertools
 import logging
@@ -32,12 +33,12 @@ class NitpickConfig(NitpickMixin):
     error_base_number = 200
 
     _singleton_instance: Optional["NitpickConfig"] = None
+    root_dir: Path
+    main_python_file: Path
 
     def __init__(self) -> None:
         """Init instance."""
-        self.root_dir: Optional[Path] = None
         self.cache_dir: Optional[Path] = None
-        self.main_python_file: Optional[Path] = None
 
         self.pyproject_dict: MutableMapping[str, Any] = {}
         self.tool_nitpick_dict: Dict[str, Any] = {}
@@ -62,7 +63,7 @@ class NitpickConfig(NitpickMixin):
 
         Also clear the cache dir the first time the root dir is found.
         """
-        if self.root_dir:
+        if hasattr(self, "root_dir"):
             return True
 
         found_files = climb_directory_tree(

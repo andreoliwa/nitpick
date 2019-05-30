@@ -54,7 +54,7 @@ You can also use multiple styles and mix local files and URLs:
     style = ["/path/to/first.toml", "/another/path/to/second.toml", "https://example.com/on/the/web/third.toml"]
 
 The order is important: each style will override any keys that might be set by the previous .toml file.
-If a key is defined in more than one file, the value from the last file will prevail. 
+If a key is defined in more than one file, the value from the last file will prevail.
 
 ### Default search order for a style file
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
 import itertools
 from configparser import ConfigParser
