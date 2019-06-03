@@ -3,7 +3,7 @@ line-length = 120
 
 [tool.poetry]
 name = "flake8-nitpick"
-version = "0.11.0"
+version = "0.12.0"
 description = "Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects"
 authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"

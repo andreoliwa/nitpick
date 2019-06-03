@@ -1,3 +1,10 @@
+# [0.12.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.11.0...v0.12.0) (2019-06-03)
+
+
+### Features
+
+* get default style file from current version, not from master ([e0dccb8](https://github.com/andreoliwa/flake8-nitpick/commit/e0dccb8))
+
 # [0.11.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.10.3...v0.11.0) (2019-03-31)
 
 
