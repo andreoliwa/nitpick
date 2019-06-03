@@ -18,8 +18,8 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "bumpversion --allow-dirty --no-commit --no-tag --new-version ${nextRelease.version} patch && rm -rf dist/ && poetry build && twine upload --username andreoliwa --password $TWINE_TEST_PASSWORD -r testpypi dist/*",
-          "publishCmd": "twine upload --username andreoliwa --password $TWINE_PASSWORD dist/*"
+          "prepareCmd": "bumpversion --allow-dirty --no-commit --no-tag --new-version ${nextRelease.version} patch && rm -rf dist/ && poetry build && twine upload --password $TWINE_TEST_PASSWORD -r testpypi dist/*",
+          "publishCmd": "twine upload --password $TWINE_PASSWORD dist/*"
         }
       ],
       "@semantic-release/github",

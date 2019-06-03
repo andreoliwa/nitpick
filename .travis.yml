@@ -4,6 +4,7 @@ env:
   global:
     - CC_TEST_REPORTER_ID=7fce1e2ce7b59adf493538b312343e4efc38b297c1c07cfd8e5913305c086ce2
     - PRE_COMMIT_HOME=$HOME/.cache/pre-commit
+    - TWINE_USERNAME=andreoliwa
 cache:
   npm: true
   directories:
