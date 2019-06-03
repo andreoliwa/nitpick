@@ -23,7 +23,21 @@
         }
       ],
       "@semantic-release/github",
-      "@semantic-release/git"
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "setup.cfg",
+            "flake8_nitpick/__init__.py",
+            "pyproject.toml",
+            "package.json",
+            "docs/conf.py",
+            "nitpick-style.toml",
+            "README.md",
+            "CHANGELOG.md"
+          ]
+        }
+      ]
     ]
   }
 }
