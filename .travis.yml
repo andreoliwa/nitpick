@@ -29,7 +29,7 @@ after_script:
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 install:
   - npm install -g semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
-  - pip install -U poetry coveralls safety pre-commit bumpversion
+  - pip install -U poetry coveralls safety pre-commit bumpversion twine
   - poetry install --no-ansi --no-interaction
 after_success:
   - coverage combine
