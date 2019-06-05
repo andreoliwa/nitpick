@@ -6,7 +6,7 @@ minimum_version = "0.10.0"
 
 [nitpick.styles]
 include = [
-    "styles/python36-37",
+    "styles/python37",
     "styles/poetry",
     "styles/absent-files",
     "styles/black",
