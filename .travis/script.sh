@@ -13,4 +13,6 @@ else
     pre-commit run --all-files
 fi
 
+echo "Running coverage report"
 coverage run --source=flake8_nitpick -m pytest
+ls -l .coverage
