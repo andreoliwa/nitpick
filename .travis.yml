@@ -46,7 +46,7 @@ jobs:
     - stage: release
       script: skip
       install:
-        - pip install -U bumpversion twine
+        - pip install -U poetry bumpversion twine
         - npm install -g semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
       deploy:
         provider: script
