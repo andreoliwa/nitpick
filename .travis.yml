@@ -5,6 +5,7 @@ env:
     - CC_TEST_REPORTER_ID=7fce1e2ce7b59adf493538b312343e4efc38b297c1c07cfd8e5913305c086ce2
     - PRE_COMMIT_HOME=$HOME/.cache/pre-commit
     - TWINE_USERNAME=andreoliwa
+    - COVERALLS_PARALLEL=true
 cache:
   npm: true
   directories:
@@ -24,6 +25,7 @@ script:
   - "./.travis/script.sh"
 after_script:
   - coverage xml
+  - ls -l coverage*
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 install:
   - npm install -g semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
@@ -31,11 +33,11 @@ install:
   - poetry install --no-ansi --no-interaction
 after_success:
   - coverage combine
-  - "COVERALLS_PARALLEL=true coveralls"
+  - ls -l .coverage*
+  - coveralls -v
 notifications:
-  webhooks:
-    # https://docs.coveralls.io/parallel-build-webhook
-    - https://coveralls.io/webhook
+  # https://docs.coveralls.io/parallel-build-webhook
+  webhooks: https://coveralls.io/webhook
 stages:
   - name: release
     if: branch = master

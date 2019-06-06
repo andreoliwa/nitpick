@@ -14,5 +14,5 @@ else
 fi
 
 echo "Running coverage report"
-coverage run --source=flake8_nitpick -m pytest
-ls -l .coverage
+coverage run --parallel-mode --source=flake8_nitpick -m pytest
+ls -l .coverage*
