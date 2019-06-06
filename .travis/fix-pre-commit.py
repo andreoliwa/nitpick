@@ -11,6 +11,6 @@ all_repos = data.pop("repos")
 clean_repos = [repo for repo in all_repos if "black" not in repo["repo"]]
 data["repos"] = clean_repos
 
-new_config = Path(".travis/.temp-without-black.yaml").resolve()
+new_config = Path(".travis/.temp-without-black.yaml")
 yaml.dump(data, new_config.open("w"))
 print("Saved {}".format(new_config))

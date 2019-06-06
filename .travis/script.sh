@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Run all pre-commit hooks on Travis.
-if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then
+if [$TRAVIS_PYTHON_VERSION == '3.4'] || [$TRAVIS_PYTHON_VERSION == '3.5']; then
     python3 .travis/fix-pre-commit.py
     pre-commit run --all-files --config .travis/.temp-without-black.yaml
 else
