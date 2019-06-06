@@ -180,25 +180,25 @@ def test_minimum_version(mocked_version, request):
 
 def test_relative_and_other_root_dirs(request):
     """Test styles in relative and in other root dirs."""
-    another_dir: Path = TEMP_ROOT_PATH / "another_dir"
+    another_dir = TEMP_ROOT_PATH / "another_dir"  # type: Path
     project = (
         ProjectMock(request)
         .named_style(
-            f"{another_dir}/main",
+            "{}/main".format(another_dir),
             """
             [nitpick.styles]
             include = "styles/pytest.toml"
             """,
         )
         .named_style(
-            f"{another_dir}/styles/pytest",
+            "{}/styles/pytest".format(another_dir),
             """
             ["pyproject.toml".tool.pytest]
             some-option = 123
             """,
         )
         .named_style(
-            f"{another_dir}/styles/black",
+            "{}/styles/black".format(another_dir),
             """
             ["pyproject.toml".tool.black]
             line-length = 99
@@ -206,7 +206,7 @@ def test_relative_and_other_root_dirs(request):
             """,
         )
         .named_style(
-            f"{another_dir}/poetry",
+            "{}/poetry".format(another_dir),
             """
             ["pyproject.toml".tool.poetry]
             version = "1.0"
@@ -228,49 +228,57 @@ def test_relative_and_other_root_dirs(request):
 
     # Use full path on initial styles
     project.pyproject_toml(
-        f"""
+        """
         [tool.nitpick]
         style = ["{another_dir}/main", "{another_dir}/styles/black"]
         {common_pyproject}
-        """
+        """.format(
+            another_dir=another_dir, common_pyproject=common_pyproject
+        )
     ).lint().assert_single_error(expected_error)
 
     # Reuse the first full path that appears
     project.pyproject_toml(
-        f"""
-        [tool.nitpick]
-        style = ["{another_dir}/main", "styles/black.toml"]
-        {common_pyproject}
         """
+        [tool.nitpick]
+        style = ["{}/main", "styles/black.toml"]
+        {}
+        """.format(
+            another_dir, common_pyproject
+        )
     ).lint().assert_single_error(expected_error)
 
     # Allow relative paths
     project.pyproject_toml(
-        f"""
-        [tool.nitpick]
-        style = ["{another_dir}/styles/black", "../poetry"]
-        {common_pyproject}
         """
+        [tool.nitpick]
+        style = ["{}/styles/black", "../poetry"]
+        {}
+        """.format(
+            another_dir, common_pyproject
+        )
     ).lint().assert_single_error(
-        f"""
-        {expected_error}
+        """
+        {}
         [tool.poetry]
         version = "1.0"
-        """
+        """.format(
+            expected_error
+        )
     )
 
 
 def test_symlink_subdir(request):
     """Test relative styles in subdirectories of a symlink dir."""
-    target_dir: Path = TEMP_ROOT_PATH / "target_dir"
+    target_dir = TEMP_ROOT_PATH / "target_dir"  # type: Path
     ProjectMock(request).named_style(
-        f"{target_dir}/parent",
+        "{}/parent".format(target_dir),
         """
         [nitpick.styles]
         include = "styles/child.toml"
         """,
     ).named_style(
-        f"{target_dir}/styles/child",
+        "{}/styles/child".format(target_dir),
         """
         ["pyproject.toml".tool.black]
         line-length = 86
@@ -278,7 +286,7 @@ def test_symlink_subdir(request):
     ).create_symlink(
         "symlinked-style.toml", target_dir, "parent.toml"
     ).pyproject_toml(
-        f"""
+        """
         [tool.nitpick]
         style = "symlinked-style"
         """
@@ -315,7 +323,7 @@ def test_relative_style_on_urls(request):
             """,
     }
     for file_name, body in mapping.items():
-        responses.add(responses.GET, f"{base_url}/{file_name}.toml", dedent(body), status=200)
+        responses.add(responses.GET, "{}/{}.toml".format(base_url, file_name), dedent(body), status=200)
 
     project = ProjectMock(request)
 
@@ -333,35 +341,43 @@ def test_relative_style_on_urls(request):
 
     # Use full path on initial styles
     project.pyproject_toml(
-        f"""
+        """
         [tool.nitpick]
         style = ["{base_url}/main", "{base_url}/styles/black.toml"]
         {common_pyproject}
-        """
+        """.format(
+            base_url=base_url, common_pyproject=common_pyproject
+        )
     ).lint().assert_single_error(expected_error)
 
     # Reuse the first full path that appears
     project.pyproject_toml(
-        f"""
-        [tool.nitpick]
-        style = ["{base_url}/main.toml", "styles/black"]
-        {common_pyproject}
         """
+        [tool.nitpick]
+        style = ["{}/main.toml", "styles/black"]
+        {}
+        """.format(
+            base_url, common_pyproject
+        )
     ).lint().assert_single_error(expected_error)
 
     # Allow relative paths
     project.pyproject_toml(
-        f"""
-        [tool.nitpick]
-        style = ["{base_url}/styles/black.toml", "../poetry"]
-        {common_pyproject}
         """
+        [tool.nitpick]
+        style = ["{}/styles/black.toml", "../poetry"]
+        {}
+        """.format(
+            base_url, common_pyproject
+        )
     ).lint().assert_single_error(
-        f"""
-        {expected_error}
+        """
+        {}
         [tool.poetry]
         version = "1.0"
-        """
+        """.format(
+            expected_error
+        )
     )
 
 
@@ -370,18 +386,20 @@ def test_fetch_private_github_urls(request):
     """Fetch private GitHub URLs with a token on the query string."""
     base_url = "https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style"
     token = "?token=xxx"
-    full_private_url = f"{base_url}{TOML_EXTENSION}{token}"
+    full_private_url = "{}{}{}".format(base_url, TOML_EXTENSION, token)
     body = """
         ["pyproject.toml".tool.black]
         missing = "thing"
         """
-    responses.add(responses.GET, f"{full_private_url}", dedent(body), status=200)
+    responses.add(responses.GET, full_private_url, dedent(body), status=200)
 
     ProjectMock(request).pyproject_toml(
-        f"""
-        [tool.nitpick]
-        style = "{base_url}{token}"
         """
+        [tool.nitpick]
+        style = "{}{}"
+        """.format(
+            base_url, token
+        )
     ).lint().assert_single_error(
         """
         NIP311 File pyproject.toml has missing values. Use this:

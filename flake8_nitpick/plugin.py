@@ -14,7 +14,7 @@ from flake8_nitpick.generic import get_subclasses
 from flake8_nitpick.mixin import NitpickMixin
 from flake8_nitpick.typedefs import YieldFlake8Error
 
-LOGGER = logging.getLogger(f"{LOG_ROOT}.plugin")
+LOGGER = logging.getLogger("{}.plugin".format(LOG_ROOT))
 
 
 @attr.s(hash=False)
@@ -27,9 +27,6 @@ class NitpickChecker(NitpickMixin):
 
     # NitpickMixin
     error_base_number = 100
-
-    # Attributes
-    config: NitpickConfig
 
     # Plugin arguments passed by Flake8
     tree = attr.ib(default=None)
@@ -46,7 +43,7 @@ class NitpickChecker(NitpickMixin):
             yield self.flake8_error(
                 2,
                 "None of those Python files was found in the root dir"
-                + f" {self.config.root_dir}: {', '.join(ROOT_PYTHON_FILES)}",
+                + " {}: {}".format(self.config.root_dir, ", ".join(ROOT_PYTHON_FILES)),
             )
             return
 
@@ -68,12 +65,12 @@ class NitpickChecker(NitpickMixin):
     def check_absent_files(self) -> YieldFlake8Error:
         """Check absent files."""
         for file_name, delete_message in self.config.files.get("absent", {}).items():
-            file_path: Path = self.config.root_dir / file_name
+            file_path = self.config.root_dir / file_name  # type: Path
             if not file_path.exists():
                 continue
 
-            full_message = f"File {file_name} should be deleted"
+            full_message = "File {} should be deleted".format(file_name)
             if delete_message:
-                full_message += f": {delete_message}"
+                full_message += ": {}".format(delete_message)
 
             yield self.flake8_error(3, full_message)

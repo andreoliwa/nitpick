@@ -11,7 +11,7 @@ from flake8_nitpick.typedefs import JsonDict, YieldFlake8Error
 class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     """Base class for file checkers."""
 
-    file_name: str
+    file_name = ""
     error_base_number = 300
 
     def __init__(self) -> None:
@@ -19,14 +19,16 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         from flake8_nitpick.config import NitpickConfig
 
         self.config = NitpickConfig.get_singleton()
-        self.error_prefix = f"File {self.file_name}"
-        self.file_path: Path = self.config.root_dir / self.file_name
+        self.error_prefix = "File {}".format(self.file_name)
+        self.file_path = self.config.root_dir / self.file_name  # type: Path
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict: JsonDict = self.config.style_dict.get(self.toml_key(), {})
+        self.file_dict = self.config.style_dict.get(self.toml_key(), {})  # type: JsonDict
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
-        self.nitpick_file_dict: JsonDict = search_dict(f'files."{self.file_name}"', self.config.nitpick_dict, {})
+        self.nitpick_file_dict = search_dict(
+            'files."{}"'.format(self.file_name), self.config.nitpick_dict, {}
+        )  # type: JsonDict
 
     @classmethod
     def toml_key(cls):
@@ -39,7 +41,9 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         The file should exist when there is any rule configured for it in the style file,
         TODO: add this to the docs
         """
-        should_exist: bool = self.config.files.get(self.toml_key(), bool(self.file_dict or self.nitpick_file_dict))
+        should_exist = self.config.files.get(
+            self.toml_key(), bool(self.file_dict or self.nitpick_file_dict)
+        )  # type: bool
         file_exists = self.file_path.exists()
 
         if should_exist and not file_exists:
@@ -49,7 +53,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             if missing_message:
                 phrases.append(missing_message)
             if suggestion:
-                phrases.append(f"Create it with this content:\n{suggestion}")
+                phrases.append("Create it with this content:\n{}".format(suggestion))
             yield self.flake8_error(1, ". ".join(phrases))
         elif not should_exist and file_exists:
             yield self.flake8_error(2, " should be deleted")

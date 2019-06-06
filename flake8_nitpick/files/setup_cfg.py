@@ -18,15 +18,14 @@ class SetupCfgFile(BaseFile):
     error_base_number = 320
 
     COMMA_SEPARATED_VALUES = "comma_separated_values"
-    comma_separated_values: Set[str]
 
-    expected_sections: Set[str]
-    missing_sections: Set[str]
+    expected_sections = set()  # type: Set[str]
+    missing_sections = set()  # type: Set[str]
 
     def __init__(self) -> None:
         """Init the instance."""
         super().__init__()
-        self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))
+        self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))  # type: Set[str]
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
@@ -52,7 +51,7 @@ class SetupCfgFile(BaseFile):
         actual_sections = set(setup_cfg.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
-            yield self.flake8_error(1, f" has some missing sections. Use this:\n{missing}")
+            yield self.flake8_error(1, " has some missing sections. Use this:\n{}".format(missing))
 
         generators = []
         for section in self.expected_sections - self.missing_sections:
@@ -68,7 +67,7 @@ class SetupCfgFile(BaseFile):
 
     def compare_different_keys(self, section, key, raw_expected: Any, raw_actual: Any) -> YieldFlake8Error:
         """Compare different keys, with special treatment when they are lists or numeric."""
-        combined = f"{section}.{key}"
+        combined = "{}.{}".format(section, key)
         if combined in self.comma_separated_values:
             # The values might contain spaces
             actual_set = {s.strip() for s in raw_actual.split(",")}
@@ -77,8 +76,8 @@ class SetupCfgFile(BaseFile):
             if missing:
                 yield self.flake8_error(
                     2,
-                    f" has missing values in the {key!r} key."
-                    + f" Include those values:\n[{section}]\n{key} = (...),{','.join(sorted(missing))}",
+                    " has missing values in the {!r} key.".format(key)
+                    + " Include those values:\n[{}]\n{} = (...),{}".format(section, key, ",".join(sorted(missing))),
                 )
             return
 
@@ -92,8 +91,8 @@ class SetupCfgFile(BaseFile):
         if actual != expected:
             yield self.flake8_error(
                 3,
-                f": [{section}]{key} is {raw_actual} but it should be like this:"
-                + f"\n[{section}]\n{key} = {raw_expected}",
+                ": [{}]{} is {} but it should be like this:".format(section, key, raw_actual)
+                + "\n[{}]\n{} = {}".format(section, key, raw_expected),
             )
 
     def show_missing_keys(self, section, key, values: List[Tuple[str, Any]]) -> YieldFlake8Error:
@@ -101,7 +100,9 @@ class SetupCfgFile(BaseFile):
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield self.flake8_error(4, f": section [{section}] has some missing key/value pairs. Use this:\n{output}")
+        yield self.flake8_error(
+            4, ": section [{}] has some missing key/value pairs. Use this:\n{}".format(section, output)
+        )
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:

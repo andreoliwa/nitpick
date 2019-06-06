@@ -20,18 +20,18 @@ from tests.conftest import TEMP_ROOT_PATH
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
-    _original_errors: List[Flake8Error]
-    _errors: Set[str]
+    _original_errors = []  # type: List[Flake8Error]
+    _errors = set()  # type: Set[str]
 
-    fixture_dir: Path = Path(__file__).parent / "fixtures"
+    fixture_dir = Path(__file__).parent / "fixtures"  # type: Path
 
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
-        self.root_dir: Path = TEMP_ROOT_PATH / pytest_request.node.name
+        self.root_dir = TEMP_ROOT_PATH / pytest_request.node.name  # type: Path
         self.root_dir.mkdir()
         os.chdir(str(self.root_dir))
 
-        self.files_to_lint: List[Path] = []
+        self.files_to_lint = []  # type: List[Path]
 
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
@@ -43,10 +43,10 @@ class ProjectMock:
         :param target_dir: Target directory (default: fixture directory).
         :param target_file: Target file name (default: source file name).
         """
-        path: Path = self.root_dir / link_name
+        path = self.root_dir / link_name  # type: Path
         full_source_path = Path(target_dir or self.fixture_dir) / (target_file or link_name)
         if not full_source_path.exists():
-            raise RuntimeError(f"Source file does not exist: {full_source_path}")
+            raise RuntimeError("Source file does not exist: {}".format(full_source_path))
         path.symlink_to(full_source_path)
         if path.suffix == ".py":
             self.files_to_lint.append(path)
@@ -77,7 +77,7 @@ class ProjectMock:
         :param lint: Should we lint the file or not? Python (.py) files are always linted.
         """
         if str(partial_file_name).startswith("/"):
-            path: Path = Path(partial_file_name)
+            path = Path(partial_file_name)  # type: Path
         else:
             path = self.root_dir / partial_file_name
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -96,7 +96,7 @@ class ProjectMock:
 
     def named_style(self, file_name: PathOrStr, file_contents: str) -> "ProjectMock":
         """Save a style file with a name. Add the .toml extension if needed."""
-        clean_file_name = file_name if str(file_name).endswith(".toml") else f"{file_name}.toml"
+        clean_file_name = file_name if str(file_name).endswith(".toml") else "{}.toml".format(file_name)
         return self.save_file(clean_file_name, file_contents)
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
@@ -117,10 +117,10 @@ class ProjectMock:
         if error in self._errors:
             if expected_count is not None:
                 actual = len(self._errors)
-                assert expected_count == actual, f"Expected {expected_count} errors, got {actual}"
+                assert expected_count == actual, "Expected {} errors, got {}".format(expected_count, actual)
             return self
 
-        print(f"Expected error:\n{error}")
+        print("Expected error:\n{}".format(error))
         print("\nAll errors:")
         print(sorted(self._errors))
         print("\nAll errors (pprint):")

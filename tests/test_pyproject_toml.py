@@ -7,7 +7,7 @@ from tests.helpers import ProjectMock
 def test_pyproject_should_be_deleted(request):
     """File should be deleted."""
     ProjectMock(request).style("").pyproject_toml("").lint().assert_errors_contain(
-        f"NIP312 File {PyProjectTomlFile.file_name} should be deleted"
+        "NIP312 File {} should be deleted".format(PyProjectTomlFile.file_name)
     )
 
 
@@ -18,4 +18,4 @@ def test_missing_pyproject_toml(request):
         [nitpick.files."pyproject.toml"]
         "missing_message" = "Do something"
         """
-    ).lint().assert_errors_contain(f"NIP311 File {PyProjectTomlFile.file_name} was not found. Do something")
+    ).lint().assert_errors_contain("NIP311 File {} was not found. Do something".format(PyProjectTomlFile.file_name))

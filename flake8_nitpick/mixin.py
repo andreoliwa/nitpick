@@ -7,8 +7,8 @@ from flake8_nitpick.typedefs import Flake8Error
 class NitpickMixin:
     """Mixin to raise flake8 errors."""
 
-    error_base_number: int = 0
-    error_prefix: str = ""
+    error_base_number = 0  # type: int
+    error_prefix = ""  # type: str
 
     def flake8_error(self, error_number: int, error_message: str) -> Flake8Error:
         """Return a flake8 error as a tuple."""
@@ -16,4 +16,9 @@ class NitpickMixin:
 
         from flake8_nitpick.plugin import NitpickChecker
 
-        return 1, 0, f"{ERROR_PREFIX}{final_number} {self.error_prefix}{error_message.rstrip()}", NitpickChecker
+        return (
+            1,
+            0,
+            "{}{} {}{}".format(ERROR_PREFIX, final_number, self.error_prefix, error_message.rstrip()),
+            NitpickChecker,
+        )
