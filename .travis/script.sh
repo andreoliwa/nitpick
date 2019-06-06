@@ -15,4 +15,3 @@ fi
 
 echo "Running coverage report"
 coverage run --parallel-mode --source=flake8_nitpick -m pytest
-ls -l .coverage*

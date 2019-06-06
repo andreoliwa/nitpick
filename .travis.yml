@@ -25,7 +25,6 @@ script:
   - "./.travis/script.sh"
 after_script:
   - coverage xml
-  - ls -l coverage*
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 install:
   - npm install -g semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
@@ -33,11 +32,11 @@ install:
   - poetry install --no-ansi --no-interaction
 after_success:
   - coverage combine
-  - ls -l .coverage*
-  - coveralls -v
+  - coveralls
 notifications:
   # https://docs.coveralls.io/parallel-build-webhook
-  webhooks: https://coveralls.io/webhook
+  webhooks:
+    - https://coveralls.io/webhook
 stages:
   - name: release
     if: branch = master
