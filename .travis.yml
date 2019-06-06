@@ -52,8 +52,3 @@ jobs:
         provider: script
         skip_cleanup: true
         script: semantic-release
-      # FIXME: remove this after deployment of this version works
-      after_deploy:
-        - rm -rf dist/
-        - poetry build
-        - twine upload --verbose dist/*
