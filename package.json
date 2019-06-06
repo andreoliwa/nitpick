@@ -19,7 +19,7 @@
         "@semantic-release/exec",
         {
           "prepareCmd": "bumpversion --allow-dirty --no-commit --no-tag --new-version ${nextRelease.version} patch && pre-commit run --all-files end-of-file-fixer || true && rm -rf dist/ && poetry build && twine upload --verbose --password $TWINE_TEST_PASSWORD -r testpypi dist/*",
-          "publishCmd": "twine upload --verbose --password $TWINE_PASSWORD dist/*"
+          "publishCmd": "twine upload --verbose dist/*"
         }
       ],
       "@semantic-release/github",

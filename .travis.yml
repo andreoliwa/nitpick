@@ -56,4 +56,4 @@ jobs:
       after_deploy:
         - rm -rf dist/
         - poetry build
-        - twine upload --verbose --password $TWINE_PASSWORD dist/*
+        - twine upload --verbose dist/*
