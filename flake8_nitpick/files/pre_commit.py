@@ -23,9 +23,14 @@ class PreCommitFile(BaseFile):
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        suggested = dict(self.file_dict).copy()
-        for repo in suggested.get(self.KEY_REPOS, []):
-            repo[self.KEY_HOOKS] = yaml.safe_load(repo[self.KEY_HOOKS])
+        original = dict(self.file_dict).copy()
+        original_repos = original.pop(self.KEY_REPOS, [])
+        suggested = {self.KEY_REPOS: []} if original_repos else {}  # type: Dict[str, Any]
+        for repo in original_repos:
+            new_repo = dict(repo)
+            new_repo[self.KEY_HOOKS] = yaml.safe_load(repo[self.KEY_HOOKS])
+            suggested[self.KEY_REPOS].append(new_repo)
+        suggested.update(original)
         return yaml.dump(suggested, default_flow_style=False)
 
     def check_rules(self) -> YieldFlake8Error:

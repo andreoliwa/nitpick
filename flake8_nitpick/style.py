@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Style files."""
 import logging
+from collections import OrderedDict
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Set
 from urllib.parse import urlparse, urlunparse
@@ -61,7 +62,7 @@ class Style:
             if not style_path:
                 continue
 
-            toml_dict = toml.load(str(style_path))
+            toml_dict = toml.load(str(style_path), _dict=OrderedDict)
             flattened_style_dict = flatten(toml_dict, separator=UNIQUE_SEPARATOR)  # type: JsonDict
             self._all_flattened.update(flattened_style_dict)
 
@@ -84,7 +85,11 @@ class Style:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
-            resolved = (Path(rest) / url).resolve()
+            domain_plus_url = Path(rest) / url
+            try:
+                resolved = domain_plus_url.resolve()
+            except FileNotFoundError:
+                resolved = domain_plus_url.absolute()
             new_url = "{}:/{}".format(prefix, resolved)
         else:
             new_url = url

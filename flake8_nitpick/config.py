@@ -2,6 +2,7 @@
 """Configuration of the plugin."""
 import itertools
 import logging
+from collections import OrderedDict
 from pathlib import Path
 from shutil import rmtree
 from typing import Any, Dict, MutableMapping, Optional
@@ -113,7 +114,7 @@ class NitpickConfig(NitpickMixin):
         """Merge one or multiple style files."""
         pyproject_path = self.root_dir / PyProjectTomlFile.file_name  # type: Path
         if pyproject_path.exists():
-            self.pyproject_dict = toml.load(str(pyproject_path))  # type: JsonDict
+            self.pyproject_dict = toml.load(str(pyproject_path), _dict=OrderedDict)  # type: JsonDict
             self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})  # type: JsonDict
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList

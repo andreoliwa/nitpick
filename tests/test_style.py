@@ -70,8 +70,8 @@ def test_multiple_styles_overriding_values(request):
         something = 123
 
         [isort]
-        line_length = 120
         known_first_party = tests
+        line_length = 120
         xxx = yyy
         """
     )
@@ -134,8 +134,8 @@ def test_include_styles_overriding_values(request):
         something = 123
 
         [isort]
-        line_length = 120
         known_first_party = tests
+        line_length = 120
         xxx = yyy
         """
     )
