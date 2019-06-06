@@ -23,12 +23,12 @@ class PyProjectTomlFile(BaseFile):
         missing_dict = unflatten({k: v for k, v in expected.items() if k not in actual})
         if missing_dict:
             missing_toml = toml.dumps(missing_dict)
-            yield self.flake8_error(1, f" has missing values. Use this:\n{missing_toml}")
+            yield self.flake8_error(1, " has missing values. Use this:\n{}".format(missing_toml))
 
         diff_dict = unflatten({k: v for k, v in expected.items() if k in actual and expected[k] != actual[k]})
         if diff_dict:
             diff_toml = toml.dumps(diff_dict)
-            yield self.flake8_error(2, f" has different values. Use this:\n{diff_toml}")
+            yield self.flake8_error(2, " has different values. Use this:\n{}".format(diff_toml))
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""

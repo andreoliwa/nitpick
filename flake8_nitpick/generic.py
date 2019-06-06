@@ -29,8 +29,8 @@ def flatten(dict_, parent_key="", separator="."):
 
     Use :py:meth:`unflatten()` to revert.
 
-    >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False})
-    {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
+    >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False}) == {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
+    True
     """
     items = []
     for key, value in dict_.items():
@@ -42,21 +42,21 @@ def flatten(dict_, parent_key="", separator="."):
     return dict(items)
 
 
-def unflatten(dict_, separator="."):
+def unflatten(dict_, separator=".") -> collections.OrderedDict:
     """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
 
-    >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4})
-    {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
+    >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4}) == {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
+    True
     """
-    items = {}
-    for k, v in dict_.items():
+    items = collections.OrderedDict()  # type: collections.OrderedDict[str, Any]
+    for k, v in sorted(dict_.items()):
         keys = k.split(separator)
         sub_items = items
         for ki in keys[:-1]:
             try:
                 sub_items = sub_items[ki]
             except KeyError:
-                sub_items[ki] = {}
+                sub_items[ki] = collections.OrderedDict()
                 sub_items = sub_items[ki]
 
         sub_items[keys[-1]] = v
@@ -66,7 +66,7 @@ def unflatten(dict_, separator="."):
 
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[List[Path]]:
     """Climb the directory tree looking for file patterns."""
-    current_dir: Path = Path(starting_path).absolute()
+    current_dir = Path(starting_path).absolute()  # type: Path
     if current_dir.is_file():
         current_dir = current_dir.parent
 
@@ -83,14 +83,14 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
     """Find an object in a list, using a key/value pair to search.
 
     >>> fruits = [{"id": 1, "fruit": "banana"}, {"id": 2, "fruit": "apple"}, {"id": 3, "fruit": "mango"}]
-    >>> find_object_by_key(fruits, "id", 1)
-    {'id': 1, 'fruit': 'banana'}
-    >>> find_object_by_key(fruits, "fruit", "banana")
-    {'id': 1, 'fruit': 'banana'}
+    >>> find_object_by_key(fruits, "id", 1) == {'id': 1, 'fruit': 'banana'}
+    True
+    >>> find_object_by_key(fruits, "fruit", "banana") == {'id': 1, 'fruit': 'banana'}
+    True
     >>> find_object_by_key(fruits, "fruit", "pear")
     {}
-    >>> find_object_by_key(fruits, "fruit", "mango")
-    {'id': 3, 'fruit': 'mango'}
+    >>> find_object_by_key(fruits, "fruit", "mango") == {'id': 3, 'fruit': 'mango'}
+    True
     """
     for obj in list_:
         if obj.get(search_key) == search_value:

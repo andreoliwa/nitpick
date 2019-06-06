@@ -49,3 +49,7 @@ repos:
     rev: v0.701
     hooks:
       - id: mypy
+  - repo: https://github.com/openstack/bashate
+    rev: 0.6.0
+    hooks:
+      - id: bashate

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Style files."""
 import logging
+from collections import OrderedDict
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Set
 from urllib.parse import urlparse, urlunparse
@@ -24,7 +25,7 @@ from flake8_nitpick.typedefs import JsonDict, StrOrList
 if TYPE_CHECKING:
     from flake8_nitpick.config import NitpickConfig
 
-LOGGER = logging.getLogger(f"{LOG_ROOT}.style")
+LOGGER = logging.getLogger("{}.style".format(LOG_ROOT))
 
 
 class Style:
@@ -32,15 +33,15 @@ class Style:
 
     def __init__(self, config: "NitpickConfig") -> None:
         self.config = config
-        self._all_flattened: JsonDict = {}
-        self._already_included: Set[str] = set()
-        self._first_full_path: str = ""
+        self._all_flattened = {}  # type: JsonDict
+        self._already_included = set()  # type: Set[str]
+        self._first_full_path = ""  # type: str
 
     def find_initial_styles(self, configured_styles: StrOrList):
         """Find the initial style(s) and include them."""
         if configured_styles:
             chosen_styles = configured_styles
-            log_message = f"Styles configured in {PyProjectTomlFile.file_name}: %s"
+            log_message = "Styles configured in {}: %s".format(PyProjectTomlFile.file_name)
         else:
             paths = climb_directory_tree(self.config.root_dir, [NITPICK_STYLE_TOML])
             if paths:
@@ -55,17 +56,17 @@ class Style:
 
     def include_multiple_styles(self, chosen_styles: StrOrList) -> None:
         """Include a list of styles (or just one) into this style tree."""
-        style_uris: List[str] = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles
+        style_uris = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles  # type: List[str]
         for style_uri in style_uris:
-            style_path: Optional[Path] = self.get_style_path(style_uri)
+            style_path = self.get_style_path(style_uri)  # type: Optional[Path]
             if not style_path:
                 continue
 
-            toml_dict = toml.load(str(style_path))
-            flattened_style_dict: JsonDict = flatten(toml_dict, separator=UNIQUE_SEPARATOR)
+            toml_dict = toml.load(str(style_path), _dict=OrderedDict)
+            flattened_style_dict = flatten(toml_dict, separator=UNIQUE_SEPARATOR)  # type: JsonDict
             self._all_flattened.update(flattened_style_dict)
 
-            sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
+            sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
             if sub_styles:
                 self.include_multiple_styles(sub_styles)
 
@@ -84,8 +85,12 @@ class Style:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
-            resolved = (Path(rest) / url).resolve()
-            new_url = f"{prefix}:/{resolved}"
+            domain_plus_url = Path(rest) / url
+            try:
+                resolved = domain_plus_url.resolve()
+            except FileNotFoundError:
+                resolved = domain_plus_url.absolute()
+            new_url = "{}:/{}".format(prefix, resolved)
         else:
             new_url = url
 
@@ -102,14 +107,14 @@ class Style:
 
         response = requests.get(new_url)
         if not response.ok:
-            raise FileNotFoundError(f"Error {response} fetching style URL {new_url}")
+            raise FileNotFoundError("Error {} fetching style URL {}".format(response, new_url))
 
         # Save the first full path to be used by the next files without parent.
         if not self._first_full_path:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = self.config.cache_dir / f"{slugify(new_url)}.toml"
+        style_path = self.config.cache_dir / "{}.toml".format(slugify(new_url))
         self.config.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
@@ -139,7 +144,7 @@ class Style:
             return None
 
         if not style_path.exists():
-            raise FileNotFoundError(f"Local style file does not exist: {style_path}")
+            raise FileNotFoundError("Local style file does not exist: {}".format(style_path))
 
         LOGGER.info("Loading style from file: %s", style_path)
         self._already_included.add(str(style_path))

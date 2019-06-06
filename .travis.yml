@@ -5,6 +5,7 @@ env:
     - CC_TEST_REPORTER_ID=7fce1e2ce7b59adf493538b312343e4efc38b297c1c07cfd8e5913305c086ce2
     - PRE_COMMIT_HOME=$HOME/.cache/pre-commit
     - TWINE_USERNAME=andreoliwa
+    - COVERALLS_PARALLEL=true
 cache:
   npm: true
   directories:
@@ -21,24 +22,20 @@ before_script:
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
 script:
-  # Run all pre-commit hooks on Travis.
-  - pre-commit run --all-files
-  - coverage run --source=flake8_nitpick -m pytest
-  # TODO: disable safety check for now; it is complaining about numpy, which is not a direct part of the project (used by napoleon Sphinx extension?)
-#  - safety check
+  - "./.travis/script.sh"
 after_script:
   - coverage xml
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 install:
   - npm install -g semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
-  - pip install -U poetry coveralls safety pre-commit bumpversion twine
+  - pip install -U poetry coveralls pre-commit bumpversion twine
   - poetry install --no-ansi --no-interaction
 after_success:
   - coverage combine
-  - "COVERALLS_PARALLEL=true coveralls"
+  - coveralls
 notifications:
+  # https://docs.coveralls.io/parallel-build-webhook
   webhooks:
-    # https://docs.coveralls.io/parallel-build-webhook
     - https://coveralls.io/webhook
 stages:
   - name: release

@@ -2,6 +2,7 @@
 """Configuration of the plugin."""
 import itertools
 import logging
+from collections import OrderedDict
 from pathlib import Path
 from shutil import rmtree
 from typing import Any, Dict, MutableMapping, Optional
@@ -24,7 +25,7 @@ from flake8_nitpick.mixin import NitpickMixin
 from flake8_nitpick.style import Style
 from flake8_nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
 
-LOGGER = logging.getLogger(f"{LOG_ROOT}.config")
+LOGGER = logging.getLogger("{}.config".format(LOG_ROOT))
 
 
 class NitpickConfig(NitpickMixin):
@@ -32,19 +33,17 @@ class NitpickConfig(NitpickMixin):
 
     error_base_number = 200
 
-    _singleton_instance: Optional["NitpickConfig"] = None
-    root_dir: Path
-    main_python_file: Path
+    _singleton_instance = None  # type: Optional["NitpickConfig"]
 
     def __init__(self) -> None:
         """Init instance."""
-        self.cache_dir: Optional[Path] = None
+        self.cache_dir = None  # type: Optional[Path]
 
-        self.pyproject_dict: MutableMapping[str, Any] = {}
-        self.tool_nitpick_dict: Dict[str, Any] = {}
-        self.style_dict: MutableMapping[str, Any] = {}
-        self.nitpick_dict: MutableMapping[str, Any] = {}
-        self.files: Dict[str, Any] = {}
+        self.pyproject_dict = {}  # type: MutableMapping[str, Any]
+        self.tool_nitpick_dict = {}  # type: Dict[str, Any]
+        self.style_dict = {}  # type: MutableMapping[str, Any]
+        self.nitpick_dict = {}  # type: MutableMapping[str, Any]
+        self.files = {}  # type: Dict[str, Any]
 
     @classmethod
     def get_singleton(cls) -> "NitpickConfig":
@@ -93,7 +92,7 @@ class NitpickConfig(NitpickMixin):
             return False
         for the_file in itertools.chain(
             [self.root_dir / root_file for root_file in ROOT_PYTHON_FILES],
-            self.root_dir.glob(f"*/{MANAGE_PY}"),
+            self.root_dir.glob("*/{}".format(MANAGE_PY)),
             self.root_dir.glob("*/*.py"),
         ):
             if the_file.exists():
@@ -106,19 +105,19 @@ class NitpickConfig(NitpickMixin):
         """Clear the cache directory (on the project root or on the current directory)."""
         if not self.root_dir:
             return
-        cache_root: Path = self.root_dir / ".cache"
+        cache_root = self.root_dir / ".cache"  # type: Path
         self.cache_dir = cache_root / PROJECT_NAME
         rmtree(str(self.cache_dir), ignore_errors=True)
         rmdir_if_empty(cache_root)
 
     def merge_styles(self) -> YieldFlake8Error:
         """Merge one or multiple style files."""
-        pyproject_path: Path = self.root_dir / PyProjectTomlFile.file_name
+        pyproject_path = self.root_dir / PyProjectTomlFile.file_name  # type: Path
         if pyproject_path.exists():
-            self.pyproject_dict: JsonDict = toml.load(str(pyproject_path))
-            self.tool_nitpick_dict: JsonDict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})
+            self.pyproject_dict = toml.load(str(pyproject_path), _dict=OrderedDict)  # type: JsonDict
+            self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})  # type: JsonDict
 
-        configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
+        configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
         style = Style(self)
         style.find_initial_styles(configured_styles)
         self.style_dict = style.merge_toml_dict()
@@ -129,9 +128,9 @@ class NitpickConfig(NitpickMixin):
         if minimum_version and version_to_tuple(NitpickChecker.version) < version_to_tuple(minimum_version):
             yield self.flake8_error(
                 3,
-                f"The style file you're using requires {PROJECT_NAME}>={minimum_version}"
-                + f" (you have {NitpickChecker.version}). Please upgrade",
+                "The style file you're using requires {}>={}".format(PROJECT_NAME, minimum_version)
+                + " (you have {}). Please upgrade".format(NitpickChecker.version),
             )
 
-        self.nitpick_dict: JsonDict = self.style_dict.get("nitpick", {})
+        self.nitpick_dict = self.style_dict.get("nitpick", {})  # type: JsonDict
         self.files = self.nitpick_dict.get("files", {})

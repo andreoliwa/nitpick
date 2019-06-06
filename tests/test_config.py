@@ -16,7 +16,7 @@ def test_no_main_python_file_root_dir(request):
     project = ProjectMock(request, setup_py=False).pyproject_toml("").save_file("whatever.sh", "", lint=True).lint()
     project.assert_single_error(
         "NIP102 None of those Python files was found in the root dir "
-        + f"{project.root_dir}: {', '.join(ROOT_PYTHON_FILES)}"
+        + "{}: {}".format(project.root_dir, ", ".join(ROOT_PYTHON_FILES))
     )
 
 

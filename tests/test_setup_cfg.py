@@ -5,7 +5,7 @@ from tests.helpers import ProjectMock
 
 def test_setup_cfg_should_be_deleted(request):
     """File should be deleted."""
-    ProjectMock(request).style("").setup_cfg("").lint().assert_single_error(f"NIP322 File setup.cfg should be deleted")
+    ProjectMock(request).style("").setup_cfg("").lint().assert_single_error("NIP322 File setup.cfg should be deleted")
 
 
 def test_comma_separated_keys_on_style_file(request):
