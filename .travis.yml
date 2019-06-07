@@ -2,7 +2,7 @@
 dist: xenial
 env:
   global:
-    - CC_TEST_REPORTER_ID=7fce1e2ce7b59adf493538b312343e4efc38b297c1c07cfd8e5913305c086ce2
+    - CC_TEST_REPORTER_ID=2da342a92e29aa78fcf1dc84b18af77f8eede63db675363fd1151673be3ce4f3
     - PRE_COMMIT_HOME=$HOME/.cache/pre-commit
     - TWINE_USERNAME=andreoliwa
     - COVERALLS_PARALLEL=true
