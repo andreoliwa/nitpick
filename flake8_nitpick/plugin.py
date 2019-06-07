@@ -53,6 +53,9 @@ class NitpickChecker(NitpickMixin):
             LOGGER.info("Ignoring file: %s", self.filename)
             return
         LOGGER.info("Nitpicking file: %s", self.filename)
+        yield self.flake8_error(
+            4, "This project will be renamed to 'nitpick' on the next version. Please update pyproject.toml"
+        )
 
         yield from itertools.chain(self.config.merge_styles(), self.check_absent_files())
 
