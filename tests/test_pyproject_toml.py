@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """pyproject.toml tests."""
-from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
+from nitpick.files.pyproject_toml import PyProjectTomlFile
 from tests.helpers import ProjectMock
 
 

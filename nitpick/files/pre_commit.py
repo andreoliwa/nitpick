@@ -5,9 +5,9 @@ from typing import Any, Dict, List, Tuple
 import dictdiffer
 import yaml
 
-from flake8_nitpick.files.base import BaseFile
-from flake8_nitpick.generic import find_object_by_key
-from flake8_nitpick.typedefs import YieldFlake8Error
+from nitpick.files.base import BaseFile
+from nitpick.generic import find_object_by_key
+from nitpick.typedefs import YieldFlake8Error
 
 
 class PreCommitFile(BaseFile):

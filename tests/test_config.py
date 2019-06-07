@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Config tests."""
-from flake8_nitpick.constants import ROOT_PYTHON_FILES
+from nitpick.constants import ROOT_PYTHON_FILES
 from tests.helpers import ProjectMock
 
 

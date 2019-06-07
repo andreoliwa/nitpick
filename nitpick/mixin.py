@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Mixin to raise flake8 errors."""
-from flake8_nitpick.constants import ERROR_PREFIX
-from flake8_nitpick.typedefs import Flake8Error
+from nitpick.constants import ERROR_PREFIX
+from nitpick.typedefs import Flake8Error
 
 
 class NitpickMixin:
@@ -14,7 +14,7 @@ class NitpickMixin:
         """Return a flake8 error as a tuple."""
         final_number = self.error_base_number + error_number
 
-        from flake8_nitpick.plugin import NitpickChecker
+        from nitpick.plugin import NitpickChecker
 
         return (
             1,

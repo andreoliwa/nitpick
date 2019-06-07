@@ -3,9 +3,9 @@
 import abc
 from pathlib import Path
 
-from flake8_nitpick.generic import search_dict
-from flake8_nitpick.mixin import NitpickMixin
-from flake8_nitpick.typedefs import JsonDict, YieldFlake8Error
+from nitpick.generic import search_dict
+from nitpick.mixin import NitpickMixin
+from nitpick.typedefs import JsonDict, YieldFlake8Error
 
 
 class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
@@ -16,7 +16,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
 
     def __init__(self) -> None:
         """Init instance."""
-        from flake8_nitpick.config import NitpickConfig
+        from nitpick.config import NitpickConfig
 
         self.config = NitpickConfig.get_singleton()
         self.error_prefix = "File {}".format(self.file_name)

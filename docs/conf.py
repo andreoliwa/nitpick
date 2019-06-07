@@ -17,7 +17,7 @@ from typing import Dict
 # sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
-project = "flake8-nitpick"
+project = "nitpick"
 copyright = "2019, W. Augusto Andreoli"
 author = "W. Augusto Andreoli"
 
@@ -119,7 +119,7 @@ html_static_path = ["_static"]
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "flake8-nitpickdoc"
+htmlhelp_basename = "nitpickdoc"
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -142,14 +142,14 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [(master_doc, "flake8-nitpick.tex", "flake8-nitpick Documentation", "W. Augusto Andreoli", "manual")]
+latex_documents = [(master_doc, "nitpick.tex", "nitpick Documentation", "W. Augusto Andreoli", "manual")]
 
 
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "flake8-nitpick", "flake8-nitpick Documentation", [author], 1)]
+man_pages = [(master_doc, "nitpick", "nitpick Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -160,10 +160,10 @@ man_pages = [(master_doc, "flake8-nitpick", "flake8-nitpick Documentation", [aut
 texinfo_documents = [
     (
         master_doc,
-        "flake8-nitpick",
-        "flake8-nitpick Documentation",
+        "nitpick",
+        "nitpick Documentation",
         author,
-        "flake8-nitpick",
+        "nitpick",
         "Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint)"
         + " across multiple Python projects",
         "Miscellaneous",
@@ -218,4 +218,4 @@ autosummary_generate = True
 # -- Options for extlinks extension ---------------------------------------
 
 # http://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html#confval-extlinks
-extlinks = {"issue": ("https://github.com/andreoliwa/flake8-nitpick/issues/%s", "issue ")}
+extlinks = {"issue": ("https://github.com/andreoliwa/nitpick/issues/%s", "issue ")}

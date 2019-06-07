@@ -6,13 +6,13 @@ style = ["nitpick-style", "styles/python35-36-37"]
 line-length = 120
 
 [tool.poetry]
-name = "flake8-nitpick"
+name = "nitpick"
 version = "0.13.1"
 description = "Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects"
 authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/andreoliwa/flake8-nitpick"
+repository = "https://github.com/andreoliwa/nitpick"
 keywords = ["python3", "flake8", "linter", "styleguide"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 [tool.poetry.plugins."flake8.extension"]
-NIP = "flake8_nitpick.plugin:NitpickChecker"
+NIP = "nitpick.plugin:NitpickChecker"
 
 [tool.poetry.dependencies]
 python = "^3.5 || ^3.6 || ^3.7"

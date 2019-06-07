@@ -1,5 +1,5 @@
-# Default style file for flake8-nitpick
-# https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/0.13.1/nitpick-style.toml/nitpick-style.toml
+# Default style file for nitpick
+# https://raw.githubusercontent.com/andreoliwa/nitpick/0.13.1/nitpick-style.toml/nitpick-style.toml
 
 [nitpick]
 minimum_version = "0.10.0"

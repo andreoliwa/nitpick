@@ -1,5 +1,5 @@
-Welcome to flake8-nitpick's documentation!
-==========================================
+Welcome to nitpick's documentation!
+===================================
 
 .. toctree::
    :maxdepth: 2

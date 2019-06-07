@@ -10,7 +10,7 @@ import requests
 import toml
 from slugify import slugify
 
-from flake8_nitpick.constants import (
+from nitpick.constants import (
     DEFAULT_NITPICK_STYLE_URL,
     LOG_ROOT,
     NITPICK_STYLE_TOML,
@@ -18,12 +18,12 @@ from flake8_nitpick.constants import (
     TOML_EXTENSION,
     UNIQUE_SEPARATOR,
 )
-from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
-from flake8_nitpick.generic import climb_directory_tree, flatten, is_url, search_dict, unflatten
-from flake8_nitpick.typedefs import JsonDict, StrOrList
+from nitpick.files.pyproject_toml import PyProjectTomlFile
+from nitpick.generic import climb_directory_tree, flatten, is_url, search_dict, unflatten
+from nitpick.typedefs import JsonDict, StrOrList
 
 if TYPE_CHECKING:
-    from flake8_nitpick.config import NitpickConfig
+    from nitpick.config import NitpickConfig
 
 LOGGER = logging.getLogger("{}.style".format(LOG_ROOT))
 

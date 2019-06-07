@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 Your bug may already be reported!
-Please search on the [issue tracker](https://github.com/andreoliwa/flake8-nitpick/issues) before creating one.
+Please search on the [issue tracker](https://github.com/andreoliwa/nitpick/issues) before creating one.
 
 ## Expected Behavior
 
@@ -41,11 +41,11 @@ Please search on the [issue tracker](https://github.com/andreoliwa/flake8-nitpic
 
 <!--- Include as many relevant details about the environment you experienced the bug in -->
 
-- `flake8-nitpick` version used:
+- `nitpick` version used:
 - Python version:
 - Operating System and version:
 - Link to your project:
 
-For more information, see the [CONTRIBUTING](https://github.com/andreoliwa/flake8-nitpick/blob/master/CONTRIBUTING.rst) guide.
+For more information, see the [CONTRIBUTING](https://github.com/andreoliwa/nitpick/blob/master/CONTRIBUTING.rst) guide.
 
 <!-- Thanks to https://github.com/stevemao/github-issue-templates/ for this template -->

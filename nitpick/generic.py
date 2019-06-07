@@ -3,7 +3,7 @@
 
 .. testsetup::
 
-    from flake8_nitpick.generic import *
+    from nitpick.generic import *
 """
 import collections
 from pathlib import Path
@@ -12,7 +12,7 @@ from typing import Any, Iterable, List, MutableMapping, Optional, Tuple, Union
 import jmespath
 from jmespath.parser import ParsedResult
 
-from flake8_nitpick.typedefs import PathOrStr
+from nitpick.typedefs import PathOrStr
 
 
 def get_subclasses(cls):

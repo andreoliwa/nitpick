@@ -2,9 +2,9 @@
 """Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file (`PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_)."""
 import toml
 
-from flake8_nitpick.files.base import BaseFile
-from flake8_nitpick.generic import flatten, unflatten
-from flake8_nitpick.typedefs import YieldFlake8Error
+from nitpick.files.base import BaseFile
+from nitpick.generic import flatten, unflatten
+from nitpick.typedefs import YieldFlake8Error
 
 
 class PyProjectTomlFile(BaseFile):

@@ -9,7 +9,7 @@ from typing import Any, Dict, MutableMapping, Optional
 
 import toml
 
-from flake8_nitpick.constants import (
+from nitpick.constants import (
     LOG_ROOT,
     MANAGE_PY,
     NITPICK_MINIMUM_VERSION_JMEX,
@@ -18,12 +18,12 @@ from flake8_nitpick.constants import (
     ROOT_PYTHON_FILES,
     TOOL_NITPICK_JMEX,
 )
-from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
-from flake8_nitpick.files.setup_cfg import SetupCfgFile
-from flake8_nitpick.generic import climb_directory_tree, rmdir_if_empty, search_dict, version_to_tuple
-from flake8_nitpick.mixin import NitpickMixin
-from flake8_nitpick.style import Style
-from flake8_nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
+from nitpick.files.pyproject_toml import PyProjectTomlFile
+from nitpick.files.setup_cfg import SetupCfgFile
+from nitpick.generic import climb_directory_tree, rmdir_if_empty, search_dict, version_to_tuple
+from nitpick.mixin import NitpickMixin
+from nitpick.style import Style
+from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
 
 LOGGER = logging.getLogger("{}.config".format(LOG_ROOT))
 
@@ -122,7 +122,7 @@ class NitpickConfig(NitpickMixin):
         style.find_initial_styles(configured_styles)
         self.style_dict = style.merge_toml_dict()
 
-        from flake8_nitpick.plugin import NitpickChecker
+        from nitpick.plugin import NitpickChecker
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         if minimum_version and version_to_tuple(NitpickChecker.version) < version_to_tuple(minimum_version):

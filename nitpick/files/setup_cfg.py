@@ -7,8 +7,8 @@ from typing import Any, List, Set, Tuple
 
 import dictdiffer
 
-from flake8_nitpick.files.base import BaseFile
-from flake8_nitpick.typedefs import YieldFlake8Error
+from nitpick.files.base import BaseFile
+from nitpick.typedefs import YieldFlake8Error
 
 
 class SetupCfgFile(BaseFile):

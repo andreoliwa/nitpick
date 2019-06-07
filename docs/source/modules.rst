@@ -1,7 +1,7 @@
-flake8_nitpick
-==============
+nitpick
+=======
 
 .. toctree::
    :maxdepth: 4
 
-   flake8_nitpick
+   nitpick

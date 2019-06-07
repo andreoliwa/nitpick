@@ -7,7 +7,7 @@ from unittest.mock import PropertyMock
 
 import responses
 
-from flake8_nitpick.constants import TOML_EXTENSION
+from nitpick.constants import TOML_EXTENSION
 from tests.conftest import TEMP_ROOT_PATH
 from tests.helpers import ProjectMock
 
@@ -141,7 +141,7 @@ def test_include_styles_overriding_values(request):
     )
 
 
-@mock.patch("flake8_nitpick.plugin.NitpickChecker.version", new_callable=PropertyMock(return_value="0.5.3"))
+@mock.patch("nitpick.plugin.NitpickChecker.version", new_callable=PropertyMock(return_value="0.5.3"))
 def test_minimum_version(mocked_version, request):
     """Stamp a style file with a minimum required version, to indicate new features or breaking changes."""
     assert mocked_version == "0.5.3"
@@ -173,7 +173,7 @@ def test_minimum_version(mocked_version, request):
         )
         .lint()
         .assert_single_error(
-            "NIP203 The style file you're using requires flake8-nitpick>=1.0 (you have 0.5.3). Please upgrade"
+            "NIP203 The style file you're using requires nitpick>=1.0 (you have 0.5.3). Please upgrade"
         )
     )
 

@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 Your feature may already be reported!
-Please search on the [issue tracker](https://github.com/andreoliwa/flake8-nitpick/issues) before creating one.
+Please search on the [issue tracker](https://github.com/andreoliwa/nitpick/issues) before creating one.
 
 ## Expected Behavior
 
@@ -27,6 +27,6 @@ Please search on the [issue tracker](https://github.com/andreoliwa/flake8-nitpic
 <!--- How has this issue affected you? What are you trying to accomplish? -->
 <!--- Providing context helps us come up with a solution that is most useful in the real world -->
 
-For more information, see the [CONTRIBUTING](https://github.com/andreoliwa/flake8-nitpick/blob/master/CONTRIBUTING.rst) guide.
+For more information, see the [CONTRIBUTING](https://github.com/andreoliwa/nitpick/blob/master/CONTRIBUTING.rst) guide.
 
 <!-- Thanks to https://github.com/stevemao/github-issue-templates/ for this template -->

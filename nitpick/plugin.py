@@ -6,13 +6,13 @@ from pathlib import Path
 
 import attr
 
-from flake8_nitpick import __version__
-from flake8_nitpick.config import NitpickConfig
-from flake8_nitpick.constants import LOG_ROOT, PROJECT_NAME, ROOT_PYTHON_FILES
-from flake8_nitpick.files.base import BaseFile
-from flake8_nitpick.generic import get_subclasses
-from flake8_nitpick.mixin import NitpickMixin
-from flake8_nitpick.typedefs import YieldFlake8Error
+from nitpick import __version__
+from nitpick.config import NitpickConfig
+from nitpick.constants import LOG_ROOT, PROJECT_NAME, ROOT_PYTHON_FILES
+from nitpick.files.base import BaseFile
+from nitpick.generic import get_subclasses
+from nitpick.mixin import NitpickMixin
+from nitpick.typedefs import YieldFlake8Error
 
 LOGGER = logging.getLogger("{}.plugin".format(LOG_ROOT))
 
@@ -53,9 +53,6 @@ class NitpickChecker(NitpickMixin):
             LOGGER.info("Ignoring file: %s", self.filename)
             return
         LOGGER.info("Nitpicking file: %s", self.filename)
-        yield self.flake8_error(
-            4, "This project will be renamed to 'nitpick' on the next version. Please update pyproject.toml"
-        )  # FIXME: remove when project is renamed
 
         yield from itertools.chain(self.config.merge_styles(), self.check_absent_files())
 

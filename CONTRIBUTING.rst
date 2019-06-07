@@ -5,41 +5,41 @@ Contributing
 Contributions are welcome, and they are greatly appreciated!
 Every little bit helps, and credit will always be given.
 
-Check the `projects on GitHub <https://github.com/andreoliwa/flake8-nitpick/projects>`_, you might help coding a planned feature.
+Check the `projects on GitHub <https://github.com/andreoliwa/nitpick/projects>`_, you might help coding a planned feature.
 
 Bug reports or feature requests
 ===============================
 
-* First, search the `GitHub issue tracker <https://github.com/andreoliwa/flake8-nitpick/issues>`_ to see if your bug/feature is already there.
-* If nothing is found, just `add a new issue and follow the instructions there <https://github.com/andreoliwa/flake8-nitpick/issues/new/choose>`_.
+* First, search the `GitHub issue tracker <https://github.com/andreoliwa/nitpick/issues>`_ to see if your bug/feature is already there.
+* If nothing is found, just `add a new issue and follow the instructions there <https://github.com/andreoliwa/nitpick/issues/new/choose>`_.
 
 Documentation improvements
 ==========================
 
-flake8-nitpick could always use more documentation, whether as part of the
+nitpick could always use more documentation, whether as part of the
 official docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Development
 ===========
 
-To set up ``flake8-nitpick`` for local development:
+To set up ``nitpick`` for local development:
 
-1. Fork `flake8-nitpick <https://github.com/andreoliwa/flake8-nitpick>`_
+1. Fork `nitpick <https://github.com/andreoliwa/nitpick>`_
    (look for the "Fork" button).
 
 2. Clone your fork locally::
 
     cd ~/Code
-    git clone git@github.com:your_name_here/flake8-nitpick.git
-    cd flake8-nitpick
+    git clone git@github.com:your_name_here/nitpick.git
+    cd nitpick
 
 3. `Install Poetry globally using the recommended way <https://github.com/sdispater/poetry#installation>`_.
 
 4. Create your virtualenv with pyenv (or some other tool you prefer)::
 
-    pyenv virtualenv 3.6.8 flake8-nitpick
-    pyenv activate flake8-nitpick
+    pyenv virtualenv 3.6.8 nitpick
+    pyenv activate nitpick
 
 5. Install packages::
 
@@ -89,6 +89,6 @@ For merging, you should:
 3. Add yourself to ``AUTHORS.rst``.
 
 .. [1] If you don't have all the necessary python versions available locally you can rely on Travis - it will
-       `run the tests <https://travis-ci.com/andreoliwa/flake8-nitpick/pull_requests>`_ for each change you add in the pull request.
+       `run the tests <https://travis-ci.com/andreoliwa/nitpick/pull_requests>`_ for each change you add in the pull request.
 
        It will be slower though ...

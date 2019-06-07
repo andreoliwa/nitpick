@@ -1,15 +1,15 @@
-# flake8-nitpick
+# nitpick
 
-[![PyPI](https://img.shields.io/pypi/v/flake8-nitpick.svg)](https://pypi.python.org/pypi/flake8-nitpick)
-[![Travis CI](https://travis-ci.com/andreoliwa/flake8-nitpick.svg?branch=master)](https://travis-ci.com/andreoliwa/flake8-nitpick)
-[![Documentation Status](https://readthedocs.org/projects/flake8-nitpick/badge/?version=latest)](https://flake8-nitpick.readthedocs.io/en/latest/?badge=latest)
-[![Coveralls](https://coveralls.io/repos/github/andreoliwa/flake8-nitpick/badge.svg?branch=master)](https://coveralls.io/github/andreoliwa/flake8-nitpick?branch=master)
-[![Maintainability](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/maintainability)](https://codeclimate.com/github/andreoliwa/flake8-nitpick/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/test_coverage)](https://codeclimate.com/github/andreoliwa/flake8-nitpick/test_coverage)
-[![Supported Python versions](https://img.shields.io/pypi/pyversions/flake8-nitpick.svg)](https://pypi.org/project/flake8-nitpick/)
-[![Project License](https://img.shields.io/pypi/l/flake8-nitpick.svg)](https://pypi.org/project/flake8-nitpick/)
+[![PyPI](https://img.shields.io/pypi/v/nitpick.svg)](https://pypi.python.org/pypi/nitpick)
+[![Travis CI](https://travis-ci.com/andreoliwa/nitpick.svg?branch=master)](https://travis-ci.com/andreoliwa/nitpick)
+[![Documentation Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.readthedocs.io/en/latest/?badge=latest)
+[![Coveralls](https://coveralls.io/repos/github/andreoliwa/nitpick/badge.svg?branch=master)](https://coveralls.io/github/andreoliwa/nitpick?branch=master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/maintainability)](https://codeclimate.com/github/andreoliwa/nitpick/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick/test_coverage)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/nitpick.svg)](https://pypi.org/project/nitpick/)
+[![Project License](https://img.shields.io/pypi/l/nitpick.svg)](https://pypi.org/project/nitpick/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=andreoliwa/flake8-nitpick)](https://dependabot.com)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=andreoliwa/nitpick)](https://dependabot.com)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects.
@@ -32,10 +32,10 @@ A "nitpick code style" is a [TOML](https://github.com/toml-lang/toml) file with 
 
 Simply install the package (in a virtualenv or globally, wherever) and run `flake8`:
 
-    $ pip install -U flake8-nitpick
+    $ pip install -U nitpick
     $ flake8
 
-You will see warnings if your project configuration is different than [the default style file](https://raw.githubusercontent.com/andreoliwa/flake8-nitpick//0.13.1/nitpick-style.toml/nitpick-style.toml).
+You will see warnings if your project configuration is different than [the default style file](https://raw.githubusercontent.com/andreoliwa/nitpick//0.13.1/nitpick-style.toml/nitpick-style.toml).
 
 ## Style file
 
@@ -44,7 +44,7 @@ You will see warnings if your project configuration is different than [the defau
 Change your project config on `pyproject.toml`, and configure your own style like this:
 
     [tool.nitpick]
-    style = "https://raw.githubusercontent.com/andreoliwa/flake8-nitpick//0.13.1/nitpick-style.toml/nitpick-style.toml"
+    style = "https://raw.githubusercontent.com/andreoliwa/nitpick//0.13.1/nitpick-style.toml/nitpick-style.toml"
 
 You can set `style` with any local file or URL. E.g.: you can use the raw URL of a [GitHub Gist](https://gist.github.com).
 
@@ -62,7 +62,7 @@ If a key is defined in more than one file, the value from the last file will pre
 
 2. Any `nitpick-style.toml` file found in the current directory (the one in which `flake8` runs from) or above.
 
-3. If no style is found, then [the default style file from GitHub](https://raw.githubusercontent.com/andreoliwa/flake8-nitpick//0.13.1/nitpick-style.toml/nitpick-style.toml) is used.
+3. If no style is found, then [the default style file from GitHub](https://raw.githubusercontent.com/andreoliwa/nitpick//0.13.1/nitpick-style.toml/nitpick-style.toml) is used.
 
 ### Style file syntax
 

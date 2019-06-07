@@ -8,12 +8,12 @@ from typing import List, Set
 
 from _pytest.fixtures import FixtureRequest
 
-from flake8_nitpick.constants import ERROR_PREFIX, NITPICK_STYLE_TOML
-from flake8_nitpick.files.pre_commit import PreCommitFile
-from flake8_nitpick.files.pyproject_toml import PyProjectTomlFile
-from flake8_nitpick.files.setup_cfg import SetupCfgFile
-from flake8_nitpick.plugin import NitpickChecker
-from flake8_nitpick.typedefs import Flake8Error, PathOrStr
+from nitpick.constants import ERROR_PREFIX, NITPICK_STYLE_TOML
+from nitpick.files.pre_commit import PreCommitFile
+from nitpick.files.pyproject_toml import PyProjectTomlFile
+from nitpick.files.setup_cfg import SetupCfgFile
+from nitpick.plugin import NitpickChecker
+from nitpick.typedefs import Flake8Error, PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
 
 
@@ -56,15 +56,6 @@ class ProjectMock:
         """Lint one of the project files. If no index is provided, use the default file that's always created."""
         npc = NitpickChecker(filename=str(self.files_to_lint[file_index]))
         self._original_errors = list(npc.run())
-
-        # FIXME: remove when project is renamed
-        clean_errors = []
-        for flake8_error in self._original_errors:
-            line, col, message, class_ = flake8_error
-            if message.startswith("NIP104"):
-                continue
-            clean_errors.append(flake8_error)
-        self._original_errors = clean_errors
 
         self._errors = set()
         for flake8_error in self._original_errors:

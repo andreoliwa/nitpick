@@ -2,15 +2,15 @@
 """Constants."""
 import jmespath
 
-from flake8_nitpick import __version__
+from nitpick import __version__
 
-PROJECT_NAME = "flake8-nitpick"
+PROJECT_NAME = "nitpick"
 ERROR_PREFIX = "NIP"
 LOG_ROOT = PROJECT_NAME.replace("-", ".")
 TOML_EXTENSION = ".toml"
 NITPICK_STYLE_TOML = "nitpick-style{}".format(TOML_EXTENSION)
 NITPICK_VERSION = "v{}".format(__version__)
-DEFAULT_NITPICK_STYLE_URL = "https://raw.githubusercontent.com/andreoliwa/flake8-nitpick/{}/{}".format(
+DEFAULT_NITPICK_STYLE_URL = "https://raw.githubusercontent.com/andreoliwa/nitpick/{}/{}".format(
     NITPICK_VERSION, NITPICK_STYLE_TOML
 )
 MANAGE_PY = "manage.py"
