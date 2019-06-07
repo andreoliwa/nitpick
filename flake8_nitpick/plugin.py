@@ -55,7 +55,7 @@ class NitpickChecker(NitpickMixin):
         LOGGER.info("Nitpicking file: %s", self.filename)
         yield self.flake8_error(
             4, "This project will be renamed to 'nitpick' on the next version. Please update pyproject.toml"
-        )
+        )  # FIXME: remove when project is renamed
 
         yield from itertools.chain(self.config.merge_styles(), self.check_absent_files())
 
