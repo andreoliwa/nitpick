@@ -1,3 +1,10 @@
+## [0.13.1](https://github.com/andreoliwa/flake8-nitpick/compare/v0.13.0...v0.13.1) (2019-06-07)
+
+
+### Bug Fixes
+
+* show warning about project being renamed to "nitpick" ([fda30fd](https://github.com/andreoliwa/flake8-nitpick/commit/fda30fd))
+
 # [0.13.0](https://github.com/andreoliwa/flake8-nitpick/compare/v0.12.0...v0.13.0) (2019-06-06)
 
 
