@@ -1,9 +1,9 @@
 # nitpick
 
 [![PyPI](https://img.shields.io/pypi/v/nitpick.svg)](https://pypi.python.org/pypi/nitpick)
-[![Travis CI](https://travis-ci.com/andreoliwa/nitpick.svg?branch=master)](https://travis-ci.com/andreoliwa/nitpick)
+[![Travis CI](https://travis-ci.com/andreoliwa/nitpick.svg)](https://travis-ci.com/andreoliwa/nitpick)
 [![Documentation Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.readthedocs.io/en/latest/?badge=latest)
-[![Coveralls](https://coveralls.io/repos/github/andreoliwa/nitpick/badge.svg?branch=master)](https://coveralls.io/github/andreoliwa/nitpick?branch=master)
+[![Coveralls](https://coveralls.io/repos/github/andreoliwa/nitpick/badge.svg)](https://coveralls.io/github/andreoliwa/nitpick)
 [![Maintainability](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/maintainability)](https://codeclimate.com/github/andreoliwa/nitpick/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/901b4b62293cf7f2c4bc/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick/test_coverage)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/nitpick.svg)](https://pypi.org/project/nitpick/)
