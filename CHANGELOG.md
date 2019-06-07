@@ -1,3 +1,10 @@
+# [0.14.0](https://github.com/andreoliwa/nitpick/compare/v0.13.1...v0.14.0) (2019-06-07)
+
+
+### Features
+
+* rename project from "flake8-nitpick" to "nitpick" ([75be3b8](https://github.com/andreoliwa/nitpick/commit/75be3b8))
+
 ## [0.13.1](https://github.com/andreoliwa/nitpick/compare/v0.13.0...v0.13.1) (2019-06-07)
 
 
