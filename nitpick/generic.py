@@ -7,12 +7,13 @@
 """
 import collections
 from pathlib import Path
-from typing import Any, Iterable, List, MutableMapping, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, Union
 
 import jmespath
 from jmespath.parser import ParsedResult
 
-from nitpick.typedefs import PathOrStr
+from nitpick.constants import UNIQUE_SEPARATOR
+from nitpick.typedefs import JsonDict, PathOrStr
 
 
 def get_subclasses(cls):
@@ -24,19 +25,31 @@ def get_subclasses(cls):
     return subclasses
 
 
-def flatten(dict_, parent_key="", separator="."):
+def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict:
     """Flatten a nested dict.
 
     Use :py:meth:`unflatten()` to revert.
 
+    Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
+
     >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False}) == {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
     True
     """
-    items = []
+    if current_lists is None:
+        current_lists = {}
+
+    items = []  # type: List[Tuple[str, Any]]
     for key, value in dict_.items():
         new_key = parent_key + separator + key if parent_key else key
         if isinstance(value, collections.abc.MutableMapping):
-            items.extend(flatten(value, new_key, separator=separator).items())
+            items.extend(flatten(value, new_key, separator, current_lists).items())
+        elif isinstance(value, (list, tuple)):
+            # If the value is a list or tuple, append to a previously existing list.
+            existing_list = current_lists.get(new_key, [])
+            existing_list.extend(list(value))
+            current_lists[new_key] = existing_list
+
+            items.append((new_key, existing_list))
         else:
             items.append((new_key, value))
     return dict(items)
@@ -62,6 +75,25 @@ def unflatten(dict_, separator=".") -> collections.OrderedDict:
         sub_items[keys[-1]] = v
 
     return items
+
+
+class MergeDict:
+    """A dictionary that can merge other dictionaries into it."""
+
+    def __init__(self, original_dict: JsonDict = None) -> None:
+        self.temp_dict = {}  # type: JsonDict
+        self._all_flattened = {}  # type: JsonDict
+        self.current_lists = {}  # type: Dict[str, Iterable]
+        self.add(original_dict or {})
+
+    def add(self, other: JsonDict) -> None:
+        """Add another dictionary to the existing data."""
+        flattened_other = flatten(other, separator=UNIQUE_SEPARATOR, current_lists=self.current_lists)  # type: JsonDict
+        self._all_flattened.update(flattened_other)
+
+    def merge(self) -> JsonDict:
+        """Merge the dictionaries, replacing values with identical keys and extending lists."""
+        return unflatten(self._all_flattened, separator=UNIQUE_SEPARATOR)
 
 
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[List[Path]]:
