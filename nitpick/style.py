@@ -16,10 +16,9 @@ from nitpick.constants import (
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
     TOML_EXTENSION,
-    UNIQUE_SEPARATOR,
 )
 from nitpick.files.pyproject_toml import PyProjectTomlFile
-from nitpick.generic import climb_directory_tree, flatten, is_url, search_dict, unflatten
+from nitpick.generic import MergeDict, climb_directory_tree, is_url, search_dict
 from nitpick.typedefs import JsonDict, StrOrList
 
 if TYPE_CHECKING:
@@ -33,7 +32,7 @@ class Style:
 
     def __init__(self, config: "NitpickConfig") -> None:
         self.config = config
-        self._all_flattened = {}  # type: JsonDict
+        self._all_styles = MergeDict()
         self._already_included = set()  # type: Set[str]
         self._first_full_path = ""  # type: str
 
@@ -63,8 +62,7 @@ class Style:
                 continue
 
             toml_dict = toml.load(str(style_path), _dict=OrderedDict)
-            flattened_style_dict = flatten(toml_dict, separator=UNIQUE_SEPARATOR)  # type: JsonDict
-            self._all_flattened.update(flattened_style_dict)
+            self._all_styles.add(toml_dict)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
             if sub_styles:
@@ -152,4 +150,4 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        return unflatten(self._all_flattened, separator=UNIQUE_SEPARATOR)
+        return self._all_styles.merge()
