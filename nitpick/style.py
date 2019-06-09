@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 """Style files."""
 import logging
-from collections import OrderedDict
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Set
 from urllib.parse import urlparse, urlunparse
 
 import requests
-import toml
 from slugify import slugify
 
 from nitpick.constants import (
     DEFAULT_NITPICK_STYLE_URL,
     LOG_ROOT,
+    MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
     TOML_EXTENSION,
 )
 from nitpick.files.pyproject_toml import PyProjectTomlFile
+from nitpick.formats import Toml
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, search_dict
 from nitpick.typedefs import JsonDict, StrOrList
 
@@ -61,10 +61,10 @@ class Style:
             if not style_path:
                 continue
 
-            toml_dict = toml.load(str(style_path), _dict=OrderedDict)
-            self._all_styles.add(toml_dict)
+            toml = Toml(path=style_path)
+            self._all_styles.add(toml.as_dict)
 
-            sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
+            sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml.as_dict, [])  # type: StrOrList
             if sub_styles:
                 self.include_multiple_styles(sub_styles)
 
@@ -150,4 +150,11 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        return self._all_styles.merge()
+        if not self.config.cache_dir:
+            return {}
+        merged_dict = self._all_styles.merge()
+        merged_style_path = self.config.cache_dir / MERGED_STYLE_TOML  # type: Path
+        merged_style_path.parent.mkdir(parents=True, exist_ok=True)
+        toml = Toml(dict_=merged_dict)
+        merged_style_path.write_text(toml.reformatted)
+        return merged_dict

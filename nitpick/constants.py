@@ -7,8 +7,10 @@ from nitpick import __version__
 PROJECT_NAME = "nitpick"
 ERROR_PREFIX = "NIP"
 LOG_ROOT = PROJECT_NAME.replace("-", ".")
+CACHE_DIR_NAME = ".cache"
 TOML_EXTENSION = ".toml"
 NITPICK_STYLE_TOML = "nitpick-style{}".format(TOML_EXTENSION)
+MERGED_STYLE_TOML = "merged-style{}".format(TOML_EXTENSION)
 NITPICK_VERSION = "v{}".format(__version__)
 DEFAULT_NITPICK_STYLE_URL = "https://raw.githubusercontent.com/andreoliwa/nitpick/{}/{}".format(
     NITPICK_VERSION, NITPICK_STYLE_TOML

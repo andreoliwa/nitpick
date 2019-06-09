@@ -10,6 +10,7 @@ from typing import Any, Dict, MutableMapping, Optional
 import toml
 
 from nitpick.constants import (
+    CACHE_DIR_NAME,
     LOG_ROOT,
     MANAGE_PY,
     NITPICK_MINIMUM_VERSION_JMEX,
@@ -105,7 +106,7 @@ class NitpickConfig(NitpickMixin):
         """Clear the cache directory (on the project root or on the current directory)."""
         if not self.root_dir:
             return
-        cache_root = self.root_dir / ".cache"  # type: Path
+        cache_root = self.root_dir / CACHE_DIR_NAME  # type: Path
         self.cache_dir = cache_root / PROJECT_NAME
         rmtree(str(self.cache_dir), ignore_errors=True)
         rmdir_if_empty(cache_root)

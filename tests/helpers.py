@@ -7,11 +7,13 @@ from textwrap import dedent
 from typing import List, Set
 
 from _pytest.fixtures import FixtureRequest
+from testfixtures import compare
 
-from nitpick.constants import ERROR_PREFIX, NITPICK_STYLE_TOML
+from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
 from nitpick.files.pre_commit import PreCommitFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
+from nitpick.formats import Toml
 from nitpick.plugin import NitpickChecker
 from nitpick.typedefs import Flake8Error, PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
@@ -23,12 +25,14 @@ class ProjectMock:
     _original_errors = []  # type: List[Flake8Error]
     _errors = set()  # type: Set[str]
 
-    fixture_dir = Path(__file__).parent / "fixtures"  # type: Path
+    fixtures_dir = Path(__file__).parent / "fixtures"  # type: Path
+    styles_dir = Path(__file__).parent.parent / "styles"  # type: Path
 
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         self.root_dir = TEMP_ROOT_PATH / pytest_request.node.name  # type: Path
         self.root_dir.mkdir()
+        self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
         os.chdir(str(self.root_dir))
 
         self.files_to_lint = []  # type: List[Path]
@@ -44,7 +48,7 @@ class ProjectMock:
         :param target_file: Target file name (default: source file name).
         """
         path = self.root_dir / link_name  # type: Path
-        full_source_path = Path(target_dir or self.fixture_dir) / (target_file or link_name)
+        full_source_path = Path(target_dir or self.fixtures_dir) / (target_file or link_name)
         if not full_source_path.exists():
             raise RuntimeError("Source file does not exist: {}".format(full_source_path))
         path.symlink_to(full_source_path)
@@ -87,7 +91,7 @@ class ProjectMock:
         path.write_text(dedent(file_contents).strip())
         return self
 
-    def touch_file(self, file_name: PathOrStr):
+    def touch_file(self, file_name: PathOrStr) -> "ProjectMock":
         """Save an empty file (like the ``touch`` command)."""
         return self.save_file(file_name, "")
 
@@ -95,20 +99,34 @@ class ProjectMock:
         """Save the default style file."""
         return self.save_file(NITPICK_STYLE_TOML, file_contents)
 
+    def load_styles(self, *args: PathOrStr) -> "ProjectMock":
+        """Load style files from the 'styles' dir, to be used on tests.
+
+        If a style file is modified (file name or contents), tests might break.
+        This is a good way to test the style files indirectly.
+        """
+        for file_name in args:
+            style_path = Path(self.styles_dir) / self.ensure_toml_extension(file_name)
+            self.named_style(file_name, style_path.read_text())
+        return self
+
     def named_style(self, file_name: PathOrStr, file_contents: str) -> "ProjectMock":
         """Save a style file with a name. Add the .toml extension if needed."""
-        clean_file_name = file_name if str(file_name).endswith(".toml") else "{}.toml".format(file_name)
-        return self.save_file(clean_file_name, file_contents)
+        return self.save_file(self.ensure_toml_extension(file_name), file_contents)
+
+    def ensure_toml_extension(self, file_name: PathOrStr) -> PathOrStr:
+        """Ensure a file name has the .toml extension."""
+        return file_name if str(file_name).endswith(".toml") else "{}.toml".format(file_name)
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""
         return self.save_file(SetupCfgFile.file_name, file_contents)
 
-    def pyproject_toml(self, file_contents: str):
+    def pyproject_toml(self, file_contents: str) -> "ProjectMock":
         """Save pyproject.toml."""
         return self.save_file(PyProjectTomlFile.file_name, file_contents)
 
-    def pre_commit(self, file_contents: str):
+    def pre_commit(self, file_contents: str) -> "ProjectMock":
         """Save .pre-commit-config.yaml."""
         return self.save_file(PreCommitFile.file_name, file_contents)
 
@@ -140,3 +158,9 @@ class ProjectMock:
         print("\nAll errors:")
         print(sorted(self._errors))
         raise AssertionError
+
+    def assert_merged_style(self, toml_string: str):
+        """Assert the contents of the merged style file."""
+        expected = Toml(path=self.cache_dir / MERGED_STYLE_TOML)
+        actual = Toml(string=toml_string)
+        compare(expected.as_dict, actual.as_dict)

@@ -407,3 +407,39 @@ def test_fetch_private_github_urls(request):
         missing = "thing"
     """
     )
+
+
+def test_merge_styles_into_single_file(request):
+    """Merge all styles into a single TOML file on the cache dir."""
+    ProjectMock(request).load_styles("black", "isort").named_style(
+        "isort_overrides",
+        """
+        ["setup.cfg".isort]
+        another_key = "some value"
+        multi_line_output = 6
+        """,
+    ).pyproject_toml(
+        """
+        [tool.nitpick]
+        style = ["black", "isort", "isort_overrides"]
+        """
+    ).lint().assert_merged_style(
+        """
+        ["pyproject.toml".tool.black]
+        line-length = 120
+
+        ["setup.cfg".isort]
+        line_length = 120
+        skip = ".tox,build"
+        known_first_party = "tests"
+
+        # The configuration below is needed for compatibility with black.
+        # https://github.com/ambv/black#how-black-wraps-lines
+        # https://github.com/timothycrosley/isort#multi-line-output-modes
+        multi_line_output = 6
+        include_trailing_comma = true
+        force_grid_wrap = 0
+        combine_as_imports = true
+        another_key = "some value"
+        """
+    )
