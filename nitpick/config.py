@@ -2,12 +2,9 @@
 """Configuration of the plugin."""
 import itertools
 import logging
-from collections import OrderedDict
 from pathlib import Path
 from shutil import rmtree
-from typing import Any, Dict, MutableMapping, Optional
-
-import toml
+from typing import Optional
 
 from nitpick.constants import (
     CACHE_DIR_NAME,
@@ -21,6 +18,7 @@ from nitpick.constants import (
 )
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
+from nitpick.formats import Toml
 from nitpick.generic import climb_directory_tree, rmdir_if_empty, search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
 from nitpick.style import Style
@@ -40,11 +38,11 @@ class NitpickConfig(NitpickMixin):
         """Init instance."""
         self.cache_dir = None  # type: Optional[Path]
 
-        self.pyproject_dict = {}  # type: MutableMapping[str, Any]
-        self.tool_nitpick_dict = {}  # type: Dict[str, Any]
-        self.style_dict = {}  # type: MutableMapping[str, Any]
-        self.nitpick_dict = {}  # type: MutableMapping[str, Any]
-        self.files = {}  # type: Dict[str, Any]
+        self.pyproject_toml = None  # type: Optional[Toml]
+        self.tool_nitpick_dict = {}  # type: JsonDict
+        self.style_dict = {}  # type: JsonDict
+        self.nitpick_dict = {}  # type: JsonDict
+        self.files = {}  # type: JsonDict
 
     @classmethod
     def get_singleton(cls) -> "NitpickConfig":
@@ -115,8 +113,8 @@ class NitpickConfig(NitpickMixin):
         """Merge one or multiple style files."""
         pyproject_path = self.root_dir / PyProjectTomlFile.file_name  # type: Path
         if pyproject_path.exists():
-            self.pyproject_dict = toml.load(str(pyproject_path), _dict=OrderedDict)  # type: JsonDict
-            self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_dict, {})  # type: JsonDict
+            self.pyproject_toml = Toml(path=pyproject_path)
+            self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_dict, {})  # type: JsonDict
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
         style = Style(self)

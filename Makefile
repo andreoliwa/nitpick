@@ -23,6 +23,7 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 dev:
+	clear
 	pre-commit run --all-files
 	flake8
 	pytest

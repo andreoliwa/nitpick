@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file (`PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_)."""
-import toml
-
 from nitpick.files.base import BaseFile
-from nitpick.generic import flatten, unflatten
+from nitpick.formats import Toml
 from nitpick.typedefs import YieldFlake8Error
 
 
@@ -15,20 +13,14 @@ class PyProjectTomlFile(BaseFile):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing key/value pairs in pyproject.toml."""
-        actual = flatten(self.config.pyproject_dict)
-        expected = flatten(self.file_dict)
-        if expected.items() <= actual.items():
+        if not self.config.pyproject_toml:
             return
 
-        missing_dict = unflatten({k: v for k, v in expected.items() if k not in actual})
-        if missing_dict:
-            missing_toml = toml.dumps(missing_dict)
-            yield self.flake8_error(1, " has missing values. Use this:\n{}".format(missing_toml))
-
-        diff_dict = unflatten({k: v for k, v in expected.items() if k in actual and expected[k] != actual[k]})
-        if diff_dict:
-            diff_toml = toml.dumps(diff_dict)
-            yield self.flake8_error(2, " has different values. Use this:\n{}".format(diff_toml))
+        comparison = Toml.compare(self.config.pyproject_toml, Toml(dict_=self.file_dict))
+        if comparison.missing:
+            yield self.flake8_error(1, " has missing values. Use this:\n{}".format(comparison.missing.reformatted))
+        if comparison.diff:
+            yield self.flake8_error(2, " has different values. Use this:\n{}".format(comparison.diff.reformatted))
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
