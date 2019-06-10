@@ -410,7 +410,7 @@ def test_fetch_private_github_urls(request):
 
 
 def test_merge_styles_into_single_file(request):
-    """Merge all styles into a single TOML file on the cache dir."""
+    """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit's repos)."""
     ProjectMock(request).load_styles("black", "isort").named_style(
         "isort_overrides",
         """
@@ -424,7 +424,7 @@ def test_merge_styles_into_single_file(request):
         style = ["black", "isort", "isort_overrides"]
         """
     ).lint().assert_merged_style(
-        """
+        '''
         ["pyproject.toml".tool.black]
         line-length = 120
 
@@ -441,5 +441,31 @@ def test_merge_styles_into_single_file(request):
         force_grid_wrap = 0
         combine_as_imports = true
         another_key = "some value"
+
+        [["pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/ambv/black
+            rev: 19.3b0
+            hooks:
+              - id: black
+                args: [--safe, --quiet]
+          - repo: https://github.com/asottile/blacken-docs
+            rev: v1.0.0
+            hooks:
+              - id: blacken-docs
+                additional_dependencies: [black==19.3b0]
         """
+
+        [["pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/asottile/seed-isort-config
+            rev: v1.9.1
+            hooks:
+              - id: seed-isort-config
+          - repo: https://github.com/pre-commit/mirrors-isort
+            rev: v4.3.20
+            hooks:
+              - id: isort
+        """
+        '''
     )

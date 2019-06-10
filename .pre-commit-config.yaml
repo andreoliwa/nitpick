@@ -44,7 +44,7 @@ repos:
     rev: v2.2.3
     hooks:
       - id: flake8
-        additional_dependencies: [nitpick, flake8-blind-except, flake8-bugbear, flake8-comprehensions, flake8-debugger, flake8-docstrings, flake8-isort, flake8-mypy, flake8-polyfill, flake8-pytest, flake8-quotes, yesqa]
+        additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions, flake8-debugger, flake8-docstrings, flake8-isort, flake8-mypy, flake8-polyfill, flake8-pytest, flake8-quotes, yesqa]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.701
     hooks:

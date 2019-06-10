@@ -13,5 +13,8 @@ else
     pre-commit run --all-files
 fi
 
+echo "Running flake8 again for nitpick to check itself"
+flake8
+
 echo "Running coverage report"
 coverage run --parallel-mode --source=nitpick -m pytest

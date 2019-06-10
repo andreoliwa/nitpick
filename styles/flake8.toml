@@ -6,3 +6,12 @@ ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
 max-line-length = 120
 inline-quotes = "double"
 exclude = ".tox,build"
+
+[["pre-commit-config.yaml".repos]]
+yaml = """
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+      - id: flake8
+        additional_dependencies: [nitpick, flake8-blind-except, flake8-bugbear, flake8-comprehensions, flake8-debugger, flake8-docstrings, flake8-isort, flake8-mypy, flake8-polyfill, flake8-pytest, flake8-quotes, yesqa]
+"""

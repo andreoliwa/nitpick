@@ -162,5 +162,5 @@ class ProjectMock:
     def assert_merged_style(self, toml_string: str):
         """Assert the contents of the merged style file."""
         expected = Toml(path=self.cache_dir / MERGED_STYLE_TOML)
-        actual = Toml(string=toml_string)
+        actual = Toml(string=dedent(toml_string))
         compare(expected.as_dict, actual.as_dict)

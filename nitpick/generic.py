@@ -143,7 +143,7 @@ def rmdir_if_empty(path_or_str: PathOrStr):
         if has_items is False:
             # If the directory has no more files/directories inside, try to remove the parent.
             path.rmdir()
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         # If any removal attempt fails, just ignore it. Some other flake8 thread might have deleted the directory.
         pass
 

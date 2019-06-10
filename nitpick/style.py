@@ -154,7 +154,7 @@ class Style:
             return {}
         merged_dict = self._all_styles.merge()
         merged_style_path = self.config.cache_dir / MERGED_STYLE_TOML  # type: Path
-        merged_style_path.parent.mkdir(parents=True, exist_ok=True)
+        self.config.cache_dir.mkdir(parents=True, exist_ok=True)
         toml = Toml(dict_=merged_dict)
         merged_style_path.write_text(toml.reformatted)
         return merged_dict

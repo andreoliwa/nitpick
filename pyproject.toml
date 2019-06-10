@@ -35,6 +35,7 @@ toml  = "*"
 requests = "*"
 dictdiffer = "*"
 pyyaml = "*"
+"ruamel.yaml" = "*"
 python-slugify = "*"
 jmespath = "*"
 
