@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 """Configuration file formats."""
 import abc
+import io
 from collections import OrderedDict
 from pathlib import Path
-from typing import Optional, Type
+from typing import List, Optional, Type
 
 import toml
+import yaml as pyyaml
+from ruamel.yaml import YAML
 
 from nitpick.generic import flatten, unflatten
 from nitpick.typedefs import JsonDict, PathOrStr
@@ -43,7 +46,7 @@ class Comparison:
 class BaseFormat(metaclass=abc.ABCMeta):
     """Base class for configuration file formats."""
 
-    def __init__(self, path: PathOrStr = None, string: str = None, dict_: JsonDict = None) -> None:
+    def __init__(self, *, path: PathOrStr = None, string: str = None, dict_: JsonDict = None, **kwargs) -> None:
         self.path = path
         self._string = string
         self._dict = dict_
@@ -68,6 +71,11 @@ class BaseFormat(metaclass=abc.ABCMeta):
         if self._dict is None:
             self.load()
         return self._dict or {}
+
+    @property
+    def as_list(self) -> List[JsonDict]:
+        """A list of dicts. On YAML, ``as_dict`` might contain a ``list``. This property is just a proxy for typing."""
+        return self.as_dict  # type: ignore # noqa: T400
 
     @property
     def reformatted(self) -> str:
@@ -95,5 +103,40 @@ class Toml(BaseFormat):
             self._dict = toml.loads(self._string, _dict=OrderedDict)
         if self._dict is not None:
             self._reformatted = toml.dumps(self._dict)
+        self._loaded = True
+        return True
+
+
+class Yaml(BaseFormat):
+    """YAML configuration format."""
+
+    USE_NEW_MODULE = False
+
+    def load(self) -> bool:
+        """Load a YAML file by its path, a string or a dict."""
+        if self._loaded:
+            return False
+
+        if self.USE_NEW_MODULE:
+            yaml = YAML(typ="safe")
+            yaml.map_indent = 2
+            yaml.sequence_indent = 4
+            yaml.sequence_dash_offset = 2
+
+        if self.path is not None:
+            self._string = Path(self.path).read_text()
+        if self._string is not None:
+            if self.USE_NEW_MODULE:
+                self._dict = yaml.load(io.StringIO(self._string))
+            else:
+                self._dict = pyyaml.safe_load(self._string)
+        if self._dict is not None:
+            if self.USE_NEW_MODULE:
+                output = io.StringIO()
+                yaml.dump(self._dict, output)
+                self._reformatted = output.getvalue()
+            else:
+                self._reformatted = pyyaml.dump(self._dict, default_flow_style=False)
+
         self._loaded = True
         return True
