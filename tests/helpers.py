@@ -130,21 +130,50 @@ class ProjectMock:
         """Save .pre-commit-config.yaml."""
         return self.save_file(PreCommitFile.file_name, file_contents)
 
-    def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
-        """Assert the error is in the error set."""
-        error = dedent(raw_error).strip()
-        if error in self._errors:
-            if expected_count is not None:
-                actual = len(self._errors)
-                assert expected_count == actual, "Expected {} errors, got {}".format(expected_count, actual)
-            return self
-
-        print("Expected error:\n{}".format(error))
+    def show_errors(self, expected_error: str):
+        """Show detailed errors in case of an assertion failure."""
+        print("Expected error:\n{}".format(expected_error))
         print("\nAll errors:")
         print(sorted(self._errors))
-        print("\nAll errors (pprint):")
+        print("\nAll errors with pprint():")
         pprint(sorted(self._errors), width=150)
+        print("\nAll errors with pure print():")
+        for error in sorted(self._errors):
+            print()
+            print(error)
         raise AssertionError
+
+    def assert_error_count(self, expected_count: int = None) -> "ProjectMock":
+        """Assert the error count is correct."""
+        if expected_count is not None:
+            actual = len(self._errors)
+            assert expected_count == actual, "Expected {} errors, got {}".format(expected_count, actual)
+        return self
+
+    def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
+        """Assert the error is in the error set."""
+        expected_error = dedent(raw_error).strip()
+        if expected_error not in self._errors:
+            self.show_errors(expected_error)
+        self.assert_error_count(expected_count)
+        return self
+
+    def assert_errors_contain_unordered(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
+        """Assert the lines of the error is in the error set, in any order.
+
+        I couldn't find a quick way to guarantee the order of the output with ``ruamel.yaml``.
+        TODO Once there is a way to force some sorting on the YAML output, this method can be removed,
+        and ``assert_errors_contain()`` can be used again.
+        """
+        expected_error = dedent(raw_error).strip()
+        expected_error_lines = set(expected_error.split("\n"))
+        for actual_error in self._errors:
+            if set(actual_error.split("\n")) == expected_error_lines:
+                self.assert_error_count(expected_count)
+                return self
+
+        self.show_errors(expected_error)
+        return self
 
     def assert_single_error(self, raw_error: str) -> "ProjectMock":
         """Assert there is only one error."""

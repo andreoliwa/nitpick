@@ -21,27 +21,24 @@ def test_missing_pre_commit_config_yaml(request):
         """
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:
         repos:
-        - hooks:
-          - id: seed-isort-config
-          repo: https://github.com/asottile/seed-isort-config
-          rev: v1.9.1
-        - hooks:
-          - id: isort
-          repo: https://github.com/pre-commit/mirrors-isort
-          rev: v4.3.20
-        - hooks:
-          - args:
-            - --safe
-            - --quiet
-            id: black
-          repo: https://github.com/ambv/black
-          rev: 19.3b0
-        - hooks:
-          - additional_dependencies:
-            - black==19.3b0
-            id: blacken-docs
-          repo: https://github.com/asottile/blacken-docs
-          rev: v1.0.0
+          - repo: https://github.com/asottile/seed-isort-config
+            rev: v1.9.1
+            hooks:
+              - id: seed-isort-config
+          - repo: https://github.com/pre-commit/mirrors-isort
+            rev: v4.3.20
+            hooks:
+              - id: isort
+          - repo: https://github.com/ambv/black
+            rev: 19.3b0
+            hooks:
+              - id: black
+                args: [--safe, --quiet]
+          - repo: https://github.com/asottile/blacken-docs
+            rev: v1.0.0
+            hooks:
+              - id: blacken-docs
+                additional_dependencies: [black==19.3b0]
         """
     )
 
@@ -51,12 +48,14 @@ def test_root_values_on_missing_file(request):
     ProjectMock(request).style(
         """
         ["pre-commit-config.yaml"]
+        bla_bla = "oh yeah"
         fail_fast = true
         whatever = "1"
         """
-    ).lint().assert_errors_contain(
+    ).lint().assert_errors_contain_unordered(
         """
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:
+        bla_bla: oh yeah
         fail_fast: true
         whatever: '1'
         """
@@ -211,8 +210,8 @@ def test_style_missing_id_in_hook(request):
     ).lint().assert_single_error(
         """
         NIP336 File .pre-commit-config.yaml: style file is missing 'id' in hook:
-            entry: isort -sp setup.cfg
             name: isort
+            entry: isort -sp setup.cfg
         """
     )
 
@@ -240,7 +239,7 @@ def test_missing_hook_with_id(request):
         """
         NIP337 File .pre-commit-config.yaml: missing hook with id 'black':
           - id: black
-            entry: black
             name: black
+            entry: black
         """
     )

@@ -81,16 +81,13 @@ class MergeDict:
     """A dictionary that can merge other dictionaries into it."""
 
     def __init__(self, original_dict: JsonDict = None) -> None:
-        self._temp_dict = {}  # type: JsonDict
         self._all_flattened = {}  # type: JsonDict
         self._current_lists = {}  # type: Dict[str, Iterable]
         self.add(original_dict or {})
 
     def add(self, other: JsonDict) -> None:
         """Add another dictionary to the existing data."""
-        flattened_other = flatten(
-            other, separator=UNIQUE_SEPARATOR, current_lists=self._current_lists
-        )  # type: JsonDict
+        flattened_other = flatten(other, separator=UNIQUE_SEPARATOR, current_lists=self._current_lists)
         self._all_flattened.update(flattened_other)
 
     def merge(self) -> JsonDict:

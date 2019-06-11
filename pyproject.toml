@@ -38,6 +38,7 @@ pyyaml = "*"
 "ruamel.yaml" = "*"
 python-slugify = "*"
 jmespath = "*"
+sortedcontainers = "*"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
@@ -50,6 +51,7 @@ responses = "*"
 sphinx = "*"
 sphinx_rtd_theme = "*"
 testfixtures = "*"
+flaky = "*"
 
 [build-system]
 requires = ["poetry>=0.12"]

@@ -25,10 +25,6 @@ class PreCommitFile(BaseFile):
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        # FIXME:
-        # comparison = Yaml.compare(None, self.file_dict)
-        # return Yaml(dict_=comparison.missing).reformatted
-
         original = dict(self.file_dict).copy()
         original_repos = original.pop(self.KEY_REPOS, [])
         suggested = {self.KEY_REPOS: []} if original_repos else {}  # type: Dict[str, Any]
