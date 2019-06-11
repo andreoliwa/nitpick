@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import List, Optional, Type, Union
 
 import toml
-import yaml as pyyaml
 from ruamel.yaml import YAML, RoundTripRepresenter
 from sortedcontainers import SortedDict
 
@@ -126,33 +125,24 @@ class Toml(BaseFormat):
 class Yaml(BaseFormat):
     """YAML configuration format."""
 
-    use_ruamel = True
-
     def load(self) -> bool:
         """Load a YAML file by its path, a string or a dict."""
         if self._loaded:
             return False
 
-        if self.use_ruamel:
-            yaml = YAML()
-            yaml.map_indent = 2
-            yaml.sequence_indent = 4
-            yaml.sequence_dash_offset = 2
+        yaml = YAML()
+        yaml.map_indent = 2
+        yaml.sequence_indent = 4
+        yaml.sequence_dash_offset = 2
 
         if self.path is not None:
             self._string = Path(self.path).read_text()
         if self._string is not None:
-            if self.use_ruamel:
-                self._dict = yaml.load(io.StringIO(self._string))
-            else:
-                self._dict = pyyaml.safe_load(self._string)
+            self._dict = yaml.load(io.StringIO(self._string))
         if self._dict is not None:
-            if self.use_ruamel:
-                output = io.StringIO()
-                yaml.dump(self._dict, output)
-                self._reformatted = output.getvalue()
-            else:
-                self._reformatted = pyyaml.dump(self._dict, default_flow_style=False)
+            output = io.StringIO()
+            yaml.dump(self._dict, output)
+            self._reformatted = output.getvalue()
 
         self._loaded = True
         return True
