@@ -15,7 +15,7 @@ class PyProjectTomlFile(BaseFile):
         if not self.config.pyproject_toml:
             return
 
-        comparison = self.config.pyproject_toml.compare_to(self.file_dict)
+        comparison = self.config.pyproject_toml.compare_with_flatten(self.file_dict)
         if comparison.missing_format:
             yield self.flake8_error(
                 1, " has missing values. Use this:\n{}".format(comparison.missing_format.reformatted)

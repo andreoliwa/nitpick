@@ -142,13 +142,9 @@ def test_root_values_on_existing_file(request):
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: 'something' is False but it should be like this:
-        something: true
-        """
-    ).assert_errors_contain(
-        """
-        NIP339 File .pre-commit-config.yaml: 'another_thing' is 'nope' but it should be like this:
+        NIP339 File .pre-commit-config.yaml has different values:
         another_thing: yep
+        something: true
         """
     )
 

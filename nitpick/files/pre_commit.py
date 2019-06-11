@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 from collections import OrderedDict
-from typing import Any, Dict, List, Tuple
-
-import dictdiffer
+from typing import Any, Dict, List
 
 from nitpick.files.base import BaseFile
 from nitpick.formats import Yaml
@@ -59,11 +57,11 @@ class PreCommitFile(BaseFile):
         expected = dict(self.file_dict).copy()
         expected.pop(self.KEY_REPOS, None)
 
-        for diff_type, key, values in dictdiffer.diff(actual, expected):
-            if diff_type == dictdiffer.ADD:
-                yield from self.show_missing_keys(key, values)
-            elif diff_type == dictdiffer.CHANGE:
-                yield from self.compare_different_keys(key, values[0], values[1])
+        yaml = Yaml(data=actual).compare_with_dictdiffer(expected)
+        if yaml.missing_format:
+            yield self.flake8_error(8, " has missing values:\n{}".format(yaml.missing_format.reformatted))
+        if yaml.diff_format:
+            yield self.flake8_error(9, " has different values:\n{}".format(yaml.diff_format.reformatted))
 
     def check_repos(self) -> YieldFlake8Error:
         """Check the repositories configured in pre-commit."""
@@ -139,26 +137,6 @@ class PreCommitFile(BaseFile):
                 expected_yaml = self.format_hook(expected_dict)
                 yield self.flake8_error(7, ": missing hook with id {!r}:\n{}".format(hook_id, expected_yaml))
                 continue
-
-    def show_missing_keys(self, key, values: List[Tuple[str, Any]]):
-        """Show the keys that are not present in a section."""
-        output = Yaml(data=dict(values)).reformatted
-        yield self.flake8_error(8, " has missing values:\n{}".format(output))
-
-    def compare_different_keys(self, key, raw_actual: Any, raw_expected: Any):
-        """Compare different keys."""
-        if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
-            # A boolean "True" or "true" might have the same effect on YAML.
-            actual = str(raw_actual).lower()
-            expected = str(raw_expected).lower()
-        else:
-            actual = raw_actual
-            expected = raw_expected
-        if actual != expected:
-            example = Yaml(data={key: raw_expected}).reformatted
-            yield self.flake8_error(
-                9, ": {!r} is {!r} but it should be like this:\n{}".format(key, raw_actual, example)
-            )
 
     @staticmethod
     def format_hook(expected_dict) -> str:

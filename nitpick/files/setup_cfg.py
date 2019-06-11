@@ -57,6 +57,7 @@ class SetupCfgFile(BaseFile):
         for section in self.expected_sections - self.missing_sections:
             expected_dict = self.file_dict[section]
             actual_dict = dict(setup_cfg[section])
+            # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
             for diff_type, key, values in dictdiffer.diff(expected_dict, actual_dict):
                 if diff_type == dictdiffer.CHANGE:
                     generators.append(self.compare_different_keys(section, key, values[0], values[1]))
