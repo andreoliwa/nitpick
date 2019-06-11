@@ -10,9 +10,9 @@ def test_pre_commit_should_be_deleted(request):
     )
 
 
-def test_missing_pre_commit_config_yaml(request):
+def test_suggest_initial_contents(request):
     """Suggest initial contents for missing pre-commit config file."""
-    ProjectMock(request).load_styles("black", "isort").pyproject_toml(
+    ProjectMock(request).load_styles("isort", "black").pyproject_toml(
         """
         [tool.nitpick]
         style = ["isort", "black"]
@@ -41,6 +41,43 @@ def test_missing_pre_commit_config_yaml(request):
                 additional_dependencies: [black==19.3b0]
         """
     )
+
+
+def test_missing_different_values(request):
+    """Test missing and different values on the hooks."""
+    # FIXME: add loaded and named styles automatically to pyproject_toml
+    ProjectMock(request).load_styles("mypy", "pre-commit/python", "pre-commit/bash").pyproject_toml(
+        """
+        [tool.nitpick]
+        style = ["mypy", "pre-commit/python", "pre-commit/bash"]
+        """
+    ).pre_commit(
+        """
+        repos:
+          - repo: https://github.com/pre-commit/pygrep-hooks
+            rev: v1.1.0
+            hooks:
+              - id: python-check-blanket-noqa
+              - id: extra-hooks-are-fine
+              - id: python-no-eval
+              - id: python-no-log-warn
+              - id: rst-backticks
+          - repo: https://github.com/openstack/bashate
+            rev: 0.5.0
+            hooks:
+              - id: some-other-hooks-that-should-not-trigger-any-error
+              - id: bashate
+        """
+    ).lint().assert_errors_contain(
+        """
+        NIP332 File .pre-commit-config.yaml: repo 'mirrors-mypy' not found. Use this:
+          - repo: https://github.com/pre-commit/mirrors-mypy
+            rev: v0.701
+            hooks:
+              - id: mypy
+        """
+    )
+    # FIXME: display different values
 
 
 def test_root_values_on_missing_file(request):
@@ -80,7 +117,7 @@ def test_root_values_on_existing_file(request):
         something: false
         another_thing: "nope"
         """
-    ).lint().assert_errors_contain(
+    ).lint().assert_errors_contain_unordered(
         """
         NIP338 File .pre-commit-config.yaml has missing values:
         blabla: what

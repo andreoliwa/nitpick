@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
-from typing import Any, Dict, List, Optional, Tuple
+from collections import OrderedDict
+from typing import Any, Dict, List, Tuple
 
 import dictdiffer
 
 from nitpick.files.base import BaseFile
 from nitpick.formats import Yaml
 from nitpick.generic import find_object_by_key
-from nitpick.typedefs import YieldFlake8Error
+from nitpick.typedefs import YamlData, YieldFlake8Error
 
 
 class PreCommitFile(BaseFile):
@@ -15,7 +16,7 @@ class PreCommitFile(BaseFile):
 
     file_name = ".pre-commit-config.yaml"
     error_base_number = 330
-    actual_yaml = None  # type: Optional[Yaml]
+    actual_yaml = None  # type: Yaml
 
     KEY_REPOS = "repos"
     KEY_HOOKS = "hooks"
@@ -35,7 +36,7 @@ class PreCommitFile(BaseFile):
                 repo_list = Yaml(string=hooks_or_yaml).as_list
                 suggested[self.KEY_REPOS].extend(repo_list)
             else:
-                # FIXME: deprecation warning
+                # TODO: show a deprecation warning for this case
                 new_repo[self.KEY_HOOKS] = Yaml(string=hooks_or_yaml).as_dict
                 suggested[self.KEY_REPOS].append(new_repo)
         suggested.update(original)
@@ -50,7 +51,7 @@ class PreCommitFile(BaseFile):
         yield from self.check_root_values()
         yield from self.check_repos()
 
-    def check_root_values(self):
+    def check_root_values(self) -> YieldFlake8Error:
         """Check the root values in the configuration file."""
         actual = self.actual_yaml.as_dict.copy()
         actual.pop(self.KEY_REPOS, None)
@@ -64,81 +65,73 @@ class PreCommitFile(BaseFile):
             elif diff_type == dictdiffer.CHANGE:
                 yield from self.compare_different_keys(key, values[0], values[1])
 
-    def check_repos(self):
-        """Check the repositories configured in pre-commit.
+    def check_repos(self) -> YieldFlake8Error:
+        """Check the repositories configured in pre-commit."""
+        actual = self.actual_yaml.as_dict.get(self.KEY_REPOS, [])  # type: List[YamlData]
+        expected = self.file_dict.get(self.KEY_REPOS, [])  # type: List[OrderedDict]
 
-        FIXME
-        - list ``
-        - loop on expected `repos.yaml` strings
-        - for each repo on the string:
-          - `expected_repo_yaml = Yaml(string=repo_yaml_string)`
-          - `if expected_repo_yaml.as_dict['repo'] not in actual_repos:`
-            - error ".pre-commit-config.yamk: Expected repo <name> not found. Use this:" expected_repo_yaml.reformatted
-        """
-        actual = self.actual_yaml.as_dict.get(self.KEY_REPOS, [])  # type: List[dict]
-        expected = self.file_dict.get(self.KEY_REPOS, [])  # type: List[dict]
-
-        # actual_repo_mapping = {}  # type: Dict[str, Yaml]
-        # for value in actual:
-
-        for index, configuration_data in enumerate(expected):
-            if self.KEY_YAML in configuration_data:
-                self.check_repo_yaml(configuration_data)
+        actual_repo_mapping = OrderedDict(
+            {repo.get(self.KEY_REPO): repo for repo in actual}
+        )  # type: OrderedDict[str, Yaml]
+        for index, repo_data in enumerate(expected):
+            if self.KEY_YAML in repo_data:
+                yield from self.check_repo_yaml(actual_repo_mapping, repo_data)
                 continue
 
-            repo_name = configuration_data.get(self.KEY_REPO)
-            if not repo_name:
-                yield self.flake8_error(2, ": style file is missing {!r} key in repo #{}".format(self.KEY_REPO, index))
-                continue
+            yield from self.check_repo_old_format(actual, index, repo_data)
 
-            actual_repo_dict = find_object_by_key(actual, self.KEY_REPO, repo_name)
-            if not actual_repo_dict:
-                yield self.flake8_error(3, ": repo {!r} does not exist under {!r}".format(repo_name, self.KEY_REPOS))
-                continue
-
-            if self.KEY_HOOKS not in actual_repo_dict:
-                yield self.flake8_error(4, ": missing {!r} in repo {!r}".format(self.KEY_HOOKS, repo_name))
-                continue
-
-            actual_hooks = actual_repo_dict.get(self.KEY_HOOKS) or []
-            yaml_expected_hooks = configuration_data.get(self.KEY_HOOKS)
-            if not yaml_expected_hooks:
+    def check_repo_yaml(self, actual_repo_mapping: OrderedDict, repo_data: OrderedDict) -> YieldFlake8Error:
+        """Check a repo with a YAML string configuration."""
+        expected_repos_yaml = Yaml(string=repo_data.get(self.KEY_YAML))
+        for expected_repo in expected_repos_yaml.as_list:
+            repo_name = expected_repo["repo"]
+            last_part = repo_name.split("/")[-1]
+            if repo_name not in actual_repo_mapping:
                 yield self.flake8_error(
-                    5, ": style file is missing {!r} in repo {!r}".format(self.KEY_HOOKS, repo_name)
+                    2, ": repo {!r} not found. Use this:\n{}".format(last_part, expected_repos_yaml.reformatted)
+                )
+
+    def check_repo_old_format(self, actual_repos: YamlData, index: int, repo_data: OrderedDict) -> YieldFlake8Error:
+        """Check repos using the old deprecated format with ``hooks`` and ``repo`` keys."""
+        repo_name = repo_data.get(self.KEY_REPO)
+        if not repo_name:
+            yield self.flake8_error(2, ": style file is missing {!r} key in repo #{}".format(self.KEY_REPO, index))
+            return
+
+        actual_repo_dict = find_object_by_key(actual_repos, self.KEY_REPO, repo_name)
+        if not actual_repo_dict:
+            yield self.flake8_error(3, ": repo {!r} does not exist under {!r}".format(repo_name, self.KEY_REPOS))
+            return
+
+        if self.KEY_HOOKS not in actual_repo_dict:
+            yield self.flake8_error(4, ": missing {!r} in repo {!r}".format(self.KEY_HOOKS, repo_name))
+            return
+
+        actual_hooks = actual_repo_dict.get(self.KEY_HOOKS) or []
+        yaml_expected_hooks = repo_data.get(self.KEY_HOOKS)
+        if not yaml_expected_hooks:
+            yield self.flake8_error(5, ": style file is missing {!r} in repo {!r}".format(self.KEY_HOOKS, repo_name))
+            return
+
+        expected_hooks = Yaml(string=yaml_expected_hooks).as_dict
+        for expected_dict in expected_hooks:
+            hook_id = expected_dict.get(self.KEY_ID)
+            if not hook_id:
+                expected_yaml = self.format_hook(expected_dict)
+                yield self.flake8_error(
+                    6, ": style file is missing {!r} in hook:\n{}".format(self.KEY_ID, expected_yaml)
                 )
                 continue
-
-            expected_hooks = Yaml(string=yaml_expected_hooks).as_dict
-            for expected_dict in expected_hooks:
-                hook_id = expected_dict.get(self.KEY_ID)
-                if not hook_id:
-                    expected_yaml = self.format_hook(expected_dict)
-                    yield self.flake8_error(
-                        6, ": style file is missing {!r} in hook:\n{}".format(self.KEY_ID, expected_yaml)
-                    )
-                    continue
-                actual_dict = find_object_by_key(actual_hooks, self.KEY_ID, hook_id)
-                if not actual_dict:
-                    expected_yaml = self.format_hook(expected_dict)
-                    yield self.flake8_error(7, ": missing hook with id {!r}:\n{}".format(hook_id, expected_yaml))
-                    continue
+            actual_dict = find_object_by_key(actual_hooks, self.KEY_ID, hook_id)
+            if not actual_dict:
+                expected_yaml = self.format_hook(expected_dict)
+                yield self.flake8_error(7, ": missing hook with id {!r}:\n{}".format(hook_id, expected_yaml))
+                continue
 
     def show_missing_keys(self, key, values: List[Tuple[str, Any]]):
         """Show the keys that are not present in a section."""
         output = Yaml(dict_=dict(values)).reformatted
         yield self.flake8_error(8, " has missing values:\n{}".format(output))
-
-    # FIXME:
-    # def show_missing_repos(self, values: List[Tuple[str, Any]]):
-    #     yaml = YAML()
-    #     yaml.map_indent = 2
-    #     yaml.sequence_indent = 4
-    #     yaml.sequence_dash_offset = 2
-    #     yaml.stream = io.StringIO()
-    #     data = {"repos": [data for index, data in values]}
-    #     yaml.dump(data, yaml.stream)
-    #     output = yaml.stream.getvalue()
-    #     yield self.flake8_error(9, " has missing repos:\n{}".format(output))
 
     def compare_different_keys(self, key, raw_actual: Any, raw_expected: Any):
         """Compare different keys."""
@@ -166,8 +159,3 @@ class PreCommitFile(BaseFile):
             else:
                 output.append("    {}".format(line))
         return "\n".join(output)
-
-    def check_repo_yaml(self, repo_dict):
-        """Check a repo with a YAML string configuration."""
-        yaml_str = repo_dict.get(self.KEY_YAML)
-        assert yaml_str  # FIXME:

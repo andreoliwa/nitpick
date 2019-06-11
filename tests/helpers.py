@@ -30,8 +30,13 @@ class ProjectMock:
 
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
-        self.root_dir = TEMP_ROOT_PATH / pytest_request.node.name  # type: Path
-        self.root_dir.mkdir()
+        subdir = "/".join(pytest_request.module.__name__.split(".")[1:])
+        caller_function_name = pytest_request.node.name
+        self.root_dir = TEMP_ROOT_PATH / subdir / caller_function_name  # type: Path
+
+        # To make debugging of mock projects easy, each test should not reuse another test directory.
+        self.root_dir.mkdir(parents=True)
+
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
         os.chdir(str(self.root_dir))
 

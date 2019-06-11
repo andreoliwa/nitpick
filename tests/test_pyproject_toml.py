@@ -11,7 +11,7 @@ def test_pyproject_should_be_deleted(request):
     )
 
 
-def test_missing_pyproject_toml(request):
+def test_suggest_initial_contents(request):
     """Suggest poetry init when pyproject.toml does not exist."""
     ProjectMock(request, pyproject_toml=False).style(
         """

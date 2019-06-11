@@ -4,10 +4,11 @@ import abc
 import io
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, Optional, Type, Union
+from typing import Optional, Type, Union
 
 import toml
 from ruamel.yaml import YAML, RoundTripRepresenter
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, unflatten
@@ -89,11 +90,6 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return self._dict or {}
 
     @property
-    def as_list(self) -> List[JsonDict]:
-        """A list of dicts. On YAML, ``as_dict`` might contain a ``list``. This property is just a proxy for typing."""
-        return self.as_dict  # type: ignore # noqa: T400
-
-    @property
     def reformatted(self) -> str:
         """Reformat the configuration dict as a new string (it might not match the original string/file contents)."""
         if self._reformatted is None:
@@ -146,6 +142,16 @@ class Yaml(BaseFormat):
 
         self._loaded = True
         return True
+
+    @property
+    def as_dict(self) -> CommentedMap:
+        """On YAML, this dict is a special object with comments and ordered keys."""
+        return super().as_dict
+
+    @property
+    def as_list(self) -> CommentedSeq:
+        """A list of dicts. On YAML, ``as_dict`` might contain a ``list``. This property is just a proxy for typing."""
+        return self.as_dict
 
 
 RoundTripRepresenter.add_representer(SortedDict, RoundTripRepresenter.represent_dict)
