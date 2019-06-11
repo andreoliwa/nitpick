@@ -4,7 +4,7 @@ import abc
 import io
 from collections import OrderedDict
 from pathlib import Path
-from typing import List, Optional, Type
+from typing import List, Optional, Type, Union
 
 import toml
 import yaml as pyyaml
@@ -17,13 +17,25 @@ from nitpick.typedefs import JsonDict, PathOrStr
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
-    def __init__(self, format_class: Type["BaseFormat"], actual_dict: JsonDict, expected_dict: JsonDict) -> None:
-        self.format_class = format_class  # type: Type["BaseFormat"]
+    def __init__(
+        self,
+        actual: Union[JsonDict, "BaseFormat"],
+        expected: Union[JsonDict, "BaseFormat"],
+        format_class: Type["BaseFormat"] = None,
+    ) -> None:
+        actual_dict = actual.as_dict if isinstance(actual, BaseFormat) else actual  # type: JsonDict
         self.actual = flatten(actual_dict)
+
+        expected_dict = expected.as_dict if isinstance(expected, BaseFormat) else expected  # type: JsonDict
         self.expected = flatten(expected_dict)
 
-        self.missing = None  # type: Optional[BaseFormat]
-        self.diff = None  # type: Optional[BaseFormat]
+        self.format_class = format_class
+
+        self.missing_format = None  # type: Optional[BaseFormat]
+        self.missing_dict = None  # type: Optional[JsonDict]
+
+        self.diff_format = None  # type: Optional[BaseFormat]
+        self.diff_dict = None  # type: Optional[JsonDict]
 
     def compare(self) -> "Comparison":
         """Compare two flattened dictionaries and compute missing and different items."""
@@ -32,13 +44,17 @@ class Comparison:
 
         missing_dict = unflatten({k: v for k, v in self.expected.items() if k not in self.actual})
         if missing_dict:
-            self.missing = self.format_class(dict_=missing_dict)
+            self.missing_dict = missing_dict
+            if self.format_class:
+                self.missing_format = self.format_class(dict_=missing_dict)
 
         diff_dict = unflatten(
             {k: v for k, v in self.expected.items() if k in self.actual and self.expected[k] != self.actual[k]}
         )
         if diff_dict:
-            self.diff = self.format_class(dict_=diff_dict)
+            self.diff_dict = diff_dict
+            if self.format_class:
+                self.diff_format = self.format_class(dict_=diff_dict)
 
         return self
 
@@ -85,9 +101,11 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return self._reformatted or ""
 
     @classmethod
-    def compare(cls, actual: "BaseFormat", expected: "BaseFormat") -> Comparison:
+    def compare(
+        cls, actual: Union[JsonDict, "BaseFormat"] = None, expected: Union[JsonDict, "BaseFormat"] = None
+    ) -> Comparison:
         """Compare two configuration objects."""
-        return Comparison(cls, actual.as_dict, expected.as_dict).compare()
+        return Comparison(actual or {}, expected or {}, cls).compare()
 
 
 class Toml(BaseFormat):

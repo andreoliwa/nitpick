@@ -25,6 +25,10 @@ class PreCommitFile(BaseFile):
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
+        # FIXME:
+        # comparison = Yaml.compare(None, self.file_dict)
+        # return Yaml(dict_=comparison.missing).reformatted
+
         original = dict(self.file_dict).copy()
         original_repos = original.pop(self.KEY_REPOS, [])
         suggested = {self.KEY_REPOS: []} if original_repos else {}  # type: Dict[str, Any]
@@ -65,9 +69,22 @@ class PreCommitFile(BaseFile):
                 yield from self.compare_different_keys(key, values[0], values[1])
 
     def check_repos(self):
-        """Check the repositories configured in pre-commit."""
+        """Check the repositories configured in pre-commit.
+
+        FIXME
+        - list ``
+        - loop on expected `repos.yaml` strings
+        - for each repo on the string:
+          - `expected_repo_yaml = Yaml(string=repo_yaml_string)`
+          - `if expected_repo_yaml.as_dict['repo'] not in actual_repos:`
+            - error ".pre-commit-config.yamk: Expected repo <name> not found. Use this:" expected_repo_yaml.reformatted
+        """
         actual = self.actual_yaml.as_dict.get(self.KEY_REPOS, [])  # type: List[dict]
         expected = self.file_dict.get(self.KEY_REPOS, [])  # type: List[dict]
+
+        # actual_repo_mapping = {}  # type: Dict[str, Yaml]
+        # for value in actual:
+
         for index, configuration_data in enumerate(expected):
             if self.KEY_YAML in configuration_data:
                 self.check_repo_yaml(configuration_data)

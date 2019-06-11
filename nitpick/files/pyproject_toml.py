@@ -16,11 +16,15 @@ class PyProjectTomlFile(BaseFile):
         if not self.config.pyproject_toml:
             return
 
-        comparison = Toml.compare(self.config.pyproject_toml, Toml(dict_=self.file_dict))
-        if comparison.missing:
-            yield self.flake8_error(1, " has missing values. Use this:\n{}".format(comparison.missing.reformatted))
-        if comparison.diff:
-            yield self.flake8_error(2, " has different values. Use this:\n{}".format(comparison.diff.reformatted))
+        comparison = Toml.compare(self.config.pyproject_toml, self.file_dict)
+        if comparison.missing_format:
+            yield self.flake8_error(
+                1, " has missing values. Use this:\n{}".format(comparison.missing_format.reformatted)
+            )
+        if comparison.diff_format:
+            yield self.flake8_error(
+                2, " has different values. Use this:\n{}".format(comparison.diff_format.reformatted)
+            )
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""

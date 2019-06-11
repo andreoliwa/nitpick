@@ -12,29 +12,36 @@ def test_pre_commit_should_be_deleted(request):
 
 def test_missing_pre_commit_config_yaml(request):
     """Suggest initial contents for missing pre-commit config file."""
-    ProjectMock(request).style(
-        '''
-        [["pre-commit-config.yaml".repos]]
-        repo = "local"
-        hooks = """
-        - id: whatever
-          any: valid
-          yaml: here
-        - id: blargh
-          note: only the id is verified
+    ProjectMock(request).load_styles("black", "isort").pyproject_toml(
         """
-        '''
+        [tool.nitpick]
+        style = ["isort", "black"]
+        """
     ).lint().assert_errors_contain(
         """
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:
         repos:
         - hooks:
-          - any: valid
-            id: whatever
-            yaml: here
-          - id: blargh
-            note: only the id is verified
-          repo: local
+          - id: seed-isort-config
+          repo: https://github.com/asottile/seed-isort-config
+          rev: v1.9.1
+        - hooks:
+          - id: isort
+          repo: https://github.com/pre-commit/mirrors-isort
+          rev: v4.3.20
+        - hooks:
+          - args:
+            - --safe
+            - --quiet
+            id: black
+          repo: https://github.com/ambv/black
+          rev: 19.3b0
+        - hooks:
+          - additional_dependencies:
+            - black==19.3b0
+            id: blacken-docs
+          repo: https://github.com/asottile/blacken-docs
+          rev: v1.0.0
         """
     )
 
