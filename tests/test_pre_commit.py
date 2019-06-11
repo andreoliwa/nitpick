@@ -67,6 +67,7 @@ def test_missing_different_values(request):
             hooks:
               - id: some-other-hooks-that-should-not-trigger-any-error
               - id: bashate
+                args: [extra, arguments, should, --not, --throw, errors]
         """
     ).lint().assert_errors_contain(
         """
@@ -77,7 +78,23 @@ def test_missing_different_values(request):
               - id: mypy
         """
     )
-    # FIXME: display different values
+    # FIXME:
+    # ).assert_errors_contain(
+    #     """
+    #     NIP332 File .pre-commit-config.yaml: repo 'https://github.com/pre-commit/pygrep-hooks' has missing values. Use this:
+    #       - id: python-check-mock-methods
+    #     """
+    # ).assert_errors_contain(
+    #     """
+    #     NIP332 File .pre-commit-config.yaml: repo 'https://github.com/pre-commit/pygrep-hooks' has different values. Use this:
+    #       - rev: v1.4.0
+    #     """
+    # ).assert_errors_contain(
+    #     """
+    #     NIP332 File .pre-commit-config.yaml: repo 'https://github.com/openstack/bashate' has different values. Use this:
+    #       - rev: 0.6.0
+    #     """
+    # )
 
 
 def test_root_values_on_missing_file(request):

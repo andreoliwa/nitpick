@@ -12,7 +12,7 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, unflatten
-from nitpick.typedefs import JsonDict, PathOrStr
+from nitpick.typedefs import JsonDict, PathOrStr, YamlData
 
 
 class Comparison:
@@ -20,14 +20,14 @@ class Comparison:
 
     def __init__(
         self,
-        actual: Union[JsonDict, "BaseFormat"],
-        expected: Union[JsonDict, "BaseFormat"],
+        actual: Union[JsonDict, YamlData, "BaseFormat"],
+        expected: Union[JsonDict, YamlData, "BaseFormat"],
         format_class: Type["BaseFormat"] = None,
     ) -> None:
-        actual_dict = actual.as_dict if isinstance(actual, BaseFormat) else actual  # type: JsonDict
+        actual_dict = actual.as_data if isinstance(actual, BaseFormat) else actual  # type: JsonDict
         self.actual = flatten(actual_dict)
 
-        expected_dict = expected.as_dict if isinstance(expected, BaseFormat) else expected  # type: JsonDict
+        expected_dict = expected.as_data if isinstance(expected, BaseFormat) else expected  # type: JsonDict
         self.expected = flatten(expected_dict)
 
         self.format_class = format_class
@@ -47,7 +47,7 @@ class Comparison:
         if missing_dict:
             self.missing_dict = missing_dict
             if self.format_class:
-                self.missing_format = self.format_class(dict_=missing_dict)
+                self.missing_format = self.format_class(data=missing_dict)
 
         diff_dict = unflatten(
             {k: v for k, v in self.expected.items() if k in self.actual and self.expected[k] != self.actual[k]}
@@ -55,7 +55,7 @@ class Comparison:
         if diff_dict:
             self.diff_dict = diff_dict
             if self.format_class:
-                self.diff_format = self.format_class(dict_=diff_dict)
+                self.diff_format = self.format_class(data=diff_dict)
 
         return self
 
@@ -63,10 +63,13 @@ class Comparison:
 class BaseFormat(metaclass=abc.ABCMeta):
     """Base class for configuration file formats."""
 
-    def __init__(self, *, path: PathOrStr = None, string: str = None, dict_: JsonDict = None, **kwargs) -> None:
+    def __init__(self, *, path: PathOrStr = None, string: str = None, data: Union[JsonDict, YamlData] = None) -> None:
         self.path = path
         self._string = string
-        self._dict = dict_
+        self._data = data
+        if path is None and string is None and data is None:
+            raise RuntimeError("Inform at least one argument: path, string or data")
+
         self._reformatted = None  # type: Optional[str]
         self._loaded = False
 
@@ -83,11 +86,11 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return self._string or ""
 
     @property
-    def as_dict(self) -> JsonDict:
-        """String content converted to a dict."""
-        if self._dict is None:
+    def as_data(self) -> Union[JsonDict, YamlData]:
+        """String content converted to a Python data structure (a dict, YAML data, etc.)."""
+        if self._data is None:
             self.load()
-        return self._dict or {}
+        return self._data or {}
 
     @property
     def reformatted(self) -> str:
@@ -98,7 +101,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
 
     def compare_to(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
         """Compare two configuration objects."""
-        return Comparison(self.as_dict or {}, expected or {}, self.__class__).compare()
+        return Comparison(self.as_data or {}, expected or {}, self.__class__).compare()
 
 
 class Toml(BaseFormat):
@@ -111,9 +114,9 @@ class Toml(BaseFormat):
         if self.path is not None:
             self._string = Path(self.path).read_text()
         if self._string is not None:
-            self._dict = toml.loads(self._string, _dict=OrderedDict)
-        if self._dict is not None:
-            self._reformatted = toml.dumps(self._dict)
+            self._data = toml.loads(self._string, _dict=OrderedDict)
+        if self._data is not None:
+            self._reformatted = toml.dumps(self._data)
         self._loaded = True
         return True
 
@@ -134,24 +137,24 @@ class Yaml(BaseFormat):
         if self.path is not None:
             self._string = Path(self.path).read_text()
         if self._string is not None:
-            self._dict = yaml.load(io.StringIO(self._string))
-        if self._dict is not None:
+            self._data = yaml.load(io.StringIO(self._string))
+        if self._data is not None:
             output = io.StringIO()
-            yaml.dump(self._dict, output)
+            yaml.dump(self._data, output)
             self._reformatted = output.getvalue()
 
         self._loaded = True
         return True
 
     @property
-    def as_dict(self) -> CommentedMap:
+    def as_data(self) -> CommentedMap:
         """On YAML, this dict is a special object with comments and ordered keys."""
-        return super().as_dict
+        return super().as_data
 
     @property
     def as_list(self) -> CommentedSeq:
-        """A list of dicts. On YAML, ``as_dict`` might contain a ``list``. This property is just a proxy for typing."""
-        return self.as_dict
+        """A list of dicts. On YAML, ``as_data`` might contain a ``list``. This property is just a proxy for typing."""
+        return self.as_data
 
 
 RoundTripRepresenter.add_representer(SortedDict, RoundTripRepresenter.represent_dict)

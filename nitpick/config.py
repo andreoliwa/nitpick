@@ -114,7 +114,7 @@ class NitpickConfig(NitpickMixin):
         pyproject_path = self.root_dir / PyProjectTomlFile.file_name  # type: Path
         if pyproject_path.exists():
             self.pyproject_toml = Toml(path=pyproject_path)
-            self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_dict, {})  # type: JsonDict
+            self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})  # type: JsonDict
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
         style = Style(self)

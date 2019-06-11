@@ -37,15 +37,15 @@ class PreCommitFile(BaseFile):
                 suggested[self.KEY_REPOS].extend(repo_list)
             else:
                 # TODO: show a deprecation warning for this case
-                new_repo[self.KEY_HOOKS] = Yaml(string=hooks_or_yaml).as_dict
+                new_repo[self.KEY_HOOKS] = Yaml(string=hooks_or_yaml).as_data
                 suggested[self.KEY_REPOS].append(new_repo)
         suggested.update(original)
-        return Yaml(dict_=suggested).reformatted
+        return Yaml(data=suggested).reformatted
 
     def check_rules(self) -> YieldFlake8Error:
         """Check the rules for the pre-commit hooks."""
         self.actual_yaml = Yaml(path=self.file_path)
-        if self.KEY_REPOS not in self.actual_yaml.as_dict:
+        if self.KEY_REPOS not in self.actual_yaml.as_data:
             yield self.flake8_error(1, " doesn't have the {!r} root key".format(self.KEY_REPOS))
             return
         yield from self.check_root_values()
@@ -53,7 +53,7 @@ class PreCommitFile(BaseFile):
 
     def check_root_values(self) -> YieldFlake8Error:
         """Check the root values in the configuration file."""
-        actual = self.actual_yaml.as_dict.copy()
+        actual = self.actual_yaml.as_data.copy()
         actual.pop(self.KEY_REPOS, None)
 
         expected = dict(self.file_dict).copy()
@@ -67,7 +67,7 @@ class PreCommitFile(BaseFile):
 
     def check_repos(self) -> YieldFlake8Error:
         """Check the repositories configured in pre-commit."""
-        actual = self.actual_yaml.as_dict.get(self.KEY_REPOS, [])  # type: List[YamlData]
+        actual = self.actual_yaml.as_data.get(self.KEY_REPOS, [])  # type: List[YamlData]
         expected = self.file_dict.get(self.KEY_REPOS, [])  # type: List[OrderedDict]
 
         actual_repo_mapping = OrderedDict(
@@ -90,6 +90,18 @@ class PreCommitFile(BaseFile):
                 yield self.flake8_error(
                     2, ": repo {!r} not found. Use this:\n{}".format(last_part, expected_repos_yaml.reformatted)
                 )
+                continue
+
+            # FIXME:
+            # comparison = Yaml(dict_= actual_repo_mapping[repo_name]).compare_to(expected_repo)
+            # if comparison.missing_format:
+            #     yield self.flake8_error(
+            #         1, " has missing values. Use this:\n{}".format(comparison.missing_format.reformatted)
+            #     )
+            # if comparison.diff_format:
+            #     yield self.flake8_error(
+            #         2, " has different values. Use this:\n{}".format(comparison.diff_format.reformatted)
+            #     )
 
     def check_repo_old_format(self, actual_repos: YamlData, index: int, repo_data: OrderedDict) -> YieldFlake8Error:
         """Check repos using the old deprecated format with ``hooks`` and ``repo`` keys."""
@@ -113,7 +125,7 @@ class PreCommitFile(BaseFile):
             yield self.flake8_error(5, ": style file is missing {!r} in repo {!r}".format(self.KEY_HOOKS, repo_name))
             return
 
-        expected_hooks = Yaml(string=yaml_expected_hooks).as_dict
+        expected_hooks = Yaml(string=yaml_expected_hooks).as_data
         for expected_dict in expected_hooks:
             hook_id = expected_dict.get(self.KEY_ID)
             if not hook_id:
@@ -130,7 +142,7 @@ class PreCommitFile(BaseFile):
 
     def show_missing_keys(self, key, values: List[Tuple[str, Any]]):
         """Show the keys that are not present in a section."""
-        output = Yaml(dict_=dict(values)).reformatted
+        output = Yaml(data=dict(values)).reformatted
         yield self.flake8_error(8, " has missing values:\n{}".format(output))
 
     def compare_different_keys(self, key, raw_actual: Any, raw_expected: Any):
@@ -143,7 +155,7 @@ class PreCommitFile(BaseFile):
             actual = raw_actual
             expected = raw_expected
         if actual != expected:
-            example = Yaml(dict_={key: raw_expected}).reformatted
+            example = Yaml(data={key: raw_expected}).reformatted
             yield self.flake8_error(
                 9, ": {!r} is {!r} but it should be like this:\n{}".format(key, raw_actual, example)
             )
@@ -151,7 +163,7 @@ class PreCommitFile(BaseFile):
     @staticmethod
     def format_hook(expected_dict) -> str:
         """Format the hook so it's easy to copy and paste it to the .yaml file: ID goes first, indent with spaces."""
-        lines = Yaml(dict_=expected_dict).reformatted
+        lines = Yaml(data=expected_dict).reformatted
         output = []  # type: List[str]
         for line in lines.split("\n"):
             if line.startswith("id:"):
