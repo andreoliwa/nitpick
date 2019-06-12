@@ -23,7 +23,7 @@ class Comparison:
         self,
         actual: Union[JsonDict, YamlData, "BaseFormat"],
         expected: Union[JsonDict, YamlData, "BaseFormat"],
-        format_class: Type["BaseFormat"] = None,
+        format_class: Type["BaseFormat"],
     ) -> None:
         self._actual = actual.as_data if isinstance(actual, BaseFormat) else actual  # type: JsonDict
         self._flat_actual = flatten(self._actual)
@@ -34,58 +34,28 @@ class Comparison:
         self.format_class = format_class
 
         self.missing_format = None  # type: Optional[BaseFormat]
-        self.missing_dict = None  # type: Optional[JsonDict]
+        self.missing_dict = {}  # type: Union[JsonDict, YamlData]
 
         self.diff_format = None  # type: Optional[BaseFormat]
-        self.diff_dict = None  # type: Optional[JsonDict]
+        self.diff_dict = {}  # type: Union[JsonDict, YamlData]
 
-    def compare_with_flatten(self) -> "Comparison":
-        """Compare two flattened dictionaries and compute missing and different items."""
-        if self._flat_expected.items() <= self._flat_actual.items():
-            return self
+    def set_missing(self, missing_dict):
+        """Set the missing dict and corresponding format."""
+        if not missing_dict:
+            return
+        self.missing_dict = missing_dict
+        if self.format_class:
+            self.missing_format = self.format_class(data=missing_dict)
 
-        missing_dict = unflatten({k: v for k, v in self._flat_expected.items() if k not in self._flat_actual})
-        if missing_dict:
-            self.missing_dict = missing_dict
-            if self.format_class:
-                self.missing_format = self.format_class(data=missing_dict)
+    def set_diff(self, diff_dict):
+        """Set the diff dict and corresponding format."""
+        if not diff_dict:
+            return
+        self.diff_dict = diff_dict
+        if self.format_class:
+            self.diff_format = self.format_class(data=diff_dict)
 
-        diff_dict = unflatten(
-            {
-                k: v
-                for k, v in self._flat_expected.items()
-                if k in self._flat_actual and self._flat_expected[k] != self._flat_actual[k]
-            }
-        )
-        if diff_dict:
-            self.diff_dict = diff_dict
-            if self.format_class:
-                self.diff_format = self.format_class(data=diff_dict)
-
-        return self
-
-    def compare_with_dictdiffer(self):
-        """Compare two structures and compute missing and different items using ``dictdiffer``."""
-        self.missing_dict = SortedDict()
-        self.diff_dict = SortedDict()
-        for diff_type, key, values in dictdiffer.diff(self._flat_actual, self._flat_expected):
-            if diff_type == dictdiffer.ADD and key != "hooks":  # FIXME: remove this hack
-                self.missing_dict.update(dict(values))
-            elif diff_type == dictdiffer.CHANGE:
-                raw_actual, raw_expected = values
-                actual_value, expected_value = self.format_class.cleanup(raw_actual, raw_expected)
-                if actual_value != expected_value:
-                    self.update_key(key, raw_expected)
-
-        if self.missing_dict and self.format_class:
-            self.missing_format = self.format_class(data=self.missing_dict)
-
-        if self.diff_dict and self.format_class:
-            self.diff_format = self.format_class(data=self.diff_dict)
-
-        return self
-
-    def update_key(self, key, raw_expected):
+    def update_pair(self, key, raw_expected):
         """Update a key on one of the comparison dicts, with its raw expected value."""
         if isinstance(key, str):
             self.diff_dict.update({key: raw_expected})
@@ -140,12 +110,43 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return list(*args)
 
     def compare_with_flatten(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
-        """Compare two flattened configuration dicts/objects."""
-        return Comparison(self.as_data or {}, expected or {}, self.__class__).compare_with_flatten()
+        """Compare two flattened dictionaries and compute missing and different items."""
+        comparison = Comparison(self.as_data or {}, expected or {}, self.__class__)
+        if comparison._flat_expected.items() <= comparison._flat_actual.items():
+            return comparison
+
+        comparison.set_missing(
+            unflatten({k: v for k, v in comparison._flat_expected.items() if k not in comparison._flat_actual})
+        )
+        comparison.set_diff(
+            unflatten(
+                {
+                    k: v
+                    for k, v in comparison._flat_expected.items()
+                    if k in comparison._flat_actual and comparison._flat_expected[k] != comparison._flat_actual[k]
+                }
+            )
+        )
+        return comparison
 
     def compare_with_dictdiffer(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
-        """Compare two configuration objects."""
-        return Comparison(self.as_data or {}, expected or {}, self.__class__).compare_with_dictdiffer()
+        """Compare two structures and compute missing and different items using ``dictdiffer``."""
+        comparison = Comparison(self.as_data or {}, expected or {}, self.__class__)
+
+        comparison.missing_dict = SortedDict()
+        comparison.diff_dict = SortedDict()
+        for diff_type, key, values in dictdiffer.diff(comparison._flat_actual, comparison._flat_expected):
+            if diff_type == dictdiffer.ADD and key != "hooks":  # FIXME: remove this hack
+                comparison.missing_dict.update(dict(values))
+            elif diff_type == dictdiffer.CHANGE:
+                raw_actual, raw_expected = values
+                actual_value, expected_value = comparison.format_class.cleanup(raw_actual, raw_expected)
+                if actual_value != expected_value:
+                    comparison.update_pair(key, raw_expected)
+
+        comparison.set_missing(comparison.missing_dict)
+        comparison.set_diff(comparison.diff_dict)
+        return comparison
 
 
 class Toml(BaseFormat):
