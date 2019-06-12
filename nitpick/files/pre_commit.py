@@ -87,19 +87,13 @@ class PreCommitFile(BaseFile):
         if KEY_REPOS not in self.actual_yaml.as_data:
             yield self.flake8_error(1, " doesn't have the {!r} root key".format(KEY_REPOS))
             return
-        yield from self.check_root_values()
-        yield from self.check_hooks()
 
-    def check_root_values(self) -> YieldFlake8Error:
-        """Check the root values in the configuration file."""
-        # FIXME: yield from self.check_missing_different(Comparison)
-        comparison = Yaml(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(
-            self.file_dict
+        # Check the root values in the configuration file
+        yield from self.warn_missing_different(
+            Yaml(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(self.file_dict)
         )
-        if comparison.missing_format:
-            yield self.flake8_error(8, " has missing values:\n{}".format(comparison.missing_format.reformatted))
-        if comparison.diff_format:
-            yield self.flake8_error(9, " has different values:\n{}".format(comparison.diff_format.reformatted))
+
+        yield from self.check_hooks()
 
     def check_hooks(self) -> YieldFlake8Error:
         """Check the repositories configured in pre-commit."""

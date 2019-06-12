@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Mixin to raise flake8 errors."""
 from nitpick.constants import ERROR_PREFIX
+from nitpick.formats import Comparison
 from nitpick.typedefs import Flake8Error
 
 
@@ -22,3 +23,10 @@ class NitpickMixin:
             "{}{} {}{}".format(ERROR_PREFIX, final_number, self.error_prefix, error_message.rstrip()),
             NitpickChecker,
         )
+
+    def warn_missing_different(self, comparison: Comparison):
+        """Warn about missing and different keys."""
+        if comparison.missing_format:
+            yield self.flake8_error(8, " has missing values:\n{}".format(comparison.missing_format.reformatted))
+        if comparison.diff_format:
+            yield self.flake8_error(9, " has different values:\n{}".format(comparison.diff_format.reformatted))
