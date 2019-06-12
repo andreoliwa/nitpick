@@ -59,10 +59,9 @@ class Comparison:
         """Update a key on one of the comparison dicts, with its raw expected value."""
         if isinstance(key, str):
             self.diff_dict.update({key: raw_expected})
-        # FIXME:
-        # elif isinstance(key, list) and len(key) == 3:
-        #     parent, _, new_key = key
-        #     self.missing_dict.update({parent: [{new_key: raw_expected}]})
+        elif isinstance(key, list) and len(key) == 3:
+            parent, _, new_key = key
+            self.missing_dict.update({parent: [{new_key: raw_expected}]})
 
 
 class BaseFormat(metaclass=abc.ABCMeta):
@@ -161,7 +160,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         comparison.missing_dict = SortedDict()
         comparison.diff_dict = SortedDict()
         for diff_type, key, values in dictdiffer.diff(comparison.flat_actual, comparison.flat_expected):
-            if diff_type == dictdiffer.ADD and key != "hooks":  # FIXME: remove this hack
+            if diff_type == dictdiffer.ADD:
                 comparison.missing_dict.update(dict(values))
             elif diff_type == dictdiffer.CHANGE:
                 raw_actual, raw_expected = values

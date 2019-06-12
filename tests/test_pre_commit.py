@@ -243,7 +243,7 @@ def test_missing_hook_with_id(request):
 
 def test_missing_different_values(request):
     """Test missing and different values on the hooks."""
-    # FIXME: add loaded and named styles automatically to pyproject_toml
+    # TODO: add loaded and named styles automatically to pyproject_toml
     ProjectMock(request).load_styles("mypy", "pre-commit/python", "pre-commit/bash").named_style(
         "root",
         """
