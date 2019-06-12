@@ -43,77 +43,6 @@ def test_suggest_initial_contents(request):
     )
 
 
-def test_missing_different_values(request):
-    """Test missing and different values on the hooks."""
-    # FIXME: add loaded and named styles automatically to pyproject_toml
-    ProjectMock(request).load_styles("mypy", "pre-commit/python", "pre-commit/bash").named_style(
-        "root",
-        """
-        [nitpick.files]
-        "pyproject.toml" = true
-        """,
-    ).pyproject_toml(
-        """
-        [tool.nitpick]
-        style = ["root", "mypy", "pre-commit/python", "pre-commit/bash"]
-        """
-    ).setup_cfg(
-        """
-        [mypy]
-        follow_imports = skip
-        ignore_missing_imports = True
-        strict_optional = True
-        warn_no_return = True
-        warn_redundant_casts = True
-        warn_unused_ignores = True
-        """
-    ).pre_commit(
-        """
-        repos:
-          - repo: https://github.com/pre-commit/pygrep-hooks
-            rev: v1.1.0
-            hooks:
-              - id: python-check-blanket-noqa
-              - id: missing-hook-in-this-position
-              - id: python-no-eval
-              - id: python-no-log-warn
-              - id: rst-backticks
-          - repo: https://github.com/openstack/bashate
-            rev: 0.5.0
-            hooks:
-              - id: bashate
-                args: [extra, arguments, should, --not, --throw, errors]
-        """
-        # TODO: - id: extra-hooks-should-be-fine
-    ).lint().assert_errors_contain(
-        """
-        NIP332 File .pre-commit-config.yaml: repo 'mirrors-mypy' not found. Use this:
-          - repo: https://github.com/pre-commit/mirrors-mypy
-            rev: v0.701
-            hooks:
-              - id: mypy
-        """
-        # FIXME:
-        # ).assert_errors_contain(
-        #     """
-        #     NIP333 File .pre-commit-config.yaml: repo 'https://github.com/pre-commit/pygrep-hooks' has missing values. Use this:
-        #     hooks:
-        #       - id: python-check-mock-methods
-        #     """
-    ).assert_errors_contain(
-        """
-        NIP334 File .pre-commit-config.yaml: repo 'https://github.com/openstack/bashate' has different values. Use this:
-        rev: 0.6.0
-        """
-    ).assert_errors_contain(
-        """
-        NIP334 File .pre-commit-config.yaml: repo 'https://github.com/pre-commit/pygrep-hooks' has different values. Use this:
-        rev: v1.4.0
-        """,
-        3,
-    )
-
-
 def test_root_values_on_missing_file(request):
     """Test values on the root of the config file when it's missing."""
     ProjectMock(request).style(
@@ -310,3 +239,75 @@ def test_missing_hook_with_id(request):
             entry: black
         """
     )
+
+
+def test_missing_different_values(request):
+    """Test missing and different values on the hooks."""
+    # FIXME: add loaded and named styles automatically to pyproject_toml
+    ProjectMock(request).load_styles("mypy", "pre-commit/python", "pre-commit/bash").named_style(
+        "root",
+        """
+        [nitpick.files]
+        "pyproject.toml" = true
+        """,
+    ).pyproject_toml(
+        """
+        [tool.nitpick]
+        style = ["root", "mypy", "pre-commit/python", "pre-commit/bash"]
+        """
+    ).setup_cfg(
+        """
+        [mypy]
+        follow_imports = skip
+        ignore_missing_imports = True
+        strict_optional = True
+        warn_no_return = True
+        warn_redundant_casts = True
+        warn_unused_ignores = True
+        """
+    ).pre_commit(
+        """
+        repos:
+          - repo: https://github.com/pre-commit/pygrep-hooks
+            rev: v1.1.0
+            hooks:
+              - id: python-check-blanket-noqa
+              - id: missing-hook-in-this-position
+              - id: python-no-eval
+              - id: python-no-log-warn
+              - id: rst-backticks
+          - repo: https://github.com/openstack/bashate
+            rev: 0.5.0
+            hooks:
+              - id: extra-hook-before-should-be-ignored
+              - id: bashate
+                args: [extra, arguments, should, --not, --throw, errors]
+              - id: extra-hook-after-should-be-ignored
+        """
+    ).lint().assert_errors_contain(
+        """
+        NIP332 File .pre-commit-config.yaml: repo 'mirrors-mypy' not found. Use this:
+          - repo: https://github.com/pre-commit/mirrors-mypy
+            rev: v0.701
+            hooks:
+              - id: mypy
+        """
+    )
+    # ).assert_errors_contain(
+    #     """
+    #     NIP333 File .pre-commit-config.yaml: repo 'https://github.com/pre-commit/pygrep-hooks' has missing values. Use this:
+    #     hooks:
+    #       - id: python-check-mock-methods
+    #     """
+    # ).assert_errors_contain(
+    #     """
+    #     NIP334 File .pre-commit-config.yaml: repo 'https://github.com/openstack/bashate' has different values. Use this:
+    #     rev: 0.6.0
+    #     """
+    # ).assert_errors_contain(
+    #     """
+    #     NIP334 File .pre-commit-config.yaml: repo 'https://github.com/pre-commit/pygrep-hooks' has different values. Use this:
+    #     rev: v1.4.0
+    #     """,
+    #     4,
+    # )

@@ -51,8 +51,6 @@ extensions = [
     "sphinx.ext.ifconfig",
     # http://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
     "sphinx.ext.intersphinx",
-    # http://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html#module-sphinx.ext.napoleon
-    "sphinx.ext.napoleon",
     # http://www.sphinx-doc.org/en/master/usage/extensions/to do.html
     "sphinx.ext.todo",
     # http://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html

@@ -68,7 +68,9 @@ class Comparison:
 class BaseFormat(metaclass=abc.ABCMeta):
     """Base class for configuration file formats."""
 
-    def __init__(self, *, path: PathOrStr = None, string: str = None, data: Union[JsonDict, YamlData] = None) -> None:
+    def __init__(
+        self, *, path: PathOrStr = None, string: str = None, data: Union[JsonDict, YamlData, "BaseFormat"] = None
+    ) -> None:
         self.path = path
         self._string = string
         self._data = data
@@ -161,7 +163,10 @@ class Toml(BaseFormat):
         if self._string is not None:
             self._data = toml.loads(self._string, _dict=OrderedDict)
         if self._data is not None:
-            self._reformatted = toml.dumps(self._data)
+            if isinstance(self._data, BaseFormat):
+                self._reformatted = self._data.reformatted
+            else:
+                self._reformatted = toml.dumps(self._data)
         self._loaded = True
         return True
 
@@ -184,9 +189,12 @@ class Yaml(BaseFormat):
         if self._string is not None:
             self._data = yaml.load(io.StringIO(self._string))
         if self._data is not None:
-            output = io.StringIO()
-            yaml.dump(self._data, output)
-            self._reformatted = output.getvalue()
+            if isinstance(self._data, BaseFormat):
+                self._reformatted = self._data.reformatted
+            else:
+                output = io.StringIO()
+                yaml.dump(self._data, output)
+                self._reformatted = output.getvalue()
 
         self._loaded = True
         return True

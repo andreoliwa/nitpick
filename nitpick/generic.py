@@ -122,8 +122,10 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
     {}
     >>> find_object_by_key(fruits, "fruit", "mango") == {'id': 3, 'fruit': 'mango'}
     True
+    >>> find_object_by_key(None, "fruit", "pear")
+    {}
     """
-    for obj in list_:
+    for obj in list_ or []:
         if obj.get(search_key) == search_value:
             return obj
     return {}
