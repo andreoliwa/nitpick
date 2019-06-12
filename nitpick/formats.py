@@ -26,10 +26,10 @@ class Comparison:
         format_class: Type["BaseFormat"],
     ) -> None:
         self._actual = actual.as_data if isinstance(actual, BaseFormat) else actual  # type: JsonDict
-        self._flat_actual = flatten(self._actual)
+        self.flat_actual = flatten(self._actual)
 
         self._expected = expected.as_data if isinstance(expected, BaseFormat) else expected  # type: JsonDict
-        self._flat_expected = flatten(self._expected)
+        self.flat_expected = flatten(self._expected)
 
         self.format_class = format_class
 
@@ -66,10 +66,21 @@ class Comparison:
 
 
 class BaseFormat(metaclass=abc.ABCMeta):
-    """Base class for configuration file formats."""
+    """Base class for configuration file formats.
+
+    :param path: Path of the config file to be loaded.
+    :param string: Config in string format.
+    :param data: Config data in Python format (dict, Yaml, Toml instances).
+    :param ignore_keys: List of keys to ignore when using the comparison methods.
+    """
 
     def __init__(
-        self, *, path: PathOrStr = None, string: str = None, data: Union[JsonDict, YamlData, "BaseFormat"] = None
+        self,
+        *,
+        path: PathOrStr = None,
+        string: str = None,
+        data: Union[JsonDict, YamlData, "BaseFormat"] = None,
+        ignore_keys: List[str] = None
     ) -> None:
         self.path = path
         self._string = string
@@ -77,6 +88,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         if path is None and string is None and data is None:
             raise RuntimeError("Inform at least one argument: path, string or data")
 
+        self._ignore_keys = ignore_keys or []
         self._reformatted = None  # type: Optional[str]
         self._loaded = False
 
@@ -111,21 +123,32 @@ class BaseFormat(metaclass=abc.ABCMeta):
         """Cleanup similar values according to the specific format. E.g.: Yaml accepts 'True' or 'true'."""
         return list(*args)
 
+    def _create_comparison(self, expected: Union[JsonDict, YamlData, "BaseFormat"]):
+        if not self._ignore_keys:
+            return Comparison(self.as_data or {}, expected or {}, self.__class__)
+
+        clean_actual = (self.as_data or {}).copy()  # type: ignore # noqa: T400
+        clean_expected = (expected or {}).copy()  # type: ignore
+        for key in self._ignore_keys:
+            clean_actual.pop(key, None)  # type: ignore # noqa: T400
+            clean_expected.pop(key, None)  # type: ignore # noqa: T400
+        return Comparison(clean_actual, clean_expected, self.__class__)
+
     def compare_with_flatten(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
-        comparison = Comparison(self.as_data or {}, expected or {}, self.__class__)
-        if comparison._flat_expected.items() <= comparison._flat_actual.items():
+        comparison = self._create_comparison(expected)
+        if comparison.flat_expected.items() <= comparison.flat_actual.items():
             return comparison
 
         comparison.set_missing(
-            unflatten({k: v for k, v in comparison._flat_expected.items() if k not in comparison._flat_actual})
+            unflatten({k: v for k, v in comparison.flat_expected.items() if k not in comparison.flat_actual})
         )
         comparison.set_diff(
             unflatten(
                 {
                     k: v
-                    for k, v in comparison._flat_expected.items()
-                    if k in comparison._flat_actual and comparison._flat_expected[k] != comparison._flat_actual[k]
+                    for k, v in comparison.flat_expected.items()
+                    if k in comparison.flat_actual and comparison.flat_expected[k] != comparison.flat_actual[k]
                 }
             )
         )
@@ -133,11 +156,11 @@ class BaseFormat(metaclass=abc.ABCMeta):
 
     def compare_with_dictdiffer(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
         """Compare two structures and compute missing and different items using ``dictdiffer``."""
-        comparison = Comparison(self.as_data or {}, expected or {}, self.__class__)
+        comparison = self._create_comparison(expected)
 
         comparison.missing_dict = SortedDict()
         comparison.diff_dict = SortedDict()
-        for diff_type, key, values in dictdiffer.diff(comparison._flat_actual, comparison._flat_expected):
+        for diff_type, key, values in dictdiffer.diff(comparison.flat_actual, comparison.flat_expected):
             if diff_type == dictdiffer.ADD and key != "hooks":  # FIXME: remove this hack
                 comparison.missing_dict.update(dict(values))
             elif diff_type == dictdiffer.CHANGE:

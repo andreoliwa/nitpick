@@ -92,15 +92,10 @@ class PreCommitFile(BaseFile):
 
     def check_root_values(self) -> YieldFlake8Error:
         """Check the root values in the configuration file."""
-        actual = self.actual_yaml.as_data.copy()
-        actual.pop(KEY_REPOS, None)
-
-        expected = dict(self.file_dict).copy()
-        expected.pop(KEY_REPOS, None)
-
         # FIXME: yield from self.check_missing_different(Comparison)
-        # FIXME: Yaml(data=actual, ignore_keys=[KEY_REPOS])
-        comparison = Yaml(data=actual).compare_with_dictdiffer(expected)
+        comparison = Yaml(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(
+            self.file_dict
+        )
         if comparison.missing_format:
             yield self.flake8_error(8, " has missing values:\n{}".format(comparison.missing_format.reformatted))
         if comparison.diff_format:
