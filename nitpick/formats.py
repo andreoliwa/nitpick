@@ -66,28 +66,33 @@ class Comparison:
 
     def compare_with_dictdiffer(self):
         """Compare two structures and compute missing and different items using ``dictdiffer``."""
-        all_missing = SortedDict()
-        all_differences = SortedDict()
+        self.missing_dict = SortedDict()
+        self.diff_dict = SortedDict()
         for diff_type, key, values in dictdiffer.diff(self._flat_actual, self._flat_expected):
-            if diff_type == dictdiffer.ADD:
-                all_missing.update(dict(values))
+            if diff_type == dictdiffer.ADD and key != "hooks":  # FIXME: remove this hack
+                self.missing_dict.update(dict(values))
             elif diff_type == dictdiffer.CHANGE:
                 raw_actual, raw_expected = values
                 actual_value, expected_value = self.format_class.cleanup(raw_actual, raw_expected)
                 if actual_value != expected_value:
-                    all_differences.update({key: raw_expected})
+                    self.update_key(key, raw_expected)
 
-        if all_missing:
-            self.missing_dict = all_missing
-            if self.format_class:
-                self.missing_format = self.format_class(data=all_missing)
+        if self.missing_dict and self.format_class:
+            self.missing_format = self.format_class(data=self.missing_dict)
 
-        if all_differences:
-            self.diff_dict = all_differences
-            if self.format_class:
-                self.diff_format = self.format_class(data=all_differences)
+        if self.diff_dict and self.format_class:
+            self.diff_format = self.format_class(data=self.diff_dict)
 
         return self
+
+    def update_key(self, key, raw_expected):
+        """Update a key on one of the comparison dicts, with its raw expected value."""
+        if isinstance(key, str):
+            self.diff_dict.update({key: raw_expected})
+        # FIXME:
+        # elif isinstance(key, list) and len(key) == 3:
+        #     parent, _, new_key = key
+        #     self.missing_dict.update({parent: [{new_key: raw_expected}]})
 
 
 class BaseFormat(metaclass=abc.ABCMeta):

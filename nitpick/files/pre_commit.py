@@ -82,24 +82,30 @@ class PreCommitFile(BaseFile):
         """Check a repo with a YAML string configuration."""
         expected_repos_yaml = Yaml(string=repo_data.get(self.KEY_YAML))
         for expected_repo in expected_repos_yaml.as_list:
-            repo_name = expected_repo["repo"]
-            last_part = repo_name.split("/")[-1]
-            if repo_name not in actual_repo_mapping:
+            full_name = expected_repo["repo"]
+            short_name = full_name.split("/")[-1]
+            if full_name not in actual_repo_mapping:
                 yield self.flake8_error(
-                    2, ": repo {!r} not found. Use this:\n{}".format(last_part, expected_repos_yaml.reformatted)
+                    2, ": repo {!r} not found. Use this:\n{}".format(short_name, expected_repos_yaml.reformatted)
                 )
                 continue
 
-            # FIXME:
-            # comparison = Yaml(dict_= actual_repo_mapping[repo_name]).compare_to(expected_repo)
-            # if comparison.missing_format:
-            #     yield self.flake8_error(
-            #         1, " has missing values. Use this:\n{}".format(comparison.missing_format.reformatted)
-            #     )
-            # if comparison.diff_format:
-            #     yield self.flake8_error(
-            #         2, " has different values. Use this:\n{}".format(comparison.diff_format.reformatted)
-            #     )
+            # FIXME: use {repo.rev.id: hook_data_dict} to compare hooks
+            comparison = Yaml(data=actual_repo_mapping[full_name]).compare_with_dictdiffer(expected_repo)
+            if comparison.missing_format:
+                yield self.flake8_error(
+                    3,
+                    ": repo {!r} has missing values. Use this:\n{}".format(
+                        full_name, comparison.missing_format.reformatted
+                    ),
+                )
+            if comparison.diff_format:
+                yield self.flake8_error(
+                    4,
+                    ": repo {!r} has different values. Use this:\n{}".format(
+                        full_name, comparison.diff_format.reformatted
+                    ),
+                )
 
     def check_repo_old_format(self, actual_repos: YamlData, index: int, repo_data: OrderedDict) -> YieldFlake8Error:
         """Check repos using the old deprecated format with ``hooks`` and ``repo`` keys."""

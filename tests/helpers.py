@@ -138,6 +138,8 @@ class ProjectMock:
     def show_errors(self, expected_error: str):
         """Show detailed errors in case of an assertion failure."""
         print("Expected error:\n{}".format(expected_error))
+        print("\nError count:")
+        print(len(self._errors))
         print("\nAll errors:")
         print(sorted(self._errors))
         print("\nAll errors with pprint():")
