@@ -24,9 +24,13 @@ class NitpickMixin:
             NitpickChecker,
         )
 
-    def warn_missing_different(self, comparison: Comparison):
+    def warn_missing_different(self, comparison: Comparison, prefix_message: str = ""):
         """Warn about missing and different keys."""
         if comparison.missing_format:
-            yield self.flake8_error(8, " has missing values:\n{}".format(comparison.missing_format.reformatted))
+            yield self.flake8_error(
+                8, "{} has missing values:\n{}".format(prefix_message, comparison.missing_format.reformatted)
+            )
         if comparison.diff_format:
-            yield self.flake8_error(9, " has different values:\n{}".format(comparison.diff_format.reformatted))
+            yield self.flake8_error(
+                9, "{} has different values:\n{}".format(prefix_message, comparison.diff_format.reformatted)
+            )

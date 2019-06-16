@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 from collections import OrderedDict
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import attr
 
 from nitpick.files.base import BaseFile
 from nitpick.formats import Yaml
-from nitpick.generic import find_object_by_key
-from nitpick.typedefs import YamlData, YieldFlake8Error
+from nitpick.generic import find_object_by_key, search_dict
+from nitpick.typedefs import JsonDict, YamlData, YieldFlake8Error
 
 KEY_REPOS = "repos"
 KEY_HOOKS = "hooks"
@@ -40,16 +40,26 @@ class PreCommitHook:
         """Short name of the repo."""
         return self.repo.split("/")[-1]
 
+    @property
+    def single_hook(self) -> JsonDict:
+        """Return only a single hook instead of a list."""
+        return self.yaml.as_list[0]
+
     @classmethod
-    def get_all_hooks_from(cls, yaml: YamlData):
-        """Get all hooks from a YAML string."""
-        return OrderedDict(
-            [
-                PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], Yaml(data=repo)).key_value_pair
-                for repo in yaml
-                for hook in repo.get(KEY_HOOKS, [])
-            ]
-        )
+    def get_all_hooks_from(cls, str_or_yaml: Union[str, YamlData]):
+        """Get all hooks from a YAML string. Split the string in hooks and copy the repo info for each."""
+        yaml = Yaml(string=str_or_yaml).as_list if isinstance(str_or_yaml, str) else str_or_yaml
+        hooks = []
+        for repo in yaml:
+            for index, hook in enumerate(repo.get(KEY_HOOKS, [])):
+                repo_data_only = repo.copy()
+                repo_data_only.pop(KEY_HOOKS)
+                hook_data_only = search_dict("{}[{}]".format(KEY_HOOKS, index), repo, {})
+                repo_data_only.update({KEY_HOOKS: [hook_data_only]})
+                hooks.append(
+                    PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], Yaml(data=[repo_data_only])).key_value_pair
+                )
+        return OrderedDict(hooks)
 
 
 class PreCommitFile(BaseFile):
@@ -116,28 +126,14 @@ class PreCommitFile(BaseFile):
             if unique_key not in self.actual_hooks:
                 yield self.flake8_error(
                     2,
-                    ": repo {!r} not found. Use this:\n{}".format(
-                        hook.repo_short, Yaml(data=[hook.yaml.as_data]).reformatted
+                    ": hook {!r} not found. Use this:\n{}".format(
+                        hook.hook_id, Yaml(data=hook.yaml.as_data).reformatted
                     ),
                 )
                 continue
 
-            # FIXME: use jmespath to compare only hook data and not the full repo YAML
-            # comparison = Yaml(data=self.actual_hooks[unique_key].yaml).compare_with_dictdiffer(hook.yaml)
-            # if comparison.missing_format:
-            #     yield self.flake8_error(
-            #         3,
-            #         ": repo {!r} has missing values. Use this:\n{}".format(
-            #             full_name, comparison.missing_format.reformatted
-            #         ),
-            #     )
-            # if comparison.diff_format:
-            #     yield self.flake8_error(
-            #         4,
-            #         ": repo {!r} has different values. Use this:\n{}".format(
-            #             full_name, comparison.diff_format.reformatted
-            #         ),
-            #     )
+            comparison = Yaml(data=self.actual_hooks[unique_key].single_hook).compare_with_dictdiffer(hook.single_hook)
+            yield from self.warn_missing_different(comparison, ": hook {!r}".format(hook.hook_id))
 
     def check_repo_old_format(self, index: int, repo_data: OrderedDict) -> YieldFlake8Error:
         """Check repos using the old deprecated format with ``hooks`` and ``repo`` keys."""

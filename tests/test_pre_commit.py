@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 """Pre-commit tests."""
+from textwrap import dedent
+
+from testfixtures import compare
+
+from nitpick.files.pre_commit import PreCommitHook
 from tests.helpers import ProjectMock
 
 
@@ -241,6 +246,70 @@ def test_missing_hook_with_id(request):
     )
 
 
+def test_get_all_hooks_from():
+    """Test if the get_all_hooks_from() method will split the YAML block in hooks and copy the repo info for each."""
+    data = """
+      - repo: https://github.com/user/repo
+        rev: v0.4.5
+        hooks:
+          - id: first
+            additional_dependencies: [package==1.0.0]
+          - id: second
+            args: [1, 2, 3]
+          - id: third
+          - id: fourth
+            args: [some, here]
+            additional_dependencies: [another>=2.0.3]
+    """
+    rv = PreCommitHook.get_all_hooks_from(dedent(data))
+
+    def assert_hook_yaml(key, yaml_string):
+        expected = rv["https://github.com/user/repo_" + key].yaml.reformatted
+        actual = yaml_string
+        compare(dedent(actual).strip(), dedent(expected).strip())
+
+    assert_hook_yaml(
+        "first",
+        """
+          - repo: https://github.com/user/repo
+            rev: v0.4.5
+            hooks:
+              - id: first
+                additional_dependencies: [package==1.0.0]
+        """,
+    )
+    assert_hook_yaml(
+        "second",
+        """
+          - repo: https://github.com/user/repo
+            rev: v0.4.5
+            hooks:
+              - id: second
+                args: [1, 2, 3]
+        """,
+    )
+    assert_hook_yaml(
+        "third",
+        """
+          - repo: https://github.com/user/repo
+            rev: v0.4.5
+            hooks:
+              - id: third
+        """,
+    )
+    assert_hook_yaml(
+        "fourth",
+        """
+          - repo: https://github.com/user/repo
+            rev: v0.4.5
+            hooks:
+              - id: fourth
+                args: [some, here]
+                additional_dependencies: [another>=2.0.3]
+        """,
+    )
+
+
 def test_missing_different_values(request):
     """Test missing and different values on the hooks."""
     # TODO: add loaded and named styles automatically to pyproject_toml
@@ -286,28 +355,44 @@ def test_missing_different_values(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP332 File .pre-commit-config.yaml: repo 'mirrors-mypy' not found. Use this:
+        NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:
           - repo: https://github.com/pre-commit/mirrors-mypy
             rev: v0.701
             hooks:
               - id: mypy
         """
+    ).assert_errors_contain(
+        """
+        NIP332 File .pre-commit-config.yaml: hook 'python-check-mock-methods' not found. Use this:
+          - repo: https://github.com/pre-commit/pygrep-hooks
+            rev: v1.4.0
+            hooks:
+              - id: python-check-mock-methods
+        """
+    ).assert_errors_contain(
+        """
+        NIP339 File .pre-commit-config.yaml: hook 'bashate' has different values:
+        rev: 0.6.0
+        """
+    ).assert_errors_contain(
+        """
+        NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' has different values:
+        rev: v1.4.0
+        """
+    ).assert_errors_contain(
+        """
+        NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' has different values:
+        rev: v1.4.0
+        """
+    ).assert_errors_contain(
+        """
+        NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' has different values:
+        rev: v1.4.0
+        """
+    ).assert_errors_contain(
+        """
+        NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' has different values:
+        rev: v1.4.0
+        """,
+        7,
     )
-    # ).assert_errors_contain(
-    #     """
-    #     NIP333 File .pre-commit-config.yaml: repo 'https://github.com/pre-commit/pygrep-hooks' has missing values. Use this:
-    #     hooks:
-    #       - id: python-check-mock-methods
-    #     """
-    # ).assert_errors_contain(
-    #     """
-    #     NIP334 File .pre-commit-config.yaml: repo 'https://github.com/openstack/bashate' has different values. Use this:
-    #     rev: 0.6.0
-    #     """
-    # ).assert_errors_contain(
-    #     """
-    #     NIP334 File .pre-commit-config.yaml: repo 'https://github.com/pre-commit/pygrep-hooks' has different values. Use this:
-    #     rev: v1.4.0
-    #     """,
-    #     4,
-    # )

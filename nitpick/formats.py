@@ -25,11 +25,8 @@ class Comparison:
         expected: Union[JsonDict, YamlData, "BaseFormat"],
         format_class: Type["BaseFormat"],
     ) -> None:
-        self._actual = actual.as_data if isinstance(actual, BaseFormat) else actual  # type: JsonDict
-        self.flat_actual = flatten(self._actual)
-
-        self._expected = expected.as_data if isinstance(expected, BaseFormat) else expected  # type: JsonDict
-        self.flat_expected = flatten(self._expected)
+        self.flat_actual = self._normalize_value(actual)
+        self.flat_expected = self._normalize_value(expected)
 
         self.format_class = format_class
 
@@ -38,6 +35,13 @@ class Comparison:
 
         self.diff_format = None  # type: Optional[BaseFormat]
         self.diff_dict = {}  # type: Union[JsonDict, YamlData]
+
+    def _normalize_value(self, value: Union[JsonDict, YamlData, "BaseFormat"]) -> JsonDict:
+        if isinstance(value, BaseFormat):
+            dict_value = value.as_data  # type: JsonDict
+        else:
+            dict_value = value
+        return flatten(dict_value)
 
     def set_missing(self, missing_dict):
         """Set the missing dict and corresponding format."""
