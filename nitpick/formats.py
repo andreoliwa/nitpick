@@ -68,10 +68,6 @@ class Comparison:
             return
 
         if isinstance(key, list):
-            if len(key) == 3:
-                parent, _, new_key = key
-                self.missing_dict.update({parent: [{new_key: raw_expected}]})
-                return
             if len(key) == 4 and isinstance(key[3], int):
                 _, _, new_key, index = key
                 if new_key not in self.diff_dict:

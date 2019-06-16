@@ -11,11 +11,9 @@ class PyProjectTomlFile(BaseFile):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing key/value pairs in pyproject.toml."""
-        if not self.config.pyproject_toml:
-            return
-
-        comparison = self.config.pyproject_toml.compare_with_flatten(self.file_dict)
-        yield from self.warn_missing_different(comparison)
+        if self.config.pyproject_toml:
+            comparison = self.config.pyproject_toml.compare_with_flatten(self.file_dict)
+            yield from self.warn_missing_different(comparison)
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
