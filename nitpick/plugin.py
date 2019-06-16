@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Flake8 plugin to check files."""
 import itertools
 import logging

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Pre-commit tests."""
 from textwrap import dedent
 

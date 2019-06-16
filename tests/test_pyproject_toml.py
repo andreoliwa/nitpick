@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """pyproject.toml tests."""
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from tests.helpers import ProjectMock

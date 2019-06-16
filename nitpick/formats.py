@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Configuration file formats."""
 import abc
 import io

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Style tests."""
 from pathlib import Path
 from textwrap import dedent

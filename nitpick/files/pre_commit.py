@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 from collections import OrderedDict
 from typing import Any, Dict, List, Tuple, Union
@@ -34,11 +33,6 @@ class PreCommitHook:
     def key_value_pair(self) -> Tuple[str, "PreCommitHook"]:
         """Key/value pair to be used as a dict item."""
         return self.unique_key, self
-
-    @property
-    def repo_short(self) -> str:
-        """Short name of the repo."""
-        return self.repo.split("/")[-1]
 
     @property
     def single_hook(self) -> JsonDict:

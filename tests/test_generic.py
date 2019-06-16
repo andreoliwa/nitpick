@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Generic functions tests."""
 from nitpick.generic import MergeDict, get_subclasses
 

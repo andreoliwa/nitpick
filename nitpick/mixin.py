@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Mixin to raise flake8 errors."""
 from nitpick.constants import ERROR_PREFIX
 from nitpick.formats import Comparison
