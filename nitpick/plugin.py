@@ -8,13 +8,13 @@ import attr
 
 from nitpick import __version__
 from nitpick.config import NitpickConfig
-from nitpick.constants import LOG_ROOT, PROJECT_NAME, ROOT_PYTHON_FILES
+from nitpick.constants import PROJECT_NAME, ROOT_PYTHON_FILES
 from nitpick.files.base import BaseFile
 from nitpick.generic import get_subclasses
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import YieldFlake8Error
 
-LOGGER = logging.getLogger("{}.plugin".format(LOG_ROOT))
+LOGGER = logging.getLogger(__name__)
 
 
 @attr.s(hash=False)

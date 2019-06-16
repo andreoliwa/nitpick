@@ -2,6 +2,7 @@
 """Configuration file formats."""
 import abc
 import io
+import logging
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, List, Optional, Type, Union
@@ -14,6 +15,8 @@ from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, unflatten
 from nitpick.typedefs import JsonDict, PathOrStr, YamlData
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Comparison:
@@ -63,9 +66,21 @@ class Comparison:
         """Update a key on one of the comparison dicts, with its raw expected value."""
         if isinstance(key, str):
             self.diff_dict.update({key: raw_expected})
-        elif isinstance(key, list) and len(key) == 3:
-            parent, _, new_key = key
-            self.missing_dict.update({parent: [{new_key: raw_expected}]})
+            return
+
+        if isinstance(key, list):
+            if len(key) == 3:
+                parent, _, new_key = key
+                self.missing_dict.update({parent: [{new_key: raw_expected}]})
+                return
+            if len(key) == 4 and isinstance(key[3], int):
+                _, _, new_key, index = key
+                if new_key not in self.diff_dict:
+                    self.diff_dict[new_key] = []
+                self.diff_dict[new_key].insert(index, raw_expected)
+                return
+
+        LOGGER.warning("Unexpected case key=%s raw_expected=%s", key, raw_expected)
 
 
 class BaseFormat(metaclass=abc.ABCMeta):

@@ -93,7 +93,7 @@ def test_root_values_on_existing_file(request):
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml has different values:
+        NIP339 File .pre-commit-config.yaml has different values. Use this:
         another_thing: yep
         something: true
         """
@@ -313,13 +313,22 @@ def test_get_all_hooks_from():
 def test_missing_different_values(request):
     """Test missing and different values on the hooks."""
     # TODO: add loaded and named styles automatically to pyproject_toml
-    ProjectMock(request).load_styles("mypy", "pre-commit/python", "pre-commit/bash").named_style(
+    ProjectMock(request).named_style(
         "root",
-        """
+        '''
         [nitpick.files]
         "pyproject.toml" = true
-        """,
-    ).pyproject_toml(
+
+        [["pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/user/repo
+            rev: 1.2.3
+            hooks:
+              - id: my-hook
+                args: [--expected, arguments]
+        """
+        ''',
+    ).load_styles("mypy", "pre-commit/python", "pre-commit/bash").pyproject_toml(
         """
         [tool.nitpick]
         style = ["root", "mypy", "pre-commit/python", "pre-commit/bash"]
@@ -352,6 +361,11 @@ def test_missing_different_values(request):
               - id: bashate
                 args: [extra, arguments, should, --not, --throw, errors]
               - id: extra-hook-after-should-be-ignored
+          - repo: https://github.com/user/repo
+            rev: 1.2.3
+            hooks:
+              - id: my-hook
+                args: [--different, args, --should, throw, errors]
         """
     ).lint().assert_errors_contain(
         """
@@ -371,28 +385,35 @@ def test_missing_different_values(request):
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'bashate' has different values:
+        NIP339 File .pre-commit-config.yaml: hook 'bashate' has different values. Use this:
         rev: 0.6.0
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' has different values:
+        NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' has different values. Use this:
         rev: v1.4.0
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' has different values:
+        NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' has different values. Use this:
         rev: v1.4.0
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' has different values:
+        NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' has different values. Use this:
         rev: v1.4.0
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' has different values:
+        NIP339 File .pre-commit-config.yaml: hook 'my-hook' has different values. Use this:
+        args:
+          - --expected
+          - arguments
+        """
+    ).assert_errors_contain(
+        """
+        NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' has different values. Use this:
         rev: v1.4.0
         """,
-        7,
+        8,
     )

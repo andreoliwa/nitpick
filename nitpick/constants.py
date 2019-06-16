@@ -6,7 +6,6 @@ from nitpick import __version__
 
 PROJECT_NAME = "nitpick"
 ERROR_PREFIX = "NIP"
-LOG_ROOT = PROJECT_NAME.replace("-", ".")
 CACHE_DIR_NAME = ".cache"
 TOML_EXTENSION = ".toml"
 NITPICK_STYLE_TOML = "nitpick-style{}".format(TOML_EXTENSION)

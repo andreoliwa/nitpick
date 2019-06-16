@@ -10,7 +10,6 @@ from slugify import slugify
 
 from nitpick.constants import (
     DEFAULT_NITPICK_STYLE_URL,
-    LOG_ROOT,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
@@ -24,7 +23,7 @@ from nitpick.typedefs import JsonDict, StrOrList
 if TYPE_CHECKING:
     from nitpick.config import NitpickConfig
 
-LOGGER = logging.getLogger("{}.style".format(LOG_ROOT))
+LOGGER = logging.getLogger(__name__)
 
 
 class Style:

@@ -32,5 +32,5 @@ class NitpickMixin:
             )
         if comparison.diff_format:
             yield self.flake8_error(
-                9, "{} has different values:\n{}".format(prefix_message, comparison.diff_format.reformatted)
+                9, "{} has different values. Use this:\n{}".format(prefix_message, comparison.diff_format.reformatted)
             )

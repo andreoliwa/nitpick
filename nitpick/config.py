@@ -8,7 +8,6 @@ from typing import Optional
 
 from nitpick.constants import (
     CACHE_DIR_NAME,
-    LOG_ROOT,
     MANAGE_PY,
     NITPICK_MINIMUM_VERSION_JMEX,
     PROJECT_NAME,
@@ -24,7 +23,7 @@ from nitpick.mixin import NitpickMixin
 from nitpick.style import Style
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
 
-LOGGER = logging.getLogger("{}.config".format(LOG_ROOT))
+LOGGER = logging.getLogger(__name__)
 
 
 class NitpickConfig(NitpickMixin):

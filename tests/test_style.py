@@ -52,7 +52,7 @@ def test_multiple_styles_overriding_values(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP311 File pyproject.toml has missing values:
         [tool.black]
         line-length = 100
         """
@@ -122,7 +122,7 @@ def test_include_styles_overriding_values(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP311 File pyproject.toml has missing values:
         [tool.black]
         line-length = 100
         """
@@ -221,7 +221,7 @@ def test_relative_and_other_root_dirs(request):
         some-option = 123
     """
     expected_error = """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP311 File pyproject.toml has missing values:
         [tool.black]
         missing = "value"
     """
@@ -292,7 +292,7 @@ def test_symlink_subdir(request):
         """
     ).lint().assert_single_error(
         """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP311 File pyproject.toml has missing values:
         [tool.black]
         line-length = 86
         """
@@ -334,7 +334,7 @@ def test_relative_style_on_urls(request):
         some-option = 123
     """
     expected_error = """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP311 File pyproject.toml has missing values:
         [tool.black]
         missing = "value"
     """
@@ -402,7 +402,7 @@ def test_fetch_private_github_urls(request):
         )
     ).lint().assert_single_error(
         """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP311 File pyproject.toml has missing values:
         [tool.black]
         missing = "thing"
     """
