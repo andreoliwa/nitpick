@@ -1,3 +1,3 @@
 """Main module."""
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"

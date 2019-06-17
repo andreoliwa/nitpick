@@ -1,3 +1,11 @@
+# [0.15.0](https://github.com/andreoliwa/nitpick/compare/v0.14.0...v0.15.0) (2019-06-17)
+
+
+### Features
+
+* merge all styles into a single TOML file on the cache dir ([d803f64](https://github.com/andreoliwa/nitpick/commit/d803f64))
+* **pre-commit:** compare missing and different keys on hooks ([#57](https://github.com/andreoliwa/nitpick/issues/57)) ([a8e2958](https://github.com/andreoliwa/nitpick/commit/a8e2958))
+
 # [0.14.0](https://github.com/andreoliwa/nitpick/compare/v0.13.1...v0.14.0) (2019-06-07)
 
 

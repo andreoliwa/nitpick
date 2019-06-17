@@ -21,7 +21,7 @@ copyright = "2019, W. Augusto Andreoli"
 author = "W. Augusto Andreoli"
 
 # The short X.Y version
-version = "0.14.0"
+version = "0.15.0"
 # The full version, including alpha/beta/rc tags
 release = version
 
