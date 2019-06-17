@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
-import itertools
 from configparser import ConfigParser
 from io import StringIO
 from typing import Any, List, Set, Tuple
@@ -53,19 +51,17 @@ class SetupCfgFile(BaseFile):
         if missing:
             yield self.flake8_error(1, " has some missing sections. Use this:\n{}".format(missing))
 
-        generators = []
         for section in self.expected_sections - self.missing_sections:
             expected_dict = self.file_dict[section]
             actual_dict = dict(setup_cfg[section])
-            for diff_type, key, values in dictdiffer.diff(expected_dict, actual_dict):
+            # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
+            for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):
                 if diff_type == dictdiffer.CHANGE:
-                    generators.append(self.compare_different_keys(section, key, values[0], values[1]))
-                elif diff_type == dictdiffer.REMOVE:
-                    generators.append(self.show_missing_keys(section, key, values))
-        for error in itertools.chain(*generators):
-            yield error
+                    yield from self.compare_different_keys(section, key, values[0], values[1])
+                elif diff_type == dictdiffer.ADD:
+                    yield from self.show_missing_keys(section, key, values)
 
-    def compare_different_keys(self, section, key, raw_expected: Any, raw_actual: Any) -> YieldFlake8Error:
+    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> YieldFlake8Error:
         """Compare different keys, with special treatment when they are lists or numeric."""
         combined = "{}.{}".format(section, key)
         if combined in self.comma_separated_values:

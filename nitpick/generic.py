@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Generic functions and classes.
 
 .. testsetup::
@@ -81,16 +80,13 @@ class MergeDict:
     """A dictionary that can merge other dictionaries into it."""
 
     def __init__(self, original_dict: JsonDict = None) -> None:
-        self._temp_dict = {}  # type: JsonDict
         self._all_flattened = {}  # type: JsonDict
         self._current_lists = {}  # type: Dict[str, Iterable]
         self.add(original_dict or {})
 
     def add(self, other: JsonDict) -> None:
         """Add another dictionary to the existing data."""
-        flattened_other = flatten(
-            other, separator=UNIQUE_SEPARATOR, current_lists=self._current_lists
-        )  # type: JsonDict
+        flattened_other = flatten(other, separator=UNIQUE_SEPARATOR, current_lists=self._current_lists)
         self._all_flattened.update(flattened_other)
 
     def merge(self) -> JsonDict:
@@ -125,8 +121,10 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
     {}
     >>> find_object_by_key(fruits, "fruit", "mango") == {'id': 3, 'fruit': 'mango'}
     True
+    >>> find_object_by_key(None, "fruit", "pear")
+    {}
     """
-    for obj in list_:
+    for obj in list_ or []:
         if obj.get(search_key) == search_value:
             return obj
     return {}
@@ -143,7 +141,7 @@ def rmdir_if_empty(path_or_str: PathOrStr):
         if has_items is False:
             # If the directory has no more files/directories inside, try to remove the parent.
             path.rmdir()
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         # If any removal attempt fails, just ignore it. Some other flake8 thread might have deleted the directory.
         pass
 

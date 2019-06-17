@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Style tests."""
 from pathlib import Path
 from textwrap import dedent
@@ -52,13 +51,13 @@ def test_multiple_styles_overriding_values(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP318 File pyproject.toml has missing values:
         [tool.black]
         line-length = 100
         """
     ).assert_errors_contain(
         """
-        NIP312 File pyproject.toml has different values. Use this:
+        NIP319 File pyproject.toml has different values. Use this:
         [tool.black]
         something = 11
         """
@@ -122,7 +121,7 @@ def test_include_styles_overriding_values(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP318 File pyproject.toml has missing values:
         [tool.black]
         line-length = 100
         """
@@ -221,7 +220,7 @@ def test_relative_and_other_root_dirs(request):
         some-option = 123
     """
     expected_error = """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP318 File pyproject.toml has missing values:
         [tool.black]
         missing = "value"
     """
@@ -292,7 +291,7 @@ def test_symlink_subdir(request):
         """
     ).lint().assert_single_error(
         """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP318 File pyproject.toml has missing values:
         [tool.black]
         line-length = 86
         """
@@ -334,7 +333,7 @@ def test_relative_style_on_urls(request):
         some-option = 123
     """
     expected_error = """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP318 File pyproject.toml has missing values:
         [tool.black]
         missing = "value"
     """
@@ -402,7 +401,7 @@ def test_fetch_private_github_urls(request):
         )
     ).lint().assert_single_error(
         """
-        NIP311 File pyproject.toml has missing values. Use this:
+        NIP318 File pyproject.toml has missing values:
         [tool.black]
         missing = "thing"
     """
@@ -410,7 +409,7 @@ def test_fetch_private_github_urls(request):
 
 
 def test_merge_styles_into_single_file(request):
-    """Merge all styles into a single TOML file on the cache dir."""
+    """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit's repos)."""
     ProjectMock(request).load_styles("black", "isort").named_style(
         "isort_overrides",
         """
@@ -424,7 +423,7 @@ def test_merge_styles_into_single_file(request):
         style = ["black", "isort", "isort_overrides"]
         """
     ).lint().assert_merged_style(
-        """
+        '''
         ["pyproject.toml".tool.black]
         line-length = 120
 
@@ -441,5 +440,31 @@ def test_merge_styles_into_single_file(request):
         force_grid_wrap = 0
         combine_as_imports = true
         another_key = "some value"
+
+        [["pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/ambv/black
+            rev: 19.3b0
+            hooks:
+              - id: black
+                args: [--safe, --quiet]
+          - repo: https://github.com/asottile/blacken-docs
+            rev: v1.0.0
+            hooks:
+              - id: blacken-docs
+                additional_dependencies: [black==19.3b0]
         """
+
+        [["pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/asottile/seed-isort-config
+            rev: v1.9.1
+            hooks:
+              - id: seed-isort-config
+          - repo: https://github.com/pre-commit/mirrors-isort
+            rev: v4.3.20
+            hooks:
+              - id: isort
+        """
+        '''
     )

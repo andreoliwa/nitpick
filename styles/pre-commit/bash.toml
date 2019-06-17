@@ -1,0 +1,7 @@
+[["pre-commit-config.yaml".repos]]
+yaml = """
+  - repo: https://github.com/openstack/bashate
+    rev: 0.6.0
+    hooks:
+      - id: bashate
+"""

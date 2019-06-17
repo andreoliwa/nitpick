@@ -14,3 +14,11 @@ warn_no_return = true
 # Lint-style cleanliness for typing
 warn_redundant_casts = true
 warn_unused_ignores = true
+
+[["pre-commit-config.yaml".repos]]
+yaml = """
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.701
+    hooks:
+      - id: mypy
+"""

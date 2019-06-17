@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Base class for file checkers."""
 import abc
 from pathlib import Path

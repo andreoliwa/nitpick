@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """setup.cfg tests."""
 from tests.helpers import ProjectMock
 
@@ -38,7 +37,7 @@ def test_comma_separated_keys_on_style_file(request):
     )
 
 
-def test_missing_setup_cfg(request):
+def test_suggest_initial_contents(request):
     """Suggest contents when setup.cfg does not exist."""
     ProjectMock(request).style(
         """

@@ -20,6 +20,7 @@ Submodules
 
    nitpick.config
    nitpick.constants
+   nitpick.formats
    nitpick.generic
    nitpick.mixin
    nitpick.plugin

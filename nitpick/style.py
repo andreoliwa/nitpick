@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Style files."""
 import logging
 from pathlib import Path
@@ -10,7 +9,6 @@ from slugify import slugify
 
 from nitpick.constants import (
     DEFAULT_NITPICK_STYLE_URL,
-    LOG_ROOT,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
@@ -24,7 +22,7 @@ from nitpick.typedefs import JsonDict, StrOrList
 if TYPE_CHECKING:
     from nitpick.config import NitpickConfig
 
-LOGGER = logging.getLogger("{}.style".format(LOG_ROOT))
+LOGGER = logging.getLogger(__name__)
 
 
 class Style:
@@ -62,9 +60,9 @@ class Style:
                 continue
 
             toml = Toml(path=style_path)
-            self._all_styles.add(toml.as_dict)
+            self._all_styles.add(toml.as_data)
 
-            sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml.as_dict, [])  # type: StrOrList
+            sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml.as_data, [])  # type: StrOrList
             if sub_styles:
                 self.include_multiple_styles(sub_styles)
 
@@ -154,7 +152,7 @@ class Style:
             return {}
         merged_dict = self._all_styles.merge()
         merged_style_path = self.config.cache_dir / MERGED_STYLE_TOML  # type: Path
-        merged_style_path.parent.mkdir(parents=True, exist_ok=True)
-        toml = Toml(dict_=merged_dict)
+        self.config.cache_dir.mkdir(parents=True, exist_ok=True)
+        toml = Toml(data=merged_dict)
         merged_style_path.write_text(toml.reformatted)
         return merged_dict

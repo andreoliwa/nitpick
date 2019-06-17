@@ -34,9 +34,10 @@ attrs = "*"
 toml  = "*"
 requests = "*"
 dictdiffer = "*"
-pyyaml = "*"
+"ruamel.yaml" = "*"
 python-slugify = "*"
 jmespath = "*"
+sortedcontainers = "*"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
