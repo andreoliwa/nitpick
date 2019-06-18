@@ -8,7 +8,7 @@ import responses
 
 from nitpick.constants import TOML_EXTENSION
 from tests.conftest import TEMP_ROOT_PATH
-from tests.helpers import ProjectMock
+from tests.helpers import ProjectMock, assert_conditions
 
 
 def test_multiple_styles_overriding_values(request):
@@ -143,37 +143,30 @@ def test_include_styles_overriding_values(request):
 @mock.patch("nitpick.plugin.NitpickChecker.version", new_callable=PropertyMock(return_value="0.5.3"))
 def test_minimum_version(mocked_version, request):
     """Stamp a style file with a minimum required version, to indicate new features or breaking changes."""
-    assert mocked_version == "0.5.3"
-    assert (
-        ProjectMock(request)
-        .named_style(
-            "parent",
-            """
-            [nitpick.styles]
-            include = "child.toml"
-            ["pyproject.toml".tool.black]
-            line-length = 100
-            """,
-        )
-        .named_style(
-            "child",
-            """
-            [nitpick]
-            minimum_version = "1.0"
-            """,
-        )
-        .pyproject_toml(
-            """
-            [tool.nitpick]
-            style = "parent"
-            [tool.black]
-            line-length = 100
-            """
-        )
-        .lint()
-        .assert_single_error(
-            "NIP203 The style file you're using requires nitpick>=1.0 (you have 0.5.3). Please upgrade"
-        )
+    assert_conditions(mocked_version == "0.5.3")
+    ProjectMock(request).named_style(
+        "parent",
+        """
+        [nitpick.styles]
+        include = "child.toml"
+        ["pyproject.toml".tool.black]
+        line-length = 100
+        """,
+    ).named_style(
+        "child",
+        """
+        [nitpick]
+        minimum_version = "1.0"
+        """,
+    ).pyproject_toml(
+        """
+        [tool.nitpick]
+        style = "parent"
+        [tool.black]
+        line-length = 100
+        """
+    ).lint().assert_single_error(
+        "NIP203 The style file you're using requires nitpick>=1.0 (you have 0.5.3). Please upgrade"
     )
 
 
@@ -384,7 +377,7 @@ def test_relative_style_on_urls(request):
 def test_fetch_private_github_urls(request):
     """Fetch private GitHub URLs with a token on the query string."""
     base_url = "https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style"
-    token = "?token=xxx"
+    token = "?tokken=xxx"
     full_private_url = "{}{}{}".format(base_url, TOML_EXTENSION, token)
     body = """
         ["pyproject.toml".tool.black]

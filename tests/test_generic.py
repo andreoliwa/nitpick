@@ -1,5 +1,6 @@
 """Generic functions tests."""
 from nitpick.generic import MergeDict, get_subclasses
+from tests.helpers import assert_conditions
 
 
 def test_get_subclasses():
@@ -17,7 +18,7 @@ def test_get_subclasses():
     class Bicycle(Vehicle):
         pass
 
-    assert get_subclasses(Vehicle) == [Car, Audi, Bicycle]
+    assert_conditions(get_subclasses(Vehicle) == [Car, Audi, Bicycle])
 
 
 def test_merge_dicts_extending_lists():

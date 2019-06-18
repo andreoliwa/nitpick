@@ -18,6 +18,13 @@ from nitpick.typedefs import Flake8Error, PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
 
 
+def assert_conditions(*args):
+    """Assert all conditions are True."""
+    for arg in args:
+        if not arg:
+            raise AssertionError()
+
+
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
@@ -68,10 +75,8 @@ class ProjectMock:
         self._errors = set()
         for flake8_error in self._original_errors:
             line, col, message, class_ = flake8_error
-            assert line == 1
-            assert col == 0
-            assert message.startswith(ERROR_PREFIX)
-            assert class_ is NitpickChecker
+            if not (line == 1 and col == 0 and message.startswith(ERROR_PREFIX) and class_ is NitpickChecker):
+                raise AssertionError()
             self._errors.add(message)
         return self
 
