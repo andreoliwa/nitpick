@@ -158,7 +158,8 @@ class ProjectMock:
         """Assert the error count is correct."""
         if expected_count is not None:
             actual = len(self._errors)
-            assert expected_count == actual, "Expected {} errors, got {}".format(expected_count, actual)
+            if expected_count != actual:
+                raise AssertionError("Expected {} errors, got {}".format(expected_count, actual))
         return self
 
     def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":

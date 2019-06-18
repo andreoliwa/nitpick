@@ -377,8 +377,8 @@ def test_relative_style_on_urls(request):
 def test_fetch_private_github_urls(request):
     """Fetch private GitHub URLs with a token on the query string."""
     base_url = "https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style"
-    token = "?tokken=xxx"
-    full_private_url = "{}{}{}".format(base_url, TOML_EXTENSION, token)
+    query_string = "?token=xxx"
+    full_private_url = "{}{}{}".format(base_url, TOML_EXTENSION, query_string)
     body = """
         ["pyproject.toml".tool.black]
         missing = "thing"
@@ -390,7 +390,7 @@ def test_fetch_private_github_urls(request):
         [tool.nitpick]
         style = "{}{}"
         """.format(
-            base_url, token
+            base_url, query_string
         )
     ).lint().assert_single_error(
         """
