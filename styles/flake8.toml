@@ -7,4 +7,17 @@ max-line-length = 120
 inline-quotes = "double"
 exclude = ".tox,build"
 
+# Nitpick reccomends those plugins as part of the style, but doesn't install them automatically as before.
+# This way, the developer has the choice of overriding this style, instead of having lots of plugins installed
+# without being asked.
+[["pre-commit-config.yaml".repos]]
+yaml = """
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
+          flake8-debugger, flake8-docstrings, flake8-isort, flake8-mypy, flake8-polyfill,
+          flake8-pytest, flake8-quotes, yesqa]
+"""
 # TODO suggest nitpick for external repos

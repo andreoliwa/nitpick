@@ -39,6 +39,22 @@ repos:
       - id: python-no-eval
       - id: python-no-log-warn
       - id: rst-backticks
+  - repo: local
+    hooks:
+      # Run flake8 locally with nitpick and all the plugins configured in pyproject.toml
+      - id: nitpick-local
+        name: Nitpick (Locally on itself)
+        entry: flake8 --select=NIP
+        language: python
+        types: [python]
+        always_run: true
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
+          flake8-debugger, flake8-docstrings, flake8-isort, flake8-mypy, flake8-polyfill,
+          flake8-pytest, flake8-quotes, yesqa]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.701
     hooks:
@@ -47,13 +63,3 @@ repos:
     rev: 0.6.0
     hooks:
       - id: bashate
-  - repo: local
-    hooks:
-      # Run flake8 locally with nitpick and all the plugins configured in pyproject.toml
-      - id: nitpick-local
-        name: Nitpick (Local)
-        description: Check only nitpick errors (NIP) and ignore other flake8 plugins
-        entry: flake8
-        language: python
-        types: [python]
-        always_run: true
