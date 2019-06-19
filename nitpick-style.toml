@@ -13,6 +13,7 @@ include = [
     "styles/pre-commit/general",
     "styles/pre-commit/python",
     "styles/pre-commit/bash",
+    "styles/pre-commit/commitlint",
     "styles/black",
     "styles/flake8",
     "styles/pylint",

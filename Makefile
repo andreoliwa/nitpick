@@ -25,6 +25,8 @@ help:
 
 update:
 	clear
+	pre-commit install
+	pre-commit install --hook-type commit-msg
 	pre-commit autoupdate
 	pre-commit gc
 	poetry update
