@@ -12,6 +12,7 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo 'Extra commands:'
 	@echo '  dev         to run some development checks before pushing a commit'
+	@echo '  update      to update pre-commit repos and dependencies'
 
 .PHONY: help Makefile
 
@@ -21,6 +22,12 @@ help:
 	rm -rf docs/source
 	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source nitpick/
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+update:
+	clear
+	pre-commit autoupdate
+	pre-commit gc
+	poetry update
 
 dev:
 	clear
