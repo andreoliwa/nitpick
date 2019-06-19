@@ -130,22 +130,6 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
     return {}
 
 
-def rmdir_if_empty(path_or_str: PathOrStr):
-    """Remove the directory if empty."""
-    path = Path(path_or_str)
-    if not path.exists():
-        return
-
-    try:
-        has_items = next(path.iterdir(), False)
-        if has_items is False:
-            # If the directory has no more files/directories inside, try to remove the parent.
-            path.rmdir()
-    except (FileNotFoundError, OSError):
-        # If any removal attempt fails, just ignore it. Some other flake8 thread might have deleted the directory.
-        pass
-
-
 def search_dict(jmespath_expression: Union[ParsedResult, str], data: MutableMapping[str, Any], default: Any) -> Any:
     """Search a dictionary using a JMESPath expression, and returning a default value.
 

@@ -17,7 +17,7 @@ from nitpick.constants import (
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.formats import Toml
-from nitpick.generic import climb_directory_tree, rmdir_if_empty, search_dict, version_to_tuple
+from nitpick.generic import climb_directory_tree, search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
 from nitpick.style import Style
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
@@ -105,7 +105,6 @@ class NitpickConfig(NitpickMixin):
         cache_root = self.root_dir / CACHE_DIR_NAME  # type: Path
         self.cache_dir = cache_root / PROJECT_NAME
         rmtree(str(self.cache_dir), ignore_errors=True)
-        rmdir_if_empty(cache_root)
 
     def merge_styles(self) -> YieldFlake8Error:
         """Merge one or multiple style files."""
