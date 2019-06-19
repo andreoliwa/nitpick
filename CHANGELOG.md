@@ -1,3 +1,10 @@
+# [0.16.0](https://github.com/andreoliwa/nitpick/compare/v0.15.0...v0.16.0) (2019-06-19)
+
+
+### Features
+
+* **pre-commit:** add nitpick hooks to use on .pre-commit-config.yaml ([92c13ae](https://github.com/andreoliwa/nitpick/commit/92c13ae))
+
 # [0.15.0](https://github.com/andreoliwa/nitpick/compare/v0.14.0...v0.15.0) (2019-06-17)
 
 
