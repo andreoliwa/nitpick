@@ -39,6 +39,20 @@ python-slugify = "*"
 jmespath = "*"
 sortedcontainers = "*"
 
+# All flake8 plugins that are recommended by this opinionated project should be installed as dependencies,
+# so they can run in the look pre-commit hook and also on projects that use the nitpick* hooks.
+flake8-blind-except = "*"
+flake8-bugbear = "*"
+flake8-comprehensions = "*"
+flake8-debugger = "*"
+flake8-docstrings = "*"
+flake8-isort = "*"
+flake8-mypy = "*"
+flake8-polyfill = "*"
+flake8-pytest = "*"
+flake8-quotes = "*"
+yesqa = "*"
+
 [tool.poetry.dev-dependencies]
 ipython = "*"
 ipdb = "*"

@@ -1,0 +1,14 @@
+- id: nitpick-all
+  name: Nitpick (All)
+  description: Run nitpick together with several other flake8 plugins (check pyproject.toml)
+  entry: flake8
+  language: python
+  types: [python]
+  always_run: true
+- id: nitpick-only
+  name: Nitpick (Only)
+  description: Check only nitpick errors (NIP) and ignore other flake8 plugins
+  entry: flake8 --select=NIP
+  language: python
+  types: [python]
+  always_run: true

@@ -33,13 +33,13 @@ def test_suggest_initial_contents(request):
             rev: v4.3.20
             hooks:
               - id: isort
-          - repo: https://github.com/ambv/black
+          - repo: https://github.com/python/black
             rev: 19.3b0
             hooks:
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.0.0
+            rev: v1.0.0-1
             hooks:
               - id: blacken-docs
                 additional_dependencies: [black==19.3b0]

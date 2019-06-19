@@ -8,7 +8,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick/test_coverage)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/nitpick.svg)](https://pypi.org/project/nitpick/)
 [![Project License](https://img.shields.io/pypi/l/nitpick.svg)](https://pypi.org/project/nitpick/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=andreoliwa/nitpick)](https://dependabot.com)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
@@ -30,12 +30,28 @@ A "nitpick code style" is a [TOML](https://github.com/toml-lang/toml) file with 
 
 ## Installation and usage
 
-Simply install the package (in a virtualenv or globally, wherever) and run `flake8`:
+To try the package, simply install it (in a virtualenv or globally, wherever) and run `flake8`:
 
     $ pip install -U nitpick
     $ flake8
 
-You will see warnings if your project configuration is different than [the default style file](https://raw.githubusercontent.com/andreoliwa/nitpick//0.15.0/nitpick-style.toml/nitpick-style.toml).
+You will see warnings if your project configuration is different than [the default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/0.15.0/nitpick-style.toml/nitpick-style.toml).
+
+### As a pre-commit hook
+
+If you use [pre-commit](https://pre-commit.com/) on your project, add this to the `.pre-commit-config.yaml` in your repository:
+
+    repos:
+      - repo: https://github.com/andreoliwa/nitpick
+        rev: v0.15.0
+        hooks:
+          # Run nitpick and several other flake8 plugins
+          - id: nitpick-all
+          # Check only nitpick errors, ignore other flake8 plugins
+          - id: nitpick-only
+
+Use one hook or the other (`nitpick-all` **or** `nitpick-only`), not both.
+To check all the other flake8 plugins that are installed with `nitpick`, see the [pyproject.toml](pyproject.toml).
 
 ## Style file
 
@@ -44,7 +60,7 @@ You will see warnings if your project configuration is different than [the defau
 Change your project config on `pyproject.toml`, and configure your own style like this:
 
     [tool.nitpick]
-    style = "https://raw.githubusercontent.com/andreoliwa/nitpick//0.15.0/nitpick-style.toml/nitpick-style.toml"
+    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/0.15.0/nitpick-style.toml/nitpick-style.toml"
 
 You can set `style` with any local file or URL. E.g.: you can use the raw URL of a [GitHub Gist](https://gist.github.com).
 
@@ -62,7 +78,7 @@ If a key is defined in more than one file, the value from the last file will pre
 
 2. Any `nitpick-style.toml` file found in the current directory (the one in which `flake8` runs from) or above.
 
-3. If no style is found, then [the default style file from GitHub](https://raw.githubusercontent.com/andreoliwa/nitpick//0.15.0/nitpick-style.toml/nitpick-style.toml) is used.
+3. If no style is found, then [the default style file from GitHub](https://raw.githubusercontent.com/andreoliwa/nitpick/0.15.0/nitpick-style.toml/nitpick-style.toml) is used.
 
 ### Style file syntax
 
@@ -70,7 +86,7 @@ A style file contains basically the configuration options you want to enforce in
 
 They are just the config to the tool, prefixed with the name of the config file.
 
-E.g.: To [configure the black formatter](https://github.com/ambv/black#configuration-format) with a line length of 120, you use this in your `pyproject.toml`:
+E.g.: To [configure the black formatter](https://github.com/python/black#configuration-format) with a line length of 120, you use this in your `pyproject.toml`:
 
     [tool.black]
     line-length = 120

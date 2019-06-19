@@ -426,7 +426,7 @@ def test_merge_styles_into_single_file(request):
         known_first_party = "tests"
 
         # The configuration below is needed for compatibility with black.
-        # https://github.com/ambv/black#how-black-wraps-lines
+        # https://github.com/python/black#how-black-wraps-lines
         # https://github.com/timothycrosley/isort#multi-line-output-modes
         multi_line_output = 6
         include_trailing_comma = true
@@ -436,13 +436,13 @@ def test_merge_styles_into_single_file(request):
 
         [["pre-commit-config.yaml".repos]]
         yaml = """
-          - repo: https://github.com/ambv/black
+          - repo: https://github.com/python/black
             rev: 19.3b0
             hooks:
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.0.0
+            rev: v1.0.0-1
             hooks:
               - id: blacken-docs
                 additional_dependencies: [black==19.3b0]

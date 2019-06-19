@@ -25,5 +25,4 @@ help:
 dev:
 	clear
 	pre-commit run --all-files
-	flake8
 	pytest
