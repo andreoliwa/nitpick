@@ -1,3 +1,11 @@
+## [0.16.1](https://github.com/andreoliwa/nitpick/compare/v0.16.0...v0.16.1) (2019-06-19)
+
+
+### Bug Fixes
+
+* don't try to remove the .cache root dir, it leads to errors sometimes ([856d8e7](https://github.com/andreoliwa/nitpick/commit/856d8e7))
+* move flake8 plugins from nitpick to pre-commit ([7913e19](https://github.com/andreoliwa/nitpick/commit/7913e19))
+
 # [0.16.0](https://github.com/andreoliwa/nitpick/compare/v0.15.0...v0.16.0) (2019-06-19)
 
 
