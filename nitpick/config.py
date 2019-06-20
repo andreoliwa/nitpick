@@ -111,7 +111,7 @@ class NitpickConfig(NitpickMixin):
         pyproject_path = self.root_dir / PyProjectTomlFile.file_name  # type: Path
         if pyproject_path.exists():
             self.pyproject_toml = Toml(path=pyproject_path)
-            self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})  # type: JsonDict
+            self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
         style = Style(self)
@@ -128,5 +128,5 @@ class NitpickConfig(NitpickMixin):
                 + " (you have {}). Please upgrade".format(NitpickChecker.version),
             )
 
-        self.nitpick_dict = self.style_dict.get("nitpick", {})  # type: JsonDict
+        self.nitpick_dict = self.style_dict.get("nitpick", {})
         self.files = self.nitpick_dict.get("files", {})
