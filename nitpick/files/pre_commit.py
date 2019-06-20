@@ -119,10 +119,7 @@ class PreCommitFile(BaseFile):
         for unique_key, hook in expected_hooks.items():
             if unique_key not in self.actual_hooks:
                 yield self.flake8_error(
-                    2,
-                    ": hook {!r} not found. Use this:\n{}".format(
-                        hook.hook_id, Yaml(data=hook.yaml.as_data).reformatted
-                    ),
+                    2, ": hook {!r} not found. Use this:".format(hook.hook_id), Yaml(data=hook.yaml.as_data).reformatted
                 )
                 continue
 

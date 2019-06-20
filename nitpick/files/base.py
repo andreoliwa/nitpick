@@ -52,8 +52,8 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             if missing_message:
                 phrases.append(missing_message)
             if suggestion:
-                phrases.append("Create it with this content:\n{}".format(suggestion))
-            yield self.flake8_error(1, ". ".join(phrases))
+                phrases.append("Create it with this content:")
+            yield self.flake8_error(1, ". ".join(phrases), suggestion)
         elif not should_exist and file_exists:
             yield self.flake8_error(2, " should be deleted")
         elif file_exists:

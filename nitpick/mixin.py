@@ -1,4 +1,6 @@
 """Mixin to raise flake8 errors."""
+import click
+
 from nitpick.constants import ERROR_PREFIX
 from nitpick.formats import Comparison
 from nitpick.typedefs import Flake8Error
@@ -10,16 +12,21 @@ class NitpickMixin:
     error_base_number = 0  # type: int
     error_prefix = ""  # type: str
 
-    def flake8_error(self, error_number: int, error_message: str) -> Flake8Error:
+    def flake8_error(self, number: int, message: str, suggestion: str = None) -> Flake8Error:
         """Return a flake8 error as a tuple."""
-        final_number = self.error_base_number + error_number
+        joined_number = self.error_base_number + number
+        suggestion_with_newline = (
+            click.style("\n{}".format(suggestion.rstrip()), fg="bright_green") if suggestion else ""
+        )
 
         from nitpick.plugin import NitpickChecker
 
         return (
             1,
             0,
-            "{}{} {}{}".format(ERROR_PREFIX, final_number, self.error_prefix, error_message.rstrip()),
+            "{}{} {}{}{}".format(
+                ERROR_PREFIX, joined_number, self.error_prefix, message.rstrip(), suggestion_with_newline
+            ),
             NitpickChecker,
         )
 
@@ -27,9 +34,9 @@ class NitpickMixin:
         """Warn about missing and different keys."""
         if comparison.missing_format:
             yield self.flake8_error(
-                8, "{} has missing values:\n{}".format(prefix_message, comparison.missing_format.reformatted)
+                8, "{} has missing values:".format(prefix_message), comparison.missing_format.reformatted
             )
         if comparison.diff_format:
             yield self.flake8_error(
-                9, "{} has different values. Use this:\n{}".format(prefix_message, comparison.diff_format.reformatted)
+                9, "{} has different values. Use this:".format(prefix_message), comparison.diff_format.reformatted
             )

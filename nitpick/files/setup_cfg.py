@@ -49,7 +49,7 @@ class SetupCfgFile(BaseFile):
         actual_sections = set(setup_cfg.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
-            yield self.flake8_error(1, " has some missing sections. Use this:\n{}".format(missing))
+            yield self.flake8_error(1, " has some missing sections. Use this:", missing)
 
         for section in self.expected_sections - self.missing_sections:
             expected_dict = self.file_dict[section]
@@ -72,8 +72,8 @@ class SetupCfgFile(BaseFile):
             if missing:
                 yield self.flake8_error(
                     2,
-                    " has missing values in the {!r} key.".format(key)
-                    + " Include those values:\n[{}]\n{} = (...),{}".format(section, key, ",".join(sorted(missing))),
+                    " has missing values in the {!r} key. Include those values:".format(key),
+                    "[{}]\n{} = (...),{}".format(section, key, ",".join(sorted(missing))),
                 )
             return
 
@@ -87,8 +87,8 @@ class SetupCfgFile(BaseFile):
         if actual != expected:
             yield self.flake8_error(
                 3,
-                ": [{}]{} is {} but it should be like this:".format(section, key, raw_actual)
-                + "\n[{}]\n{} = {}".format(section, key, raw_expected),
+                ": [{}]{} is {} but it should be like this:".format(section, key, raw_actual),
+                "[{}]\n{} = {}".format(section, key, raw_expected),
             )
 
     def show_missing_keys(self, section, key, values: List[Tuple[str, Any]]) -> YieldFlake8Error:
@@ -96,9 +96,7 @@ class SetupCfgFile(BaseFile):
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield self.flake8_error(
-            4, ": section [{}] has some missing key/value pairs. Use this:\n{}".format(section, output)
-        )
+        yield self.flake8_error(4, ": section [{}] has some missing key/value pairs. Use this:".format(section), output)
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:

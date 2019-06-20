@@ -30,9 +30,9 @@ def test_comma_separated_keys_on_style_file(request):
     )
     project.assert_single_error(
         """
-        NIP322 File setup.cfg has missing values in the 'eat' key. Include those values:
+        NIP322 File setup.cfg has missing values in the 'eat' key. Include those values:\x1b[92m
         [food]
-        eat = (...),ham,salt
+        eat = (...),ham,salt\x1b[0m
         """
     )
 
@@ -55,7 +55,7 @@ def test_suggest_initial_contents(request):
         """
     ).lint().assert_single_error(
         """
-        NIP321 File setup.cfg was not found. Do something here. Create it with this content:
+        NIP321 File setup.cfg was not found. Do something here. Create it with this content:\x1b[92m
         [flake8]
         max-line-length = 120
 
@@ -63,7 +63,7 @@ def test_suggest_initial_contents(request):
         line_length = 120
 
         [mypy]
-        ignore_missing_imports = True
+        ignore_missing_imports = True\x1b[0m
         """
     )
 
@@ -88,12 +88,12 @@ def test_missing_sections(request):
         """
     ).lint().assert_single_error(
         """
-        NIP321 File setup.cfg has some missing sections. Use this:
+        NIP321 File setup.cfg has some missing sections. Use this:\x1b[92m
         [flake8]
         max-line-length = 120
 
         [isort]
-        line_length = 120
+        line_length = 120\x1b[0m
         """
     )
 
@@ -122,14 +122,14 @@ def test_different_missing_keys(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP323 File setup.cfg: [isort]line_length is 30 but it should be like this:
+        NIP323 File setup.cfg: [isort]line_length is 30 but it should be like this:\x1b[92m
         [isort]
-        line_length = 110
+        line_length = 110\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP324 File setup.cfg: section [flake8] has some missing key/value pairs. Use this:
+        NIP324 File setup.cfg: section [flake8] has some missing key/value pairs. Use this:\x1b[92m
         [flake8]
-        max-line-length = 112
+        max-line-length = 112\x1b[0m
         """
     )

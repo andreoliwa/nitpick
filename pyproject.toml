@@ -38,6 +38,7 @@ dictdiffer = "*"
 python-slugify = "*"
 jmespath = "*"
 sortedcontainers = "*"
+click = "*"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"

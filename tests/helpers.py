@@ -177,14 +177,15 @@ class ProjectMock:
         TODO Once there is a way to force some sorting on the YAML output, this method can be removed,
         and ``assert_errors_contain()`` can be used again.
         """
-        expected_error = dedent(raw_error).strip()
+        original_expected_error = dedent(raw_error).strip()
+        expected_error = original_expected_error.replace("\x1b[0m", "")
         expected_error_lines = set(expected_error.split("\n"))
         for actual_error in self._errors:
-            if set(actual_error.split("\n")) == expected_error_lines:
+            if set(actual_error.replace("\x1b[0m", "").split("\n")) == expected_error_lines:
                 self.assert_error_count(expected_count)
                 return self
 
-        self.show_errors(expected_error)
+        self.show_errors(original_expected_error)
         return self
 
     def assert_single_error(self, raw_error: str) -> "ProjectMock":

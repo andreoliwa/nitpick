@@ -51,19 +51,19 @@ def test_multiple_styles_overriding_values(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP318 File pyproject.toml has missing values:
+        NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
-        line-length = 100
+        line-length = 100\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP319 File pyproject.toml has different values. Use this:
+        NIP319 File pyproject.toml has different values. Use this:\x1b[92m
         [tool.black]
-        something = 11
+        something = 11\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP321 File setup.cfg was not found. Create it with this content:
+        NIP321 File setup.cfg was not found. Create it with this content:\x1b[92m
         [flake8]
         inline-quotes = double
         something = 123
@@ -71,7 +71,7 @@ def test_multiple_styles_overriding_values(request):
         [isort]
         known_first_party = tests
         line_length = 120
-        xxx = yyy
+        xxx = yyy\x1b[0m
         """
     )
 
@@ -121,13 +121,13 @@ def test_include_styles_overriding_values(request):
         """
     ).lint().assert_errors_contain(
         """
-        NIP318 File pyproject.toml has missing values:
+        NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
-        line-length = 100
+        line-length = 100\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP321 File setup.cfg was not found. Create it with this content:
+        NIP321 File setup.cfg was not found. Create it with this content:\x1b[92m
         [flake8]
         inline-quotes = double
         something = 123
@@ -135,7 +135,7 @@ def test_include_styles_overriding_values(request):
         [isort]
         known_first_party = tests
         line_length = 120
-        xxx = yyy
+        xxx = yyy\x1b[0m
         """
     )
 
@@ -212,11 +212,6 @@ def test_relative_and_other_root_dirs(request):
         [tool.pytest]
         some-option = 123
     """
-    expected_error = """
-        NIP318 File pyproject.toml has missing values:
-        [tool.black]
-        missing = "value"
-    """
 
     # Use full path on initial styles
     project.pyproject_toml(
@@ -227,7 +222,13 @@ def test_relative_and_other_root_dirs(request):
         """.format(
             another_dir=another_dir, common_pyproject=common_pyproject
         )
-    ).lint().assert_single_error(expected_error)
+    ).lint().assert_single_error(
+        """
+        NIP318 File pyproject.toml has missing values:\x1b[92m
+        [tool.black]
+        missing = "value"\x1b[0m
+        """
+    )
 
     # Reuse the first full path that appears
     project.pyproject_toml(
@@ -238,7 +239,13 @@ def test_relative_and_other_root_dirs(request):
         """.format(
             another_dir, common_pyproject
         )
-    ).lint().assert_single_error(expected_error)
+    ).lint().assert_single_error(
+        """
+        NIP318 File pyproject.toml has missing values:\x1b[92m
+        [tool.black]
+        missing = "value"\x1b[0m
+        """
+    )
 
     # Allow relative paths
     project.pyproject_toml(
@@ -251,12 +258,13 @@ def test_relative_and_other_root_dirs(request):
         )
     ).lint().assert_single_error(
         """
-        {}
+        NIP318 File pyproject.toml has missing values:\x1b[92m
+        [tool.black]
+        missing = "value"
+
         [tool.poetry]
-        version = "1.0"
-        """.format(
-            expected_error
-        )
+        version = "1.0"\x1b[0m
+        """
     )
 
 
@@ -284,9 +292,9 @@ def test_symlink_subdir(request):
         """
     ).lint().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:
+        NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
-        line-length = 86
+        line-length = 86\x1b[0m
         """
     )
 
@@ -325,12 +333,6 @@ def test_relative_style_on_urls(request):
         [tool.pytest]
         some-option = 123
     """
-    expected_error = """
-        NIP318 File pyproject.toml has missing values:
-        [tool.black]
-        missing = "value"
-    """
-
     # Use full path on initial styles
     project.pyproject_toml(
         """
@@ -340,7 +342,13 @@ def test_relative_style_on_urls(request):
         """.format(
             base_url=base_url, common_pyproject=common_pyproject
         )
-    ).lint().assert_single_error(expected_error)
+    ).lint().assert_single_error(
+        """
+        NIP318 File pyproject.toml has missing values:\x1b[92m
+        [tool.black]
+        missing = "value"\x1b[0m
+        """
+    )
 
     # Reuse the first full path that appears
     project.pyproject_toml(
@@ -351,7 +359,13 @@ def test_relative_style_on_urls(request):
         """.format(
             base_url, common_pyproject
         )
-    ).lint().assert_single_error(expected_error)
+    ).lint().assert_single_error(
+        """
+        NIP318 File pyproject.toml has missing values:\x1b[92m
+        [tool.black]
+        missing = "value"\x1b[0m
+        """
+    )
 
     # Allow relative paths
     project.pyproject_toml(
@@ -364,12 +378,13 @@ def test_relative_style_on_urls(request):
         )
     ).lint().assert_single_error(
         """
-        {}
+        NIP318 File pyproject.toml has missing values:\x1b[92m
+        [tool.black]
+        missing = "value"
+
         [tool.poetry]
-        version = "1.0"
-        """.format(
-            expected_error
-        )
+        version = "1.0"\x1b[0m
+        """
     )
 
 
@@ -394,9 +409,9 @@ def test_fetch_private_github_urls(request):
         )
     ).lint().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:
+        NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
-        missing = "thing"
+        missing = "thing"\x1b[0m
     """
     )
 
