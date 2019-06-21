@@ -38,7 +38,7 @@ To set up ``nitpick`` for local development:
 
 4. Create your virtualenv with pyenv (or some other tool you prefer)::
 
-    pyenv virtualenv 3.6.8 nitpick
+    pyenv virtualenv 3.5.6 nitpick
     pyenv activate nitpick
 
 5. Install packages::
@@ -49,22 +49,15 @@ To set up ``nitpick`` for local development:
     # Installing dependencies from lock file
     # ...
 
-6. Install the pre-commit hooks::
-
-    pre-commit install
-
-    # Output:
-    # pre-commit installed at .git/hooks/pre-commit
-
-7. Create a branch for local development::
+6. Create a branch for local development::
 
     git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
-7. When you're done making changes, run those linting/testing commands::
+7. When you're done making changes, run pre-commit checks and tests with::
 
-    black . && isort -y && pre-commit run --all-files && pytest
+    make
 
 8. Commit your changes and push your branch to GitHub::
 
@@ -84,7 +77,7 @@ If you need some code review or feedback while you're developing the code just m
 
 For merging, you should:
 
-1. Include passing tests (run ``pytest``) [1]_.
+1. Include passing tests (run ``make pytest``) [1]_.
 2. Update documentation when there's new API, functionality etc.
 3. Add yourself to ``AUTHORS.rst``.
 

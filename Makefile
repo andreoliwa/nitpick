@@ -1,37 +1,67 @@
-# Minimal makefile for Sphinx documentation
-#
-
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = docs
 BUILDDIR      = docs/_build
+RERUN_AFTER   = 1h
 
-# Put it first so that "make" without argument is like "make help".
+.PHONY: help Makefile prepare pre-commit poetry sphinx pytest
+
+dev: always-run .cache/make/auto-pre-commit .cache/make/auto-poetry .cache/make/sphinx .cache/make/run .cache/make/pytest
+
+always-run:
+	@mkdir -p .cache/make
+	@# Remove files named auto* if they are older than 1 hour, so the targets will be rebuilt
+	@fd --changed-before $(RERUN_AFTER) auto .cache/make --exec-batch rm '{}' ;
+
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo 'Extra commands:'
-	@echo '  dev         to run some development checks before pushing a commit'
-	@echo '  update      to update pre-commit repos and dependencies'
+	@echo '  pre-commit  to install and update pre-commit hooks'
+	@echo '  poetry      to update dependencies'
+	@echo '  sphinx      to build docs'
+	@echo '  pytest      to run tests'
 
-.PHONY: help Makefile
+pre-commit:
+	-rm .cache/make/auto-pre-commit
+	$(MAKE)
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	rm -rf docs/source
-	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source nitpick/
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-update:
-	clear
+.cache/make/auto-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml
 	pre-commit install
 	pre-commit install --hook-type commit-msg
 	pre-commit autoupdate
 	pre-commit gc
-	poetry update
+	touch .cache/make/auto-pre-commit
+	-rm .cache/make/run
 
-dev:
-	clear
+poetry:
+	-rm .cache/make/auto-poetry
+	$(MAKE)
+
+.cache/make/auto-poetry: pyproject.toml
+	poetry update
+	touch .cache/make/auto-poetry
+	-rm .cache/make/run
+
+sphinx:
+	-rm .cache/make/sphinx
+	$(MAKE)
+
+# $(O) is meant as a shortcut for $(SPHINXOPTS).
+.cache/make/sphinx: docs *.rst *.md
+	-rm -rf docs/source
+	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source nitpick/
+	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	touch .cache/make/sphinx
+
+.cache/make/run: .github/* .travis/* docs/* nitpick/* styles/* tests/* nitpick-style.toml
 	pre-commit run --all-files
+	touch .cache/make/run
+
+pytest:
+	-rm .cache/make/pytest
+	$(MAKE)
+
+.cache/make/pytest: nitpick/* styles/* tests/*
 	pytest
+	touch .cache/make/pytest
