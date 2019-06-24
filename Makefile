@@ -5,7 +5,7 @@ SOURCEDIR     = docs
 BUILDDIR      = docs/_build
 RERUN_AFTER   = 1h
 
-.PHONY: help Makefile prepare pre-commit poetry sphinx pytest
+.PHONY: help Makefile always-run pre-commit poetry sphinx pytest
 
 dev: always-run .cache/make/auto-pre-commit .cache/make/auto-poetry .cache/make/sphinx .cache/make/run .cache/make/pytest
 

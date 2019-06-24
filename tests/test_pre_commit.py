@@ -39,7 +39,7 @@ def test_suggest_initial_contents(request):
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.0.0-1
+            rev: v1.1.0
             hooks:
               - id: blacken-docs
                 additional_dependencies: [black==19.3b0]\x1b[0m
