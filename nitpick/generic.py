@@ -59,19 +59,23 @@ def unflatten(dict_, separator=".") -> collections.OrderedDict:
 
     >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4}) == {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
     True
+    >>> unflatten({"repo": "conflicted key", "repo.name": "?", "repo.path": "?"})
+    Traceback (most recent call last):
+      ...
+    TypeError: 'str' object does not support item assignment
     """
     items = collections.OrderedDict()  # type: collections.OrderedDict[str, Any]
-    for k, v in sorted(dict_.items()):
-        keys = k.split(separator)
+    for root_key, root_value in sorted(dict_.items()):
+        all_keys = root_key.split(separator)
         sub_items = items
-        for ki in keys[:-1]:
+        for key in all_keys[:-1]:
             try:
-                sub_items = sub_items[ki]
+                sub_items = sub_items[key]
             except KeyError:
-                sub_items[ki] = collections.OrderedDict()
-                sub_items = sub_items[ki]
+                sub_items[key] = collections.OrderedDict()
+                sub_items = sub_items[key]
 
-        sub_items[keys[-1]] = v
+        sub_items[all_keys[-1]] = root_value
 
     return items
 

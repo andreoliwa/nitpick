@@ -80,20 +80,20 @@ class ProjectMock:
             self._errors.add(message)
         return self
 
-    def save_file(self, partial_file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
+    def save_file(self, file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents.
 
         Create the parent dirs if the file name contains a slash.
 
-        :param partial_file_name: If it starts with a slash, then it's already a root.
+        :param file_name: If it starts with a slash, then it's already a root.
             If it doesn't, then we add the root dir before the partial name.
         :param file_contents: Contents to save in the file.
         :param lint: Should we lint the file or not? Python (.py) files are always linted.
         """
-        if str(partial_file_name).startswith("/"):
-            path = Path(partial_file_name)  # type: Path
+        if str(file_name).startswith("/"):
+            path = Path(file_name)  # type: Path
         else:
-            path = self.root_dir / partial_file_name
+            path = self.root_dir / file_name
         path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)

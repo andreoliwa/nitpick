@@ -1,6 +1,7 @@
 """Configuration file formats."""
 import abc
 import io
+import json
 import logging
 from collections import OrderedDict
 from pathlib import Path
@@ -140,12 +141,20 @@ class BaseFormat(metaclass=abc.ABCMeta):
         if not self._ignore_keys:
             return Comparison(self.as_data or {}, expected or {}, self.__class__)
 
-        clean_actual = (self.as_data or {}).copy()  # type: ignore # noqa: T400
-        clean_expected = (expected or {}).copy()  # type: ignore
+        actual_original = self.as_data or {}
+        actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
+
+        expected_original = expected or {}
+        if isinstance(expected_original, dict):
+            expected_copy = expected_original.copy()
+        elif isinstance(expected_original, BaseFormat):
+            expected_copy = expected_original.as_data.copy()  # type: ignore
+        else:
+            expected_copy = expected_original  # type: ignore
         for key in self._ignore_keys:
-            clean_actual.pop(key, None)  # type: ignore # noqa: T400
-            clean_expected.pop(key, None)  # type: ignore # noqa: T400
-        return Comparison(clean_actual, clean_expected, self.__class__)
+            actual_copy.pop(key, None)
+            expected_copy.pop(key, None)  # type: ignore
+        return Comparison(actual_copy, expected_copy, self.__class__)
 
     def compare_with_flatten(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
@@ -252,3 +261,23 @@ class Yaml(BaseFormat):
 
 
 RoundTripRepresenter.add_representer(SortedDict, RoundTripRepresenter.represent_dict)
+
+
+class JsonFormat(BaseFormat):
+    """JSON configuration format."""
+
+    def load(self) -> bool:
+        """Load a JSON file by its path, a string or a dict."""
+        if self._loaded:
+            return False
+        if self.path is not None:
+            self._string = Path(self.path).read_text()
+        if self._string is not None:
+            self._data = json.loads(self._string, object_pairs_hook=OrderedDict)
+        if self._data is not None:
+            if isinstance(self._data, BaseFormat):
+                self._reformatted = self._data.reformatted
+            else:
+                self._reformatted = json.dumps(self._data, sort_keys=True, indent=2)
+        self._loaded = True
+        return True

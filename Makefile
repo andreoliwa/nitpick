@@ -3,7 +3,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = docs
 BUILDDIR      = docs/_build
-RERUN_AFTER   = 1h
+RERUN_AFTER   = 4h
 
 .PHONY: help Makefile always-run pre-commit poetry sphinx pytest
 
@@ -11,7 +11,7 @@ dev: always-run .cache/make/auto-pre-commit .cache/make/auto-poetry .cache/make/
 
 always-run:
 	@mkdir -p .cache/make
-	@# Remove files named auto* if they are older than 1 hour, so the targets will be rebuilt
+	@# Remove files named auto* if they are older than a few hours, so the targets will be rebuilt
 	@fd --changed-before $(RERUN_AFTER) auto .cache/make --exec-batch rm '{}' ;
 
 help:
