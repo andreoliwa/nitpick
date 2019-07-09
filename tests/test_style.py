@@ -457,7 +457,7 @@ def test_merge_styles_into_single_file(request):
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.1.0
+            rev: v1.2.0
             hooks:
               - id: blacken-docs
                 additional_dependencies: [black==19.3b0]
@@ -470,7 +470,7 @@ def test_merge_styles_into_single_file(request):
             hooks:
               - id: seed-isort-config
           - repo: https://github.com/pre-commit/mirrors-isort
-            rev: v4.3.20
+            rev: v4.3.21
             hooks:
               - id: isort
         """
