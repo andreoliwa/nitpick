@@ -141,19 +141,19 @@ class BaseFormat(metaclass=abc.ABCMeta):
         if not self._ignore_keys:
             return Comparison(self.as_data or {}, expected or {}, self.__class__)
 
-        actual_original = self.as_data or {}
+        actual_original = self.as_data or {}  # type: Union[JsonDict, YamlData]
         actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
 
-        expected_original = expected or {}
+        expected_original = expected or {}  # type: Union[JsonDict, YamlData, "BaseFormat"]
         if isinstance(expected_original, dict):
             expected_copy = expected_original.copy()
         elif isinstance(expected_original, BaseFormat):
-            expected_copy = expected_original.as_data.copy()  # type: ignore
+            expected_copy = expected_original.as_data.copy()
         else:
-            expected_copy = expected_original  # type: ignore
+            expected_copy = expected_original
         for key in self._ignore_keys:
             actual_copy.pop(key, None)
-            expected_copy.pop(key, None)  # type: ignore
+            expected_copy.pop(key, None)
         return Comparison(actual_copy, expected_copy, self.__class__)
 
     def compare_with_flatten(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:

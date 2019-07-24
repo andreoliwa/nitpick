@@ -27,9 +27,9 @@ pre-commit:
 	$(MAKE)
 
 .cache/make/auto-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml
-	pre-commit install
-	pre-commit install --hook-type commit-msg
 	pre-commit autoupdate
+	pre-commit install --install-hooks
+	pre-commit install --hook-type commit-msg
 	pre-commit gc
 	touch .cache/make/auto-pre-commit
 	-rm .cache/make/run
