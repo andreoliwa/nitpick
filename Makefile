@@ -40,6 +40,7 @@ poetry:
 
 .cache/make/auto-poetry: pyproject.toml
 	poetry update
+	poetry install
 	touch .cache/make/auto-poetry
 	-rm .cache/make/run
 
@@ -56,6 +57,7 @@ sphinx:
 
 .cache/make/run: .github/* .travis/* docs/* nitpick/* styles/* tests/* nitpick-style.toml
 	pre-commit run --all-files
+	flake8
 	touch .cache/make/run
 
 pytest:

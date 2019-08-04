@@ -18,7 +18,7 @@ warn_unused_ignores = true
 [["pre-commit-config.yaml".repos]]
 yaml = """
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.711
+    rev: v0.720
     hooks:
       - id: mypy
 """
