@@ -41,13 +41,17 @@ Please search on the [issue tracker](https://github.com/andreoliwa/nitpick/issue
 
 <!--- Include as many relevant details about the environment you experienced the bug in -->
 
-- `nitpick` version used:
-- Python version:
-- Operating System and version:
-- Link to your project:
-- Run the following commands and paste the output:
+  - `nitpick` version used:
 
-    ```
+  - Python version:
+
+  - Operating System and version:
+
+  - Link to your project:
+
+  - Run the following commands and paste the output:
+
+    ```shell script
     which python3
     python3 -V
     pip freeze
