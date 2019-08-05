@@ -45,6 +45,14 @@ Please search on the [issue tracker](https://github.com/andreoliwa/nitpick/issue
 - Python version:
 - Operating System and version:
 - Link to your project:
+- Run the following commands and paste the output:
+
+    ```
+    which python3
+    python3 -V
+    pip freeze
+    cat $(which flake8)
+    ```
 
 For more information, see the [CONTRIBUTING](https://github.com/andreoliwa/nitpick/blob/master/CONTRIBUTING.rst) guide.
 

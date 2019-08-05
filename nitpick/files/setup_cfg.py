@@ -37,6 +37,9 @@ class SetupCfgFile(BaseFile):
         if self.missing_sections:
             missing_cfg = ConfigParser()
             for section in sorted(self.missing_sections):
+                # TODO this invalid configuration raises AttributeError: 'list' object has no attribute 'items':
+                # ["setup.cfg"]
+                # comma_separated_values = ["flake8.ignore", "flake8.exclude"]
                 missing_cfg[section] = self.file_dict[section]
             return self.get_example_cfg(missing_cfg)
         return ""
