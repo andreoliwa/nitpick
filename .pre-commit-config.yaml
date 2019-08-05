@@ -4,7 +4,7 @@
 fail_fast: true
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+    rev: v2.3.0
     hooks:
       - id: debug-statements
       - id: end-of-file-fixer
@@ -49,7 +49,7 @@ repos:
         types: [python]
         always_run: true
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+    rev: v2.3.0
     hooks:
       - id: flake8
         additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
