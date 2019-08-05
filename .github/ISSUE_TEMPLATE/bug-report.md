@@ -41,15 +41,15 @@ Please search on the [issue tracker](https://github.com/andreoliwa/nitpick/issue
 
 <!--- Include as many relevant details about the environment you experienced the bug in -->
 
-  - `nitpick` version used:
+- `nitpick` version used:
 
-  - Python version:
+- Python version:
 
-  - Operating System and version:
+- Operating System and version:
 
-  - Link to your project:
+- Link to your project:
 
-  - Run the following commands and paste the output:
+- Run the following commands and paste the output:
 
     ```shell script
     which python3
