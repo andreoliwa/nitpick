@@ -4,11 +4,31 @@ from tests.helpers import ProjectMock
 
 def test_suggest_initial_contents(request):
     """Suggest initial contents for missing JSON file."""
-    pass  # FIXME:
+    ProjectMock(request).load_styles("package-json").pyproject_toml(
+        """
+        [tool.nitpick]
+        style = ["package-json"]
+        """
+    ).lint().assert_errors_contain(
+        """
+        NIP341 File package.json was not found. Create it with this content:\x1b[92m
+        {
+          "name": "<some value here>",
+          "release": {
+            "plugins": "<some value here>"
+          },
+          "repository": {
+            "type": "<some value here>",
+            "url": "<some value here>"
+          },
+          "version": "<some value here>"
+        }\x1b[0m
+        """
+    )
 
 
-def test_missing_different_values(request):
-    """Test missing and different values."""
+def test_json_file_contains_keys(request):
+    """Test if JSON file contains keys."""
     ProjectMock(request).load_styles("package-json").pyproject_toml(
         """
         [tool.nitpick]
@@ -19,11 +39,11 @@ def test_missing_different_values(request):
         NIP348 File package.json has missing keys:\x1b[92m
         {
           "release": {
-            "plugins": "?"
+            "plugins": "<some value here>"
           },
           "repository": {
-            "type": "?",
-            "url": "?"
+            "type": "<some value here>",
+            "url": "<some value here>"
           }
         }\x1b[0m
         """
