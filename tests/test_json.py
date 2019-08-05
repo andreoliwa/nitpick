@@ -48,3 +48,44 @@ def test_json_file_contains_keys(request):
         }\x1b[0m
         """
     )
+
+
+def test_missing_different_values(request):
+    """Test missing and different values on the JSON file."""
+    ProjectMock(request).style(
+        '''
+        [nitpick.JsonFile]
+        file_names = ["my.json"]
+
+        ["my.json".contains_json]
+        some_root_key = """
+            { "valid": "JSON", "content": ["should", "be", "here"] }
+        """
+        formatting = """ {"doesnt":"matter","here":true,"on the": "config file"} """
+        '''
+    ).save_file("my.json", '{"name":"myproject","formatting":{"on the":"actual file"}}').lint().assert_errors_contain(
+        """
+        NIP348 File my.json has missing values:\x1b[92m
+        {
+          "formatting.doesnt": "matter",
+          "formatting.here": true,
+          "some_root_key.content": [
+            "should",
+            "be",
+            "here"
+          ],
+          "some_root_key.valid": "JSON"
+        }\x1b[0m
+        """
+        # FIXME:
+        # ).assert_errors_contain(
+        #     """
+        #     NIP349 File my.json has different values. Use this:\x1b[92m
+        #     {
+        #       "formatting": {
+        #         "here": true,
+        #         "on the": "config file"
+        #       }
+        #     }\x1b[0m
+        #     """
+    )

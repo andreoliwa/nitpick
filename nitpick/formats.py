@@ -196,6 +196,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return comparison
 
 
+# FIXME: rename to TomlFormat
 class Toml(BaseFormat):
     """TOML configuration format."""
 
@@ -216,6 +217,7 @@ class Toml(BaseFormat):
         return True
 
 
+# FIXME: rename to YamlFormat
 class Yaml(BaseFormat):
     """YAML configuration format."""
 
@@ -281,3 +283,8 @@ class JsonFormat(BaseFormat):
                 self._reformatted = json.dumps(self._data, sort_keys=True, indent=2)
         self._loaded = True
         return True
+
+    @classmethod
+    def cleanup(cls, *args: List[Any]) -> List[Any]:
+        """Cleanup similar values according to the specific format. E.g.: Yaml accepts 'True' or 'true'."""
+        return list(args)
