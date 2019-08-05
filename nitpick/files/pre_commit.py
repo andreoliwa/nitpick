@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Tuple, Union
 import attr
 
 from nitpick.files.base import BaseFile
-from nitpick.formats import Yaml
+from nitpick.formats import YamlFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.typedefs import JsonDict, YamlData, YieldFlake8Error
 
@@ -22,7 +22,7 @@ class PreCommitHook:
 
     repo = attr.ib(type=str)
     hook_id = attr.ib(type=str)
-    yaml = attr.ib(type=Yaml)
+    yaml = attr.ib(type=YamlFormat)
 
     @property
     def unique_key(self) -> str:
@@ -42,7 +42,7 @@ class PreCommitHook:
     @classmethod
     def get_all_hooks_from(cls, str_or_yaml: Union[str, YamlData]):
         """Get all hooks from a YAML string. Split the string in hooks and copy the repo info for each."""
-        yaml = Yaml(string=str_or_yaml).as_list if isinstance(str_or_yaml, str) else str_or_yaml
+        yaml = YamlFormat(string=str_or_yaml).as_list if isinstance(str_or_yaml, str) else str_or_yaml
         hooks = []
         for repo in yaml:
             for index, hook in enumerate(repo.get(KEY_HOOKS, [])):
@@ -51,7 +51,7 @@ class PreCommitHook:
                 hook_data_only = search_dict("{}[{}]".format(KEY_HOOKS, index), repo, {})
                 repo_data_only.update({KEY_HOOKS: [hook_data_only]})
                 hooks.append(
-                    PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], Yaml(data=[repo_data_only])).key_value_pair
+                    PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YamlFormat(data=[repo_data_only])).key_value_pair
                 )
         return OrderedDict(hooks)
 
@@ -62,7 +62,7 @@ class PreCommitFile(BaseFile):
     file_name = ".pre-commit-config.yaml"
     error_base_number = 330
 
-    actual_yaml = None  # type: Yaml
+    actual_yaml = None  # type: YamlFormat
     actual_hooks = OrderedDict()  # type: OrderedDict[str, PreCommitHook]
     actual_hooks_by_key = {}  # type: Dict[str, int]
     actual_hooks_by_index = []  # type: List[str]
@@ -76,25 +76,25 @@ class PreCommitFile(BaseFile):
             new_repo = dict(repo)
             hooks_or_yaml = repo.get(KEY_HOOKS, repo.get(KEY_YAML, {}))
             if KEY_YAML in repo:
-                repo_list = Yaml(string=hooks_or_yaml).as_list
+                repo_list = YamlFormat(string=hooks_or_yaml).as_list
                 suggested[KEY_REPOS].extend(repo_list)
             else:
                 # TODO: show a deprecation warning for this case
-                new_repo[KEY_HOOKS] = Yaml(string=hooks_or_yaml).as_data
+                new_repo[KEY_HOOKS] = YamlFormat(string=hooks_or_yaml).as_data
                 suggested[KEY_REPOS].append(new_repo)
         suggested.update(original)
-        return Yaml(data=suggested).reformatted
+        return YamlFormat(data=suggested).reformatted
 
     def check_rules(self) -> YieldFlake8Error:
         """Check the rules for the pre-commit hooks."""
-        self.actual_yaml = Yaml(path=self.file_path)
+        self.actual_yaml = YamlFormat(path=self.file_path)
         if KEY_REPOS not in self.actual_yaml.as_data:
             yield self.flake8_error(1, " doesn't have the {!r} root key".format(KEY_REPOS))
             return
 
         # Check the root values in the configuration file
         yield from self.warn_missing_different(
-            Yaml(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(self.file_dict)
+            YamlFormat(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(self.file_dict)
         )
 
         yield from self.check_hooks()
@@ -115,15 +115,19 @@ class PreCommitFile(BaseFile):
 
     def check_repo_block(self, expected_repo_block: OrderedDict) -> YieldFlake8Error:
         """Check a repo with a YAML string configuration."""
-        expected_hooks = PreCommitHook.get_all_hooks_from(Yaml(string=expected_repo_block.get(KEY_YAML)).as_list)
+        expected_hooks = PreCommitHook.get_all_hooks_from(YamlFormat(string=expected_repo_block.get(KEY_YAML)).as_list)
         for unique_key, hook in expected_hooks.items():
             if unique_key not in self.actual_hooks:
                 yield self.flake8_error(
-                    2, ": hook {!r} not found. Use this:".format(hook.hook_id), Yaml(data=hook.yaml.as_data).reformatted
+                    2,
+                    ": hook {!r} not found. Use this:".format(hook.hook_id),
+                    YamlFormat(data=hook.yaml.as_data).reformatted,
                 )
                 continue
 
-            comparison = Yaml(data=self.actual_hooks[unique_key].single_hook).compare_with_dictdiffer(hook.single_hook)
+            comparison = YamlFormat(data=self.actual_hooks[unique_key].single_hook).compare_with_dictdiffer(
+                hook.single_hook
+            )
             yield from self.warn_missing_different(comparison, ": hook {!r}".format(hook.hook_id))
 
     def check_repo_old_format(self, index: int, repo_data: OrderedDict) -> YieldFlake8Error:
@@ -150,7 +154,7 @@ class PreCommitFile(BaseFile):
             yield self.flake8_error(5, ": style file is missing {!r} in repo {!r}".format(KEY_HOOKS, repo_name))
             return
 
-        expected_hooks = Yaml(string=yaml_expected_hooks).as_data
+        expected_hooks = YamlFormat(string=yaml_expected_hooks).as_data
         for expected_dict in expected_hooks:
             hook_id = expected_dict.get(KEY_ID)
             if not hook_id:
@@ -166,7 +170,7 @@ class PreCommitFile(BaseFile):
     @staticmethod
     def format_hook(expected_dict) -> str:
         """Format the hook so it's easy to copy and paste it to the .yaml file: ID goes first, indent with spaces."""
-        lines = Yaml(data=expected_dict).reformatted
+        lines = YamlFormat(data=expected_dict).reformatted
         output = []  # type: List[str]
         for line in lines.split("\n"):
             if line.startswith("id:"):

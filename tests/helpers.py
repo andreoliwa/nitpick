@@ -12,7 +12,7 @@ from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, N
 from nitpick.files.pre_commit import PreCommitFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
-from nitpick.formats import Toml
+from nitpick.formats import TomlFormat
 from nitpick.plugin import NitpickChecker
 from nitpick.typedefs import Flake8Error, PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
@@ -203,6 +203,6 @@ class ProjectMock:
 
     def assert_merged_style(self, toml_string: str):
         """Assert the contents of the merged style file."""
-        expected = Toml(path=self.cache_dir / MERGED_STYLE_TOML)
-        actual = Toml(string=dedent(toml_string))
+        expected = TomlFormat(path=self.cache_dir / MERGED_STYLE_TOML)
+        actual = TomlFormat(string=dedent(toml_string))
         compare(expected.as_data, actual.as_data)

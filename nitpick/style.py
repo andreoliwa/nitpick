@@ -15,7 +15,7 @@ from nitpick.constants import (
     TOML_EXTENSION,
 )
 from nitpick.files.pyproject_toml import PyProjectTomlFile
-from nitpick.formats import Toml
+from nitpick.formats import TomlFormat
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, search_dict
 from nitpick.typedefs import JsonDict, StrOrList
 
@@ -59,7 +59,7 @@ class Style:
             if not style_path:
                 continue
 
-            toml = Toml(path=style_path)
+            toml = TomlFormat(path=style_path)
             self._all_styles.add(toml.as_data)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml.as_data, [])  # type: StrOrList
@@ -152,7 +152,7 @@ class Style:
             return {}
         merged_dict = self._all_styles.merge()
         merged_style_path = self.config.cache_dir / MERGED_STYLE_TOML  # type: Path
-        toml = Toml(data=merged_dict)
+        toml = TomlFormat(data=merged_dict)
 
         attempt = 1
         while attempt < 5:

@@ -16,7 +16,7 @@ from nitpick.constants import (
 )
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
-from nitpick.formats import Toml
+from nitpick.formats import TomlFormat
 from nitpick.generic import climb_directory_tree, search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
 from nitpick.style import Style
@@ -36,7 +36,7 @@ class NitpickConfig(NitpickMixin):
         """Init instance."""
         self.cache_dir = None  # type: Optional[Path]
 
-        self.pyproject_toml = None  # type: Optional[Toml]
+        self.pyproject_toml = None  # type: Optional[TomlFormat]
         self.tool_nitpick_dict = {}  # type: JsonDict
         self.style_dict = {}  # type: JsonDict
         self.nitpick_dict = {}  # type: JsonDict
@@ -110,7 +110,7 @@ class NitpickConfig(NitpickMixin):
         """Merge one or multiple style files."""
         pyproject_path = self.root_dir / PyProjectTomlFile.file_name  # type: Path
         if pyproject_path.exists():
-            self.pyproject_toml = Toml(path=pyproject_path)
+            self.pyproject_toml = TomlFormat(path=pyproject_path)
             self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
