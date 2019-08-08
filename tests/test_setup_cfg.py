@@ -133,3 +133,28 @@ def test_different_missing_keys(request):
         max-line-length = 112\x1b[0m
         """
     )
+
+
+def test_invalid_configuration_comma_separated_values(request):
+    """Test an invalid configuration for comma_separated_values."""
+    ProjectMock(request).style(
+        """
+        ["setup.cfg".flake8]
+        max-line-length = 85
+        max-complexity = 12
+        ignore = "D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503"
+        select = "E241,C,E,F,W,B,B9"
+
+        ["setup.cfg"]
+        comma_separated_values = ["flake8.ignore", "flake8.exclude"]
+        """
+    ).lint().assert_errors_contain(
+        """
+        NIP321 File setup.cfg was not found. Create it with this content:\x1b[92m
+        [flake8]
+        ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503
+        max-complexity = 12
+        max-line-length = 85
+        select = E241,C,E,F,W,B,B9\x1b[0m
+        """
+    )

@@ -1,7 +1,7 @@
 """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
 from configparser import ConfigParser
 from io import StringIO
-from typing import Any, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 import dictdiffer
 
@@ -37,10 +37,12 @@ class SetupCfgFile(BaseFile):
         if self.missing_sections:
             missing_cfg = ConfigParser()
             for section in sorted(self.missing_sections):
-                # TODO this invalid configuration raises AttributeError: 'list' object has no attribute 'items':
-                # ["setup.cfg"]
-                # comma_separated_values = ["flake8.ignore", "flake8.exclude"]
-                missing_cfg[section] = self.file_dict[section]
+                expected_config = self.file_dict[section]  # type: Dict
+                if not isinstance(expected_config, dict):
+                    # Silently ignore invalid sections for now, to avoid exceptions.
+                    # This should be solved in https://github.com/andreoliwa/nitpick/issues/69
+                    continue
+                missing_cfg[section] = expected_config
             return self.get_example_cfg(missing_cfg)
         return ""
 
