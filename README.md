@@ -35,7 +35,7 @@ To try the package, simply install it (in a virtualenv or globally, wherever) an
     $ pip install -U nitpick
     $ flake8
 
-You will see warnings if your project configuration is different than [the default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/0.16.1/nitpick-style.toml/nitpick-style.toml).
+You will see warnings if your project configuration is different than [the default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/0.17.0/nitpick-style.toml/nitpick-style.toml).
 
 ### As a pre-commit hook
 
@@ -43,7 +43,7 @@ If you use [pre-commit](https://pre-commit.com/) on your project, add this to th
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.16.1
+        rev: v0.17.0
         hooks:
           # Run nitpick and several other flake8 plugins
           - id: nitpick-all
@@ -60,7 +60,7 @@ To check all the other flake8 plugins that are installed with `nitpick`, see the
 Change your project config on `pyproject.toml`, and configure your own style like this:
 
     [tool.nitpick]
-    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/0.16.1/nitpick-style.toml/nitpick-style.toml"
+    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/0.17.0/nitpick-style.toml/nitpick-style.toml"
 
 You can set `style` with any local file or URL. E.g.: you can use the raw URL of a [GitHub Gist](https://gist.github.com).
 
@@ -78,7 +78,7 @@ If a key is defined in more than one file, the value from the last file will pre
 
 2. Any `nitpick-style.toml` file found in the current directory (the one in which `flake8` runs from) or above.
 
-3. If no style is found, then [the default style file from GitHub](https://raw.githubusercontent.com/andreoliwa/nitpick/0.16.1/nitpick-style.toml/nitpick-style.toml) is used.
+3. If no style is found, then [the default style file from GitHub](https://raw.githubusercontent.com/andreoliwa/nitpick/0.17.0/nitpick-style.toml/nitpick-style.toml) is used.
 
 ### Style file syntax
 

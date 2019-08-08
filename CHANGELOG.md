@@ -1,3 +1,19 @@
+# [0.17.0](https://github.com/andreoliwa/nitpick/compare/v0.16.1...v0.17.0) (2019-08-08)
+
+
+### Bug Fixes
+
+* **setup.cfg:** silently ignore invalid sections to avoid exceptions ([79cb441](https://github.com/andreoliwa/nitpick/commit/79cb441)), closes [#69](https://github.com/andreoliwa/nitpick/issues/69)
+
+
+### Features
+
+* highlight suggested changes with color ([f49f456](https://github.com/andreoliwa/nitpick/commit/f49f456))
+* **json:** check if a JSON file contains the specified JSON data ([47fa133](https://github.com/andreoliwa/nitpick/commit/47fa133))
+* **json:** check if a JSON file contains the specified keys ([0f8a53c](https://github.com/andreoliwa/nitpick/commit/0f8a53c))
+* **json:** suggest content when file doesn't exist ([502eb3d](https://github.com/andreoliwa/nitpick/commit/502eb3d))
+* **pre-commit:** add commitlint hook to the default recommended style ([61f467c](https://github.com/andreoliwa/nitpick/commit/61f467c))
+
 ## [0.16.1](https://github.com/andreoliwa/nitpick/compare/v0.16.0...v0.16.1) (2019-06-19)
 
 
