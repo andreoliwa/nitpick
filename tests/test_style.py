@@ -476,3 +476,26 @@ def test_merge_styles_into_single_file(request):
         """
         '''
     )
+
+
+def test_invalid_tool_nitpick_on_pyproject_toml(request):
+    """Test invalid [tool.nitpick] on pyproject.toml."""
+    project = ProjectMock(request)
+    for style, error_message in [
+        (
+            'style = [""]\nextra_values = "also raise warnings"',
+            "extra_values: Unknown field.\nstyle[0]: Shorter than minimum length 1.",
+        ),
+        ('style = ""', "style: Shorter than minimum length 1."),
+        ("style = 1", "style: Not a valid string."),
+        (
+            'style = ["some_file","","   "]',
+            "style[1]: Shorter than minimum length 1.\nstyle[2]: Shorter than minimum length 1.",
+        ),
+    ]:
+        project.pyproject_toml("[tool.nitpick]\n{}".format(style)).lint().assert_errors_contain(
+            "NIP001 File pyproject.toml has an incorrect style. Invalid data in [tool.nitpick]:\x1b[92m\n{}\x1b[0m".format(
+                error_message
+            ),
+            1,
+        )

@@ -43,6 +43,21 @@
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
-    ]
+    ],
+    "rules": {
+      "scope-enum": [
+        2,
+        "always",
+        [
+          "pre-commit",
+          "pyproject.toml",
+          "setup.cfg",
+          "json",
+          "deps",
+          "deps-dev",
+          "release"
+        ]
+      ]
+    }
   }
 }

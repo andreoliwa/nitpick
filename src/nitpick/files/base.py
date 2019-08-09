@@ -79,7 +79,9 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
                     phrases.append("Create it with this content:")
                 yield self.flake8_error(1, ". ".join(phrases), suggestion)
             elif not should_exist and file_exists:
-                yield self.flake8_error(2, " should be deleted")
+                # Only display this message if the style is valid.
+                if not self.config.has_style_errors:
+                    yield self.flake8_error(2, " should be deleted")
             elif file_exists:
                 yield from self.check_rules()
 

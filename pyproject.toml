@@ -31,7 +31,7 @@ NIP = "nitpick.plugin:NitpickChecker"
 python = "^3.5 || ^3.6 || ^3.7"
 flake8 = ">=3.0.0"
 attrs = "*"
-toml  = "*"
+toml = "*"
 requests = "*"
 dictdiffer = "*"
 "ruamel.yaml" = "*"
@@ -39,6 +39,8 @@ python-slugify = "*"
 jmespath = "*"
 sortedcontainers = "*"
 click = "*"
+marshmallow = {version = "*", allows-prereleases = true}
+marshmallow-polyfield = "*"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"

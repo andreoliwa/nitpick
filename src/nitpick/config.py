@@ -3,7 +3,11 @@ import itertools
 import logging
 from pathlib import Path
 from shutil import rmtree
-from typing import Optional
+from typing import Dict, Optional
+
+from marshmallow import Schema, fields
+from marshmallow_polyfield import PolyField
+from sortedcontainers import SortedDict
 
 from nitpick.constants import (
     CACHE_DIR_NAME,
@@ -12,6 +16,7 @@ from nitpick.constants import (
     PROJECT_NAME,
     ROOT_FILES,
     ROOT_PYTHON_FILES,
+    TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
 from nitpick.files.pyproject_toml import PyProjectTomlFile
@@ -21,8 +26,39 @@ from nitpick.generic import climb_directory_tree, search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
 from nitpick.style import Style
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
+from nitpick.validators import TrimmedLength
 
 LOGGER = logging.getLogger(__name__)
+
+
+def detect_string_or_list(object_dict, parent_object_dict):
+    """Detect if the field is a string or a list."""
+    common = {"validate": TrimmedLength(min=1)}
+    if isinstance(object_dict, list):
+        return fields.List(fields.String(required=True, allow_none=False, **common))
+    return fields.String(**common)
+
+
+class ToolNitpickSchema(Schema):
+    """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
+
+    style = PolyField(deserialization_schema_selector=detect_string_or_list, required=False)
+
+    def flatten_errors(self, errors: Dict) -> str:
+        """Flatten Marshmallow errors to a string."""
+        formatted = []
+        for field, data in SortedDict(errors).items():
+            if isinstance(data, list):
+                messages_per_field = ["{}: {}".format(field, ", ".join(data))]
+            elif isinstance(data, dict):
+                messages_per_field = [
+                    "{}[{}]: {}".format(field, index, ", ".join(messages)) for index, messages in data.items()
+                ]
+            else:
+                # This should never happen; if it does, let's just convert to a string
+                messages_per_field = [str(errors)]
+            formatted.append("\n".join(messages_per_field))
+        return "\n".join(formatted)
 
 
 class NitpickConfig(NitpickMixin):
@@ -41,6 +77,7 @@ class NitpickConfig(NitpickMixin):
         self.style_dict = {}  # type: JsonDict
         self.nitpick_dict = {}  # type: JsonDict
         self.files = {}  # type: JsonDict
+        self.has_style_errors = False
 
     @classmethod
     def get_singleton(cls) -> "NitpickConfig":
@@ -112,6 +149,16 @@ class NitpickConfig(NitpickMixin):
         if pyproject_path.exists():
             self.pyproject_toml = TomlFormat(path=pyproject_path)
             self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
+            schema = ToolNitpickSchema()
+            pyproject_errors = schema.validate(self.tool_nitpick_dict)
+            if pyproject_errors:
+                self.has_style_errors = True
+                yield self.style_error(
+                    PyProjectTomlFile.file_name,
+                    "Invalid data in [{}]:".format(TOOL_NITPICK),
+                    schema.flatten_errors(pyproject_errors),
+                )
+                return
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
         style = Style(self)

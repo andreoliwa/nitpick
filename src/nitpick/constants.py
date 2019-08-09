@@ -21,7 +21,10 @@ ROOT_FILES = ("requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 # to avoid collision with existing key values (e.g. the default dot separator "." can be part of a pyproject.toml key).
 UNIQUE_SEPARATOR = "$#@"
 
+# Config sections and keys
+TOOL_NITPICK = "tool.nitpick"
+
 # JMESPath expressions
-TOOL_NITPICK_JMEX = jmespath.compile("tool.nitpick")
+TOOL_NITPICK_JMEX = jmespath.compile(TOOL_NITPICK)
 NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
 NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
