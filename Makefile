@@ -51,11 +51,11 @@ sphinx:
 # $(O) is meant as a shortcut for $(SPHINXOPTS).
 .cache/make/sphinx: docs *.rst *.md
 	-rm -rf docs/source
-	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source nitpick/
+	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
 	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	touch .cache/make/sphinx
 
-.cache/make/run: .github/* .travis/* docs/* nitpick/* styles/* tests/* nitpick-style.toml
+.cache/make/run: .github/* .travis/* docs/* src/nitpick/* styles/* tests/* nitpick-style.toml
 	pre-commit run --all-files
 	flake8
 	touch .cache/make/run
@@ -64,6 +64,6 @@ pytest:
 	-rm .cache/make/pytest
 	$(MAKE)
 
-.cache/make/pytest: nitpick/* styles/* tests/*
+.cache/make/pytest: src/nitpick/* styles/* tests/*
 	pytest
 	touch .cache/make/pytest
