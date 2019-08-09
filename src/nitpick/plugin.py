@@ -33,10 +33,12 @@ class NitpickChecker(NitpickMixin):
 
     def run(self) -> YieldFlake8Error:
         """Run the check plugin."""
-        self.config = NitpickConfig().get_singleton()
+        # An __init__() function is already provided by @attr.s
+        self.config = NitpickConfig().get_singleton()  # pylint: disable=attribute-defined-outside-init
+
         if not self.config.find_root_dir(self.filename):
             yield self.flake8_error(1, "No root dir found (is this a Python project?)")
-            return
+            return []
 
         if not self.config.find_main_python_file():
             yield self.flake8_error(
@@ -44,13 +46,13 @@ class NitpickChecker(NitpickMixin):
                 "None of those Python files was found in the root dir"
                 + " {}: {}".format(self.config.root_dir, ", ".join(ROOT_PYTHON_FILES)),
             )
-            return
+            return []
 
         current_python_file = Path(self.filename)
         if current_python_file.absolute() != self.config.main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
             LOGGER.info("Ignoring file: %s", self.filename)
-            return
+            return []
         LOGGER.info("Nitpicking file: %s", self.filename)
 
         yield from itertools.chain(self.config.merge_styles(), self.check_absent_files())

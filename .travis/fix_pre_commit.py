@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Remove pre-commit hooks that don't run on Python 3.5."""
 if __name__ == "__main__":
     from pathlib import Path

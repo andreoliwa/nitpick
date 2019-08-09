@@ -96,7 +96,9 @@ class SetupCfgFile(BaseFile):
                 "[{}]\n{} = {}".format(section, key, raw_expected),
             )
 
-    def show_missing_keys(self, section, key, values: List[Tuple[str, Any]]) -> YieldFlake8Error:
+    def show_missing_keys(  # pylint: disable=unused-argument
+        self, section, key, values: List[Tuple[str, Any]]
+    ) -> YieldFlake8Error:
         """Show the keys that are not present in a section."""
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)

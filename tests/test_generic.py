@@ -6,6 +6,7 @@ from tests.helpers import assert_conditions
 def test_get_subclasses():
     """Test subclasses."""
 
+    # pylint: disable=missing-docstring,too-few-public-methods
     class Vehicle:
         pass
 
@@ -23,12 +24,12 @@ def test_get_subclasses():
 
 def test_merge_dicts_extending_lists():
     """Merge dictionaries extending lists."""
-    md = MergeDict({"parent": {"brother": 1, "sister": 2}})
-    md.add({"parent": {"other": 3}})
-    assert_conditions(md.merge() == {"parent": {"brother": 1, "sister": 2, "other": 3}})
+    merged = MergeDict({"parent": {"brother": 1, "sister": 2}})
+    merged.add({"parent": {"other": 3}})
+    assert_conditions(merged.merge() == {"parent": {"brother": 1, "sister": 2, "other": 3}})
 
-    md = MergeDict({"box": {"colors": ["blue", "yellow"], "cutlery": ("fork",)}})
-    md.add({"box": {"colors": ("white",), "cutlery": ["knife", "spoon"]}})
+    merged = MergeDict({"box": {"colors": ["blue", "yellow"], "cutlery": ("fork",)}})
+    merged.add({"box": {"colors": ("white",), "cutlery": ["knife", "spoon"]}})
     assert_conditions(
-        md.merge() == {"box": {"colors": ["blue", "yellow", "white"], "cutlery": ["fork", "knife", "spoon"]}}
+        merged.merge() == {"box": {"colors": ["blue", "yellow", "white"], "cutlery": ["fork", "knife", "spoon"]}}
     )

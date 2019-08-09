@@ -31,7 +31,8 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
 
     Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
 
-    >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False}) == {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
+    >>> expected = {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
+    >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False}) == expected
     True
     """
     if current_lists is None:
@@ -57,7 +58,8 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
 def unflatten(dict_, separator=".") -> collections.OrderedDict:
     """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
 
-    >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4}) == {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
+    >>> expected = {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
+    >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4}) == expected
     True
     >>> unflatten({"repo": "conflicted key", "repo.name": "?", "repo.path": "?"})
     Traceback (most recent call last):

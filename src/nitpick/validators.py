@@ -2,7 +2,7 @@
 from marshmallow.validate import Length
 
 
-class TrimmedLength(Length):
+class TrimmedLength(Length):  # pylint: disable=too-few-public-methods
     """Trim the string before validating the length."""
 
     def __call__(self, value):

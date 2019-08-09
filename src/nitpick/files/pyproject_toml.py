@@ -1,10 +1,16 @@
-"""Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file (`PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_)."""
+"""Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file.
+
+See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
+"""
 from nitpick.files.base import BaseFile
 from nitpick.typedefs import YieldFlake8Error
 
 
 class PyProjectTomlFile(BaseFile):
-    """Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file (`PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_)."""
+    """Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file.
+
+    See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
+    """
 
     file_name = "pyproject.toml"
     error_base_number = 310

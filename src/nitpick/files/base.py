@@ -88,9 +88,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited classes if needed."""
-        pass
 
     @abc.abstractmethod
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        pass

@@ -1,4 +1,5 @@
 """Style tests."""
+# pylint: disable=no-member
 from pathlib import Path
 from textwrap import dedent
 from unittest import mock
@@ -494,8 +495,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(request):
         ),
     ]:
         project.pyproject_toml("[tool.nitpick]\n{}".format(style)).lint().assert_errors_contain(
-            "NIP001 File pyproject.toml has an incorrect style. Invalid data in [tool.nitpick]:\x1b[92m\n{}\x1b[0m".format(
-                error_message
-            ),
+            "NIP001 File pyproject.toml has an incorrect style."
+            + " Invalid data in [tool.nitpick]:\x1b[92m\n{}\x1b[0m".format(error_message),
             1,
         )

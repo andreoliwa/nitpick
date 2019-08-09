@@ -39,7 +39,8 @@ class Comparison:
         self.diff_format = None  # type: Optional[BaseFormat]
         self.diff_dict = {}  # type: Union[JsonDict, YamlData]
 
-    def _normalize_value(self, value: Union[JsonDict, YamlData, "BaseFormat"]) -> JsonDict:
+    @staticmethod
+    def _normalize_value(value: Union[JsonDict, YamlData, "BaseFormat"]) -> JsonDict:
         if isinstance(value, BaseFormat):
             dict_value = value.as_data  # type: JsonDict
         else:
@@ -109,7 +110,6 @@ class BaseFormat(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def load(self):
         """Load the configuration from a file, a string or a dict."""
-        pass
 
     @property
     def as_string(self) -> str:

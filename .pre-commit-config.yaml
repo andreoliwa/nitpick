@@ -58,6 +58,13 @@ repos:
     rev: v0.720
     hooks:
       - id: mypy
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: python
+        types: [python]
   - repo: https://github.com/openstack/bashate
     rev: 0.6.0
     hooks:

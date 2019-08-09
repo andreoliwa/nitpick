@@ -7,7 +7,7 @@ test "$TRAVIS_PYTHON_VERSION" == '3.5' && fix=fix
 
 # Run all pre-commit hooks on Travis.
 if [[ "$fix" == 'fix' ]]; then
-    python3 .travis/fix-pre-commit.py
+    python3 .travis/fix_pre_commit.py
     pre-commit run --all-files --config .travis/.temp-without-black.yaml
 else
     pre-commit run --all-files

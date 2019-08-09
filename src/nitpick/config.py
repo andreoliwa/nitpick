@@ -31,7 +31,7 @@ from nitpick.validators import TrimmedLength
 LOGGER = logging.getLogger(__name__)
 
 
-def detect_string_or_list(object_dict, parent_object_dict):
+def detect_string_or_list(object_dict, parent_object_dict):  # pylint: disable=unused-argument
     """Detect if the field is a string or a list."""
     common = {"validate": TrimmedLength(min=1)}
     if isinstance(object_dict, list):
@@ -44,7 +44,8 @@ class ToolNitpickSchema(Schema):
 
     style = PolyField(deserialization_schema_selector=detect_string_or_list, required=False)
 
-    def flatten_errors(self, errors: Dict) -> str:
+    @staticmethod
+    def flatten_errors(errors: Dict) -> str:
         """Flatten Marshmallow errors to a string."""
         formatted = []
         for field, data in SortedDict(errors).items():
@@ -61,7 +62,7 @@ class ToolNitpickSchema(Schema):
         return "\n".join(formatted)
 
 
-class NitpickConfig(NitpickMixin):
+class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attributes
     """Plugin configuration, read from the project config."""
 
     error_base_number = 200
@@ -70,6 +71,7 @@ class NitpickConfig(NitpickMixin):
 
     def __init__(self) -> None:
         """Init instance."""
+        self.main_python_file = Path()
         self.cache_dir = None  # type: Optional[Path]
 
         self.pyproject_toml = None  # type: Optional[TomlFormat]
@@ -110,7 +112,7 @@ class NitpickConfig(NitpickMixin):
                 LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
                 return False
 
-        self.root_dir = found_files[0].parent
+        self.root_dir = found_files[0].parent  # pylint: disable=attribute-defined-outside-init
         self.clear_cache_dir()
         return True
 

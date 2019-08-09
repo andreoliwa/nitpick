@@ -123,7 +123,8 @@ class ProjectMock:
         """Save a style file with a name. Add the .toml extension if needed."""
         return self.save_file(self.ensure_toml_extension(file_name), file_contents)
 
-    def ensure_toml_extension(self, file_name: PathOrStr) -> PathOrStr:
+    @staticmethod
+    def ensure_toml_extension(file_name: PathOrStr) -> PathOrStr:
         """Ensure a file name has the .toml extension."""
         return file_name if str(file_name).endswith(".toml") else "{}.toml".format(file_name)
 
