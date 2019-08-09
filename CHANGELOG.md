@@ -1,3 +1,15 @@
+# [0.18.0](https://github.com/andreoliwa/nitpick/compare/v0.17.0...v0.18.0) (2019-08-09)
+
+
+### Bug Fixes
+
+* broken link on README (fixes [#70](https://github.com/andreoliwa/nitpick/issues/70), thanks [@sobolevn](https://github.com/sobolevn)) ([b35bbdb](https://github.com/andreoliwa/nitpick/commit/b35bbdb))
+
+
+### Features
+
+* **pyproject.toml:** validate [tool.nitpick] section ([765562a](https://github.com/andreoliwa/nitpick/commit/765562a))
+
 # [0.17.0](https://github.com/andreoliwa/nitpick/compare/v0.16.1...v0.17.0) (2019-08-08)
 
 
