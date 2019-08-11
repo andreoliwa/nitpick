@@ -65,7 +65,7 @@ class Style:
             try:
                 self._all_styles.add(toml.as_data)
             except TomlDecodeError as err:
-                raise StyleError(style_path, "{}: {}".format(err.__class__.__name__, err)) from err
+                raise StyleError(style_path.name, "{}: {}".format(err.__class__.__name__, err)) from err
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml.as_data, [])  # type: StrOrList
             if sub_styles:

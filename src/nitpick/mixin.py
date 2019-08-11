@@ -11,6 +11,7 @@ class NitpickMixin:
 
     error_base_number = 0  # type: int
     error_prefix = ""  # type: str
+    has_style_errors = False
 
     def flake8_error(self, number: int, message: str, suggestion: str = None, add_to_base_number=True) -> Flake8Error:
         """Return a flake8 error as a tuple."""
@@ -43,6 +44,7 @@ class NitpickMixin:
 
     def style_error(self, file_name: str, message: str, invalid_data: str = None) -> Flake8Error:
         """Raise a style error."""
+        self.has_style_errors = True
         return self.flake8_error(
             1, "File {} has an incorrect style. {}".format(file_name, message), invalid_data, add_to_base_number=False
         )

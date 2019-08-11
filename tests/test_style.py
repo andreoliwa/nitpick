@@ -485,13 +485,13 @@ def test_invalid_tool_nitpick_on_pyproject_toml(request):
     for style, error_message in [
         (
             'style = [""]\nextra_values = "also raise warnings"',
-            "extra_values: Unknown field.\nstyle[0]: Shorter than minimum length 1.",
+            "extra_values: Unknown field.\nstyle.0: Shorter than minimum length 1.",
         ),
         ('style = ""', "style: Shorter than minimum length 1."),
         ("style = 1", "style: Not a valid string."),
         (
             'style = ["some_file","","   "]',
-            "style[1]: Shorter than minimum length 1.\nstyle[2]: Shorter than minimum length 1.",
+            "style.1: Shorter than minimum length 1.\nstyle.2: Shorter than minimum length 1.",
         ),
     ]:
         project.pyproject_toml("[tool.nitpick]\n{}".format(style)).lint().assert_errors_contain(

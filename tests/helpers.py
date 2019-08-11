@@ -140,7 +140,7 @@ class ProjectMock:
         """Save .pre-commit-config.yaml."""
         return self.save_file(PreCommitFile.file_name, file_contents)
 
-    def show_errors(self, expected_error: str):
+    def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""
         print("Expected error:\n{}".format(expected_error))
         print("\nError count:")
@@ -153,22 +153,23 @@ class ProjectMock:
         for error in sorted(self._errors):
             print()
             print(error)
-        raise AssertionError
+        print("\nProject root:", self.root_dir)
+        raise AssertionError(assertion_message or expected_error)
 
-    def assert_error_count(self, expected_count: int = None) -> "ProjectMock":
+    def assert_error_count(self, expected_error: str, expected_count: int = None) -> "ProjectMock":
         """Assert the error count is correct."""
         if expected_count is not None:
             actual = len(self._errors)
             if expected_count != actual:
-                raise AssertionError("Expected {} errors, got {}".format(expected_count, actual))
+                self.raise_assertion_error(expected_error, "Expected {} errors, got {}".format(expected_count, actual))
         return self
 
     def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
         """Assert the error is in the error set."""
         expected_error = dedent(raw_error).strip()
         if expected_error not in self._errors:
-            self.show_errors(expected_error)
-        self.assert_error_count(expected_count)
+            self.raise_assertion_error(expected_error)
+        self.assert_error_count(expected_error, expected_count)
         return self
 
     def assert_errors_contain_unordered(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
@@ -183,10 +184,10 @@ class ProjectMock:
         expected_error_lines = set(expected_error.split("\n"))
         for actual_error in self._errors:
             if set(actual_error.replace("\x1b[0m", "").split("\n")) == expected_error_lines:
-                self.assert_error_count(expected_count)
+                self.assert_error_count(raw_error, expected_count)
                 return self
 
-        self.show_errors(original_expected_error)
+        self.raise_assertion_error(original_expected_error)
         return self
 
     def assert_single_error(self, raw_error: str) -> "ProjectMock":

@@ -49,7 +49,7 @@ sphinx:
 	$(MAKE)
 
 # $(O) is meant as a shortcut for $(SPHINXOPTS).
-.cache/make/sphinx: src/* docs *.rst *.md
+.cache/make/sphinx: docs *.rst *.md
 	-rm -rf docs/source
 	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/
 	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

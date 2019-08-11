@@ -113,15 +113,12 @@ To enforce all your projects to ignore missing imports, add this to your `nitpic
 
 To enforce that certain files should not exist in the project, you can add them to the style file.
 
-    [[files.absent]]
-    file = "myfile1.txt"
-
-    [[files.absent]]
-    file = "another_file.env"
-    message = "This is an optional extra string to display after the warning"
+    [nitpick.files.absent]
+    "some_file.txt" = "This is an optional extra string to display after the warning"
+    "another_file.env" = ""
 
 Multiple files can be configured as above.
-The `message` is optional.
+The message is optional.
 
 ## setup.cfg
 

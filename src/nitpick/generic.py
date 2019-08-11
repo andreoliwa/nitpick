@@ -40,7 +40,7 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
 
     items = []  # type: List[Tuple[str, Any]]
     for key, value in dict_.items():
-        new_key = parent_key + separator + key if parent_key else key
+        new_key = str(parent_key) + separator + str(key) if parent_key else key
         if isinstance(value, collections.abc.MutableMapping):
             items.extend(flatten(value, new_key, separator, current_lists).items())
         elif isinstance(value, (list, tuple)):

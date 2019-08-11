@@ -39,7 +39,9 @@ python-slugify = "*"
 jmespath = "*"
 sortedcontainers = "*"
 click = "*"
-marshmallow = {version = "*", allows-prereleases = true}
+# Pin marshmallow to avoid error on "pip install -U nitpick":
+# marshmallow-polyfield 5.7 has requirement marshmallow>=3.0.0b10, but you'll have marshmallow 2.19.5 which is incompatible.
+marshmallow = {version = ">=3.0.0b10", allows-prereleases = true}
 marshmallow-polyfield = "*"
 
 [tool.poetry.dev-dependencies]
