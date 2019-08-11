@@ -499,3 +499,19 @@ def test_invalid_tool_nitpick_on_pyproject_toml(request):
             + " Invalid data in [tool.nitpick]:\x1b[92m\n{}\x1b[0m".format(error_message),
             1,
         )
+
+
+def test_invalid_toml(request):
+    """Invalid TOML should emit a NIP warning, not raise TomlDecodeError."""
+    ProjectMock(request).style(
+        """
+        ["setup.cfg".flake8]
+        ignore = D100,D104,D202,E203,W503
+        """
+    ).lint().assert_errors_contain(
+        """
+        NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML:\x1b[92m
+        TomlDecodeError: This float doesn't have a leading digit (line 2 column 1 char 21)\x1b[0m
+        """,
+        1,
+    )

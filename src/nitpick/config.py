@@ -19,6 +19,7 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
+from nitpick.exceptions import StyleError
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.formats import TomlFormat
@@ -164,7 +165,11 @@ class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attribut
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
         style = Style(self)
-        style.find_initial_styles(configured_styles)
+        try:
+            style.find_initial_styles(configured_styles)
+        except StyleError as err:
+            yield self.style_error(err.style_file_name.name, "Invalid TOML:", err.args[0])
+
         self.style_dict = style.merge_toml_dict()
 
         from nitpick.plugin import NitpickChecker

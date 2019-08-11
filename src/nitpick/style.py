@@ -6,6 +6,7 @@ from urllib.parse import urlparse, urlunparse
 
 import requests
 from slugify import slugify
+from toml import TomlDecodeError
 
 from nitpick.constants import (
     DEFAULT_NITPICK_STYLE_URL,
@@ -14,6 +15,7 @@ from nitpick.constants import (
     NITPICK_STYLES_INCLUDE_JMEX,
     TOML_EXTENSION,
 )
+from nitpick.exceptions import StyleError
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, search_dict
@@ -60,7 +62,10 @@ class Style:
                 continue
 
             toml = TomlFormat(path=style_path)
-            self._all_styles.add(toml.as_data)
+            try:
+                self._all_styles.add(toml.as_data)
+            except TomlDecodeError as err:
+                raise StyleError(style_path, "{}: {}".format(err.__class__.__name__, err)) from err
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml.as_data, [])  # type: StrOrList
             if sub_styles:
