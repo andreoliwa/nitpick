@@ -7,10 +7,10 @@ from nitpick.files.pre_commit import PreCommitHook
 from tests.helpers import ProjectMock
 
 
-def test_pre_commit_should_be_deleted(request):
-    """File should be deleted."""
-    ProjectMock(request).style("").pre_commit("").lint().assert_errors_contain(
-        "NIP332 File .pre-commit-config.yaml should be deleted"
+def test_pre_commit_has_no_configuration(request):
+    """File should not be deleted unless explicitly asked."""
+    ProjectMock(request).style("").pre_commit("").lint().assert_single_error(
+        "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
     )
 
 

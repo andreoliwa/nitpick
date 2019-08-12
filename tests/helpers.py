@@ -156,7 +156,7 @@ class ProjectMock:
         print("\nProject root:", self.root_dir)
         raise AssertionError(assertion_message or expected_error)
 
-    def assert_error_count(self, expected_error: str, expected_count: int = None) -> "ProjectMock":
+    def _assert_error_count(self, expected_error: str, expected_count: int = None) -> "ProjectMock":
         """Assert the error count is correct."""
         if expected_count is not None:
             actual = len(self._errors)
@@ -169,7 +169,7 @@ class ProjectMock:
         expected_error = dedent(raw_error).strip()
         if expected_error not in self._errors:
             self.raise_assertion_error(expected_error)
-        self.assert_error_count(expected_error, expected_count)
+        self._assert_error_count(expected_error, expected_count)
         return self
 
     def assert_errors_contain_unordered(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
@@ -184,7 +184,7 @@ class ProjectMock:
         expected_error_lines = set(expected_error.split("\n"))
         for actual_error in self._errors:
             if set(actual_error.replace("\x1b[0m", "").split("\n")) == expected_error_lines:
-                self.assert_error_count(raw_error, expected_count)
+                self._assert_error_count(raw_error, expected_count)
                 return self
 
         self.raise_assertion_error(original_expected_error)

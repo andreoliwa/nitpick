@@ -3,11 +3,9 @@ from nitpick.files.pyproject_toml import PyProjectTomlFile
 from tests.helpers import ProjectMock
 
 
-def test_pyproject_should_be_deleted(request):
-    """File should be deleted."""
-    ProjectMock(request).style("").pyproject_toml("").lint().assert_errors_contain(
-        "NIP312 File {} should be deleted".format(PyProjectTomlFile.file_name)
-    )
+def test_pyproject_has_no_configuration(request):
+    """File should not be deleted unless explicitly asked."""
+    ProjectMock(request).style("").pyproject_toml("").lint().assert_no_errors()
 
 
 def test_suggest_initial_contents(request):

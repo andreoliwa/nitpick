@@ -66,10 +66,10 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         """
         for _ in self.multiple_files:
             config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-            should_exist = self.config.files.get(self.toml_key, config_data_exists)  # type: bool
+            should_exist = self.config.files.get(self.toml_key, True)  # type: bool
             file_exists = self.file_path.exists()
 
-            if should_exist and not file_exists:
+            if config_data_exists and not file_exists:
                 suggestion = self.suggest_initial_contents()
                 phrases = [" was not found"]
                 missing_message = self.nitpick_file_dict.get("missing_message", "")
