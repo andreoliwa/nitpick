@@ -18,4 +18,4 @@ poetry install  # This is needed to install nitpick itself, not only the depende
 flake8
 
 echo "Running coverage report"
-coverage run --parallel-mode --source=nitpick -m pytest
+coverage run --branch--parallel-mode --source=nitpick -m pytest
