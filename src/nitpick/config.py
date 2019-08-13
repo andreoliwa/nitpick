@@ -3,7 +3,7 @@ import itertools
 import logging
 from pathlib import Path
 from shutil import rmtree
-from typing import Optional
+from typing import Optional, Set
 
 from nitpick.constants import (
     CACHE_DIR_NAME,
@@ -68,18 +68,40 @@ class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attribut
         if hasattr(self, "root_dir"):
             return True
 
-        found_files = climb_directory_tree(
-            starting_file, ROOT_FILES + (PyProjectTomlFile.file_name, SetupCfgFile.file_name)
-        )
-        if not found_files:
-            # If none of the root files were found, try again with manage.py.
-            # On Django projects, it can be in another dir inside the root dir.
-            found_files = climb_directory_tree(starting_file, [MANAGE_PY])
-            if not found_files:
-                LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
-                return False
+        root_dirs = set()  # type: Set[Path]
+        seen = set()  # type: Set[Path]
 
-        self.root_dir = found_files[0].parent  # pylint: disable=attribute-defined-outside-init
+        starting_dir = Path(starting_file).parent.absolute()
+        while True:
+            project_files = climb_directory_tree(
+                starting_dir, ROOT_FILES + (PyProjectTomlFile.file_name, SetupCfgFile.file_name)
+            )
+            if project_files and project_files & seen:
+                break
+            seen.update(project_files or [])
+
+            if not project_files:
+                # If none of the root files were found, try again with manage.py.
+                # On Django projects, it can be in another dir inside the root dir.
+                project_files = climb_directory_tree(starting_file, [MANAGE_PY])
+                if not project_files or project_files & seen:
+                    break
+                seen.update(project_files)
+
+            for found in project_files or []:
+                root_dirs.add(found.parent)
+
+            # Climb up one directory to search for more project files
+            starting_dir = starting_dir.parent
+            if not starting_dir:
+                break
+
+        if not root_dirs:
+            LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
+            return False
+
+        # If multiple roots are found, get the top one (grandparent dir)
+        self.root_dir = sorted(root_dirs)[0]  # pylint: disable=attribute-defined-outside-init
         self.clear_cache_dir()
         return True
 

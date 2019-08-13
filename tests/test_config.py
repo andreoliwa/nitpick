@@ -1,5 +1,4 @@
 """Config tests."""
-from nitpick.constants import ROOT_PYTHON_FILES
 from tests.helpers import ProjectMock
 
 
@@ -10,13 +9,17 @@ def test_no_root_dir(request):
     )
 
 
+def test_multiple_root_dirs(request):
+    """Multiple possible "root dirs" found (e.g.: a requirements.txt file inside a docs dir)."""
+    ProjectMock(request, setup_py=False).touch_file("docs/requirements.txt").touch_file("docs/conf.py").pyproject_toml(
+        ""
+    ).style("").lint().assert_no_errors()
+
+
 def test_no_main_python_file_root_dir(request):
     """No main Python file on the root dir."""
     project = ProjectMock(request, setup_py=False).pyproject_toml("").save_file("whatever.sh", "", lint=True).lint()
-    project.assert_single_error(
-        "NIP102 None of those Python files was found in the root dir "
-        + "{}: {}".format(project.root_dir, ", ".join(ROOT_PYTHON_FILES))
-    )
+    project.assert_single_error("NIP102 No Python file was found under the root dir {!r}".format(project.root_dir))
 
 
 def test_django_project_structure(request):
@@ -31,8 +34,8 @@ def test_django_project_structure(request):
         [flake8]
         some = thing
         """
-    ).save_file(
-        "my_django_project/manage.py", ""
+    ).touch_file(
+        "my_django_project/manage.py"
     ).style(
         """
         ["pyproject.toml".tool.black]

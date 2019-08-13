@@ -44,7 +44,7 @@ class Style:
         else:
             paths = climb_directory_tree(self.config.root_dir, [NITPICK_STYLE_TOML])
             if paths:
-                chosen_styles = str(paths[0])
+                chosen_styles = str(sorted(paths)[0])
                 log_message = "Found style climbing the directory tree: %s"
             else:
                 chosen_styles = DEFAULT_NITPICK_STYLE_URL

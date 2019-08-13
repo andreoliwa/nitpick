@@ -6,7 +6,7 @@
 """
 import collections
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Set, Tuple, Union
 
 import jmespath
 from jmespath.parser import ParsedResult
@@ -100,7 +100,7 @@ class MergeDict:
         return unflatten(self._all_flattened, separator=UNIQUE_SEPARATOR)
 
 
-def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[List[Path]]:
+def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[Set[Path]]:
     """Climb the directory tree looking for file patterns."""
     current_dir = Path(starting_path).absolute()  # type: Path
     if current_dir.is_file():
@@ -110,7 +110,7 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
         for root_file in file_patterns:
             found_files = list(current_dir.glob(root_file))
             if found_files:
-                return found_files
+                return set(found_files)
         current_dir = current_dir.parent
     return None
 

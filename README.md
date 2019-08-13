@@ -82,6 +82,8 @@ If a key is defined in more than one file, the value from the last file will pre
 
 ### Style file syntax
 
+NOTE: The project is still experimental; the style file syntax might slightly change before the 1.0 stable release.
+
 A style file contains basically the configuration options you want to enforce in all your projects.
 
 They are just the config to the tool, prefixed with the name of the config file.

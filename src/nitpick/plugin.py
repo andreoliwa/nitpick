@@ -7,7 +7,7 @@ import attr
 
 from nitpick import __version__
 from nitpick.config import NitpickConfig
-from nitpick.constants import PROJECT_NAME, ROOT_PYTHON_FILES
+from nitpick.constants import PROJECT_NAME
 from nitpick.files.base import BaseFile
 from nitpick.generic import get_subclasses
 from nitpick.mixin import NitpickMixin
@@ -41,11 +41,7 @@ class NitpickChecker(NitpickMixin):
             return []
 
         if not self.config.find_main_python_file():
-            yield self.flake8_error(
-                2,
-                "None of those Python files was found in the root dir"
-                + " {}: {}".format(self.config.root_dir, ", ".join(ROOT_PYTHON_FILES)),
-            )
+            yield self.flake8_error(2, "No Python file was found under the root dir {!r}".format(self.config.root_dir))
             return []
 
         current_python_file = Path(self.filename)
