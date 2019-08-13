@@ -34,7 +34,8 @@
             "docs/conf.py",
             "nitpick-style.toml",
             "README.md",
-            "CHANGELOG.md"
+            "CHANGELOG.md",
+            "setup.py"
           ]
         }
       ]
