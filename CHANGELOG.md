@@ -1,3 +1,15 @@
+# [0.20.0](https://github.com/andreoliwa/nitpick/compare/v0.19.0...v0.20.0) (2019-08-13)
+
+
+### Bug Fixes
+
+* report errors on line 0 instead of 1 ([31b13ea](https://github.com/andreoliwa/nitpick/commit/31b13ea)), closes [#73](https://github.com/andreoliwa/nitpick/issues/73)
+
+
+### Features
+
+* add config to check files that should be present ([408440f](https://github.com/andreoliwa/nitpick/commit/408440f)), closes [#74](https://github.com/andreoliwa/nitpick/issues/74)
+
 # [0.19.0](https://github.com/andreoliwa/nitpick/compare/v0.18.0...v0.19.0) (2019-08-13)
 
 
