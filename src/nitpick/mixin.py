@@ -23,7 +23,7 @@ class NitpickMixin:
         from nitpick.plugin import NitpickChecker
 
         return (
-            1,
+            0,
             0,
             "{}{:03d} {}{}{}".format(
                 ERROR_PREFIX, joined_number, self.error_prefix, message.rstrip(), suggestion_with_newline
