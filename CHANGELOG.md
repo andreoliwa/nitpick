@@ -1,3 +1,17 @@
+# [0.19.0](https://github.com/andreoliwa/nitpick/compare/v0.18.0...v0.19.0) (2019-08-13)
+
+
+### Bug Fixes
+
+* emit warning when TOML is invalid in a style file (closes [#68](https://github.com/andreoliwa/nitpick/issues/68)) ([b48e0a4](https://github.com/andreoliwa/nitpick/commit/b48e0a4))
+* files should not be deleted unless explicitly set in the style ([b5953ff](https://github.com/andreoliwa/nitpick/commit/b5953ff)), closes [#71](https://github.com/andreoliwa/nitpick/issues/71)
+* improve the way to find the root dir of the project ([fa3460a](https://github.com/andreoliwa/nitpick/commit/fa3460a)), closes [#72](https://github.com/andreoliwa/nitpick/issues/72)
+
+
+### Features
+
+* validate the merged style file schema ([1e31d0a](https://github.com/andreoliwa/nitpick/commit/1e31d0a)), closes [#69](https://github.com/andreoliwa/nitpick/issues/69)
+
 # [0.18.0](https://github.com/andreoliwa/nitpick/compare/v0.17.0...v0.18.0) (2019-08-09)
 
 
