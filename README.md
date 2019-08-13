@@ -83,6 +83,7 @@ If a key is defined in more than one file, the value from the last file will pre
 ### Style file syntax
 
 NOTE: The project is still experimental; the style file syntax might slightly change before the 1.0 stable release.
+The `NIP*` error codes also might change.
 
 A style file contains basically the configuration options you want to enforce in all your projects.
 
@@ -110,6 +111,15 @@ To enforce all your projects to ignore missing imports, add this to your `nitpic
 
     ["setup.cfg".mypy]
     ignore_missing_imports = true
+
+### Present files
+
+To enforce that certain files should exist in the project, you can add them to the style file as a dictionary of "file name" and "extra message".
+Use an empty string to not display any extra message.
+
+    [nitpick.files.present]
+    ".editorconfig" = ""
+    "CHANGELOG.md" = "A project should have a changelog"
 
 ### Absent files
 

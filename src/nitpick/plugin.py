@@ -51,7 +51,7 @@ class NitpickChecker(NitpickMixin):
             return []
         LOGGER.info("Nitpicking file: %s", self.filename)
 
-        yield from itertools.chain(self.config.merge_styles(), self.check_absent_files())
+        yield from itertools.chain(self.config.merge_styles(), self.check_files(True), self.check_files(False))
 
         for checker_class in get_subclasses(BaseFile):
             checker = checker_class()
@@ -59,15 +59,20 @@ class NitpickChecker(NitpickMixin):
 
         return []
 
-    def check_absent_files(self) -> YieldFlake8Error:
-        """Check absent files."""
-        for file_name, delete_message in self.config.files.get("absent", {}).items():
+    def check_files(self, present: bool) -> YieldFlake8Error:
+        """Check files that should be present or absent."""
+        # TODO: validate with schemas
+        key = "present" if present else "absent"
+        message = "exist" if present else "be deleted"
+        absent = not present
+        for file_name, extra_message in self.config.files.get(key, {}).items():
             file_path = self.config.root_dir / file_name  # type: Path
-            if not file_path.exists():
+            exists = file_path.exists()
+            if (present and exists) or (absent and not exists):
                 continue
 
-            full_message = "File {} should be deleted".format(file_name)
-            if delete_message:
-                full_message += ": {}".format(delete_message)
+            full_message = "File {} should {}".format(file_name, message)
+            if extra_message:
+                full_message += ": {}".format(extra_message)
 
-            yield self.flake8_error(3, full_message)
+            yield self.flake8_error(3 if present else 4, full_message)

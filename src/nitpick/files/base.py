@@ -72,6 +72,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             if config_data_exists and not file_exists:
                 suggestion = self.suggest_initial_contents()
                 phrases = [" was not found"]
+                # TODO: add validation for missing_message on the BaseFileSchema
                 missing_message = self.nitpick_file_dict.get("missing_message", "")
                 if missing_message:
                     phrases.append(missing_message)
