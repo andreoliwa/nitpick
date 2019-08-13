@@ -39,10 +39,10 @@ python-slugify = "*"
 jmespath = "*"
 sortedcontainers = "*"
 click = "*"
-# Pin marshmallow to avoid error on "pip install -U nitpick":
-# marshmallow-polyfield 5.7 has requirement marshmallow>=3.0.0b10, but you'll have marshmallow 2.19.5 which is incompatible.
-marshmallow = {version = ">=3.0.0b10", allows-prereleases = true}
-marshmallow-polyfield = "*"
+marshmallow = {version = "*", allows-prereleases = true}
+# Pin to avoid error on "flake8 ." when there is an invalid TOML style:
+# TypeError: _deserialize() got an unexpected keyword argument 'partial'
+marshmallow-polyfield = "^5.7"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
