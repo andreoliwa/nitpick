@@ -734,7 +734,7 @@ version = "0.1.7"
 [[package]]
 category = "dev"
 description = "Enable Unicode input and display when running Python from Windows console."
-marker = "sys_platform == \"win32\" and python_version < \"3.6\" and python_version >= \"3.4\" or sys_platform == \"win32\" and python_version < \"3.6\""
+marker = "sys_platform == \"win32\" and python_version < \"3.6\" or sys_platform == \"win32\" and python_version < \"3.6\" and python_version >= \"3.4\""
 name = "win-unicode-console"
 optional = false
 python-versions = "*"
@@ -757,7 +757,7 @@ python-versions = ">=2.7"
 version = "0.5.2"
 
 [metadata]
-content-hash = "910e7acaca93fecca842ba8f3eab4424821b5b27bd4629d4b67e5a4e59d7c59d"
+content-hash = "6faddbcfb622588cb966dd3af18edeae8c644c9e122732b37b9e7e94d84eeaf5"
 python-versions = "^3.5 || ^3.6 || ^3.7"
 
 [metadata.hashes]
