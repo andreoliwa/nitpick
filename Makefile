@@ -45,7 +45,7 @@ poetry:
 	# ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ~/Code/nitpick
 	# (A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
 	# TODO remove this if ever pip changes this behaviour
-	xpoetry setup-py
+	poetryx setup-py
 	touch .cache/make/auto-poetry
 	-rm .cache/make/run
 
@@ -56,7 +56,7 @@ sphinx:
 # $(O) is meant as a shortcut for $(SPHINXOPTS).
 .cache/make/sphinx: docs *.rst *.md
 	-rm -rf docs/source
-	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/
+	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
 	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	touch .cache/make/sphinx
 
