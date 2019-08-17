@@ -71,7 +71,7 @@ doc: docs/* *.rst *.md
 
 	touch .cache/make/doc
 
-.cache/make/run: .github/* .travis/* docs/**.py src/* docs/_static/styles/* tests/* nitpick-style.toml
+.cache/make/run: .github/* .travis/* docs/**.py src/* styles/* tests/* nitpick-style.toml
 	pre-commit run --all-files
 	flake8
 	touch .cache/make/run
@@ -80,7 +80,7 @@ test:
 	-rm .cache/make/test
 	$(MAKE)
 
-.cache/make/test: src/* docs/_static/styles/* tests/*
+.cache/make/test: src/* styles/* tests/*
 	pytest
 	touch .cache/make/test
 
