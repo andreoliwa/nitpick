@@ -1,34 +1,24 @@
 # Nitpick
 
-[default style file]: (https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/nitpick-style.toml)
-[TOML]: (https://github.com/toml-lang/toml)
-[flake8]: (https://gitlab.com/pycqa/flake8)
-[isort]: (https://github.com/timothycrosley/isort)
-[black]: (https://github.com/psf/black)
-[mypy]: (http://mypy-lang.org/)
-[pylint]: (https://www.pylint.org)
-[pre-commit]: (https://pre-commit.com/)
-[poetry]: (https://github.com/sdispater/poetry/)
-
-[![PyPI](https://img.shields.io/pypi/v/nitpick.svg)](https://pypi.python.org/pypi/nitpick)
-[![Travis CI](https://travis-ci.com/andreoliwa/nitpick.svg)](https://travis-ci.com/andreoliwa/nitpick)
+[![PyPI](https://img.shields.io/pypi/v/nitpick.svg)](https://pypi.org/project/nitpick)
+[![Travis CI](https://api.travis-ci.com/andreoliwa/nitpick.svg)](https://travis-ci.com/andreoliwa/nitpick)
 [![Documentation Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.readthedocs.io/en/latest/?badge=latest)
 [![Coveralls](https://coveralls.io/repos/github/andreoliwa/nitpick/badge.svg)](https://coveralls.io/github/andreoliwa/nitpick)
-[![Maintainability](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/maintainability)](https://codeclimate.com/github/andreoliwa/nitpick/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/maintainability)](https://codeclimate.com/github/andreoliwa/nitpick)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick)
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/nitpick.svg)](https://pypi.org/project/nitpick/)
 [![Project License](https://img.shields.io/pypi/l/nitpick.svg)](https://pypi.org/project/nitpick/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=andreoliwa/nitpick)](https://dependabot.com)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
-Flake8 plugin to enforce the same tool configuration ([flake8], [isort], [mypy], [pylint]...) across multiple Python projects.
+Flake8 plugin to enforce the same tool configuration ([flake8](https://gitlab.com/pycqa/flake8), [isort](https://github.com/timothycrosley/isort), [mypy](http://mypy-lang.org/), [Pylint](https://www.pylint.org)...) across multiple Python projects.
 
 Useful if you maintain multiple projects and want to use the same configs in all of them.
 
 ## Style file
 
-A "nitpick code style" is a [TOML] file with the settings that should be present in config files from other tools.
+A "nitpick code style" is a [TOML](https://github.com/toml-lang/toml) file with the settings that should be present in config files from other tools.
 
 Example of a style:
 
@@ -54,9 +44,9 @@ combine_as_imports = true
 
 This style will assert that:
 
-- ... [black], [isort] and [flake8] have a line length of 120;
-- ... [flake8] and [isort] are configured as above in `setup.cfg`;
-- ... [pylint] is present as a project dev dependency (in `pyproject.toml`, used by [poetry]).
+- ... [black](https://github.com/psf/black), [isort](https://github.com/timothycrosley/isort) and [flake8](https://gitlab.com/pycqa/flake8) have a line length of 120;
+- ... [flake8](https://gitlab.com/pycqa/flake8) and [isort](https://github.com/timothycrosley/isort) are configured as above in `setup.cfg`;
+- ... [Pylint](https://www.pylint.org) is present as a [Poetry](https://github.com/sdispater/poetry/) dev dependency in `pyproject.toml`).
 
 ## Quick setup
 
@@ -65,13 +55,13 @@ To try the package, simply install it (in a virtualenv or globally, wherever) an
     $ pip install -U nitpick
     $ flake8
 
-`nitpick` will use the opinionated [default style file].
+Nitpick will download and use the opinionated [default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/nitpick-style.toml).
 
-You can use it as a template to create your own style.
+You can use it as a template to configure your own style.
 
 ### Run as a pre-commit hook (recommended)
 
-If you use [pre-commit] on your project (you should), add this to the `.pre-commit-config.yaml` in your repository:
+If you use [pre-commit](https://pre-commit.com/) on your project (you should), add this to the `.pre-commit-config.yaml` in your repository:
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick

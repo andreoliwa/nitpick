@@ -1,3 +1,5 @@
+.. include:: targets.rst
+
 ============
 Contributing
 ============
@@ -23,10 +25,9 @@ articles, and such.
 Development
 ===========
 
-To set up ``nitpick`` for local development:
+To set up Nitpick_ for local development:
 
-1. Fork `nitpick <https://github.com/andreoliwa/nitpick>`_
-   (look for the "Fork" button).
+1. Fork Nitpick_ (look for the "Fork" button).
 
 2. Clone your fork locally::
 
@@ -34,7 +35,7 @@ To set up ``nitpick`` for local development:
     git clone git@github.com:your_name_here/nitpick.git
     cd nitpick
 
-3. `Install Poetry globally using the recommended way <https://github.com/sdispater/poetry#installation>`_.
+3. Install Poetry_ globally using the recommended way.
 
 4. Create your virtualenv with pyenv (or some other tool you prefer)::
 
@@ -67,8 +68,7 @@ To set up ``nitpick`` for local development:
 
 9. Submit a pull request through the GitHub website.
 
-10. If your pull request is accepted, all your commits will be squashed into one,
-    and the `Angular Convention will be used on the commit message <https://github.com/conventional-changelog/conventional-changelog/tree/0e05028f70bbd3109e1a4b16262a9450153060de/packages/conventional-changelog-angular#angular-convention>`_.
+10. If your pull request is accepted, all your commits will be squashed into one, and the `Conventional Commits Format <https://www.conventionalcommits.org/>`_ will be used on the commit message.
 
 Pull Request Guidelines
 -----------------------

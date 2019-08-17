@@ -1,13 +1,10 @@
-.. _supported_files:
+.. _setup_cfg:
 
-Supported Files
+File: setup.cfg
 ===============
 
-setup.cfg
----------
-
 Comma separated values
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 On ``setup.cfg``, some keys are lists of multiple values separated by commas, like ``flake8.ignore``.
 

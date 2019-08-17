@@ -1,45 +1,62 @@
+.. include:: targets.rst
+
 .. _styles:
 
 Styles
 ======
 
-Configure your own style file
------------------------------
+.. _the-style-file:
 
-Change your project config on ``pyproject.toml``, and configure your own style like this:
+The style file
+--------------
 
-.. code-block::
+A "`Nitpick`_ code style" is a TOML_ file with the settings that should be present in config files from other tools.
 
-    [tool.nitpick]
-    style = "/path/to/your-style-file.toml"
-
-You can set ``style`` with any local file or URL. E.g.: you can use the raw URL of a `GitHub Gist <https://gist.github.com>`_.
-
-Using a file in your home directory:
+Example of a style:
 
 .. code-block::
 
-    [tool.nitpick]
-    style = "~/some/path/to/another-style.toml"
+    ["pyproject.toml".tool.black]
+    line-length = 120
 
-You can also use multiple styles and mix local files and URLs:
+    ["pyproject.toml".tool.poetry.dev-dependencies]
+    pylint = "*"
 
-.. code-block::
+    ["setup.cfg".flake8]
+    ignore = "D107,D202,D203,D401"
+    max-line-length = 120
+    inline-quotes = "double"
 
-    [tool.nitpick]
-    style = ["/path/to/first.toml", "/another/path/to/second.toml", "https://example.com/on/the/web/third.toml"]
+    ["setup.cfg".isort]
+    line_length = 120
+    multi_line_output = 3
+    include_trailing_comma = true
+    force_grid_wrap = 0
+    combine_as_imports = true
 
-The order is important: each style will override any keys that might be set by the previous .toml file.
-If a key is defined in more than one file, the value from the last file will prevail.
+This example style will assert that:
 
-Default search order for a style file
--------------------------------------
+- ... black_, isort_ and flake8_ have a line length of 120;
+- ... flake8_ and isort_ are configured with the above options in ``setup.cfg``;
+- ... Pylint_ is present as a Poetry_ dev dependency in ``pyproject.toml``.
 
-1. A file or URL configured in the ``pyproject.toml`` file, ``[tool.nitpick]`` section, ``style`` key, as described above.
+.. _configure-your-own-style:
 
-2. Any ``nitpick-style.toml`` file found in the current directory (the one in which ``flake8`` runs from) or above.
+Configure your own style
+------------------------
 
-3. If no style is found, then `the default style file from GitHub <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/nitpick-style.toml>`_ is used.
+After creating your own TOML_ file with your style, add it to your ``pyproject.toml`` file. See :ref:`the [tool.nitpick] section <tool_nitpick>` for details.
+
+You can also check the :ref:`pre-configured defaults <defaults>`, and copy/paste/change configuration from them.
+
+Default search order for a style
+--------------------------------
+
+1. A file or URL configured in the ``pyproject.toml`` file, ``[tool.nitpick]`` section, ``style`` key, as described in :ref:`tool_nitpick`.
+
+2. Any `nitpick-style.toml`_ file found in the current directory (the one in which flake8_ runs from) or above.
+
+3. If no style is found, then the `default style file`_ from GitHub is used.
 
 Style file syntax
 -----------------
@@ -48,14 +65,14 @@ A style file contains basically the configuration options you want to enforce in
 
 They are just the config to the tool, prefixed with the name of the config file.
 
-E.g.: To `configure the black formatter <https://github.com/python/black#configuration-format>`_ with a line length of 120, you use this in your ``pyproject.toml``:
+E.g.: To configure the black_ formatter with a line length of 120, you use this in your ``pyproject.toml``:
 
 .. code-block::
 
     [tool.black]
     line-length = 120
 
-To enforce that all your projects use this same line length, add this to your ``nitpick-style.toml`` file:
+To enforce that all your projects use this same line length, add this to your `nitpick-style.toml`_ file:
 
 .. code-block::
 
@@ -66,14 +83,14 @@ It's the same exact section/key, just prefixed with the config file name (``"pyp
 
 The same works for ``setup.cfg``.
 
-To `configure mypy <https://mypy.readthedocs.io/en/latest/config_file.html#config-file-format>`_ to ignore missing imports in your project:
+To `configure mypy <https://mypy.readthedocs.io/en/latest/config_file.html#config-file-format>`_ to ignore missing imports in your project, this is needed on ``setup.cfg``:
 
 .. code-block::
 
     [mypy]
     ignore_missing_imports = true
 
-To enforce all your projects to ignore missing imports, add this to your ``nitpick-style.toml`` file:
+To enforce all your projects to ignore missing imports, add this to your `nitpick-style.toml`_ file:
 
 .. code-block::
 

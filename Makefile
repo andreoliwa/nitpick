@@ -5,9 +5,9 @@ SOURCEDIR     = docs
 BUILDDIR      = docs/_build
 RERUN_AFTER   = 4h
 
-.PHONY: help Makefile always-run pre-commit poetry sphinx pytest reset
+.PHONY: help Makefile always-run pre-commit poetry doc test force force-docs
 
-dev: always-run .cache/make/auto-pre-commit .cache/make/auto-poetry .cache/make/sphinx .cache/make/run .cache/make/pytest
+dev: always-run .cache/make/auto-pre-commit .cache/make/auto-poetry .cache/make/doc .cache/make/run .cache/make/test
 
 always-run:
 	@mkdir -p .cache/make
@@ -19,8 +19,10 @@ help:
 	@echo 'Extra commands:'
 	@echo '  pre-commit  to install and update pre-commit hooks'
 	@echo '  poetry      to update dependencies'
-	@echo '  sphinx      to build docs'
-	@echo '  pytest      to run tests'
+	@echo '  doc         to build documentation'
+	@echo '  test        to run tests'
+	@echo '  force       to force rebuild of all targets in this Makefile'
+	@echo '  force-docs  to force rebuild of documentation'
 
 pre-commit:
 	-rm .cache/make/auto-pre-commit
@@ -41,37 +43,51 @@ poetry:
 .cache/make/auto-poetry: pyproject.toml
 	poetry update
 	poetry install
-	# Force creation of a setup.py to avoid this error on "pip install -e nitpick"
-	# ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ~/Code/nitpick
-	# (A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
-	# TODO remove this if ever pip changes this behaviour
+
+	@# Force creation of a setup.py to avoid this error on "pip install -e nitpick"
+	@# ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ~/Code/nitpick
+	@# (A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
+	@# Remove this if ever pip changes this behaviour
 	poetryx setup-py
+
 	touch .cache/make/auto-poetry
 	-rm .cache/make/run
 
-sphinx:
-	-rm .cache/make/sphinx
+doc: docs/* *.rst *.md
+	-rm .cache/make/doc
 	$(MAKE)
 
-# $(O) is meant as a shortcut for $(SPHINXOPTS).
-.cache/make/sphinx: docs *.rst *.md
+.cache/make/doc-source: src/*
 	-rm -rf docs/source
 	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
-	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	touch .cache/make/sphinx
+	touch .cache/make/doc-source
 
-.cache/make/run: .github/* .travis/* docs/* src/* styles/* tests/* nitpick-style.toml
+# $(O) is meant as a shortcut for $(SPHINXOPTS).
+.cache/make/doc: docs/* *.rst *.md .cache/make/doc-source
+	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+	@# Detect broken links on the documentation
+	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -blinkcheck
+
+	touch .cache/make/doc
+
+.cache/make/run: .github/* .travis/* docs/**.py src/* styles/* tests/* nitpick-style.toml
 	pre-commit run --all-files
 	flake8
 	touch .cache/make/run
 
-pytest:
-	-rm .cache/make/pytest
+test:
+	-rm .cache/make/test
 	$(MAKE)
 
-.cache/make/pytest: src/* styles/* tests/*
+.cache/make/test: src/* styles/* tests/*
 	pytest
-	touch .cache/make/pytest
+	touch .cache/make/test
 
-reset:
-	rm -rf .cache/make
+force:
+	rm -rf .cache/make docs/_build docs/source
+	$(MAKE)
+
+force-docs:
+	rm -rf .cache/make/doc* docs/_build docs/source
+	$(MAKE)

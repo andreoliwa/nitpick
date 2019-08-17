@@ -61,7 +61,7 @@ class NitpickChecker(NitpickMixin):
 
     def check_files(self, present: bool) -> YieldFlake8Error:
         """Check files that should be present or absent."""
-        # TODO: validate with schemas
+        # FIXME: validate with schemas
         key = "present" if present else "absent"
         message = "exist" if present else "be deleted"
         absent = not present

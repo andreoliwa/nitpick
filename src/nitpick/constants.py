@@ -14,7 +14,7 @@ DEFAULT_NITPICK_STYLE_URL = "https://raw.githubusercontent.com/andreoliwa/nitpic
     NITPICK_VERSION, NITPICK_STYLE_TOML
 )
 MANAGE_PY = "manage.py"
-ROOT_PYTHON_FILES = ("setup.py", "autoapp.py")
+ROOT_PYTHON_FILES = ("setup.py", "app.py", "wsgi.py", "autoapp.py")
 ROOT_FILES = ("requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 
 #: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,

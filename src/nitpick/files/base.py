@@ -59,11 +59,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             yield file_name
 
     def check_exists(self) -> YieldFlake8Error:
-        """Check if the file should exist; if there is style configuration for the file, then it should exist.
-
-        The file should exist when there is any rule configured for it in the style file,
-        TODO: add this to the docs
-        """
+        """Check if the file should exist."""
         for _ in self.multiple_files:
             config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
             should_exist = self.config.files.get(self.toml_key, True)  # type: bool

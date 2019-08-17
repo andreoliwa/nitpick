@@ -1,7 +1,11 @@
-.. _config:
+.. _nitpick_section:
 
-Config
-======
+The ``[nitpick]`` section
+=========================
+
+The ``[nitpick]`` section in :ref:`the style file <the-style-file>` contains global settings for the style.
+
+Those are settings that either don't belong to any specific config file, or can be applied to all config files.
 
 Files that should exist
 -----------------------
