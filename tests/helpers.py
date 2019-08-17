@@ -32,7 +32,7 @@ class ProjectMock:
     _errors = set()  # type: Set[str]
 
     fixtures_dir = Path(__file__).parent / "fixtures"  # type: Path
-    styles_dir = Path(__file__).parent.parent / "docs/styles"  # type: Path
+    styles_dir = Path(__file__).parent.parent / "docs/_static/styles"  # type: Path
 
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""

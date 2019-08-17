@@ -6,22 +6,22 @@ minimum_version = "0.10.0"
 
 [nitpick.styles]
 include = [
-    "docs/styles/python37",
-    "docs/styles/poetry",
-    "docs/styles/absent-files",
-    "docs/styles/pre-commit/main",
-    "docs/styles/pre-commit/general",
-    "docs/styles/pre-commit/python",
-    "docs/styles/pre-commit/bash",
-    "docs/styles/pre-commit/commitlint",
-    "docs/styles/black",
-    "docs/styles/flake8",
-    "docs/styles/pylint",
-    "docs/styles/isort",
-    "docs/styles/mypy",
-    "docs/styles/pytest",
-    "docs/styles/ipython",
-    "docs/styles/package-json",
+    "docs/_static/styles/python37",
+    "docs/_static/styles/poetry",
+    "docs/_static/styles/absent-files",
+    "docs/_static/styles/pre-commit/main",
+    "docs/_static/styles/pre-commit/general",
+    "docs/_static/styles/pre-commit/python",
+    "docs/_static/styles/pre-commit/bash",
+    "docs/_static/styles/pre-commit/commitlint",
+    "docs/_static/styles/black",
+    "docs/_static/styles/flake8",
+    "docs/_static/styles/pylint",
+    "docs/_static/styles/isort",
+    "docs/_static/styles/mypy",
+    "docs/_static/styles/pytest",
+    "docs/_static/styles/ipython",
+    "docs/_static/styles/package-json",
 ]
 
 [nitpick.files."setup.cfg"]

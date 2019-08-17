@@ -1,6 +1,6 @@
 [tool.nitpick]
 # Use the default style and override some things (like the Python version)
-style = ["nitpick-style", "docs/styles/python35-36-37"]
+style = ["nitpick-style", "docs/_static/styles/python35-36-37"]
 
 [tool.black]
 line-length = 120
