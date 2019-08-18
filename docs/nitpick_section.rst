@@ -14,7 +14,7 @@ To enforce that certain files should exist in the project, you can add them to t
 
 Use an empty string to not display any extra message.
 
-.. code-block::
+.. code-block:: toml
 
     [nitpick.files.present]
     ".editorconfig" = ""
@@ -25,7 +25,7 @@ Files that should be deleted
 
 To enforce that certain files should not exist in the project, you can add them to the style file.
 
-.. code-block::
+.. code-block:: toml
 
     [nitpick.files.absent]
     "some_file.txt" = "This is an optional extra string to display after the warning"

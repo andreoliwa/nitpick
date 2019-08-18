@@ -3,16 +3,20 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = docs
 BUILDDIR      = docs/_build
-RERUN_AFTER   = 4h
+LONG_RERUN    = 4h
+SHORT_RERUN   = 30m
 
 .PHONY: help Makefile always-run pre-commit poetry doc test test-failed force force-docs
 
-dev: always-run .cache/make/auto-pre-commit .cache/make/auto-poetry .cache/make/doc .cache/make/run .cache/make/test
+dev: always-run .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/doc .cache/make/run .cache/make/test
 
 always-run:
 	@mkdir -p .cache/make
-	@# Remove files named auto* if they are older than a few hours, so the targets will be rebuilt
-	@fd --changed-before $(RERUN_AFTER) auto .cache/make --exec-batch rm '{}' ;
+
+# Remove cache files if they are older than the configured time, so the targets will be rebuilt
+# "fd" is a faster alternative to "find": https://github.com/sharkdp/fd
+	@fd --changed-before $(LONG_RERUN) long .cache/make --exec-batch rm '{}' ;
+		@fd --changed-before $(SHORT_RERUN) short .cache/make --exec-batch rm '{}' ;
 
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
@@ -25,53 +29,60 @@ help:
 	@echo '  force-docs  to force rebuild of documentation'
 
 pre-commit:
-	-rm .cache/make/auto-pre-commit
+	-rm .cache/make/long-pre-commit
 	$(MAKE)
 
-.cache/make/auto-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml
+.cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml
 	pre-commit autoupdate
 	pre-commit install --install-hooks
 	pre-commit install --hook-type commit-msg
 	pre-commit gc
-	touch .cache/make/auto-pre-commit
+	touch .cache/make/long-pre-commit
 	-rm .cache/make/run
 
 poetry:
-	-rm .cache/make/auto-poetry
+	-rm .cache/make/long-poetry
 	$(MAKE)
 
-.cache/make/auto-poetry: pyproject.toml
+.cache/make/long-poetry: pyproject.toml
 	poetry update
 	poetry install
+
+# Update the requirements for Read the Docs
+# "rg" is a faster alternative to "grep": https://github.com/BurntSushi/ripgrep
+	pip freeze | rg -i -e sphinx -e pygments | sort -u > docs/requirements.txt
 
 # Force creation of a setup.py to avoid this error on "pip install -e nitpick"
 # ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ~/Code/nitpick
 # (A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
 # Remove this if ever pip changes this behaviour
+# Install PoetryX from here: https://github.com/andreoliwa/python-clib#poetryx
 	poetryx setup-py
 
-	touch .cache/make/auto-poetry
+	touch .cache/make/long-poetry
 	-rm .cache/make/run
 
 doc: docs/* *.rst *.md
-	-rm .cache/make/doc
+	-rm .cache/make/*doc*
 	$(MAKE)
 
-.cache/make/doc-source: src/*
+.cache/make/short-doc-source:
 	-rm -rf docs/source
 	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
-	touch .cache/make/doc-source
+	touch .cache/make/short-doc-source
 
 .cache/make/doc-defaults: docs/generate_defaults.py styles/*
 	python3 docs/generate_defaults.py
 	touch .cache/make/doc-defaults
 
 # $(O) is meant as a shortcut for $(SPHINXOPTS).
-.cache/make/doc: docs/* *.rst *.md .cache/make/doc-source .cache/make/doc-defaults
+.cache/make/doc: docs/* *.rst *.md .cache/make/short-doc-source .cache/make/doc-defaults
 	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-	@# Detect broken links on the documentation
-	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -blinkcheck
+# Detect broken links on the documentation
+# Uses this helper script to avoid slow reruns: https://github.com/andreoliwa/dotfiles/blob/master/bin/rerun_after_time.sh
+	@rerun_after_time.sh $(SHORT_RERUN) .cache/make/short-doc-link-check $(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -blinkcheck
+	touch .cache/make/short-doc-link-check
 
 	touch .cache/make/doc
 
@@ -98,5 +109,5 @@ force:
 	$(MAKE)
 
 force-docs:
-	rm -rf .cache/make/doc* docs/_build docs/source
+	rm -rf .cache/make/*doc* docs/_build docs/source
 	$(MAKE)

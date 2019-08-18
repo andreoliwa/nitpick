@@ -10,14 +10,14 @@ Crash on multi-threading
 
 On macOS, flake8_ might raise this error when calling ``requests.get(url)``:
 
-.. code-block::
+.. code-block:: shell
 
 	objc[93329]: +[__NSPlaceholderDate initialize] may have been in progress in another thread when fork() was called.
 	objc[93329]: +[__NSPlaceholderDate initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
 
 To solve this issue, add this environment variable to ``.bashrc`` (or the initialization file for your favorite shell):
 
-.. code-block:: bash
+.. code-block:: shell
 
 	export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 

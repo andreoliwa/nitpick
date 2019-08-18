@@ -7,7 +7,7 @@ The ``[tool.nitpick]`` section
 
 You can configure your own style like this:
 
-.. code-block::
+.. code-block:: toml
 
     [tool.nitpick]
     style = "/path/to/your-style-file.toml"
@@ -16,14 +16,14 @@ You can set ``style`` with any local file or URL. E.g.: you can use the raw URL 
 
 Using a file in your home directory:
 
-.. code-block::
+.. code-block:: toml
 
     [tool.nitpick]
     style = "~/some/path/to/another-style.toml"
 
 You can also use multiple styles and mix local files and URLs:
 
-.. code-block::
+.. code-block:: toml
 
     [tool.nitpick]
     style = [

@@ -14,7 +14,7 @@ A "`Nitpick`_ code style" is a TOML_ file with the settings that should be prese
 
 Example of a style:
 
-.. code-block::
+.. code-block:: toml
 
     ["pyproject.toml".tool.black]
     line-length = 120
@@ -67,14 +67,14 @@ They are just the config to the tool, prefixed with the name of the config file.
 
 E.g.: To configure the black_ formatter with a line length of 120, you use this in your ``pyproject.toml``:
 
-.. code-block::
+.. code-block:: toml
 
     [tool.black]
     line-length = 120
 
 To enforce that all your projects use this same line length, add this to your `nitpick-style.toml`_ file:
 
-.. code-block::
+.. code-block:: toml
 
     ["pyproject.toml".tool.black]
     line-length = 120
@@ -85,14 +85,14 @@ The same works for ``setup.cfg``.
 
 To `configure mypy <https://mypy.readthedocs.io/en/latest/config_file.html#config-file-format>`_ to ignore missing imports in your project, this is needed on ``setup.cfg``:
 
-.. code-block::
+.. code-block:: ini
 
     [mypy]
     ignore_missing_imports = true
 
 To enforce all your projects to ignore missing imports, add this to your `nitpick-style.toml`_ file:
 
-.. code-block::
+.. code-block:: toml
 
     ["setup.cfg".mypy]
     ignore_missing_imports = true

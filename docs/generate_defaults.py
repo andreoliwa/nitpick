@@ -1,6 +1,6 @@
 """Generate defaults.rst with the TOML styles, on the dev machine during "make", to be committed on GitHub.
 
-The ``include`` directive is not working on ReadTheDocs.
+The ``include`` directive is not working on Read the Docs.
 It doesn't recognise the "styles" dir anywhere (on the root, under "docs", under "_static"...).
 Not even changing ``html_static_path`` on ``conf.py`` worked.
 """

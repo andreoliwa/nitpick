@@ -10,7 +10,7 @@ Quick setup
 
 To try the package, simply install it (in a virtualenv or globally, wherever) and run ``flake8``:
 
-.. code-block::
+.. code-block:: shell
 
     $ pip install -U nitpick
     $ flake8
@@ -24,7 +24,7 @@ Run as a pre-commit hook (recommended)
 
 If you use pre-commit_ on your project (you should), add this to the ``.pre-commit-config.yaml`` in your repository:
 
-.. code-block::
+.. code-block:: yaml
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
