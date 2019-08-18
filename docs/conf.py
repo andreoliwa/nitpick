@@ -5,21 +5,12 @@ This file does only contain a selection of the most common options. For a
 full list see the documentation:
 http://www.sphinx-doc.org/en/master/config
 """
-import sys
-from pathlib import Path
 from typing import Dict
 
 # -- Path setup --------------------------------------------------------------
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-nitpick_src_dir = (Path().parent / "../src").resolve()  # type: Path
-sys.path.append(str(nitpick_src_dir))
-print("Path.cwd() =", Path.cwd())
-print("Nitpick src dir =", nitpick_src_dir)
-for file in nitpick_src_dir.glob("**/*"):
-    print(file)
-print("sys.path =", sys.path)
 
 # -- Project information -----------------------------------------------------
 project = "nitpick"
