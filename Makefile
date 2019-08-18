@@ -62,8 +62,12 @@ doc: docs/* *.rst *.md
 	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
 	touch .cache/make/doc-source
 
+.cache/make/doc-defaults: docs/generate_defaults.py styles/*
+	python3 docs/generate_defaults.py
+	touch .cache/make/doc-defaults
+
 # $(O) is meant as a shortcut for $(SPHINXOPTS).
-.cache/make/doc: docs/* *.rst *.md .cache/make/doc-source
+.cache/make/doc: docs/* *.rst *.md .cache/make/doc-source .cache/make/doc-defaults
 	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 	@# Detect broken links on the documentation

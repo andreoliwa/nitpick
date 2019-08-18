@@ -13,3 +13,8 @@
 .. _pre-commit: https://pre-commit.com/
 .. _Pylint: https://www.pylint.org
 .. _TOML: https://github.com/toml-lang/toml
+.. _IPython: https://ipython.org
+.. _package.json: https://docs.npmjs.com/files/package.json
+.. _Bash: https://www.gnu.org/software/bash/
+.. _commitlint: https://commitlint.js.org/
+.. _pytest: https://pytest.org/

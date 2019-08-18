@@ -6,28 +6,327 @@ Defaults
 ========
 
 If you don't :ref:`configure your own style <configure-your-own-style>`, those are some of the defaults that will be applied.
+
 All TOML_ configs below are taken from the `default style file`_.
+
+.. _toml_files:
+
+Absent files
+------------
+
+Content of `styles/absent-files.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/absent-files.toml>`_:
+
+.. code-block:: toml
+
+    [nitpick.files.absent]
+    "requirements.txt" = "Install poetry, run 'poetry init' to create pyproject.toml, and move dependencies to it"
+    ".isort.cfg" = "Move values to setup.cfg, section [isort]"
+    "Pipfile" = "Use pyproject.toml instead"
+    "Pipfile.lock" = "Use pyproject.toml instead"
+    ".venv" = ""
+    ".pyup.yml" = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
 black_
 ------
 
-.. include:: styles/black.toml
-	:code: toml
+Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/black.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.black]
+    line-length = 120
+
+    [["pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/python/black
+        rev: 19.3b0
+        hooks:
+          - id: black
+            args: [--safe, --quiet]
+      - repo: https://github.com/asottile/blacken-docs
+        rev: v1.3.0
+        hooks:
+          - id: blacken-docs
+            additional_dependencies: [black==19.3b0]
+    """
+    # TODO The toml library has issues loading arrays with multiline strings:
+    # https://github.com/uiri/toml/issues/123
+    # https://github.com/uiri/toml/issues/230
+    # If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
+    #["pre-commit-config.yaml"]
+    #repos = ["""
+    #<YAML goes here>
+    #"""]
 
 flake8_
 -------
 
-.. include:: styles/flake8.toml
-	:code: toml
+Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/flake8.toml>`_:
+
+.. code-block:: toml
+
+    ["setup.cfg".flake8]
+    # http://www.pydocstyle.org/en/2.1.1/error_codes.html
+    # Ignoring W503: https://github.com/python/black#line-breaks--binary-operators
+    # Ignoring "D202 No blank lines allowed after function docstring": black inserts a blank line.
+    ignore = "D107,D202,D203,D401,E203,E402,E501,W503"
+    max-line-length = 120
+    inline-quotes = "double"
+    exclude = ".tox,build"
+
+    # Nitpick reccomends those plugins as part of the style, but doesn't install them automatically as before.
+    # This way, the developer has the choice of overriding this style, instead of having lots of plugins installed
+    # without being asked.
+    [["pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/pre-commit/pre-commit-hooks
+        rev: v2.3.0
+        hooks:
+          - id: flake8
+            additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
+              flake8-debugger, flake8-docstrings, flake8-isort, flake8-polyfill,
+              flake8-pytest, flake8-quotes, yesqa]
+    """
+    # TODO suggest nitpick for external repos
+
+IPython_
+--------
+
+Content of `styles/ipython.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/ipython.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dev-dependencies]
+    ipython = "*"
+    ipdb = "*"
 
 isort_
 ------
 
-.. include:: styles/isort.toml
-	:code: toml
+Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/isort.toml>`_:
+
+.. code-block:: toml
+
+    ["setup.cfg".isort]
+    line_length = 120
+    skip = ".tox,build"
+    known_first_party = "tests"
+
+    # The configuration below is needed for compatibility with black.
+    # https://github.com/python/black#how-black-wraps-lines
+    # https://github.com/timothycrosley/isort#multi-line-output-modes
+    multi_line_output = 3
+    include_trailing_comma = true
+    force_grid_wrap = 0
+    combine_as_imports = true
+
+    [["pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/asottile/seed-isort-config
+        rev: v1.9.2
+        hooks:
+          - id: seed-isort-config
+      - repo: https://github.com/pre-commit/mirrors-isort
+        rev: v4.3.21
+        hooks:
+          - id: isort
+    """
 
 mypy_
 -----
 
-.. include:: styles/mypy.toml
-	:code: toml
+Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/mypy.toml>`_:
+
+.. code-block:: toml
+
+    # https://mypy.readthedocs.io/en/latest/config_file.html
+    ["setup.cfg".mypy]
+    ignore_missing_imports = true
+
+    # Do not follow imports (except for ones found in typeshed)
+    follow_imports = "skip"
+
+    # Treat Optional per PEP 484
+    strict_optional = true
+
+    # Ensure all execution paths are returning
+    warn_no_return = true
+
+    # Lint-style cleanliness for typing
+    warn_redundant_casts = true
+    warn_unused_ignores = true
+
+    [["pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/pre-commit/mirrors-mypy
+        rev: v0.720
+        hooks:
+          - id: mypy
+    """
+
+package.json_
+-------------
+
+Content of `styles/package-json.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/package-json.toml>`_:
+
+.. code-block:: toml
+
+    [nitpick.JsonFile]
+    file_names = ["package.json"]
+
+    ["package.json"]
+    contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
+
+    ["package.json".contains_json]
+    commitlint = """
+      {
+        "extends": [
+          "@commitlint/config-conventional"
+        ]
+      }
+    """
+
+Poetry_
+-------
+
+Content of `styles/poetry.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/poetry.toml>`_:
+
+.. code-block:: toml
+
+    [nitpick.files."pyproject.toml"]
+    missing_message = "Install poetry and run 'poetry init' to create it"
+
+Bash_
+-----
+
+Content of `styles/pre-commit/bash.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/pre-commit/bash.toml>`_:
+
+.. code-block:: toml
+
+    [["pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/openstack/bashate
+        rev: 0.6.0
+        hooks:
+          - id: bashate
+    """
+
+commitlint_
+-----------
+
+Content of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/pre-commit/commitlint.toml>`_:
+
+.. code-block:: toml
+
+    [["pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+        rev: 2.0.0
+        hooks:
+          - id: commitlint
+            stages: [commit-msg]
+            additional_dependencies: ['@commitlint/config-conventional']
+    """
+
+pre-commit_ (hooks)
+-------------------
+
+Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/pre-commit/general.toml>`_:
+
+.. code-block:: toml
+
+    [["pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/pre-commit/pre-commit-hooks
+        rev: v2.3.0
+        hooks:
+          - id: debug-statements
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
+      - repo: https://github.com/asottile/pyupgrade
+        rev: v1.22.1
+        hooks:
+          - id: pyupgrade
+    """
+
+pre-commit_ (main)
+------------------
+
+Content of `styles/pre-commit/main.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/pre-commit/main.toml>`_:
+
+.. code-block:: toml
+
+    # See https://pre-commit.com for more information
+    # See https://pre-commit.com/hooks.html for more hooks
+
+    [nitpick.files."pre-commit-config.yaml"]
+    missing_message = "Create the file with the contents below, then run 'pre-commit install'"
+
+pre-commit_ (Python hooks)
+--------------------------
+
+Content of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/pre-commit/python.toml>`_:
+
+.. code-block:: toml
+
+    [["pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/pre-commit/pygrep-hooks
+        rev: v1.4.1
+        hooks:
+          - id: python-check-blanket-noqa
+          - id: python-check-mock-methods
+          - id: python-no-eval
+          - id: python-no-log-warn
+          - id: rst-backticks
+    """
+
+Pylint_
+-------
+
+Content of `styles/pylint.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/pylint.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dev-dependencies]
+    pylint = "*"
+
+Python 3.5, 3.6 or 3.7
+----------------------
+
+Content of `styles/python35-36-37.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/python35-36-37.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.5 || ^3.6 || ^3.7"
+
+Python 3.6 or 3.7
+-----------------
+
+Content of `styles/python36-37.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/python36-37.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.6 || ^3.7"
+
+Python 3.6
+----------
+
+Content of `styles/python36.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/python36.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.6"
+
+Python 3.7
+----------
+
+Content of `styles/python37.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/v0.20.0/styles/python37.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.7"
