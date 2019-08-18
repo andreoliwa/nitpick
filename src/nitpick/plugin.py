@@ -61,11 +61,11 @@ class NitpickChecker(NitpickMixin):
 
     def check_files(self, present: bool) -> YieldFlake8Error:
         """Check files that should be present or absent."""
-        # FIXME: validate with schemas
+        # FIXME: validate files.absent and files.present with schemas
         key = "present" if present else "absent"
         message = "exist" if present else "be deleted"
         absent = not present
-        for file_name, extra_message in self.config.files.get(key, {}).items():
+        for file_name, extra_message in self.config.nitpick_files_section.get(key, {}).items():
             file_path = self.config.root_dir / file_name  # type: Path
             exists = file_path.exists()
             if (present and exists) or (absent and not exists):

@@ -17,10 +17,9 @@ def test_absent_files(request):
     )
 
 
-def test_present_files(request):
-    """Test present files from the style configuration."""
-    project = ProjectMock(request)
-    project.style(
+def test_files_beginning_with_dot(request):
+    """Test files beginning with a dot: the can't be used on [nitpick.files] (for now)."""
+    ProjectMock(request).style(
         """
         [nitpick.files.".editorconfig"]
         missing_message = "Create this file"
@@ -32,7 +31,10 @@ def test_present_files(request):
         """
     )
 
-    project.style(
+
+def test_present_files(request):
+    """Test present files from the style configuration."""
+    ProjectMock(request).style(
         """
         [nitpick.files.present]
         ".editorconfig" = "Create this file"

@@ -70,11 +70,13 @@ class NitpickSchema(Schema):
 
     minimum_version = NotEmptyString()
     styles = fields.Nested(NitpickStylesSchema)
-    files = fields.Dict(fields.String, PolyField(deserialization_schema_selector=boolean_or_dict_field))
+    # FIXME: validate=validate.OneOf(app.configured_file_names | {"present", "absent"})
+    files = fields.Dict(fields.String(), fields.Dict())
     JsonFile = fields.Nested(NitpickJsonFileSchema)
 
 
-class MergedStyleSchema(Schema):
+class StyleFileSchema(Schema):
     """Validation schema for the merged style file."""
 
+    # FIXME: Marshmallow: wrap on an envelope and merge schemas (NitpickSchema + StyleFileSchema = StyleSchema)
     nitpick = fields.Nested(NitpickSchema)

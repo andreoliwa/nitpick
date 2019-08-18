@@ -5,7 +5,7 @@ SOURCEDIR     = docs
 BUILDDIR      = docs/_build
 RERUN_AFTER   = 4h
 
-.PHONY: help Makefile always-run pre-commit poetry doc test force force-docs
+.PHONY: help Makefile always-run pre-commit poetry doc test test-failed force force-docs
 
 dev: always-run .cache/make/auto-pre-commit .cache/make/auto-poetry .cache/make/doc .cache/make/run .cache/make/test
 
@@ -44,10 +44,10 @@ poetry:
 	poetry update
 	poetry install
 
-	@# Force creation of a setup.py to avoid this error on "pip install -e nitpick"
-	@# ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ~/Code/nitpick
-	@# (A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
-	@# Remove this if ever pip changes this behaviour
+# Force creation of a setup.py to avoid this error on "pip install -e nitpick"
+# ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ~/Code/nitpick
+# (A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
+# Remove this if ever pip changes this behaviour
 	poetryx setup-py
 
 	touch .cache/make/auto-poetry
@@ -82,10 +82,15 @@ doc: docs/* *.rst *.md
 
 test:
 	-rm .cache/make/test
-	$(MAKE)
+	$(MAKE) .cache/make/test
 
 .cache/make/test: src/* styles/* tests/*
+	-rm .pytest/failed
 	pytest
+	touch .cache/make/test
+
+test-failed:
+	pytest --failed
 	touch .cache/make/test
 
 force:

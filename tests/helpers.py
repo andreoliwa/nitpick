@@ -142,7 +142,8 @@ class ProjectMock:
 
     def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""
-        print("Expected error:\n{}".format(expected_error))
+        if expected_error:
+            print("Expected error:\n{}".format(expected_error))
         print("\nError count:")
         print(len(self._errors))
         print("\nAll errors:")
@@ -199,9 +200,8 @@ class ProjectMock:
         if not self._errors:
             return self
 
-        print("\nAll errors:")
-        print(sorted(self._errors))
-        raise AssertionError
+        self.raise_assertion_error("")
+        return self
 
     def assert_merged_style(self, toml_string: str):
         """Assert the contents of the merged style file."""

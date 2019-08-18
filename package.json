@@ -52,6 +52,7 @@
         2,
         "always",
         [
+          "style",
           "pre-commit",
           "pyproject.toml",
           "setup.cfg",

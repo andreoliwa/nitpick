@@ -199,6 +199,15 @@ class BaseFormat(metaclass=abc.ABCMeta):
 class TomlFormat(BaseFormat):
     """TOML configuration format."""
 
+    @staticmethod
+    def group_name_for(file_name: str) -> str:
+        """Return a TOML group name for a file name.
+
+        If the file name begins with a dot, remove it.
+        Otherwise an error is raised: TomlDecodeError: Invalid group name 'xxx'. Try quoting it.
+        """
+        return file_name.lstrip(".")
+
     def load(self) -> bool:
         """Load a TOML file by its path, a string or a dict."""
         if self._loaded:

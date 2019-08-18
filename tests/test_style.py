@@ -102,7 +102,7 @@ def test_include_styles_overriding_values(request):
         "flake8",
         """
         [nitpick.styles]
-        include = ["black.toml", "", " "]
+        include = ["black.toml"]
         ["setup.cfg".flake8]
         inline-quotes = "double"
         something = 123
@@ -514,4 +514,32 @@ def test_invalid_toml(request):
         TomlDecodeError: This float doesn't have a leading digit (line 2 column 1 char 21)\x1b[0m
         """,
         1,
+    )
+
+
+def test_invalid_nitpick_files(request):
+    """Invalid [nitpick.files] section."""
+    ProjectMock(request).named_style(
+        "some/sub/style",
+        """
+        [xxx]
+        wrong = "section"
+        """,
+    ).named_style(
+        "wrong_files",
+        """
+        [nitpick.files.whatever]
+        wrong = "section"
+        """,
+    ).pyproject_toml(
+        """
+        [tool.nitpick]
+        style = ["some/sub/style", "wrong_files"]
+        """
+    ).lint().assert_errors_contain(
+        """
+        NIP001 File some/sub/style has an incorrect style. Invalid TOML:\x1b[92m
+        xxx: Unknown field.\x1b[0m
+        """,
+        1,  # FIXME: it should be 2; the file "whatever" is invalid
     )

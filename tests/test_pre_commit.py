@@ -315,9 +315,6 @@ def test_missing_different_values(request):
     ProjectMock(request).named_style(
         "root",
         '''
-        [nitpick.files]
-        "pyproject.toml" = true
-
         [["pre-commit-config.yaml".repos]]
         yaml = """
           - repo: https://github.com/user/repo

@@ -4,9 +4,32 @@ from io import StringIO
 from typing import Any, Dict, List, Set, Tuple
 
 import dictdiffer
+from marshmallow import Schema, ValidationError, fields
 
 from nitpick.files.base import BaseFile
 from nitpick.typedefs import YieldFlake8Error
+
+
+def validate_section_dot_field(section_field: str) -> bool:
+    """Validate if the combinatio section/field has a dot separating them."""
+    # FIXME: add tests for these situations
+    common = "Use this format: section_name.field_name"
+    if "." not in section_field:
+        raise ValidationError("Dot is missing. {}".format(common))
+    parts = section_field.split(".")
+    if len(parts) > 2:
+        raise ValidationError("There's more than one dot. {}".format(common))
+    if not parts[0].strip():
+        raise ValidationError("Empty section name. {}".format(common))
+    if not parts[1].strip():
+        raise ValidationError("Empty field name. {}".format(common))
+    return True
+
+
+class SetupCfgSchema(Schema):
+    """Validation schema for setup.cfg."""
+
+    comma_separated_values = fields.List(fields.String(validate=validate_section_dot_field))
 
 
 class SetupCfgFile(BaseFile):
@@ -14,7 +37,7 @@ class SetupCfgFile(BaseFile):
 
     file_name = "setup.cfg"
     error_base_number = 320
-
+    schema = SetupCfgSchema
     COMMA_SEPARATED_VALUES = "comma_separated_values"
 
     expected_sections = set()  # type: Set[str]

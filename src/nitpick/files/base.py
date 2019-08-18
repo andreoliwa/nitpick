@@ -3,6 +3,9 @@ import abc
 from pathlib import Path
 from typing import Generator, List
 
+import jmespath
+
+from nitpick.formats import TomlFormat
 from nitpick.generic import search_dict
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import JsonDict, YieldFlake8Error
@@ -27,7 +30,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         self.config = NitpickConfig.get_singleton()
         if self.has_multiple_files:
             key = "{}.file_names".format(self.__class__.__name__)
-            self._multiple_files = search_dict(key, self.config.nitpick_dict, [])  # type: List[str]
+            self._multiple_files = search_dict(key, self.config.nitpick_section, [])  # type: List[str]
         else:
             self._multiple_files = [self.file_name]
             self._set_current_data(self.file_name)
@@ -41,15 +44,15 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         self.file_path = self.config.root_dir / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict = self.config.style_dict.get(self.toml_key, {})
+        self.file_dict = self.config.style_dict.get(TomlFormat.group_name_for(self.file_name), {})
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
-        self.nitpick_file_dict = search_dict('files."{}"'.format(self.file_name), self.config.nitpick_dict, {})
+        self.nitpick_file_dict = search_dict('files."{}"'.format(self.file_name), self.config.nitpick_section, {})
 
-    @property
-    def toml_key(self) -> str:
-        """Remove the dot in the beginning of the file name, otherwise it's an invalid TOML key."""
-        return self.file_name.lstrip(".")
+    @classmethod
+    def get_compiled_jmespath_file_names(cls):
+        """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
+        return jmespath.compile("nitpick.{}.file_names".format(cls.__name__))
 
     @property
     def multiple_files(self) -> Generator:
@@ -62,13 +65,15 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         """Check if the file should exist."""
         for _ in self.multiple_files:
             config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-            should_exist = self.config.files.get(self.toml_key, True)  # type: bool
+            should_exist = self.config.nitpick_files_section.get(
+                TomlFormat.group_name_for(self.file_name), True
+            )  # type: bool
             file_exists = self.file_path.exists()
 
             if config_data_exists and not file_exists:
                 suggestion = self.suggest_initial_contents()
                 phrases = [" was not found"]
-                # TODO: add validation for missing_message on the BaseFileSchema
+                # FIXME: add validation for missing_message on the BaseFileSchema
                 missing_message = self.nitpick_file_dict.get("missing_message", "")
                 if missing_message:
                     phrases.append(missing_message)

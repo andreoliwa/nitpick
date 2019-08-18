@@ -17,13 +17,12 @@ from nitpick.constants import (
     TOOL_NITPICK_JMEX,
 )
 from nitpick.exceptions import StyleError
-from nitpick.files.base import BaseFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.formats import TomlFormat
-from nitpick.generic import climb_directory_tree, get_subclasses, search_dict, version_to_tuple
+from nitpick.generic import climb_directory_tree, search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
-from nitpick.schemas import MergedStyleSchema, ToolNitpickSchema, flatten_marshmallow_errors
+from nitpick.schemas import ToolNitpickSchema, flatten_marshmallow_errors
 from nitpick.style import Style
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
 
@@ -45,8 +44,8 @@ class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attribut
         self.pyproject_toml = None  # type: Optional[TomlFormat]
         self.tool_nitpick_dict = {}  # type: JsonDict
         self.style_dict = {}  # type: JsonDict
-        self.nitpick_dict = {}  # type: JsonDict
-        self.files = {}  # type: JsonDict
+        self.nitpick_section = {}  # type: JsonDict
+        self.nitpick_files_section = {}  # type: JsonDict
 
     @classmethod
     def get_singleton(cls) -> "NitpickConfig":
@@ -144,24 +143,6 @@ class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attribut
             if pyproject_errors:
                 raise StyleError(PyProjectTomlFile.file_name, flatten_marshmallow_errors(pyproject_errors))
 
-    def validate_merged_style(self):
-        """Validate the merged style file (TOML) against a Marshmallow schema."""
-        validation_dict = self.style_dict.copy()
-        for file_class in get_subclasses(BaseFile):
-            root_keys_to_remove = []
-            file_key = file_class().toml_key
-            if file_key:
-                root_keys_to_remove.append(file_key)
-            root_keys_to_remove.extend(
-                search_dict("nitpick.{}.file_names".format(file_class.__name__), validation_dict, [])
-            )
-            for key in root_keys_to_remove:
-                if key in validation_dict:
-                    validation_dict.pop(key)
-        style_errors = MergedStyleSchema().validate(validation_dict)
-        if style_errors:
-            raise StyleError(MERGED_STYLE_TOML, flatten_marshmallow_errors(style_errors))
-
     def merge_styles(self) -> YieldFlake8Error:
         """Merge one or multiple style files."""
         try:
@@ -179,7 +160,7 @@ class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attribut
 
         self.style_dict = style.merge_toml_dict()
         try:
-            self.validate_merged_style()
+            style.validate_style(MERGED_STYLE_TOML, self.style_dict)
         except StyleError as err:
             yield self.style_error(err.style_file_name, "Invalid data in the merged style file:", err.args[0])
             return
@@ -194,5 +175,5 @@ class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attribut
                 + " (you have {}). Please upgrade".format(NitpickChecker.version),
             )
 
-        self.nitpick_dict = self.style_dict.get("nitpick", {})
-        self.files = self.nitpick_dict.get("files", {})
+        self.nitpick_section = self.style_dict.get("nitpick", {})
+        self.nitpick_files_section = self.nitpick_section.get("files", {})

@@ -77,7 +77,7 @@ def test_missing_different_values(request):
           "some_root_key.valid": "JSON"
         }\x1b[0m
         """
-        # FIXME: check different values on JSON files
+        # TODO: check different values on JSON files
         # ).assert_errors_contain(
         #     """
         #     NIP349 File my.json has different values. Use this:\x1b[92m
