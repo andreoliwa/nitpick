@@ -92,6 +92,10 @@ doc: docs/* *.rst *.md
 	flake8
 	touch .cache/make/run
 
+# Quickly run nitpick on the local virtualenv
+nitpick:
+	pre-commit run --all-files nitpick-local
+
 test:
 	-rm .cache/make/test
 	$(MAKE) .cache/make/test
