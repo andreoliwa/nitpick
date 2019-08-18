@@ -6,7 +6,7 @@ BUILDDIR      = docs/_build
 LONG_RERUN    = 4h
 SHORT_RERUN   = 30m
 
-.PHONY: help Makefile always-run pre-commit poetry doc test test-failed force force-docs
+.PHONY: help Makefile always-run pre-commit poetry doc test test-failed force force-doc
 
 dev: always-run .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/doc .cache/make/run .cache/make/test
 
@@ -26,7 +26,7 @@ help:
 	@echo '  doc         to build documentation'
 	@echo '  test        to run tests'
 	@echo '  force       to force rebuild of all targets in this Makefile'
-	@echo '  force-docs  to force rebuild of documentation'
+	@echo '  force-doc   to force rebuild of documentation'
 
 pre-commit:
 	-rm .cache/make/long-pre-commit
@@ -108,6 +108,6 @@ force:
 	rm -rf .cache/make docs/_build docs/source
 	$(MAKE)
 
-force-docs:
+force-doc:
 	rm -rf .cache/make/*doc* docs/_build docs/source
 	$(MAKE)
