@@ -48,9 +48,10 @@ poetry:
 	poetry update
 	poetry install
 
-# Update the requirements for Read the Docs
+# Update the requirements for Read the Docs, adding Nitpick as well (autodoc needs it)
 # "rg" is a faster alternative to "grep": https://github.com/BurntSushi/ripgrep
 	pip freeze | rg -i -e sphinx -e pygments | sort -u > docs/requirements.txt
+	echo "nitpick" >> docs/requirements.txt
 
 # Force creation of a setup.py to avoid this error on "pip install -e nitpick"
 # ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ~/Code/nitpick

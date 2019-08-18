@@ -13,10 +13,12 @@ from typing import Dict
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-nitpick_src_dir = Path().parent / "../src"
-sys.path.insert(0, str(nitpick_src_dir.resolve()))
+nitpick_src_dir = (Path().parent / "../src").resolve()  # type: Path
+sys.path.append(str(nitpick_src_dir))
 print("Path.cwd() =", Path.cwd())
-print("Nitpick src dir =", nitpick_src_dir.resolve())
+print("Nitpick src dir =", nitpick_src_dir)
+for file in nitpick_src_dir.glob("**/*"):
+    print(file)
 print("sys.path =", sys.path)
 
 # -- Project information -----------------------------------------------------
