@@ -15,6 +15,9 @@ from typing import Dict
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 nitpick_src_dir = Path().parent / "../src"
 sys.path.insert(0, str(nitpick_src_dir.resolve()))
+print("Path.cwd() =", Path.cwd())
+print("Nitpick src dir =", nitpick_src_dir.resolve())
+print("sys.path =", sys.path)
 
 # -- Project information -----------------------------------------------------
 project = "nitpick"
