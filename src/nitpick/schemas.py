@@ -75,8 +75,7 @@ class NitpickSchema(Schema):
     JsonFile = fields.Nested(NitpickJsonFileSchema)
 
 
-class StyleFileSchema(Schema):
-    """Validation schema for the merged style file."""
+class BaseStyleSchema(Schema):
+    """Base validation schema for style files. Dynamic fields will be added to it later."""
 
-    # FIXME: Marshmallow: wrap on an envelope and merge schemas (NitpickSchema + StyleFileSchema = StyleSchema)
     nitpick = fields.Nested(NitpickSchema)

@@ -1,10 +1,11 @@
 """Style files."""
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Generator, List, Optional, Set
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Type
 from urllib.parse import urlparse, urlunparse
 
 import requests
+from marshmallow import fields
 from slugify import slugify
 from toml import TomlDecodeError
 
@@ -20,7 +21,7 @@ from nitpick.files.base import BaseFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
 from nitpick.generic import MergeDict, climb_directory_tree, get_subclasses, is_url, search_dict
-from nitpick.schemas import StyleFileSchema, flatten_marshmallow_errors
+from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList
 
 if TYPE_CHECKING:
@@ -37,6 +38,19 @@ class Style:
         self._all_styles = MergeDict()
         self._already_included = set()  # type: Set[str]
         self._first_full_path = ""  # type: str
+
+        # Separate classes with fixed file names from classes with dynamic files names.
+        # TODO do only once on app init (NitpickApp.__init__(); or create_app(), mimicking Flask)
+        self.files_predetermined_names = set()  # type: Set[Type[BaseFile]]
+        self.files_dynamic_names = set()  # type: Set[Type[BaseFile]]
+        for subclass in get_subclasses(BaseFile):
+            if subclass.file_name:
+                self.files_predetermined_names.add(subclass)
+            else:
+                self.files_dynamic_names.add(subclass)
+
+        self._dynamic_schema_class = BaseStyleSchema  # type: type
+        self.rebuild_dynamic_schema()
 
     def find_initial_styles(self, configured_styles: StrOrList):
         """Find the initial style(s) and include them."""
@@ -55,41 +69,12 @@ class Style:
 
         self.include_multiple_styles(chosen_styles)
 
-    @staticmethod
-    def fixed_file_names() -> Set[str]:
-        """Set of file names from classes that have a fixed (pre-defined) file name."""
-        return {TomlFormat.group_name_for(sub.file_name) for sub in get_subclasses(BaseFile) if sub.file_name}
-
-    @staticmethod
-    def dynamic_classes() -> Set[BaseFile]:
-        """Set of classes that don't have a predetermined file name."""
-        return {sub for sub in get_subclasses(BaseFile) if not sub.file_name}
-
-    @classmethod
-    def get_allowed_file_names(cls, data: JsonDict) -> Generator:
-        """Get the allowed file names to be used as TOML keys.
-
-        Consider classes with both fixed and dynamic file names.
-        """
-        for file_name in cls.fixed_file_names():
-            yield file_name
-        for subclass in cls.dynamic_classes():
-            jmex = subclass.get_compiled_jmespath_file_names()
-            for file_name in search_dict(jmex, data, []):
-                yield file_name
-
     def validate_style(self, style_file_name: str, original_data: JsonDict):
         """Validate a style file (TOML) against a Marshmallow schema."""
-        # validation_dict = self.style_dict.copy()
-        validation_dict = original_data.copy()
-
-        remove_keys = set(validation_dict.keys()) & set(self.get_allowed_file_names(validation_dict))
-        for key in remove_keys:
-            validation_dict.pop(key)
-        if validation_dict:
-            style_errors = StyleFileSchema().validate(validation_dict)
-            if style_errors:
-                raise StyleError(style_file_name, flatten_marshmallow_errors(style_errors))
+        self.rebuild_dynamic_schema(original_data)
+        style_errors = self._dynamic_schema_class().validate(original_data)
+        if style_errors:
+            raise StyleError(style_file_name, flatten_marshmallow_errors(style_errors))
 
     def include_multiple_styles(self, chosen_styles: StrOrList) -> None:
         """Include a list of styles (or just one) into this style tree."""
@@ -210,3 +195,31 @@ class Style:
                 attempt += 1
 
         return merged_dict
+
+    @staticmethod
+    def append_field_from_file(schema_fields: Dict[str, fields.Field], subclass: Type[BaseFile], file_name: str):
+        """Append a schema field with info from a config file class."""
+        field_name = subclass.__name__
+        valid_toml_key = TomlFormat.group_name_for(file_name)
+        schema_fields[field_name] = fields.Dict(fields.String(), attribute=valid_toml_key, data_key=valid_toml_key)
+
+    def rebuild_dynamic_schema(self, data: JsonDict = None) -> None:
+        """Rebuild the dynamic Marshmallow schema when needed, adding new fields that were found on the style."""
+        new_files_found = {}  # type: Dict[str, fields.Field]
+        if data is None:
+            # Data is empty; so this is the first time the dynamic class is being rebuilt.
+            # Loop on classes with predetermined names, and add fields for them on the dynamic validation schema.
+            # E.g.: setup.cfg, pre-commit, pyproject.toml: files whose names we already know at this point.
+            for subclass in self.files_predetermined_names:
+                self.append_field_from_file(new_files_found, subclass, subclass.file_name)
+        else:
+            # Data was provided; search it to find new dynamic files to add to the validation schema).
+            # E.g.: JSON files that were configured on some TOML style file.
+            for subclass in self.files_dynamic_names:
+                jmex = subclass.get_compiled_jmespath_file_names()
+                for file_name in search_dict(jmex, data, []):
+                    self.append_field_from_file(new_files_found, subclass, file_name)
+
+        # Only recreate the schema if new fields were found.
+        if new_files_found:
+            self._dynamic_schema_class = type("DynamicStyleSchema", (self._dynamic_schema_class,), new_files_found)
