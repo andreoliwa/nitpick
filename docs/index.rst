@@ -53,18 +53,14 @@ Useful if you maintain multiple projects and want to use the same configs in all
 
    installation_guide
    styles
-   troubleshooting
-   contributing
-   authors
-
-.. toctree::
-   :caption: Configuration:
-
    auto_detection
    tool_nipick
    nitpick_section
    setup_cfg
    defaults
+   troubleshooting
+   contributing
+   authors
 
 .. toctree::
    :maxdepth: 1

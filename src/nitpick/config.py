@@ -29,15 +29,12 @@ from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, YieldFlake8Error
 LOGGER = logging.getLogger(__name__)
 
 
-class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attributes
+class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
     """Plugin configuration, read from the project config."""
 
     error_base_number = 200
 
-    _singleton_instance = None  # type: Optional["NitpickConfig"]
-
     def __init__(self) -> None:
-        """Init instance."""
         self.main_python_file = Path()
         self.cache_dir = None  # type: Optional[Path]
 
@@ -46,18 +43,6 @@ class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attribut
         self.style_dict = {}  # type: JsonDict
         self.nitpick_section = {}  # type: JsonDict
         self.nitpick_files_section = {}  # type: JsonDict
-
-    @classmethod
-    def get_singleton(cls) -> "NitpickConfig":
-        """Init the global singleton instance of the plugin configuration, needed by all file checkers."""
-        if cls._singleton_instance is None:
-            cls._singleton_instance = cls()
-        return cls._singleton_instance
-
-    @classmethod
-    def reset_singleton(cls):
-        """Reset the singleton instance. Useful on automated tests, to simulate ``flake8`` execution."""
-        cls._singleton_instance = None
 
     def find_root_dir(self, starting_file: PathOrStr) -> bool:
         """Find the root dir of the Python project: the dir that has one of the `ROOT_FILES`.
@@ -152,7 +137,7 @@ class NitpickConfig(NitpickMixin):  # pylint: disable=too-many-instance-attribut
             return
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
-        style = Style(self)
+        style = Style()
         try:
             style.find_initial_styles(configured_styles)
         except StyleError as err:

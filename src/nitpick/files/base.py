@@ -5,6 +5,7 @@ from typing import Generator, List
 
 import jmespath
 
+from nitpick import Nitpick
 from nitpick.formats import TomlFormat
 from nitpick.generic import search_dict
 from nitpick.mixin import NitpickMixin
@@ -24,13 +25,9 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     nitpick_file_dict = {}  # type: JsonDict
 
     def __init__(self) -> None:
-        """Init instance."""
-        from nitpick.config import NitpickConfig
-
-        self.config = NitpickConfig.get_singleton()
         if self.has_multiple_files:
             key = "{}.file_names".format(self.__class__.__name__)
-            self._multiple_files = search_dict(key, self.config.nitpick_section, [])  # type: List[str]
+            self._multiple_files = search_dict(key, Nitpick.current_app().config.nitpick_section, [])  # type: List[str]
         else:
             self._multiple_files = [self.file_name]
             self._set_current_data(self.file_name)
@@ -41,13 +38,15 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             self.file_name = file_name
 
         self.error_prefix = "File {}".format(self.file_name)
-        self.file_path = self.config.root_dir / self.file_name
+        self.file_path = Nitpick.current_app().config.root_dir / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict = self.config.style_dict.get(TomlFormat.group_name_for(self.file_name), {})
+        self.file_dict = Nitpick.current_app().config.style_dict.get(TomlFormat.group_name_for(self.file_name), {})
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
-        self.nitpick_file_dict = search_dict('files."{}"'.format(self.file_name), self.config.nitpick_section, {})
+        self.nitpick_file_dict = search_dict(
+            'files."{}"'.format(self.file_name), Nitpick.current_app().config.nitpick_section, {}
+        )
 
     @classmethod
     def get_compiled_jmespath_file_names(cls):
@@ -65,7 +64,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         """Check if the file should exist."""
         for _ in self.multiple_files:
             config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-            should_exist = self.config.nitpick_files_section.get(
+            should_exist = Nitpick.current_app().config.nitpick_files_section.get(
                 TomlFormat.group_name_for(self.file_name), True
             )  # type: bool
             file_exists = self.file_path.exists()
@@ -82,7 +81,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
                 yield self.flake8_error(1, ". ".join(phrases), suggestion)
             elif not should_exist and file_exists:
                 # Only display this message if the style is valid.
-                if not self.config.has_style_errors:
+                if not Nitpick.current_app().config.has_style_errors:
                     yield self.flake8_error(2, " should be deleted")
             elif file_exists:
                 yield from self.check_rules()

@@ -2,6 +2,7 @@
 
 See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
 """
+from nitpick import Nitpick
 from nitpick.files.base import BaseFile
 from nitpick.typedefs import YieldFlake8Error
 
@@ -17,8 +18,8 @@ class PyProjectTomlFile(BaseFile):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing key/value pairs in pyproject.toml."""
-        if self.config.pyproject_toml:
-            comparison = self.config.pyproject_toml.compare_with_flatten(self.file_dict)
+        if Nitpick.current_app().config.pyproject_toml:
+            comparison = Nitpick.current_app().config.pyproject_toml.compare_with_flatten(self.file_dict)
             yield from self.warn_missing_different(comparison)
 
     def suggest_initial_contents(self) -> str:

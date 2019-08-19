@@ -18,6 +18,7 @@ Submodules
 
 .. toctree::
 
+   nitpick.app
    nitpick.config
    nitpick.constants
    nitpick.exceptions

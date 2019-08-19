@@ -5,8 +5,7 @@ from pathlib import Path
 
 import attr
 
-from nitpick import __version__
-from nitpick.config import NitpickConfig
+from nitpick import Nitpick, __version__
 from nitpick.constants import PROJECT_NAME
 from nitpick.files.base import BaseFile
 from nitpick.generic import get_subclasses
@@ -33,25 +32,26 @@ class NitpickChecker(NitpickMixin):
 
     def run(self) -> YieldFlake8Error:
         """Run the check plugin."""
-        # An __init__() function is already provided by @attr.s
-        self.config = NitpickConfig().get_singleton()  # pylint: disable=attribute-defined-outside-init
-
-        if not self.config.find_root_dir(self.filename):
+        if not Nitpick.current_app().config.find_root_dir(self.filename):
             yield self.flake8_error(1, "No root dir found (is this a Python project?)")
             return []
 
-        if not self.config.find_main_python_file():
-            yield self.flake8_error(2, "No Python file was found under the root dir {!r}".format(self.config.root_dir))
+        if not Nitpick.current_app().config.find_main_python_file():
+            yield self.flake8_error(
+                2, "No Python file was found under the root dir {!r}".format(Nitpick.current_app().config.root_dir)
+            )
             return []
 
         current_python_file = Path(self.filename)
-        if current_python_file.absolute() != self.config.main_python_file.absolute():
+        if current_python_file.absolute() != Nitpick.current_app().config.main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
             LOGGER.info("Ignoring file: %s", self.filename)
             return []
         LOGGER.info("Nitpicking file: %s", self.filename)
 
-        yield from itertools.chain(self.config.merge_styles(), self.check_files(True), self.check_files(False))
+        yield from itertools.chain(
+            Nitpick.current_app().config.merge_styles(), self.check_files(True), self.check_files(False)
+        )
 
         for checker_class in get_subclasses(BaseFile):
             checker = checker_class()
@@ -65,8 +65,8 @@ class NitpickChecker(NitpickMixin):
         key = "present" if present else "absent"
         message = "exist" if present else "be deleted"
         absent = not present
-        for file_name, extra_message in self.config.nitpick_files_section.get(key, {}).items():
-            file_path = self.config.root_dir / file_name  # type: Path
+        for file_name, extra_message in Nitpick.current_app().config.nitpick_files_section.get(key, {}).items():
+            file_path = Nitpick.current_app().config.root_dir / file_name  # type: Path
             exists = file_path.exists()
             if (present and exists) or (absent and not exists):
                 continue

@@ -6,7 +6,7 @@ BUILDDIR      = docs/_build
 LONG_RERUN    = 4h
 SHORT_RERUN   = 30m
 
-.PHONY: help Makefile always-run pre-commit poetry doc nitpick flake8 test test-failed force force-doc
+.PHONY: help Makefile always-run pre-commit poetry doc nitpick flake8 test ci
 
 dev: always-run .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/doc .cache/make/run .cache/make/test
 
@@ -21,12 +21,15 @@ always-run:
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo 'Extra commands:'
-	@echo '  pre-commit  to install and update pre-commit hooks'
-	@echo '  poetry      to update dependencies'
-	@echo '  doc         to build documentation'
-	@echo '  test        to run tests'
-	@echo '  force       to force rebuild of all targets in this Makefile'
-	@echo '  force-doc   to force rebuild of documentation'
+	@echo '  pre-commit  update and install pre-commit hooks'
+	@echo '  poetry      update dependencies'
+	@echo '  doc         build documentation only (use force=1 to force a rebuild)'
+	@echo '  nitpick     run the nitpick pre-commit hook to check local style changes'
+	@echo '  flake8      run flake8 to check local style changes'
+	@echo '  test        run tests (use failed=1 to run only failed tests)'
+	@echo '  ci          simulate CI run (force clean docs and tests, but don't update pre-commit nor Poetry)'
+	@echo
+	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 
 pre-commit:
 	-rm .cache/make/long-pre-commit
@@ -66,8 +69,10 @@ poetry:
 	-rm .cache/make/run
 
 doc: docs/* *.rst *.md
-	-rm .cache/make/*doc*
-	$(MAKE)
+ifdef force
+	-rm -rf .cache/make/*doc* docs/_build docs/source
+endif
+	$(MAKE) .cache/make/short-doc-source .cache/make/doc-defaults .cache/make/doc .cache/make/short-doc-link-check
 
 .cache/make/short-doc-source:
 	-rm -rf docs/source
@@ -81,20 +86,19 @@ doc: docs/* *.rst *.md
 # $(O) is meant as a shortcut for $(SPHINXOPTS).
 .cache/make/doc: docs/* *.rst *.md .cache/make/short-doc-source .cache/make/doc-defaults
 	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	$(MAKE) .cache/make/short-doc-link-check
+	touch .cache/make/doc
 
 # Detect broken links on the documentation
-# Uses this helper script to avoid slow reruns: https://github.com/andreoliwa/dotfiles/blob/master/bin/rerun_after_time.sh
-	@rerun_after_time.sh $(SHORT_RERUN) .cache/make/short-doc-link-check $(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -blinkcheck
+.cache/make/short-doc-link-check:
+	$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -blinkcheck
 	touch .cache/make/short-doc-link-check
-
-	touch .cache/make/doc
 
 .cache/make/run: .github/* .travis/* docs/**.py src/* styles/* tests/* nitpick-style.toml
 	pre-commit run --all-files
 	flake8
 	touch .cache/make/run
 
-# Quickly run nitpick on the local virtualenv
 nitpick:
 	pre-commit run --all-files nitpick-local
 
@@ -106,18 +110,14 @@ test:
 	$(MAKE) .cache/make/test
 
 .cache/make/test: src/* styles/* tests/*
+ifdef failed
+	pytest --failed
+else
 	-rm .pytest/failed
 	pytest
+endif
 	touch .cache/make/test
 
-test-failed:
-	pytest --failed
-	touch .cache/make/test
-
-force:
-	rm -rf .cache/make docs/_build docs/source
-	$(MAKE)
-
-force-doc:
-	rm -rf .cache/make/*doc* docs/_build docs/source
-	$(MAKE)
+ci:
+	-rm -rf .cache/make/*doc* .cache/make/run docs/_build docs/source
+	$(MAKE) force=1

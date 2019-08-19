@@ -44,7 +44,6 @@ class SetupCfgFile(BaseFile):
     missing_sections = set()  # type: Set[str]
 
     def __init__(self) -> None:
-        """Init the instance."""
         super().__init__()
         self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))  # type: Set[str]
 
