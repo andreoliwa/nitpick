@@ -1,7 +1,4 @@
 """Mixin to raise flake8 errors."""
-import click
-
-from nitpick.constants import ERROR_PREFIX
 from nitpick.formats import Comparison
 from nitpick.typedefs import Flake8Error
 
@@ -13,23 +10,21 @@ class NitpickMixin:
     error_prefix = ""  # type: str
     has_style_errors = False
 
+    # TODO: remove this after all errors are converted to Nitpick.as_flake8_warning()
     def flake8_error(self, number: int, message: str, suggestion: str = None, add_to_base_number=True) -> Flake8Error:
         """Return a flake8 error as a tuple."""
-        joined_number = self.error_base_number + number if add_to_base_number else number
-        suggestion_with_newline = (
-            click.style("\n{}".format(suggestion.rstrip()), fg="bright_green") if suggestion else ""
-        )
+        from nitpick import Nitpick
+        from nitpick.exceptions import NitpickError
 
-        from nitpick.plugin import NitpickChecker
-
-        return (
-            0,
-            0,
-            "{}{:03d} {}{}{}".format(
-                ERROR_PREFIX, joined_number, self.error_prefix, message.rstrip(), suggestion_with_newline
-            ),
-            NitpickChecker,
-        )
+        error = NitpickError()
+        error.error_base_number = self.error_base_number
+        error.error_prefix = self.error_prefix
+        error.number = number
+        error.message = message
+        if suggestion:
+            error.suggestion = suggestion
+        error.add_to_base_number = add_to_base_number
+        return Nitpick.as_flake8_warning(error)
 
     def warn_missing_different(self, comparison: Comparison, prefix_message: str = ""):
         """Warn about missing and different keys."""

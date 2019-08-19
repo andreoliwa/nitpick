@@ -10,7 +10,7 @@ def test_absent_files(request):
         xxx = "Remove this"
         yyy = "Remove that"
         """
-    ).touch_file("xxx").touch_file("yyy").lint().assert_errors_contain(
+    ).touch_file("xxx").touch_file("yyy").flake8().assert_errors_contain(
         "NIP104 File xxx should be deleted: Remove this"
     ).assert_errors_contain(
         "NIP104 File yyy should be deleted: Remove that"
@@ -24,7 +24,7 @@ def test_files_beginning_with_dot(request):
         [nitpick.files.".editorconfig"]
         missing_message = "Create this file"
         """
-    ).lint().assert_errors_contain(
+    ).flake8().assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML:\x1b[92m
         TomlDecodeError: Invalid group name \'editorconfig"\'. Try quoting it. (line 1 column 1 char 0)\x1b[0m
@@ -41,7 +41,7 @@ def test_present_files(request):
         ".env" = ""
         "another-file.txt" = ""
         """
-    ).lint().assert_errors_contain("NIP103 File .editorconfig should exist: Create this file").assert_errors_contain(
+    ).flake8().assert_errors_contain("NIP103 File .editorconfig should exist: Create this file").assert_errors_contain(
         "NIP103 File .env should exist"
     ).assert_errors_contain(
         "NIP103 File another-file.txt should exist", 3

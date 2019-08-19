@@ -9,12 +9,12 @@ from marshmallow import fields
 from slugify import slugify
 from toml import TomlDecodeError
 
-from nitpick import Nitpick
+from nitpick import Nitpick, __version__
 from nitpick.constants import (
-    DEFAULT_NITPICK_STYLE_URL,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
+    RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
 from nitpick.exceptions import StyleError
@@ -49,18 +49,23 @@ class Style:
         self._dynamic_schema_class = BaseStyleSchema  # type: type
         self.rebuild_dynamic_schema()
 
+    @staticmethod
+    def get_default_style_url():
+        """Return the URL of the default style for the current version."""
+        return "{}/v{}/{}".format(RAW_GITHUB_CONTENT_BASE_URL, __version__, NITPICK_STYLE_TOML)
+
     def find_initial_styles(self, configured_styles: StrOrList):
         """Find the initial style(s) and include them."""
         if configured_styles:
             chosen_styles = configured_styles
             log_message = "Styles configured in {}: %s".format(PyProjectTomlFile.file_name)
         else:
-            paths = climb_directory_tree(Nitpick.current_app().config.root_dir, [NITPICK_STYLE_TOML])
+            paths = climb_directory_tree(Nitpick.current_app().root_dir, [NITPICK_STYLE_TOML])
             if paths:
                 chosen_styles = str(sorted(paths)[0])
                 log_message = "Found style climbing the directory tree: %s"
             else:
-                chosen_styles = DEFAULT_NITPICK_STYLE_URL
+                chosen_styles = self.get_default_style_url()
                 log_message = "Loading default Nitpick style %s"
         LOGGER.info(log_message, chosen_styles)
 
@@ -126,7 +131,7 @@ class Style:
         if new_url in self._already_included:
             return None
 
-        if not Nitpick.current_app().config.cache_dir:
+        if not Nitpick.current_app().cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
         response = requests.get(new_url)
@@ -138,8 +143,8 @@ class Style:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = Nitpick.current_app().config.cache_dir / "{}.toml".format(slugify(new_url))
-        Nitpick.current_app().config.cache_dir.mkdir(parents=True, exist_ok=True)
+        style_path = Nitpick.current_app().cache_dir / "{}.toml".format(slugify(new_url))
+        Nitpick.current_app().cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
         LOGGER.info("Loading style from URL %s into %s", new_url, style_path)
@@ -176,16 +181,16 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        if not Nitpick.current_app().config.cache_dir:
+        if not Nitpick.current_app().cache_dir:
             return {}
         merged_dict = self._all_styles.merge()
-        merged_style_path = Nitpick.current_app().config.cache_dir / MERGED_STYLE_TOML  # type: Path
+        merged_style_path = Nitpick.current_app().cache_dir / MERGED_STYLE_TOML  # type: Path
         toml = TomlFormat(data=merged_dict)
 
         attempt = 1
         while attempt < 5:
             try:
-                Nitpick.current_app().config.cache_dir.mkdir(parents=True, exist_ok=True)
+                Nitpick.current_app().cache_dir.mkdir(parents=True, exist_ok=True)
                 merged_style_path.write_text(toml.reformatted)
                 break
             except OSError:

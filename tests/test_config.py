@@ -4,7 +4,7 @@ from tests.helpers import ProjectMock
 
 def test_no_root_dir(request):
     """No root dir."""
-    ProjectMock(request, pyproject_toml=False, setup_py=False).create_symlink("hello.py").lint().assert_single_error(
+    ProjectMock(request, pyproject_toml=False, setup_py=False).create_symlink("hello.py").flake8().assert_single_error(
         "NIP101 No root dir found (is this a Python project?)"
     )
 
@@ -13,13 +13,13 @@ def test_multiple_root_dirs(request):
     """Multiple possible "root dirs" found (e.g.: a requirements.txt file inside a docs dir)."""
     ProjectMock(request, setup_py=False).touch_file("docs/requirements.txt").touch_file("docs/conf.py").pyproject_toml(
         ""
-    ).style("").lint().assert_no_errors()
+    ).style("").flake8().assert_no_errors()
 
 
 def test_no_main_python_file_root_dir(request):
     """No main Python file on the root dir."""
-    project = ProjectMock(request, setup_py=False).pyproject_toml("").save_file("whatever.sh", "", lint=True).lint()
-    project.assert_single_error("NIP102 No Python file was found under the root dir {!r}".format(project.root_dir))
+    project = ProjectMock(request, setup_py=False).pyproject_toml("").save_file("whatever.sh", "", lint=True).flake8()
+    project.assert_single_error("NIP102 No Python file was found under the root dir {!r}".format(str(project.root_dir)))
 
 
 def test_django_project_structure(request):
@@ -43,4 +43,4 @@ def test_django_project_structure(request):
         ["setup.cfg".flake8]
         some = "thing"
         """
-    ).lint().assert_no_errors()
+    ).flake8().assert_no_errors()

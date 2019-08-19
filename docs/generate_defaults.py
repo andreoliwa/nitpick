@@ -12,6 +12,7 @@ import click
 from sortedcontainers import SortedDict
 
 from nitpick import __version__
+from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
 
 mapping = SortedDict(
     {
@@ -41,7 +42,6 @@ divider = ".. _toml_files:"
 docs_dir = Path(__file__).parent.absolute()  # type: Path
 styles_dir = docs_dir.parent / "styles"  # type: Path
 defaults_rst = docs_dir / "defaults.rst"  # type: Path
-base_url = "https://raw.githubusercontent.com/andreoliwa/nitpick"
 
 
 def generate_defaults_rst():
@@ -73,7 +73,7 @@ def generate_defaults_rst():
                 header=header,
                 dashes="-" * len(header),
                 toml_file=base_name,
-                url="{}/v{}/{}".format(base_url, __version__, base_name),
+                url="{}/v{}/{}".format(RAW_GITHUB_CONTENT_BASE_URL, __version__, base_name),
                 toml_content="\n".join(indented_lines),
             )
         )

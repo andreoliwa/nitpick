@@ -8,6 +8,7 @@ from typing import List, Set
 from _pytest.fixtures import FixtureRequest
 from testfixtures import compare
 
+from nitpick import Nitpick
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
 from nitpick.files.pre_commit import PreCommitFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
@@ -42,10 +43,7 @@ class ProjectMock:
 
         # To make debugging of mock projects easy, each test should not reuse another test directory.
         self.root_dir.mkdir(parents=True)
-
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
-        os.chdir(str(self.root_dir))
-
         self.files_to_lint = []  # type: List[Path]
 
         if kwargs.get("setup_py", True):
@@ -67,8 +65,16 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def lint(self, file_index: int = 0) -> "ProjectMock":
-        """Lint one of the project files. If no index is provided, use the default file that's always created."""
+    def flake8(self, file_index: int = 0) -> "ProjectMock":
+        """Simulate a manual flake8 run.
+
+        - Recreate the global app.
+        - Change the working dir to the mocked project root.
+        - Lint one of the project files. If no index is provided, use the default file that's always created.
+        """
+        os.chdir(str(self.root_dir))
+        Nitpick.create_app()
+
         npc = NitpickChecker(filename=str(self.files_to_lint[file_index]))
         self._original_errors = list(npc.run())
 

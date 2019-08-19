@@ -50,7 +50,7 @@ def test_multiple_styles_overriding_values(request):
         [tool.black]
         something = 22
         """
-    ).lint().assert_errors_contain(
+    ).flake8().assert_errors_contain(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -120,7 +120,7 @@ def test_include_styles_overriding_values(request):
         [tool.nitpick]
         style = "isort1"
         """
-    ).lint().assert_errors_contain(
+    ).flake8().assert_errors_contain(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -166,7 +166,7 @@ def test_minimum_version(mocked_version, request):
         [tool.black]
         line-length = 100
         """
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         "NIP203 The style file you're using requires nitpick>=1.0 (you have 0.5.3). Please upgrade"
     )
 
@@ -223,7 +223,7 @@ def test_relative_and_other_root_dirs(request):
         """.format(
             another_dir=another_dir, common_pyproject=common_pyproject
         )
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -240,7 +240,7 @@ def test_relative_and_other_root_dirs(request):
         """.format(
             another_dir, common_pyproject
         )
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -257,7 +257,7 @@ def test_relative_and_other_root_dirs(request):
         """.format(
             another_dir, common_pyproject
         )
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -291,7 +291,7 @@ def test_symlink_subdir(request):
         [tool.nitpick]
         style = "symlinked-style"
         """
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -343,7 +343,7 @@ def test_relative_style_on_urls(request):
         """.format(
             base_url=base_url, common_pyproject=common_pyproject
         )
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -360,7 +360,7 @@ def test_relative_style_on_urls(request):
         """.format(
             base_url, common_pyproject
         )
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -377,7 +377,7 @@ def test_relative_style_on_urls(request):
         """.format(
             base_url, common_pyproject
         )
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -408,7 +408,7 @@ def test_fetch_private_github_urls(request):
         """.format(
             base_url, query_string
         )
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[92m
         [tool.black]
@@ -431,7 +431,7 @@ def test_merge_styles_into_single_file(request):
         [tool.nitpick]
         style = ["black", "isort", "isort_overrides"]
         """
-    ).lint().assert_merged_style(
+    ).flake8().assert_merged_style(
         '''
         ["pyproject.toml".tool.black]
         line-length = 120
@@ -494,7 +494,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(request):
             "style.1: Shorter than minimum length 1.\nstyle.2: Shorter than minimum length 1.",
         ),
     ]:
-        project.pyproject_toml("[tool.nitpick]\n{}".format(style)).lint().assert_errors_contain(
+        project.pyproject_toml("[tool.nitpick]\n{}".format(style)).flake8().assert_errors_contain(
             "NIP001 File pyproject.toml has an incorrect style."
             + " Invalid data in [tool.nitpick]:\x1b[92m\n{}\x1b[0m".format(error_message),
             1,
@@ -508,7 +508,7 @@ def test_invalid_toml(request):
         ["setup.cfg".flake8]
         ignore = D100,D104,D202,E203,W503
         """
-    ).lint().assert_errors_contain(
+    ).flake8().assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML:\x1b[92m
         TomlDecodeError: This float doesn't have a leading digit (line 2 column 1 char 21)\x1b[0m
@@ -536,7 +536,7 @@ def test_invalid_nitpick_files(request):
         [tool.nitpick]
         style = ["some/sub/style", "wrong_files"]
         """
-    ).lint().assert_errors_contain(
+    ).flake8().assert_errors_contain(
         """
         NIP001 File some/sub/style has an incorrect style. Invalid TOML:\x1b[92m
         xxx: Unknown field.\x1b[0m

@@ -9,7 +9,7 @@ from tests.helpers import ProjectMock
 
 def test_pre_commit_has_no_configuration(request):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(request).style("").pre_commit("").lint().assert_single_error(
+    ProjectMock(request).style("").pre_commit("").flake8().assert_single_error(
         "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
     )
 
@@ -21,7 +21,7 @@ def test_suggest_initial_contents(request):
         [tool.nitpick]
         style = ["isort", "black"]
         """
-    ).lint().assert_errors_contain(
+    ).flake8().assert_errors_contain(
         """
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[92m
         repos:
@@ -56,7 +56,7 @@ def test_root_values_on_missing_file(request):
         fail_fast = true
         whatever = "1"
         """
-    ).lint().assert_errors_contain_unordered(
+    ).flake8().assert_errors_contain_unordered(
         """
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[92m
         bla_bla: oh yeah
@@ -84,7 +84,7 @@ def test_root_values_on_existing_file(request):
         something: false
         another_thing: "nope"
         """
-    ).lint().assert_errors_contain_unordered(
+    ).flake8().assert_errors_contain_unordered(
         """
         NIP338 File .pre-commit-config.yaml has missing values:\x1b[92m
         blabla: what
@@ -112,7 +112,7 @@ def test_missing_repos(request):
         - hooks:
           - id: whatever
         """
-    ).lint().assert_errors_contain(
+    ).flake8().assert_errors_contain(
         "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
     )
 
@@ -130,7 +130,7 @@ def test_missing_repo_key(request):
         - hooks:
           - id: whatever
         """
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         "NIP332 File .pre-commit-config.yaml: style file is missing 'repo' key in repo #0"
     )
 
@@ -148,7 +148,7 @@ def test_repo_does_not_exist(request):
         - hooks:
           - id: whatever
         """
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         "NIP333 File .pre-commit-config.yaml: repo 'local' does not exist under 'repos'"
     )
 
@@ -165,7 +165,7 @@ def test_missing_hooks_in_repo(request):
         repos:
         - repo: whatever
         """
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         "NIP334 File .pre-commit-config.yaml: missing 'hooks' in repo 'whatever'"
     )
 
@@ -184,7 +184,7 @@ def test_style_missing_hooks_in_repo(request):
           hooks:
           - id: isort
         """
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         "NIP335 File .pre-commit-config.yaml: style file is missing 'hooks' in repo 'another'"
     )
 
@@ -207,7 +207,7 @@ def test_style_missing_id_in_hook(request):
           hooks:
           - id: isort
         """
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP336 File .pre-commit-config.yaml: style file is missing 'id' in hook:
             name: isort
@@ -235,7 +235,7 @@ def test_missing_hook_with_id(request):
           hooks:
           - id: isort
         """
-    ).lint().assert_single_error(
+    ).flake8().assert_single_error(
         """
         NIP337 File .pre-commit-config.yaml: missing hook with id 'black':
           - id: black
@@ -363,7 +363,7 @@ def test_missing_different_values(request):
               - id: my-hook
                 args: [--different, args, --should, throw, errors]
         """
-    ).lint().assert_errors_contain(
+    ).flake8().assert_errors_contain(
         """
         NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[92m
           - repo: https://github.com/pre-commit/mirrors-mypy

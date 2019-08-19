@@ -6,9 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from nitpick import Nitpick
-
 # Use a fixed temporary root to help debugging locally; otherwise, a temporary root will be used.
+# On macOS, use /private/tmp as the root instead of /tmp, otherwise lots of tests will fail.
 NITPICK_TEST_DIR = os.environ.get("NITPICK_TEST_DIR")
 TEMP_ROOT_PATH = Path(NITPICK_TEST_DIR or tempfile.mkdtemp()).expanduser().absolute()
 
@@ -28,10 +27,3 @@ def delete_project_temp_root():
         # If the environment variable is not configured, then a random temp dir will be used;
         # its contents should be deleted after the tests.
         shutil.rmtree(str(TEMP_ROOT_PATH))
-
-
-@pytest.fixture(autouse=True)
-def reset_global_config():
-    """Reset the app singleton before running every test, to simulate how ``flake8`` is executed manually."""
-    Nitpick.reset_current_app()
-    yield

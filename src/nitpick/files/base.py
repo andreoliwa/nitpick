@@ -38,7 +38,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             self.file_name = file_name
 
         self.error_prefix = "File {}".format(self.file_name)
-        self.file_path = Nitpick.current_app().config.root_dir / self.file_name
+        self.file_path = Nitpick.current_app().root_dir / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
         self.file_dict = Nitpick.current_app().config.style_dict.get(TomlFormat.group_name_for(self.file_name), {})

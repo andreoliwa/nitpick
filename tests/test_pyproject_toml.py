@@ -5,7 +5,7 @@ from tests.helpers import ProjectMock
 
 def test_pyproject_has_no_configuration(request):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(request).style("").pyproject_toml("").lint().assert_no_errors()
+    ProjectMock(request).style("").pyproject_toml("").flake8().assert_no_errors()
 
 
 def test_suggest_initial_contents(request):
@@ -15,4 +15,4 @@ def test_suggest_initial_contents(request):
         [nitpick.files."pyproject.toml"]
         "missing_message" = "Do something"
         """
-    ).lint().assert_errors_contain("NIP311 File {} was not found. Do something".format(PyProjectTomlFile.file_name))
+    ).flake8().assert_errors_contain("NIP311 File {} was not found. Do something".format(PyProjectTomlFile.file_name))
