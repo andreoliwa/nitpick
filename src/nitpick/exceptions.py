@@ -47,6 +47,7 @@ class NoPythonFile(PluginError):
 class StyleError(NitpickError):
     """An error in a style file."""
 
+    number = 1
     add_to_base_number = False
 
     def __init__(self, style_file_name: str, *args: object) -> None:

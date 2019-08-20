@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, List, Set
 import click
 
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
-from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir
+from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir, StyleError
 from nitpick.generic import climb_directory_tree
 from nitpick.typedefs import Flake8Error
 
@@ -30,6 +30,7 @@ class Nitpick:
 
     def __init__(self) -> None:
         self.init_errors = []  # type: List[NitpickError]
+        self.style_errors = []  # type: List[NitpickError]
 
     @classmethod
     def create_app(cls) -> "Nitpick":
@@ -154,3 +155,11 @@ class Nitpick:
             ),
             NitpickChecker,
         )
+
+    def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:
+        """Add a style error to the internal list."""
+        err = StyleError(file_name)
+        err.message = "File {} has an incorrect style. {}".format(file_name, message)
+        if invalid_data:
+            err.suggestion = invalid_data
+        self.style_errors.append(err)

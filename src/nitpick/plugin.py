@@ -32,11 +32,11 @@ class NitpickChecker(NitpickMixin):
 
     def run(self) -> YieldFlake8Error:
         """Run the check plugin."""
-        has_init_errors = False
-        for init_error in Nitpick.current_app().init_errors:
-            has_init_errors = True
-            yield Nitpick.as_flake8_warning(init_error)
-        if has_init_errors:
+        has_errors = False
+        for err in Nitpick.current_app().init_errors:
+            has_errors = True
+            yield Nitpick.as_flake8_warning(err)
+        if has_errors:
             return []
 
         current_python_file = Path(self.filename)
@@ -50,6 +50,13 @@ class NitpickChecker(NitpickMixin):
             Nitpick.current_app().config.merge_styles(), self.check_files(True), self.check_files(False)
         )
 
+        has_errors = False
+        for err in Nitpick.current_app().style_errors:
+            has_errors = True
+            yield Nitpick.as_flake8_warning(err)
+        if has_errors:
+            return []
+
         for checker_class in get_subclasses(BaseFile):
             checker = checker_class()
             yield from checker.check_exists()
@@ -58,7 +65,6 @@ class NitpickChecker(NitpickMixin):
 
     def check_files(self, present: bool) -> YieldFlake8Error:
         """Check files that should be present or absent."""
-        # FIXME: validate files.absent and files.present with schemas
         key = "present" if present else "absent"
         message = "exist" if present else "be deleted"
         absent = not present

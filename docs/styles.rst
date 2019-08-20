@@ -96,3 +96,32 @@ To enforce all your projects to ignore missing imports, add this to your `nitpic
 
     ["setup.cfg".mypy]
     ignore_missing_imports = true
+
+.. _breaking-changes:
+
+Breaking style changes
+----------------------
+
+.. warning::
+
+    Below are the breaking changes in the style before the API is stable.
+    If your style was working in a previous version and now it's not, check below.
+
+``missing_message`` key was removed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``missing_message`` was removed. Use ``[nitpick.files.present]`` now.
+
+Before:
+
+.. code-block:: toml
+
+    [nitpick.files."pyproject.toml"]
+    missing_message = "Install poetry and run 'poetry init' to create it"
+
+Now:
+
+.. code-block:: toml
+
+    [nitpick.files.present]
+    "pyproject.toml" = "Install poetry and run 'poetry init' to create it"

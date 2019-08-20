@@ -17,7 +17,6 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.exceptions import StyleError
 from nitpick.files.base import BaseFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
@@ -76,7 +75,9 @@ class Style:
         self.rebuild_dynamic_schema(original_data)
         style_errors = self._dynamic_schema_class().validate(original_data)
         if style_errors:
-            raise StyleError(style_file_name, flatten_marshmallow_errors(style_errors))
+            Nitpick.current_app().add_style_error(
+                style_file_name, "Invalid config:", flatten_marshmallow_errors(style_errors)
+            )
 
     def include_multiple_styles(self, chosen_styles: StrOrList) -> None:
         """Include a list of styles (or just one) into this style tree."""
@@ -90,7 +91,11 @@ class Style:
             try:
                 toml_dict = toml.as_data
             except TomlDecodeError as err:
-                raise StyleError(style_path.name, "{}: {}".format(err.__class__.__name__, err)) from err
+                Nitpick.current_app().add_style_error(
+                    style_path.name, "Invalid TOML:", "{}: {}".format(err.__class__.__name__, err)
+                )
+                # If the TOML itself could not be parsed, we can't go on
+                return
 
             self.validate_style(style_uri, toml_dict)
             self._all_styles.add(toml_dict)
@@ -203,7 +208,7 @@ class Style:
         """Append a schema field with info from a config file class."""
         field_name = subclass.__name__
         valid_toml_key = TomlFormat.group_name_for(file_name)
-        schema_fields[field_name] = fields.Dict(fields.String(), attribute=valid_toml_key, data_key=valid_toml_key)
+        schema_fields[field_name] = fields.Dict(fields.String(), data_key=valid_toml_key)
 
     def rebuild_dynamic_schema(self, data: JsonDict = None) -> None:
         """Rebuild the dynamic Marshmallow schema when needed, adding new fields that were found on the style."""

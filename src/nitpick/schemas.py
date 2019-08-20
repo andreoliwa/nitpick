@@ -1,10 +1,11 @@
 """Marshmallow schemas."""
 from typing import Dict
 
-from marshmallow import Schema, fields
+from marshmallow import Schema, ValidationError, fields
 from marshmallow_polyfield import PolyField
 from sortedcontainers import SortedDict
 
+from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.generic import flatten
 from nitpick.validators import TrimmedLength
 
@@ -40,6 +41,22 @@ def string_or_list_field(object_dict, parent_object_dict):  # pylint: disable=un
     return NotEmptyString()
 
 
+def validate_section_dot_field(section_field: str) -> bool:
+    """Validate if the combinatio section/field has a dot separating them."""
+    # FIXME: add tests for these situations
+    common = "Use this format: section_name.field_name"
+    if "." not in section_field:
+        raise ValidationError("Dot is missing. {}".format(common))
+    parts = section_field.split(".")
+    if len(parts) > 2:
+        raise ValidationError("There's more than one dot. {}".format(common))
+    if not parts[0].strip():
+        raise ValidationError("Empty section name. {}".format(common))
+    if not parts[1].strip():
+        raise ValidationError("Empty field name. {}".format(common))
+    return True
+
+
 def boolean_or_dict_field(object_dict, parent_object_dict):  # pylint: disable=unused-argument
     """Detect if the field is a boolean or a dict."""
     if isinstance(object_dict, dict):
@@ -65,13 +82,28 @@ class NitpickJsonFileSchema(Schema):
     file_names = fields.List(fields.String)
 
 
+class SetupCfgSchema(Schema):
+    """Validation schema for setup.cfg."""
+
+    comma_separated_values = fields.List(fields.String(validate=validate_section_dot_field))
+
+
+class NitpickFilesSchema(Schema):
+    """Validation schema for the ``[nitpick.files]`` section on the style file."""
+
+    absent = fields.Dict(NotEmptyString(), fields.String())
+    present = fields.Dict(NotEmptyString(), fields.String())
+    # TODO: load this schema dynamically, then add this next field setup_cfg
+    setup_cfg = fields.Nested(SetupCfgSchema, data_key=SetupCfgFile.file_name)
+
+
 class NitpickSchema(Schema):
     """Validation schema for the ``[nitpick]`` section on the style file."""
 
     minimum_version = NotEmptyString()
     styles = fields.Nested(NitpickStylesSchema)
-    # FIXME: validate=validate.OneOf(app.configured_file_names | {"present", "absent"})
-    files = fields.Dict(fields.String(), fields.Dict())
+    files = fields.Nested(NitpickFilesSchema)
+    # TODO: load this schema dynamically, then add this next field JsonFile
     JsonFile = fields.Nested(NitpickJsonFileSchema)
 
 

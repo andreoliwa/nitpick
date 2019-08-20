@@ -41,8 +41,8 @@ def test_suggest_initial_contents(request):
     """Suggest contents when setup.cfg does not exist."""
     ProjectMock(request).style(
         """
-        [nitpick.files."setup.cfg"]
-        "missing_message" = "Do something here"
+        [nitpick.files.present]
+        "setup.cfg" = "Do something here"
 
         ["setup.cfg".mypy]
         ignore_missing_imports = true
@@ -53,9 +53,9 @@ def test_suggest_initial_contents(request):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).flake8().assert_single_error(
+    ).flake8().assert_errors_contain(
         """
-        NIP321 File setup.cfg was not found. Do something here. Create it with this content:\x1b[92m
+        NIP321 File setup.cfg was not found. Create it with this content:\x1b[92m
         [flake8]
         max-line-length = 120
 
@@ -64,7 +64,10 @@ def test_suggest_initial_contents(request):
 
         [mypy]
         ignore_missing_imports = True\x1b[0m
-        """
+        """,
+        2,
+    ).assert_errors_contain(
+        "NIP103 File setup.cfg should exist: Do something here"
     )
 
 

@@ -193,8 +193,8 @@ Content of `styles/poetry.toml <https://raw.githubusercontent.com/andreoliwa/nit
 
 .. code-block:: toml
 
-    [nitpick.files."pyproject.toml"]
-    missing_message = "Install poetry and run 'poetry init' to create it"
+    [nitpick.files.present]
+    "pyproject.toml" = "Install poetry and run 'poetry init' to create it"
 
 Bash_
 -----
@@ -259,8 +259,8 @@ Content of `styles/pre-commit/main.toml <https://raw.githubusercontent.com/andre
     # See https://pre-commit.com for more information
     # See https://pre-commit.com/hooks.html for more hooks
 
-    [nitpick.files."pre-commit-config.yaml"]
-    missing_message = "Create the file with the contents below, then run 'pre-commit install'"
+    [nitpick.files.present]
+    ".pre-commit-config.yaml" = "Create the file with the contents below, then run 'pre-commit install'"
 
 pre-commit_ (Python hooks)
 --------------------------

@@ -72,16 +72,15 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             if config_data_exists and not file_exists:
                 suggestion = self.suggest_initial_contents()
                 phrases = [" was not found"]
-                # FIXME: add validation for missing_message on the BaseFileSchema
-                missing_message = self.nitpick_file_dict.get("missing_message", "")
-                if missing_message:
-                    phrases.append(missing_message)
+                message = Nitpick.current_app().config.nitpick_files_section.get(self.file_name)
+                if message:
+                    phrases.append(message)
                 if suggestion:
                     phrases.append("Create it with this content:")
                 yield self.flake8_error(1, ". ".join(phrases), suggestion)
             elif not should_exist and file_exists:
                 # Only display this message if the style is valid.
-                if not Nitpick.current_app().config.has_style_errors:
+                if not Nitpick.current_app().style_errors:
                     yield self.flake8_error(2, " should be deleted")
             elif file_exists:
                 yield from self.check_rules()

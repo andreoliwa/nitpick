@@ -45,8 +45,9 @@ Useful if you maintain multiple projects and want to use the same configs in all
 
     This project is still a work in progress, so the API is not fully defined:
 
-        - :ref:`the-style-file` syntax might have changes before the 1.0 stable release.
-        - The numbers in the ``NIP*`` error codes might change; don't fully rely on them.
+        - :ref:`the-style-file` syntax might have changes before the 1.0 stable release;
+        - The numbers in the ``NIP*`` error codes might change; don't fully rely on them;
+        - See also :ref:`breaking-changes`.
 
 .. toctree::
    :caption: Contents:

@@ -12,7 +12,7 @@ def test_suggest_initial_contents(request):
     """Suggest poetry init when pyproject.toml does not exist."""
     ProjectMock(request, pyproject_toml=False).style(
         """
-        [nitpick.files."pyproject.toml"]
-        "missing_message" = "Do something"
+        [nitpick.files.present]
+        "pyproject.toml" = "Do something"
         """
-    ).flake8().assert_errors_contain("NIP311 File {} was not found. Do something".format(PyProjectTomlFile.file_name))
+    ).flake8().assert_errors_contain("NIP103 File {} should exist: Do something".format(PyProjectTomlFile.file_name))

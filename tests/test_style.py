@@ -520,7 +520,7 @@ def test_invalid_toml(request):
 def test_invalid_nitpick_files(request):
     """Invalid [nitpick.files] section."""
     ProjectMock(request).named_style(
-        "some/sub/style",
+        "some_style",
         """
         [xxx]
         wrong = "section"
@@ -534,12 +534,17 @@ def test_invalid_nitpick_files(request):
     ).pyproject_toml(
         """
         [tool.nitpick]
-        style = ["some/sub/style", "wrong_files"]
+        style = ["some_style", "wrong_files"]
         """
     ).flake8().assert_errors_contain(
         """
-        NIP001 File some/sub/style has an incorrect style. Invalid TOML:\x1b[92m
+        NIP001 File some_style has an incorrect style. Invalid config:\x1b[92m
         xxx: Unknown field.\x1b[0m
+        """
+    ).assert_errors_contain(
+        """
+        NIP001 File wrong_files has an incorrect style. Invalid config:\x1b[92m
+        nitpick.files.whatever: Unknown field.\x1b[0m
         """,
-        1,  # FIXME: it should be 2; the file "whatever" is invalid
+        2,
     )

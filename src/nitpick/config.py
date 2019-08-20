@@ -11,7 +11,6 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.exceptions import StyleError
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
 from nitpick.generic import search_dict, version_to_tuple
@@ -36,37 +35,36 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
         self.nitpick_section = {}  # type: JsonDict
         self.nitpick_files_section = {}  # type: JsonDict
 
-    def validate_pyproject(self):
-        """Validate the pyroject.toml against a Marshmallow schema."""
+    def validate_pyproject_tool_nitpick(self) -> bool:
+        """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
         pyproject_path = Nitpick.current_app().root_dir / PyProjectTomlFile.file_name  # type: Path
         if pyproject_path.exists():
             self.pyproject_toml = TomlFormat(path=pyproject_path)
             self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
             pyproject_errors = ToolNitpickSchema().validate(self.tool_nitpick_dict)
             if pyproject_errors:
-                raise StyleError(PyProjectTomlFile.file_name, flatten_marshmallow_errors(pyproject_errors))
+                Nitpick.current_app().add_style_error(
+                    PyProjectTomlFile.file_name,
+                    "Invalid data in [{}]:".format(TOOL_NITPICK),
+                    flatten_marshmallow_errors(pyproject_errors),
+                )
+                return False
+        return True
 
     def merge_styles(self) -> YieldFlake8Error:
         """Merge one or multiple style files."""
-        try:
-            self.validate_pyproject()
-        except StyleError as err:
-            yield self.style_error(err.style_file_name, "Invalid data in [{}]:".format(TOOL_NITPICK), err.args[0])
+        if not self.validate_pyproject_tool_nitpick():
+            # If the project is misconfigured, don't even continue.
             return
 
         configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
         style = Style()
-        try:
-            style.find_initial_styles(configured_styles)
-        except StyleError as err:
-            yield self.style_error(err.style_file_name, "Invalid TOML:", err.args[0])
+        style.find_initial_styles(configured_styles)
 
         self.style_dict = style.merge_toml_dict()
-        try:
+        if not Nitpick.current_app().style_errors:
+            # Don't show duplicated errors: if there are style errors already, don't validate the merged style.
             style.validate_style(MERGED_STYLE_TOML, self.style_dict)
-        except StyleError as err:
-            yield self.style_error(err.style_file_name, "Invalid data in the merged style file:", err.args[0])
-            return
 
         from nitpick.plugin import NitpickChecker
 
