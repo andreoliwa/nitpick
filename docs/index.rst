@@ -10,7 +10,7 @@ Nitpick
     :target: https://travis-ci.com/andreoliwa/nitpick
     :alt: Travis CI
 .. image:: https://readthedocs.org/projects/nitpick/badge/?version=latest
-    :target: https://nitpick.readthedocs.io/en/latest/?badge=latest
+    :target: https://nitpick.rtfd.io/en/latest/?badge=latest
     :alt: Documentation Status
 .. image:: https://coveralls.io/repos/github/andreoliwa/nitpick/badge.svg
     :target: https://coveralls.io/github/andreoliwa/nitpick
@@ -55,9 +55,9 @@ Useful if you maintain multiple projects and want to use the same configs in all
    installation_guide
    styles
    auto_detection
-   tool_nipick
+   tool_nitpick_section
    nitpick_section
-   setup_cfg
+   config_files
    defaults
    troubleshooting
    contributing

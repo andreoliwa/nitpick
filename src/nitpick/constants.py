@@ -8,6 +8,7 @@ TOML_EXTENSION = ".toml"
 NITPICK_STYLE_TOML = "nitpick-style{}".format(TOML_EXTENSION)
 MERGED_STYLE_TOML = "merged-style{}".format(TOML_EXTENSION)
 RAW_GITHUB_CONTENT_BASE_URL = "https://raw.githubusercontent.com/andreoliwa/{}".format(PROJECT_NAME)
+READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 MANAGE_PY = "manage.py"
 ROOT_PYTHON_FILES = ("setup.py", "app.py", "wsgi.py", "autoapp.py")
 ROOT_FILES = ("requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES

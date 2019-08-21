@@ -3,7 +3,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = docs
 BUILDDIR      = docs/_build
-LONG_RERUN    = 4h
+LONG_RERUN    = 12h
 SHORT_RERUN   = 30m
 
 .PHONY: help Makefile always-run pre-commit poetry doc nitpick flake8 test ci
@@ -79,8 +79,8 @@ endif
 	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
 	touch .cache/make/short-doc-source
 
-.cache/make/doc-defaults: docs/generate_defaults.py styles/*
-	python3 docs/generate_defaults.py
+.cache/make/doc-defaults: docs/generate_rst.py styles/*
+	python3 docs/generate_rst.py
 	touch .cache/make/doc-defaults
 
 # $(O) is meant as a shortcut for $(SPHINXOPTS).

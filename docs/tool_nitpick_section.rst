@@ -1,7 +1,7 @@
 .. _tool_nitpick:
 
-The ``[tool.nitpick]`` section
-==============================
+The [tool.nitpick] section
+==========================
 
 :ref:`the-style-file` for your project should be configured in the ``[tool.nitpick]`` section of your ``pyproject.toml`` file.
 

@@ -1,4 +1,4 @@
-"""Checker for JSON files."""
+"""JSON files."""
 import json
 
 from sortedcontainers import SortedDict
@@ -13,7 +13,14 @@ KEY_CONTAINS_JSON = "contains_json"
 
 
 class JsonFile(BaseFile):
-    """Checker for JSON files."""
+    """Checker for any JSON file.
+
+    First, configure the list of files to be checked in the :ref:`[nitpick.JsonFile] section <nitpick-jsonfile>`.
+
+    Then add the configuration for the file name you just declared.
+
+    Example: :ref:`the default config for package.json <default-package-json>`.
+    """
 
     has_multiple_files = True
     error_base_number = 340

@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/nitpick.svg)](https://pypi.org/project/nitpick)
 [![Travis CI](https://api.travis-ci.com/andreoliwa/nitpick.svg)](https://travis-ci.com/andreoliwa/nitpick)
-[![Documentation Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.rtfd.io/en/latest/?badge=latest)
 [![Coveralls](https://coveralls.io/repos/github/andreoliwa/nitpick/badge.svg)](https://coveralls.io/github/andreoliwa/nitpick)
 [![Maintainability](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/maintainability)](https://codeclimate.com/github/andreoliwa/nitpick)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick)
@@ -71,4 +71,4 @@ If you use [pre-commit](https://pre-commit.com/) on your project (you should), a
 
 ---
 
-For more details on styles and which configuration files are currently supported, [see the full documentation](https://nitpick.readthedocs.io/).
+For more details on styles and which configuration files are currently supported, [see the full documentation](https://nitpick.rtfd.io/).

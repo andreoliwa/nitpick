@@ -57,7 +57,10 @@ class PreCommitHook:
 
 
 class PreCommitFile(BaseFile):
-    """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
+    """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file.
+
+    Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
+    """
 
     file_name = ".pre-commit-config.yaml"
     error_base_number = 330

@@ -83,7 +83,7 @@ It's the same exact section/key, just prefixed with the config file name (``"pyp
 
 The same works for ``setup.cfg``.
 
-To `configure mypy <https://mypy.readthedocs.io/en/latest/config_file.html#config-file-format>`_ to ignore missing imports in your project, this is needed on ``setup.cfg``:
+To `configure mypy <https://mypy.rtfd.io/en/latest/config_file.html#config-file-format>`_ to ignore missing imports in your project, this is needed on ``setup.cfg``:
 
 .. code-block:: ini
 

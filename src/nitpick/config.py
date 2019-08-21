@@ -15,7 +15,7 @@ from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
-from nitpick.schemas import ToolNitpickSchema, flatten_marshmallow_errors
+from nitpick.schemas import ToolNitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.style import Style
 from nitpick.typedefs import JsonDict, StrOrList, YieldFlake8Error
 
@@ -41,7 +41,7 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
         if pyproject_path.exists():
             self.pyproject_toml = TomlFormat(path=pyproject_path)
             self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
-            pyproject_errors = ToolNitpickSchema().validate(self.tool_nitpick_dict)
+            pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
             if pyproject_errors:
                 Nitpick.current_app().add_style_error(
                     PyProjectTomlFile.file_name,

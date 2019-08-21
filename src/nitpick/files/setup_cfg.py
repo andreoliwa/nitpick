@@ -10,7 +10,10 @@ from nitpick.typedefs import YieldFlake8Error
 
 
 class SetupCfgFile(BaseFile):
-    """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
+    """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_ config file.
+
+    Example: :ref:`flake8 configuration <default-flake8>`.
+    """
 
     file_name = "setup.cfg"
     error_base_number = 320

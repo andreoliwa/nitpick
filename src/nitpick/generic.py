@@ -34,13 +34,17 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
     >>> expected = {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
     >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False}) == expected
     True
+    >>> expected = {'parent."with.dot".again': True, 'parent."my.my"': 1, "parent.123": "numeric-key"}
+    >>> flatten({"parent": {"with.dot": {"again": True}, "my.my": 1, 123: "numeric-key"}}) == expected
+    True
     """
     if current_lists is None:
         current_lists = {}
 
     items = []  # type: List[Tuple[str, Any]]
     for key, value in dict_.items():
-        new_key = str(parent_key) + separator + str(key) if parent_key else key
+        quoted_key = '"{}"'.format(key) if separator in str(key) else key
+        new_key = str(parent_key) + separator + str(quoted_key) if parent_key else quoted_key
         if isinstance(value, collections.abc.MutableMapping):
             items.extend(flatten(value, new_key, separator, current_lists).items())
         elif isinstance(value, (list, tuple)):

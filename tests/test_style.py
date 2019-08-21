@@ -7,7 +7,7 @@ from unittest.mock import PropertyMock
 
 import responses
 
-from nitpick.constants import TOML_EXTENSION
+from nitpick.constants import READ_THE_DOCS_URL, TOML_EXTENSION
 from tests.conftest import TEMP_ROOT_PATH
 from tests.helpers import ProjectMock, assert_conditions
 
@@ -485,7 +485,8 @@ def test_invalid_tool_nitpick_on_pyproject_toml(request):
     for style, error_message in [
         (
             'style = [""]\nextra_values = "also raise warnings"',
-            "extra_values: Unknown field.\nstyle.0: Shorter than minimum length 1.",
+            "extra_values: Unknown configuration. See https://nitpick.rtfd.io/en/latest/tool_nitpick_section.html."
+            + "\nstyle.0: Shorter than minimum length 1.",
         ),
         ('style = ""', "style: Shorter than minimum length 1."),
         ("style = 1", "style: Not a valid string."),
@@ -539,12 +540,14 @@ def test_invalid_nitpick_files(request):
     ).flake8().assert_errors_contain(
         """
         NIP001 File some_style has an incorrect style. Invalid config:\x1b[92m
-        xxx: Unknown field.\x1b[0m
+        xxx: Unknown file. See https://nitpick.rtfd.io/en/latest/config_files.html.\x1b[0m
         """
     ).assert_errors_contain(
         """
         NIP001 File wrong_files has an incorrect style. Invalid config:\x1b[92m
-        nitpick.files.whatever: Unknown field.\x1b[0m
-        """,
+        nitpick.files.whatever: Unknown file. See {}nitpick_section.html#nitpick-files.\x1b[0m
+        """.format(
+            READ_THE_DOCS_URL
+        ),
         2,
     )

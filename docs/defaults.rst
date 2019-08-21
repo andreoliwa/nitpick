@@ -9,7 +9,9 @@ If you don't :ref:`configure your own style <configure-your-own-style>`, those a
 
 All TOML_ configs below are taken from the `default style file`_.
 
-.. _toml_files:
+.. auto-generated-from-here
+
+.. _default-absent-files:
 
 Absent files
 ------------
@@ -25,6 +27,8 @@ Content of `styles/absent-files.toml <https://raw.githubusercontent.com/andreoli
     "Pipfile.lock" = "Use pyproject.toml instead"
     ".venv" = ""
     ".pyup.yml" = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
+
+.. _default-black:
 
 black_
 ------
@@ -58,6 +62,8 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
     #<YAML goes here>
     #"""]
 
+.. _default-flake8:
+
 flake8_
 -------
 
@@ -74,7 +80,7 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     inline-quotes = "double"
     exclude = ".tox,build"
 
-    # Nitpick reccomends those plugins as part of the style, but doesn't install them automatically as before.
+    # Nitpick recommends those plugins as part of the style, but doesn't install them automatically as before.
     # This way, the developer has the choice of overriding this style, instead of having lots of plugins installed
     # without being asked.
     [["pre-commit-config.yaml".repos]]
@@ -89,6 +95,8 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     """
     # TODO suggest nitpick for external repos
 
+.. _default-ipython:
+
 IPython_
 --------
 
@@ -99,6 +107,8 @@ Content of `styles/ipython.toml <https://raw.githubusercontent.com/andreoliwa/ni
     ["pyproject.toml".tool.poetry.dev-dependencies]
     ipython = "*"
     ipdb = "*"
+
+.. _default-isort:
 
 isort_
 ------
@@ -132,6 +142,8 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
           - id: isort
     """
 
+.. _default-mypy:
+
 mypy_
 -----
 
@@ -139,7 +151,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
 
 .. code-block:: toml
 
-    # https://mypy.readthedocs.io/en/latest/config_file.html
+    # https://mypy.rtfd.io/en/latest/config_file.html
     ["setup.cfg".mypy]
     ignore_missing_imports = true
 
@@ -164,6 +176,8 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
           - id: mypy
     """
 
+.. _default-package-json:
+
 package.json_
 -------------
 
@@ -186,6 +200,8 @@ Content of `styles/package-json.toml <https://raw.githubusercontent.com/andreoli
       }
     """
 
+.. _default-poetry:
+
 Poetry_
 -------
 
@@ -195,6 +211,8 @@ Content of `styles/poetry.toml <https://raw.githubusercontent.com/andreoliwa/nit
 
     [nitpick.files.present]
     "pyproject.toml" = "Install poetry and run 'poetry init' to create it"
+
+.. _default-bash:
 
 Bash_
 -----
@@ -210,6 +228,8 @@ Content of `styles/pre-commit/bash.toml <https://raw.githubusercontent.com/andre
         hooks:
           - id: bashate
     """
+
+.. _default-commitlint:
 
 commitlint_
 -----------
@@ -227,6 +247,8 @@ Content of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com
             stages: [commit-msg]
             additional_dependencies: ['@commitlint/config-conventional']
     """
+
+.. _default-pre-commit-hooks:
 
 pre-commit_ (hooks)
 -------------------
@@ -249,6 +271,8 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
           - id: pyupgrade
     """
 
+.. _default-pre-commit-main:
+
 pre-commit_ (main)
 ------------------
 
@@ -261,6 +285,8 @@ Content of `styles/pre-commit/main.toml <https://raw.githubusercontent.com/andre
 
     [nitpick.files.present]
     ".pre-commit-config.yaml" = "Create the file with the contents below, then run 'pre-commit install'"
+
+.. _default-pre-commit-python-hooks:
 
 pre-commit_ (Python hooks)
 --------------------------
@@ -281,6 +307,8 @@ Content of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/and
           - id: rst-backticks
     """
 
+.. _default-pylint:
+
 Pylint_
 -------
 
@@ -290,6 +318,8 @@ Content of `styles/pylint.toml <https://raw.githubusercontent.com/andreoliwa/nit
 
     ["pyproject.toml".tool.poetry.dev-dependencies]
     pylint = "*"
+
+.. _default-python-3-5-3-6-or-3-7:
 
 Python 3.5, 3.6 or 3.7
 ----------------------
@@ -301,6 +331,8 @@ Content of `styles/python35-36-37.toml <https://raw.githubusercontent.com/andreo
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.5 || ^3.6 || ^3.7"
 
+.. _default-python-3-6-or-3-7:
+
 Python 3.6 or 3.7
 -----------------
 
@@ -311,6 +343,8 @@ Content of `styles/python36-37.toml <https://raw.githubusercontent.com/andreoliw
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.6 || ^3.7"
 
+.. _default-python-3-6:
+
 Python 3.6
 ----------
 
@@ -320,6 +354,8 @@ Content of `styles/python36.toml <https://raw.githubusercontent.com/andreoliwa/n
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.6"
+
+.. _default-python-3-7:
 
 Python 3.7
 ----------

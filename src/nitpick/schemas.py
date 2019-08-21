@@ -5,6 +5,7 @@ from marshmallow import Schema, ValidationError, fields
 from marshmallow_polyfield import PolyField
 from sortedcontainers import SortedDict
 
+from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.generic import flatten
 from nitpick.validators import TrimmedLength
@@ -64,32 +65,54 @@ def boolean_or_dict_field(object_dict, parent_object_dict):  # pylint: disable=u
     return fields.Bool
 
 
-class ToolNitpickSchema(Schema):
+def help_message(sentence: str, help_page: str) -> str:
+    """Show help with the documentation URL on validation errors."""
+    clean_sentence = sentence.strip(" .")
+    return "{}. See {}{}.".format(clean_sentence, READ_THE_DOCS_URL, help_page)
+
+
+class BaseNitpickSchema(Schema):
+    """Base schema for all others, with default error messages."""
+
+    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html")}
+
+
+class ToolNitpickSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
+
+    error_messages = {"unknown": help_message("Unknown configuration", "tool_nitpick_section.html")}
 
     style = PolyField(deserialization_schema_selector=string_or_list_field)
 
 
-class NitpickStylesSchema(Schema):
+class NitpickStylesSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick.styles]`` section on the style file."""
+
+    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#nitpick-styles")}
 
     include = PolyField(deserialization_schema_selector=string_or_list_field)
 
 
-class NitpickJsonFileSchema(Schema):
+class NitpickJsonFileSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick.JsonFile]`` section on the style file."""
+
+    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#nitpick-jsonfile")}
 
     file_names = fields.List(fields.String)
 
 
-class SetupCfgSchema(Schema):
+class SetupCfgSchema(BaseNitpickSchema):
     """Validation schema for setup.cfg."""
+
+    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#comma-separated-values")}
 
     comma_separated_values = fields.List(fields.String(validate=validate_section_dot_field))
 
 
-class NitpickFilesSchema(Schema):
+class NitpickFilesSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick.files]`` section on the style file."""
+
+    error_messages = {"unknown": help_message("Unknown file", "nitpick_section.html#nitpick-files")}
 
     absent = fields.Dict(NotEmptyString(), fields.String())
     present = fields.Dict(NotEmptyString(), fields.String())
@@ -97,17 +120,19 @@ class NitpickFilesSchema(Schema):
     setup_cfg = fields.Nested(SetupCfgSchema, data_key=SetupCfgFile.file_name)
 
 
-class NitpickSchema(Schema):
+class NitpickSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick]`` section on the style file."""
 
     minimum_version = NotEmptyString()
-    styles = fields.Nested(NitpickStylesSchema)
-    files = fields.Nested(NitpickFilesSchema)
+    styles = fields.Nested(NitpickStylesSectionSchema)
+    files = fields.Nested(NitpickFilesSectionSchema)
     # TODO: load this schema dynamically, then add this next field JsonFile
-    JsonFile = fields.Nested(NitpickJsonFileSchema)
+    JsonFile = fields.Nested(NitpickJsonFileSectionSchema)
 
 
 class BaseStyleSchema(Schema):
     """Base validation schema for style files. Dynamic fields will be added to it later."""
 
-    nitpick = fields.Nested(NitpickSchema)
+    error_messages = {"unknown": help_message("Unknown file", "config_files.html")}
+
+    nitpick = fields.Nested(NitpickSectionSchema)

@@ -1,4 +1,5 @@
 """Plugin tests."""
+from nitpick.constants import READ_THE_DOCS_URL
 from tests.helpers import ProjectMock
 
 
@@ -29,6 +30,28 @@ def test_files_beginning_with_dot(request):
         NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML:\x1b[92m
         TomlDecodeError: Invalid group name \'editorconfig"\'. Try quoting it. (line 1 column 1 char 0)\x1b[0m
         """
+    )
+
+
+def test_missing_message(request):
+    """Test if the breaking style change "missing_message" key points to the correct help page."""
+    project = (
+        ProjectMock(request)
+        .style(
+            """
+        [nitpick.files."pyproject.toml"]
+        missing_message = "Install poetry and run 'poetry init' to create it"
+        """
+        )
+        .flake8()
+    )
+    project.assert_errors_contain(
+        """
+        NIP001 File {}/nitpick-style.toml has an incorrect style. Invalid config:\x1b[92m
+        nitpick.files."pyproject.toml": Unknown file. See {}nitpick_section.html#nitpick-files.\x1b[0m
+        """.format(
+            str(project.root_dir), READ_THE_DOCS_URL
+        )
     )
 
 
