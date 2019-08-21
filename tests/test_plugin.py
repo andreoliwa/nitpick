@@ -26,10 +26,8 @@ def test_files_beginning_with_dot(request):
         missing_message = "Create this file"
         """
     ).flake8().assert_errors_contain(
-        """
-        NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML:\x1b[92m
-        TomlDecodeError: Invalid group name \'editorconfig"\'. Try quoting it. (line 1 column 1 char 0)\x1b[0m
-        """
+        """NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML (toml.decoder"""
+        + """.TomlDecodeError: Invalid group name \'editorconfig"\'. Try quoting it. (line 1 column 1 char 0))"""
     )
 
 
@@ -47,10 +45,10 @@ def test_missing_message(request):
     )
     project.assert_errors_contain(
         """
-        NIP001 File {}/nitpick-style.toml has an incorrect style. Invalid config:\x1b[92m
+        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[92m
         nitpick.files."pyproject.toml": Unknown file. See {}nitpick_section.html#nitpick-files.\x1b[0m
         """.format(
-            str(project.root_dir), READ_THE_DOCS_URL
+            READ_THE_DOCS_URL
         )
     )
 

@@ -1,9 +1,10 @@
 """Base class for file checkers."""
 import abc
 from pathlib import Path
-from typing import Generator, List, Set, Type
+from typing import Generator, List, Optional, Set, Type
 
 import jmespath
+from marshmallow import Schema
 
 from nitpick import Nitpick
 from nitpick.formats import TomlFormat
@@ -23,6 +24,13 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     file_path = None  # type: Path
     file_dict = {}  # type: JsonDict
     nitpick_file_dict = {}  # type: JsonDict
+
+    #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
+    #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.files.json.JSONFile`).
+    nested_field = None  # type: Optional[Schema]
+
+    #: ``kwargs`` to be passes to the nested Marshmallow field above.
+    nested_field_kwargs = {}  # type: JsonDict
 
     fixed_name_classes = set()  # type: Set[Type[BaseFile]]
     dynamic_name_classes = set()  # type: Set[Type[BaseFile]]

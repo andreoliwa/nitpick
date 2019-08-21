@@ -510,10 +510,8 @@ def test_invalid_toml(request):
         ignore = D100,D104,D202,E203,W503
         """
     ).flake8().assert_errors_contain(
-        """
-        NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML:\x1b[92m
-        TomlDecodeError: This float doesn't have a leading digit (line 2 column 1 char 21)\x1b[0m
-        """,
+        "NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML"
+        + " (toml.decoder.TomlDecodeError: This float doesn't have a leading digit (line 2 column 1 char 21))",
         1,
     )
 
@@ -539,12 +537,12 @@ def test_invalid_nitpick_files(request):
         """
     ).flake8().assert_errors_contain(
         """
-        NIP001 File some_style has an incorrect style. Invalid config:\x1b[92m
+        NIP001 File some_style.toml has an incorrect style. Invalid config:\x1b[92m
         xxx: Unknown file. See https://nitpick.rtfd.io/en/latest/config_files.html.\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP001 File wrong_files has an incorrect style. Invalid config:\x1b[92m
+        NIP001 File wrong_files.toml has an incorrect style. Invalid config:\x1b[92m
         nitpick.files.whatever: Unknown file. See {}nitpick_section.html#nitpick-files.\x1b[0m
         """.format(
             READ_THE_DOCS_URL

@@ -1,4 +1,4 @@
-[nitpick.JsonFile]
+[nitpick.JSONFile]
 file_names = ["package.json"]
 
 ["package.json"]

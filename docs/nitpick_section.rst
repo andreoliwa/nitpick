@@ -76,8 +76,8 @@ If a key/value pair appears in more than one sub-style, it will be overridden; t
 
 .. _nitpick-jsonfile:
 
-[nitpick.JsonFile]
+[nitpick.JSONFile]
 ------------------
 
-Configure the list of filenames that should be checked by the :py:class:`nitpick.files.json.JsonFile` class.
+Configure the list of filenames that should be checked by the :py:class:`nitpick.files.json.JSONFile` class.
 See :ref:`the default package.json style <default-package-json>` for an example of usage.

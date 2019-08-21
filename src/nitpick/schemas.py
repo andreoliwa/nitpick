@@ -1,21 +1,14 @@
 """Marshmallow schemas."""
 from typing import Dict
 
-from marshmallow import Schema, ValidationError, fields
+from marshmallow import Schema
 from marshmallow_polyfield import PolyField
 from sortedcontainers import SortedDict
 
+from nitpick import fields
 from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.generic import flatten
-from nitpick.validators import TrimmedLength
-
-
-class NotEmptyString(fields.String):
-    """A string field that must not be empty even after trimmed."""
-
-    def __init__(self, **kwargs):
-        super().__init__(validate=TrimmedLength(min=1), **kwargs)
 
 
 def flatten_marshmallow_errors(errors: Dict) -> str:
@@ -35,36 +28,6 @@ def flatten_marshmallow_errors(errors: Dict) -> str:
     return "\n".join(formatted)
 
 
-def string_or_list_field(object_dict, parent_object_dict):  # pylint: disable=unused-argument
-    """Detect if the field is a string or a list."""
-    if isinstance(object_dict, list):
-        return fields.List(NotEmptyString(required=True, allow_none=False))
-    return NotEmptyString()
-
-
-def validate_section_dot_field(section_field: str) -> bool:
-    """Validate if the combinatio section/field has a dot separating them."""
-    # FIXME: add tests for these situations
-    common = "Use this format: section_name.field_name"
-    if "." not in section_field:
-        raise ValidationError("Dot is missing. {}".format(common))
-    parts = section_field.split(".")
-    if len(parts) > 2:
-        raise ValidationError("There's more than one dot. {}".format(common))
-    if not parts[0].strip():
-        raise ValidationError("Empty section name. {}".format(common))
-    if not parts[1].strip():
-        raise ValidationError("Empty field name. {}".format(common))
-    return True
-
-
-def boolean_or_dict_field(object_dict, parent_object_dict):  # pylint: disable=unused-argument
-    """Detect if the field is a boolean or a dict."""
-    if isinstance(object_dict, dict):
-        return fields.Dict
-    return fields.Bool
-
-
 def help_message(sentence: str, help_page: str) -> str:
     """Show help with the documentation URL on validation errors."""
     clean_sentence = sentence.strip(" .")
@@ -82,7 +45,7 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
 
     error_messages = {"unknown": help_message("Unknown configuration", "tool_nitpick_section.html")}
 
-    style = PolyField(deserialization_schema_selector=string_or_list_field)
+    style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
 
 
 class NitpickStylesSectionSchema(BaseNitpickSchema):
@@ -90,11 +53,11 @@ class NitpickStylesSectionSchema(BaseNitpickSchema):
 
     error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#nitpick-styles")}
 
-    include = PolyField(deserialization_schema_selector=string_or_list_field)
+    include = PolyField(deserialization_schema_selector=fields.string_or_list_field)
 
 
-class NitpickJsonFileSectionSchema(BaseNitpickSchema):
-    """Validation schema for the ``[nitpick.JsonFile]`` section on the style file."""
+class NitpickJSONFileSectionSchema(BaseNitpickSchema):
+    """Validation schema for the ``[nitpick.JSONFile]`` section on the style file."""
 
     error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#nitpick-jsonfile")}
 
@@ -106,7 +69,7 @@ class SetupCfgSchema(BaseNitpickSchema):
 
     error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#comma-separated-values")}
 
-    comma_separated_values = fields.List(fields.String(validate=validate_section_dot_field))
+    comma_separated_values = fields.List(fields.String(validate=fields.validate_section_dot_field))
 
 
 class NitpickFilesSectionSchema(BaseNitpickSchema):
@@ -114,8 +77,8 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
 
     error_messages = {"unknown": help_message("Unknown file", "nitpick_section.html#nitpick-files")}
 
-    absent = fields.Dict(NotEmptyString(), fields.String())
-    present = fields.Dict(NotEmptyString(), fields.String())
+    absent = fields.Dict(fields.FilledString, fields.String())
+    present = fields.Dict(fields.FilledString, fields.String())
     # TODO: load this schema dynamically, then add this next field setup_cfg
     setup_cfg = fields.Nested(SetupCfgSchema, data_key=SetupCfgFile.file_name)
 
@@ -123,11 +86,11 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
 class NitpickSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick]`` section on the style file."""
 
-    minimum_version = NotEmptyString()
+    minimum_version = fields.FilledString()
     styles = fields.Nested(NitpickStylesSectionSchema)
     files = fields.Nested(NitpickFilesSectionSchema)
-    # TODO: load this schema dynamically, then add this next field JsonFile
-    JsonFile = fields.Nested(NitpickJsonFileSectionSchema)
+    # TODO: load this schema dynamically, then add this next field JSONFile
+    JSONFile = fields.Nested(NitpickJSONFileSectionSchema)
 
 
 class BaseStyleSchema(Schema):

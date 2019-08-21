@@ -1,15 +1,15 @@
 """Style files."""
 import logging
+from collections import OrderedDict
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type
 from urllib.parse import urlparse, urlunparse
 
 import requests
-from marshmallow import fields
 from slugify import slugify
 from toml import TomlDecodeError
 
-from nitpick import Nitpick, __version__
+from nitpick import Nitpick, __version__, fields
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
@@ -20,7 +20,7 @@ from nitpick.constants import (
 from nitpick.files.base import BaseFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
-from nitpick.generic import MergeDict, climb_directory_tree, is_url, search_dict
+from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
 from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList
 
@@ -81,13 +81,15 @@ class Style:
             try:
                 toml_dict = toml.as_data
             except TomlDecodeError as err:
-                Nitpick.current_app().add_style_error(
-                    style_path.name, "Invalid TOML:", "{}: {}".format(err.__class__.__name__, err)
-                )
+                Nitpick.current_app().add_style_error(style_path.name, pretty_exception(err, "Invalid TOML"))
                 # If the TOML itself could not be parsed, we can't go on
                 return
 
-            self.validate_style(style_uri, toml_dict)
+            try:
+                display_name = str(style_path.relative_to(Nitpick.current_app().root_dir))
+            except ValueError:
+                display_name = style_uri
+            self.validate_style(display_name, toml_dict)
             self._all_styles.add(toml_dict)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
@@ -194,28 +196,39 @@ class Style:
         return merged_dict
 
     @staticmethod
-    def append_field_from_file(schema_fields: Dict[str, fields.Field], subclass: Type[BaseFile], file_name: str):
-        """Append a schema field with info from a config file class."""
-        field_name = subclass.__name__
+    def file_field_pair(file_name: str, base_file_class: Type[BaseFile]) -> Dict[str, fields.Field]:
+        """Return a schema field with info from a config file class."""
         valid_toml_key = TomlFormat.group_name_for(file_name)
-        schema_fields[field_name] = fields.Dict(fields.String(), data_key=valid_toml_key)
+        unique_file_name_with_underscore = slugify(file_name, separator="_")
+
+        if base_file_class.nested_field:
+            kwargs = base_file_class.nested_field_kwargs
+            kwargs.setdefault("data_key", valid_toml_key)
+            field = fields.Nested(base_file_class.nested_field, **kwargs)
+        else:
+            # For default files (pyproject.toml, setup.cfg...), there is no strict schema;
+            # it can be anything they allow.
+            # It's out of Nitpick's scope to validate those files.
+            field = fields.Dict(fields.String, data_key=valid_toml_key)
+        return {unique_file_name_with_underscore: field}
 
     def rebuild_dynamic_schema(self, data: JsonDict = None) -> None:
         """Rebuild the dynamic Marshmallow schema when needed, adding new fields that were found on the style."""
-        new_files_found = {}  # type: Dict[str, fields.Field]
+        new_files_found = OrderedDict()  # type: Dict[str, fields.Field]
+
         if data is None:
             # Data is empty; so this is the first time the dynamic class is being rebuilt.
             # Loop on classes with predetermined names, and add fields for them on the dynamic validation schema.
             # E.g.: setup.cfg, pre-commit, pyproject.toml: files whose names we already know at this point.
             for subclass in BaseFile.fixed_name_classes:
-                self.append_field_from_file(new_files_found, subclass, subclass.file_name)
+                new_files_found.update(self.file_field_pair(subclass.file_name, subclass))
         else:
             # Data was provided; search it to find new dynamic files to add to the validation schema).
             # E.g.: JSON files that were configured on some TOML style file.
             for subclass in BaseFile.dynamic_name_classes:
                 jmex = subclass.get_compiled_jmespath_file_names()
-                for file_name in search_dict(jmex, data, []):
-                    self.append_field_from_file(new_files_found, subclass, file_name)
+                for configured_file_name in search_dict(jmex, data, []):
+                    new_files_found.update(self.file_field_pair(configured_file_name, subclass))
 
         # Only recreate the schema if new fields were found.
         if new_files_found:

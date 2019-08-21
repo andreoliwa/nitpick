@@ -22,6 +22,7 @@ Submodules
    nitpick.config
    nitpick.constants
    nitpick.exceptions
+   nitpick.fields
    nitpick.formats
    nitpick.generic
    nitpick.mixin
@@ -29,4 +30,3 @@ Submodules
    nitpick.schemas
    nitpick.style
    nitpick.typedefs
-   nitpick.validators

@@ -17,7 +17,7 @@ from sortedcontainers import SortedDict
 from nitpick import __version__
 from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
 from nitpick.files.base import BaseFile
-from nitpick.files.json import JsonFile
+from nitpick.files.json import JSONFile
 from nitpick.files.pre_commit import PreCommitFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
@@ -46,7 +46,7 @@ style_mapping = SortedDict(
         "python37.toml": "Python 3.7",
     }
 )
-file_classes = [PyProjectTomlFile, SetupCfgFile, PreCommitFile, JsonFile]
+file_classes = [PyProjectTomlFile, SetupCfgFile, PreCommitFile, JSONFile]
 
 divider = ".. auto-generated-from-here"
 docs_dir = Path(__file__).parent.absolute()  # type: Path
