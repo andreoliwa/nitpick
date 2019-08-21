@@ -20,7 +20,7 @@ from nitpick.constants import (
 from nitpick.files.base import BaseFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
-from nitpick.generic import MergeDict, climb_directory_tree, get_subclasses, is_url, search_dict
+from nitpick.generic import MergeDict, climb_directory_tree, is_url, search_dict
 from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList
 
@@ -34,16 +34,6 @@ class Style:
         self._all_styles = MergeDict()
         self._already_included = set()  # type: Set[str]
         self._first_full_path = ""  # type: str
-
-        # Separate classes with fixed file names from classes with dynamic files names.
-        # FIXME do only once on app init (Nitpick.__init__(); or create_app(), mimicking Flask)
-        self.files_predetermined_names = set()  # type: Set[Type[BaseFile]]
-        self.files_dynamic_names = set()  # type: Set[Type[BaseFile]]
-        for subclass in get_subclasses(BaseFile):
-            if subclass.file_name:
-                self.files_predetermined_names.add(subclass)
-            else:
-                self.files_dynamic_names.add(subclass)
 
         self._dynamic_schema_class = BaseStyleSchema  # type: type
         self.rebuild_dynamic_schema()
@@ -217,12 +207,12 @@ class Style:
             # Data is empty; so this is the first time the dynamic class is being rebuilt.
             # Loop on classes with predetermined names, and add fields for them on the dynamic validation schema.
             # E.g.: setup.cfg, pre-commit, pyproject.toml: files whose names we already know at this point.
-            for subclass in self.files_predetermined_names:
+            for subclass in BaseFile.fixed_name_classes:
                 self.append_field_from_file(new_files_found, subclass, subclass.file_name)
         else:
             # Data was provided; search it to find new dynamic files to add to the validation schema).
             # E.g.: JSON files that were configured on some TOML style file.
-            for subclass in self.files_dynamic_names:
+            for subclass in BaseFile.dynamic_name_classes:
                 jmex = subclass.get_compiled_jmespath_file_names()
                 for file_name in search_dict(jmex, data, []):
                     self.append_field_from_file(new_files_found, subclass, file_name)

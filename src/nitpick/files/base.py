@@ -1,13 +1,13 @@
 """Base class for file checkers."""
 import abc
 from pathlib import Path
-from typing import Generator, List
+from typing import Generator, List, Set, Type
 
 import jmespath
 
 from nitpick import Nitpick
 from nitpick.formats import TomlFormat
-from nitpick.generic import search_dict
+from nitpick.generic import get_subclasses, search_dict
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
@@ -24,6 +24,9 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     file_dict = {}  # type: JsonDict
     nitpick_file_dict = {}  # type: JsonDict
 
+    fixed_name_classes = set()  # type: Set[Type[BaseFile]]
+    dynamic_name_classes = set()  # type: Set[Type[BaseFile]]
+
     def __init__(self) -> None:
         if self.has_multiple_files:
             key = "{}.file_names".format(self.__class__.__name__)
@@ -31,6 +34,17 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         else:
             self._multiple_files = [self.file_name]
             self._set_current_data(self.file_name)
+
+    @classmethod
+    def load_fixed_dynamic_classes(cls) -> None:
+        """Separate classes with fixed file names from classes with dynamic files names."""
+        cls.fixed_name_classes = set()
+        cls.dynamic_name_classes = set()
+        for subclass in get_subclasses(BaseFile):
+            if subclass.file_name:
+                cls.fixed_name_classes.add(subclass)
+            else:
+                cls.dynamic_name_classes.add(subclass)
 
     def _set_current_data(self, file_name: str) -> None:
         """Set data for the current file name, either if there are multiple or single files."""

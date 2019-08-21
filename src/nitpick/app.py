@@ -36,6 +36,7 @@ class Nitpick:
     def create_app(cls) -> "Nitpick":
         """Create a single application."""
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
+        from nitpick.files.base import BaseFile
 
         app = cls()
         cls._current_app = app
@@ -46,6 +47,7 @@ class Nitpick:
 
             app.main_python_file = app.find_main_python_file()
             app.config = Config()
+            BaseFile.load_fixed_dynamic_classes()
         except (NoRootDir, NoPythonFile) as err:
             app.init_errors.append(err)
 
