@@ -45,7 +45,7 @@ def test_missing_message(request):
     )
     project.assert_errors_contain(
         """
-        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[92m
+        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
         nitpick.files."pyproject.toml": Unknown file. See {}nitpick_section.html#nitpick-files.\x1b[0m
         """.format(
             READ_THE_DOCS_URL

@@ -52,19 +52,19 @@ def test_multiple_styles_overriding_values(request):
         """
     ).flake8().assert_errors_contain(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         line-length = 100\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP319 File pyproject.toml has different values. Use this:\x1b[92m
+        NIP319 File pyproject.toml has different values. Use this:\x1b[32m
         [tool.black]
         something = 11\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP321 File setup.cfg was not found. Create it with this content:\x1b[92m
+        NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
         [flake8]
         inline-quotes = double
         something = 123
@@ -122,13 +122,13 @@ def test_include_styles_overriding_values(request):
         """
     ).flake8().assert_errors_contain(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         line-length = 100\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP321 File setup.cfg was not found. Create it with this content:\x1b[92m
+        NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
         [flake8]
         inline-quotes = double
         something = 123
@@ -225,7 +225,7 @@ def test_relative_and_other_root_dirs(request):
         )
     ).flake8().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "value"\x1b[0m
         """
@@ -242,7 +242,7 @@ def test_relative_and_other_root_dirs(request):
         )
     ).flake8().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "value"\x1b[0m
         """
@@ -259,7 +259,7 @@ def test_relative_and_other_root_dirs(request):
         )
     ).flake8().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "value"
 
@@ -293,7 +293,7 @@ def test_symlink_subdir(request):
         """
     ).flake8().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         line-length = 86\x1b[0m
         """
@@ -345,7 +345,7 @@ def test_relative_style_on_urls(request):
         )
     ).flake8().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "value"\x1b[0m
         """
@@ -362,7 +362,7 @@ def test_relative_style_on_urls(request):
         )
     ).flake8().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "value"\x1b[0m
         """
@@ -379,7 +379,7 @@ def test_relative_style_on_urls(request):
         )
     ).flake8().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "value"
 
@@ -410,7 +410,7 @@ def test_fetch_private_github_urls(request):
         )
     ).flake8().assert_single_error(
         """
-        NIP318 File pyproject.toml has missing values:\x1b[92m
+        NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "thing"\x1b[0m
     """
@@ -497,7 +497,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(request):
     ]:
         project.pyproject_toml("[tool.nitpick]\n{}".format(style)).flake8().assert_errors_contain(
             "NIP001 File pyproject.toml has an incorrect style."
-            + " Invalid data in [tool.nitpick]:\x1b[92m\n{}\x1b[0m".format(error_message),
+            + " Invalid data in [tool.nitpick]:\x1b[32m\n{}\x1b[0m".format(error_message),
             1,
         )
 
@@ -537,12 +537,12 @@ def test_invalid_nitpick_files(request):
         """
     ).flake8().assert_errors_contain(
         """
-        NIP001 File some_style.toml has an incorrect style. Invalid config:\x1b[92m
+        NIP001 File some_style.toml has an incorrect style. Invalid config:\x1b[32m
         xxx: Unknown file. See https://nitpick.rtfd.io/en/latest/config_files.html.\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP001 File wrong_files.toml has an incorrect style. Invalid config:\x1b[92m
+        NIP001 File wrong_files.toml has an incorrect style. Invalid config:\x1b[32m
         nitpick.files.whatever: Unknown file. See {}nitpick_section.html#nitpick-files.\x1b[0m
         """.format(
             READ_THE_DOCS_URL

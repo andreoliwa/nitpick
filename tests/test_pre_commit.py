@@ -23,7 +23,7 @@ def test_suggest_initial_contents(request):
         """
     ).flake8().assert_errors_contain(
         """
-        NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[92m
+        NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[32m
         repos:
           - repo: https://github.com/asottile/seed-isort-config
             rev: v1.9.2
@@ -58,7 +58,7 @@ def test_root_values_on_missing_file(request):
         """
     ).flake8().assert_errors_contain_unordered(
         """
-        NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[92m
+        NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[32m
         bla_bla: oh yeah
         fail_fast: true
         whatever: '1'\x1b[0m
@@ -86,13 +86,13 @@ def test_root_values_on_existing_file(request):
         """
     ).flake8().assert_errors_contain_unordered(
         """
-        NIP338 File .pre-commit-config.yaml has missing values:\x1b[92m
+        NIP338 File .pre-commit-config.yaml has missing values:\x1b[32m
         blabla: what
         fail_fast: true\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml has different values. Use this:\x1b[92m
+        NIP339 File .pre-commit-config.yaml has different values. Use this:\x1b[32m
         another_thing: yep
         something: true\x1b[0m
         """
@@ -365,7 +365,7 @@ def test_missing_different_values(request):
         """
     ).flake8().assert_errors_contain(
         """
-        NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[92m
+        NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/mirrors-mypy
             rev: v0.720
             hooks:
@@ -373,7 +373,7 @@ def test_missing_different_values(request):
         """
     ).assert_errors_contain(
         """
-        NIP332 File .pre-commit-config.yaml: hook 'python-check-mock-methods' not found. Use this:\x1b[92m
+        NIP332 File .pre-commit-config.yaml: hook 'python-check-mock-methods' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/pygrep-hooks
             rev: v1.4.1
             hooks:
@@ -381,34 +381,34 @@ def test_missing_different_values(request):
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'bashate' has different values. Use this:\x1b[92m
+        NIP339 File .pre-commit-config.yaml: hook 'bashate' has different values. Use this:\x1b[32m
         rev: 0.6.0\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' has different values. Use this:\x1b[92m
+        NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' has different values. Use this:\x1b[32m
         rev: v1.4.1\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' has different values. Use this:\x1b[92m
+        NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' has different values. Use this:\x1b[32m
         rev: v1.4.1\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' has different values. Use this:\x1b[92m
+        NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' has different values. Use this:\x1b[32m
         rev: v1.4.1\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'my-hook' has different values. Use this:\x1b[92m
+        NIP339 File .pre-commit-config.yaml: hook 'my-hook' has different values. Use this:\x1b[32m
         args:
           - --expected
           - arguments\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' has different values. Use this:\x1b[92m
+        NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' has different values. Use this:\x1b[32m
         rev: v1.4.1\x1b[0m
         """,
         8,

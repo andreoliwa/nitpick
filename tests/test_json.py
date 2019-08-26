@@ -13,7 +13,7 @@ def test_suggest_initial_contents(request):
         """
     ).flake8().assert_errors_contain(
         """
-        NIP341 File package.json was not found. Create it with this content:\x1b[92m
+        NIP341 File package.json was not found. Create it with this content:\x1b[32m
         {
           "name": "<some value here>",
           "release": {
@@ -38,7 +38,7 @@ def test_json_file_contains_keys(request):
         """
     ).save_file("package.json", '{"name": "myproject", "version": "0.0.1"}').flake8().assert_errors_contain(
         """
-        NIP348 File package.json has missing keys:\x1b[92m
+        NIP348 File package.json has missing keys:\x1b[32m
         {
           "release": {
             "plugins": "<some value here>"
@@ -68,7 +68,7 @@ def test_missing_different_values(request):
         '''
     ).save_file("my.json", '{"name":"myproject","formatting":{"on the":"actual file"}}').flake8().assert_errors_contain(
         """
-        NIP348 File my.json has missing values:\x1b[92m
+        NIP348 File my.json has missing values:\x1b[32m
         {
           "formatting.doesnt": "matter",
           "formatting.here": true,
@@ -83,7 +83,7 @@ def test_missing_different_values(request):
         # TODO: check different values on JSON files
         # ).assert_errors_contain(
         #     """
-        #     NIP349 File my.json has different values. Use this:\x1b[92m
+        #     NIP349 File my.json has different values. Use this:\x1b[32m
         #     {
         #       "formatting": {
         #         "here": true,
@@ -108,7 +108,7 @@ def test_invalid_json(request):
         """
         '''
     ).flake8().assert_errors_contain(
-        "NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[92m\n"
+        "NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m\n"
         + '"another.json".contains_json.some_field.value: Invalid JSON (json.decoder.JSONDecodeError:'
         + " Invalid control character at: line 1 column 37 (char 36))\x1b[0m"
     )

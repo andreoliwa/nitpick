@@ -138,7 +138,7 @@ class Nitpick:
             else nitpick_error.number
         )
         suggestion_with_newline = (
-            click.style("\n{}".format(nitpick_error.suggestion.rstrip()), fg="bright_green")
+            click.style("\n{}".format(nitpick_error.suggestion.rstrip()), fg="green")
             if nitpick_error.suggestion
             else ""
         )
