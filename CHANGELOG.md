@@ -1,3 +1,19 @@
+# [0.21.0](https://github.com/andreoliwa/nitpick/compare/v0.20.0...v0.21.0) (2019-08-26)
+
+
+### Bug Fixes
+
+* use green color to be compatible with click 6.7 ([54a6f4e](https://github.com/andreoliwa/nitpick/commit/54a6f4e)), closes [#81](https://github.com/andreoliwa/nitpick/issues/81)
+* **json:** show original JSON key suggestion, without flattening ([d01cd05](https://github.com/andreoliwa/nitpick/commit/d01cd05))
+
+
+### Features
+
+* **style:** validate the [nitpick.files] section ([96c1c31](https://github.com/andreoliwa/nitpick/commit/96c1c31))
+* show help with the documentation URL on validation errors ([83a8f89](https://github.com/andreoliwa/nitpick/commit/83a8f89))
+* validate [nitpick.files.present] and [nitpick.files.absent] ([ab068b5](https://github.com/andreoliwa/nitpick/commit/ab068b5))
+* validate configuration of JSON files ([e1192a4](https://github.com/andreoliwa/nitpick/commit/e1192a4))
+
 # [0.20.0](https://github.com/andreoliwa/nitpick/compare/v0.19.0...v0.20.0) (2019-08-13)
 
 
