@@ -5,7 +5,7 @@ import json
 import logging
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, List, Optional, Type, Union
+from typing import Any, Callable, List, Optional, Type, Union
 
 import dictdiffer
 import toml
@@ -176,7 +176,9 @@ class BaseFormat(metaclass=abc.ABCMeta):
         )
         return comparison
 
-    def compare_with_dictdiffer(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
+    def compare_with_dictdiffer(
+        self, expected: Union[JsonDict, "BaseFormat"] = None, transform_function: Callable = None
+    ) -> Comparison:
         """Compare two structures and compute missing and different items using ``dictdiffer``."""
         comparison = self._create_comparison(expected)
 
@@ -191,7 +193,8 @@ class BaseFormat(metaclass=abc.ABCMeta):
                 if actual_value != expected_value:
                     comparison.update_pair(key, raw_expected)
 
-        comparison.set_missing(comparison.missing_dict)
+        missing = transform_function(comparison.missing_dict) if transform_function else comparison.missing_dict
+        comparison.set_missing(missing)
         comparison.set_diff(comparison.diff_dict)
         return comparison
 

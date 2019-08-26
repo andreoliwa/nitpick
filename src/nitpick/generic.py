@@ -5,13 +5,14 @@
     from nitpick.generic import *
 """
 import collections
+import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Set, Tuple, Union
 
 import jmespath
 from jmespath.parser import ParsedResult
 
-from nitpick.constants import UNIQUE_SEPARATOR
+from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
 from nitpick.typedefs import JsonDict, PathOrStr
 
 
@@ -43,7 +44,7 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
 
     items = []  # type: List[Tuple[str, Any]]
     for key, value in dict_.items():
-        quoted_key = '"{}"'.format(key) if separator in str(key) else key
+        quoted_key = "{quote}{key}{quote}".format(quote=DOUBLE_QUOTE, key=key) if separator in str(key) else key
         new_key = str(parent_key) + separator + str(quoted_key) if parent_key else quoted_key
         if isinstance(value, collections.abc.MutableMapping):
             items.extend(flatten(value, new_key, separator, current_lists).items())
@@ -59,6 +60,40 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
     return dict(items)
 
 
+def quoted_split(string_: str, separator=".") -> List[str]:
+    """Split a string by a separator, but considering quoted parts (single or double quotes).
+
+    >>> quoted_split("my.key.without.quotes")
+    ['my', 'key', 'without', 'quotes']
+    >>> quoted_split('"double.quoted.string"')
+    ['double.quoted.string']
+    >>> quoted_split('"double.quoted.string".and.after')
+    ['double.quoted.string', 'and', 'after']
+    >>> quoted_split('something.before."double.quoted.string"')
+    ['something', 'before', 'double.quoted.string']
+    >>> quoted_split("'single.quoted.string'")
+    ['single.quoted.string']
+    >>> quoted_split("'single.quoted.string'.and.after")
+    ['single.quoted.string', 'and', 'after']
+    >>> quoted_split("something.before.'single.quoted.string'")
+    ['something', 'before', 'single.quoted.string']
+    """
+    if DOUBLE_QUOTE not in string_ and SINGLE_QUOTE not in string_:
+        return string_.split(separator)
+
+    quoted_regex = re.compile(
+        "([{single}{double}][^{single}{double}]+[{single}{double}])".format(single=SINGLE_QUOTE, double=DOUBLE_QUOTE)
+    )
+
+    def remove_quotes(match):
+        return match.group(0).strip("".join([SINGLE_QUOTE, DOUBLE_QUOTE])).replace(separator, SEPARATOR_QUOTED_SPLIT)
+
+    return [
+        part.replace(SEPARATOR_QUOTED_SPLIT, separator)
+        for part in quoted_regex.sub(remove_quotes, string_).split(separator)
+    ]
+
+
 def unflatten(dict_, separator=".") -> collections.OrderedDict:
     """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
 
@@ -72,7 +107,7 @@ def unflatten(dict_, separator=".") -> collections.OrderedDict:
     """
     items = collections.OrderedDict()  # type: collections.OrderedDict[str, Any]
     for root_key, root_value in sorted(dict_.items()):
-        all_keys = root_key.split(separator)
+        all_keys = quoted_split(root_key, separator)
         sub_items = items
         for key in all_keys[:-1]:
             try:
@@ -96,12 +131,12 @@ class MergeDict:
 
     def add(self, other: JsonDict) -> None:
         """Add another dictionary to the existing data."""
-        flattened_other = flatten(other, separator=UNIQUE_SEPARATOR, current_lists=self._current_lists)
+        flattened_other = flatten(other, separator=SEPARATOR_FLATTEN, current_lists=self._current_lists)
         self._all_flattened.update(flattened_other)
 
     def merge(self) -> JsonDict:
         """Merge the dictionaries, replacing values with identical keys and extending lists."""
-        return unflatten(self._all_flattened, separator=UNIQUE_SEPARATOR)
+        return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN)
 
 
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[Set[Path]]:

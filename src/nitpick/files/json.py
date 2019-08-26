@@ -52,6 +52,7 @@ class JSONFile(BaseFile):
         """Return the suggested JSON based on actual values."""
         actual = set(flatten(raw_actual).keys()) if raw_actual else set()
         expected = set(self.file_dict.get(KEY_CONTAINS_KEYS) or [])
+        # TODO: include "contains_json" keys in the suggestion as well
         missing = expected - actual
         if not missing:
             return {}
@@ -83,4 +84,6 @@ class JSONFile(BaseFile):
                 LOGGER.error("%s on %s while checking %s", err, KEY_CONTAINS_JSON, self.file_path)
                 continue
 
-        yield from self.warn_missing_different(JsonFormat(data=actual_fmt.as_data).compare_with_dictdiffer(expected))
+        yield from self.warn_missing_different(
+            JsonFormat(data=actual_fmt.as_data).compare_with_dictdiffer(expected, unflatten)
+        )

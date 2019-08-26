@@ -13,9 +13,15 @@ MANAGE_PY = "manage.py"
 ROOT_PYTHON_FILES = ("setup.py", "app.py", "wsgi.py", "autoapp.py")
 ROOT_FILES = ("requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 
+SINGLE_QUOTE = "'"
+DOUBLE_QUOTE = '"'
+
 #: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
 # to avoid collision with existing key values (e.g. the default dot separator "." can be part of a pyproject.toml key).
-UNIQUE_SEPARATOR = "$#@"
+SEPARATOR_FLATTEN = "$#@"
+
+#: Special unique separator for :py:meth:`quoted_split()`.
+SEPARATOR_QUOTED_SPLIT = "#$@"
 
 # Config sections and keys
 TOOL_NITPICK = "tool.nitpick"

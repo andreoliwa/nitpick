@@ -58,7 +58,7 @@ def test_missing_different_values(request):
         file_names = ["my.json"]
 
         ["my.json".contains_json]
-        some_root_key = """
+        "some.dotted.root.key" = """
             { "valid": "JSON", "content": ["should", "be", "here"] }
         """
         formatting = """ {"doesnt":"matter","here":true,"on the": "config file"} """
@@ -67,14 +67,18 @@ def test_missing_different_values(request):
         """
         NIP348 File my.json has missing values:\x1b[32m
         {
-          "formatting.doesnt": "matter",
-          "formatting.here": true,
-          "some_root_key.content": [
-            "should",
-            "be",
-            "here"
-          ],
-          "some_root_key.valid": "JSON"
+          "formatting": {
+            "doesnt": "matter",
+            "here": true
+          },
+          "some.dotted.root.key": {
+            "content": [
+              "should",
+              "be",
+              "here"
+            ],
+            "valid": "JSON"
+          }
         }\x1b[0m
         """
         # TODO: check different values on JSON files
