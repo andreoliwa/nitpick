@@ -109,7 +109,7 @@ test:
 	-rm .cache/make/test
 	$(MAKE) .cache/make/test
 
-.cache/make/test: src/* styles/* tests/*
+.cache/make/test: .cache/make/long-poetry src/* styles/* tests/*
 ifdef failed
 	pytest --failed
 else
@@ -119,5 +119,5 @@ endif
 	touch .cache/make/test
 
 ci:
-	-rm -rf .cache/make/*doc* .cache/make/run docs/_build docs/source
+	-rm -rf .cache/make/*doc* .cache/make/run .cache/make/test docs/_build docs/source
 	$(MAKE) force=1

@@ -201,15 +201,14 @@ class Style:
         valid_toml_key = TomlFormat.group_name_for(file_name)
         unique_file_name_with_underscore = slugify(file_name, separator="_")
 
+        kwargs = {"data_key": valid_toml_key}
         if base_file_class.nested_field:
-            kwargs = base_file_class.nested_field_kwargs
-            kwargs.setdefault("data_key", valid_toml_key)
             field = fields.Nested(base_file_class.nested_field, **kwargs)
         else:
             # For default files (pyproject.toml, setup.cfg...), there is no strict schema;
             # it can be anything they allow.
             # It's out of Nitpick's scope to validate those files.
-            field = fields.Dict(fields.String, data_key=valid_toml_key)
+            field = fields.Dict(fields.String, **kwargs)
         return {unique_file_name_with_underscore: field}
 
     def rebuild_dynamic_schema(self, data: JsonDict = None) -> None:

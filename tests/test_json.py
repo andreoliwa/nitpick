@@ -1,6 +1,4 @@
 """JSON tests."""
-import pytest
-
 from tests.helpers import ProjectMock
 
 
@@ -52,7 +50,6 @@ def test_json_file_contains_keys(request):
     )
 
 
-@pytest.mark.xfail(reason="Test fails when all tests run, but succeeds when run alone")
 def test_missing_different_values(request):
     """Test missing and different values on the JSON file."""
     ProjectMock(request).style(
@@ -94,7 +91,6 @@ def test_missing_different_values(request):
     )
 
 
-@pytest.mark.xfail(reason="Test fails when all tests run, but succeeds when run alone")
 def test_invalid_json(request):
     """Test invalid JSON on a TOML style."""
     # pylint: disable=line-too-long
@@ -121,7 +117,6 @@ def test_invalid_json(request):
     )
 
 
-@pytest.mark.xfail(reason="Test fails when all tests run, but succeeds when run alone")
 def test_json_file_with_extra_keys(request):
     """Test TOML style with extra keys for a JSON file."""
     ProjectMock(request).style(

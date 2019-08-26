@@ -49,6 +49,7 @@ marshmallow-polyfield = "^5.7"
 [tool.poetry.dev-dependencies]
 ipython = "*"
 ipdb = "*"
+icecream = "*"
 pytest = "*"
 pytest-runfailed = "*"
 pytest-repeat = "*"

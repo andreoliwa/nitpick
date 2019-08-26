@@ -29,9 +29,6 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.files.json.JSONFile`).
     nested_field = None  # type: Optional[Schema]
 
-    #: ``kwargs`` to be passes to the nested Marshmallow field above.
-    nested_field_kwargs = {}  # type: JsonDict
-
     fixed_name_classes = set()  # type: Set[Type[BaseFile]]
     dynamic_name_classes = set()  # type: Set[Type[BaseFile]]
 
