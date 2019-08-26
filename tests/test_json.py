@@ -97,6 +97,7 @@ def test_missing_different_values(request):
 @pytest.mark.xfail(reason="Test fails when all tests run, but succeeds when run alone")
 def test_invalid_json(request):
     """Test invalid JSON on a TOML style."""
+    # pylint: disable=line-too-long
     ProjectMock(request).style(
         '''
         [nitpick.JSONFile]
@@ -106,12 +107,39 @@ def test_invalid_json(request):
         some_field = """
             { "this": "is missing the end...
         """
+
+        ["another.json".with]
+        extra = "key"
         '''
     ).flake8().assert_errors_contain(
-        "NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m\n"
-        + '"another.json".contains_json.some_field.value: Invalid JSON (json.decoder.JSONDecodeError:'
-        + " Invalid control character at: line 1 column 37 (char 36))\x1b[0m"
+        """
+        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
+        "another.json".contains_json.some_field.value: Invalid JSON (json.decoder.JSONDecodeError: Invalid control character at: line 1 column 37 (char 36))
+        "another.json".with: Unknown configuration. See https://nitpick.rtfd.io/en/latest/nitpick_section.html.\x1b[0m
+        """,
+        1,
     )
 
 
-# FIXME: test extra keys
+@pytest.mark.xfail(reason="Test fails when all tests run, but succeeds when run alone")
+def test_json_file_with_extra_keys(request):
+    """Test TOML style with extra keys for a JSON file."""
+    ProjectMock(request).style(
+        """
+        [nitpick.JSONFile]
+        file_names = ["your.json"]
+
+        ["your.json".has]
+        an_extra = "key"
+
+        ["their.json"]
+        x = 1
+        """
+    ).flake8().assert_errors_contain(
+        """
+        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
+        "their.json": Unknown file. See https://nitpick.rtfd.io/en/latest/config_files.html.
+        "your.json".has: Unknown configuration. See https://nitpick.rtfd.io/en/latest/nitpick_section.html.\x1b[0m
+        """,
+        1,
+    )
