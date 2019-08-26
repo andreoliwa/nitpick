@@ -95,7 +95,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
                 suggestion = self.suggest_initial_contents()
                 phrases = [" was not found"]
                 message = Nitpick.current_app().config.nitpick_files_section.get(self.file_name)
-                if message:
+                if message and isinstance(message, str):
                     phrases.append(message)
                 if suggestion:
                     phrases.append("Create it with this content:")

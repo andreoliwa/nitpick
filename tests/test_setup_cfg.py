@@ -148,7 +148,7 @@ def test_invalid_configuration_comma_separated_values(request):
         ignore = "D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503"
         select = "E241,C,E,F,W,B,B9"
 
-        ["setup.cfg"]
+        [nitpick.files."setup.cfg"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude"]
         """
     ).flake8().assert_errors_contain(
@@ -159,5 +159,23 @@ def test_invalid_configuration_comma_separated_values(request):
         max-complexity = 12
         max-line-length = 85
         select = E241,C,E,F,W,B,B9\x1b[0m
+        """
+    )
+
+
+def test_invalid_section_dot_fields(request):
+    """Test invalid section/field pairs."""
+    ProjectMock(request).style(
+        """
+        [nitpick.files."setup.cfg"]
+        comma_separated_values = ["no_dot", "multiple.dots.here", ".filed_only", "section_only."]
+        """
+    ).setup_cfg("").flake8().assert_errors_contain(
+        """
+        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
+        nitpick.files."setup.cfg".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
+        nitpick.files."setup.cfg".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
+        nitpick.files."setup.cfg".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
+        nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>\x1b[0m
         """
     )
