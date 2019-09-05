@@ -14,7 +14,6 @@ import click
 from slugify import slugify
 from sortedcontainers import SortedDict
 
-from nitpick import __version__
 from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
 from nitpick.files.base import BaseFile
 from nitpick.files.json import JSONFile
@@ -73,7 +72,7 @@ def generate_defaults_rst():
         {header}
         {dashes}
 
-        Content of `{toml_file} <{url}>`_:
+        Content of `{toml_file} <{base_url}/develop/{toml_file}>`_:
 
         .. code-block:: toml
 
@@ -97,7 +96,7 @@ def generate_defaults_rst():
                 header=header,
                 dashes="-" * len(header),
                 toml_file=base_name,
-                url="{}/v{}/{}".format(RAW_GITHUB_CONTENT_BASE_URL, __version__, base_name),
+                base_url=RAW_GITHUB_CONTENT_BASE_URL,
                 toml_content="\n".join(indented_lines),
             )
         )
