@@ -20,7 +20,7 @@ DOUBLE_QUOTE = '"'
 # to avoid collision with existing key values (e.g. the default dot separator "." can be part of a pyproject.toml key).
 SEPARATOR_FLATTEN = "$#@"
 
-#: Special unique separator for :py:meth:`quoted_split()`.
+#: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
 SEPARATOR_QUOTED_SPLIT = "#$@"
 
 # Config sections and keys

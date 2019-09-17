@@ -68,7 +68,7 @@ poetry:
 	touch .cache/make/long-poetry
 	-rm .cache/make/run
 
-doc: docs/* *.rst *.md
+doc: docs/*/* *.rst *.md
 ifdef force
 	-rm -rf .cache/make/*doc* docs/_build docs/source
 endif
@@ -79,12 +79,12 @@ endif
 	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
 	touch .cache/make/short-doc-source
 
-.cache/make/doc-defaults: docs/generate_rst.py styles/*
+.cache/make/doc-defaults: docs/generate_rst.py styles/*/*
 	python3 docs/generate_rst.py
 	touch .cache/make/doc-defaults
 
 # $(O) is meant as a shortcut for $(SPHINXOPTS).
-.cache/make/doc: docs/* *.rst *.md .cache/make/short-doc-source .cache/make/doc-defaults
+.cache/make/doc: docs/*/* *.rst *.md .cache/make/short-doc-source .cache/make/doc-defaults
 	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	$(MAKE) .cache/make/short-doc-link-check
 	touch .cache/make/doc
@@ -94,7 +94,7 @@ endif
 	$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -blinkcheck
 	touch .cache/make/short-doc-link-check
 
-.cache/make/run: .github/* .travis/* docs/**.py src/* styles/* tests/* nitpick-style.toml
+.cache/make/run: .github/*/* .travis/*/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml
 	pre-commit run --all-files
 	flake8
 	touch .cache/make/run
@@ -109,7 +109,7 @@ test:
 	-rm .cache/make/test
 	$(MAKE) .cache/make/test
 
-.cache/make/test: .cache/make/long-poetry src/* styles/* tests/*
+.cache/make/test: .cache/make/long-poetry src/*/* styles/*/* tests/*/*
 ifdef failed
 	pytest --failed
 else
