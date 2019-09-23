@@ -8,8 +8,21 @@ from tests.helpers import ProjectMock
 
 
 def test_pre_commit_has_no_configuration(request):
-    """File should not be deleted unless explicitly asked."""
-    ProjectMock(request).style("").pre_commit("").flake8().assert_single_error(
+    """No errors should be raised if pre-commit is not referenced in any style file.
+
+    Also the file should not be deleted unless explicitly asked.
+    """
+    ProjectMock(request).style("").pre_commit("").flake8().assert_no_errors()
+
+
+def test_pre_commit_referenced_in_style(request):
+    """Only check files if they have configured styles."""
+    ProjectMock(request).style(
+        """
+        ["pre-commit-config.yaml"]
+        fail_fast = true
+        """
+    ).pre_commit("").flake8().assert_single_error(
         "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
     )
 

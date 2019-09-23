@@ -101,7 +101,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
                 # Only display this message if the style is valid.
                 if not Nitpick.current_app().style_errors:
                     yield self.flake8_error(2, " should be deleted")
-            elif file_exists:
+            elif file_exists and config_data_exists:
                 yield from self.check_rules()
 
     @abc.abstractmethod

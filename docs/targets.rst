@@ -18,4 +18,4 @@
 .. _Bash: https://www.gnu.org/software/bash/
 .. _commitlint: https://commitlint.js.org/
 .. _pytest: https://pytest.org/
-.. _pyproject-toml-poetry: https://poetry.eustace.io/docs/pyproject/
+.. _pyproject-toml-poetry: https://github.com/sdispater/poetry/blob/master/docs/docs/pyproject.md

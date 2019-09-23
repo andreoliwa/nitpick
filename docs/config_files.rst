@@ -1,3 +1,4 @@
+.. include:: targets.rst
 .. _config_files:
 
 Configuration files
@@ -12,7 +13,7 @@ Below are the currently supported configuration files.
 pyproject.toml
 --------------
 
-Checker for the `pyproject.toml <https://poetry.eustace.io/docs/pyproject/>`_ config file.
+Checker for the `pyproject.toml <pyproject-toml-poetry>`_ config file.
 
 See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
 
