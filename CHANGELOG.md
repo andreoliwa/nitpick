@@ -1,3 +1,10 @@
+## [0.21.1](https://github.com/andreoliwa/nitpick/compare/v0.21.0...v0.21.1) (2019-09-23)
+
+
+### Bug Fixes
+
+* only check files if they have configured styles ([2cac863](https://github.com/andreoliwa/nitpick/commit/2cac863))
+
 # [0.21.0](https://github.com/andreoliwa/nitpick/compare/v0.20.0...v0.21.0) (2019-08-26)
 
 
