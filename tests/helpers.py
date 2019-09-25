@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import List, Set
+from typing import TYPE_CHECKING, List, Set
 
 from _pytest.fixtures import FixtureRequest
 from testfixtures import compare
@@ -15,8 +15,11 @@ from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.formats import TomlFormat
 from nitpick.plugin import NitpickChecker
-from nitpick.typedefs import Flake8Error, PathOrStr
+from nitpick.typedefs import PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
+
+if TYPE_CHECKING:
+    from nitpick.typedefs import Flake8Error  # pylint: disable=ungrouped-imports
 
 
 def assert_conditions(*args):

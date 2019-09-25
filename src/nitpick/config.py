@@ -1,7 +1,6 @@
 """Configuration of the plugin."""
 import logging
-from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from nitpick import Nitpick
 from nitpick.constants import (
@@ -17,7 +16,11 @@ from nitpick.generic import search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
 from nitpick.schemas import ToolNitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.style import Style
-from nitpick.typedefs import JsonDict, StrOrList, YieldFlake8Error
+from nitpick.typedefs import YieldFlake8Error
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from nitpick.typedefs import JsonDict, StrOrList
 
 LOGGER = logging.getLogger(__name__)
 

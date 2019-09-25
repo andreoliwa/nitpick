@@ -266,7 +266,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v1.23.0
+        rev: v1.24.0
         hooks:
           - id: pyupgrade
     """

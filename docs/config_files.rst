@@ -13,7 +13,7 @@ Below are the currently supported configuration files.
 pyproject.toml
 --------------
 
-Checker for the `pyproject.toml <pyproject-toml-poetry>`_ config file.
+Checker for the `pyproject.toml <https://github.com/sdispater/poetry/blob/master/docs/docs/pyproject.md>`_ file.
 
 See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
 

@@ -1,7 +1,7 @@
 """Style tests."""
 # pylint: disable=no-member
-from pathlib import Path
 from textwrap import dedent
+from typing import TYPE_CHECKING
 from unittest import mock
 from unittest.mock import PropertyMock
 
@@ -10,6 +10,9 @@ import responses
 from nitpick.constants import READ_THE_DOCS_URL, TOML_EXTENSION
 from tests.conftest import TEMP_ROOT_PATH
 from tests.helpers import ProjectMock, assert_conditions
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_multiple_styles_overriding_values(request):

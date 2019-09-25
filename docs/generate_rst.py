@@ -4,6 +4,7 @@ The ``include`` directive is not working on Read the Docs.
 It doesn't recognise the "styles" dir anywhere (on the root, under "docs", under "_static"...).
 Not even changing ``html_static_path`` on ``conf.py`` worked.
 """
+import sys
 from importlib import import_module
 from pathlib import Path
 from pprint import pprint
@@ -117,7 +118,7 @@ def generate_defaults_rst():
             fg="red",
         )
         pprint(missing)
-        exit(1)
+        sys.exit(1)
 
 
 def generate_config_files_rst():
@@ -165,7 +166,7 @@ def generate_config_files_rst():
             fg="red",
         )
     if something_missing:
-        exit(1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

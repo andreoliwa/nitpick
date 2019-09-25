@@ -1,16 +1,19 @@
 """Base class for file checkers."""
 import abc
-from pathlib import Path
-from typing import Generator, List, Optional, Set, Type
+from typing import TYPE_CHECKING, Generator, List, Optional, Set, Type
 
 import jmespath
-from marshmallow import Schema
 
 from nitpick import Nitpick
 from nitpick.formats import TomlFormat
 from nitpick.generic import get_subclasses, search_dict
 from nitpick.mixin import NitpickMixin
-from nitpick.typedefs import JsonDict, YieldFlake8Error
+from nitpick.typedefs import YieldFlake8Error
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from marshmallow import Schema
+    from nitpick.typedefs import JsonDict  # pylint: disable=ungrouped-imports
 
 
 class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
