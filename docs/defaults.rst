@@ -171,7 +171,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.720
+        rev: v0.730
         hooks:
           - id: mypy
     """
