@@ -470,7 +470,7 @@ def test_merge_styles_into_single_file(request):
         [["pre-commit-config.yaml".repos]]
         yaml = """
           - repo: https://github.com/asottile/seed-isort-config
-            rev: v1.9.2
+            rev: v1.9.3
             hooks:
               - id: seed-isort-config
           - repo: https://github.com/pre-commit/mirrors-isort
