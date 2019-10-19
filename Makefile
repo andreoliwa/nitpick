@@ -27,7 +27,7 @@ help:
 	@echo '  nitpick     run the nitpick pre-commit hook to check local style changes'
 	@echo '  flake8      run flake8 to check local style changes'
 	@echo '  test        run tests (use failed=1 to run only failed tests)'
-	@echo '  ci          simulate CI run (force clean docs and tests, but don't update pre-commit nor Poetry)'
+	@echo '  ci          simulate CI run (force clean docs and tests, but do not update pre-commit nor Poetry)'
 	@echo
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 

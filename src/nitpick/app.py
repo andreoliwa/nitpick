@@ -35,6 +35,7 @@ class Nitpick:
     @classmethod
     def create_app(cls) -> "Nitpick":
         """Create a single application."""
+        # pylint: disable=import-outside-toplevel
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
         from nitpick.files.base import BaseFile
 
@@ -64,6 +65,7 @@ class Nitpick:
 
         Start from the current working dir.
         """
+        # pylint: disable=import-outside-toplevel
         from nitpick.files.pyproject_toml import PyProjectTomlFile
         from nitpick.files.setup_cfg import SetupCfgFile
 
@@ -143,7 +145,7 @@ class Nitpick:
             else ""
         )
 
-        from nitpick.plugin import NitpickChecker
+        from nitpick.plugin import NitpickChecker  # pylint: disable=import-outside-toplevel
 
         return (
             0,

@@ -171,7 +171,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.730
+        rev: v0.740
         hooks:
           - id: mypy
     """
@@ -241,7 +241,7 @@ Content of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        rev: 2.0.0
+        rev: v2.1.0
         hooks:
           - id: commitlint
             stages: [commit-msg]
@@ -266,7 +266,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v1.24.1
+        rev: v1.25.0
         hooks:
           - id: pyupgrade
     """
@@ -298,7 +298,7 @@ Content of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/and
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pygrep-hooks
-        rev: v1.4.1
+        rev: v1.4.2
         hooks:
           - id: python-check-blanket-noqa
           - id: python-check-mock-methods

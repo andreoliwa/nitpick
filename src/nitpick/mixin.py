@@ -12,6 +12,7 @@ class NitpickMixin:
     # TODO: remove this after all errors are converted to Nitpick.as_flake8_warning()
     def flake8_error(self, number: int, message: str, suggestion: str = None, add_to_base_number=True) -> Flake8Error:
         """Return a flake8 error as a tuple."""
+        # pylint: disable=import-outside-toplevel
         from nitpick import Nitpick
         from nitpick.exceptions import NitpickError
 
