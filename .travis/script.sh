@@ -1,21 +1,18 @@
 #!/usr/bin/env bash
-echo "Python version = $TRAVIS_PYTHON_VERSION"
+export ARG_OS_NAME=$1
+export ARG_PYTHON_VERSION=$2
 
-fix=
-test "$TRAVIS_PYTHON_VERSION" == '3.4' && fix=fix
-test "$TRAVIS_PYTHON_VERSION" == '3.5' && fix=fix
+echo "OS = $ARG_OS_NAME"
+echo "Python version = $ARG_PYTHON_VERSION"
 
-# Run all pre-commit hooks on Travis.
-if [[ "$fix" == 'fix' ]]; then
-    python3 .travis/fix_pre_commit.py
-    pre-commit run --all-files --config .travis/.temp-without-black.yaml
-else
+if [[ "$ARG_OS_NAME" == 'linux' && "$ARG_PYTHON_VERSION" == '3.7' ]]; then
+    echo "Run all pre-commit hooks only on Python 3.7 Linux"
     pre-commit run --all-files
-fi
 
-echo "Running flake8 again for nitpick to check itself"
-poetry install  # This is needed to install nitpick itself, not only the dependencies
-poetry run flake8
+    echo "Running flake8 again for nitpick to check itself"
+    poetry install  # This is needed to install nitpick itself, not only the dependencies
+    poetry run flake8
+fi
 
 echo "Running coverage report"
 poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
