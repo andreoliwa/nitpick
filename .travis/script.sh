@@ -15,4 +15,8 @@ if [[ "$ARG_OS_NAME" == 'linux' && "$ARG_PYTHON_VERSION" == '3.7' ]]; then
 fi
 
 echo "Running coverage report"
-poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
+if [[ "$ARG_OS_NAME" == 'linux' ]]; then
+    poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
+else
+    poetry run pytest
+fi
