@@ -17,9 +17,8 @@ install:
   - pip3 install --upgrade pip poetry coveralls pre-commit
   - poetry install --no-ansi --no-interaction
 before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
+  - [ "$TRAVIS_OS_NAME" = "linux" ] && curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - [ "$TRAVIS_OS_NAME" = "linux" ] && chmod +x ./cc-test-reporter && ./cc-test-reporter before-build
 script:
   - "./.travis/script.sh"
 after_script:
