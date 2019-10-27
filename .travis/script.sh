@@ -18,5 +18,6 @@ echo "Running coverage report"
 if [[ "$ARG_OS_NAME" == 'linux' ]]; then
     poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
 else
+    export PYTEST_DEBUG=1
     poetry run pytest
 fi
