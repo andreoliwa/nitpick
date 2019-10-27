@@ -15,7 +15,7 @@ fi
 
 echo "Running flake8 again for nitpick to check itself"
 poetry install  # This is needed to install nitpick itself, not only the dependencies
-flake8
+poetry run flake8
 
 echo "Running coverage report"
-coverage run --branch --parallel-mode --source=nitpick -m pytest
+poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
