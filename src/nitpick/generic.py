@@ -6,7 +6,7 @@
 """
 import collections
 import re
-from pathlib import Path
+from pathlib import Path, WindowsPath
 from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Set, Tuple, Union
 
 import jmespath
@@ -145,12 +145,16 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
     if current_dir.is_file():
         current_dir = current_dir.parent
 
-    while current_dir.root != str(current_dir):
+    is_windows = isinstance(current_dir, WindowsPath)
+    while True:
         for root_file in file_patterns:
             found_files = list(current_dir.glob(root_file))
             if found_files:
                 return set(found_files)
         current_dir = current_dir.parent
+        # TODO: how to avoid this hardcoded c:/?
+        if (is_windows and str(current_dir) == "c:/") or str(current_dir) == "/":
+            break
     return None
 
 
