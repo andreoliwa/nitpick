@@ -1,4 +1,7 @@
 # https://docs.travis-ci.com/user/reference/xenial/
+os:
+  - linux
+  - windows
 dist: xenial
 env:
   global:
@@ -17,21 +20,6 @@ python:
   - "3.5"
   - "3.6"
   - "3.7"
-before_script:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
-script:
-  - "./.travis/script.sh"
-after_script:
-  - coverage xml
-  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
-install:
-  - pip install -U poetry coveralls pre-commit
-  - poetry install --no-ansi --no-interaction
-after_success:
-  - coverage combine
-  - coveralls
 notifications:
   # https://docs.coveralls.io/parallel-build-webhook
   webhooks:
@@ -39,16 +27,33 @@ notifications:
 stages:
   - name: release
     if: branch = master
+  - name: test
 jobs:
   include:
     # Define the release stage that runs semantic-release
     # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
     - stage: release
-      script: skip
       install:
         - pip install -U poetry pre-commit bumpversion twine
         - npm install -g semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
+      script: skip
       deploy:
         provider: script
         skip_cleanup: true
         script: semantic-release
+    - stage: test
+      install:
+        - pip install -U poetry coveralls pre-commit
+        - poetry install --no-ansi --no-interaction
+      before_script:
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
+      script:
+        - "./.travis/script.sh"
+      after_script:
+        - coverage xml
+        - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+      after_success:
+        - coverage combine
+        - coveralls
