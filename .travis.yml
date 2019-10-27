@@ -13,20 +13,6 @@ cache:
 language: python
 # https://docs.travis-ci.com/user/reference/xenial/
 dist: xenial
-matrix:
-  include:
-    - name: "Python 3.7 Linux"
-      python: 3.7
-    - name: "Python 3.6 Linux"
-      python: 3.6
-    - name: "Python 3.5 Linux"
-      python: 3.5
-    - name: "Python 3.7 Windows"
-      os: windows
-      language: shell
-      before_install:
-        - choco install python
-        - python -m pip install --upgrade pip
 install:
   - pip3 install --upgrade pip poetry coveralls pre-commit
   - poetry install --no-ansi --no-interaction
@@ -49,6 +35,7 @@ notifications:
 stages:
   - name: release
     if: branch = master
+  - name: test
 jobs:
   include:
     # Define the release stage that runs semantic-release
@@ -62,3 +49,18 @@ jobs:
         provider: script
         skip_cleanup: true
         script: semantic-release
+    - stage: test
+      name: "Python 3.7 Linux"
+      python: 3.7
+    - name: "Python 3.6 Linux"
+      python: 3.6
+    - name: "Python 3.5 Linux"
+      python: 3.5
+    # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
+    - name: "Python 3.7 Windows"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
