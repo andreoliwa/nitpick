@@ -49,19 +49,20 @@ jobs:
         provider: script
         skip_cleanup: true
         script: semantic-release
-    - stage: test
-      name: "Python 3.7 Linux"
-      python: 3.7
-    - name: "Python 3.6 Linux"
-      python: 3.6
-    - name: "Python 3.5 Linux"
-      python: 3.5
+# TODO: restore this after Windows works
+#    - stage: test
+#      name: "Python 3.7 Linux"
+#      python: 3.7
+#    - name: "Python 3.6 Linux"
+#      python: 3.6
+#    - name: "Python 3.5 Linux"
+#      python: 3.5
     # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
-    - name: "Python 3.7 Windows"
+    - stage: test
+      name: "Python 3.7 Windows"
       os: windows
       language: shell
       before_install:
         - choco install python3 --version=3.7.4
-        - refreshenv
         - python -m pip install --upgrade pip
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
