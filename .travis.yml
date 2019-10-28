@@ -49,17 +49,23 @@ jobs:
         provider: script
         skip_cleanup: true
         script: semantic-release
-# FIXME: restore this after Windows works
 #    - stage: test
-#      name: "Python 3.7 Linux"
-#      python: 3.7
-#    - name: "Python 3.6 Linux"
-#      python: 3.6
-#    - name: "Python 3.5 Linux"
-#      python: 3.5
+#      python: 3.8
+#    - python: 3.7
+#    - python: 3.6
+#    - python: 3.5
     # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
     - stage: test
-      name: "Python 3.7 Windows"
+      name: "Python 3.8 Windows"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python
+        - python -m pip install --upgrade pip
+      env:
+        - PATH=/c/Python38:/c/Python38/Scripts:$PATH
+        - PYTHONPATH=/c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.8/lib/site-packages
+    - name: "Python 3.7 Windows"
       os: windows
       language: shell
       before_install:
@@ -67,4 +73,4 @@ jobs:
         - python -m pip install --upgrade pip
       env:
         - PATH=/c/Python37:/c/Python37/Scripts:$PATH
-#        - PYTHONPATH=/c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/lib/site-packages
+        - PYTHONPATH=/c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/lib/site-packages

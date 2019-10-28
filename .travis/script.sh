@@ -29,9 +29,14 @@ else
     # Build shows debug messages and freezes on this line:
     # early skip of rewriting module: text_unidecode [assertion]
 
-    /c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/activate.bat
+    # Build fails with message:
+    # No module named 'pytest'
+    # /c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/activate.bat
 
-    # poetry run pytest
+    # Build freezes with no message:
+    # poetry run flake8 --help
+    # poetry run flake8
+
     coverage run --branch --parallel-mode --source=nitpick -m pytest
     # Build freezes on test collection:
     # ============================= test session starts =============================
@@ -40,10 +45,6 @@ else
     # rootdir: C:\Users\travis\build\andreoliwa\nitpick, inifile: setup.cfg
     # plugins: repeat-0.8.0, runfailed-0.6
     # collecting ...
-
-    # Build freezes with no message:
-    # poetry run flake8 --help
-    # poetry run flake8
 
     # All builds fail after 10 minutes with this message:
     # No output has been received in the last 10m0s, this potentially indicates
