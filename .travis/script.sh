@@ -20,5 +20,6 @@ if [[ "$ARG_OS_NAME" == 'linux' ]]; then
 else
   # FIXME
 #    export PYTEST_DEBUG=1
-    poetry run pytest -s
+    poetry run flake8 --help
+    poetry run flake8
 fi
