@@ -41,10 +41,7 @@ else
 
     # Fails with message:
     # No module named 'pytest'
-    which py
-    py --version
-    python --version
-    ls -l $PYTHONPATH
+    ls -l $PYTHONPATH/*
     coverage run --branch --parallel-mode --source=nitpick -m pytest
 
     # Build freezes with no message:
