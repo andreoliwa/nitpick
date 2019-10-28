@@ -14,17 +14,26 @@ if [[ "$ARG_OS_NAME" == 'linux' && "$ARG_PYTHON_VERSION" == '3.7' ]]; then
     poetry run flake8
 fi
 
-echo "Running coverage report"
 if [[ "$ARG_OS_NAME" == 'linux' ]]; then
+    echo "Running pytest with coverage report on Linux"
     poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
 else
+    echo "Running pytest with coverage report on Windows"
     export PYTEST_DEBUG=1
-    poetry run pytest
-    # TODO Windows build is failing on Travis. It gets stuck on pytest,
-    # and it fails after 10 minutes with this message:
+    poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
+#    poetry run pytest
+    # TODO pytest is not completing on Travis, on the Windows build.
+    # It gets stuck on this line:
+    # early skip of rewriting module: text_unidecode [assertion]
+
+    # It fails after 10 minutes with this message:
     # No output has been received in the last 10m0s, this potentially indicates
     # a stalled build or something wrong with the build itself.
     # Check the details on how to adjust your build configuration on:
     # https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received
     # The build has been terminated
+
+    # Those commands also fail:
+#    poetry run flake8 --help
+#    poetry run flake8
 fi
