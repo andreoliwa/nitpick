@@ -20,7 +20,8 @@ if [[ "$ARG_OS_NAME" == 'linux' ]]; then
 else
     echo "Running pytest with coverage report on Windows"
     export PYTEST_DEBUG=1
-    poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
+    poetry shell
+    coverage run --branch --parallel-mode --source=nitpick -m pytest
 #    poetry run pytest
     # TODO pytest is not completing on Travis, on the Windows build.
     # It gets stuck on this line:
