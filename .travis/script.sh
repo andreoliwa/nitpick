@@ -18,8 +18,13 @@ echo "Running coverage report"
 if [[ "$ARG_OS_NAME" == 'linux' ]]; then
     poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
 else
-  # FIXME
-#    export PYTEST_DEBUG=1
-    poetry run flake8 --help
-    poetry run flake8
+    export PYTEST_DEBUG=1
+    poetry run pytest
+    # TODO Windows build is failing on Travis. It gets stuck on pytest,
+    # and it fails after 10 minutes with this message:
+    # No output has been received in the last 10m0s, this potentially indicates
+    # a stalled build or something wrong with the build itself.
+    # Check the details on how to adjust your build configuration on:
+    # https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received
+    # The build has been terminated
 fi
