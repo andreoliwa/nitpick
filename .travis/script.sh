@@ -25,7 +25,12 @@ else
     # Spawning shell within C:\Users\travis\AppData\Local\pypoetry\Cache\virtualenvs\nitpick-py3.7
     # poetry shell
 
+    export PYTEST_DEBUG=1
+    # Build shows debug messages and freezes on this line:
+    # early skip of rewriting module: text_unidecode [assertion]
+
     # poetry run pytest
+    coverage run --branch --parallel-mode --source=nitpick -m pytest
     # Build freezes on test collection:
     # ============================= test session starts =============================
     # platform win32 -- Python 3.7.4, pytest-5.2.2, py-1.8.0, pluggy-0.13.0 -- c:\users\travis\appdata\local\pypoetry\cache\virtualenvs\nitpick-py3.7\scripts\python.exe
@@ -34,15 +39,6 @@ else
     # plugins: repeat-0.8.0, runfailed-0.6
     # collecting ...
 
-    # export PYTEST_DEBUG=1
-    # poetry run pytest
-    # Build shows debug messages and freezes on this line:
-    # early skip of rewriting module: text_unidecode [assertion]
-
-    # Fails with message:
-    # No module named 'pytest'
-    ls -l $PYTHONPATH/*
-    coverage run --branch --parallel-mode --source=nitpick -m pytest
     # FIXME /c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/activate.bat
 
     # Build freezes with no message:
