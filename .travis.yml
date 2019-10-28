@@ -50,13 +50,12 @@ jobs:
         skip_cleanup: true
         script: semantic-release
     - stage: test
-      python: 3.8
-    - python: 3.7
+      python: 3.7
     - python: 3.6
     - python: 3.5
     # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
 # TODO Build freezing on Windows, see comments on .travis/script.sh
-#    - name: "Python 3.8 Windows"
+#    - name: "Python: 3.8"
 #      os: windows
 #      language: shell
 #      before_install:
@@ -65,7 +64,7 @@ jobs:
 #      env:
 #        - PATH=/c/Python38:/c/Python38/Scripts:$PATH
 #        - PYTHONPATH=/c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.8/lib/site-packages
-#    - name: "Python 3.7 Windows"
+#    - name: "Python: 3.7"
 #      os: windows
 #      language: shell
 #      before_install:
