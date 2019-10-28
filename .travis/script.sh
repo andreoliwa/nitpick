@@ -43,6 +43,7 @@ else
     # No module named 'pytest'
     ls -l $PYTHONPATH/*
     coverage run --branch --parallel-mode --source=nitpick -m pytest
+    # FIXME /c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/activate.bat
 
     # Build freezes with no message:
     # poetry run flake8 --help
