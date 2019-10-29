@@ -456,7 +456,7 @@ def test_merge_styles_into_single_file(request):
         [["pre-commit-config.yaml".repos]]
         yaml = """
           - repo: https://github.com/python/black
-            rev: 19.3b0
+            rev: 19.10b0
             hooks:
               - id: black
                 args: [--safe, --quiet]
@@ -464,7 +464,7 @@ def test_merge_styles_into_single_file(request):
             rev: v1.3.0
             hooks:
               - id: blacken-docs
-                additional_dependencies: [black==19.3b0]
+                additional_dependencies: [black==19.10b0]
         """
 
         [["pre-commit-config.yaml".repos]]

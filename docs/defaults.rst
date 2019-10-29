@@ -43,7 +43,7 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/python/black
-        rev: 19.3b0
+        rev: 19.10b0
         hooks:
           - id: black
             args: [--safe, --quiet]
@@ -51,7 +51,7 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
         rev: v1.3.0
         hooks:
           - id: blacken-docs
-            additional_dependencies: [black==19.3b0]
+            additional_dependencies: [black==19.10b0]
     """
     # TODO The toml library has issues loading arrays with multiline strings:
     # https://github.com/uiri/toml/issues/123
@@ -86,7 +86,7 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v2.3.0
+        rev: v2.4.0
         hooks:
           - id: flake8
             additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
@@ -260,7 +260,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v2.3.0
+        rev: v2.4.0
         hooks:
           - id: debug-statements
           - id: end-of-file-fixer

@@ -47,7 +47,7 @@ def test_suggest_initial_contents(request):
             hooks:
               - id: isort
           - repo: https://github.com/python/black
-            rev: 19.3b0
+            rev: 19.10b0
             hooks:
               - id: black
                 args: [--safe, --quiet]
@@ -55,7 +55,7 @@ def test_suggest_initial_contents(request):
             rev: v1.3.0
             hooks:
               - id: blacken-docs
-                additional_dependencies: [black==19.3b0]\x1b[0m
+                additional_dependencies: [black==19.10b0]\x1b[0m
         """
     )
 
