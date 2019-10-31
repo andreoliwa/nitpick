@@ -33,15 +33,15 @@ notifications:
   webhooks:
     - https://coveralls.io/webhook
 stages:
-#  - name: test # fixme
+  - name: test
   - name: release
 #    if: branch = master # fixme
 jobs:
   include:
-#    - stage: test # fixme
-#      python: 3.7
-#    - python: 3.6
-#    - python: 3.5
+    - stage: test
+      python: 3.7
+    - python: 3.6
+    - python: 3.5
     # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
 # TODO Build freezing on Windows, see comments on .travis/script.sh
 #    - name: "Python: 3.8"
