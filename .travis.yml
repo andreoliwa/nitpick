@@ -33,22 +33,11 @@ notifications:
   webhooks:
     - https://coveralls.io/webhook
 stages:
+  - name: test
   - name: release
     if: branch = master
-  - name: test
 jobs:
   include:
-    # Define the release stage that runs semantic-release
-    # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
-    - stage: release
-      script: skip
-      install:
-        - pip install -U poetry pre-commit bumpversion twine
-        - npm install -g npm semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
-      deploy:
-        provider: script
-        skip_cleanup: true
-        script: semantic-release
     - stage: test
       python: 3.7
     - python: 3.6
@@ -73,3 +62,19 @@ jobs:
 #      env:
 #        - PATH=/c/Python37:/c/Python37/Scripts:$PATH
 #        - PYTHONPATH=/c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/lib/site-packages
+    # Define the release stage that runs semantic-release
+    # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
+    - stage: release
+      python: 3.7
+      script: skip
+      install: skip
+      before_script: skip
+      after_script: skip
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script:
+          # Use nvm to install and use the Node LTS version (nvm is installed on all Travis images)
+          - pip install -U poetry pre-commit bumpversion twine
+          - nvm install lts/*
+          - npx semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/exec
