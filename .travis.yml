@@ -44,7 +44,7 @@ jobs:
       script: skip
       install:
         - pip install -U poetry pre-commit bumpversion twine
-        - npm install -g semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
+        - npm install -g npm semantic-release@15 @semantic-release/changelog @semantic-release/git @semantic-release/exec
       deploy:
         provider: script
         skip_cleanup: true
