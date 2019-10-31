@@ -1,3 +1,10 @@
+## [0.21.2](https://github.com/andreoliwa/nitpick/compare/v0.21.1...v0.21.2) (2019-10-31)
+
+
+### Bug Fixes
+
+* infinite loop when climbing directories on Windows ([9915c74](https://github.com/andreoliwa/nitpick/commit/9915c74d52ab10d34b88733abb12958779e00ba8)), closes [#108](https://github.com/andreoliwa/nitpick/issues/108)
+
 ## [0.21.1](https://github.com/andreoliwa/nitpick/compare/v0.21.0...v0.21.1) (2019-09-23)
 
 

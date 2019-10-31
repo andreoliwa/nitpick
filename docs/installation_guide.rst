@@ -28,6 +28,6 @@ If you use pre-commit_ on your project (you should), add this to the ``.pre-comm
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.21.1
+        rev: v0.21.2
         hooks:
           - id: nitpick
