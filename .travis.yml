@@ -1,5 +1,3 @@
-# https://docs.travis-ci.com/user/reference/xenial/
-dist: xenial
 env:
   global:
     - CC_TEST_REPORTER_ID=2da342a92e29aa78fcf1dc84b18af77f8eede63db675363fd1151673be3ce4f3
@@ -13,22 +11,20 @@ cache:
     - $PRE_COMMIT_HOME
 # https://docs.travis-ci.com/user/languages/python/
 language: python
-python:
-  - "3.5"
-  - "3.6"
-  - "3.7"
+# https://docs.travis-ci.com/user/reference/xenial/
+dist: xenial
+install:
+  - pip3 install --upgrade pip poetry coveralls pre-commit
+  - poetry install --no-ansi --no-interaction
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then chmod +x ./cc-test-reporter; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./cc-test-reporter before-build; fi
 script:
-  - "./.travis/script.sh"
+  - "./.travis/script.sh $TRAVIS_OS_NAME $TRAVIS_PYTHON_VERSION"
 after_script:
   - coverage xml
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
-install:
-  - pip install -U poetry coveralls pre-commit
-  - poetry install --no-ansi --no-interaction
 after_success:
   - coverage combine
   - coveralls
@@ -39,6 +35,7 @@ notifications:
 stages:
   - name: release
     if: branch = master
+  - name: test
 jobs:
   include:
     # Define the release stage that runs semantic-release
@@ -52,3 +49,27 @@ jobs:
         provider: script
         skip_cleanup: true
         script: semantic-release
+    - stage: test
+      python: 3.7
+    - python: 3.6
+    - python: 3.5
+    # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
+# TODO Build freezing on Windows, see comments on .travis/script.sh
+#    - name: "Python: 3.8"
+#      os: windows
+#      language: shell
+#      before_install:
+#        - choco install python
+#        - python -m pip install --upgrade pip
+#      env:
+#        - PATH=/c/Python38:/c/Python38/Scripts:$PATH
+#        - PYTHONPATH=/c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.8/lib/site-packages
+#    - name: "Python: 3.7"
+#      os: windows
+#      language: shell
+#      before_install:
+#        - choco install python3 --version=3.7.4
+#        - python -m pip install --upgrade pip
+#      env:
+#        - PATH=/c/Python37:/c/Python37/Scripts:$PATH
+#        - PYTHONPATH=/c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/lib/site-packages

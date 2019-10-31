@@ -7,18 +7,18 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 indent_style = space
+indent_size = 4
+
+# Whitespace at the end of lines
+trim_trailing_whitespace = true
 
 # Matches multiple files with brace expansion notation
 # Set default charset
 [*.{js,py}]
 charset = utf-8
 
-# Whitespace at the end of lines
-trim_trailing_whitespace = true
-
 [*.{yml,yaml}]
 indent_size = 2
 
 [Makefile]
 indent_style = tab
-indent_size = 4

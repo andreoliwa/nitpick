@@ -145,7 +145,7 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
     if current_dir.is_file():
         current_dir = current_dir.parent
 
-    while current_dir.root != str(current_dir):
+    while current_dir.anchor != str(current_dir):
         for root_file in file_patterns:
             found_files = list(current_dir.glob(root_file))
             if found_files:
