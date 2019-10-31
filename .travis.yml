@@ -71,9 +71,9 @@ jobs:
       before_script: skip
       after_script: skip
       deploy:
-        branches: # fixme
-          only:
-            - travis-fix-rvm
+        on: # fixme
+          all_branches: true
+          branch:
         provider: script
         skip_cleanup: true
         script:
