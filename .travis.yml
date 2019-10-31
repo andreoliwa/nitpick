@@ -38,8 +38,8 @@ stages:
 #    if: branch = master # fixme
 jobs:
   include:
-    - stage: test
-      python: 3.7
+#    - stage: test
+#      python: 3.7
 #    - python: 3.6 # fixme
 #    - python: 3.5 # fixme
     # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
@@ -67,10 +67,6 @@ jobs:
     - stage: release
       python: 3.7
       script: skip
-      install: skip
-      before_script: skip
-      after_script: skip
-      after_success: skip
       deploy:
         provider: script
         skip_cleanup: true
