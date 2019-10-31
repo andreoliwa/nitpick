@@ -35,7 +35,7 @@ notifications:
 stages:
   - name: test
   - name: release
-#    if: branch = master # fixme
+    if: branch = master
 jobs:
   include:
     - stage: test
@@ -74,7 +74,9 @@ jobs:
       before_script: skip
       after_script: skip
       deploy:
-        on: # fixme
+        # The stage release only runs on master (there's an "if" above).
+        # I'm keeping this here so it's easier the next time I want to debug Travis: just comment the "if" above.
+        on:
           all_branches: true
         provider: script
         skip_cleanup: true
