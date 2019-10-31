@@ -67,6 +67,7 @@ jobs:
     - stage: release
       python: 3.7
       script: skip
+      install: skip
       before_script: skip
       after_script: skip
       after_success: skip
