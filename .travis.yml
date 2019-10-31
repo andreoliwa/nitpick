@@ -21,7 +21,7 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then chmod +x ./cc-test-reporter; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./cc-test-reporter before-build; fi
 script:
-  - "./.travis/script.sh $TRAVIS_OS_NAME $TRAVIS_PYTHON_VERSION"
+  - ".travis/script.sh $TRAVIS_OS_NAME $TRAVIS_PYTHON_VERSION"
 after_script:
   - coverage xml
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
