@@ -35,13 +35,13 @@ notifications:
 stages:
   - name: test
   - name: release
-#    if: branch = master # fixme
+    if: branch = master
 jobs:
   include:
-#    - stage: test
-#      python: 3.7
-#    - python: 3.6 # fixme
-#    - python: 3.5 # fixme
+    - stage: test
+      python: 3.7
+    - python: 3.6
+    - python: 3.5
     # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
 # TODO Build freezing on Windows, see comments on .travis/script.sh
 #    - name: "Python: 3.8"
@@ -69,6 +69,7 @@ jobs:
       script: skip
       install: skip
       before_script: skip
+      after_script: skip
       deploy:
         provider: script
         skip_cleanup: true
