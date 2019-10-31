@@ -69,7 +69,6 @@ jobs:
       script: skip
       install: skip
       before_script: skip
-      after_script: skip
       deploy:
         provider: script
         skip_cleanup: true
