@@ -65,7 +65,8 @@ jobs:
     # Define the release stage that runs semantic-release
     # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
     - stage: release
-#      python: 3.7
+      node_js:
+        - 10
       script: skip
       install: skip
       before_script: skip
