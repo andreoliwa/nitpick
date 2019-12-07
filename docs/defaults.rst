@@ -48,7 +48,7 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
           - id: black
             args: [--safe, --quiet]
       - repo: https://github.com/asottile/blacken-docs
-        rev: v1.3.0
+        rev: v1.4.0
         hooks:
           - id: blacken-docs
             additional_dependencies: [black==19.10b0]
@@ -266,7 +266,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v1.25.1
+        rev: v1.25.2
         hooks:
           - id: pyupgrade
     """
