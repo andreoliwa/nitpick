@@ -1,7 +1,7 @@
 """Style files."""
 import logging
 from collections import OrderedDict
-from pathlib import Path, PosixPath
+from pathlib import Path
 from typing import Dict, List, Optional, Set, Type
 from urllib.parse import urlparse, urlunparse
 
@@ -111,13 +111,8 @@ class Style:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
-            # PosixPath should work both in Linux and Windows
-            domain_plus_url = PosixPath(rest) / url
-            try:
-                resolved = domain_plus_url.resolve()
-            except FileNotFoundError:
-                resolved = domain_plus_url.absolute()
-            new_url = "{}:/{}".format(prefix, resolved)
+            domain_plus_url = str(rest).strip("/").rstrip("/") + "/" + url
+            new_url = "{}://{}".format(prefix, domain_plus_url)
         else:
             new_url = url
 
