@@ -52,7 +52,7 @@ def test_suggest_initial_contents(request):
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.3.0
+            rev: v1.4.0
             hooks:
               - id: blacken-docs
                 additional_dependencies: [black==19.10b0]\x1b[0m
@@ -380,7 +380,7 @@ def test_missing_different_values(request):
         """
         NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/mirrors-mypy
-            rev: v0.740
+            rev: v0.750
             hooks:
               - id: mypy\x1b[0m
         """
