@@ -1,3 +1,10 @@
+## [0.21.3](https://github.com/andreoliwa/nitpick/compare/v0.21.2...v0.21.3) (2019-12-08)
+
+
+### Bug Fixes
+
+* concatenate URL manually instead of using Path ([5491b39](https://github.com/andreoliwa/nitpick/commit/5491b396e38aa8851bc7b01f4ecce583ef43655f)), closes [#115](https://github.com/andreoliwa/nitpick/issues/115)
+
 ## [0.21.2](https://github.com/andreoliwa/nitpick/compare/v0.21.1...v0.21.2) (2019-10-31)
 
 

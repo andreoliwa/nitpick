@@ -55,7 +55,7 @@ To try the package, simply install it (in a virtualenv or globally, wherever) an
     $ pip install -U nitpick
     $ flake8
 
-Nitpick will download and use the opinionated [default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/v0.21.2/nitpick-style.toml).
+Nitpick will download and use the opinionated [default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/v0.21.3/nitpick-style.toml).
 
 You can use it as a template to configure your own style.
 
@@ -65,7 +65,7 @@ If you use [pre-commit](https://pre-commit.com/) on your project (you should), a
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.21.2
+        rev: v0.21.3
         hooks:
           - id: nitpick
 
