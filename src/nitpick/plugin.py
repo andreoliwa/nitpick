@@ -1,9 +1,11 @@
 """Flake8 plugin to check files."""
 import itertools
 import logging
+import os
 from pathlib import Path
 
 import attr
+from flake8.options.manager import OptionManager
 
 from nitpick import Nitpick, __version__
 from nitpick.constants import PROJECT_NAME
@@ -42,9 +44,9 @@ class NitpickChecker(NitpickMixin):
         current_python_file = Path(self.filename)
         if current_python_file.absolute() != Nitpick.current_app().main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
-            LOGGER.info("Ignoring file: %s", self.filename)
+            LOGGER.debug("Ignoring file: %s", self.filename)
             return []
-        LOGGER.info("Nitpicking file: %s", self.filename)
+        LOGGER.debug("Nitpicking file: %s", self.filename)
 
         yield from itertools.chain(
             Nitpick.current_app().config.merge_styles(), self.check_files(True), self.check_files(False)
@@ -79,3 +81,22 @@ class NitpickChecker(NitpickMixin):
                 full_message += ": {}".format(extra_message)
 
             yield self.flake8_error(3 if present else 4, full_message)
+
+    @staticmethod
+    def add_options(option_manager: OptionManager):
+        """Add the offline option."""
+        option_manager.add_option(
+            "--nitpick-offline",
+            action="store_true",
+            # dest="offline",
+            help="Offline mode: no style will be downloaded (no HTTP requests at all)",
+        )
+
+    @staticmethod
+    def parse_options(option_manager: OptionManager, options, args):  # pylint: disable=unused-argument
+        """Set logging from the verbose flags, set offline mode."""
+        log_mapping = {1: logging.INFO, 2: logging.DEBUG}
+        logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
+
+        Nitpick.current_app().offline = bool(options.nitpick_offline or os.environ.get("NITPICK_OFFLINE"))
+        LOGGER.info("Offline mode: %s", Nitpick.current_app().offline)

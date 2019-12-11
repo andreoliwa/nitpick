@@ -32,6 +32,8 @@ class Nitpick:
         self.init_errors = []  # type: List[NitpickError]
         self.style_errors = []  # type: List[NitpickError]
 
+        self.offline = False
+
     @classmethod
     def create_app(cls) -> "Nitpick":
         """Create a single application."""
