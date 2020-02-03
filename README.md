@@ -46,7 +46,7 @@ This style will assert that:
 
 - ... [black](https://github.com/psf/black), [isort](https://github.com/timothycrosley/isort) and [flake8](https://gitlab.com/pycqa/flake8) have a line length of 120;
 - ... [flake8](https://gitlab.com/pycqa/flake8) and [isort](https://github.com/timothycrosley/isort) are configured as above in `setup.cfg`;
-- ... [Pylint](https://www.pylint.org) is present as a [Poetry](https://github.com/sdispater/poetry/) dev dependency in `pyproject.toml`).
+- ... [Pylint](https://www.pylint.org) is present as a [Poetry](https://github.com/python-poetry/poetry) dev dependency in `pyproject.toml`).
 
 ## Quick setup
 

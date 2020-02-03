@@ -9,7 +9,7 @@
 .. _mypy: https://github.com/python/mypy/
 .. _Nitpick: https://github.com/andreoliwa/nitpick/
 .. _Pipenv: https://github.com/pypa/pipenv/
-.. _Poetry: https://github.com/sdispater/poetry/
+.. _Poetry: https://github.com/python-poetry/poetry/
 .. _pre-commit: https://pre-commit.com/
 .. _Pylint: https://www.pylint.org
 .. _TOML: https://github.com/toml-lang/toml
@@ -18,4 +18,4 @@
 .. _Bash: https://www.gnu.org/software/bash/
 .. _commitlint: https://commitlint.js.org/
 .. _pytest: https://pytest.org/
-.. _pyproject-toml-poetry: https://github.com/sdispater/poetry/blob/master/docs/docs/pyproject.md
+.. _pyproject-toml-poetry: https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md

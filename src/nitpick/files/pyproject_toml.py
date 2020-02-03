@@ -1,11 +1,11 @@
-"""Checker for the `pyproject.toml <https://github.com/sdispater/poetry/blob/master/docs/docs/pyproject.md>`_ file."""
+"""Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
 from nitpick import Nitpick
 from nitpick.files.base import BaseFile
 from nitpick.typedefs import YieldFlake8Error
 
 
 class PyProjectTomlFile(BaseFile):
-    """Checker for the `pyproject.toml <https://github.com/sdispater/poetry/blob/master/docs/docs/pyproject.md>`_ file.
+    """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
     See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
 
