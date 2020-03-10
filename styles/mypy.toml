@@ -1,4 +1,4 @@
-# https://mypy.rtfd.io/en/latest/config_file.html
+# https://mypy.readthedocs.io/en/latest/config_file.html
 ["setup.cfg".mypy]
 ignore_missing_imports = true
 
