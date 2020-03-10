@@ -69,6 +69,15 @@ If you use [pre-commit](https://pre-commit.com/) on your project (you should), a
         hooks:
           - id: nitpick
 
+To install the `pre-commit` and `commit-msg` Git hooks:
+
+    pre-commit install --install-hooks
+    pre-commit install -t commit-msg
+
+To start checking all your code against the default rules:
+
+    pre-commit run --all-files
+
 ---
 
 For more details on styles and which configuration files are currently supported, [see the full documentation](https://nitpick.rtfd.io/).

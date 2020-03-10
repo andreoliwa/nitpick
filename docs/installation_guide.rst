@@ -31,3 +31,16 @@ If you use pre-commit_ on your project (you should), add this to the ``.pre-comm
         rev: v0.21.4
         hooks:
           - id: nitpick
+
+To install the ``pre-commit`` and ``commit-msg`` Git hooks:
+
+.. code-block:: shell
+
+    pre-commit install --install-hooks
+    pre-commit install -t commit-msg
+
+To start checking all your code against the default rules:
+
+.. code-block:: shell
+
+    pre-commit run --all-files
