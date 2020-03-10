@@ -133,7 +133,11 @@ class PreCommitFile(BaseFile):
             comparison = YamlFormat(data=self.actual_hooks[unique_key].single_hook).compare_with_dictdiffer(
                 hook.single_hook
             )
-            yield from self.warn_missing_different(comparison, ": hook {!r}".format(hook.hook_id))
+
+            # Display the current revision of the hook
+            current_revision = comparison.flat_actual.get("rev", None)
+            revision_message = " (rev: {})".format(current_revision) if current_revision else ""
+            yield from self.warn_missing_different(comparison, ": hook {!r}{}".format(hook.hook_id, revision_message))
 
     def check_repo_old_format(self, index: int, repo_data: OrderedDict) -> YieldFlake8Error:
         """Check repos using the old deprecated format with ``hooks`` and ``repo`` keys."""

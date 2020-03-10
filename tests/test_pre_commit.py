@@ -325,6 +325,7 @@ def test_get_all_hooks_from():
 def test_missing_different_values(request):
     """Test missing and different values on the hooks."""
     # TODO: add loaded and named styles automatically to pyproject_toml
+    # pylint: disable=line-too-long
     ProjectMock(request).named_style(
         "root",
         '''
@@ -394,34 +395,34 @@ def test_missing_different_values(request):
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'bashate' has different values. Use this:\x1b[32m
+        NIP339 File .pre-commit-config.yaml: hook 'bashate' (rev: 0.5.0) has different values. Use this:\x1b[32m
         rev: 2.0.0\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' has different values. Use this:\x1b[32m
+        NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' (rev: v1.1.0) has different values. Use this:\x1b[32m
         rev: v1.5.1\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' has different values. Use this:\x1b[32m
+        NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' (rev: v1.1.0) has different values. Use this:\x1b[32m
         rev: v1.5.1\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' has different values. Use this:\x1b[32m
+        NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' (rev: v1.1.0) has different values. Use this:\x1b[32m
         rev: v1.5.1\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'my-hook' has different values. Use this:\x1b[32m
+        NIP339 File .pre-commit-config.yaml: hook 'my-hook' (rev: 1.2.3) has different values. Use this:\x1b[32m
         args:
           - --expected
           - arguments\x1b[0m
         """
     ).assert_errors_contain(
         """
-        NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' has different values. Use this:\x1b[32m
+        NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' (rev: v1.1.0) has different values. Use this:\x1b[32m
         rev: v1.5.1\x1b[0m
         """,
         8,
