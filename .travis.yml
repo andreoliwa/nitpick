@@ -12,6 +12,7 @@ cache:
 # https://docs.travis-ci.com/user/languages/python/
 language: python
 # https://docs.travis-ci.com/user/reference/xenial/
+os: linux
 dist: xenial
 install:
   - pip3 install --upgrade pip poetry coveralls pre-commit
@@ -39,7 +40,8 @@ stages:
 jobs:
   include:
     - stage: test
-      python: 3.7
+      python: 3.8
+    - python: 3.7
     - python: 3.6
     - python: 3.5
     # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
@@ -66,18 +68,17 @@ jobs:
     # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
     - stage: release
       language: node_js
-      node_js:
-        - 10
+      node_js: 10
       python: 3.7
       script: skip
       install: skip
       before_script: skip
       after_script: skip
       deploy:
-        # The stage release only runs on master (there's an "if" above).
-        # I'm keeping this here so it's easier the next time I want to debug Travis: just comment the "if" above.
+        # The stage release only runs on master (there's an "if" on "stages" above).
+        # I'm keeping "all_branches: true" here so it's easier to debug Travis: just comment the "if" above.
         on:
           all_branches: true
         provider: script
-        skip_cleanup: true
+        cleanup: false
         script: bash .travis/deploy.sh

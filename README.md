@@ -46,7 +46,7 @@ This style will assert that:
 
 - ... [black](https://github.com/psf/black), [isort](https://github.com/timothycrosley/isort) and [flake8](https://gitlab.com/pycqa/flake8) have a line length of 120;
 - ... [flake8](https://gitlab.com/pycqa/flake8) and [isort](https://github.com/timothycrosley/isort) are configured as above in `setup.cfg`;
-- ... [Pylint](https://www.pylint.org) is present as a [Poetry](https://github.com/sdispater/poetry/) dev dependency in `pyproject.toml`).
+- ... [Pylint](https://www.pylint.org) is present as a [Poetry](https://github.com/python-poetry/poetry) dev dependency in `pyproject.toml`).
 
 ## Quick setup
 
@@ -55,7 +55,7 @@ To try the package, simply install it (in a virtualenv or globally, wherever) an
     $ pip install -U nitpick
     $ flake8
 
-Nitpick will download and use the opinionated [default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/v0.21.3/nitpick-style.toml).
+Nitpick will download and use the opinionated [default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/v0.21.4/nitpick-style.toml).
 
 You can use it as a template to configure your own style.
 
@@ -65,7 +65,7 @@ If you use [pre-commit](https://pre-commit.com/) on your project (you should), a
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.21.3
+        rev: v0.21.4
         hooks:
           - id: nitpick
 

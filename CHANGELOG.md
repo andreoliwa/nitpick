@@ -1,3 +1,10 @@
+## [0.21.4](https://github.com/andreoliwa/nitpick/compare/v0.21.3...v0.21.4) (2020-03-10)
+
+
+### Bug Fixes
+
+* display the current revision of the hook ([ee09be0](https://github.com/andreoliwa/nitpick/commit/ee09be0731654f72dbbf3d9dd316f476ae24c4cb))
+
 ## [0.21.3](https://github.com/andreoliwa/nitpick/compare/v0.21.2...v0.21.3) (2019-12-08)
 
 

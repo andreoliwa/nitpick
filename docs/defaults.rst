@@ -48,7 +48,7 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
           - id: black
             args: [--safe, --quiet]
       - repo: https://github.com/asottile/blacken-docs
-        rev: v1.4.0
+        rev: v1.6.0
         hooks:
           - id: blacken-docs
             additional_dependencies: [black==19.10b0]
@@ -86,7 +86,7 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v2.4.0
+        rev: v2.5.0
         hooks:
           - id: flake8
             additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
@@ -133,7 +133,7 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/asottile/seed-isort-config
-        rev: v1.9.3
+        rev: v2.1.0
         hooks:
           - id: seed-isort-config
       - repo: https://github.com/pre-commit/mirrors-isort
@@ -151,7 +151,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
 
 .. code-block:: toml
 
-    # https://mypy.rtfd.io/en/latest/config_file.html
+    # https://mypy.readthedocs.io/en/latest/config_file.html
     ["setup.cfg".mypy]
     ignore_missing_imports = true
 
@@ -171,7 +171,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.750
+        rev: v0.761
         hooks:
           - id: mypy
     """
@@ -224,7 +224,7 @@ Content of `styles/pre-commit/bash.toml <https://raw.githubusercontent.com/andre
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/openstack/bashate
-        rev: 0.6.0
+        rev: 2.0.0
         hooks:
           - id: bashate
     """
@@ -241,7 +241,7 @@ Content of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        rev: v2.1.0
+        rev: v2.2.1
         hooks:
           - id: commitlint
             stages: [commit-msg]
@@ -260,13 +260,13 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v2.4.0
+        rev: v2.5.0
         hooks:
           - id: debug-statements
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v1.25.2
+        rev: v2.1.0
         hooks:
           - id: pyupgrade
     """
@@ -298,7 +298,7 @@ Content of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/and
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pygrep-hooks
-        rev: v1.4.2
+        rev: v1.5.1
         hooks:
           - id: python-check-blanket-noqa
           - id: python-check-mock-methods
@@ -318,6 +318,18 @@ Content of `styles/pylint.toml <https://raw.githubusercontent.com/andreoliwa/nit
 
     ["pyproject.toml".tool.poetry.dev-dependencies]
     pylint = "*"
+
+.. _default-python-3-5-3-6-3-7-to-3-8:
+
+Python 3.5, 3.6, 3.7 to 3.8
+---------------------------
+
+Content of `styles/python35-36-37-38.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python35-36-37-38.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.5 || ^3.6 || ^3.7 || ^3.8"
 
 .. _default-python-3-5-3-6-or-3-7:
 

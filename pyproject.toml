@@ -1,13 +1,13 @@
 [tool.nitpick]
 # Use the default style and override some things (like the Python version)
-style = ["nitpick-style", "styles/python35-36-37"]
+style = ["nitpick-style", "styles/python35-36-37-38"]
 
 [tool.black]
 line-length = 120
 
 [tool.poetry]
 name = "nitpick"
-version = "0.21.3"
+version = "0.21.4"
 description = "Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects"
 authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"
@@ -28,7 +28,7 @@ classifiers = [
 NIP = "nitpick.plugin:NitpickChecker"
 
 [tool.poetry.dependencies]
-python = "^3.5 || ^3.6 || ^3.7"
+python = "^3.5 || ^3.6 || ^3.7 || ^3.8"
 flake8 = ">=3.0.0"
 attrs = "*"
 toml = "*"
