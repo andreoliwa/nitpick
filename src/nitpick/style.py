@@ -9,7 +9,8 @@ import requests
 from slugify import slugify
 from toml import TomlDecodeError
 
-from nitpick import Nitpick, __version__, fields
+from nitpick import __version__, fields
+from nitpick.app import Nitpick
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,

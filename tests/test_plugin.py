@@ -1,6 +1,31 @@
 """Plugin tests."""
+import pytest
+from flake8.main import cli
+
+from nitpick.app import Nitpick
 from nitpick.constants import READ_THE_DOCS_URL
 from tests.helpers import ProjectMock
+
+
+def _call_main(argv, retv=0):
+    """Call flake8's main CLI entry point.
+
+    This is how flake8 itself runs CLI tests.
+    Copied from:
+    https://gitlab.com/pycqa/flake8/-/blob/master/tests/integration/test_main.py#L12-15
+    """
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(argv)
+    assert excinfo.value.code == retv
+
+
+def test_nitpick_offline_flag():
+    """Test if the offline flag was set."""
+    _call_main(["."], True)
+    assert Nitpick.current_app().offline is False
+
+    _call_main([".", "--nitpick-offline"], True)
+    assert Nitpick.current_app().offline is True
 
 
 def test_absent_files(request):

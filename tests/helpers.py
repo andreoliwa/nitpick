@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, List, Set
 from _pytest.fixtures import FixtureRequest
 from testfixtures import compare
 
-from nitpick import Nitpick
+from nitpick.app import Nitpick
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
 from nitpick.files.pre_commit import PreCommitFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile

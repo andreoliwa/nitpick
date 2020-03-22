@@ -7,7 +7,8 @@ from pathlib import Path
 import attr
 from flake8.options.manager import OptionManager
 
-from nitpick import Nitpick, __version__
+from nitpick import __version__
+from nitpick.app import Nitpick
 from nitpick.constants import PROJECT_NAME
 from nitpick.files.base import BaseFile
 from nitpick.generic import get_subclasses

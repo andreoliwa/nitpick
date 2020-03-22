@@ -1,5 +1,5 @@
 """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
-from nitpick import Nitpick
+from nitpick.app import Nitpick
 from nitpick.files.base import BaseFile
 from nitpick.typedefs import YieldFlake8Error
 

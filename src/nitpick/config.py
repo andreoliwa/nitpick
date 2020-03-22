@@ -2,7 +2,7 @@
 import logging
 from typing import TYPE_CHECKING, Optional
 
-from nitpick import Nitpick
+from nitpick.app import Nitpick
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_MINIMUM_VERSION_JMEX,
