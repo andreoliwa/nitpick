@@ -16,7 +16,8 @@ fi
 
 if [[ "$ARG_OS_NAME" == 'linux' ]]; then
     echo "Running pytest with coverage report on Linux"
-    poetry run coverage run --branch --parallel-mode --source=nitpick -m pytest
+    poetry run pytest --doctest-modules src/
+    poetry run coverage run --branch --parallel-mode --source=src -m pytest
 else
     # TODO Several commands don't work on the Windows build on Travis.
     echo "Running pytest with coverage report on Windows"
@@ -37,7 +38,7 @@ else
     # poetry run flake8 --help
     # poetry run flake8
 
-    coverage run --branch --parallel-mode --source=nitpick -m pytest
+    coverage run --branch --parallel-mode --source=src -m pytest
     # Build freezes on test collection:
     # ============================= test session starts =============================
     # platform win32 -- Python 3.7.4, pytest-5.2.2, py-1.8.0, pluggy-0.13.0 -- c:\users\travis\appdata\local\pypoetry\cache\virtualenvs\nitpick-py3.7\scripts\python.exe

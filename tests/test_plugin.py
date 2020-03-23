@@ -19,13 +19,14 @@ def _call_main(argv, retv=0):
     assert excinfo.value.code == retv
 
 
-def test_nitpick_offline_flag():
+def test_nitpick_offline_flag(tmpdir):
     """Test if the offline flag was set."""
-    _call_main(["."], True)
-    assert Nitpick.current_app().offline is False
+    with tmpdir.as_cwd():
+        _call_main([])
+        assert Nitpick.current_app().offline is False
 
-    _call_main([".", "--nitpick-offline"], True)
-    assert Nitpick.current_app().offline is True
+        _call_main(["--nitpick-offline"])
+        assert Nitpick.current_app().offline is True
 
 
 def test_absent_files(request):

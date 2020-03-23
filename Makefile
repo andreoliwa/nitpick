@@ -114,6 +114,10 @@ ifdef failed
 	pytest --failed
 else
 	-rm .pytest/failed
+	# Run doctests in a separate command.
+	# It was breaking a test because the Nitpick Flake8 plugin was being initialized twice, raising the error:
+	# optparse.OptionConflictError: option --nitpick-offline: conflicting option string(s): --nitpick-offline
+	pytest --doctest-modules src/
 	pytest
 endif
 	touch .cache/make/test
