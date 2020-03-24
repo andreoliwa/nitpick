@@ -1,4 +1,5 @@
 """Plugin tests."""
+import os
 from unittest import mock
 
 import pytest
@@ -88,13 +89,17 @@ def test_present_files(request):
     )
 
 
-def test_offline_flag(tmpdir):
-    """Test if the offline flag was set."""
+def test_offline_flag_env_variable(tmpdir):
+    """Test if the offline flag or environment variable was set."""
     with tmpdir.as_cwd():
         _call_main([])
         assert Nitpick.current_app().offline is False
 
         _call_main(["--nitpick-offline"])
+        assert Nitpick.current_app().offline is True
+
+        os.environ["NITPICK_OFFLINE"] = "1"
+        _call_main([])
         assert Nitpick.current_app().offline is True
 
 
