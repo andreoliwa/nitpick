@@ -1,5 +1,6 @@
 """Plugin tests."""
 import os
+from enum import Enum
 from unittest import mock
 
 import pytest
@@ -89,6 +90,22 @@ def test_present_files(request):
     )
 
 
+def test_flag_format_env_variable():
+    """Test flag formatting and env variable."""
+
+    class OtherFlags(Enum):
+        """Some flags to be used on the assertions below."""
+
+        MULTI_WORD = 1
+        SOME_OPTION = 2
+
+    assert Nitpick.format_flag(OtherFlags.MULTI_WORD) == "--nitpick-multi-word"
+    os.environ["NITPICK_SOME_OPTION"] = "something"
+    assert Nitpick.format_env(OtherFlags.SOME_OPTION) == "NITPICK_SOME_OPTION"
+    assert Nitpick.get_env(OtherFlags.SOME_OPTION) == "something"
+    assert Nitpick.get_env(OtherFlags.MULTI_WORD) == ""
+
+
 def test_offline_flag_env_variable(tmpdir):
     """Test if the offline flag or environment variable was set."""
     with tmpdir.as_cwd():
@@ -108,3 +125,13 @@ def test_offline_doesnt_raise_connection_error(mocked_get, request):
     """On offline mode, no requests are made, so no connection errors should be raised."""
     mocked_get.side_effect = requests.ConnectionError("A forced error")
     ProjectMock(request).flake8(offline=True)
+
+
+@mock.patch("requests.get")
+def test_offline_recommend_using_flag(mocked_get, request, capsys):
+    """Recommend using the flag on a connection error."""
+    mocked_get.side_effect = requests.ConnectionError("error message from connection here")
+    ProjectMock(request).flake8()
+    out, err = capsys.readouterr()
+    assert out == ""
+    assert err == "Your network is unreachable. Fix your connection or use --nitpick-offline / NITPICK_OFFLINE=1\n"

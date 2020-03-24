@@ -1,6 +1,8 @@
 """The Nitpick application."""
 import itertools
 import logging
+import os
+from enum import Enum
 from pathlib import Path
 from shutil import rmtree
 from typing import TYPE_CHECKING, List, Set
@@ -27,6 +29,11 @@ class Nitpick:
     cache_dir = None  # type: Path
     main_python_file = None  # type: Path
     config = None  # type: Config
+
+    class Flags(Enum):
+        """Flags to be used with flake8 CLI."""
+
+        OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
 
     def __init__(self) -> None:
         self.init_errors = []  # type: List[NitpickError]
@@ -172,3 +179,18 @@ class Nitpick:
         if invalid_data:
             err.suggestion = invalid_data
         self.style_errors.append(err)
+
+    @classmethod
+    def format_flag(cls, flag: Enum) -> str:
+        """Format the name of a flag to be used on the CLI."""
+        return "--{}-{}".format(PROJECT_NAME, flag.name.lower().replace("_", "-"))
+
+    @classmethod
+    def format_env(cls, flag: Enum) -> str:
+        """Format the name of an environment variable."""
+        return "{}_{}".format(PROJECT_NAME.upper(), flag.name.upper())
+
+    @classmethod
+    def get_env(cls, flag: Enum) -> str:
+        """Get the value of an environment variable."""
+        return os.environ.get(cls.format_env(flag), "")

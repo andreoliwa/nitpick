@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Type
 from urllib.parse import urlparse, urlunparse
 
+import click
 import requests
 from slugify import slugify
 from toml import TomlDecodeError
@@ -132,7 +133,17 @@ class Style:
         if not Nitpick.current_app().cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
-        response = requests.get(new_url)
+        try:
+            response = requests.get(new_url)
+        except requests.ConnectionError:
+            click.secho(
+                "Your network is unreachable. Fix your connection or use {} / {}=1".format(
+                    Nitpick.format_flag(Nitpick.Flags.OFFLINE), Nitpick.format_env(Nitpick.Flags.OFFLINE)
+                ),
+                fg="red",
+                err=True,
+            )
+            return None
         if not response.ok:
             raise FileNotFoundError("Error {} fetching style URL {}".format(response, new_url))
 

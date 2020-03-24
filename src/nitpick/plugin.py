@@ -1,7 +1,6 @@
 """Flake8 plugin to check files."""
 import itertools
 import logging
-import os
 from pathlib import Path
 
 import attr
@@ -87,10 +86,10 @@ class NitpickChecker(NitpickMixin):
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(
-            "--nitpick-offline",
+            Nitpick.format_flag(Nitpick.Flags.OFFLINE),
             action="store_true",
             # dest="offline",
-            help="Offline mode: no style will be downloaded (no HTTP requests at all)",
+            help=Nitpick.Flags.OFFLINE.value,
         )
 
     @staticmethod
@@ -102,5 +101,5 @@ class NitpickChecker(NitpickMixin):
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        Nitpick.create_app(offline=bool(options.nitpick_offline or os.environ.get("NITPICK_OFFLINE")))
+        Nitpick.create_app(offline=bool(options.nitpick_offline or Nitpick.get_env(Nitpick.Flags.OFFLINE)))
         LOGGER.info("Offline mode: %s", Nitpick.current_app().offline)
