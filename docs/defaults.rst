@@ -85,8 +85,8 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     # without being asked.
     [["pre-commit-config.yaml".repos]]
     yaml = """
-      - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v2.5.0
+      - repo: https://gitlab.com/pycqa/flake8
+        rev: 3.7.9
         hooks:
           - id: flake8
             additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
@@ -171,7 +171,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.761
+        rev: v0.770
         hooks:
           - id: mypy
     """

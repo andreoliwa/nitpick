@@ -58,13 +58,6 @@ poetry:
 	pip freeze | rg -i -e sphinx -e pygments | sort -u >> docs/requirements.txt
 	echo ". # Install nitpick from the current directory (root)" >> docs/requirements.txt
 
-# Force creation of a setup.py to avoid this error on "pip install -e nitpick"
-# ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ~/Code/nitpick
-# (A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
-# Remove this if ever pip changes this behaviour
-# Install PoetryX from here: https://github.com/andreoliwa/python-clib#poetryx
-	poetryx setup-py
-
 	touch .cache/make/long-poetry
 	-rm .cache/make/run
 

@@ -372,7 +372,7 @@ description = "An unofficial extension to Marshmallow to allow for polymorphic f
 name = "marshmallow-polyfield"
 optional = false
 python-versions = ">=3.5"
-version = "5.8"
+version = "5.9"
 
 [package.dependencies]
 marshmallow = ">=3.0.0b10"
@@ -882,12 +882,12 @@ description = "Measures number of Terminal column cells of wide-character codes"
 name = "wcwidth"
 optional = false
 python-versions = "*"
-version = "0.1.8"
+version = "0.1.9"
 
 [[package]]
 category = "dev"
 description = "Enable Unicode input and display when running Python from Windows console."
-marker = "sys_platform == \"win32\" and python_version < \"3.6\" and python_version >= \"3.4\" or sys_platform == \"win32\" and python_version < \"3.6\""
+marker = "sys_platform == \"win32\" and python_version < \"3.6\" or sys_platform == \"win32\" and python_version < \"3.6\" and python_version >= \"3.4\""
 name = "win-unicode-console"
 optional = false
 python-versions = "*"
@@ -915,7 +915,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "6fe929c9f5094fa84a5d31860d509b47746e5ae8fbc8b434dcec16d89c5a2341"
+content-hash = "4b421f26a07ca2abb59b5a634f038319615d0c863b0e08752a17dd5155248679"
 python-versions = "^3.5 || ^3.6 || ^3.7 || ^3.8"
 
 [metadata.files]
@@ -1096,8 +1096,7 @@ marshmallow = [
     {file = "marshmallow-3.5.1.tar.gz", hash = "sha256:90854221bbb1498d003a0c3cc9d8390259137551917961c8b5258c64026b2f85"},
 ]
 marshmallow-polyfield = [
-    {file = "marshmallow-polyfield-5.8.tar.gz", hash = "sha256:1af6699f80be03766169a021860bdb8113641c329148bae4b4d5c485229be75c"},
-    {file = "marshmallow_polyfield-5.8-py3-none-any.whl", hash = "sha256:4499f7f30086bf1916f30701629e143c076c21f3351c148e490f06367880995d"},
+    {file = "marshmallow-polyfield-5.9.tar.gz", hash = "sha256:448f4b1ac5cbd671c0fb8a5452e99da7c0e8be924dd2cda2a21ee59457a4748f"},
 ]
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
@@ -1304,8 +1303,8 @@ urllib3 = [
     {file = "urllib3-1.25.8.tar.gz", hash = "sha256:87716c2d2a7121198ebcb7ce7cccf6ce5e9ba539041cfbaeecfb641dc0bf6acc"},
 ]
 wcwidth = [
-    {file = "wcwidth-0.1.8-py2.py3-none-any.whl", hash = "sha256:8fd29383f539be45b20bd4df0dc29c20ba48654a41e661925e612311e9f3c603"},
-    {file = "wcwidth-0.1.8.tar.gz", hash = "sha256:f28b3e8a6483e5d49e7f8949ac1a78314e740333ae305b4ba5defd3e74fb37a8"},
+    {file = "wcwidth-0.1.9-py2.py3-none-any.whl", hash = "sha256:cafe2186b3c009a04067022ce1dcd79cb38d8d65ee4f4791b8888d6599d1bbe1"},
+    {file = "wcwidth-0.1.9.tar.gz", hash = "sha256:ee73862862a156bf77ff92b09034fc4825dd3af9cf81bc5b360668d425f3c5f1"},
 ]
 win-unicode-console = [
     {file = "win_unicode_console-0.5.zip", hash = "sha256:d4142d4d56d46f449d6f00536a73625a871cba040f0bc1a2e305a04578f07d1e"},
