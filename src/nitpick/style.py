@@ -110,6 +110,10 @@ class Style:
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
+        if Nitpick.current_app().offline:
+            # No style will be fetched in offline mode
+            return None
+
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
             domain_plus_url = str(rest).strip("/").rstrip("/") + "/" + url
@@ -175,16 +179,17 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        if not Nitpick.current_app().cache_dir:
+        app = Nitpick.current_app()
+        if not app.cache_dir or app.offline:
             return {}
         merged_dict = self._all_styles.merge()
-        merged_style_path = Nitpick.current_app().cache_dir / MERGED_STYLE_TOML  # type: Path
+        merged_style_path = app.cache_dir / MERGED_STYLE_TOML  # type: Path
         toml = TomlFormat(data=merged_dict)
 
         attempt = 1
         while attempt < 5:
             try:
-                Nitpick.current_app().cache_dir.mkdir(parents=True, exist_ok=True)
+                app.cache_dir.mkdir(parents=True, exist_ok=True)
                 merged_style_path.write_text(toml.reformatted)
                 break
             except OSError:

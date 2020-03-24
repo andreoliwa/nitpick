@@ -35,7 +35,7 @@ class Nitpick:
         self.offline = False
 
     @classmethod
-    def create_app(cls) -> "Nitpick":
+    def create_app(cls, offline=False) -> "Nitpick":
         """Create a single application."""
         # pylint: disable=import-outside-toplevel
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
@@ -43,6 +43,7 @@ class Nitpick:
 
         app = cls()
         cls._current_app = app
+        app.offline = offline
 
         try:
             app.root_dir = app.find_root_dir()
@@ -74,7 +75,9 @@ class Nitpick:
         root_dirs = set()  # type: Set[Path]
         seen = set()  # type: Set[Path]
 
-        starting_file = list(Path.cwd().glob("*"))[0]
+        all_files = list(Path.cwd().glob("*"))
+        # Don't fail if the current dir is empty
+        starting_file = str(all_files[0]) if all_files else ""
         starting_dir = Path(starting_file).parent.absolute()
         while True:
             project_files = climb_directory_tree(

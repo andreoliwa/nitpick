@@ -1,5 +1,8 @@
 """Plugin tests."""
+from unittest import mock
+
 import pytest
+import requests
 from flake8.main import cli
 
 from nitpick.app import Nitpick
@@ -17,16 +20,6 @@ def _call_main(argv, retv=0):
     with pytest.raises(SystemExit) as excinfo:
         cli.main(argv)
     assert excinfo.value.code == retv
-
-
-def test_nitpick_offline_flag(tmpdir):
-    """Test if the offline flag was set."""
-    with tmpdir.as_cwd():
-        _call_main([])
-        assert Nitpick.current_app().offline is False
-
-        _call_main(["--nitpick-offline"])
-        assert Nitpick.current_app().offline is True
 
 
 def test_absent_files(request):
@@ -93,3 +86,20 @@ def test_present_files(request):
     ).assert_errors_contain(
         "NIP103 File another-file.txt should exist", 3
     )
+
+
+def test_offline_flag(tmpdir):
+    """Test if the offline flag was set."""
+    with tmpdir.as_cwd():
+        _call_main([])
+        assert Nitpick.current_app().offline is False
+
+        _call_main(["--nitpick-offline"])
+        assert Nitpick.current_app().offline is True
+
+
+@mock.patch("requests.get")
+def test_offline_doesnt_raise_connection_error(mocked_get, request):
+    """On offline mode, no requests are made, so no connection errors should be raised."""
+    mocked_get.side_effect = requests.ConnectionError("A forced error")
+    ProjectMock(request).flake8(offline=True)

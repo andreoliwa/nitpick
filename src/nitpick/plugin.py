@@ -95,9 +95,12 @@ class NitpickChecker(NitpickMixin):
 
     @staticmethod
     def parse_options(option_manager: OptionManager, options, args):  # pylint: disable=unused-argument
-        """Set logging from the verbose flags, set offline mode."""
+        """Create the Nitpick app, set logging from the verbose flags, set offline mode.
+
+        This function is called only once by flake8, so it's a good place to create the app.
+        """
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        Nitpick.current_app().offline = bool(options.nitpick_offline or os.environ.get("NITPICK_OFFLINE"))
+        Nitpick.create_app(offline=bool(options.nitpick_offline or os.environ.get("NITPICK_OFFLINE")))
         LOGGER.info("Offline mode: %s", Nitpick.current_app().offline)
