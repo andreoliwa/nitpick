@@ -191,7 +191,7 @@ class Style:
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
         app = Nitpick.current_app()
-        if not app.cache_dir or app.offline:
+        if not app.cache_dir:
             return {}
         merged_dict = self._all_styles.merge()
         merged_style_path = app.cache_dir / MERGED_STYLE_TOML  # type: Path
