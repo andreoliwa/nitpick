@@ -50,10 +50,15 @@ This style will assert that:
 
 ## Quick setup
 
-To try the package, simply install it (in a virtualenv or globally, wherever) and run `flake8`:
+To try the package, simply install it (in a virtualenv or globally) and run `flake8` on a project with at least one Python (`.py`) file:
 
+    # Install using pip:
     $ pip install -U nitpick
-    $ flake8
+
+    # Or using Poetry:
+    $ poetry add --dev nitpick
+
+    $ flake8 .
 
 Nitpick will download and use the opinionated [default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/v0.21.4/nitpick-style.toml).
 

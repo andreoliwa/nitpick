@@ -34,10 +34,10 @@ class NoRootDir(PluginError):
 
 
 class NoPythonFile(PluginError):
-    """No Python file under the root dir."""
+    """No Python file was found."""
 
     number = 2
-    message = "No Python file was found under the root dir {!r}"
+    message = "No Python file was found on the root dir and subdir of {!r}"
 
     def __init__(self, root_dir: Path, *args: object) -> None:
         self.message = self.message.format(str(root_dir))

@@ -8,12 +8,19 @@ Installation guide
 Quick setup
 -----------
 
-To try the package, simply install it (in a virtualenv or globally, wherever) and run ``flake8``:
+To try the package, simply install it (in a virtualenv or globally) and run flake8_ on a project with at least one Python (``.py``) file:
 
 .. code-block:: shell
 
+    $ cd /path/to/my/python/project
+
+    # Install using pip:
     $ pip install -U nitpick
-    $ flake8
+
+    # Or using Poetry:
+    $ poetry add --dev nitpick
+
+    $ flake8 .
 
 Nitpick_ will download and use the opinionated `default style file`_.
 

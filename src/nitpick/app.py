@@ -130,11 +130,16 @@ class Nitpick:
         The search order is:
         1. Python files that belong to the root dir of the project (e.g.: ``setup.py``, ``autoapp.py``).
         2. ``manage.py``: they can be on the root or on a subdir (Django projects).
-        3. Any other ``*.py`` Python file.
+        3. Any other ``*.py`` Python file on the root dir and subdir.
+           This avoid long recursions when there is a ``node_modules`` subdir for instance.
         """
         for the_file in itertools.chain(
+            # 1.
             [self.root_dir / root_file for root_file in ROOT_PYTHON_FILES],
+            # 2.
             self.root_dir.glob("*/{}".format(MANAGE_PY)),
+            # 3.
+            self.root_dir.glob("*.py"),
             self.root_dir.glob("*/*.py"),
         ):
             if the_file.exists():

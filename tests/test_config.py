@@ -1,4 +1,6 @@
 """Config tests."""
+import pytest
+
 from tests.helpers import ProjectMock
 
 
@@ -16,10 +18,42 @@ def test_multiple_root_dirs(request):
     ).style("").flake8().assert_no_errors()
 
 
-def test_no_main_python_file_root_dir(request):
-    """No main Python file on the root dir."""
+def test_no_python_file_root_dir(request):
+    """No Python file on the root dir."""
     project = ProjectMock(request, setup_py=False).pyproject_toml("").save_file("whatever.sh", "", lint=True).flake8()
-    project.assert_single_error("NIP102 No Python file was found under the root dir {!r}".format(str(project.root_dir)))
+    project.assert_single_error(
+        "NIP102 No Python file was found on the root dir and subdir of {!r}".format(str(project.root_dir))
+    )
+
+
+@pytest.mark.parametrize(
+    "python_file,error", [("depth1.py", False), ("subdir/depth2.py", False), ("subdir/another/depth3.py", True)]
+)
+def test_at_least_one_python_file(python_file, error, request):
+    """At least one Python file on the root dir, even if it's not a main file."""
+    project = (
+        ProjectMock(request, setup_py=False)
+        .style(
+            """
+            ["pyproject.toml".tool.black]
+            lines = 100
+            """
+        )
+        .pyproject_toml(
+            """
+            [tool.black]
+            lines = 100
+            """
+        )
+        .save_file(python_file, "", lint=True)
+        .flake8()
+    )
+    if error:
+        project.assert_single_error(
+            "NIP102 No Python file was found on the root dir and subdir of {!r}".format(str(project.root_dir))
+        )
+    else:
+        project.assert_no_errors()
 
 
 def test_django_project_structure(request):
