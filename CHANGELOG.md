@@ -1,3 +1,16 @@
+# [0.22.0](https://github.com/andreoliwa/nitpick/compare/v0.21.4...v0.22.0) (2020-03-26)
+
+
+### Bug Fixes
+
+* consider any Python file (thanks [@tolusonaike](https://github.com/tolusonaike)) ([55c0965](https://github.com/andreoliwa/nitpick/commit/55c096529d40a95f53b13abf04a5b6aaabec0ed9)), closes [#138](https://github.com/andreoliwa/nitpick/issues/138)
+* remove setup.py (thanks [@sobolevn](https://github.com/sobolevn) and [@bibz](https://github.com/bibz)) ([5d03744](https://github.com/andreoliwa/nitpick/commit/5d03744d1427997165dd4f11f8f68e0bef0a9083))
+
+
+### Features
+
+* add flag for offline mode ([#129](https://github.com/andreoliwa/nitpick/issues/129)) ([3650575](https://github.com/andreoliwa/nitpick/commit/36505753e245a065cffc683fc92b4391e72b3627))
+
 ## [0.21.4](https://github.com/andreoliwa/nitpick/compare/v0.21.3...v0.21.4) (2020-03-10)
 
 
