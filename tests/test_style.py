@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from unittest import mock
 from unittest.mock import PropertyMock
 
+import pytest
 import responses
 
 from nitpick.constants import READ_THE_DOCS_URL, TOML_EXTENSION
@@ -15,7 +16,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-def test_multiple_styles_overriding_values(request):
+@pytest.mark.parametrize("offline", [False, True])
+def test_multiple_styles_overriding_values(offline, request):
     """Test multiple style files with precedence (the latest ones overrides the previous ones)."""
     ProjectMock(request).named_style(
         "isort1",
@@ -53,7 +55,9 @@ def test_multiple_styles_overriding_values(request):
         [tool.black]
         something = 22
         """
-    ).flake8().assert_errors_contain(
+    ).flake8(
+        offline=offline
+    ).assert_errors_contain(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
@@ -80,7 +84,8 @@ def test_multiple_styles_overriding_values(request):
     )
 
 
-def test_include_styles_overriding_values(request):
+@pytest.mark.parametrize("offline", [False, True])
+def test_include_styles_overriding_values(offline, request):
     """One style file can include another (also recursively). Ignore styles that were already included."""
     ProjectMock(request).named_style(
         "isort1",
@@ -123,7 +128,9 @@ def test_include_styles_overriding_values(request):
         [tool.nitpick]
         style = "isort1"
         """
-    ).flake8().assert_errors_contain(
+    ).flake8(
+        offline=offline
+    ).assert_errors_contain(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
@@ -144,8 +151,9 @@ def test_include_styles_overriding_values(request):
     )
 
 
+@pytest.mark.parametrize("offline", [False, True])
 @mock.patch("nitpick.plugin.NitpickChecker.version", new_callable=PropertyMock(return_value="0.5.3"))
-def test_minimum_version(mocked_version, request):
+def test_minimum_version(mocked_version, offline, request):
     """Stamp a style file with a minimum required version, to indicate new features or breaking changes."""
     assert_conditions(mocked_version == "0.5.3")
     ProjectMock(request).named_style(
@@ -169,12 +177,15 @@ def test_minimum_version(mocked_version, request):
         [tool.black]
         line-length = 100
         """
-    ).flake8().assert_single_error(
+    ).flake8(
+        offline=offline
+    ).assert_single_error(
         "NIP203 The style file you're using requires nitpick>=1.0 (you have 0.5.3). Please upgrade"
     )
 
 
-def test_relative_and_other_root_dirs(request):
+@pytest.mark.parametrize("offline", [False, True])
+def test_relative_and_other_root_dirs(offline, request):
     """Test styles in relative and in other root dirs."""
     another_dir = TEMP_ROOT_PATH / "another_dir"  # type: Path
     project = (
@@ -226,7 +237,7 @@ def test_relative_and_other_root_dirs(request):
         """.format(
             another_dir=another_dir, common_pyproject=common_pyproject
         )
-    ).flake8().assert_single_error(
+    ).flake8(offline=offline).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
@@ -260,7 +271,7 @@ def test_relative_and_other_root_dirs(request):
         """.format(
             another_dir, common_pyproject
         )
-    ).flake8().assert_single_error(
+    ).flake8(offline=offline).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
@@ -272,7 +283,8 @@ def test_relative_and_other_root_dirs(request):
     )
 
 
-def test_symlink_subdir(request):
+@pytest.mark.parametrize("offline", [False, True])
+def test_symlink_subdir(offline, request):
     """Test relative styles in subdirectories of a symlink dir."""
     target_dir = TEMP_ROOT_PATH / "target_dir"  # type: Path
     ProjectMock(request).named_style(
@@ -294,7 +306,9 @@ def test_symlink_subdir(request):
         [tool.nitpick]
         style = "symlinked-style"
         """
-    ).flake8().assert_single_error(
+    ).flake8(
+        offline=offline
+    ).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
@@ -404,23 +418,26 @@ def test_fetch_private_github_urls(request):
         """
     responses.add(responses.GET, full_private_url, dedent(body), status=200)
 
-    ProjectMock(request).pyproject_toml(
+    project = ProjectMock(request).pyproject_toml(
         """
         [tool.nitpick]
         style = "{}{}"
         """.format(
             base_url, query_string
         )
-    ).flake8().assert_single_error(
+    )
+    project.flake8(offline=False).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "thing"\x1b[0m
     """
     )
+    project.flake8(offline=True).assert_no_errors()
 
 
-def test_merge_styles_into_single_file(request):
+@pytest.mark.parametrize("offline", [False, True])
+def test_merge_styles_into_single_file(offline, request):
     """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit's repos)."""
     ProjectMock(request).load_styles("black", "isort").named_style(
         "isort_overrides",
@@ -434,7 +451,9 @@ def test_merge_styles_into_single_file(request):
         [tool.nitpick]
         style = ["black", "isort", "isort_overrides"]
         """
-    ).flake8().assert_merged_style(
+    ).flake8(
+        offline=offline
+    ).assert_merged_style(
         '''
         ["pyproject.toml".tool.black]
         line-length = 120
@@ -482,7 +501,8 @@ def test_merge_styles_into_single_file(request):
     )
 
 
-def test_invalid_tool_nitpick_on_pyproject_toml(request):
+@pytest.mark.parametrize("offline", [False, True])
+def test_invalid_tool_nitpick_on_pyproject_toml(offline, request):
     """Test invalid [tool.nitpick] on pyproject.toml."""
     project = ProjectMock(request)
     for style, error_message in [
@@ -498,7 +518,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(request):
             "style.1: Shorter than minimum length 1.\nstyle.2: Shorter than minimum length 1.",
         ),
     ]:
-        project.pyproject_toml("[tool.nitpick]\n{}".format(style)).flake8().assert_errors_contain(
+        project.pyproject_toml("[tool.nitpick]\n{}".format(style)).flake8(offline=offline).assert_errors_contain(
             "NIP001 File pyproject.toml has an incorrect style."
             + " Invalid data in [tool.nitpick]:\x1b[32m\n{}\x1b[0m".format(error_message),
             1,
@@ -519,7 +539,8 @@ def test_invalid_toml(request):
     )
 
 
-def test_invalid_nitpick_files(request):
+@pytest.mark.parametrize("offline", [False, True])
+def test_invalid_nitpick_files(offline, request):
     """Invalid [nitpick.files] section."""
     ProjectMock(request).named_style(
         "some_style",
@@ -538,7 +559,9 @@ def test_invalid_nitpick_files(request):
         [tool.nitpick]
         style = ["some_style", "wrong_files"]
         """
-    ).flake8().assert_errors_contain(
+    ).flake8(
+        offline=offline
+    ).assert_errors_contain(
         """
         NIP001 File some_style.toml has an incorrect style. Invalid config:\x1b[32m
         xxx: Unknown file. See https://nitpick.rtfd.io/en/latest/config_files.html.\x1b[0m

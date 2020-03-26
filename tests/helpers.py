@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, List, Set
 from _pytest.fixtures import FixtureRequest
 from testfixtures import compare
 
-from nitpick import Nitpick
+from nitpick.app import Nitpick
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
 from nitpick.files.pre_commit import PreCommitFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
@@ -68,7 +68,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def flake8(self, file_index: int = 0) -> "ProjectMock":
+    def flake8(self, offline=False, file_index: int = 0) -> "ProjectMock":
         """Simulate a manual flake8 run.
 
         - Recreate the global app.
@@ -76,7 +76,7 @@ class ProjectMock:
         - Lint one of the project files. If no index is provided, use the default file that's always created.
         """
         os.chdir(str(self.root_dir))
-        Nitpick.create_app()
+        Nitpick.create_app(offline)
 
         npc = NitpickChecker(filename=str(self.files_to_lint[file_index]))
         self._original_errors = list(npc.run())

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Generator, List, Optional, Set, Type
 
 import jmespath
 
-from nitpick import Nitpick
+from nitpick.app import Nitpick
 from nitpick.formats import TomlFormat
 from nitpick.generic import get_subclasses, search_dict
 from nitpick.mixin import NitpickMixin

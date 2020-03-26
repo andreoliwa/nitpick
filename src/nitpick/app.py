@@ -1,6 +1,8 @@
 """The Nitpick application."""
 import itertools
 import logging
+import os
+from enum import Enum
 from pathlib import Path
 from shutil import rmtree
 from typing import TYPE_CHECKING, List, Set
@@ -28,12 +30,19 @@ class Nitpick:
     main_python_file = None  # type: Path
     config = None  # type: Config
 
+    class Flags(Enum):
+        """Flags to be used with flake8 CLI."""
+
+        OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
+
     def __init__(self) -> None:
         self.init_errors = []  # type: List[NitpickError]
         self.style_errors = []  # type: List[NitpickError]
 
+        self.offline = False
+
     @classmethod
-    def create_app(cls) -> "Nitpick":
+    def create_app(cls, offline=False) -> "Nitpick":
         """Create a single application."""
         # pylint: disable=import-outside-toplevel
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
@@ -41,6 +50,7 @@ class Nitpick:
 
         app = cls()
         cls._current_app = app
+        app.offline = offline
 
         try:
             app.root_dir = app.find_root_dir()
@@ -72,7 +82,9 @@ class Nitpick:
         root_dirs = set()  # type: Set[Path]
         seen = set()  # type: Set[Path]
 
-        starting_file = list(Path.cwd().glob("*"))[0]
+        all_files = list(Path.cwd().glob("*"))
+        # Don't fail if the current dir is empty
+        starting_file = str(all_files[0]) if all_files else ""
         starting_dir = Path(starting_file).parent.absolute()
         while True:
             project_files = climb_directory_tree(
@@ -167,3 +179,18 @@ class Nitpick:
         if invalid_data:
             err.suggestion = invalid_data
         self.style_errors.append(err)
+
+    @classmethod
+    def format_flag(cls, flag: Enum) -> str:
+        """Format the name of a flag to be used on the CLI."""
+        return "--{}-{}".format(PROJECT_NAME, flag.name.lower().replace("_", "-"))
+
+    @classmethod
+    def format_env(cls, flag: Enum) -> str:
+        """Format the name of an environment variable."""
+        return "{}_{}".format(PROJECT_NAME.upper(), flag.name.upper())
+
+    @classmethod
+    def get_env(cls, flag: Enum) -> str:
+        """Get the value of an environment variable."""
+        return os.environ.get(cls.format_env(flag), "")
