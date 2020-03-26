@@ -1,5 +1,5 @@
 .. _nitpick-style.toml:
-.. _default style file: https://raw.githubusercontent.com/andreoliwa/nitpick/v0.21.4/nitpick-style.toml
+.. _default style file: https://raw.githubusercontent.com/andreoliwa/nitpick/v0.22.0/nitpick-style.toml
 
 .. _black: https://github.com/psf/black
 .. _Django: https://www.djangoproject.com

@@ -35,7 +35,7 @@ If you use pre-commit_ on your project (you should), add this to the ``.pre-comm
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.21.4
+        rev: v0.22.0
         hooks:
           - id: nitpick
 
