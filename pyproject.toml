@@ -50,7 +50,7 @@ marshmallow-polyfield = "^5.7"
 ipython = "*"
 ipdb = "*"
 icecream = "*"
-pytest = "~=5.4.1"  # TODO 5.4.1 raises INTERNALERROR> AttributeError: can't set attribute
+pytest = "*"  # v5.4.1 raises INTERNALERROR> AttributeError: can't set attribute on Python 3.5.9. It works on 3.5.6 (Travis CI)
 pytest-runfailed = "*"
 pytest-repeat = "*"
 pylint = "*"
