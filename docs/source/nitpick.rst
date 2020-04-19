@@ -10,6 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    nitpick.files
 
@@ -17,6 +18,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    nitpick.app
    nitpick.config

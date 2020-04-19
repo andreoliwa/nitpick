@@ -39,7 +39,7 @@ def test_suggest_initial_contents(request):
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[32m
         repos:
           - repo: https://github.com/asottile/seed-isort-config
-            rev: v2.1.0
+            rev: v2.1.1
             hooks:
               - id: seed-isort-config
           - repo: https://github.com/pre-commit/mirrors-isort

@@ -133,7 +133,7 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/asottile/seed-isort-config
-        rev: v2.1.0
+        rev: v2.1.1
         hooks:
           - id: seed-isort-config
       - repo: https://github.com/pre-commit/mirrors-isort
@@ -241,7 +241,7 @@ Content of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        rev: v2.2.1
+        rev: v2.2.2
         hooks:
           - id: commitlint
             stages: [commit-msg]
@@ -266,7 +266,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.1.0
+        rev: v2.2.0
         hooks:
           - id: pyupgrade
     """
