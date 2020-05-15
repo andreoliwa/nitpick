@@ -31,7 +31,7 @@ NIP = "nitpick.plugin:NitpickChecker"
 python = "^3.5 || ^3.6 || ^3.7 || ^3.8"
 flake8 = ">=3.0.0"
 attrs = "*"
-toml = "*"
+toml = "<0.10.1" # TODO: Raises "ValueError: Circular reference", see https://github.com/andreoliwa/nitpick/issues/159
 requests = "*"
 dictdiffer = "*"
 "ruamel.yaml" = "*"

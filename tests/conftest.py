@@ -1,15 +1,22 @@
 """Pytest configuration."""
 import os
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-# Use a fixed temporary root to help debugging locally; otherwise, a temporary root will be used.
-# On macOS, use /private/tmp as the root instead of /tmp, otherwise lots of tests will fail.
+# If the env variable is set, use it as the temporary root; this helps local debugging.
 NITPICK_TEST_DIR = os.environ.get("NITPICK_TEST_DIR")
-TEMP_ROOT_PATH = Path(NITPICK_TEST_DIR or tempfile.mkdtemp()).expanduser().absolute()
+
+# Otherwise, a temporary root will be used.
+_ROOT = NITPICK_TEST_DIR or tempfile.mkdtemp()
+if sys.platform == "darwin" and not _ROOT.startswith("/private"):
+    # On macOS, use /private/<temp dir> as the root instead of /<temp dir>, otherwise lots of tests will fail.
+    _ROOT = "/private" + _ROOT
+
+TEMP_ROOT_PATH = Path(_ROOT).expanduser().absolute()
 
 
 @pytest.fixture("session", autouse=True)

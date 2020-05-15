@@ -48,7 +48,7 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
           - id: black
             args: [--safe, --quiet]
       - repo: https://github.com/asottile/blacken-docs
-        rev: v1.6.0
+        rev: v1.7.0
         hooks:
           - id: blacken-docs
             additional_dependencies: [black==19.10b0]
@@ -86,7 +86,7 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://gitlab.com/pycqa/flake8
-        rev: 3.7.9
+        rev: 3.8.1
         hooks:
           - id: flake8
             additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
@@ -266,7 +266,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.2.0
+        rev: v2.4.1
         hooks:
           - id: pyupgrade
     """
