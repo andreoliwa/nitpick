@@ -3,7 +3,7 @@
 # Thanks to https://github.com/sloria/environs/blob/master/.pre-commit-config.yaml
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.5.0
+    rev: v3.0.0
     hooks:
       - id: debug-statements
       - id: end-of-file-fixer

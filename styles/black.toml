@@ -15,9 +15,9 @@ yaml = """
         additional_dependencies: [black==19.10b0]
 """
 # TODO The toml library has issues loading arrays with multiline strings:
-# https://github.com/uiri/toml/issues/123
-# https://github.com/uiri/toml/issues/230
-# If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
+#  https://github.com/uiri/toml/issues/123
+#  https://github.com/uiri/toml/issues/230
+#  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
 #["pre-commit-config.yaml"]
 #repos = ["""
 #<YAML goes here>

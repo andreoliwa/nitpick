@@ -260,7 +260,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v2.5.0
+        rev: v3.0.0
         hooks:
           - id: debug-statements
           - id: end-of-file-fixer

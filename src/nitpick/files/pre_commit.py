@@ -93,7 +93,7 @@ class PreCommitFile(BaseFile):
         self.actual_yaml = YamlFormat(path=self.file_path)
         if KEY_REPOS not in self.actual_yaml.as_data:
             # TODO: if the 'repos' key doesn't exist, assume repos are in the root of the .yml file
-            # Having the 'repos' key is not actually a requirement. 'pre-commit-validate-config' works without it.
+            #  Having the 'repos' key is not actually a requirement. 'pre-commit-validate-config' works without it.
             yield self.flake8_error(1, " doesn't have the {!r} root key".format(KEY_REPOS))
             return
 

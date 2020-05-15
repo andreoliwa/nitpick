@@ -76,8 +76,11 @@ class Comparison:
                     self.diff_dict[new_key] = []
                 self.diff_dict[new_key].insert(index, raw_expected)
                 return
+            if len(key) == 1:
+                self.diff_dict.update(unflatten({key[0]: raw_expected}))
+                return
 
-        LOGGER.warning("Unexpected case key=%s raw_expected=%s", key, raw_expected)
+        LOGGER.warning("Err... this is unexpected, please open an issue: key=%s raw_expected=%s", key, raw_expected)
 
 
 class BaseFormat(metaclass=abc.ABCMeta):

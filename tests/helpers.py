@@ -186,9 +186,9 @@ class ProjectMock:
         """Assert the lines of the error is in the error set, in any order.
 
         I couldn't find a quick way to guarantee the order of the output with ``ruamel.yaml``.
-        TODO Once there is a way to force some sorting on the YAML output, this method can be removed,
-        and ``assert_errors_contain()`` can be used again.
         """
+        # TODO Once there is a way to force some sorting on the YAML output, this method can be removed,
+        #  and ``assert_errors_contain()`` can be used again.
         original_expected_error = dedent(raw_error).strip()
         expected_error = original_expected_error.replace("\x1b[0m", "")
         expected_error_lines = set(expected_error.split("\n"))

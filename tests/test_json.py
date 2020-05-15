@@ -59,11 +59,12 @@ def test_missing_different_values(request):
 
         ["my.json".contains_json]
         "some.dotted.root.key" = """
-            { "valid": "JSON", "content": ["should", "be", "here"] }
+            { "valid": "JSON", "content": ["should", "be", "here"]  , "dotted.subkeys"  : ["should be preserved",
+            {"even.with": 1, "complex.weird.sub":{"objects":true}}] }
         """
-        formatting = """ {"doesnt":"matter","here":true,"on the": "config file"} """
+        formatting = """ {"doesnt":"matter","here":true,"on.the": "config file"} """
         '''
-    ).save_file("my.json", '{"name":"myproject","formatting":{"on the":"actual file"}}').flake8().assert_errors_contain(
+    ).save_file("my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}').flake8().assert_errors_contain(
         """
         NIP348 File my.json has missing values:\x1b[32m
         {
@@ -77,21 +78,28 @@ def test_missing_different_values(request):
               "be",
               "here"
             ],
+            "dotted.subkeys": [
+              "should be preserved",
+              {
+                "complex.weird.sub": {
+                  "objects": true
+                },
+                "even.with": 1
+              }
+            ],
             "valid": "JSON"
           }
         }\x1b[0m
         """
-        # TODO: check different values on JSON files
-        # ).assert_errors_contain(
-        #     """
-        #     NIP349 File my.json has different values. Use this:\x1b[32m
-        #     {
-        #       "formatting": {
-        #         "here": true,
-        #         "on the": "config file"
-        #       }
-        #     }\x1b[0m
-        #     """
+    ).assert_errors_contain(
+        """
+        NIP349 File my.json has different values. Use this:\x1b[32m
+        {
+          "formatting": {
+            "on.the": "config file"
+          }
+        }\x1b[0m
+        """
     )
 
 
