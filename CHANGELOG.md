@@ -1,3 +1,11 @@
+## [0.22.2](https://github.com/andreoliwa/nitpick/compare/v0.22.1...v0.22.2) (2020-05-15)
+
+
+### Bug Fixes
+
+* toml 0.10.1 is now raising ValueError: Circular reference ([ed1174f](https://github.com/andreoliwa/nitpick/commit/ed1174fcf27c82bb10ae0e45427ce6e284e62931)), closes [#159](https://github.com/andreoliwa/nitpick/issues/159)
+* **json:** warn about different values ([4f9a891](https://github.com/andreoliwa/nitpick/commit/4f9a891f21d53a40b62f078b8dbd67076a144c5b)), closes [#155](https://github.com/andreoliwa/nitpick/issues/155)
+
 ## [0.22.1](https://github.com/andreoliwa/nitpick/compare/v0.22.0...v0.22.1) (2020-03-26)
 
 
