@@ -1,6 +1,6 @@
 - id: nitpick
   name: Nitpick
-  description: Run the nitpick checkers
+  description: Enforce the same configuration (flake8, isort, mypy, pylint) across multiple Python projects
   entry: flake8 --select=NIP
   language: python
   types: [python]
