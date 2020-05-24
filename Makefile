@@ -29,7 +29,7 @@ help:
 .PHONY: help
 
 pre-commit: # Update and install pre-commit hooks
-	-rm .cache/make/long-pre-commit
+	@rm -f .cache/make/long-pre-commit
 	$(MAKE)
 .PHONY: pre-commit
 
@@ -39,10 +39,10 @@ pre-commit: # Update and install pre-commit hooks
 	pre-commit install --hook-type commit-msg
 	pre-commit gc
 	touch .cache/make/long-pre-commit
-	-rm .cache/make/run
+	@rm -f .cache/make/run
 
 poetry: # Update dependencies
-	-rm .cache/make/long-poetry
+	@rm -f .cache/make/long-poetry
 	$(MAKE)
 .PHONY: poetry
 
@@ -57,17 +57,17 @@ poetry: # Update dependencies
 	poetry run python3 -m pip freeze | rg -i -e sphinx -e pygments | sort -u >> docs/requirements.txt
 
 	touch .cache/make/long-poetry
-	-rm .cache/make/run
+	@rm -f .cache/make/run
 
 doc: docs/*/* *.rst *.md # Build documentation only (use force=1 to force a rebuild)
 ifdef force
-	-rm -rf .cache/make/*doc* docs/_build docs/source
+	@rm -rf .cache/make/*doc* docs/_build docs/source
 endif
 	$(MAKE) .cache/make/short-doc-source .cache/make/doc-defaults .cache/make/doc .cache/make/short-doc-link-check
 .PHONY: doc
 
 .cache/make/short-doc-source:
-	-rm -rf docs/source
+	@rm -rf docs/source
 	poetry run sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
 	touch .cache/make/short-doc-source
 
@@ -100,20 +100,25 @@ flake8: # Run flake8 to check local style changes
 .PHONY: flake8
 
 test: # Run tests (use failed=1 to run only failed tests)
-	-rm .cache/make/test
+	@rm -f .cache/make/test
 	$(MAKE) .cache/make/test
 .PHONY: test
 
-.cache/make/test: .cache/make/long-poetry src/*/* styles/*/* tests/*/*
+.cache/make/long-pyenv-local:
+	# Before running tox, setup pyenv with Python version between 5 and 9
+	pyenv local $(shell pyenv versions --bare | egrep -v '/' | egrep '^3.[5-9]' | sort -Vr)
+	touch .cache/make/long-pyenv-local
+
+.cache/make/test: .cache/make/long-poetry src/*/* styles/*/* tests/*/* .cache/make/long-pyenv-local
 ifdef failed
 	tox --failed
 else
-	-rm .pytest/failed
+	@rm -f .pytest/failed
 	tox
 endif
 	touch .cache/make/test
 
 ci: # Simulate CI run (force clean docs and tests, but do not update pre-commit nor Poetry)
-	-rm -rf .cache/make/*doc* .cache/make/run .cache/make/test docs/_build docs/source
+	@rm -rf .cache/make/*doc* .cache/make/run .cache/make/test docs/_build docs/source
 	$(MAKE) force=1
 .PHONY: ci
