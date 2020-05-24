@@ -54,9 +54,9 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
             additional_dependencies: [black==19.10b0]
     """
     # TODO The toml library has issues loading arrays with multiline strings:
-    # https://github.com/uiri/toml/issues/123
-    # https://github.com/uiri/toml/issues/230
-    # If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
+    #  https://github.com/uiri/toml/issues/123
+    #  https://github.com/uiri/toml/issues/230
+    #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
     #["pre-commit-config.yaml"]
     #repos = ["""
     #<YAML goes here>
@@ -86,7 +86,7 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://gitlab.com/pycqa/flake8
-        rev: 3.8.1
+        rev: 3.8.2
         hooks:
           - id: flake8
             additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
@@ -260,13 +260,13 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v3.0.0
+        rev: v3.1.0
         hooks:
           - id: debug-statements
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.4.1
+        rev: v2.4.3
         hooks:
           - id: pyupgrade
     """
