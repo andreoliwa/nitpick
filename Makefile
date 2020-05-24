@@ -106,14 +106,10 @@ test: # Run tests (use failed=1 to run only failed tests)
 
 .cache/make/test: .cache/make/long-poetry src/*/* styles/*/* tests/*/*
 ifdef failed
-	poetry run pytest --failed
+	tox --failed
 else
 	-rm .pytest/failed
-	# Run doctests in a separate command.
-	# It was breaking a test because the Nitpick Flake8 plugin was being initialized twice, raising the error:
-	# optparse.OptionConflictError: option --nitpick-offline: conflicting option string(s): --nitpick-offline
-	poetry run pytest --doctest-modules src/
-	poetry run pytest
+	tox
 endif
 	touch .cache/make/test
 

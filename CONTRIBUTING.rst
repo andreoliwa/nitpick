@@ -77,7 +77,7 @@ If you need some code review or feedback while you're developing the code just m
 
 For merging, you should:
 
-1. Include passing tests (run ``make pytest``) [1]_.
+1. Include passing tests (run ``make test``) [1]_.
 2. Update documentation when there's new API, functionality etc.
 3. Add yourself to ``AUTHORS.rst``.
 
