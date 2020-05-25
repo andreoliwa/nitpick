@@ -4,27 +4,37 @@ SPHINXBUILD   = poetry run sphinx-build
 SOURCEDIR     = docs
 BUILDDIR      = docs/_build
 
+# Create the cache dir if it doesn't exist
+$(shell mkdir -p .cache/make)
+
 .PHONY: Makefile
 
 build: always-run .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/doc .cache/make/lint .cache/make/test  # Build the project (default target if you simply run `make` without targets)
 .PHONY: build
 
+help:
+	@echo 'Choose one of the following targets:'
+	@cat Makefile | egrep '^[a-z0-9-]+: *.*#' | sed -E -e 's/:.+# */@ /g' | sort | awk -F@ '{printf "  \033[1;34m%-10s\033[0m %s\n", $$1, $$2}'
+	@echo
+	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
+.PHONY: help
+
+clean: # Clean all build output (cache, tox, coverage)
+	rm -rf .python-version .cache .mypy_cache .pytest_cache .tox docs/_build src/*.egg-info .coverage htmlcov/
+.PHONY: clean
+
 always-run:
-	@mkdir -p .cache/make
-.PHONY: always-run
 
 # Remove cache files if they are older than the configured time, so the targets will be rebuilt
 # "fd" is a faster alternative to "find": https://github.com/sharkdp/fd
 	@fd --changed-before 12h long .cache/make --exec-batch rm '{}' ;
 	@fd --changed-before 30m short .cache/make --exec-batch rm '{}' ;
 
-help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	@echo 'Or choose one of the following targets:'
-	@cat Makefile | egrep '^[a-z0-9-]+: *.* +#' | sed -E -e 's/:.+# */@ /g' | sort | awk -F@ '{printf "  \033[1;34m%-10s\033[0m %s\n", $$1, $$2}'
-	@echo
-	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
-.PHONY: help
+# Always remove this pyenv file before starting.
+# Since I'm using poetry locally, there is no pyenv environment for nitpick, and this error is raised by poetry:
+# ModuleNotFoundError: No module named 'cleo'
+	@rm -f .python-version
+.PHONY: always-run
 
 pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install pre-commit hooks
 	pre-commit autoupdate
@@ -34,7 +44,8 @@ pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install 
 	touch .cache/make/long-pre-commit
 .PHONY: pre-commit
 
- poetry: pyproject.toml # Update dependencies
+.cache/make/long-poetry:
+poetry: pyproject.toml # Update dependencies
 	poetry update
 	poetry install
 
@@ -45,6 +56,7 @@ pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install 
 	poetry run python3 -m pip freeze | rg -i -e sphinx -e pygments | sort -u >> docs/requirements.txt
 
 	touch .cache/make/long-poetry
+.PHONY: poetry
 
 doc: docs/*/* *.rst *.md # Build documentation only (use force=1 to force a rebuild)
 ifdef force
@@ -54,7 +66,7 @@ endif
 .PHONY: doc
 
 .cache/make/short-doc-source:
-	@rm -rf docs/source .python-version
+	@rm -rf docs/source
 	poetry run sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
 	touch .cache/make/short-doc-source
 
@@ -85,8 +97,7 @@ flake8: # Run flake8 to check local style changes
 	poetry run flake8 --select=NIP
 .PHONY: flake8
 
-.python-version:
-.cache/make/long-pyenv-local: .python-version tox.ini
+.cache/make/long-pyenv-local: setup.cfg .cache/make/long-poetry
 	# Before running tox, setup pyenv with Python version between 5 and 9
 	pyenv local $(shell pyenv versions --bare | egrep -v '/' | egrep '^3.[5-9]' | sort -Vr)
 	touch .cache/make/long-pyenv-local
@@ -97,10 +108,16 @@ ifdef failed
 	tox -e ${TOX_PYTHON_ENVS} --failed
 else
 	@rm -f .pytest/failed
-	tox -e ${TOX_PYTHON_ENVS}
+	tox -e "clean,${TOX_PYTHON_ENVS},report"
 endif
 	touch .cache/make/test
 .PHONY: test
+
+tox: .cache/make/long-pyenv-local # Run tox
+	tox
+	touch .cache/make/lint
+	touch .cache/make/test
+.PHONY: tox
 
 ci: # Simulate CI run (force clean docs and tests, but do not update pre-commit nor Poetry)
 	@rm -rf .cache/make/*doc* .cache/make/lint .cache/make/test docs/_build docs/source

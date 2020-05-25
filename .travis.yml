@@ -20,8 +20,7 @@ before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then chmod +x ./cc-test-reporter; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./cc-test-reporter before-build; fi
-script:
-  - ".travis/script.sh $TRAVIS_OS_NAME $TRAVIS_PYTHON_VERSION"
+script: tox
 after_script:
   - coverage xml
   - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
@@ -39,8 +38,8 @@ stages:
 jobs:
   include:
     - stage: test
+      # Python 3.9 is not yet available as of May 25th 2020
       python: 3.8
-    - python: 3.9
     - python: 3.7
     - python: 3.6
     - python: 3.5

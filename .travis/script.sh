@@ -7,8 +7,6 @@ echo "Python version = $ARG_PYTHON_VERSION"
 
 if [[ "$ARG_OS_NAME" == 'linux' ]]; then
     tox
-    echo "Running pytest with coverage report on Linux"
-    poetry run coverage run --branch --parallel-mode --source=src -m pytest  # FIXME: move to tox.ini
 else
     # TODO Several commands don't work on the Windows build on Travis.
     echo "Running pytest with coverage report on Windows"
