@@ -566,28 +566,6 @@ checkqa-mypy = ["mypy (v0.761)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
 [[package]]
-category = "dev"
-description = "pytest plugin for repeating tests"
-name = "pytest-repeat"
-optional = false
-python-versions = "*"
-version = "0.8.0"
-
-[package.dependencies]
-pytest = ">=3.6"
-
-[[package]]
-category = "dev"
-description = "implement a --failed option for pytest"
-name = "pytest-runfailed"
-optional = false
-python-versions = "*"
-version = "0.6"
-
-[package.dependencies]
-pytest = ">=2.0"
-
-[[package]]
 category = "main"
 description = "A Python Slugify application that handles Unicode"
 name = "python-slugify"
@@ -912,7 +890,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "60eb3393f73e0c05d509d70ce91642fa64422fe954dbb031504bef8ee018c83d"
+content-hash = "80a9cc5a80d316fb7e9c61fd1a64261b1491d6750381b7cb6aae08bb9009c0f8"
 python-versions = "^3.5 || ^3.6 || ^3.7 || ^3.8"
 
 [metadata.files]
@@ -1159,13 +1137,6 @@ pyparsing = [
 pytest = [
     {file = "pytest-5.4.2-py3-none-any.whl", hash = "sha256:95c710d0a72d91c13fae35dce195633c929c3792f54125919847fdcdf7caa0d3"},
     {file = "pytest-5.4.2.tar.gz", hash = "sha256:eb2b5e935f6a019317e455b6da83dd8650ac9ffd2ee73a7b657a30873d67a698"},
-]
-pytest-repeat = [
-    {file = "pytest-repeat-0.8.0.tar.gz", hash = "sha256:52bc413ab1a772e72c953a5592196ddd266fd2e76280eaac0c2a8378e9ac6dd9"},
-    {file = "pytest_repeat-0.8.0-py2.py3-none-any.whl", hash = "sha256:f506cf5b3306cc4308c4a76f6d8988a9f61c1c2609d48ad422e26a8e37ae50c4"},
-]
-pytest-runfailed = [
-    {file = "pytest-runfailed-0.6.tar.gz", hash = "sha256:82ab0740355ecde835d9754bcc510d6993e0b89d71d109894d1d6fbfeb9c222a"},
 ]
 python-slugify = [
     {file = "python-slugify-4.0.0.tar.gz", hash = "sha256:a8fc3433821140e8f409a9831d13ae5deccd0b033d4744d94b31fea141bdd84c"},
