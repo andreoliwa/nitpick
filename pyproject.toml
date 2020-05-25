@@ -51,6 +51,13 @@ ipython = "*"
 ipdb = "*"
 icecream = "*"
 pylint = "*"
+
+# These packages are needed for pylint to check the code under tests/*.
+pytest = "*"
+testfixtures = "*"
+responses = "*"
+
+# Keep these Sphinx packages here, they are used by the Makefile to generate docs/requirements.txt with exact pinned versions
 sphinx = "*"
 sphinx_rtd_theme = "*"
 
