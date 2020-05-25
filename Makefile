@@ -3,12 +3,10 @@ SPHINXOPTS    =
 SPHINXBUILD   = poetry run sphinx-build
 SOURCEDIR     = docs
 BUILDDIR      = docs/_build
-LONG_RERUN    = 12h
-SHORT_RERUN   = 30m
 
 .PHONY: Makefile
 
-build: always-run .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/doc .cache/make/run .cache/make/test  # Build the project (default target if you simply run `make` without targets)
+build: always-run .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/doc .cache/make/lint .cache/make/test  # Build the project (default target if you simply run `make` without targets)
 .PHONY: build
 
 always-run:
@@ -17,8 +15,8 @@ always-run:
 
 # Remove cache files if they are older than the configured time, so the targets will be rebuilt
 # "fd" is a faster alternative to "find": https://github.com/sharkdp/fd
-	@fd --changed-before $(LONG_RERUN) long .cache/make --exec-batch rm '{}' ;
-	@fd --changed-before $(SHORT_RERUN) short .cache/make --exec-batch rm '{}' ;
+	@fd --changed-before 12h long .cache/make --exec-batch rm '{}' ;
+	@fd --changed-before 30m short .cache/make --exec-batch rm '{}' ;
 
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
@@ -28,25 +26,15 @@ help:
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
 
-pre-commit: # Update and install pre-commit hooks
-	@rm -f .cache/make/long-pre-commit
-	$(MAKE)
-.PHONY: pre-commit
-
-.cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml
+pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install pre-commit hooks
 	pre-commit autoupdate
 	pre-commit install --install-hooks
 	pre-commit install --hook-type commit-msg
 	pre-commit gc
 	touch .cache/make/long-pre-commit
-	@rm -f .cache/make/run
+.PHONY: pre-commit
 
-poetry: # Update dependencies
-	@rm -f .cache/make/long-poetry
-	$(MAKE)
-.PHONY: poetry
-
-.cache/make/long-poetry: pyproject.toml
+ poetry: pyproject.toml # Update dependencies
 	poetry update
 	poetry install
 
@@ -57,7 +45,6 @@ poetry: # Update dependencies
 	poetry run python3 -m pip freeze | rg -i -e sphinx -e pygments | sort -u >> docs/requirements.txt
 
 	touch .cache/make/long-poetry
-	@rm -f .cache/make/run
 
 doc: docs/*/* *.rst *.md # Build documentation only (use force=1 to force a rebuild)
 ifdef force
@@ -67,7 +54,7 @@ endif
 .PHONY: doc
 
 .cache/make/short-doc-source:
-	@rm -rf docs/source
+	@rm -rf docs/source .python-version
 	poetry run sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source src/nitpick/
 	touch .cache/make/short-doc-source
 
@@ -86,10 +73,9 @@ endif
 	$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -blinkcheck
 	touch .cache/make/short-doc-link-check
 
-.cache/make/run: .github/*/* .travis/*/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml
-	pre-commit run --all-files
-	poetry run flake8
-	touch .cache/make/run
+lint: .github/*/* .travis/*/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry .cache/make/long-pre-commit # Lint the project (tox running pre-commit, flake8)
+	tox -e lint
+	touch .cache/make/lint
 
 nitpick: # Run the nitpick pre-commit hook to check local style changes
 	pre-commit run --all-files nitpick-local
@@ -99,26 +85,24 @@ flake8: # Run flake8 to check local style changes
 	poetry run flake8 --select=NIP
 .PHONY: flake8
 
-test: # Run tests (use failed=1 to run only failed tests)
-	@rm -f .cache/make/test
-	$(MAKE) .cache/make/test
-.PHONY: test
-
-.cache/make/long-pyenv-local:
+.python-version:
+.cache/make/long-pyenv-local: .python-version tox.ini
 	# Before running tox, setup pyenv with Python version between 5 and 9
 	pyenv local $(shell pyenv versions --bare | egrep -v '/' | egrep '^3.[5-9]' | sort -Vr)
 	touch .cache/make/long-pyenv-local
 
-.cache/make/test: .cache/make/long-poetry src/*/* styles/*/* tests/*/* .cache/make/long-pyenv-local
+test: export TOX_PYTHON_ENVS=$(shell tox -l | egrep '^py' | xargs echo | tr ' ' ',') # Run tests (use failed=1 to run only failed tests)
+test: .cache/make/long-poetry src/*/* styles/*/* tests/*/* .cache/make/long-pyenv-local
 ifdef failed
-	tox --failed
+	tox -e ${TOX_PYTHON_ENVS} --failed
 else
 	@rm -f .pytest/failed
-	tox
+	tox -e ${TOX_PYTHON_ENVS}
 endif
 	touch .cache/make/test
+.PHONY: test
 
 ci: # Simulate CI run (force clean docs and tests, but do not update pre-commit nor Poetry)
-	@rm -rf .cache/make/*doc* .cache/make/run .cache/make/test docs/_build docs/source
-	$(MAKE) force=1
+	@rm -rf .cache/make/*doc* .cache/make/lint .cache/make/test docs/_build docs/source
+	$(MAKE) force=1 build
 .PHONY: ci

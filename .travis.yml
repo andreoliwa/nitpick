@@ -15,8 +15,7 @@ language: python
 os: linux
 dist: xenial
 install:
-  - pip3 install --upgrade pip poetry coveralls pre-commit
-  - poetry install --no-ansi --no-interaction
+  - pip install tox-travis coveralls
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then chmod +x ./cc-test-reporter; fi
@@ -41,6 +40,7 @@ jobs:
   include:
     - stage: test
       python: 3.8
+    - python: 3.9
     - python: 3.7
     - python: 3.6
     - python: 3.5
