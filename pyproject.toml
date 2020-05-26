@@ -46,20 +46,22 @@ marshmallow = {version = ">=3.0.0b10"}
 # TypeError: _deserialize() got an unexpected keyword argument 'partial'
 marshmallow-polyfield = "^5.7"
 
+pytest = {version = "*", optional = true}
+testfixtures = {version = "*", optional = true}
+responses = {version = "*", optional = true}
+
+sphinx = {version = "*", optional = true}
+sphinx_rtd_theme = {version = "*", optional = true}
+
+[tool.poetry.extras]
+tests = ["pytest", "testfixtures", "responses"]
+docs = ["sphinx", "sphinx_rtd_theme"]
+
 [tool.poetry.dev-dependencies]
 ipython = "*"
 ipdb = "*"
 icecream = "*"
 pylint = "*"
-
-# These packages are needed for pylint to check the code under tests/*.
-pytest = "*"
-testfixtures = "*"
-responses = "*"
-
-# Keep these Sphinx packages here, they are used by the Makefile to generate docs/requirements.txt with exact pinned versions
-sphinx = "*"
-sphinx_rtd_theme = "*"
 
 [build-system]
 requires = ["poetry>=0.12"]
