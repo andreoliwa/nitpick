@@ -95,19 +95,6 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     """
     # TODO suggest nitpick for external repos
 
-.. _default-ipython:
-
-IPython_
---------
-
-Content of `styles/ipython.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/ipython.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dev-dependencies]
-    ipython = "*"
-    ipdb = "*"
-
 .. _default-isort:
 
 isort_

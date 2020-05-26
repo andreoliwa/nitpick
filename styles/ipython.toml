@@ -1,3 +1,0 @@
-["pyproject.toml".tool.poetry.dev-dependencies]
-ipython = "*"
-ipdb = "*"

@@ -20,7 +20,6 @@ include = [
     "styles/isort",
     "styles/mypy",
     "styles/pytest",
-    "styles/ipython",
     "styles/package-json",
 ]
 
