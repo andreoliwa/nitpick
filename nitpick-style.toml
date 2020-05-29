@@ -16,7 +16,6 @@ include = [
     "styles/pre-commit/commitlint",
     "styles/black",
     "styles/flake8",
-    "styles/pylint",
     "styles/isort",
     "styles/mypy",
     "styles/pytest",

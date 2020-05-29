@@ -14,7 +14,7 @@ help:
 .PHONY: help
 
 clean: # Clean all build output (cache, tox, coverage)
-	rm -rf .python-version .cache .mypy_cache .pytest_cache .tox docs/_build src/*.egg-info .coverage htmlcov/
+	rm -rf .cache .mypy_cache .pytest_cache .tox docs/_build src/*.egg-info .coverage htmlcov/
 .PHONY: clean
 
 # Remove cache files if they are older than the configured time, so the targets will be rebuilt
@@ -33,18 +33,12 @@ pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hook
 .PHONY: pre-commit
 
 poetry .cache/make/long-poetry: pyproject.toml # Update dependencies
-	rm -f .python-version
 	poetry update
 	poetry install
 	touch .cache/make/long-poetry
 .PHONY: poetry
 
-.python-version: setup.cfg pyproject.toml
-	# Before running tox, setup pyenv with Python version between 5 and 9
-	pyenv local $(shell pyenv versions --bare | egrep -v '/' | egrep '^3.[5-9]' | sort -Vr)
-	touch .python-version
-
-lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry .cache/make/long-pre-commit # Lint the project (tox running pre-commit, flake8)
+lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry # Lint the project (tox running pre-commit, flake8)
 	tox -e lint
 	touch .cache/make/lint
 .PHONY: lint
@@ -54,13 +48,12 @@ nitpick: # Run the nitpick pre-commit hook to check local style changes
 .PHONY: nitpick
 
 flake8: # Run flake8 to check local style changes
-	rm -f .python-version
 	poetry run flake8 --select=NIP
 .PHONY: flake8
 
 TOX_PYTHON_ENVS = $(shell tox -l | egrep '^py' | xargs echo | tr ' ' ',')
 
-test .cache/make/test: .cache/make/long-poetry src/*/* styles/*/* tests/*/* .python-version # Run tests (use failed=1 to run only failed tests)
+test .cache/make/test: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests (use failed=1 to run only failed tests)
 ifdef failed
 	tox -e ${TOX_PYTHON_ENVS} --failed
 else
@@ -76,8 +69,8 @@ doc .cache/make/doc: docs/*/* styles/*/* *.rst *.md # Build documentation only
 	touch .cache/make/doc
 .PHONY: doc
 
-tox: .python-version # Run tox
-	tox
+tox: # Run full tox (recreating environments)
+	tox -r
 	touch .cache/make/lint
 	touch .cache/make/test
 	touch .cache/make/doc

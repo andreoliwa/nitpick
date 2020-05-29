@@ -58,12 +58,14 @@ repos:
     rev: v0.770
     hooks:
       - id: mypy
+  # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.
+  # This solution helped: https://github.com/pre-commit/pre-commit/issues/1309
   - repo: local
     hooks:
       - id: pylint
         name: pylint
-        entry: poetry run pylint
-        language: python
+        entry: .tox/lint/bin/pylint
+        language: system
         types: [python]
   - repo: https://github.com/openstack/bashate
     rev: 2.0.0
