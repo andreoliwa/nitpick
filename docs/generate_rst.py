@@ -30,6 +30,7 @@ style_mapping = SortedDict(
         "isort.toml": "isort_",
         "mypy.toml": "mypy_",
         "absent-files.toml": "Absent files",
+        "ipython.toml": "IPython_",
         "package-json.toml": "package.json_",
         "poetry.toml": "Poetry_",
         "pre-commit/bash.toml": "Bash_",
