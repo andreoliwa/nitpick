@@ -67,6 +67,11 @@ repos:
         entry: .tox/lint/bin/pylint
         language: system
         types: [python]
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.6.2
+    hooks:
+      - id: bandit
+        args: [--ini, setup.cfg]
   - repo: https://github.com/openstack/bashate
     rev: 2.0.0
     hooks:
