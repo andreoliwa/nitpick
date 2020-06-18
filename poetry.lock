@@ -708,10 +708,13 @@ description = "Read the Docs theme for Sphinx"
 name = "sphinx-rtd-theme"
 optional = true
 python-versions = "*"
-version = "0.4.3"
+version = "0.5.0"
 
 [package.dependencies]
 sphinx = "*"
+
+[package.extras]
+dev = ["transifex-client", "sphinxcontrib-httpdomain", "bump2version"]
 
 [[package]]
 category = "main"
@@ -1151,6 +1154,7 @@ pytz = [
     {file = "pytz-2020.1.tar.gz", hash = "sha256:c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048"},
 ]
 requests = [
+    {file = "requests-2.23.0-py2.7.egg", hash = "sha256:5d2d0ffbb515f39417009a46c14256291061ac01ba8f875b90cad137de83beb4"},
     {file = "requests-2.23.0-py2.py3-none-any.whl", hash = "sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee"},
     {file = "requests-2.23.0.tar.gz", hash = "sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"},
 ]
@@ -1200,8 +1204,8 @@ sphinx = [
     {file = "Sphinx-3.0.4.tar.gz", hash = "sha256:ea64df287958ee5aac46be7ac2b7277305b0381d213728c3a49d8bb9b8415807"},
 ]
 sphinx-rtd-theme = [
-    {file = "sphinx_rtd_theme-0.4.3-py2.py3-none-any.whl", hash = "sha256:00cf895504a7895ee433807c62094cf1e95f065843bf3acd17037c3e9a2becd4"},
-    {file = "sphinx_rtd_theme-0.4.3.tar.gz", hash = "sha256:728607e34d60456d736cc7991fd236afb828b21b82f956c5ea75f94c8414040a"},
+    {file = "sphinx_rtd_theme-0.5.0-py2.py3-none-any.whl", hash = "sha256:373413d0f82425aaa28fb288009bf0d0964711d347763af2f1b65cafcb028c82"},
+    {file = "sphinx_rtd_theme-0.5.0.tar.gz", hash = "sha256:22c795ba2832a169ca301cd0a083f7a434e09c538c70beb42782c073651b707d"},
 ]
 sphinxcontrib-applehelp = [
     {file = "sphinxcontrib-applehelp-1.0.2.tar.gz", hash = "sha256:a072735ec80e7675e3f432fcae8610ecf509c5f1869d17e2eecff44389cdbc58"},
