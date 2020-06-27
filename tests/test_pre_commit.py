@@ -39,7 +39,7 @@ def test_suggest_initial_contents(request):
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[32m
         repos:
           - repo: https://github.com/asottile/seed-isort-config
-            rev: v2.1.1
+            rev: v2.2.0
             hooks:
               - id: seed-isort-config
           - repo: https://github.com/pre-commit/mirrors-isort
@@ -381,7 +381,7 @@ def test_missing_different_values(request):
         """
         NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/mirrors-mypy
-            rev: v0.770
+            rev: v0.782
             hooks:
               - id: mypy\x1b[0m
         """

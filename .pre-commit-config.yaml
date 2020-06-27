@@ -9,7 +9,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.4.4
+    rev: v2.6.2
     hooks:
       - id: pyupgrade
   - repo: https://github.com/python/black
@@ -23,7 +23,7 @@ repos:
       - id: blacken-docs
         additional_dependencies: [black==19.10b0]
   - repo: https://github.com/asottile/seed-isort-config
-    rev: v2.1.1
+    rev: v2.2.0
     hooks:
       - id: seed-isort-config
   - repo: https://github.com/pre-commit/mirrors-isort
@@ -48,14 +48,14 @@ repos:
         types: [python]
         always_run: true
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.2
+    rev: 3.8.3
     hooks:
       - id: flake8
         additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
           flake8-debugger, flake8-docstrings, flake8-isort, flake8-polyfill,
           flake8-pytest, flake8-quotes, yesqa]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.770
+    rev: v0.782
     hooks:
       - id: mypy
   # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.
@@ -77,7 +77,7 @@ repos:
     hooks:
       - id: bashate
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v2.2.2
+    rev: v2.2.3
     hooks:
       - id: commitlint
         stages: [commit-msg]

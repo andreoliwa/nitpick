@@ -86,7 +86,7 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://gitlab.com/pycqa/flake8
-        rev: 3.8.2
+        rev: 3.8.3
         hooks:
           - id: flake8
             additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
@@ -133,7 +133,7 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/asottile/seed-isort-config
-        rev: v2.1.1
+        rev: v2.2.0
         hooks:
           - id: seed-isort-config
       - repo: https://github.com/pre-commit/mirrors-isort
@@ -171,7 +171,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.770
+        rev: v0.782
         hooks:
           - id: mypy
     """
@@ -241,7 +241,7 @@ Content of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        rev: v2.2.2
+        rev: v2.2.3
         hooks:
           - id: commitlint
             stages: [commit-msg]
@@ -266,7 +266,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.4.4
+        rev: v2.6.2
         hooks:
           - id: pyupgrade
     """
