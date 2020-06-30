@@ -59,6 +59,9 @@ class NitpickChecker(NitpickMixin):
         if has_errors:
             return []
 
+        # FIXME: Get all root keys from the style TOML. All except "nitpick" are file names.
+        #  Load all checker classes here (plugins).
+        #  For each file name, find the checker class that can handle the file.
         for checker_class in get_subclasses(BaseFile):
             checker = checker_class()
             yield from checker.check_exists()

@@ -111,6 +111,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             elif file_exists and config_data_exists:
                 yield from self.check_rules()
 
+    # FIXME: abstract methods become plugin hooks. Hooks should return a list of errors
     @abc.abstractmethod
     def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited classes if needed."""
