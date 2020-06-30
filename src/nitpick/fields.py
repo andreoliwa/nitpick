@@ -4,6 +4,7 @@ import json
 from marshmallow import ValidationError, fields
 from marshmallow.fields import Dict, Field, List, Nested, String
 from marshmallow.validate import Length
+from more_itertools import always_iterable
 
 from nitpick.generic import pretty_exception
 
@@ -27,11 +28,13 @@ class TrimmedLength(Length):  # pylint: disable=too-few-public-methods
         return super().__call__(value.strip())
 
 
-class FilledString(fields.String):
+class NonEmptyString(fields.String):
     """A string field that must not be empty even after trimmed."""
 
     def __init__(self, **kwargs):
-        super().__init__(validate=TrimmedLength(min=1), **kwargs)
+        validate = list(always_iterable(kwargs.pop("validate", None)))
+        validate.append(TrimmedLength(min=1))
+        super().__init__(validate=validate, **kwargs)
 
 
 class JSONString(fields.String):
@@ -46,8 +49,8 @@ class JSONString(fields.String):
 def string_or_list_field(object_dict, parent_object_dict):  # pylint: disable=unused-argument
     """Detect if the field is a string or a list."""
     if isinstance(object_dict, list):
-        return fields.List(FilledString(required=True, allow_none=False))
-    return FilledString()
+        return fields.List(NonEmptyString(required=True, allow_none=False))
+    return NonEmptyString()
 
 
 def validate_section_dot_field(section_field: str) -> bool:

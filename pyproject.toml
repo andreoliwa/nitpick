@@ -45,6 +45,8 @@ marshmallow = {version = ">=3.0.0b10"}
 # Pin to avoid error on "flake8 ." when there is an invalid TOML style:
 # TypeError: _deserialize() got an unexpected keyword argument 'partial'
 marshmallow-polyfield = "^5.7"
+identify = "*"
+"more-itertools" = "*"
 
 pylint = {version = "*", optional = true}
 pytest = {version = "*", optional = true}

@@ -19,8 +19,8 @@ LOGGER = logging.getLogger(__name__)
 class JSONFileSchema(BaseNitpickSchema):
     """Validation schema for any JSON file added to the style."""
 
-    contains_keys = fields.List(fields.FilledString)
-    contains_json = fields.Dict(fields.FilledString, fields.JSONString)
+    contains_keys = fields.List(fields.NonEmptyString)
+    contains_json = fields.Dict(fields.NonEmptyString, fields.JSONString)
 
 
 class JSONFile(BaseFile):
@@ -39,6 +39,7 @@ class JSONFile(BaseFile):
     error_base_number = 340
 
     nested_field = JSONFileSchema
+    identify_tags = {"json"}
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
 

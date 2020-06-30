@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Generator, List, Optional, Set, Type
 import jmespath
 
 from nitpick.app import Nitpick
+from nitpick.constants import KEY_FILE_NAMES
 from nitpick.formats import TomlFormat
 from nitpick.generic import get_subclasses, search_dict
 from nitpick.mixin import NitpickMixin
@@ -35,9 +36,12 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     fixed_name_classes = set()  # type: Set[Type[BaseFile]]
     dynamic_name_classes = set()  # type: Set[Type[BaseFile]]
 
+    #: Which :py:package:`identify` tags this :py:class:`nitpick.files.base.BaseFile` child recognises.
+    identify_tags = set()  # type: Set[str]
+
     def __init__(self) -> None:
         if self.has_multiple_files:
-            key = "{}.file_names".format(self.__class__.__name__)
+            key = "{}.{}".format(self.__class__.__name__, KEY_FILE_NAMES)
             self._multiple_files = search_dict(key, Nitpick.current_app().config.nitpick_section, [])  # type: List[str]
         else:
             self._multiple_files = [self.file_name]

@@ -13,9 +13,13 @@ help:
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
 
-clean: # Clean all build output (cache, tox, coverage)
-	rm -rf .cache .mypy_cache .pytest_cache .tox docs/_build src/*.egg-info .coverage htmlcov/
+clean: clean-test # Clean all build output (cache, tox, coverage)
+	rm -rf .cache .mypy_cache docs/_build src/*.egg-info
 .PHONY: clean
+
+clean-test: # Clean test output
+	rm -rf .pytest_cache .tox .coverage htmlcov/
+.PHONY: clean-test
 
 # Remove cache files if they are older than the configured time, so the targets will be rebuilt
 # "fd" is a faster alternative to "find": https://github.com/sharkdp/fd

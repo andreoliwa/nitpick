@@ -7,12 +7,14 @@ from urllib.parse import urlparse, urlunparse
 
 import click
 import requests
+from identify import identify
 from slugify import slugify
 from toml import TomlDecodeError
 
 from nitpick import __version__, fields
 from nitpick.app import Nitpick
 from nitpick.constants import (
+    KEY_FILE_NAMES,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
@@ -235,12 +237,32 @@ class Style:
             for subclass in BaseFile.fixed_name_classes:
                 new_files_found.update(self.file_field_pair(subclass.file_name, subclass))
         else:
+            handled_tags = {}  # type: Dict[str, Type[BaseFile]]
+
             # Data was provided; search it to find new dynamic files to add to the validation schema).
             # E.g.: JSON files that were configured on some TOML style file.
             for subclass in BaseFile.dynamic_name_classes:
+                for tag in subclass.identify_tags:
+                    # A tag can only be handled by a single subclass.
+                    # If more than one class handle a tag, the latest one will be the handler.
+                    handled_tags[tag] = subclass
+
                 jmex = subclass.get_compiled_jmespath_file_names()
                 for configured_file_name in search_dict(jmex, data, []):
                     new_files_found.update(self.file_field_pair(configured_file_name, subclass))
+
+            for possible_file in data.keys():
+                found_subclasses = []
+                for file_tag in identify.tags_from_filename(possible_file):
+                    handler_subclass = handled_tags.get(file_tag)
+                    if handler_subclass:
+                        found_subclasses.append(handler_subclass)
+
+                        # TODO: Dirty hack to simulate multiple files
+                        # data.update({"nitpick.{}".format(handler_subclass.__name__): {KEY_FILE_NAMES: [possible_file]}})
+
+                for found_subclass in found_subclasses:
+                    new_files_found.update(self.file_field_pair(possible_file, found_subclass))
 
         # Only recreate the schema if new fields were found.
         if new_files_found:
