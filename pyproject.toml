@@ -47,6 +47,7 @@ marshmallow = {version = ">=3.0.0b10"}
 marshmallow-polyfield = "^5.7"
 identify = "*"
 "more-itertools" = "*"
+pluggy = "*"
 
 pylint = {version = "*", optional = true}
 pytest = {version = "*", optional = true}

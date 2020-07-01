@@ -2,8 +2,10 @@
 import itertools
 import logging
 from pathlib import Path
+from typing import List
 
 import attr
+import pluggy
 from flake8.options.manager import OptionManager
 
 from nitpick import __version__
@@ -14,7 +16,26 @@ from nitpick.generic import get_subclasses
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import YieldFlake8Error
 
+hookspec = pluggy.HookspecMarker(PROJECT_NAME)
+hookimpl = pluggy.HookimplMarker(PROJECT_NAME)
+
 LOGGER = logging.getLogger(__name__)
+
+
+class NitpickPlugin:
+    """Base for a Nitpick plugin."""
+
+    @hookspec
+    def relative_paths(self) -> List[str]:
+        """List of strings representing relative file paths handled by this plugin."""
+
+    @hookspec
+    def file_types(self) -> List[str]:
+        """Which :py:package:`identify` tags this plugin recognises."""
+
+
+# class TextPlugin:
+#     pass
 
 
 @attr.s(hash=False)
@@ -62,6 +83,15 @@ class NitpickChecker(NitpickMixin):
         # FIXME: Get all root keys from the style TOML. All except "nitpick" are file names.
         #  Load all checker classes here (plugins).
         #  For each file name, find the checker class that can handle the file.
+        # pm = pluggy.PluginManager(PROJECT_NAME)
+        # pm.add_hookspecs(NitpickPlugin)
+        #
+        # # register plugins
+        # pm.register(TextPlugin())
+        # # call our `myhook` hook
+        # results = pm.hook.check_config_file(relative_file_path)
+        # print(results)
+
         for checker_class in get_subclasses(BaseFile):
             checker = checker_class()
             yield from checker.check_exists()
