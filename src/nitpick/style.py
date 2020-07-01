@@ -14,7 +14,6 @@ from toml import TomlDecodeError
 from nitpick import __version__, fields
 from nitpick.app import Nitpick
 from nitpick.constants import (
-    KEY_FILE_NAMES,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
@@ -251,19 +250,19 @@ class Style:
                 for configured_file_name in search_dict(jmex, data, []):
                     new_files_found.update(self.file_field_pair(configured_file_name, subclass))
 
-            for possible_file in data.keys():
-                found_subclasses = []
-                for file_tag in identify.tags_from_filename(possible_file):
-                    handler_subclass = handled_tags.get(file_tag)
-                    if handler_subclass:
-                        found_subclasses.append(handler_subclass)
-
-                        # TODO: Dirty hack to simulate multiple files
-                        # data.update({"nitpick.{}".format(handler_subclass.__name__): {KEY_FILE_NAMES: [possible_file]}})
-
-                for found_subclass in found_subclasses:
-                    new_files_found.update(self.file_field_pair(possible_file, found_subclass))
+            self._find_sublcasses(data, handled_tags, new_files_found)
 
         # Only recreate the schema if new fields were found.
         if new_files_found:
             self._dynamic_schema_class = type("DynamicStyleSchema", (self._dynamic_schema_class,), new_files_found)
+
+    def _find_sublcasses(self, data, handled_tags, new_files_found):
+        for possible_file in data.keys():
+            found_subclasses = []
+            for file_tag in identify.tags_from_filename(possible_file):
+                handler_subclass = handled_tags.get(file_tag)
+                if handler_subclass:
+                    found_subclasses.append(handler_subclass)
+
+            for found_subclass in found_subclasses:
+                new_files_found.update(self.file_field_pair(possible_file, found_subclass))

@@ -1,18 +1,22 @@
 """Flake8 plugin to check files."""
+# pylint: disable=too-few-public-methods,import-outside-toplevel
+# FIXME: remove this disabled warning
 import itertools
 import logging
 from pathlib import Path
-from typing import List
+from typing import Optional, Set
 
 import attr
 import pluggy
 from flake8.options.manager import OptionManager
+from identify import identify
+from pluggy import PluginManager
 
 from nitpick import __version__
 from nitpick.app import Nitpick
 from nitpick.constants import PROJECT_NAME
 from nitpick.files.base import BaseFile
-from nitpick.generic import get_subclasses
+from nitpick.formats import TomlFormat
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import YieldFlake8Error
 
@@ -25,17 +29,71 @@ LOGGER = logging.getLogger(__name__)
 class NitpickPlugin:
     """Base for a Nitpick plugin."""
 
-    @hookspec
-    def relative_paths(self) -> List[str]:
-        """List of strings representing relative file paths handled by this plugin."""
+    base_file = None  # type: BaseFile
 
     @hookspec
-    def file_types(self) -> List[str]:
-        """Which :py:package:`identify` tags this plugin recognises."""
+    def handle(self, filename: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
+        """Return self if this plugin handle the relative filename or any of its :py:package:`identify` tags."""
 
 
-# class TextPlugin:
-#     pass
+class TextPlugin(NitpickPlugin):
+    """Handle text files."""
+
+    @hookimpl
+    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
+        """Handle text files."""
+        from nitpick.files.text import TextFile
+
+        self.base_file = TextFile(filename)
+        return self if "plain-text" in tags else None
+
+
+class JSONPlugin(NitpickPlugin):
+    """Handle JSON files."""
+
+    @hookimpl
+    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
+        """Handle JSON files."""
+        from nitpick.files.json import JSONFile
+
+        self.base_file = JSONFile()
+        return self if "json" in tags else None
+
+
+class PreCommitPlugin(NitpickPlugin):
+    """Handle pre-commit config file."""
+
+    @hookimpl
+    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
+        """Handle pre-commit config file."""
+        from nitpick.files.pre_commit import PreCommitFile
+
+        self.base_file = PreCommitFile()
+        return self if filename == TomlFormat.group_name_for(self.base_file.file_name) else None
+
+
+class SetupCfgPlugin(NitpickPlugin):
+    """Handle setup.cfg files."""
+
+    @hookimpl
+    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
+        """Handle setup.cfg files."""
+        from nitpick.files.setup_cfg import SetupCfgFile
+
+        self.base_file = SetupCfgFile()
+        return self if filename == SetupCfgFile.file_name else None
+
+
+class PyProjectTomlPlugin(NitpickPlugin):
+    """Handle pyproject.toml file."""
+
+    @hookimpl
+    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
+        """Handle pyproject.toml file."""
+        from nitpick.files.pyproject_toml import PyProjectTomlFile
+
+        self.base_file = PyProjectTomlFile()
+        return self if filename == self.base_file.file_name else None
 
 
 @attr.s(hash=False)
@@ -56,47 +114,60 @@ class NitpickChecker(NitpickMixin):
     def run(self) -> YieldFlake8Error:
         """Run the check plugin."""
         has_errors = False
-        for err in Nitpick.current_app().init_errors:
+        app = Nitpick.current_app()
+        for err in app.init_errors:
             has_errors = True
             yield Nitpick.as_flake8_warning(err)
         if has_errors:
             return []
 
         current_python_file = Path(self.filename)
-        if current_python_file.absolute() != Nitpick.current_app().main_python_file.absolute():
+        if current_python_file.absolute() != app.main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
             LOGGER.debug("Ignoring file: %s", self.filename)
             return []
         LOGGER.debug("Nitpicking file: %s", self.filename)
 
-        yield from itertools.chain(
-            Nitpick.current_app().config.merge_styles(), self.check_files(True), self.check_files(False)
-        )
+        yield from itertools.chain(app.config.merge_styles(), self.check_files(True), self.check_files(False))
 
         has_errors = False
-        for err in Nitpick.current_app().style_errors:
+        for err in app.style_errors:
             has_errors = True
             yield Nitpick.as_flake8_warning(err)
         if has_errors:
             return []
 
-        # FIXME: Get all root keys from the style TOML. All except "nitpick" are file names.
-        #  Load all checker classes here (plugins).
-        #  For each file name, find the checker class that can handle the file.
-        # pm = pluggy.PluginManager(PROJECT_NAME)
-        # pm.add_hookspecs(NitpickPlugin)
-        #
-        # # register plugins
-        # pm.register(TextPlugin())
-        # # call our `myhook` hook
-        # results = pm.hook.check_config_file(relative_file_path)
-        # print(results)
+        plugin_manager = self.load_plugins()
 
-        for checker_class in get_subclasses(BaseFile):
-            checker = checker_class()
-            yield from checker.check_exists()
+        # Get all root keys from the style TOML.
+        for path in app.config.style_dict:
+            # All except "nitpick" are file names.
+            if path == PROJECT_NAME:
+                continue
+
+            # For each file name, find the plugin that can handle the file.
+            tags = identify.tags_from_filename(path)
+            for plugin in plugin_manager.hook.handle(  # pylint: disable=no-member
+                filename=path, tags=tags
+            ):  # type: NitpickPlugin
+                yield from plugin.base_file.check_exists()
 
         return []
+
+    @staticmethod
+    def load_plugins() -> PluginManager:
+        """Load all defined plugins."""
+        plugin_manager = pluggy.PluginManager(PROJECT_NAME)
+        plugin_manager.add_hookspecs(NitpickPlugin)
+
+        # FIXME: use entry points instead
+        plugin_manager.register(JSONPlugin())
+        plugin_manager.register(TextPlugin())
+        plugin_manager.register(PreCommitPlugin())
+        plugin_manager.register(SetupCfgPlugin())
+        plugin_manager.register(PyProjectTomlPlugin())
+
+        return plugin_manager
 
     def check_files(self, present: bool) -> YieldFlake8Error:
         """Check files that should be present or absent."""

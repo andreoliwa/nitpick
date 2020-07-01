@@ -39,7 +39,12 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     #: Which :py:package:`identify` tags this :py:class:`nitpick.files.base.BaseFile` child recognises.
     identify_tags = set()  # type: Set[str]
 
-    def __init__(self) -> None:
+    def __init__(self, filename: str = None) -> None:
+        if filename is not None:
+            # FIXME: Hack to keep using BaseFile while migrating to the plugin architecture
+            self.has_multiple_files = False
+            self.file_name = filename
+
         if self.has_multiple_files:
             key = "{}.{}".format(self.__class__.__name__, KEY_FILE_NAMES)
             self._multiple_files = search_dict(key, Nitpick.current_app().config.nitpick_section, [])  # type: List[str]
@@ -111,7 +116,6 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             elif file_exists and config_data_exists:
                 yield from self.check_rules()
 
-    # FIXME: abstract methods become plugin hooks. Hooks should return a list of errors
     @abc.abstractmethod
     def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited classes if needed."""
