@@ -52,3 +52,10 @@ Example: :ref:`the default config for package.json <default-package-json>`.
 
 If a JSON file is configured on ``[nitpick.JSONFile] file_names``, then a configuration for it should exist.
 Otherwise, a style validation error will be raised.
+
+.. _textfile:
+
+Text files
+----------
+
+Checker for any text file.

@@ -162,7 +162,7 @@ class Nitpick:
             else ""
         )
 
-        from nitpick.plugin import NitpickChecker  # pylint: disable=import-outside-toplevel
+        from nitpick.flake8 import NitpickChecker  # pylint: disable=import-outside-toplevel
 
         return (
             0,

@@ -29,7 +29,8 @@ always-run:
 .PHONY: always-run
 
 pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install pre-commit hooks
-	pre-commit autoupdate
+# TODO: isort 5.0.0 is apparently broken, so we can't autoupdate for now
+#	pre-commit autoupdate
 	pre-commit install --install-hooks
 	pre-commit install --hook-type commit-msg
 	pre-commit gc
@@ -66,6 +67,10 @@ else
 endif
 	touch .cache/make/test
 .PHONY: test
+
+pytest: # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
+	poetry run pytest
+.PHONY: pytest
 
 doc .cache/make/doc: docs/*/* styles/*/* *.rst *.md # Build documentation only
 	@rm -rf docs/source

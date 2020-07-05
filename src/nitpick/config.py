@@ -69,7 +69,7 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
             # Don't show duplicated errors: if there are style errors already, don't validate the merged style.
             style.validate_style(MERGED_STYLE_TOML, self.style_dict)
 
-        from nitpick.plugin import NitpickChecker  # pylint: disable=import-outside-toplevel
+        from nitpick.flake8 import NitpickChecker  # pylint: disable=import-outside-toplevel
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         if minimum_version and version_to_tuple(NitpickChecker.version) < version_to_tuple(minimum_version):

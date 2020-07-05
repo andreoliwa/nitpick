@@ -13,8 +13,8 @@ from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, N
 from nitpick.files.pre_commit import PreCommitFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
+from nitpick.flake8 import NitpickChecker
 from nitpick.formats import TomlFormat
-from nitpick.plugin import NitpickChecker
 from nitpick.typedefs import PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
 

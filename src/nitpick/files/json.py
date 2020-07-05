@@ -1,6 +1,7 @@
 """JSON files."""
 import json
 import logging
+from typing import Optional, Set
 
 from sortedcontainers import SortedDict
 
@@ -8,6 +9,7 @@ from nitpick import fields
 from nitpick.files.base import BaseFile
 from nitpick.formats import JsonFormat
 from nitpick.generic import flatten, unflatten
+from nitpick.plugin import NitpickPlugin, hookimpl
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
@@ -88,3 +90,13 @@ class JSONFile(BaseFile):
         yield from self.warn_missing_different(
             JsonFormat(data=actual_fmt.as_data).compare_with_dictdiffer(expected, unflatten)
         )
+
+
+class JSONPlugin(NitpickPlugin):  # pylint: disable=too-few-public-methods
+    """Handle JSON files."""
+
+    @hookimpl
+    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
+        """Handle JSON files."""
+        self.base_file = JSONFile()
+        return self if "json" in tags else None

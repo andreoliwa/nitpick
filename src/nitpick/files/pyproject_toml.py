@@ -1,6 +1,9 @@
 """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
+from typing import Optional, Set
+
 from nitpick.app import Nitpick
 from nitpick.files.base import BaseFile
+from nitpick.plugin import NitpickPlugin, hookimpl
 from nitpick.typedefs import YieldFlake8Error
 
 
@@ -25,3 +28,13 @@ class PyProjectTomlFile(BaseFile):
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         return ""
+
+
+class PyProjectTomlPlugin(NitpickPlugin):  # pylint: disable=too-few-public-methods
+    """Handle pyproject.toml file."""
+
+    @hookimpl
+    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
+        """Handle pyproject.toml file."""
+        self.base_file = PyProjectTomlFile()
+        return self if filename == self.base_file.file_name else None

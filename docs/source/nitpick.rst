@@ -25,6 +25,7 @@ Submodules
    nitpick.constants
    nitpick.exceptions
    nitpick.fields
+   nitpick.flake8
    nitpick.formats
    nitpick.generic
    nitpick.mixin

@@ -152,7 +152,7 @@ def test_include_styles_overriding_values(offline, request):
 
 
 @pytest.mark.parametrize("offline", [False, True])
-@mock.patch("nitpick.plugin.NitpickChecker.version", new_callable=PropertyMock(return_value="0.5.3"))
+@mock.patch("nitpick.flake8.NitpickChecker.version", new_callable=PropertyMock(return_value="0.5.3"))
 def test_minimum_version(mocked_version, offline, request):
     """Stamp a style file with a minimum required version, to indicate new features or breaking changes."""
     assert_conditions(mocked_version == "0.5.3")

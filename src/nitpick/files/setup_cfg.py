@@ -1,11 +1,12 @@
 """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
 from configparser import ConfigParser
 from io import StringIO
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import dictdiffer
 
 from nitpick.files.base import BaseFile
+from nitpick.plugin import NitpickPlugin, hookimpl
 from nitpick.typedefs import YieldFlake8Error
 
 
@@ -113,3 +114,13 @@ class SetupCfgFile(BaseFile):
         config_parser.write(string_stream)
         output = string_stream.getvalue().strip()
         return output
+
+
+class SetupCfgPlugin(NitpickPlugin):  # pylint: disable=too-few-public-methods
+    """Handle setup.cfg files."""
+
+    @hookimpl
+    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
+        """Handle setup.cfg files."""
+        self.base_file = SetupCfgFile()
+        return self if filename == SetupCfgFile.file_name else None
