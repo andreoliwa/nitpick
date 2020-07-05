@@ -28,6 +28,7 @@ classifiers = [
 NIP = "nitpick.flake8:NitpickExtension"
 
 [tool.poetry.plugins.nitpick]
+text = "nitpick.plugins.text"
 json = "nitpick.plugins.json"
 pre_commit = "nitpick.plugins.pre_commit"
 setup_cfg = "nitpick.plugins.setup_cfg"
