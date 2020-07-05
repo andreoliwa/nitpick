@@ -3,7 +3,7 @@ from textwrap import dedent
 
 from testfixtures import compare
 
-from nitpick.files.pre_commit import PreCommitHook
+from nitpick.plugins.pre_commit import PreCommitHook
 from tests.helpers import ProjectMock
 
 

@@ -20,10 +20,10 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.files.base import BaseFile
-from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
+from nitpick.plugins.base import BaseFile
+from nitpick.plugins.pyproject_toml import PyProjectTomlFile
 from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList
 

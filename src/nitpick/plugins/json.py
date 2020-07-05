@@ -1,15 +1,15 @@
 """JSON files."""
 import json
 import logging
-from typing import Any, Dict, Optional, Set
+from typing import Optional, Set
 
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.files.base import BaseFile
 from nitpick.formats import JsonFormat
 from nitpick.generic import flatten, unflatten
-from nitpick.plugin import hookimpl
+from nitpick.plugins import hookimpl
+from nitpick.plugins.base import BaseFile
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
@@ -37,7 +37,6 @@ class JSONFile(BaseFile):
     Otherwise, a style validation error will be raised.
     """
 
-    has_multiple_files = True
     error_base_number = 340
 
     nested_field = JSONFileSchema
@@ -47,9 +46,8 @@ class JSONFile(BaseFile):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing keys and JSON content."""
-        for _ in self.multiple_files:
-            yield from self._check_contained_keys()
-            yield from self._check_contained_json()
+        yield from self._check_contained_keys()
+        yield from self._check_contained_json()
 
     def get_suggested_json(self, raw_actual: JsonDict = None) -> JsonDict:
         """Return the suggested JSON based on actual values."""
@@ -93,8 +91,6 @@ class JSONFile(BaseFile):
 
 
 @hookimpl
-def handle_config_file(  # pylint: disable=unused-argument
-    filename: str, tags: Set[str], config_dict: Dict[str, Any]
-) -> Optional["BaseFile"]:
+def handle_config_file(config: JsonDict, file_name: str, tags: Set[str]) -> Optional["BaseFile"]:
     """Handle JSON files."""
-    return JSONFile() if "json" in tags else None
+    return JSONFile(config, file_name) if "json" in tags else None

@@ -11,7 +11,7 @@ import click
 import pluggy
 from pluggy import PluginManager
 
-from nitpick import plugin
+from nitpick import plugins
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
 from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir, StyleError
 from nitpick.generic import climb_directory_tree
@@ -50,7 +50,7 @@ class Nitpick:  # pylint: disable=too-many-instance-attributes
         """Create a single application."""
         # pylint: disable=import-outside-toplevel
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
-        from nitpick.files.base import BaseFile
+        from nitpick.plugins.base import BaseFile
 
         app = cls()
         cls._current_app = app
@@ -73,7 +73,7 @@ class Nitpick:  # pylint: disable=too-many-instance-attributes
     def load_plugins() -> PluginManager:
         """Load all defined plugins."""
         plugin_manager = pluggy.PluginManager(PROJECT_NAME)
-        plugin_manager.add_hookspecs(plugin)
+        plugin_manager.add_hookspecs(plugins)
         plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
         return plugin_manager
 
@@ -89,8 +89,8 @@ class Nitpick:  # pylint: disable=too-many-instance-attributes
         Start from the current working dir.
         """
         # pylint: disable=import-outside-toplevel
-        from nitpick.files.pyproject_toml import PyProjectTomlFile
-        from nitpick.files.setup_cfg import SetupCfgFile
+        from nitpick.plugins.pyproject_toml import PyProjectTomlFile
+        from nitpick.plugins.setup_cfg import SetupCfgFile
 
         root_dirs = set()  # type: Set[Path]
         seen = set()  # type: Set[Path]

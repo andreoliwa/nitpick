@@ -10,10 +10,10 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.formats import TomlFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
+from nitpick.plugins.pyproject_toml import PyProjectTomlFile
 from nitpick.schemas import ToolNitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.style import Style
 from nitpick.typedefs import YieldFlake8Error

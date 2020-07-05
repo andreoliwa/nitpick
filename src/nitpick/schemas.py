@@ -7,8 +7,8 @@ from sortedcontainers import SortedDict
 
 from nitpick import fields
 from nitpick.constants import READ_THE_DOCS_URL
-from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.generic import flatten
+from nitpick.plugins.setup_cfg import SetupCfgFile
 
 
 def flatten_marshmallow_errors(errors: Dict) -> str:

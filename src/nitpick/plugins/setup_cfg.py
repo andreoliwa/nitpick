@@ -5,9 +5,9 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import dictdiffer
 
-from nitpick.files.base import BaseFile
-from nitpick.plugin import hookimpl
-from nitpick.typedefs import YieldFlake8Error
+from nitpick.plugins import hookimpl
+from nitpick.plugins.base import BaseFile
+from nitpick.typedefs import JsonDict, YieldFlake8Error
 
 
 class SetupCfgFile(BaseFile):
@@ -23,8 +23,8 @@ class SetupCfgFile(BaseFile):
     expected_sections = set()  # type: Set[str]
     missing_sections = set()  # type: Set[str]
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, config: JsonDict, file_name: str = None) -> None:
+        super().__init__(config, file_name)
         self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))  # type: Set[str]
 
     def suggest_initial_contents(self) -> str:
@@ -118,7 +118,7 @@ class SetupCfgFile(BaseFile):
 
 @hookimpl
 def handle_config_file(  # pylint: disable=unused-argument
-    filename: str, tags: Set[str], config_dict: Dict[str, Any]
+    config: JsonDict, file_name: str, tags: Set[str]
 ) -> Optional["BaseFile"]:
-    """Handle setup.cfg files."""
-    return SetupCfgFile() if filename == SetupCfgFile.file_name else None
+    """Handle the setup.cfg file."""
+    return SetupCfgFile(config) if file_name == SetupCfgFile.file_name else None

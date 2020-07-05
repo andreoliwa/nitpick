@@ -66,7 +66,7 @@ class NitpickChecker(NitpickMixin):
             # For each file name, find the plugin that can handle the file.
             tags = identify.tags_from_filename(path)
             for base_file in app.plugin_manager.hook.handle_config_file(  # pylint: disable=no-member
-                filename=path, tags=tags, config_dict=config_dict
+                config=config_dict, file_name=path, tags=tags
             ):
                 yield from base_file.check_exists()
 
