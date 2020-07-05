@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import dictdiffer
 
 from nitpick.files.base import BaseFile
-from nitpick.plugin import NitpickPlugin, hookimpl
+from nitpick.plugin import hookimpl
 from nitpick.typedefs import YieldFlake8Error
 
 
@@ -116,11 +116,9 @@ class SetupCfgFile(BaseFile):
         return output
 
 
-class SetupCfgPlugin(NitpickPlugin):  # pylint: disable=too-few-public-methods
+@hookimpl
+def handle_config_file(  # pylint: disable=unused-argument
+    filename: str, tags: Set[str], config_dict: Dict[str, Any]
+) -> Optional["BaseFile"]:
     """Handle setup.cfg files."""
-
-    @hookimpl
-    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
-        """Handle setup.cfg files."""
-        self.base_file = SetupCfgFile()
-        return self if filename == SetupCfgFile.file_name else None
+    return SetupCfgFile() if filename == SetupCfgFile.file_name else None

@@ -27,6 +27,12 @@ classifiers = [
 [tool.poetry.plugins."flake8.extension"]
 NIP = "nitpick.flake8:NitpickChecker"
 
+[tool.poetry.plugins.nitpick]
+json = "nitpick.files.json"
+pre_commit = "nitpick.files.pre_commit"
+setup_cfg = "nitpick.files.setup_cfg"
+pyproject_toml = "nitpick.files.pyproject_toml"
+
 [tool.poetry.dependencies]
 python = "^3.5 || ^3.6 || ^3.7 || ^3.8"
 flake8 = ">=3.0.0"

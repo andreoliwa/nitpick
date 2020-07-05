@@ -4,16 +4,13 @@ import logging
 from pathlib import Path
 
 import attr
-import pluggy
 from flake8.options.manager import OptionManager
 from identify import identify
-from pluggy import PluginManager
 
 from nitpick import __version__
 from nitpick.app import Nitpick
 from nitpick.constants import PROJECT_NAME
 from nitpick.mixin import NitpickMixin
-from nitpick.plugin import NitpickPlugin
 from nitpick.typedefs import YieldFlake8Error
 
 LOGGER = logging.getLogger(__name__)
@@ -60,45 +57,20 @@ class NitpickChecker(NitpickMixin):
         if has_errors:
             return []
 
-        plugin_manager = self.load_plugins()
-
         # Get all root keys from the style TOML.
-        for path in app.config.style_dict:
+        for path, config_dict in app.config.style_dict.items():
             # All except "nitpick" are file names.
             if path == PROJECT_NAME:
                 continue
 
             # For each file name, find the plugin that can handle the file.
             tags = identify.tags_from_filename(path)
-            for plugin in plugin_manager.hook.handle(  # pylint: disable=no-member
-                filename=path, tags=tags
-            ):  # type: NitpickPlugin
-                yield from plugin.base_file.check_exists()
+            for base_file in app.plugin_manager.hook.handle_config_file(  # pylint: disable=no-member
+                filename=path, tags=tags, config_dict=config_dict
+            ):
+                yield from base_file.check_exists()
 
         return []
-
-    @staticmethod
-    def load_plugins() -> PluginManager:
-        """Load all defined plugins."""
-        plugin_manager = pluggy.PluginManager(PROJECT_NAME)
-        plugin_manager.add_hookspecs(NitpickPlugin)
-
-        # pylint: disable=import-outside-toplevel
-        from nitpick.files.pyproject_toml import PyProjectTomlPlugin
-        from nitpick.files.setup_cfg import SetupCfgPlugin
-        from nitpick.files.pre_commit import PreCommitPlugin
-        from nitpick.files.json import JSONPlugin
-        from nitpick.files.text import TextPlugin
-
-        # FIXME: use entry points instead
-        # plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
-        plugin_manager.register(JSONPlugin())
-        plugin_manager.register(TextPlugin())
-        plugin_manager.register(PreCommitPlugin())
-        plugin_manager.register(SetupCfgPlugin())
-        plugin_manager.register(PyProjectTomlPlugin())
-
-        return plugin_manager
 
     def check_files(self, present: bool) -> YieldFlake8Error:
         """Check files that should be present or absent."""

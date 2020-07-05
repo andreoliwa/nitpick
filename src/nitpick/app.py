@@ -8,7 +8,10 @@ from shutil import rmtree
 from typing import TYPE_CHECKING, List, Set
 
 import click
+import pluggy
+from pluggy import PluginManager
 
+from nitpick import plugin
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
 from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir, StyleError
 from nitpick.generic import climb_directory_tree
@@ -20,7 +23,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class Nitpick:
+class Nitpick:  # pylint: disable=too-many-instance-attributes
     """The Nitpick application."""
 
     _current_app = None  # type: Nitpick
@@ -29,6 +32,7 @@ class Nitpick:
     cache_dir = None  # type: Path
     main_python_file = None  # type: Path
     config = None  # type: Config
+    plugin_manager = None  # type: PluginManager
 
     class Flags(Enum):
         """Flags to be used with flake8 CLI."""
@@ -58,11 +62,20 @@ class Nitpick:
 
             app.main_python_file = app.find_main_python_file()
             app.config = Config()
+            app.plugin_manager = app.load_plugins()
             BaseFile.load_fixed_dynamic_classes()
         except (NoRootDir, NoPythonFile) as err:
             app.init_errors.append(err)
 
         return app
+
+    @staticmethod
+    def load_plugins() -> PluginManager:
+        """Load all defined plugins."""
+        plugin_manager = pluggy.PluginManager(PROJECT_NAME)
+        plugin_manager.add_hookspecs(plugin)
+        plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
+        return plugin_manager
 
     @classmethod
     def current_app(cls):

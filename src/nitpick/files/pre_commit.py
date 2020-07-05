@@ -7,7 +7,7 @@ import attr
 from nitpick.files.base import BaseFile
 from nitpick.formats import TomlFormat, YamlFormat
 from nitpick.generic import find_object_by_key, search_dict
-from nitpick.plugin import NitpickPlugin, hookimpl
+from nitpick.plugin import hookimpl
 from nitpick.typedefs import JsonDict, YamlData, YieldFlake8Error
 
 KEY_REPOS = "repos"
@@ -190,11 +190,10 @@ class PreCommitFile(BaseFile):
         return "\n".join(output)
 
 
-class PreCommitPlugin(NitpickPlugin):  # pylint: disable=too-few-public-methods
+@hookimpl
+def handle_config_file(  # pylint: disable=unused-argument
+    filename: str, tags: Set[str], config_dict: Dict[str, Any]
+) -> Optional["BaseFile"]:
     """Handle pre-commit config file."""
-
-    @hookimpl
-    def handle(self, filename: str, tags: Set[str]) -> Optional[NitpickPlugin]:
-        """Handle pre-commit config file."""
-        self.base_file = PreCommitFile()
-        return self if filename == TomlFormat.group_name_for(self.base_file.file_name) else None
+    base_file = PreCommitFile()
+    return base_file if filename == TomlFormat.group_name_for(base_file.file_name) else None

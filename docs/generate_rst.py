@@ -21,7 +21,6 @@ from nitpick.files.json import JSONFile
 from nitpick.files.pre_commit import PreCommitFile
 from nitpick.files.pyproject_toml import PyProjectTomlFile
 from nitpick.files.setup_cfg import SetupCfgFile
-from nitpick.files.text import TextFile
 from nitpick.generic import get_subclasses
 
 style_mapping = SortedDict(
@@ -48,7 +47,7 @@ style_mapping = SortedDict(
         "python37.toml": "Python 3.7",
     }
 )
-file_classes = [PyProjectTomlFile, SetupCfgFile, PreCommitFile, JSONFile, TextFile]
+file_classes = [PyProjectTomlFile, SetupCfgFile, PreCommitFile, JSONFile]
 
 divider = ".. auto-generated-from-here"
 docs_dir = Path(__file__).parent.absolute()  # type: Path

@@ -41,7 +41,6 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
 
     def __init__(self, filename: str = None) -> None:
         if filename is not None:
-            # FIXME: Hack to keep using BaseFile while migrating to the plugin architecture
             self.has_multiple_files = False
             self.file_name = filename
 
@@ -65,6 +64,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
 
     def _set_current_data(self, file_name: str) -> None:
         """Set data for the current file name, either if there are multiple or single files."""
+        # FIXME: Remove this hacky function, also remove has_multiple_files and _multiple_files
         if self.has_multiple_files:
             self.file_name = file_name
 
