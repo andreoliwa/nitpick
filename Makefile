@@ -73,7 +73,7 @@ endif
 .PHONY: test
 
 pytest: src/nitpick.egg-info # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
-	poetry run pytest
+	poetry run python -m pytest
 .PHONY: pytest
 
 doc .cache/make/doc: docs/*/* styles/*/* *.rst *.md # Build documentation only
