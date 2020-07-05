@@ -37,6 +37,10 @@ pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hook
 	touch .cache/make/long-pre-commit
 .PHONY: pre-commit
 
+# Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
+src/nitpick.egg-info:
+	poetry install
+
 poetry .cache/make/long-poetry: pyproject.toml # Update dependencies
 	poetry update
 	poetry install
@@ -68,7 +72,7 @@ endif
 	touch .cache/make/test
 .PHONY: test
 
-pytest: # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
+pytest: src/nitpick.egg-info # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
 	poetry run pytest
 .PHONY: pytest
 
