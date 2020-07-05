@@ -25,7 +25,13 @@ classifiers = [
 ]
 
 [tool.poetry.plugins."flake8.extension"]
-NIP = "nitpick.plugin:NitpickChecker"
+NIP = "nitpick.flake8:NitpickExtension"
+
+[tool.poetry.plugins.nitpick]
+json = "nitpick.plugins.json"
+pre_commit = "nitpick.plugins.pre_commit"
+setup_cfg = "nitpick.plugins.setup_cfg"
+pyproject_toml = "nitpick.plugins.pyproject_toml"
 
 [tool.poetry.dependencies]
 python = "^3.5 || ^3.6 || ^3.7 || ^3.8"
@@ -45,6 +51,9 @@ marshmallow = {version = ">=3.0.0b10"}
 # Pin to avoid error on "flake8 ." when there is an invalid TOML style:
 # TypeError: _deserialize() got an unexpected keyword argument 'partial'
 marshmallow-polyfield = "^5.7"
+identify = "*"
+"more-itertools" = "*"
+pluggy = "*"
 
 pylint = {version = "*", optional = true}
 pytest = {version = "*", optional = true}

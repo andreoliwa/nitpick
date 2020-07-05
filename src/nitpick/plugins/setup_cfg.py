@@ -1,12 +1,13 @@
 """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
 from configparser import ConfigParser
 from io import StringIO
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import dictdiffer
 
-from nitpick.files.base import BaseFile
-from nitpick.typedefs import YieldFlake8Error
+from nitpick.plugins import hookimpl
+from nitpick.plugins.base import BaseFile
+from nitpick.typedefs import JsonDict, YieldFlake8Error
 
 
 class SetupCfgFile(BaseFile):
@@ -22,8 +23,8 @@ class SetupCfgFile(BaseFile):
     expected_sections = set()  # type: Set[str]
     missing_sections = set()  # type: Set[str]
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, config: JsonDict, file_name: str = None) -> None:
+        super().__init__(config, file_name)
         self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))  # type: Set[str]
 
     def suggest_initial_contents(self) -> str:
@@ -113,3 +114,11 @@ class SetupCfgFile(BaseFile):
         config_parser.write(string_stream)
         output = string_stream.getvalue().strip()
         return output
+
+
+@hookimpl
+def handle_config_file(  # pylint: disable=unused-argument
+    config: JsonDict, file_name: str, tags: Set[str]
+) -> Optional["BaseFile"]:
+    """Handle the setup.cfg file."""
+    return SetupCfgFile(config) if file_name == SetupCfgFile.file_name else None

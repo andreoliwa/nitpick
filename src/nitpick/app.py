@@ -8,7 +8,10 @@ from shutil import rmtree
 from typing import TYPE_CHECKING, List, Set
 
 import click
+import pluggy
+from pluggy import PluginManager
 
+from nitpick import plugins
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
 from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir, StyleError
 from nitpick.generic import climb_directory_tree
@@ -20,15 +23,16 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class Nitpick:
+class NitpickApp:  # pylint: disable=too-many-instance-attributes
     """The Nitpick application."""
 
-    _current_app = None  # type: Nitpick
+    _current_app = None  # type: NitpickApp
 
     root_dir = None  # type: Path
     cache_dir = None  # type: Path
     main_python_file = None  # type: Path
     config = None  # type: Config
+    plugin_manager = None  # type: PluginManager
 
     class Flags(Enum):
         """Flags to be used with flake8 CLI."""
@@ -42,11 +46,11 @@ class Nitpick:
         self.offline = False
 
     @classmethod
-    def create_app(cls, offline=False) -> "Nitpick":
+    def create_app(cls, offline=False) -> "NitpickApp":
         """Create a single application."""
         # pylint: disable=import-outside-toplevel
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
-        from nitpick.files.base import BaseFile
+        from nitpick.plugins.base import BaseFile
 
         app = cls()
         cls._current_app = app
@@ -58,14 +62,23 @@ class Nitpick:
 
             app.main_python_file = app.find_main_python_file()
             app.config = Config()
+            app.plugin_manager = app.load_plugins()
             BaseFile.load_fixed_dynamic_classes()
         except (NoRootDir, NoPythonFile) as err:
             app.init_errors.append(err)
 
         return app
 
+    @staticmethod
+    def load_plugins() -> PluginManager:
+        """Load all defined plugins."""
+        plugin_manager = pluggy.PluginManager(PROJECT_NAME)
+        plugin_manager.add_hookspecs(plugins)
+        plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
+        return plugin_manager
+
     @classmethod
-    def current_app(cls):
+    def current(cls):
         """Get the current app from the stack."""
         return cls._current_app
 
@@ -76,8 +89,8 @@ class Nitpick:
         Start from the current working dir.
         """
         # pylint: disable=import-outside-toplevel
-        from nitpick.files.pyproject_toml import PyProjectTomlFile
-        from nitpick.files.setup_cfg import SetupCfgFile
+        from nitpick.plugins.pyproject_toml import PyProjectTomlFile
+        from nitpick.plugins.setup_cfg import SetupCfgFile
 
         root_dirs = set()  # type: Set[Path]
         seen = set()  # type: Set[Path]
@@ -162,7 +175,7 @@ class Nitpick:
             else ""
         )
 
-        from nitpick.plugin import NitpickChecker  # pylint: disable=import-outside-toplevel
+        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
 
         return (
             0,
@@ -174,7 +187,7 @@ class Nitpick:
                 nitpick_error.message.rstrip(),
                 suggestion_with_newline,
             ),
-            NitpickChecker,
+            NitpickExtension,
         )
 
     def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:

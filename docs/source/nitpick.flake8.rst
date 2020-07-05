@@ -1,7 +1,7 @@
-nitpick.plugin module
+nitpick.flake8 module
 =====================
 
-.. automodule:: nitpick.plugin
+.. automodule:: nitpick.flake8
    :members:
    :undoc-members:
    :show-inheritance:

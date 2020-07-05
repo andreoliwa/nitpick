@@ -7,8 +7,8 @@ from sortedcontainers import SortedDict
 
 from nitpick import fields
 from nitpick.constants import READ_THE_DOCS_URL
-from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.generic import flatten
+from nitpick.plugins.setup_cfg import SetupCfgFile
 
 
 def flatten_marshmallow_errors(errors: Dict) -> str:
@@ -77,8 +77,8 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
 
     error_messages = {"unknown": help_message("Unknown file", "nitpick_section.html#nitpick-files")}
 
-    absent = fields.Dict(fields.FilledString, fields.String())
-    present = fields.Dict(fields.FilledString, fields.String())
+    absent = fields.Dict(fields.NonEmptyString, fields.String())
+    present = fields.Dict(fields.NonEmptyString, fields.String())
     # TODO: load this schema dynamically, then add this next field setup_cfg
     setup_cfg = fields.Nested(SetupCfgSchema, data_key=SetupCfgFile.file_name)
 
@@ -86,7 +86,7 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
 class NitpickSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick]`` section on the style file."""
 
-    minimum_version = fields.FilledString()
+    minimum_version = fields.NonEmptyString()
     styles = fields.Nested(NitpickStylesSectionSchema)
     files = fields.Nested(NitpickFilesSectionSchema)
     # TODO: load this schema dynamically, then add this next field JSONFile

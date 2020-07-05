@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING, List, Set
 from _pytest.fixtures import FixtureRequest
 from testfixtures import compare
 
-from nitpick.app import Nitpick
+from nitpick.app import NitpickApp
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
-from nitpick.files.pre_commit import PreCommitFile
-from nitpick.files.pyproject_toml import PyProjectTomlFile
-from nitpick.files.setup_cfg import SetupCfgFile
+from nitpick.flake8 import NitpickExtension
 from nitpick.formats import TomlFormat
-from nitpick.plugin import NitpickChecker
+from nitpick.plugins.pre_commit import PreCommitFile
+from nitpick.plugins.pyproject_toml import PyProjectTomlFile
+from nitpick.plugins.setup_cfg import SetupCfgFile
 from nitpick.typedefs import PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
 
@@ -76,15 +76,15 @@ class ProjectMock:
         - Lint one of the project files. If no index is provided, use the default file that's always created.
         """
         os.chdir(str(self.root_dir))
-        Nitpick.create_app(offline)
+        NitpickApp.create_app(offline)
 
-        npc = NitpickChecker(filename=str(self.files_to_lint[file_index]))
+        npc = NitpickExtension(filename=str(self.files_to_lint[file_index]))
         self._original_errors = list(npc.run())
 
         self._errors = set()
         for flake8_error in self._original_errors:
             line, col, message, class_ = flake8_error
-            if not (line == 0 and col == 0 and message.startswith(ERROR_PREFIX) and class_ is NitpickChecker):
+            if not (line == 0 and col == 0 and message.startswith(ERROR_PREFIX) and class_ is NitpickExtension):
                 raise AssertionError()
             self._errors.add(message)
         return self

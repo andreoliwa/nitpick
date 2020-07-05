@@ -12,7 +12,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   nitpick.files
+   nitpick.plugins
 
 Submodules
 ----------
@@ -25,10 +25,10 @@ Submodules
    nitpick.constants
    nitpick.exceptions
    nitpick.fields
+   nitpick.flake8
    nitpick.formats
    nitpick.generic
    nitpick.mixin
-   nitpick.plugin
    nitpick.schemas
    nitpick.style
    nitpick.typedefs

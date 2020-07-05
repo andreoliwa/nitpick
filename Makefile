@@ -13,9 +13,13 @@ help:
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
 
-clean: # Clean all build output (cache, tox, coverage)
-	rm -rf .cache .mypy_cache .pytest_cache .tox docs/_build src/*.egg-info .coverage htmlcov/
+clean: clean-test # Clean all build output (cache, tox, coverage)
+	rm -rf .cache .mypy_cache docs/_build src/*.egg-info
 .PHONY: clean
+
+clean-test: # Clean test output
+	rm -rf .pytest_cache .tox .coverage htmlcov/
+.PHONY: clean-test
 
 # Remove cache files if they are older than the configured time, so the targets will be rebuilt
 # "fd" is a faster alternative to "find": https://github.com/sharkdp/fd
@@ -25,12 +29,17 @@ always-run:
 .PHONY: always-run
 
 pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install pre-commit hooks
-	pre-commit autoupdate
+# TODO: isort 5.0.0 is apparently broken, so we can't autoupdate for now
+#	pre-commit autoupdate
 	pre-commit install --install-hooks
 	pre-commit install --hook-type commit-msg
 	pre-commit gc
 	touch .cache/make/long-pre-commit
 .PHONY: pre-commit
+
+# Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
+src/nitpick.egg-info/entry_points.txt: pyproject.toml
+	poetry install
 
 poetry .cache/make/long-poetry: pyproject.toml # Update dependencies
 	poetry update
@@ -62,6 +71,10 @@ else
 endif
 	touch .cache/make/test
 .PHONY: test
+
+pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
+	poetry run python -m pytest
+.PHONY: pytest
 
 doc .cache/make/doc: docs/*/* styles/*/* *.rst *.md # Build documentation only
 	@rm -rf docs/source

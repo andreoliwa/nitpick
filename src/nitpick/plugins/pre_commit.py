@@ -1,12 +1,13 @@
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 from collections import OrderedDict
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import attr
 
-from nitpick.files.base import BaseFile
-from nitpick.formats import YamlFormat
+from nitpick.formats import TomlFormat, YamlFormat
 from nitpick.generic import find_object_by_key, search_dict
+from nitpick.plugins import hookimpl
+from nitpick.plugins.base import BaseFile
 from nitpick.typedefs import JsonDict, YamlData, YieldFlake8Error
 
 KEY_REPOS = "repos"
@@ -187,3 +188,12 @@ class PreCommitFile(BaseFile):
             else:
                 output.append("    {}".format(line))
         return "\n".join(output)
+
+
+@hookimpl
+def handle_config_file(  # pylint: disable=unused-argument
+    config: JsonDict, file_name: str, tags: Set[str]
+) -> Optional["BaseFile"]:
+    """Handle pre-commit config file."""
+    base_file = PreCommitFile(config)
+    return base_file if file_name == TomlFormat.group_name_for(base_file.file_name) else None

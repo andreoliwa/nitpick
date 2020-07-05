@@ -1,13 +1,15 @@
 """JSON files."""
 import json
 import logging
+from typing import Optional, Set
 
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.files.base import BaseFile
 from nitpick.formats import JsonFormat
 from nitpick.generic import flatten, unflatten
+from nitpick.plugins import hookimpl
+from nitpick.plugins.base import BaseFile
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
@@ -19,8 +21,8 @@ LOGGER = logging.getLogger(__name__)
 class JSONFileSchema(BaseNitpickSchema):
     """Validation schema for any JSON file added to the style."""
 
-    contains_keys = fields.List(fields.FilledString)
-    contains_json = fields.Dict(fields.FilledString, fields.JSONString)
+    contains_keys = fields.List(fields.NonEmptyString)
+    contains_json = fields.Dict(fields.NonEmptyString, fields.JSONString)
 
 
 class JSONFile(BaseFile):
@@ -35,18 +37,17 @@ class JSONFile(BaseFile):
     Otherwise, a style validation error will be raised.
     """
 
-    has_multiple_files = True
     error_base_number = 340
 
     nested_field = JSONFileSchema
+    identify_tags = {"json"}
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing keys and JSON content."""
-        for _ in self.multiple_files:
-            yield from self._check_contained_keys()
-            yield from self._check_contained_json()
+        yield from self._check_contained_keys()
+        yield from self._check_contained_json()
 
     def get_suggested_json(self, raw_actual: JsonDict = None) -> JsonDict:
         """Return the suggested JSON based on actual values."""
@@ -87,3 +88,9 @@ class JSONFile(BaseFile):
         yield from self.warn_missing_different(
             JsonFormat(data=actual_fmt.as_data).compare_with_dictdiffer(expected, unflatten)
         )
+
+
+@hookimpl
+def handle_config_file(config: JsonDict, file_name: str, tags: Set[str]) -> Optional["BaseFile"]:
+    """Handle JSON files."""
+    return JSONFile(config, file_name) if "json" in tags else None

@@ -5,12 +5,11 @@ from pathlib import Path
 
 import attr
 from flake8.options.manager import OptionManager
+from identify import identify
 
 from nitpick import __version__
-from nitpick.app import Nitpick
+from nitpick.app import NitpickApp
 from nitpick.constants import PROJECT_NAME
-from nitpick.files.base import BaseFile
-from nitpick.generic import get_subclasses
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import YieldFlake8Error
 
@@ -18,8 +17,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 @attr.s(hash=False)
-class NitpickChecker(NitpickMixin):
-    """Main plugin class."""
+class NitpickExtension(NitpickMixin):
+    """Main class for the flake8 extension."""
 
     # Plugin config
     name = PROJECT_NAME
@@ -35,33 +34,41 @@ class NitpickChecker(NitpickMixin):
     def run(self) -> YieldFlake8Error:
         """Run the check plugin."""
         has_errors = False
-        for err in Nitpick.current_app().init_errors:
+        app = NitpickApp.current()
+        for err in app.init_errors:
             has_errors = True
-            yield Nitpick.as_flake8_warning(err)
+            yield NitpickApp.as_flake8_warning(err)
         if has_errors:
             return []
 
         current_python_file = Path(self.filename)
-        if current_python_file.absolute() != Nitpick.current_app().main_python_file.absolute():
+        if current_python_file.absolute() != app.main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
             LOGGER.debug("Ignoring file: %s", self.filename)
             return []
         LOGGER.debug("Nitpicking file: %s", self.filename)
 
-        yield from itertools.chain(
-            Nitpick.current_app().config.merge_styles(), self.check_files(True), self.check_files(False)
-        )
+        yield from itertools.chain(app.config.merge_styles(), self.check_files(True), self.check_files(False))
 
         has_errors = False
-        for err in Nitpick.current_app().style_errors:
+        for err in app.style_errors:
             has_errors = True
-            yield Nitpick.as_flake8_warning(err)
+            yield NitpickApp.as_flake8_warning(err)
         if has_errors:
             return []
 
-        for checker_class in get_subclasses(BaseFile):
-            checker = checker_class()
-            yield from checker.check_exists()
+        # Get all root keys from the style TOML.
+        for path, config_dict in app.config.style_dict.items():
+            # All except "nitpick" are file names.
+            if path == PROJECT_NAME:
+                continue
+
+            # For each file name, find the plugin that can handle the file.
+            tags = identify.tags_from_filename(path)
+            for base_file in app.plugin_manager.hook.handle_config_file(  # pylint: disable=no-member
+                config=config_dict, file_name=path, tags=tags
+            ):
+                yield from base_file.check_exists()
 
         return []
 
@@ -70,8 +77,8 @@ class NitpickChecker(NitpickMixin):
         key = "present" if present else "absent"
         message = "exist" if present else "be deleted"
         absent = not present
-        for file_name, extra_message in Nitpick.current_app().config.nitpick_files_section.get(key, {}).items():
-            file_path = Nitpick.current_app().root_dir / file_name  # type: Path
+        for file_name, extra_message in NitpickApp.current().config.nitpick_files_section.get(key, {}).items():
+            file_path = NitpickApp.current().root_dir / file_name  # type: Path
             exists = file_path.exists()
             if (present and exists) or (absent and not exists):
                 continue
@@ -86,10 +93,10 @@ class NitpickChecker(NitpickMixin):
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(
-            Nitpick.format_flag(Nitpick.Flags.OFFLINE),
+            NitpickApp.format_flag(NitpickApp.Flags.OFFLINE),
             action="store_true",
             # dest="offline",
-            help=Nitpick.Flags.OFFLINE.value,
+            help=NitpickApp.Flags.OFFLINE.value,
         )
 
     @staticmethod
@@ -101,5 +108,5 @@ class NitpickChecker(NitpickMixin):
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        Nitpick.create_app(offline=bool(options.nitpick_offline or Nitpick.get_env(Nitpick.Flags.OFFLINE)))
-        LOGGER.info("Offline mode: %s", Nitpick.current_app().offline)
+        NitpickApp.create_app(offline=bool(options.nitpick_offline or NitpickApp.get_env(NitpickApp.Flags.OFFLINE)))
+        LOGGER.info("Offline mode: %s", NitpickApp.current().offline)

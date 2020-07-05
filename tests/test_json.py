@@ -145,7 +145,7 @@ def test_json_file_with_extra_keys(request):
     ).flake8().assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
-        "their.json": Unknown file. See https://nitpick.rtfd.io/en/latest/config_files.html.
+        "their.json".x: Unknown configuration. See https://nitpick.rtfd.io/en/latest/nitpick_section.html.
         "your.json".has: Unknown configuration. See https://nitpick.rtfd.io/en/latest/nitpick_section.html.\x1b[0m
         """,
         1,

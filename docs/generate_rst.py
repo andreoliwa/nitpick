@@ -16,12 +16,12 @@ from slugify import slugify
 from sortedcontainers import SortedDict
 
 from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
-from nitpick.files.base import BaseFile
-from nitpick.files.json import JSONFile
-from nitpick.files.pre_commit import PreCommitFile
-from nitpick.files.pyproject_toml import PyProjectTomlFile
-from nitpick.files.setup_cfg import SetupCfgFile
 from nitpick.generic import get_subclasses
+from nitpick.plugins.base import BaseFile
+from nitpick.plugins.json import JSONFile
+from nitpick.plugins.pre_commit import PreCommitFile
+from nitpick.plugins.pyproject_toml import PyProjectTomlFile
+from nitpick.plugins.setup_cfg import SetupCfgFile
 
 style_mapping = SortedDict(
     {

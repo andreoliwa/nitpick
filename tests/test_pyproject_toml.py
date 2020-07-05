@@ -1,5 +1,5 @@
 """pyproject.toml tests."""
-from nitpick.files.pyproject_toml import PyProjectTomlFile
+from nitpick.plugins.pyproject_toml import PyProjectTomlFile
 from tests.helpers import ProjectMock
 
 
