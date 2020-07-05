@@ -1,7 +1,7 @@
 """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
 from typing import Optional, Set
 
-from nitpick.app import Nitpick
+from nitpick.app import NitpickApp
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import BaseFile
 from nitpick.typedefs import JsonDict, YieldFlake8Error
@@ -21,8 +21,8 @@ class PyProjectTomlFile(BaseFile):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing key/value pairs in pyproject.toml."""
-        if Nitpick.current_app().config.pyproject_toml:
-            comparison = Nitpick.current_app().config.pyproject_toml.compare_with_flatten(self.file_dict)
+        if NitpickApp.current().config.pyproject_toml:
+            comparison = NitpickApp.current().config.pyproject_toml.compare_with_flatten(self.file_dict)
             yield from self.warn_missing_different(comparison)
 
     def suggest_initial_contents(self) -> str:

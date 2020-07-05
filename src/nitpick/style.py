@@ -12,7 +12,7 @@ from slugify import slugify
 from toml import TomlDecodeError
 
 from nitpick import __version__, fields
-from nitpick.app import Nitpick
+from nitpick.app import NitpickApp
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
@@ -52,7 +52,7 @@ class Style:
             chosen_styles = configured_styles
             log_message = "Styles configured in {}: %s".format(PyProjectTomlFile.file_name)
         else:
-            paths = climb_directory_tree(Nitpick.current_app().root_dir, [NITPICK_STYLE_TOML])
+            paths = climb_directory_tree(NitpickApp.current().root_dir, [NITPICK_STYLE_TOML])
             if paths:
                 chosen_styles = str(sorted(paths)[0])
                 log_message = "Found style climbing the directory tree: %s"
@@ -68,7 +68,7 @@ class Style:
         self.rebuild_dynamic_schema(original_data)
         style_errors = self._dynamic_schema_class().validate(original_data)
         if style_errors:
-            Nitpick.current_app().add_style_error(
+            NitpickApp.current().add_style_error(
                 style_file_name, "Invalid config:", flatten_marshmallow_errors(style_errors)
             )
 
@@ -84,12 +84,12 @@ class Style:
             try:
                 toml_dict = toml.as_data
             except TomlDecodeError as err:
-                Nitpick.current_app().add_style_error(style_path.name, pretty_exception(err, "Invalid TOML"))
+                NitpickApp.current().add_style_error(style_path.name, pretty_exception(err, "Invalid TOML"))
                 # If the TOML itself could not be parsed, we can't go on
                 return
 
             try:
-                display_name = str(style_path.relative_to(Nitpick.current_app().root_dir))
+                display_name = str(style_path.relative_to(NitpickApp.current().root_dir))
             except ValueError:
                 display_name = style_uri
             self.validate_style(display_name, toml_dict)
@@ -112,7 +112,7 @@ class Style:
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
-        if Nitpick.current_app().offline:
+        if NitpickApp.current().offline:
             # No style will be fetched in offline mode
             return None
 
@@ -131,7 +131,7 @@ class Style:
         if new_url in self._already_included:
             return None
 
-        if not Nitpick.current_app().cache_dir:
+        if not NitpickApp.current().cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
         try:
@@ -139,7 +139,7 @@ class Style:
         except requests.ConnectionError:
             click.secho(
                 "Your network is unreachable. Fix your connection or use {} / {}=1".format(
-                    Nitpick.format_flag(Nitpick.Flags.OFFLINE), Nitpick.format_env(Nitpick.Flags.OFFLINE)
+                    NitpickApp.format_flag(NitpickApp.Flags.OFFLINE), NitpickApp.format_env(NitpickApp.Flags.OFFLINE)
                 ),
                 fg="red",
                 err=True,
@@ -153,8 +153,8 @@ class Style:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = Nitpick.current_app().cache_dir / "{}.toml".format(slugify(new_url))
-        Nitpick.current_app().cache_dir.mkdir(parents=True, exist_ok=True)
+        style_path = NitpickApp.current().cache_dir / "{}.toml".format(slugify(new_url))
+        NitpickApp.current().cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
         LOGGER.info("Loading style from URL %s into %s", new_url, style_path)
@@ -191,7 +191,7 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        app = Nitpick.current_app()
+        app = NitpickApp.current()
         if not app.cache_dir:
             return {}
         merged_dict = self._all_styles.merge()

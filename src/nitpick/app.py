@@ -23,10 +23,10 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class Nitpick:  # pylint: disable=too-many-instance-attributes
+class NitpickApp:  # pylint: disable=too-many-instance-attributes
     """The Nitpick application."""
 
-    _current_app = None  # type: Nitpick
+    _current_app = None  # type: NitpickApp
 
     root_dir = None  # type: Path
     cache_dir = None  # type: Path
@@ -46,7 +46,7 @@ class Nitpick:  # pylint: disable=too-many-instance-attributes
         self.offline = False
 
     @classmethod
-    def create_app(cls, offline=False) -> "Nitpick":
+    def create_app(cls, offline=False) -> "NitpickApp":
         """Create a single application."""
         # pylint: disable=import-outside-toplevel
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
@@ -78,7 +78,7 @@ class Nitpick:  # pylint: disable=too-many-instance-attributes
         return plugin_manager
 
     @classmethod
-    def current_app(cls):
+    def current(cls):
         """Get the current app from the stack."""
         return cls._current_app
 
@@ -175,7 +175,7 @@ class Nitpick:  # pylint: disable=too-many-instance-attributes
             else ""
         )
 
-        from nitpick.flake8 import NitpickChecker  # pylint: disable=import-outside-toplevel
+        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
 
         return (
             0,
@@ -187,7 +187,7 @@ class Nitpick:  # pylint: disable=too-many-instance-attributes
                 nitpick_error.message.rstrip(),
                 suggestion_with_newline,
             ),
-            NitpickChecker,
+            NitpickExtension,
         )
 
     def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:

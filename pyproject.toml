@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 [tool.poetry.plugins."flake8.extension"]
-NIP = "nitpick.flake8:NitpickChecker"
+NIP = "nitpick.flake8:NitpickExtension"
 
 [tool.poetry.plugins.nitpick]
 json = "nitpick.plugins.json"

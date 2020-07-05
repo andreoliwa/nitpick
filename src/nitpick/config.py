@@ -2,7 +2,7 @@
 import logging
 from typing import TYPE_CHECKING, Optional
 
-from nitpick.app import Nitpick
+from nitpick.app import NitpickApp
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_MINIMUM_VERSION_JMEX,
@@ -40,13 +40,13 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
 
     def validate_pyproject_tool_nitpick(self) -> bool:
         """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
-        pyproject_path = Nitpick.current_app().root_dir / PyProjectTomlFile.file_name  # type: Path
+        pyproject_path = NitpickApp.current().root_dir / PyProjectTomlFile.file_name  # type: Path
         if pyproject_path.exists():
             self.pyproject_toml = TomlFormat(path=pyproject_path)
             self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
             pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
             if pyproject_errors:
-                Nitpick.current_app().add_style_error(
+                NitpickApp.current().add_style_error(
                     PyProjectTomlFile.file_name,
                     "Invalid data in [{}]:".format(TOOL_NITPICK),
                     flatten_marshmallow_errors(pyproject_errors),
@@ -65,18 +65,18 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
         style.find_initial_styles(configured_styles)
 
         self.style_dict = style.merge_toml_dict()
-        if not Nitpick.current_app().style_errors:
+        if not NitpickApp.current().style_errors:
             # Don't show duplicated errors: if there are style errors already, don't validate the merged style.
             style.validate_style(MERGED_STYLE_TOML, self.style_dict)
 
-        from nitpick.flake8 import NitpickChecker  # pylint: disable=import-outside-toplevel
+        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
-        if minimum_version and version_to_tuple(NitpickChecker.version) < version_to_tuple(minimum_version):
+        if minimum_version and version_to_tuple(NitpickExtension.version) < version_to_tuple(minimum_version):
             yield self.flake8_error(
                 3,
                 "The style file you're using requires {}>={}".format(PROJECT_NAME, minimum_version)
-                + " (you have {}). Please upgrade".format(NitpickChecker.version),
+                + " (you have {}). Please upgrade".format(NitpickExtension.version),
             )
 
         self.nitpick_section = self.style_dict.get("nitpick", {})

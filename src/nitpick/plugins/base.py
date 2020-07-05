@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional, Set, Type
 
 import jmespath
 
-from nitpick.app import Nitpick
+from nitpick.app import NitpickApp
 from nitpick.formats import TomlFormat
 from nitpick.generic import get_subclasses, search_dict
 from nitpick.mixin import NitpickMixin
@@ -28,6 +28,9 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     fixed_name_classes = set()  # type: Set[Type[BaseFile]]
     dynamic_name_classes = set()  # type: Set[Type[BaseFile]]
 
+    # TODO: This info is duplicated. Use the value passed on the hook spec, and remove this attribute.
+    #  For this to work, validation and dynamic schema have to be done in a different way
+    #  (maybe NOT using dynamic schemas)
     #: Which :py:package:`identify` tags this :py:class:`nitpick.files.base.BaseFile` child recognises.
     identify_tags = set()  # type: Set[str]
 
@@ -36,14 +39,14 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             self.file_name = file_name
 
         self.error_prefix = "File {}".format(self.file_name)
-        self.file_path = Nitpick.current_app().root_dir / self.file_name  # type: Path
+        self.file_path = NitpickApp.current().root_dir / self.file_name  # type: Path
 
         # Configuration for this file as a TOML dict, taken from the style file.
         self.file_dict = config or {}  # type: JsonDict
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
         self.nitpick_file_dict = search_dict(
-            'files."{}"'.format(self.file_name), Nitpick.current_app().config.nitpick_section, {}
+            'files."{}"'.format(self.file_name), NitpickApp.current().config.nitpick_section, {}
         )  # type: JsonDict
 
     @classmethod
@@ -65,7 +68,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     def check_exists(self) -> YieldFlake8Error:
         """Check if the file should exist."""
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-        should_exist = Nitpick.current_app().config.nitpick_files_section.get(
+        should_exist = NitpickApp.current().config.nitpick_files_section.get(
             TomlFormat.group_name_for(self.file_name), True
         )  # type: bool
         file_exists = self.file_path.exists()
@@ -73,7 +76,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
         if config_data_exists and not file_exists:
             suggestion = self.suggest_initial_contents()
             phrases = [" was not found"]
-            message = Nitpick.current_app().config.nitpick_files_section.get(self.file_name)
+            message = NitpickApp.current().config.nitpick_files_section.get(self.file_name)
             if message and isinstance(message, str):
                 phrases.append(message)
             if suggestion:
@@ -81,7 +84,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
             yield self.flake8_error(1, ". ".join(phrases), suggestion)
         elif not should_exist and file_exists:
             # Only display this message if the style is valid.
-            if not Nitpick.current_app().style_errors:
+            if not NitpickApp.current().style_errors:
                 yield self.flake8_error(2, " should be deleted")
         elif file_exists and config_data_exists:
             yield from self.check_rules()
