@@ -20,7 +20,6 @@ class TextFile(BaseFile):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check rules for this file. It should be overridden by inherited classes if needed."""
-        return []
 
 
 @hookimpl

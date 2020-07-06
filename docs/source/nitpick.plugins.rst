@@ -17,3 +17,4 @@ Submodules
    nitpick.plugins.pre_commit
    nitpick.plugins.pyproject_toml
    nitpick.plugins.setup_cfg
+   nitpick.plugins.text
