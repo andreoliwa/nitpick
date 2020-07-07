@@ -250,13 +250,13 @@ class Style:
                 for configured_file_name in search_dict(jmex, data, []):
                     new_files_found.update(self.file_field_pair(configured_file_name, subclass))
 
-            self._find_sublcasses(data, handled_tags, new_files_found)
+            self._find_subclasses(data, handled_tags, new_files_found)
 
         # Only recreate the schema if new fields were found.
         if new_files_found:
             self._dynamic_schema_class = type("DynamicStyleSchema", (self._dynamic_schema_class,), new_files_found)
 
-    def _find_sublcasses(self, data, handled_tags, new_files_found):
+    def _find_subclasses(self, data, handled_tags, new_files_found):
         for possible_file in data.keys():
             found_subclasses = []
             for file_tag in identify.tags_from_filename(possible_file):

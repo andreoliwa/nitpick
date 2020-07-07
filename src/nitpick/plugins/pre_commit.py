@@ -195,5 +195,4 @@ def handle_config_file(  # pylint: disable=unused-argument
     config: JsonDict, file_name: str, tags: Set[str]
 ) -> Optional["BaseFile"]:
     """Handle pre-commit config file."""
-    base_file = PreCommitFile(config)
-    return base_file if file_name == TomlFormat.group_name_for(base_file.file_name) else None
+    return PreCommitFile(config) if file_name == TomlFormat.group_name_for(PreCommitFile.file_name) else None
