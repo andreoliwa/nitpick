@@ -88,7 +88,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
 
     :param path: Path of the config file to be loaded.
     :param string: Config in string format.
-    :param data: Config data in Python format (dict, YamlFormat, TomlFormat instances).
+    :param data: Config data in Python format (dict, YAMLFormat, TOMLFormat instances).
     :param ignore_keys: List of keys to ignore when using the comparison methods.
     """
 
@@ -137,7 +137,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
 
     @classmethod
     def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YamlFormat accepts 'True' or 'true'."""
+        """Cleanup similar values according to the specific format. E.g.: YAMLFormat accepts 'True' or 'true'."""
         return list(*args)
 
     def _create_comparison(self, expected: Union[JsonDict, YamlData, "BaseFormat"]):
@@ -202,7 +202,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return comparison
 
 
-class TomlFormat(BaseFormat):
+class TOMLFormat(BaseFormat):
     """TOML configuration format."""
 
     @staticmethod
@@ -231,7 +231,7 @@ class TomlFormat(BaseFormat):
         return True
 
 
-class YamlFormat(BaseFormat):
+class YAMLFormat(BaseFormat):
     """YAML configuration format."""
 
     def load(self) -> bool:
@@ -278,7 +278,7 @@ class YamlFormat(BaseFormat):
 RoundTripRepresenter.add_representer(SortedDict, RoundTripRepresenter.represent_dict)
 
 
-class JsonFormat(BaseFormat):
+class JSONFormat(BaseFormat):
     """JSON configuration format."""
 
     def load(self) -> bool:
@@ -299,5 +299,5 @@ class JsonFormat(BaseFormat):
 
     @classmethod
     def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YamlFormat accepts 'True' or 'true'."""
+        """Cleanup similar values according to the specific format. E.g.: YAMLFormat accepts 'True' or 'true'."""
         return list(args)

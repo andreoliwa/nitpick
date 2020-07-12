@@ -15,13 +15,8 @@ import click
 from slugify import slugify
 from sortedcontainers import SortedDict
 
+from nitpick.app import NitpickApp
 from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
-from nitpick.generic import get_subclasses
-from nitpick.plugins.base import BaseFile
-from nitpick.plugins.json import JSONFile
-from nitpick.plugins.pre_commit import PreCommitFile
-from nitpick.plugins.pyproject_toml import PyProjectTomlFile
-from nitpick.plugins.setup_cfg import SetupCfgFile
 
 style_mapping = SortedDict(
     {
@@ -47,7 +42,7 @@ style_mapping = SortedDict(
         "python37.toml": "Python 3.7",
     }
 )
-file_classes = [PyProjectTomlFile, SetupCfgFile, PreCommitFile, JSONFile]
+app = NitpickApp.create_app()
 
 divider = ".. auto-generated-from-here"
 docs_dir = Path(__file__).parent.absolute()  # type: Path
@@ -122,9 +117,9 @@ def generate_defaults_rst():
         sys.exit(1)
 
 
-def generate_config_files_rst():
-    """Generate config_files.rst with the docstrings from BaseFile classes."""
-    rst_file = docs_dir / "config_files.rst"  # type: Path
+def generate_plugins_rst():
+    """Generate plugins.rst with the docstrings from :py:class:`nitpick.plugins.base.NitpickPlugin` classes."""
+    rst_file = docs_dir / "plugins.rst"  # type: Path
 
     template = """
         .. _{link}:
@@ -136,19 +131,25 @@ def generate_config_files_rst():
     """
     clean_template = dedent(template).strip()
     blocks = []
-    for file_class in file_classes:
-        header = file_class.file_name
+
+    # Sort order: classes with fixed file names first, then alphabetically by class name
+    for plugin_class in sorted(
+        app.plugin_manager.hook.plugin_class(), key=lambda c: "0" if c.file_name else "1" + c.__name__
+    ):
+        header = plugin_class.file_name
         if not header:
             # module_name = file_class.__module__
-            module = import_module(file_class.__module__)
+            module = import_module(plugin_class.__module__)
             header = module.__doc__.strip(" .")
 
-        stripped_lines = [line.strip() for line in file_class.__doc__.split("\n")]
+        # Padding with any char except space (it doesn't work)
+        indented_doc = "xxxx" + plugin_class.__doc__
+        stripped_lines = [line[4:] for line in indented_doc.split("\n")]
 
         blocks.append("")
         blocks.append(
             clean_template.format(
-                link=slugify(file_class.__name__),
+                link=slugify(plugin_class.__name__),
                 header=header,
                 dashes="-" * len(header),
                 description="\n".join(stripped_lines).strip(),
@@ -156,20 +157,7 @@ def generate_config_files_rst():
         )
     write_rst(rst_file, blocks)
 
-    existing = set(get_subclasses(BaseFile))
-    documented = set(file_classes)
-    something_missing = existing - documented
-    for missing_class in something_missing:
-        click.secho(
-            "ERROR: Add missing base file {} to the 'file_classes' var in '{}'.".format(
-                missing_class.__name__, __file__
-            ),
-            fg="red",
-        )
-    if something_missing:
-        sys.exit(1)
-
 
 if __name__ == "__main__":
     generate_defaults_rst()
-    generate_config_files_rst()
+    generate_plugins_rst()

@@ -1,16 +1,16 @@
 """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
 from configparser import ConfigParser
 from io import StringIO
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Type
 
 import dictdiffer
 
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import BaseFile
+from nitpick.plugins.base import NitpickPlugin
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
 
-class SetupCfgFile(BaseFile):
+class SetupCfgPlugin(NitpickPlugin):
     """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_ config file.
 
     Example: :ref:`flake8 configuration <default-flake8>`.
@@ -117,8 +117,14 @@ class SetupCfgFile(BaseFile):
 
 
 @hookimpl
+def plugin_class() -> Type["NitpickPlugin"]:
+    """You should return your plugin class here."""
+    return SetupCfgPlugin
+
+
+@hookimpl
 def handle_config_file(  # pylint: disable=unused-argument
     config: JsonDict, file_name: str, tags: Set[str]
-) -> Optional["BaseFile"]:
+) -> Optional["NitpickPlugin"]:
     """Handle the setup.cfg file."""
-    return SetupCfgFile(config) if file_name == SetupCfgFile.file_name else None
+    return SetupCfgPlugin(config) if file_name == SetupCfgPlugin.file_name else None

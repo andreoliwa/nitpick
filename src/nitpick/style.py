@@ -20,10 +20,10 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.formats import TomlFormat
+from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
-from nitpick.plugins.base import BaseFile
-from nitpick.plugins.pyproject_toml import PyProjectTomlFile
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
 from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList
 
@@ -50,7 +50,7 @@ class Style:
         """Find the initial style(s) and include them."""
         if configured_styles:
             chosen_styles = configured_styles
-            log_message = "Styles configured in {}: %s".format(PyProjectTomlFile.file_name)
+            log_message = "Styles configured in {}: %s".format(PyProjectTomlPlugin.file_name)
         else:
             paths = climb_directory_tree(NitpickApp.current().root_dir, [NITPICK_STYLE_TOML])
             if paths:
@@ -80,7 +80,7 @@ class Style:
             if not style_path:
                 continue
 
-            toml = TomlFormat(path=style_path)
+            toml = TOMLFormat(path=style_path)
             try:
                 toml_dict = toml.as_data
             except TomlDecodeError as err:
@@ -196,7 +196,7 @@ class Style:
             return {}
         merged_dict = self._all_styles.merge()
         merged_style_path = app.cache_dir / MERGED_STYLE_TOML  # type: Path
-        toml = TomlFormat(data=merged_dict)
+        toml = TOMLFormat(data=merged_dict)
 
         attempt = 1
         while attempt < 5:
@@ -210,9 +210,9 @@ class Style:
         return merged_dict
 
     @staticmethod
-    def file_field_pair(file_name: str, base_file_class: Type[BaseFile]) -> Dict[str, fields.Field]:
+    def file_field_pair(file_name: str, base_file_class: Type[NitpickPlugin]) -> Dict[str, fields.Field]:
         """Return a schema field with info from a config file class."""
-        valid_toml_key = TomlFormat.group_name_for(file_name)
+        valid_toml_key = TOMLFormat.group_name_for(file_name)
         unique_file_name_with_underscore = slugify(file_name, separator="_")
 
         kwargs = {"data_key": valid_toml_key}
@@ -233,14 +233,14 @@ class Style:
             # Data is empty; so this is the first time the dynamic class is being rebuilt.
             # Loop on classes with predetermined names, and add fields for them on the dynamic validation schema.
             # E.g.: setup.cfg, pre-commit, pyproject.toml: files whose names we already know at this point.
-            for subclass in BaseFile.fixed_name_classes:
+            for subclass in NitpickPlugin.fixed_name_classes:
                 new_files_found.update(self.file_field_pair(subclass.file_name, subclass))
         else:
-            handled_tags = {}  # type: Dict[str, Type[BaseFile]]
+            handled_tags = {}  # type: Dict[str, Type[NitpickPlugin]]
 
             # Data was provided; search it to find new dynamic files to add to the validation schema).
             # E.g.: JSON files that were configured on some TOML style file.
-            for subclass in BaseFile.dynamic_name_classes:
+            for subclass in NitpickPlugin.dynamic_name_classes:
                 for tag in subclass.identify_tags:
                     # A tag can only be handled by a single subclass.
                     # If more than one class handle a tag, the latest one will be the handler.

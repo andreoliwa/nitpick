@@ -1,12 +1,12 @@
 """Text files."""
 import logging
-from typing import Optional, Set
+from typing import Optional, Set, Type
 
 from marshmallow import Schema
 
 from nitpick import fields
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import BaseFile
+from nitpick.plugins.base import NitpickPlugin
 from nitpick.schemas import help_message
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
@@ -29,8 +29,19 @@ class TextSchema(Schema):
     contains = fields.List(fields.Nested(TextItemSchema))
 
 
-class TextFile(BaseFile):
-    """Checker for any text file."""
+class TextPlugin(NitpickPlugin):
+    """Checker for text files.
+
+    To check if ``some.txt`` file contains the lines ``abc`` and ``def`` (in any order):
+
+    .. code-block:: toml
+
+        [["some.txt".contains]]
+        line = "abc"
+
+        [["some.txt".contains]]
+        line = "def"
+    """
 
     error_base_number = 350
     identify_tags = {"plain-text"}
@@ -46,6 +57,12 @@ class TextFile(BaseFile):
 
 
 @hookimpl
-def handle_config_file(config: JsonDict, file_name: str, tags: Set[str]) -> Optional["BaseFile"]:
+def plugin_class() -> Type["NitpickPlugin"]:
+    """You should return your plugin class here."""
+    return TextPlugin
+
+
+@hookimpl
+def handle_config_file(config: JsonDict, file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
     """Handle text files."""
-    return TextFile(config, file_name) if "plain-text" in tags else None
+    return TextPlugin(config, file_name) if "plain-text" in tags else None

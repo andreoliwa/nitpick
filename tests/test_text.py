@@ -22,8 +22,8 @@ def test_suggest_initial_contents(request):
     )
 
 
-def test_text_file_config_validation(request):
-    """Test config validation for text files."""
+def test_text_configuration(request):
+    """Test configuration for text files."""
     # pylint: disable=line-too-long
     ProjectMock(request).style(
         """

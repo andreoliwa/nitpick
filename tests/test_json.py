@@ -129,8 +129,8 @@ def test_invalid_json(request):
     )
 
 
-def test_json_file_with_extra_keys(request):
-    """Test TOML style with extra keys for a JSON file."""
+def test_json_configuration(request):
+    """Test configuration for JSON files."""
     ProjectMock(request).style(
         """
         [nitpick.JSONFile]

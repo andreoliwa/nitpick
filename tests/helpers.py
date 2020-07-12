@@ -11,10 +11,10 @@ from testfixtures import compare
 from nitpick.app import NitpickApp
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
 from nitpick.flake8 import NitpickExtension
-from nitpick.formats import TomlFormat
-from nitpick.plugins.pre_commit import PreCommitFile
-from nitpick.plugins.pyproject_toml import PyProjectTomlFile
-from nitpick.plugins.setup_cfg import SetupCfgFile
+from nitpick.formats import TOMLFormat
+from nitpick.plugins.pre_commit import PreCommitPlugin
+from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
+from nitpick.plugins.setup_cfg import SetupCfgPlugin
 from nitpick.typedefs import PathOrStr
 from tests.conftest import TEMP_ROOT_PATH
 
@@ -139,15 +139,15 @@ class ProjectMock:
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""
-        return self.save_file(SetupCfgFile.file_name, file_contents)
+        return self.save_file(SetupCfgPlugin.file_name, file_contents)
 
     def pyproject_toml(self, file_contents: str) -> "ProjectMock":
         """Save pyproject.toml."""
-        return self.save_file(PyProjectTomlFile.file_name, file_contents)
+        return self.save_file(PyProjectTomlPlugin.file_name, file_contents)
 
     def pre_commit(self, file_contents: str) -> "ProjectMock":
         """Save .pre-commit-config.yaml."""
-        return self.save_file(PreCommitFile.file_name, file_contents)
+        return self.save_file(PreCommitPlugin.file_name, file_contents)
 
     def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""
@@ -214,6 +214,6 @@ class ProjectMock:
 
     def assert_merged_style(self, toml_string: str):
         """Assert the contents of the merged style file."""
-        expected = TomlFormat(path=self.cache_dir / MERGED_STYLE_TOML)
-        actual = TomlFormat(string=dedent(toml_string))
+        expected = TOMLFormat(path=self.cache_dir / MERGED_STYLE_TOML)
+        actual = TOMLFormat(string=dedent(toml_string))
         compare(expected.as_data, actual.as_data)

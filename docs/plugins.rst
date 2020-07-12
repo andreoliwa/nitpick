@@ -1,14 +1,23 @@
 .. include:: targets.rst
-.. _config_files:
+.. _plugins:
 
-Configuration files
-===================
+Plugins
+=======
 
-Below are the currently supported configuration files.
+Below are the currently included plugins.
 
 .. auto-generated-from-here
 
-.. _pyprojecttomlfile:
+.. _setupcfgplugin:
+
+setup.cfg
+---------
+
+Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_ config file.
+
+Example: :ref:`flake8 configuration <default-flake8>`.
+
+.. _pyprojecttomlplugin:
 
 pyproject.toml
 --------------
@@ -20,16 +29,7 @@ See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
 Example: :ref:`the Python 3.7 default <default-python-3-7>`.
 There are many other examples in :ref:`defaults`.
 
-.. _setupcfgfile:
-
-setup.cfg
----------
-
-Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_ config file.
-
-Example: :ref:`flake8 configuration <default-flake8>`.
-
-.. _precommitfile:
+.. _precommitplugin:
 
 .pre-commit-config.yaml
 -----------------------
@@ -38,7 +38,7 @@ Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-con
 
 Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
 
-.. _jsonfile:
+.. _jsonplugin:
 
 JSON files
 ----------
@@ -52,3 +52,20 @@ Example: :ref:`the default config for package.json <default-package-json>`.
 
 If a JSON file is configured on ``[nitpick.JSONFile] file_names``, then a configuration for it should exist.
 Otherwise, a style validation error will be raised.
+
+.. _textplugin:
+
+Text files
+----------
+
+Checker for text files.
+
+To check if ``some.txt`` file contains the lines ``abc`` and ``def`` (in any order):
+
+.. code-block:: toml
+
+    [["some.txt".contains]]
+    line = "abc"
+
+    [["some.txt".contains]]
+    line = "def"
