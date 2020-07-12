@@ -51,7 +51,8 @@ class SetupCfgPlugin(NitpickPlugin):
     def check_rules(self) -> YieldFlake8Error:
         """Check missing sections and missing key/value pairs in setup.cfg."""
         setup_cfg = ConfigParser()
-        setup_cfg.read_file(self.file_path.open())
+        with self.file_path.open() as handle:
+            setup_cfg.read_file(handle)
 
         actual_sections = set(setup_cfg.sections())
         missing = self.get_missing_output(actual_sections)
