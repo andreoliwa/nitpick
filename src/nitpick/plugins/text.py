@@ -2,14 +2,31 @@
 import logging
 from typing import Optional, Set
 
+from marshmallow import Schema
+
+from nitpick import fields
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import BaseFile
+from nitpick.schemas import help_message
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
 LOGGER = logging.getLogger(__name__)
 
+TEXT_FILE_RTFD_PAGE = "config_files.html#text-files"
 
-# FIXME: validate schema
+
+class TextItemSchema(Schema):
+    """Validation schema for the object inside ``contains``."""
+
+    error_messages = {"unknown": help_message("Unknown configuration", TEXT_FILE_RTFD_PAGE)}
+    line = fields.NonEmptyString()
+
+
+class TextSchema(Schema):
+    """Validation schema for the text file TOML configuration."""
+
+    error_messages = {"unknown": help_message("Unknown configuration", TEXT_FILE_RTFD_PAGE)}
+    contains = fields.List(fields.Nested(TextItemSchema))
 
 
 class TextFile(BaseFile):
@@ -17,6 +34,7 @@ class TextFile(BaseFile):
 
     error_base_number = 350
     identify_tags = {"plain-text"}
+    validation_schema = TextSchema
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""

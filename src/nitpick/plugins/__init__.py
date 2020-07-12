@@ -24,4 +24,4 @@ hookimpl = pluggy.HookimplMarker(PROJECT_NAME)
 def handle_config_file(  # pylint: disable=unused-argument
     config: JsonDict, file_name: str, tags: Set[str]
 ) -> Optional["BaseFile"]:
-    """Return a BaseFile if this plugin handles the relative filename or any of its :py:package:`identify` tags."""
+    """Return a BaseFile if this plugin handles the relative filename or any of its ``identify`` tags."""

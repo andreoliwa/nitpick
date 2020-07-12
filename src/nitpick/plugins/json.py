@@ -39,7 +39,7 @@ class JSONFile(BaseFile):
 
     error_base_number = 340
 
-    nested_field = JSONFileSchema
+    validation_schema = JSONFileSchema
     identify_tags = {"json"}
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"

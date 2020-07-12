@@ -216,8 +216,8 @@ class Style:
         unique_file_name_with_underscore = slugify(file_name, separator="_")
 
         kwargs = {"data_key": valid_toml_key}
-        if base_file_class.nested_field:
-            field = fields.Nested(base_file_class.nested_field, **kwargs)
+        if base_file_class.validation_schema:
+            field = fields.Nested(base_file_class.validation_schema, **kwargs)
         else:
             # For default files (pyproject.toml, setup.cfg...), there is no strict schema;
             # it can be anything they allow.

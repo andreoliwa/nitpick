@@ -23,7 +23,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONFile`).
-    nested_field = None  # type: Optional[Schema]
+    validation_schema = None  # type: Optional[Schema]
 
     fixed_name_classes = set()  # type: Set[Type[BaseFile]]
     dynamic_name_classes = set()  # type: Set[Type[BaseFile]]
@@ -31,7 +31,7 @@ class BaseFile(NitpickMixin, metaclass=abc.ABCMeta):
     # TODO: This info is duplicated. Use the value passed on the hook spec, and remove this attribute.
     #  For this to work, validation and dynamic schema have to be done in a different way
     #  (maybe NOT using dynamic schemas)
-    #: Which :py:package:`identify` tags this :py:class:`nitpick.files.base.BaseFile` child recognises.
+    #: Which ``identify`` tags this :py:class:`nitpick.files.base.BaseFile` child recognises.
     identify_tags = set()  # type: Set[str]
 
     def __init__(self, config: JsonDict, file_name: str = None) -> None:
