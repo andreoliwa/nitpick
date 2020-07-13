@@ -1,13 +1,13 @@
 """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
-from typing import Optional, Set
+from typing import Optional, Set, Type
 
 from nitpick.app import NitpickApp
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import BaseFile
+from nitpick.plugins.base import NitpickPlugin
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
 
-class PyProjectTomlFile(BaseFile):
+class PyProjectTomlPlugin(NitpickPlugin):
     """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
     See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
@@ -31,9 +31,15 @@ class PyProjectTomlFile(BaseFile):
 
 
 @hookimpl
+def plugin_class() -> Type["NitpickPlugin"]:
+    """You should return your plugin class here."""
+    return PyProjectTomlPlugin
+
+
+@hookimpl
 def handle_config_file(  # pylint: disable=unused-argument
     config: JsonDict, file_name: str, tags: Set[str]
-) -> Optional["BaseFile"]:
+) -> Optional["NitpickPlugin"]:
     """Handle pyproject.toml file."""
-    base_file = PyProjectTomlFile(config)
+    base_file = PyProjectTomlPlugin(config)
     return base_file if file_name == base_file.file_name else None

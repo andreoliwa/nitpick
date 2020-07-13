@@ -493,7 +493,7 @@ def test_merge_styles_into_single_file(offline, request):
             hooks:
               - id: seed-isort-config
           - repo: https://github.com/pre-commit/mirrors-isort
-            rev: v4.3.21
+            rev: v5.0.9
             hooks:
               - id: isort
         """

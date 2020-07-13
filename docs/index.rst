@@ -57,7 +57,7 @@ Useful if you maintain multiple projects and want to use the same configs in all
    auto_detection
    tool_nitpick_section
    nitpick_section
-   config_files
+   plugins
    defaults
    troubleshooting
    contributing

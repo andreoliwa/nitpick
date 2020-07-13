@@ -10,16 +10,17 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.formats import TomlFormat
+from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
-from nitpick.plugins.pyproject_toml import PyProjectTomlFile
+from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
 from nitpick.schemas import ToolNitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.style import Style
 from nitpick.typedefs import YieldFlake8Error
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from nitpick.typedefs import JsonDict, StrOrList
 
 LOGGER = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
 
     def __init__(self) -> None:
 
-        self.pyproject_toml = None  # type: Optional[TomlFormat]
+        self.pyproject_toml = None  # type: Optional[TOMLFormat]
         self.tool_nitpick_dict = {}  # type: JsonDict
         self.style_dict = {}  # type: JsonDict
         self.nitpick_section = {}  # type: JsonDict
@@ -40,14 +41,14 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
 
     def validate_pyproject_tool_nitpick(self) -> bool:
         """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
-        pyproject_path = NitpickApp.current().root_dir / PyProjectTomlFile.file_name  # type: Path
+        pyproject_path = NitpickApp.current().root_dir / PyProjectTomlPlugin.file_name  # type: Path
         if pyproject_path.exists():
-            self.pyproject_toml = TomlFormat(path=pyproject_path)
+            self.pyproject_toml = TOMLFormat(path=pyproject_path)
             self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
             pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
             if pyproject_errors:
                 NitpickApp.current().add_style_error(
-                    PyProjectTomlFile.file_name,
+                    PyProjectTomlPlugin.file_name,
                     "Invalid data in [{}]:".format(TOOL_NITPICK),
                     flatten_marshmallow_errors(pyproject_errors),
                 )

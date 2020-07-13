@@ -8,7 +8,7 @@ from sortedcontainers import SortedDict
 from nitpick import fields
 from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.generic import flatten
-from nitpick.plugins.setup_cfg import SetupCfgFile
+from nitpick.plugins.setup_cfg import SetupCfgPlugin
 
 
 def flatten_marshmallow_errors(errors: Dict) -> str:
@@ -80,7 +80,7 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
     absent = fields.Dict(fields.NonEmptyString, fields.String())
     present = fields.Dict(fields.NonEmptyString, fields.String())
     # TODO: load this schema dynamically, then add this next field setup_cfg
-    setup_cfg = fields.Nested(SetupCfgSchema, data_key=SetupCfgFile.file_name)
+    setup_cfg = fields.Nested(SetupCfgSchema, data_key=SetupCfgPlugin.file_name)
 
 
 class NitpickSectionSchema(BaseNitpickSchema):
@@ -89,7 +89,7 @@ class NitpickSectionSchema(BaseNitpickSchema):
     minimum_version = fields.NonEmptyString()
     styles = fields.Nested(NitpickStylesSectionSchema)
     files = fields.Nested(NitpickFilesSectionSchema)
-    # TODO: load this schema dynamically, then add this next field JSONFile
+    # TODO: deprecate this field and remove all tests using it; it's not necessary anymore
     JSONFile = fields.Nested(NitpickJSONFileSectionSchema)
 
 

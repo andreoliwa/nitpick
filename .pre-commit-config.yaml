@@ -9,7 +9,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.6.2
+    rev: v2.7.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/python/black
@@ -27,7 +27,7 @@ repos:
     hooks:
       - id: seed-isort-config
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v4.3.21
+    rev: v5.0.9
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/pygrep-hooks

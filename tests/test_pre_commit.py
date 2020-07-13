@@ -43,7 +43,7 @@ def test_suggest_initial_contents(request):
             hooks:
               - id: seed-isort-config
           - repo: https://github.com/pre-commit/mirrors-isort
-            rev: v4.3.21
+            rev: v5.0.9
             hooks:
               - id: isort
           - repo: https://github.com/python/black

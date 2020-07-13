@@ -50,7 +50,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         """Create a single application."""
         # pylint: disable=import-outside-toplevel
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
-        from nitpick.plugins.base import BaseFile
+        from nitpick.plugins.base import NitpickPlugin
 
         app = cls()
         cls._current_app = app
@@ -63,7 +63,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
             app.main_python_file = app.find_main_python_file()
             app.config = Config()
             app.plugin_manager = app.load_plugins()
-            BaseFile.load_fixed_dynamic_classes()
+            NitpickPlugin.load_fixed_dynamic_classes()
         except (NoRootDir, NoPythonFile) as err:
             app.init_errors.append(err)
 
@@ -89,8 +89,8 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         Start from the current working dir.
         """
         # pylint: disable=import-outside-toplevel
-        from nitpick.plugins.pyproject_toml import PyProjectTomlFile
-        from nitpick.plugins.setup_cfg import SetupCfgFile
+        from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
+        from nitpick.plugins.setup_cfg import SetupCfgPlugin
 
         root_dirs = set()  # type: Set[Path]
         seen = set()  # type: Set[Path]
@@ -101,7 +101,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         starting_dir = Path(starting_file).parent.absolute()
         while True:
             project_files = climb_directory_tree(
-                starting_dir, ROOT_FILES + (PyProjectTomlFile.file_name, SetupCfgFile.file_name)
+                starting_dir, ROOT_FILES + (PyProjectTomlPlugin.file_name, SetupCfgPlugin.file_name)
             )
             if project_files and project_files & seen:
                 break
