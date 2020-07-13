@@ -73,11 +73,3 @@ Styles can include other styles. Just provide a list of styles to include:
 The styles will be merged following the sequence in the list.
 
 If a key/value pair appears in more than one sub-style, it will be overridden; the last declared key/pair will prevail.
-
-.. _nitpick-jsonfile:
-
-[nitpick.JSONFile]
-------------------
-
-Configure the list of filenames that should be checked by the :py:class:`nitpick.plugins.json.JSONPlugin` class.
-See :ref:`the default package.json style <default-package-json>` for an example of usage.

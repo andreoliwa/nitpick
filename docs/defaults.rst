@@ -185,9 +185,6 @@ Content of `styles/package-json.toml <https://raw.githubusercontent.com/andreoli
 
 .. code-block:: toml
 
-    [nitpick.JSONFile]
-    file_names = ["package.json"]
-
     ["package.json"]
     contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
 

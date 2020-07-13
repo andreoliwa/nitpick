@@ -1,4 +1,6 @@
 """JSON tests."""
+import warnings
+
 from tests.helpers import ProjectMock
 
 
@@ -54,9 +56,6 @@ def test_missing_different_values(request):
     """Test missing and different values on the JSON file."""
     ProjectMock(request).style(
         '''
-        [nitpick.JSONFile]
-        file_names = ["my.json"]
-
         ["my.json".contains_json]
         "some.dotted.root.key" = """
             { "valid": "JSON", "content": ["should", "be", "here"]  , "dotted.subkeys"  : ["should be preserved",
@@ -108,9 +107,6 @@ def test_invalid_json(request):
     # pylint: disable=line-too-long
     ProjectMock(request).style(
         '''
-        [nitpick.JSONFile]
-        file_names = ["another.json"]
-
         ["another.json".contains_json]
         some_field = """
             { "this": "is missing the end...
@@ -133,9 +129,6 @@ def test_json_configuration(request):
     """Test configuration for JSON files."""
     ProjectMock(request).style(
         """
-        [nitpick.JSONFile]
-        file_names = ["your.json"]
-
         ["your.json".has]
         an_extra = "key"
 
@@ -150,3 +143,26 @@ def test_json_configuration(request):
         """,
         1,
     )
+
+
+def test_jsonfile_deprecated(request):
+    """Test configuration for JSON files."""
+    with warnings.catch_warnings(record=True) as captured:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+
+        ProjectMock(request).style(
+            """
+            [nitpick.JSONFile]
+            file_names = ["my.json"]
+
+            ["my.json"]
+            contains_keys = ["x"]
+            """
+        ).save_file("my.json", '{"x":1}').flake8().assert_no_errors()
+
+        assert len(captured) == 2  # Twice, one for the original style file, one for the merged style
+        assert issubclass(captured[-1].category, DeprecationWarning)
+        assert "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly" in str(
+            captured[-1].message
+        )

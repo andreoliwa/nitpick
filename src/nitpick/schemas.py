@@ -56,14 +56,6 @@ class NitpickStylesSectionSchema(BaseNitpickSchema):
     include = PolyField(deserialization_schema_selector=fields.string_or_list_field)
 
 
-class NitpickJSONFileSectionSchema(BaseNitpickSchema):
-    """Validation schema for the ``[nitpick.JSONFile]`` section on the style file."""
-
-    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#nitpick-jsonfile")}
-
-    file_names = fields.List(fields.String)
-
-
 class SetupCfgSchema(BaseNitpickSchema):
     """Validation schema for setup.cfg."""
 
@@ -89,8 +81,6 @@ class NitpickSectionSchema(BaseNitpickSchema):
     minimum_version = fields.NonEmptyString()
     styles = fields.Nested(NitpickStylesSectionSchema)
     files = fields.Nested(NitpickFilesSectionSchema)
-    # TODO: deprecate this field and remove all tests using it; it's not necessary anymore
-    JSONFile = fields.Nested(NitpickJSONFileSectionSchema)
 
 
 class BaseStyleSchema(Schema):
