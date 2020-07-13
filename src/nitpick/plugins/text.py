@@ -3,6 +3,7 @@ import logging
 from typing import Optional, Set, Type
 
 from marshmallow import Schema
+from marshmallow.orderedset import OrderedSet
 
 from nitpick import fields
 from nitpick.plugins import hookimpl
@@ -47,13 +48,20 @@ class TextPlugin(NitpickPlugin):
     identify_tags = {"plain-text"}
     validation_schema = TextSchema
 
+    def _expected_lines(self):
+        return [obj.get("line") for obj in self.file_dict.get("contains", {})]
+
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        return "\n".join([obj.get("line") for obj in self.file_dict.get("contains", {})])
+        return "\n".join(self._expected_lines())
 
     def check_rules(self) -> YieldFlake8Error:
-        """Check rules for this file. It should be overridden by inherited classes if needed."""
-        # FIXME: check missing lines
+        """Check missing lines."""
+        expected = OrderedSet(self._expected_lines())
+        actual = OrderedSet(self.file_path.read_text().split("\n"))
+        missing = expected - actual
+        if missing:
+            yield self.flake8_error(2, " has missing lines:", "\n".join(sorted(missing)))
 
 
 @hookimpl

@@ -47,3 +47,23 @@ def test_text_configuration(request):
         """,
         1,
     )
+
+
+def test_text_file_contains_line(request):
+    """Test if the text file contains a line."""
+    ProjectMock(request).style(
+        """
+        [["my.txt".contains]]
+        line = "qqq"
+        [["my.txt".contains]]
+        line = "abc"
+        [["my.txt".contains]]
+        line = "www"
+        """
+    ).save_file("my.txt", "def\nghi\nwww").flake8().assert_errors_contain(
+        """
+        NIP352 File my.txt has missing lines:\x1b[32m
+        abc
+        qqq\x1b[0m
+        """
+    )

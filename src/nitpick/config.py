@@ -20,6 +20,7 @@ from nitpick.typedefs import YieldFlake8Error
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from nitpick.typedefs import JsonDict, StrOrList
 
 LOGGER = logging.getLogger(__name__)

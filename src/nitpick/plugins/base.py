@@ -12,6 +12,7 @@ from nitpick.typedefs import JsonDict, YieldFlake8Error
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     from marshmallow import Schema
 
 

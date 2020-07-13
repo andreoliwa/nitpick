@@ -29,8 +29,10 @@ always-run:
 .PHONY: always-run
 
 pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install pre-commit hooks
-# TODO: isort 5.0.0 is apparently broken, so we can't autoupdate for now
-#	pre-commit autoupdate
+	@# Uncomment the lines below to autoupdate all repos except a few filtered out with egrep
+#	yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e mirrors-isort | \
+#		sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate
+	pre-commit autoupdate
 	pre-commit install --install-hooks
 	pre-commit install --hook-type commit-msg
 	pre-commit gc

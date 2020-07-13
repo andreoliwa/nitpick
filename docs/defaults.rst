@@ -137,7 +137,7 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
         hooks:
           - id: seed-isort-config
       - repo: https://github.com/pre-commit/mirrors-isort
-        rev: v4.3.21
+        rev: v5.0.9
         hooks:
           - id: isort
     """
@@ -266,7 +266,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.6.2
+        rev: v2.7.0
         hooks:
           - id: pyupgrade
     """
