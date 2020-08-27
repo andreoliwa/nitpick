@@ -1,5 +1,6 @@
 """Style files."""
 import logging
+import warnings
 from collections import OrderedDict
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type
@@ -17,6 +18,7 @@ from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
+    PROJECT_NAME,
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
@@ -67,6 +69,17 @@ class Style:
         """Validate a style file (TOML) against a Marshmallow schema."""
         self.rebuild_dynamic_schema(original_data)
         style_errors = self._dynamic_schema_class().validate(original_data)
+
+        if style_errors:
+            has_nitpick_jsonfile_section = style_errors.get(PROJECT_NAME, {}).pop("JSONFile", None)
+            if has_nitpick_jsonfile_section:
+                warnings.warn(
+                    "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly",
+                    DeprecationWarning,
+                )
+                if not style_errors[PROJECT_NAME]:
+                    style_errors.pop(PROJECT_NAME)
+
         if style_errors:
             NitpickApp.current().add_style_error(
                 style_file_name, "Invalid config:", flatten_marshmallow_errors(style_errors)

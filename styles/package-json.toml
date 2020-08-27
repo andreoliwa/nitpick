@@ -1,6 +1,3 @@
-[nitpick.JSONFile]
-file_names = ["package.json"]
-
 ["package.json"]
 contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
 

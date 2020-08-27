@@ -45,13 +45,8 @@ JSON files
 
 Checker for any JSON file.
 
-First, configure the list of files to be checked in the :ref:`[nitpick.JSONFile] section <nitpick-jsonfile>`.
-
-Then add the configuration for the file name you just declared.
+Add the configurations for the file name you wish to check.
 Example: :ref:`the default config for package.json <default-package-json>`.
-
-If a JSON file is configured on ``[nitpick.JSONFile] file_names``, then a configuration for it should exist.
-Otherwise, a style validation error will be raised.
 
 .. _textplugin:
 
