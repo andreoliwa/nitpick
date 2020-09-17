@@ -43,19 +43,19 @@ def test_suggest_initial_contents(request):
             hooks:
               - id: seed-isort-config
           - repo: https://github.com/pre-commit/mirrors-isort
-            rev: v5.0.9
+            rev: v5.5.2
             hooks:
               - id: isort
           - repo: https://github.com/python/black
-            rev: 19.10b0
+            rev: 20.8b1
             hooks:
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.7.0
+            rev: v1.8.0
             hooks:
               - id: blacken-docs
-                additional_dependencies: [black==19.10b0]\x1b[0m
+                additional_dependencies: [black==20.8b1]\x1b[0m
         """
     )
 
@@ -389,7 +389,7 @@ def test_missing_different_values(request):
         """
         NIP332 File .pre-commit-config.yaml: hook 'python-check-mock-methods' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/pygrep-hooks
-            rev: v1.5.1
+            rev: v1.6.0
             hooks:
               - id: python-check-mock-methods\x1b[0m
         """
@@ -401,17 +401,17 @@ def test_missing_different_values(request):
     ).assert_errors_contain(
         """
         NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.5.1\x1b[0m
+        rev: v1.6.0\x1b[0m
         """
     ).assert_errors_contain(
         """
         NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.5.1\x1b[0m
+        rev: v1.6.0\x1b[0m
         """
     ).assert_errors_contain(
         """
         NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.5.1\x1b[0m
+        rev: v1.6.0\x1b[0m
         """
     ).assert_errors_contain(
         """
@@ -423,7 +423,7 @@ def test_missing_different_values(request):
     ).assert_errors_contain(
         """
         NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.5.1\x1b[0m
+        rev: v1.6.0\x1b[0m
         """,
         8,
     )

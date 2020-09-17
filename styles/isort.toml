@@ -18,7 +18,7 @@ yaml = """
     hooks:
       - id: seed-isort-config
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.0.9
+    rev: v5.5.2
     hooks:
       - id: isort
 """

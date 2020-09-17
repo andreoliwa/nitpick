@@ -1,13 +1,13 @@
 [["pre-commit-config.yaml".repos]]
 yaml = """
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: debug-statements
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.7.0
+    rev: v2.7.2
     hooks:
       - id: pyupgrade
 """
