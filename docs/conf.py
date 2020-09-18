@@ -18,7 +18,7 @@ copyright = "2019, W. Augusto Andreoli"  # pylint: disable=redefined-builtin
 author = "W. Augusto Andreoli"
 
 # The short X.Y version
-version = "0.22.2"
+version = "0.23.0"
 # The full version, including alpha/beta/rc tags
 release = version
 

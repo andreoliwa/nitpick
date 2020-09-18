@@ -1,3 +1,17 @@
+# [0.23.0](https://github.com/andreoliwa/nitpick/compare/v0.22.2...v0.23.0) (2020-09-18)
+
+
+### Bug Fixes
+
+* get uiri/toml@9be6458 to fix conflict with black@20.8b1 ([fd2a44a](https://github.com/andreoliwa/nitpick/commit/fd2a44aedf253b0b73acec82b4c86b3fe3cc343f)), closes [#200](https://github.com/andreoliwa/nitpick/issues/200)
+
+
+### Features
+
+* check if a text file contains lines ([#182](https://github.com/andreoliwa/nitpick/issues/182)) ([3173bf7](https://github.com/andreoliwa/nitpick/commit/3173bf7380ef7b4e8221060cb575d606f6f4af2c))
+* detect JSON files by extension, no need to declare them first ([6f54480](https://github.com/andreoliwa/nitpick/commit/6f544807867acc1b9234721000bf4c73838b5e72))
+* use a plugin system (experimental) ([#180](https://github.com/andreoliwa/nitpick/issues/180)) ([6d2df4f](https://github.com/andreoliwa/nitpick/commit/6d2df4ffd156d9585c6a29bc7498a89e9b59ce16))
+
 ## [0.22.2](https://github.com/andreoliwa/nitpick/compare/v0.22.1...v0.22.2) (2020-05-15)
 
 
