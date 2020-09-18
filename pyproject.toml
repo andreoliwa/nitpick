@@ -40,7 +40,7 @@ flake8 = ">=3.0.0"
 attrs = "*"
 # TODO: Version 0.10.1 still raises "ValueError: Circular reference", see https://github.com/andreoliwa/nitpick/issues/160
 #  The commit with the fix was not released yet: https://github.com/uiri/toml/commit/9be64582fff86b9c5bd94ce52a5fedcb3d4fac01
-toml = { git = "https://github.com/uiri/toml.git", rev = "9be6458" }
+toml = "<0.10.1"
 requests = "*"
 dictdiffer = "*"
 "ruamel.yaml" = "*"
