@@ -70,7 +70,6 @@ jobs:
     - stage: release
       language: node_js
       node_js: 10
-      python: 3.8
       script: skip
       install: skip
       before_script: skip
