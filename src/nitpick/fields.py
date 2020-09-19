@@ -16,7 +16,7 @@ def is_valid_json(json_string: str) -> bool:
     try:
         json.loads(json_string)
     except json.JSONDecodeError as err:
-        raise ValidationError(pretty_exception(err, "Invalid JSON"))
+        raise ValidationError(pretty_exception(err, "Invalid JSON")) from err
     return True
 
 

@@ -7,7 +7,7 @@ line-length = 120
 
 [tool.poetry]
 name = "nitpick"
-version = "0.22.2"
+version = "0.23.0"
 description = "Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects"
 authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"
@@ -38,7 +38,9 @@ pyproject_toml = "nitpick.plugins.pyproject_toml"
 python = "^3.5 || ^3.6 || ^3.7 || ^3.8"
 flake8 = ">=3.0.0"
 attrs = "*"
-toml = "<0.10.2" # TODO: Raises "ValueError: Circular reference", see https://github.com/andreoliwa/nitpick/issues/159
+# TODO: Version 0.10.1 still raises "ValueError: Circular reference", see https://github.com/andreoliwa/nitpick/issues/160
+#  The commit with the fix was not released yet: https://github.com/uiri/toml/commit/9be64582fff86b9c5bd94ce52a5fedcb3d4fac01
+toml = "<0.10.2"
 requests = "*"
 dictdiffer = "*"
 "ruamel.yaml" = "*"

@@ -3,8 +3,11 @@ $(shell mkdir -p .cache/make)
 
 .PHONY: Makefile
 
-build: always-run .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project (default target if you simply run `make` without targets)
+build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test-latest .cache/make/doc # Build the project faster (only latest Python), for local development (default target if you simply run `make` without targets)
 .PHONY: build
+
+full-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project fully, like in CI
+.PHONY: full-build
 
 help:
 	@echo 'Choose one of the following targets:'
@@ -23,10 +26,10 @@ clean-test: # Clean test output
 
 # Remove cache files if they are older than the configured time, so the targets will be rebuilt
 # "fd" is a faster alternative to "find": https://github.com/sharkdp/fd
-always-run:
+.remove-old-cache:
 	@fd --changed-before 12h long .cache/make --exec-batch rm -v '{}' ;
 	@fd --changed-before 30m short .cache/make --exec-batch rm -v '{}' ;
-.PHONY: always-run
+.PHONY: .remove-old-cache
 
 pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install pre-commit hooks
 	@# Uncomment the lines below to autoupdate all repos except a few filtered out with egrep
@@ -74,6 +77,11 @@ endif
 	touch .cache/make/test
 .PHONY: test
 
+test-latest .cache/make/test-latest: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run test on the latest Python version
+	tox -e py38
+	touch .cache/make/test-latest
+.PHONY: test
+
 pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
 	poetry run python -m pytest
 .PHONY: pytest
@@ -93,5 +101,5 @@ tox: # Run full tox (recreating environments)
 
 ci: # Simulate CI run (force clean docs and tests, but do not update pre-commit nor Poetry)
 	@rm -rf .cache/make/*doc* .cache/make/lint .cache/make/test docs/_build docs/source
-	$(MAKE) force=1 build
+	$(MAKE) force=1 full-build
 .PHONY: ci

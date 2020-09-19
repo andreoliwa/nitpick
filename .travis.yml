@@ -23,7 +23,7 @@ before_script:
 script: tox
 after_script:
   - coverage xml
-  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.8" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.8" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 after_success:
   - coverage combine
   - coveralls
@@ -68,14 +68,13 @@ jobs:
     - stage: release
       language: node_js
       node_js: 10
-      python: 3.7
       script: skip
       install: skip
       before_script: skip
       after_script: skip
       deploy:
-        # The stage release only runs on master (there's an "if" on "stages" above).
-        # I'm keeping "all_branches: true" here so it's easier to debug Travis: just comment the "if" above.
+        # The stage release only runs on master (there's an "if: branch = master" on "stages" above).
+        # I'm keeping "all_branches: true" here so it's easier to debug Travis: just comment the mentioned "if".
         on:
           all_branches: true
         provider: script
