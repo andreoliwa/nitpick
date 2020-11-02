@@ -39,19 +39,6 @@ def test_absent_files(request):
     )
 
 
-def test_files_beginning_with_dot(request):
-    """Test files beginning with a dot: the can't be used on [nitpick.files] (for now)."""
-    ProjectMock(request).style(
-        """
-        [nitpick.files.".editorconfig"]
-        missing_message = "Create this file"
-        """
-    ).flake8().assert_errors_contain(
-        """NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML (toml.decoder"""
-        + """.TomlDecodeError: Invalid group name \'editorconfig"\'. Try quoting it. (line 1 column 1 char 0))"""
-    )
-
-
 def test_missing_message(request):
     """Test if the breaking style change "missing_message" key points to the correct help page."""
     project = (

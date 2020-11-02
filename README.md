@@ -12,7 +12,7 @@
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=andreoliwa/nitpick)](https://dependabot.com)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
-Flake8 plugin to enforce the same tool configuration ([flake8](https://gitlab.com/pycqa/flake8), [isort](https://github.com/timothycrosley/isort), [mypy](http://mypy-lang.org/), [Pylint](https://www.pylint.org)...) across multiple Python projects.
+Flake8 plugin to enforce the same tool configuration ([flake8](https://gitlab.com/pycqa/flake8), [isort](https://github.com/PyCQA/isort), [mypy](http://mypy-lang.org/), [Pylint](https://www.pylint.org)...) across multiple Python projects.
 
 Useful if you maintain multiple projects and want to use the same configs in all of them.
 
@@ -44,8 +44,8 @@ combine_as_imports = true
 
 This style will assert that:
 
-- ... [black](https://github.com/psf/black), [isort](https://github.com/timothycrosley/isort) and [flake8](https://gitlab.com/pycqa/flake8) have a line length of 120;
-- ... [flake8](https://gitlab.com/pycqa/flake8) and [isort](https://github.com/timothycrosley/isort) are configured as above in `setup.cfg`;
+- ... [black](https://github.com/psf/black), [isort](https://github.com/PyCQA/isort) and [flake8](https://gitlab.com/pycqa/flake8) have a line length of 120;
+- ... [flake8](https://gitlab.com/pycqa/flake8) and [isort](https://github.com/PyCQA/isort) are configured as above in `setup.cfg`;
 - ... [Pylint](https://www.pylint.org) is present as a [Poetry](https://github.com/python-poetry/poetry) dev dependency in `pyproject.toml`).
 
 ## Quick setup

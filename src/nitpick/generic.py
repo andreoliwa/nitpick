@@ -46,7 +46,7 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
     for key, value in dict_.items():
         quoted_key = "{quote}{key}{quote}".format(quote=DOUBLE_QUOTE, key=key) if separator in str(key) else key
         new_key = str(parent_key) + separator + str(quoted_key) if parent_key else quoted_key
-        if isinstance(value, collections.abc.MutableMapping):
+        if isinstance(value, dict):
             items.extend(flatten(value, new_key, separator, current_lists).items())
         elif isinstance(value, (list, tuple)):
             # If the value is a list or tuple, append to a previously existing list.

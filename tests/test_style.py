@@ -465,7 +465,7 @@ def test_merge_styles_into_single_file(offline, request):
 
         # The configuration below is needed for compatibility with black.
         # https://github.com/python/black#how-black-wraps-lines
-        # https://github.com/timothycrosley/isort#multi-line-output-modes
+        # https://github.com/PyCQA/isort#multi-line-output-modes
         multi_line_output = 6
         include_trailing_comma = true
         force_grid_wrap = 0
@@ -493,7 +493,7 @@ def test_merge_styles_into_single_file(offline, request):
             hooks:
               - id: seed-isort-config
           - repo: https://github.com/pre-commit/mirrors-isort
-            rev: v5.5.2
+            rev: v5.6.4
             hooks:
               - id: isort
         """

@@ -4,8 +4,8 @@
 .. _black: https://github.com/psf/black
 .. _Django: https://www.djangoproject.com
 .. _flake8: https://gitlab.com/pycqa/flake8/
-.. _Flask CLI: http://flask.palletsprojects.com/en/1.1.x/cli/
-.. _isort: https://github.com/timothycrosley/isort/
+.. _Flask CLI: https://flask.palletsprojects.com/en/1.1.x/cli/
+.. _isort: https://github.com/PyCQA/isort/
 .. _mypy: https://github.com/python/mypy/
 .. _Nitpick: https://github.com/andreoliwa/nitpick/
 .. _Pipenv: https://github.com/pypa/pipenv/

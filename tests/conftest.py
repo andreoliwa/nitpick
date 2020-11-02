@@ -19,7 +19,7 @@ if sys.platform == "darwin" and not _ROOT.startswith("/private"):
 TEMP_ROOT_PATH = Path(_ROOT).expanduser().absolute()
 
 
-@pytest.fixture("session", autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def delete_project_temp_root():
     """Delete the temporary root before or after running the tests, depending on the env variable."""
     if NITPICK_TEST_DIR:

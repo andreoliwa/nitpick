@@ -86,7 +86,7 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://gitlab.com/pycqa/flake8
-        rev: 3.8.3
+        rev: 3.8.4
         hooks:
           - id: flake8
             additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
@@ -124,7 +124,7 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
 
     # The configuration below is needed for compatibility with black.
     # https://github.com/python/black#how-black-wraps-lines
-    # https://github.com/timothycrosley/isort#multi-line-output-modes
+    # https://github.com/PyCQA/isort#multi-line-output-modes
     multi_line_output = 3
     include_trailing_comma = true
     force_grid_wrap = 0
@@ -137,7 +137,7 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
         hooks:
           - id: seed-isort-config
       - repo: https://github.com/pre-commit/mirrors-isort
-        rev: v5.5.2
+        rev: v5.6.4
         hooks:
           - id: isort
     """
@@ -171,7 +171,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.782
+        rev: v0.790
         hooks:
           - id: mypy
     """
@@ -257,13 +257,13 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v3.2.0
+        rev: v3.3.0
         hooks:
           - id: debug-statements
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.7.2
+        rev: v2.7.3
         hooks:
           - id: pyupgrade
     """
@@ -295,7 +295,7 @@ Content of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/and
     [["pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pygrep-hooks
-        rev: v1.6.0
+        rev: v1.7.0
         hooks:
           - id: python-check-blanket-noqa
           - id: python-check-mock-methods
