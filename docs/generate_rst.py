@@ -35,11 +35,10 @@ style_mapping = SortedDict(
         "pre-commit/python.toml": "pre-commit_ (Python hooks)",
         "pylint.toml": "Pylint_",
         "pytest.toml": "pytest_",
-        "python35-36-37.toml": "Python 3.5, 3.6 or 3.7",
-        "python35-36-37-38.toml": "Python 3.5, 3.6, 3.7 to 3.8",
-        "python36-37.toml": "Python 3.6 or 3.7",
+        "python35.toml": "Python 3.5",
         "python36.toml": "Python 3.6",
         "python37.toml": "Python 3.7",
+        "python38.toml": "Python 3.8",
     }
 )
 app = NitpickApp.create_app()

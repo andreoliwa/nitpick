@@ -32,10 +32,8 @@ clean-test: # Clean test output
 .PHONY: .remove-old-cache
 
 pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install pre-commit hooks
-	@# Uncomment the lines below to autoupdate all repos except a few filtered out with egrep
-#	yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e mirrors-isort | \
-#		sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate
-	pre-commit autoupdate
+	@# Uncomment the line below to autoupdate all repos except a few filtered out with egrep
+	yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e commitlint | sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate
 	pre-commit install --install-hooks
 	pre-commit install --hook-type commit-msg
 	pre-commit gc

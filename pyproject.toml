@@ -1,6 +1,6 @@
 [tool.nitpick]
 # Use the default style and override some things (like the Python version)
-style = ["nitpick-style", "styles/python35-36-37-38"]
+style = ["nitpick-style", "styles/python35"]
 
 [tool.black]
 line-length = 120
@@ -35,7 +35,7 @@ setup_cfg = "nitpick.plugins.setup_cfg"
 pyproject_toml = "nitpick.plugins.pyproject_toml"
 
 [tool.poetry.dependencies]
-python = "^3.5 || ^3.6 || ^3.7 || ^3.8"
+python = "^3.5"
 flake8 = ">=3.0.0"
 attrs = "*"
 toml = "*"

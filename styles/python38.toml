@@ -1,2 +1,2 @@
 ["pyproject.toml".tool.poetry.dependencies]
-python = "^3.5 || ^3.6 || ^3.7"
+python = "^3.8"

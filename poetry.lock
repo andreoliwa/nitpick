@@ -884,8 +884,8 @@ test = ["pytest", "testfixtures", "responses"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.5 || ^3.6 || ^3.7 || ^3.8"
-content-hash = "b3cbeda6a65d74cf1b72ce1c96195b834f279619d2e71d2aef95824d06382898"
+python-versions = "^3.5"
+content-hash = "f192527f63c5d5dcec05d42ce673f65992d9f4642e1734d675e52b6c582d533e"
 
 [metadata.files]
 alabaster = [

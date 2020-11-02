@@ -316,41 +316,17 @@ Content of `styles/pylint.toml <https://raw.githubusercontent.com/andreoliwa/nit
     ["pyproject.toml".tool.poetry.dev-dependencies]
     pylint = "*"
 
-.. _default-python-3-5-3-6-3-7-to-3-8:
+.. _default-python-3-5:
 
-Python 3.5, 3.6, 3.7 to 3.8
----------------------------
+Python 3.5
+----------
 
-Content of `styles/python35-36-37-38.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python35-36-37-38.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.5 || ^3.6 || ^3.7 || ^3.8"
-
-.. _default-python-3-5-3-6-or-3-7:
-
-Python 3.5, 3.6 or 3.7
-----------------------
-
-Content of `styles/python35-36-37.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python35-36-37.toml>`_:
+Content of `styles/python35.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python35.toml>`_:
 
 .. code-block:: toml
 
     ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.5 || ^3.6 || ^3.7"
-
-.. _default-python-3-6-or-3-7:
-
-Python 3.6 or 3.7
------------------
-
-Content of `styles/python36-37.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python36-37.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.6 || ^3.7"
+    python = "^3.5"
 
 .. _default-python-3-6:
 
@@ -375,3 +351,15 @@ Content of `styles/python37.toml <https://raw.githubusercontent.com/andreoliwa/n
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.7"
+
+.. _default-python-3-8:
+
+Python 3.8
+----------
+
+Content of `styles/python38.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python38.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.8"
