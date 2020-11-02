@@ -1,3 +1,10 @@
+## [0.23.1](https://github.com/andreoliwa/nitpick/compare/v0.23.0...v0.23.1) (2020-11-02)
+
+
+### Bug Fixes
+
+* upgrade toml to 0.10.2 (fixes [#200](https://github.com/andreoliwa/nitpick/issues/200)) ([3331e76](https://github.com/andreoliwa/nitpick/commit/3331e7621ccece6c2fb04aa0f50b802fd0a3367c))
+
 # [0.23.0](https://github.com/andreoliwa/nitpick/compare/v0.22.2...v0.23.0) (2020-09-18)
 
 
