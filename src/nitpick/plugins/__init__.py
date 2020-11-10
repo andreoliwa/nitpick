@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Optional, Set, Type
 import pluggy
 
 from nitpick.constants import PROJECT_NAME
-from nitpick.typedefs import JsonDict
 
 if TYPE_CHECKING:
     from nitpick.plugins.base import NitpickPlugin
@@ -22,14 +21,12 @@ hookimpl = pluggy.HookimplMarker(PROJECT_NAME)
 
 @hookspec
 def plugin_class() -> Type["NitpickPlugin"]:
-    """You should return your plugin class here."""
+    """Return your plugin class here (it should inherit from :py:class:`nitpick.plugins.base.NitpickPlugin`)."""
 
 
 @hookspec
-def handle_config_file(  # pylint: disable=unused-argument
-    config: JsonDict, file_name: str, tags: Set[str]
-) -> Optional["NitpickPlugin"]:
-    """You should return a valid :py:class:`nitpick.plugins.base.NitpickPlugin` instance or ``None``.
+def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+    """Return a valid :py:class:`nitpick.plugins.base.NitpickPlugin` instance or ``None``.
 
     :return: A plugin instance if your plugin handles this file name or any of its ``identify`` tags.
         Return ``None`` if your plugin doesn't handle this file or file type.

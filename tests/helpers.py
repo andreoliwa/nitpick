@@ -16,7 +16,7 @@ from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
 from nitpick.plugins.setup_cfg import SetupCfgPlugin
 from nitpick.typedefs import PathOrStr
-from tests.conftest import TEMP_ROOT_PATH
+from tests.conftest import TEMP_PATH
 
 if TYPE_CHECKING:
     from nitpick.typedefs import Flake8Error  # pylint: disable=ungrouped-imports
@@ -42,7 +42,7 @@ class ProjectMock:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         subdir = "/".join(pytest_request.module.__name__.split(".")[1:])
         caller_function_name = pytest_request.node.name
-        self.root_dir = TEMP_ROOT_PATH / subdir / caller_function_name  # type: Path
+        self.root_dir = TEMP_PATH / subdir / caller_function_name  # type: Path
 
         # To make debugging of mock projects easy, each test should not reuse another test directory.
         self.root_dir.mkdir(parents=True)

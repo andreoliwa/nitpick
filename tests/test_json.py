@@ -161,7 +161,7 @@ def test_jsonfile_deprecated(request):
             """
         ).save_file("my.json", '{"x":1}').flake8().assert_no_errors()
 
-        assert len(captured) == 2  # Twice, one for the original style file, one for the merged style
+        assert len(captured) == 1
         assert issubclass(captured[-1].category, DeprecationWarning)
         assert "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly" in str(
             captured[-1].message

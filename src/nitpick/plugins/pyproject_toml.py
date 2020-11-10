@@ -4,7 +4,7 @@ from typing import Optional, Set, Type
 from nitpick.app import NitpickApp
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.typedefs import JsonDict, YieldFlake8Error
+from nitpick.typedefs import YieldFlake8Error
 
 
 class PyProjectTomlPlugin(NitpickPlugin):
@@ -37,9 +37,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handle_config_file(  # pylint: disable=unused-argument
-    config: JsonDict, file_name: str, tags: Set[str]
-) -> Optional["NitpickPlugin"]:
+def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle pyproject.toml file."""
-    base_file = PyProjectTomlPlugin(config)
-    return base_file if file_name == base_file.file_name else None
+    if file_name == PyProjectTomlPlugin.file_name:
+        return PyProjectTomlPlugin()
+    return None

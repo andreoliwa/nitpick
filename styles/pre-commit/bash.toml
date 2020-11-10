@@ -1,4 +1,4 @@
-[["pre-commit-config.yaml".repos]]
+[[".pre-commit-config.yaml".repos]]
 yaml = """
   - repo: https://github.com/openstack/bashate
     rev: 2.0.0

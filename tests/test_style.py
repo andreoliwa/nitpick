@@ -9,7 +9,7 @@ import pytest
 import responses
 
 from nitpick.constants import READ_THE_DOCS_URL, TOML_EXTENSION
-from tests.conftest import TEMP_ROOT_PATH
+from tests.conftest import TEMP_PATH
 from tests.helpers import ProjectMock, assert_conditions
 
 if TYPE_CHECKING:
@@ -187,7 +187,7 @@ def test_minimum_version(mocked_version, offline, request):
 @pytest.mark.parametrize("offline", [False, True])
 def test_relative_and_other_root_dirs(offline, request):
     """Test styles in relative and in other root dirs."""
-    another_dir = TEMP_ROOT_PATH / "another_dir"  # type: Path
+    another_dir = TEMP_PATH / "another_dir"  # type: Path
     project = (
         ProjectMock(request)
         .named_style(
@@ -286,7 +286,7 @@ def test_relative_and_other_root_dirs(offline, request):
 @pytest.mark.parametrize("offline", [False, True])
 def test_symlink_subdir(offline, request):
     """Test relative styles in subdirectories of a symlink dir."""
-    target_dir = TEMP_ROOT_PATH / "target_dir"  # type: Path
+    target_dir = TEMP_PATH / "target_dir"  # type: Path
     ProjectMock(request).named_style(
         "{}/parent".format(target_dir),
         """
@@ -438,7 +438,7 @@ def test_fetch_private_github_urls(request):
 
 @pytest.mark.parametrize("offline", [False, True])
 def test_merge_styles_into_single_file(offline, request):
-    """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit's repos)."""
+    """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit repos)."""
     ProjectMock(request).load_styles("black", "isort").named_style(
         "isort_overrides",
         """
@@ -472,7 +472,7 @@ def test_merge_styles_into_single_file(offline, request):
         combine_as_imports = true
         another_key = "some value"
 
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         yaml = """
           - repo: https://github.com/python/black
             rev: 20.8b1
@@ -486,7 +486,7 @@ def test_merge_styles_into_single_file(offline, request):
                 additional_dependencies: [black==20.8b1]
         """
 
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         yaml = """
           - repo: https://github.com/asottile/seed-isort-config
             rev: v2.2.0

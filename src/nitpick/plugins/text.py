@@ -9,7 +9,7 @@ from nitpick import fields
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.schemas import help_message
-from nitpick.typedefs import JsonDict, YieldFlake8Error
+from nitpick.typedefs import YieldFlake8Error
 
 LOGGER = logging.getLogger(__name__)
 
@@ -71,6 +71,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handle_config_file(config: JsonDict, file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
+def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
     """Handle text files."""
-    return TextPlugin(config, file_name) if "plain-text" in tags else None
+    if "plain-text" in tags:
+        return TextPlugin(file_name)
+    return None

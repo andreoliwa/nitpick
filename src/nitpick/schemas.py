@@ -8,7 +8,6 @@ from sortedcontainers import SortedDict
 from nitpick import fields
 from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.generic import flatten
-from nitpick.plugins.setup_cfg import SetupCfgPlugin
 
 
 def flatten_marshmallow_errors(errors: Dict) -> str:
@@ -72,7 +71,7 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
     absent = fields.Dict(fields.NonEmptyString, fields.String())
     present = fields.Dict(fields.NonEmptyString, fields.String())
     # TODO: load this schema dynamically, then add this next field setup_cfg
-    setup_cfg = fields.Nested(SetupCfgSchema, data_key=SetupCfgPlugin.file_name)
+    setup_cfg = fields.Nested(SetupCfgSchema, data_key="setup.cfg")
 
 
 class NitpickSectionSchema(BaseNitpickSchema):

@@ -10,7 +10,7 @@ exclude = ".tox,build"
 # Nitpick recommends those plugins as part of the style, but doesn't install them automatically as before.
 # This way, the developer has the choice of overriding this style, instead of having lots of plugins installed
 # without being asked.
-[["pre-commit-config.yaml".repos]]
+[[".pre-commit-config.yaml".repos]]
 yaml = """
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4

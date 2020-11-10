@@ -40,7 +40,7 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
     ["pyproject.toml".tool.black]
     line-length = 120
 
-    [["pre-commit-config.yaml".repos]]
+    [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/python/black
         rev: 20.8b1
@@ -57,7 +57,7 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
     #  https://github.com/uiri/toml/issues/123
     #  https://github.com/uiri/toml/issues/230
     #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
-    #["pre-commit-config.yaml"]
+    #[".pre-commit-config.yaml"]
     #repos = ["""
     #<YAML goes here>
     #"""]
@@ -83,7 +83,7 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
     # Nitpick recommends those plugins as part of the style, but doesn't install them automatically as before.
     # This way, the developer has the choice of overriding this style, instead of having lots of plugins installed
     # without being asked.
-    [["pre-commit-config.yaml".repos]]
+    [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://gitlab.com/pycqa/flake8
         rev: 3.8.4
@@ -130,7 +130,7 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
     force_grid_wrap = 0
     combine_as_imports = true
 
-    [["pre-commit-config.yaml".repos]]
+    [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/asottile/seed-isort-config
         rev: v2.2.0
@@ -168,7 +168,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     warn_redundant_casts = true
     warn_unused_ignores = true
 
-    [["pre-commit-config.yaml".repos]]
+    [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
         rev: v0.790
@@ -218,7 +218,7 @@ Content of `styles/pre-commit/bash.toml <https://raw.githubusercontent.com/andre
 
 .. code-block:: toml
 
-    [["pre-commit-config.yaml".repos]]
+    [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/openstack/bashate
         rev: 2.0.0
@@ -235,7 +235,7 @@ Content of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com
 
 .. code-block:: toml
 
-    [["pre-commit-config.yaml".repos]]
+    [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
         rev: v3.0.0
@@ -254,7 +254,7 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
 
 .. code-block:: toml
 
-    [["pre-commit-config.yaml".repos]]
+    [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
         rev: v3.3.0
@@ -292,7 +292,7 @@ Content of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/and
 
 .. code-block:: toml
 
-    [["pre-commit-config.yaml".repos]]
+    [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pygrep-hooks
         rev: v1.7.0

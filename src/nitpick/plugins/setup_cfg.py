@@ -7,7 +7,7 @@ import dictdiffer
 
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.typedefs import JsonDict, YieldFlake8Error
+from nitpick.typedefs import YieldFlake8Error
 
 
 class SetupCfgPlugin(NitpickPlugin):
@@ -23,8 +23,8 @@ class SetupCfgPlugin(NitpickPlugin):
     expected_sections = set()  # type: Set[str]
     missing_sections = set()  # type: Set[str]
 
-    def __init__(self, config: JsonDict, file_name: str = None) -> None:
-        super().__init__(config, file_name)
+    def __init__(self, path_from_root: str = None) -> None:
+        super().__init__(path_from_root)
         self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))  # type: Set[str]
 
     def suggest_initial_contents(self) -> str:
@@ -124,8 +124,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handle_config_file(  # pylint: disable=unused-argument
-    config: JsonDict, file_name: str, tags: Set[str]
-) -> Optional["NitpickPlugin"]:
+def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle the setup.cfg file."""
-    return SetupCfgPlugin(config) if file_name == SetupCfgPlugin.file_name else None
+    if file_name == SetupCfgPlugin.file_name:
+        return SetupCfgPlugin()
+    return None

@@ -11,7 +11,7 @@ include_trailing_comma = true
 force_grid_wrap = 0
 combine_as_imports = true
 
-[["pre-commit-config.yaml".repos]]
+[[".pre-commit-config.yaml".repos]]
 yaml = """
   - repo: https://github.com/asottile/seed-isort-config
     rev: v2.2.0

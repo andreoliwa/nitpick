@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union
 
 import attr
 
-from nitpick.formats import TOMLFormat, YAMLFormat
+from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
@@ -197,8 +197,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handle_config_file(  # pylint: disable=unused-argument
-    config: JsonDict, file_name: str, tags: Set[str]
-) -> Optional["NitpickPlugin"]:
+def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle pre-commit config file."""
-    return PreCommitPlugin(config) if file_name == TOMLFormat.group_name_for(PreCommitPlugin.file_name) else None
+    if file_name == PreCommitPlugin.file_name:
+        return PreCommitPlugin()
+    return None

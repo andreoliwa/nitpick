@@ -1,6 +1,7 @@
 """Pre-commit tests."""
 from textwrap import dedent
 
+import pytest
 from testfixtures import compare
 
 from nitpick.plugins.pre_commit import PreCommitHook
@@ -19,7 +20,7 @@ def test_pre_commit_referenced_in_style(request):
     """Only check files if they have configured styles."""
     ProjectMock(request).style(
         """
-        ["pre-commit-config.yaml"]
+        [".pre-commit-config.yaml"]
         fail_fast = true
         """
     ).pre_commit("").flake8().assert_single_error(
@@ -64,7 +65,7 @@ def test_root_values_on_missing_file(request):
     """Test values on the root of the config file when it's missing."""
     ProjectMock(request).style(
         """
-        ["pre-commit-config.yaml"]
+        [".pre-commit-config.yaml"]
         bla_bla = "oh yeah"
         fail_fast = true
         whatever = "1"
@@ -83,7 +84,7 @@ def test_root_values_on_existing_file(request):
     """Test values on the root of the config file when there is a file."""
     ProjectMock(request).style(
         """
-        ["pre-commit-config.yaml"]
+        [".pre-commit-config.yaml"]
         fail_fast = true
         blabla = "what"
         something = true
@@ -116,7 +117,7 @@ def test_missing_repos(request):
     """Test missing repos on file."""
     ProjectMock(request).style(
         """
-        ["pre-commit-config.yaml"]
+        [".pre-commit-config.yaml"]
         fail_fast = true
         """
     ).pre_commit(
@@ -134,7 +135,7 @@ def test_missing_repo_key(request):
     """Test missing repo key on the style file."""
     ProjectMock(request).style(
         """
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         grepo = "glocal"
         """
     ).pre_commit(
@@ -152,7 +153,7 @@ def test_repo_does_not_exist(request):
     """Test repo does not exist on the pre-commit file."""
     ProjectMock(request).style(
         """
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         repo = "local"
         """
     ).pre_commit(
@@ -170,7 +171,7 @@ def test_missing_hooks_in_repo(request):
     """Test missing hooks in repo."""
     ProjectMock(request).style(
         """
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         repo = "whatever"
         """
     ).pre_commit(
@@ -187,7 +188,7 @@ def test_style_missing_hooks_in_repo(request):
     """Test style file is missing hooks in repo."""
     ProjectMock(request).style(
         """
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         repo = "another"
         """
     ).pre_commit(
@@ -206,7 +207,7 @@ def test_style_missing_id_in_hook(request):
     """Test style file is missing id in hook."""
     ProjectMock(request).style(
         '''
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         repo = "another"
         hooks = """
         - name: isort
@@ -233,7 +234,7 @@ def test_missing_hook_with_id(request):
     """Test missing hook with specific id."""
     ProjectMock(request).style(
         '''
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         repo = "other"
         hooks = """
         - id: black
@@ -329,7 +330,7 @@ def test_missing_different_values(request):
     ProjectMock(request).named_style(
         "root",
         '''
-        [["pre-commit-config.yaml".repos]]
+        [[".pre-commit-config.yaml".repos]]
         yaml = """
           - repo: https://github.com/user/repo
             rev: 1.2.3
@@ -426,4 +427,27 @@ def test_missing_different_values(request):
         rev: v1.7.0\x1b[0m
         """,
         8,
+    )
+
+
+def test_pre_commit_section_without_dot_deprecated(request):
+    """A pre-commit section without dot is deprecated."""
+    project = (
+        ProjectMock(request)
+        .style(
+            """
+        ["pre-commit-config.yaml"]
+        fail_fast = true
+        """
+        )
+        .pre_commit("")
+    )
+
+    with pytest.deprecated_call() as warning_list:
+        project.flake8().assert_single_error("NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key")
+
+    assert len(warning_list) == 1
+    assert (
+        str(warning_list[0].message)
+        == 'The section name for dotfiles should start with a dot: [".pre-commit-config.yaml"]'
     )

@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Optional, Set, Type
 import jmespath
 
 from nitpick.app import NitpickApp
-from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import JsonDict, YieldFlake8Error
@@ -35,15 +34,15 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
     identify_tags = set()  # type: Set[str]
 
-    def __init__(self, config: JsonDict, file_name: str = None) -> None:
-        if file_name is not None:
-            self.file_name = file_name
+    def __init__(self, path_from_root: str = None) -> None:
+        if path_from_root is not None:
+            self.file_name = path_from_root
 
         self.error_prefix = "File {}".format(self.file_name)
         self.file_path = NitpickApp.current().root_dir / self.file_name  # type: Path
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict = config or {}  # type: JsonDict
+        self.file_dict = {}  # type: JsonDict
 
         # Nitpick configuration for this file as a TOML dict, taken from the style file.
         self.nitpick_file_dict = search_dict(
@@ -66,12 +65,12 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
         return jmespath.compile("nitpick.{}.file_names".format(cls.__name__))
 
-    def check_exists(self) -> YieldFlake8Error:
-        """Check if the file should exist."""
+    def process(self, config: JsonDict) -> YieldFlake8Error:
+        """Process the file, check if it should exist, check rules."""
+        self.file_dict = config or {}
+
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-        should_exist = NitpickApp.current().config.nitpick_files_section.get(
-            TOMLFormat.group_name_for(self.file_name), True
-        )  # type: bool
+        should_exist = NitpickApp.current().config.nitpick_files_section.get(self.file_name, True)  # type: bool
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
