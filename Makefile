@@ -3,11 +3,8 @@ $(shell mkdir -p .cache/make)
 
 .PHONY: Makefile
 
-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test-latest .cache/make/doc # Build the project faster (only latest Python), for local development (default target if you simply run `make` without targets)
+build: .remove-old-cache .cache/make/lint .cache/make/test-latest .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
 .PHONY: build
-
-full-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project fully, like in CI
-.PHONY: full-build
 
 help:
 	@echo 'Choose one of the following targets:'
@@ -15,6 +12,9 @@ help:
 	@echo
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
+
+full-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project fully, like in CI
+.PHONY: full-build
 
 clean: clean-test # Clean all build output (cache, tox, coverage)
 	rm -rf .cache .mypy_cache docs/_build src/*.egg-info
@@ -49,6 +49,9 @@ poetry .cache/make/long-poetry: pyproject.toml # Update dependencies
 	poetry install
 	touch .cache/make/long-poetry
 .PHONY: poetry
+
+upgrade: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry # Upgrade pre-commit and Poetry
+.PHONY: upgrade
 
 lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry # Lint the project (tox running pre-commit, flake8)
 	tox -e lint

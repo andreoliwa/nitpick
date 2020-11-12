@@ -179,3 +179,27 @@ def test_invalid_section_dot_fields(request):
         nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>\x1b[0m
         """
     )
+
+
+def test_invalid_sections_comma_separated_values(request):
+    """Test invalid sections on comma_separated_values."""
+    ProjectMock(request).style(
+        """
+        ["setup.cfg".flake8]
+        ignore = "W503,E203,FI58,PT003,C408"
+        exclude = "venv*,**/migrations/"
+        per-file-ignores = "tests/**.py:FI18,setup.py:FI18"
+
+        [nitpick.files."setup.cfg"]
+        comma_separated_values = ["flake8.ignore", "flake8.exclude", "falek8.per-file-ignores", "aaa.invalid-section"]
+        """
+    ).setup_cfg(
+        """
+        [flake8]
+        exclude = venv*,**/migrations/
+        ignore = W503,E203,FI12,FI15,FI16,FI17,FI18,FI50,FI51,FI53,FI54,FI55,FI58,PT003,C408
+        per-file-ignores = tests/**.py:FI18,setup.py:FI18,tests/**.py:BZ01
+        """
+    ).flake8().assert_single_error(
+        "NIP325 File setup.cfg: invalid sections on comma_separated_values:\x1b[32m\naaa, falek8\x1b[0m"
+    )
