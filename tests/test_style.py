@@ -564,7 +564,7 @@ def test_invalid_nitpick_files(offline, request):
     ).assert_errors_contain(
         """
         NIP001 File some_style.toml has an incorrect style. Invalid config:\x1b[32m
-        xxx: Unknown file. See https://nitpick.rtfd.io/en/latest/config_files.html.\x1b[0m
+        xxx: Unknown file. See https://nitpick.rtfd.io/en/latest/plugins.html.\x1b[0m
         """
     ).assert_errors_contain(
         """

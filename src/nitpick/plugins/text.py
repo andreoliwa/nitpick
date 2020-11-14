@@ -13,7 +13,7 @@ from nitpick.typedefs import YieldFlake8Error
 
 LOGGER = logging.getLogger(__name__)
 
-TEXT_FILE_RTFD_PAGE = "config_files.html#text-files"
+TEXT_FILE_RTFD_PAGE = "plugins.html#text-files"
 
 
 class TextItemSchema(Schema):

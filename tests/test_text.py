@@ -40,10 +40,10 @@ def test_text_configuration(request):
     ).flake8().assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
-        "abc.txt".contains.0.invalid: Unknown configuration. See https://nitpick.rtfd.io/en/latest/config_files.html#text-files.
+        "abc.txt".contains.0.invalid: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.
         "abc.txt".contains.0.line: Not a valid string.
         "def.txt".contains: Not a valid list.
-        "ghi.txt".whatever: Unknown configuration. See https://nitpick.rtfd.io/en/latest/config_files.html#text-files.\x1b[0m
+        "ghi.txt".whatever: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.\x1b[0m
         """,
         1,
     )

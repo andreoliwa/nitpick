@@ -85,6 +85,6 @@ class NitpickSectionSchema(BaseNitpickSchema):
 class BaseStyleSchema(Schema):
     """Base validation schema for style files. Dynamic fields will be added to it later."""
 
-    error_messages = {"unknown": help_message("Unknown file", "config_files.html")}
+    error_messages = {"unknown": help_message("Unknown file", "plugins.html")}
 
     nitpick = fields.Nested(NitpickSectionSchema)
