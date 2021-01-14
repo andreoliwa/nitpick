@@ -73,6 +73,6 @@ def plugin_class() -> Type["NitpickPlugin"]:
 @hookimpl
 def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
     """Handle text files."""
-    if "plain-text" in tags:
+    if "text" in tags:
         return TextPlugin(file_name)
     return None
