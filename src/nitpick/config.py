@@ -5,13 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from identify import identify
 
 from nitpick.app import NitpickApp
-from nitpick.constants import (
-    MERGED_STYLE_TOML,
-    NITPICK_MINIMUM_VERSION_JMEX,
-    PROJECT_NAME,
-    TOOL_NITPICK,
-    TOOL_NITPICK_JMEX,
-)
+from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, PROJECT_NAME, TOOL_NITPICK, TOOL_NITPICK_JMEX
 from nitpick.exceptions import Deprecation
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
@@ -69,9 +63,6 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
         style.find_initial_styles(configured_styles)
 
         self.style_dict = style.merge_toml_dict()
-        if not NitpickApp.current().style_errors:
-            # Don't show duplicated errors: if there are style errors already, don't validate the merged style.
-            style.validate_style(MERGED_STYLE_TOML, self.style_dict, True)
 
         from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
 

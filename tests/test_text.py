@@ -70,6 +70,7 @@ def test_text_file_contains_line(request):
 
 
 def test_yaml_file_as_text(request):
+    """A YAML file is also a text file, so it could be checked with the text plugin."""
     ProjectMock(request).style(
         """
         [[".gitlab-ci.yml".contains]]
