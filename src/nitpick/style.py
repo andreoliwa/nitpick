@@ -67,39 +67,18 @@ class Style:
 
         self.include_multiple_styles(chosen_styles)
 
-    def validate_style(self, style_file_name: str, original_data: JsonDict, is_merged_style: bool):
-        """Validate a style file (TOML) against a Marshmallow schema."""
-        self.rebuild_dynamic_schema(original_data)
-        style_errors = self._dynamic_schema_class().validate(original_data)
-
-        if style_errors:
-            Deprecation.jsonfile_section(style_errors, is_merged_style)
-
-        if style_errors:
-            NitpickApp.current().add_style_error(
-                style_file_name, "Invalid config:", flatten_marshmallow_errors(style_errors)
-            )
-
-    def validate_schema(
-        self,
-        path_from_root: str,
-        schema: Type[Schema],
-        original_data: JsonDict,
-        is_merged_style: bool,
-    ):
+    @staticmethod
+    def validate_schema(schema: Type[Schema], path_from_root: str, original_data: JsonDict) -> Dict[str, List[str]]:
         """Validate the schema for the file."""
         if not schema:
-            return
+            return {}
 
         inherited_schema = schema is not BaseStyleSchema
         data_to_validate = original_data if inherited_schema else {path_from_root: None}
         local_errors = schema().validate(data_to_validate)
         if local_errors and inherited_schema:
             local_errors = {path_from_root: local_errors}
-
-        if local_errors:
-            Deprecation.jsonfile_section(local_errors, is_merged_style)
-            self.style_errors.update(local_errors)
+        return local_errors
 
     def include_multiple_styles(self, chosen_styles: StrOrList) -> None:
         """Include a list of styles (or just one) into this style tree."""
@@ -154,8 +133,20 @@ class Style:
                 ]
                 if not schemas:
                     self.style_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
+
+            all_errors = {}
+            valid_schema = False
             for schema in schemas:
-                self.validate_schema(cleaner.path_from_root, schema, value_dict, False)
+                errors = self.validate_schema(schema, cleaner.path_from_root, value_dict)
+                if not errors:
+                    # When multiple schemas match a file type, exit when a valid schema is found
+                    valid_schema = True
+                    break
+                all_errors.update(errors)
+
+            if not valid_schema:
+                Deprecation.jsonfile_section(all_errors, False)
+                self.style_errors.update(all_errors)
         return toml_dict
 
     def get_style_path(self, style_uri: str) -> Optional[Path]:
@@ -254,6 +245,7 @@ class Style:
         if not app.cache_dir:
             return {}
         merged_dict = self._all_styles.merge()
+        # TODO: check if the merged style file is still needed
         merged_style_path = app.cache_dir / MERGED_STYLE_TOML  # type: Path
         toml = TOMLFormat(data=merged_dict)
 

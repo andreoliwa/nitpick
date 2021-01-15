@@ -45,8 +45,12 @@ class TextPlugin(NitpickPlugin):
     """
 
     error_base_number = 350
-    identify_tags = {"plain-text"}
+    identify_tags = {"text"}
     validation_schema = TextSchema
+
+    #: All other files are also text files, and they already have a suggested content message
+    # TODO: this is a hack to avoid rethinking the whole schema validation now (this will have to be done some day)
+    skip_empty_suggestion = True
 
     def _expected_lines(self):
         return [obj.get("line") for obj in self.file_dict.get("contains", {})]
@@ -73,6 +77,6 @@ def plugin_class() -> Type["NitpickPlugin"]:
 @hookimpl
 def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
     """Handle text files."""
-    if "plain-text" in tags:
+    if "text" in tags:
         return TextPlugin(file_name)
     return None

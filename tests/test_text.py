@@ -67,3 +67,18 @@ def test_text_file_contains_line(request):
         qqq\x1b[0m
         """
     )
+
+
+def test_yaml_file_as_text(request):
+    """A YAML file is also a text file, so it could be checked with the text plugin."""
+    ProjectMock(request).style(
+        """
+        [[".gitlab-ci.yml".contains]]
+        line = "    - mypy -p ims --junit-xml report-mypy.xml"
+        """
+    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").flake8().assert_errors_contain(
+        """
+        NIP352 File .gitlab-ci.yml has missing lines:\x1b[32m
+            - mypy -p ims --junit-xml report-mypy.xml\x1b[0m
+        """
+    )

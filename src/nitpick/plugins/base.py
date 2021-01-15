@@ -34,6 +34,8 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
     identify_tags = set()  # type: Set[str]
 
+    skip_empty_suggestion = False
+
     def __init__(self, path_from_root: str = None) -> None:
         if path_from_root is not None:
             self.file_name = path_from_root
@@ -75,6 +77,8 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
 
         if config_data_exists and not file_exists:
             suggestion = self.suggest_initial_contents()
+            if not suggestion and self.skip_empty_suggestion:
+                return
             phrases = [" was not found"]
             message = NitpickApp.current().config.nitpick_files_section.get(self.file_name)
             if message and isinstance(message, str):
