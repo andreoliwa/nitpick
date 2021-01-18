@@ -11,9 +11,13 @@ cache:
     - $PRE_COMMIT_HOME
 # https://docs.travis-ci.com/user/languages/python/
 language: python
-# https://docs.travis-ci.com/user/reference/xenial/
+# https://docs.travis-ci.com/user/reference/focal
 os: linux
-dist: xenial
+# https://blog.travis-ci.com/2020-09-11-arm-on-aws
+dist: focal
+group: edge
+arch: arm64-graviton2
+virt: lxd
 install:
   - pip install tox coveralls
 before_script:
