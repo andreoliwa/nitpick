@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Type
 import dictdiffer
 
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.base import FilePathTags, NitpickPlugin
 from nitpick.typedefs import YieldFlake8Error
 
 
@@ -150,8 +150,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle the setup.cfg file."""
-    if file_name == SetupCfgPlugin.file_name:
+    if file.path_from_root == SetupCfgPlugin.file_name:
         return SetupCfgPlugin()
     return None

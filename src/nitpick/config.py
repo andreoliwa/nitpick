@@ -2,11 +2,8 @@
 import logging
 from typing import TYPE_CHECKING, Optional
 
-from identify import identify
-
 from nitpick.app import NitpickApp
 from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, PROJECT_NAME, TOOL_NITPICK, TOOL_NITPICK_JMEX
-from nitpick.exceptions import Deprecation
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
@@ -76,14 +73,3 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
 
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})
-
-
-class FileNameCleaner:  # pylint: disable=too-few-public-methods
-    """Clean the file name and get its tags."""
-
-    def __init__(self, path_from_root: str) -> None:
-        if Deprecation.pre_commit_without_dash(path_from_root):
-            self.path_from_root = "." + path_from_root
-        else:
-            self.path_from_root = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
-        self.tags = identify.tags_from_filename(path_from_root)

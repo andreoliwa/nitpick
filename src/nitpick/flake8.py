@@ -8,9 +8,9 @@ from flake8.options.manager import OptionManager
 
 from nitpick import __version__
 from nitpick.app import NitpickApp
-from nitpick.config import FileNameCleaner
 from nitpick.constants import PROJECT_NAME
 from nitpick.mixin import NitpickMixin
+from nitpick.plugins.base import FilePathTags
 from nitpick.typedefs import YieldFlake8Error
 
 LOGGER = logging.getLogger(__name__)
@@ -57,16 +57,16 @@ class NitpickExtension(NitpickMixin):
         if has_errors:
             return []
 
-        # Get all root keys from the style TOML.
+        # Get all root keys from the merged style.
         for config_key, config_dict in app.config.style_dict.items():
             # All except "nitpick" are file names.
             if config_key == PROJECT_NAME:
                 continue
 
-            # For each file name, find the plugin that can handle the file.
-            cleaner = FileNameCleaner(config_key)
-            for plugin_instance in app.plugin_manager.hook.handler(  # pylint: disable=no-member
-                file_name=cleaner.path_from_root, tags=cleaner.tags
+            # For each file name, find the plugin(s) that can handle the file.
+            # FIXME[AA]: def Nitpick.get_file_info(config_key) -> FilePathTags
+            for plugin_instance in app.plugin_manager.hook.can_handle(  # pylint: disable=no-member
+                file=FilePathTags(config_key)
             ):
                 yield from plugin_instance.process(config_dict)
 
