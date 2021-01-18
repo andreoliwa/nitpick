@@ -29,10 +29,11 @@
 
 def test_use_default_when_none_supplied():
     """If [tool.nitpick]preset is empty, use the default existing nitpick-style.toml."""
-    pass  # FIXME[AA]:
+    # FIXME[AA]:
 
 
-def test_local_preset_or_style():
+def test_local_preset_style():
+    """Test local presets and styles."""
     # .toml suffix is optional
 
     # [tool.nitpick]
@@ -45,10 +46,11 @@ def test_local_preset_or_style():
 
     # Preset().resolve_path()
 
-    pass  # FIXME[AA]: test both [tool.nitpick]preset= and [nitpick.styles]include=
+    # FIXME[AA]: test both [tool.nitpick]preset= and [nitpick.styles]include=
 
 
-def test_remote_http_preset_or_style():
+def test_remote_http_preset_style():
+    """Test downloading remote presets and styles."""
     # .toml suffix is optional
 
     # [tool.nitpick]
@@ -56,10 +58,11 @@ def test_remote_http_preset_or_style():
     # preset = "http://example.com/path/to/preset"
     # preset = "https://example.com/path/to/preset.toml"
     # preset = "https://example.com/path/to/preset"
-    pass  # FIXME[AA]: store both remote presets and styles locally under .cache/nitpick (already with joblib or not?)
+    # FIXME[AA]: store both remote presets and styles locally under .cache/nitpick (already with joblib or not?)
 
 
 def test_include_and_exclude_styles():
+    """Test including and excluding styles from a preset."""
     # [tool.nitpick]
     # preset = "http://example.com/path/to/remote"
     # preset = "/absolute/path/to/local1.toml"
@@ -69,7 +72,7 @@ def test_include_and_exclude_styles():
     # exclude = ["subdir/unwanted_style.toml", "path/to/yet/another_unwanted_style"]
 
     # http://example.com/path/to/preset.toml:
-    """
+    style = """
     [nitpick.styles]
     include = [
         "some-style",
@@ -79,13 +82,15 @@ def test_include_and_exclude_styles():
         "../../relative/parent/style.toml"
     ]
     """
+    assert style
 
     # [nitpick.styles]include= can be present in any .toml file, be it a preset or a style building block
 
-    pass  # FIXME[AA]: assert that include_sub_style("full/path/to/unwanted_style.toml") is not called
+    # FIXME[AA]: assert that include_sub_style("full/path/to/unwanted_style.toml") is not called
 
 
 def test_expand():
+    """Test expanding a preset into a full TOML file."""
     # Preset()
     # def expand(self)
     # def include_sub_style(resolved_parent_path_or_url, relative_style_path)
@@ -95,7 +100,7 @@ def test_expand():
     # generate an expanded preset .toml file under .cache/nitpick (already with joblib or not?)
     # use tomlkit to generate exact TOML
 
-    """
+    style = """
     [nitpick.styles]
     include = [
         "style-without-extension",
@@ -108,4 +113,5 @@ def test_expand():
         "/tmp_path_fixture/absolute/sub/local2.toml"
     ]
     """
-    pass  # FIXME[AA]: check if the expanded TOML file has the expected contents
+    assert style
+    # FIXME[AA]: check if the expanded TOML file has the expected contents
