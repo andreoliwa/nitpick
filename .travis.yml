@@ -11,13 +11,21 @@ cache:
     - $PRE_COMMIT_HOME
 # https://docs.travis-ci.com/user/languages/python/
 language: python
-# https://docs.travis-ci.com/user/reference/focal
+# https://docs.travis-ci.com/user/reference/xenial/
 os: linux
+dist: xenial
+
 # https://blog.travis-ci.com/2020-09-11-arm-on-aws
-dist: focal
-group: edge
-arch: arm64-graviton2
-virt: lxd
+#dist: focal
+#group: edge
+#arch: arm64-graviton2
+#virt: lxd
+
+# I tried AWS Graviton2 above, it didn't work because of CodeClimate:
+# /home/travis/.travis/functions: line 109: ./cc-test-reporter: cannot execute binary file: Exec format error
+# Probably there is no pre-built binary for this architecture yet.
+# https://docs.codeclimate.com/docs/configuring-test-coverage#section-locations-of-pre-built-binaries
+
 install:
   - pip install tox coveralls
 before_script:
