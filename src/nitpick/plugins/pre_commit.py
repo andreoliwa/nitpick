@@ -1,13 +1,13 @@
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Set, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import attr
 
 from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.base import FilePathTags, NitpickPlugin
 from nitpick.typedefs import JsonDict, YamlData, YieldFlake8Error
 
 KEY_REPOS = "repos"
@@ -197,8 +197,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle pre-commit config file."""
-    if file_name == PreCommitPlugin.file_name:
+    if file.path_from_root == PreCommitPlugin.file_name:
         return PreCommitPlugin()
     return None

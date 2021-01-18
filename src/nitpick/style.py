@@ -25,7 +25,7 @@ from nitpick.constants import (
 from nitpick.exceptions import Deprecation
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
-from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.base import FilePathTags, NitpickPlugin
 from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList
@@ -118,17 +118,15 @@ class Style:
         self.style_errors = {}
         toml_dict = OrderedDict()
         for key, value_dict in config_dict.items():
-            from nitpick.config import FileNameCleaner  # pylint: disable=import-outside-toplevel
-
-            cleaner = FileNameCleaner(key)
-            toml_dict[cleaner.path_from_root] = value_dict
+            file = FilePathTags(key)
+            toml_dict[file.path_from_root] = value_dict
             if key == PROJECT_NAME:
                 schemas = [NitpickSectionSchema]
             else:
                 schemas = [
                     plugin.validation_schema
-                    for plugin in NitpickApp.current().plugin_manager.hook.handler(  # pylint: disable=no-member
-                        file_name=cleaner.path_from_root, tags=cleaner.tags
+                    for plugin in NitpickApp.current().plugin_manager.hook.can_handle(  # pylint: disable=no-member
+                        file=file
                     )
                 ]
                 if not schemas:
@@ -137,7 +135,7 @@ class Style:
             all_errors = {}
             valid_schema = False
             for schema in schemas:
-                errors = self.validate_schema(schema, cleaner.path_from_root, value_dict)
+                errors = self.validate_schema(schema, file.path_from_root, value_dict)
                 if not errors:
                     # When multiple schemas match a file type, exit when a valid schema is found
                     valid_schema = True
@@ -292,6 +290,7 @@ class Style:
             # E.g.: JSON files that were configured on some TOML style file.
             for subclass in NitpickPlugin.dynamic_name_classes:
                 for tag in subclass.identify_tags:
+                    # FIXME[AA]: WRONG! a tag should be handled by multiple classes...
                     # A tag can only be handled by a single subclass.
                     # If more than one class handle a tag, the latest one will be the handler.
                     handled_tags[tag] = subclass

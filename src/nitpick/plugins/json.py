@@ -1,7 +1,7 @@
 """JSON files."""
 import json
 import logging
-from typing import Optional, Set, Type
+from typing import Optional, Type
 
 from sortedcontainers import SortedDict
 
@@ -9,7 +9,7 @@ from nitpick import fields
 from nitpick.formats import JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.base import FilePathTags, NitpickPlugin
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict, YieldFlake8Error
 
@@ -92,8 +92,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
+def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:
     """Handle JSON files."""
-    if "json" in tags:
-        return JSONPlugin(file_name)
+    if JSONPlugin.identify_tags & file.tags:
+        return JSONPlugin(file.path_from_root)
     return None

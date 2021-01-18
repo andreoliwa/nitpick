@@ -1,13 +1,13 @@
 """Text files."""
 import logging
-from typing import Optional, Set, Type
+from typing import Optional, Type
 
 from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
 
 from nitpick import fields
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.base import FilePathTags, NitpickPlugin
 from nitpick.schemas import help_message
 from nitpick.typedefs import YieldFlake8Error
 
@@ -75,8 +75,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def handler(file_name: str, tags: Set[str]) -> Optional["NitpickPlugin"]:
+def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:
     """Handle text files."""
-    if "text" in tags:
-        return TextPlugin(file_name)
+    if TextPlugin.identify_tags & file.tags:
+        return TextPlugin(file.path_from_root)
     return None

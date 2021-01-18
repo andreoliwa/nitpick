@@ -3,8 +3,10 @@ import abc
 from typing import TYPE_CHECKING, Optional, Set, Type
 
 import jmespath
+from identify import identify
 
 from nitpick.app import NitpickApp
+from nitpick.exceptions import Deprecation
 from nitpick.generic import search_dict
 from nitpick.mixin import NitpickMixin
 from nitpick.typedefs import JsonDict, YieldFlake8Error
@@ -28,11 +30,8 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
     fixed_name_classes = set()  # type: Set[Type[NitpickPlugin]]
     dynamic_name_classes = set()  # type: Set[Type[NitpickPlugin]]
 
-    # TODO: This info is duplicated. Use the value passed on the hook spec, and remove this attribute.
-    #  For this to work, validation and dynamic schema have to be done in a different way
-    #  (maybe NOT using dynamic schemas)
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
-    identify_tags = set()  # type: Set[str]
+    identify_tags: Set[str] = set()
 
     skip_empty_suggestion = False
 
@@ -100,3 +99,14 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
+
+
+class FilePathTags:  # pylint: disable=too-few-public-methods
+    """Clean the file name and get its tags."""
+
+    def __init__(self, path_from_root: str) -> None:
+        if Deprecation.pre_commit_without_dash(path_from_root):
+            self.path_from_root = "." + path_from_root
+        else:
+            self.path_from_root = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
+        self.tags = set(identify.tags_from_filename(path_from_root))
