@@ -37,12 +37,7 @@ To set up Nitpick_ for local development:
 
 3. Install Poetry_ globally using the recommended way.
 
-4. Create your virtualenv with pyenv (or some other tool you prefer)::
-
-    pyenv virtualenv 3.5.6 nitpick
-    pyenv activate nitpick
-
-5. Install packages::
+4. Install packages::
 
     poetry install
 
@@ -50,25 +45,25 @@ To set up Nitpick_ for local development:
     # Installing dependencies from lock file
     # ...
 
-6. Create a branch for local development::
+5. Create a branch for local development::
 
     git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
-7. When you're done making changes, run pre-commit checks and tests with::
+6. When you're done making changes, run pre-commit checks and tests with::
 
     make
 
-8. Commit your changes and push your branch to GitHub::
+7. Commit your changes and push your branch to GitHub::
 
     git add .
-    git commit -m "Your detailed description of your changes."
+    git commit -m "feat: detailed description of your changes"
     git push origin name-of-your-bugfix-or-feature
 
-9. Submit a pull request through the GitHub website.
+8. Submit a pull request through the GitHub website.
 
-10. If your pull request is accepted, all your commits will be squashed into one, and the `Conventional Commits Format <https://www.conventionalcommits.org/>`_ will be used on the commit message.
+9. If your pull request is accepted, all your commits will be squashed into one, and the `Conventional Commits Format <https://www.conventionalcommits.org/>`_ will be used on the commit message.
 
 Pull Request Guidelines
 -----------------------

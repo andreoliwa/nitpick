@@ -89,9 +89,20 @@ Content of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nit
         rev: 3.8.4
         hooks:
           - id: flake8
-            additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
-              flake8-debugger, flake8-docstrings, flake8-isort, flake8-polyfill,
-              flake8-pytest, flake8-quotes, yesqa]
+            additional_dependencies:
+              [
+                flake8-blind-except,
+                flake8-bugbear,
+                flake8-comprehensions,
+                flake8-debugger,
+                flake8-docstrings,
+                flake8-isort,
+                flake8-polyfill,
+                flake8-pytest,
+                flake8-quotes,
+                flake8-typing-imports,
+                yesqa,
+              ]
     """
     # TODO suggest nitpick for external repos
 
@@ -316,18 +327,6 @@ Content of `styles/pylint.toml <https://raw.githubusercontent.com/andreoliwa/nit
     ["pyproject.toml".tool.poetry.dev-dependencies]
     pylint = "*"
 
-.. _default-python-3-5:
-
-Python 3.5
-----------
-
-Content of `styles/python35.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python35.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.5"
-
 .. _default-python-3-6:
 
 Python 3.6
@@ -363,3 +362,15 @@ Content of `styles/python38.toml <https://raw.githubusercontent.com/andreoliwa/n
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.8"
+
+.. _default-python-3-9:
+
+Python 3.9
+----------
+
+Content of `styles/python39.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python39.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.9"

@@ -51,9 +51,20 @@ repos:
     rev: 3.8.4
     hooks:
       - id: flake8
-        additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
-          flake8-debugger, flake8-docstrings, flake8-isort, flake8-polyfill,
-          flake8-pytest, flake8-quotes, yesqa]
+        additional_dependencies:
+          [
+            flake8-blind-except,
+            flake8-bugbear,
+            flake8-comprehensions,
+            flake8-debugger,
+            flake8-docstrings,
+            flake8-isort,
+            flake8-polyfill,
+            flake8-pytest,
+            flake8-quotes,
+            flake8-typing-imports,
+            yesqa,
+          ]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.790
     hooks:
@@ -81,4 +92,4 @@ repos:
     hooks:
       - id: commitlint
         stages: [commit-msg]
-        additional_dependencies: ['@commitlint/config-conventional']
+        additional_dependencies: ["@commitlint/config-conventional"]
