@@ -39,10 +39,10 @@ jobs:
   include:
     - stage: test
       # Python 3.9 is not yet available as of May 25th 2020
-      python: 3.8
+      python: 3.9
+    - python: 3.8
     - python: 3.7
     - python: 3.6
-    - python: 3.5
     # Thanks to https://github.com/cclauss/Travis-CI-Python-on-three-OSes/blob/master/.travis.yml
 # TODO Build freezing on Windows, see comments on .travis/script.sh
 #    - name: "Python: 3.8"
