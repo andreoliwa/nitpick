@@ -64,19 +64,29 @@ def test_remote_http_preset_style():
 def test_include_and_exclude_styles():
     """Test including and excluding styles from a preset."""
     # [tool.nitpick]
-    # preset = "http://example.com/path/to/remote"
-    # preset = "/absolute/path/to/local1.toml"
-    # preset = "relative/local2.toml"
+    # presets = ["http://example.com/path/to/remote"]
+    # presets = ["/absolute/path/to/local1.toml"]
+    # presets = ["relative/local2.toml"]
     # exclude = ["unwanted_style"]
     # exclude = ["unwanted_style.toml"]
     # exclude = ["subdir/unwanted_style.toml", "path/to/yet/another_unwanted_style"]
 
     # http://example.com/path/to/preset.toml:
     style = """
-    [nitpick.styles]
-    include = [
+    [[nitpick.style]]
+    presets = [
         "some-style",
-        "subdir/unwanted_style",
+        "subdir/unwanted_style"
+    ]
+    exclude_files = ["something"]
+    exclude_keys = ["setup.cfg"]
+
+    # or
+    add = []
+    remove = []
+
+    [[nitpick.style]]
+    presets = [
         "another-style",
         "path/to/yet/another_unwanted_style",
         "../../relative/parent/style.toml"
