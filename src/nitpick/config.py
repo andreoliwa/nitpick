@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
+class Config(NitpickMixin):
     """Plugin configuration, read from the project config."""
 
     error_base_number = 200

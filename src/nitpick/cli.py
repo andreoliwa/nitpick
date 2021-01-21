@@ -28,3 +28,6 @@ import click
 def nitpick_cli(check=False):
     """Enforce the same configuration across multiple projects."""
     click.echo(f"Check only? {check}")  # FIXME[AA]: actually use the flag
+    # Nitpick(offline, check)
+    # FIXME[AA]: follow steps of NitpickApp.create_app()
+    # FIXME[AA]: follow steps of NitpickExtension.run()
