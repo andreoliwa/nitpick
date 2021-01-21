@@ -8,7 +8,7 @@ line-length = 120
 [tool.poetry]
 name = "nitpick"
 version = "0.23.1"
-description = "Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint) across multiple Python projects"
+description = "Enforce the same configuration across multiple projects"
 authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"
 readme = "README.md"
@@ -23,6 +23,14 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Software Development :: Quality Assurance",
 ]
+
+[tool.poetry.urls]
+"Documentation" = "https://nitpick.readthedocs.io/"
+"Changelog" = "https://github.com/andreoliwa/nitpick/blob/develop/CHANGELOG.md"
+"Issue Tracker" = "https://github.com/andreoliwa/nitpick/issues"
+
+[tool.poetry.scripts]
+nitpick = "nitpick.cli:nitpick_cli"
 
 [tool.poetry.plugins."flake8.extension"]
 NIP = "nitpick.flake8:NitpickExtension"
