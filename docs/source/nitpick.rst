@@ -21,6 +21,7 @@ Submodules
    :maxdepth: 4
 
    nitpick.app
+   nitpick.cli
    nitpick.config
    nitpick.constants
    nitpick.exceptions
