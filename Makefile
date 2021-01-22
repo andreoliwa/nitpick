@@ -3,12 +3,12 @@ $(shell mkdir -p .cache/make)
 
 .PHONY: Makefile
 
-build: .remove-old-cache .cache/make/lint .cache/make/test-latest .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
+build: .remove-old-cache .cache/make/lint .cache/make/test-quick .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
 .PHONY: build
 
 help:
 	@echo 'Choose one of the following targets:'
-	@cat Makefile | egrep '^[a-z0-9 ./-]*:.*#' | sed -E -e 's/:.+# */@ /g' -e 's/ .+@/@/g' | sort | awk -F@ '{printf "  \033[1;34m%-10s\033[0m %s\n", $$1, $$2}'
+	@cat Makefile | egrep '^[a-z0-9 ./-]*:.*#' | sed -E -e 's/:.+# */@ /g' -e 's/ .+@/@/g' | sort | awk -F@ '{printf "  \033[1;34m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
@@ -31,27 +31,33 @@ clean-test: # Clean test output
 	@fd --changed-before 30m short .cache/make --exec-batch rm -v '{}' ;
 .PHONY: .remove-old-cache
 
-pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Update and install pre-commit hooks
-	@# Uncomment the line below to autoupdate all repos except a few filtered out with egrep
-	yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e commitlint | sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate
+install: install-pre-commit install-poetry # Install pre-commit hooks and Poetry dependencies
+.PHONY: install
+
+# Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
+install-poetry .cache/make/long-poetry src/nitpick.egg-info/entry_points.txt: pyproject.toml # Install Poetry dependencies
+	poetry install
+	touch .cache/make/long-poetry
+.PHONY: install-poetry
+
+install-pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml # Install pre-commit hooks
 	pre-commit install --install-hooks
 	pre-commit install --hook-type commit-msg
 	pre-commit gc
 	touch .cache/make/long-pre-commit
-.PHONY: pre-commit
+.PHONY: install-pre-commit
 
-# Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
-src/nitpick.egg-info/entry_points.txt: pyproject.toml
-	poetry install
+update: update-pre-commit update-poetry # Update pre-commit hooks and Poetry dependencies
+.PHONY: update
 
-poetry .cache/make/long-poetry: pyproject.toml # Update dependencies
+update-pre-commit: # Update pre-commit hooks
+	@# Uncomment the line below to auto update all repos except a few filtered out with egrep
+	yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e commitlint | sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate
+.PHONY: update-pre-commit
+
+update-poetry: # Update Poetry dependencies
 	poetry update
-	poetry install
-	touch .cache/make/long-poetry
-.PHONY: poetry
-
-upgrade: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry # Upgrade pre-commit and Poetry
-.PHONY: upgrade
+.PHONY: update-poetry
 
 lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry # Lint the project (tox running pre-commit, flake8)
 	tox -e lint
@@ -78,9 +84,9 @@ endif
 	touch .cache/make/test
 .PHONY: test
 
-test-latest .cache/make/test-latest: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run test on the latest Python version
-	tox -e py38
-	touch .cache/make/test-latest
+test-quick .cache/make/test-quick: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests on a single Python version
+	tox -e py37
+	touch .cache/make/test-quick
 .PHONY: test
 
 pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
