@@ -64,7 +64,6 @@ class NitpickExtension(NitpickMixin):
                 continue
 
             # For each file name, find the plugin(s) that can handle the file.
-            # FIXME[AA]: def Nitpick.get_file_info(config_key) -> FilePathTags
             for plugin_instance in app.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 file=FilePathTags(config_key)
             ):
