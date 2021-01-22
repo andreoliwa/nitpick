@@ -13,9 +13,17 @@ import pluggy
 from pluggy import PluginManager
 
 from nitpick import plugins
-from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
+from nitpick.constants import (
+    CACHE_DIR_NAME,
+    ERROR_PREFIX,
+    MANAGE_PY,
+    MISSING,
+    PROJECT_NAME,
+    ROOT_FILES,
+    ROOT_PYTHON_FILES,
+)
 from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir, StyleError
-from nitpick.generic import climb_directory_tree
+from nitpick.generic import Borg, climb_directory_tree
 from nitpick.typedefs import Flake8Error
 
 if TYPE_CHECKING:
@@ -24,10 +32,73 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class NitpickApp:  # pylint: disable=too-many-instance-attributes
+# TODO: add tests for this function with tmp_path https://docs.pytest.org/en/stable/tmpdir.html
+def find_root_dir() -> Path:
+    """Find the root dir of the Python project (the one that has one of the ``ROOT_FILES``).
+
+    Start from the current working dir.
+    """
+    # pylint: disable=import-outside-toplevel
+    from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
+    from nitpick.plugins.setup_cfg import SetupCfgPlugin
+
+    root_dirs = set()  # type: Set[Path]
+    seen = set()  # type: Set[Path]
+
+    all_files = list(Path.cwd().glob("*"))
+    # Don't fail if the current dir is empty
+    starting_file = str(all_files[0]) if all_files else ""
+    starting_dir = Path(starting_file).parent.absolute()
+    while True:
+        project_files = climb_directory_tree(
+            starting_dir, ROOT_FILES + (PyProjectTomlPlugin.file_name, SetupCfgPlugin.file_name)
+        )
+        if project_files and project_files & seen:
+            break
+        seen.update(project_files or [])
+
+        if not project_files:
+            # If none of the root files were found, try again with manage.py.
+            # On Django projects, it can be in another dir inside the root dir.
+            project_files = climb_directory_tree(starting_file, [MANAGE_PY])
+            if not project_files or project_files & seen:
+                break
+            seen.update(project_files)
+
+        for found in project_files or []:
+            root_dirs.add(found.parent)
+
+        # Climb up one directory to search for more project files
+        starting_dir = starting_dir.parent
+        if not starting_dir:
+            break
+
+    if not root_dirs:
+        LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
+        raise NoRootDir()
+
+    # If multiple roots are found, get the top one (grandparent dir)
+    return sorted(root_dirs)[0]
+
+
+# FIXME[AA]: move methods to Nitpick after removing NitpickApp
+class _TransitionMixin:  # pylint: disable=too-few-public-methods
+    """Mixin class to transition from NitpickApp (flake8) to Nitpick (CLI)."""
+
+    root_dir: Path
+
+    def clear_cache_dir(self) -> Path:
+        """Clear the cache directory (on the project root or on the current directory)."""
+        cache_root = self.root_dir / CACHE_DIR_NAME  # type: Path
+        cache_dir = cache_root / PROJECT_NAME
+        rmtree(str(cache_dir), ignore_errors=True)
+        return cache_dir
+
+
+# FIXME[AA]: move all attributes+methods to Nitpick or _TransitionMixin, then remove this class
+class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attributes
     """The Nitpick application."""
 
-    root_dir = None  # type: Path
     cache_dir = None  # type: Path
     main_python_file = None  # type: Path
     config = None  # type: Config
@@ -55,7 +126,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         app.offline = offline
 
         try:
-            app.root_dir = app.find_root_dir()
+            app.root_dir = find_root_dir()
             app.cache_dir = app.clear_cache_dir()
 
             app.main_python_file = app.find_main_python_file()
@@ -80,61 +151,6 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
     def current(cls):
         """Return a single instance of the class (singleton)."""
         return cls()
-
-    @staticmethod
-    def find_root_dir() -> Path:
-        """Find the root dir of the Python project (the one that has one of the ``ROOT_FILES``).
-
-        Start from the current working dir.
-        """
-        # pylint: disable=import-outside-toplevel
-        from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
-        from nitpick.plugins.setup_cfg import SetupCfgPlugin
-
-        root_dirs = set()  # type: Set[Path]
-        seen = set()  # type: Set[Path]
-
-        all_files = list(Path.cwd().glob("*"))
-        # Don't fail if the current dir is empty
-        starting_file = str(all_files[0]) if all_files else ""
-        starting_dir = Path(starting_file).parent.absolute()
-        while True:
-            project_files = climb_directory_tree(
-                starting_dir, ROOT_FILES + (PyProjectTomlPlugin.file_name, SetupCfgPlugin.file_name)
-            )
-            if project_files and project_files & seen:
-                break
-            seen.update(project_files or [])
-
-            if not project_files:
-                # If none of the root files were found, try again with manage.py.
-                # On Django projects, it can be in another dir inside the root dir.
-                project_files = climb_directory_tree(starting_file, [MANAGE_PY])
-                if not project_files or project_files & seen:
-                    break
-                seen.update(project_files)
-
-            for found in project_files or []:
-                root_dirs.add(found.parent)
-
-            # Climb up one directory to search for more project files
-            starting_dir = starting_dir.parent
-            if not starting_dir:
-                break
-
-        if not root_dirs:
-            LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
-            raise NoRootDir()
-
-        # If multiple roots are found, get the top one (grandparent dir)
-        return sorted(root_dirs)[0]
-
-    def clear_cache_dir(self) -> Path:
-        """Clear the cache directory (on the project root or on the current directory)."""
-        cache_root = self.root_dir / CACHE_DIR_NAME  # type: Path
-        cache_dir = cache_root / PROJECT_NAME
-        rmtree(str(cache_dir), ignore_errors=True)
-        return cache_dir
 
     def find_main_python_file(self) -> Path:
         """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.
@@ -211,3 +227,48 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
     def get_env(cls, flag: Enum) -> str:
         """Get the value of an environment variable."""
         return os.environ.get(cls.format_env(flag), "")
+
+
+class Nitpick(Borg, _TransitionMixin):
+    """The Nitpick API."""
+
+    offline: bool
+    check: bool
+
+    def __init__(self, offline: bool = MISSING, check: bool = MISSING):  # type: ignore
+        super().__init__()
+        first_instance: bool = not hasattr(self, "offline")
+
+        self._init_attribute("offline", offline, False)
+        self._init_attribute("check", check, False)
+
+        if first_instance:
+            self.root_dir = find_root_dir()
+            self.cache_dir = self.clear_cache_dir()
+
+    def cli_debug_info(self):
+        """Display debug config on the CLI."""
+        click.echo(f"Offline? {self.offline}")
+        click.echo(f"Check only? {self.check}")
+        click.echo(f"Root dir: {self.root_dir}")
+        click.echo(f"Cache dir: {self.cache_dir}")
+
+    # FIXME[AA]: follow steps of NitpickApp.create_app()
+    # FIXME[AA]: call these methods on demand, when
+    # @classmethod
+    # def create_app(cls, offline=False) -> "NitpickApp":
+    #     """Create a single application."""
+    #     # pylint: disable=import-outside-toplevel
+    #     from nitpick.config import Config  # pylint: disable=redefined-outer-name
+    #     from nitpick.plugins.base import NitpickPlugin
+    #
+    #     try:
+    #
+    #         app.main_python_file = app.find_main_python_file()
+    #         app.config = Config()
+    #         app.plugin_manager = app.load_plugins()
+    #         NitpickPlugin.load_fixed_dynamic_classes()
+    #     except (NoRootDir, NoPythonFile) as err:
+    #         app.init_errors.append(err)
+    #
+    #     return app

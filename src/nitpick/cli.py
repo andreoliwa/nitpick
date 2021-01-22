@@ -15,6 +15,8 @@ Why does this file exist, and why not put this in __main__?
 """
 import click
 
+from nitpick import Nitpick
+
 
 @click.command()
 @click.option(
@@ -25,9 +27,8 @@ import click
     help="Don't modify the configuration files, just print the difference."
     " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
 )
+# FIXME[AA]: add offline option
 def nitpick_cli(check=False):
     """Enforce the same configuration across multiple projects."""
-    click.echo(f"Check only? {check}")  # FIXME[AA]: actually use the flag
-    # Nitpick(offline, check)
-    # FIXME[AA]: follow steps of NitpickApp.create_app()
+    Nitpick(check=check).cli_debug_info()
     # FIXME[AA]: follow steps of NitpickExtension.run()
