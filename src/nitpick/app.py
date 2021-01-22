@@ -3,6 +3,7 @@ import itertools
 import logging
 import os
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 from shutil import rmtree
 from typing import TYPE_CHECKING, List, Set
@@ -25,8 +26,6 @@ LOGGER = logging.getLogger(__name__)
 
 class NitpickApp:  # pylint: disable=too-many-instance-attributes
     """The Nitpick application."""
-
-    _current_app = None  # type: NitpickApp
 
     root_dir = None  # type: Path
     cache_dir = None  # type: Path
@@ -52,8 +51,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
         from nitpick.plugins.base import NitpickPlugin
 
-        app = cls()
-        cls._current_app = app
+        app = cls.current()
         app.offline = offline
 
         try:
@@ -78,9 +76,10 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         return plugin_manager
 
     @classmethod
+    @lru_cache(typed=True)
     def current(cls):
-        """Get the current app from the stack."""
-        return cls._current_app
+        """Return a single instance of the class (singleton)."""
+        return cls()
 
     @staticmethod
     def find_root_dir() -> Path:
