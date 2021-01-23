@@ -133,7 +133,8 @@ def generate_plugins_rst():
 
     # Sort order: classes with fixed file names first, then alphabetically by class name
     for plugin_class in sorted(
-        app.plugin_manager.hook.plugin_class(), key=lambda c: "0" if c.file_name else "1" + c.__name__
+        app.plugin_manager.hook.plugin_class(),  # pylint: disable=no-member
+        key=lambda c: "0" if c.file_name else "1" + c.__name__,
     ):
         header = plugin_class.file_name
         if not header:

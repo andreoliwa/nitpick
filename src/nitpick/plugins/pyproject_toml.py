@@ -21,8 +21,9 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
     def check_rules(self) -> YieldFlake8Error:
         """Check missing key/value pairs in pyproject.toml."""
-        if NitpickApp.current().config.pyproject_toml:
-            comparison = NitpickApp.current().config.pyproject_toml.compare_with_flatten(self.file_dict)
+        file = NitpickApp.current().config.pyproject_toml
+        if file:
+            comparison = file.compare_with_flatten(self.file_dict)
             yield from self.warn_missing_different(comparison)
 
     def suggest_initial_contents(self) -> str:

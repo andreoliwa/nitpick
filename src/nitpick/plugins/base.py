@@ -55,7 +55,7 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
         """Separate classes with fixed file names from classes with dynamic files names."""
         cls.fixed_name_classes = set()
         cls.dynamic_name_classes = set()
-        for plugin_class in NitpickApp.current().plugin_manager.hook.plugin_class():
+        for plugin_class in NitpickApp.current().plugin_manager.hook.plugin_class():  # pylint: disable=no-member
             if plugin_class.file_name:
                 cls.fixed_name_classes.add(plugin_class)
             else:

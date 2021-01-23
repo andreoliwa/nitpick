@@ -81,6 +81,39 @@ def find_root_dir() -> Path:
     return sorted(root_dirs)[0]
 
 
+def find_main_python_file(root_dir: Path) -> Path:  # TODO: add unit tests
+    """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.
+
+    The search order is:
+    1. Python files that belong to the root dir of the project (e.g.: ``setup.py``, ``autoapp.py``).
+    2. ``manage.py``: they can be on the root or on a subdir (Django projects).
+    3. Any other ``*.py`` Python file on the root dir and subdir.
+    This avoid long recursions when there is a ``node_modules`` subdir for instance.
+    """
+    for the_file in itertools.chain(
+        # 1.
+        [root_dir / root_file for root_file in ROOT_PYTHON_FILES],
+        # 2.
+        root_dir.glob("*/{}".format(MANAGE_PY)),
+        # 3.
+        root_dir.glob("*.py"),
+        root_dir.glob("*/*.py"),
+    ):
+        if the_file.exists():
+            LOGGER.info("Found the file %s", the_file)
+            return Path(the_file)
+
+    raise NoPythonFile(root_dir)
+
+
+def load_plugins() -> PluginManager:
+    """Load all defined plugins."""
+    plugin_manager = pluggy.PluginManager(PROJECT_NAME)
+    plugin_manager.add_hookspecs(plugins)
+    plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
+    return plugin_manager
+
+
 # FIXME[AA]: move methods to Nitpick after removing NitpickApp
 class _TransitionMixin:  # pylint: disable=too-few-public-methods
     """Mixin class to transition from NitpickApp (flake8) to Nitpick (CLI)."""
@@ -129,52 +162,20 @@ class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attribu
             app.root_dir = find_root_dir()
             app.cache_dir = app.clear_cache_dir()
 
-            app.main_python_file = app.find_main_python_file()
+            app.main_python_file = find_main_python_file(app.root_dir)
             app.config = Config()
-            app.plugin_manager = app.load_plugins()
+            app.plugin_manager = load_plugins()
             NitpickPlugin.load_fixed_dynamic_classes()
         except (NoRootDir, NoPythonFile) as err:
             app.init_errors.append(err)
 
         return app
 
-    @staticmethod
-    def load_plugins() -> PluginManager:
-        """Load all defined plugins."""
-        plugin_manager = pluggy.PluginManager(PROJECT_NAME)
-        plugin_manager.add_hookspecs(plugins)
-        plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
-        return plugin_manager
-
     @classmethod
     @lru_cache(typed=True)
-    def current(cls):
+    def current(cls) -> "NitpickApp":
         """Return a single instance of the class (singleton)."""
         return cls()
-
-    def find_main_python_file(self) -> Path:
-        """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.
-
-        The search order is:
-        1. Python files that belong to the root dir of the project (e.g.: ``setup.py``, ``autoapp.py``).
-        2. ``manage.py``: they can be on the root or on a subdir (Django projects).
-        3. Any other ``*.py`` Python file on the root dir and subdir.
-        This avoid long recursions when there is a ``node_modules`` subdir for instance.
-        """
-        for the_file in itertools.chain(
-            # 1.
-            [self.root_dir / root_file for root_file in ROOT_PYTHON_FILES],
-            # 2.
-            self.root_dir.glob("*/{}".format(MANAGE_PY)),
-            # 3.
-            self.root_dir.glob("*.py"),
-            self.root_dir.glob("*/*.py"),
-        ):
-            if the_file.exists():
-                LOGGER.info("Found the file %s", the_file)
-                return Path(the_file)
-
-        raise NoPythonFile(self.root_dir)
 
     @staticmethod
     def as_flake8_warning(nitpick_error: NitpickError) -> Flake8Error:
@@ -235,16 +236,23 @@ class Nitpick(Borg, _TransitionMixin):
     offline: bool
     check: bool
 
-    def __init__(self, offline: bool = MISSING, check: bool = MISSING):  # type: ignore
+    def __init__(self, offline=MISSING, check=MISSING):
         super().__init__()
         first_instance: bool = not hasattr(self, "offline")
 
         self._init_attribute("offline", offline, False)
         self._init_attribute("check", check, False)
 
+        # FIXME[AA]: call these methods on demand with lru_cache, when called the first time?
         if first_instance:
+            # pylint: disable=import-outside-toplevel
+            from nitpick.plugins.base import NitpickPlugin
+
             self.root_dir = find_root_dir()
             self.cache_dir = self.clear_cache_dir()
+            self.main_python_file = find_main_python_file(self.root_dir)
+            self.plugin_manager = load_plugins()
+            NitpickPlugin.load_fixed_dynamic_classes()
 
     def cli_debug_info(self):
         """Display debug config on the CLI."""
@@ -252,23 +260,3 @@ class Nitpick(Borg, _TransitionMixin):
         click.echo(f"Check only? {self.check}")
         click.echo(f"Root dir: {self.root_dir}")
         click.echo(f"Cache dir: {self.cache_dir}")
-
-    # FIXME[AA]: follow steps of NitpickApp.create_app()
-    # FIXME[AA]: call these methods on demand, when
-    # @classmethod
-    # def create_app(cls, offline=False) -> "NitpickApp":
-    #     """Create a single application."""
-    #     # pylint: disable=import-outside-toplevel
-    #     from nitpick.config import Config  # pylint: disable=redefined-outer-name
-    #     from nitpick.plugins.base import NitpickPlugin
-    #
-    #     try:
-    #
-    #         app.main_python_file = app.find_main_python_file()
-    #         app.config = Config()
-    #         app.plugin_manager = app.load_plugins()
-    #         NitpickPlugin.load_fixed_dynamic_classes()
-    #     except (NoRootDir, NoPythonFile) as err:
-    #         app.init_errors.append(err)
-    #
-    #     return app
