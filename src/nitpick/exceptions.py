@@ -14,6 +14,7 @@ class NitpickError(Exception):
 
     error_base_number: int = 0
     error_prefix: str = ""
+    number: int = 0
 
     def __init__(self, message: str = "", number: int = 0, suggestion: str = "", add_to_base_number=True) -> None:
         self.message: str = message or self.message
@@ -64,6 +65,22 @@ class NoPythonFileError(PluginError):
     def __init__(self, root_dir: Path, **kwargs) -> None:
         self.message = self.message.format(str(root_dir))
         super().__init__(self.message, **kwargs)
+
+
+class ConfigError(NitpickError):
+    """Config error."""
+
+    error_base_number = 200
+
+
+class MinimumVersionError(ConfigError):
+    """Warn about minimum Nitpick version."""
+
+    number = 3
+    message = "The style file you're using requires {project}>={expected} (you have {actual}). Please upgrade"
+
+    def __init__(self, expected: str, actual: str) -> None:
+        super().__init__(self.message.format(project=PROJECT_NAME, expected=expected, actual=actual))
 
 
 class StyleError(NitpickError):

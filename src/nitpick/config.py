@@ -3,7 +3,8 @@ import logging
 from typing import TYPE_CHECKING, Optional
 
 from nitpick.app import NitpickApp
-from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, PROJECT_NAME, TOOL_NITPICK, TOOL_NITPICK_JMEX
+from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, TOOL_NITPICK, TOOL_NITPICK_JMEX
+from nitpick.exceptions import MinimumVersionError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.mixin import NitpickMixin
@@ -22,8 +23,6 @@ LOGGER = logging.getLogger(__name__)
 
 class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
     """Plugin configuration, read from the project config."""
-
-    error_base_number = 200
 
     def __init__(self) -> None:
 
@@ -65,11 +64,7 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         if minimum_version and version_to_tuple(NitpickExtension.version) < version_to_tuple(minimum_version):
-            yield self.flake8_error(
-                3,
-                "The style file you're using requires {}>={}".format(PROJECT_NAME, minimum_version)
-                + " (you have {}). Please upgrade".format(NitpickExtension.version),
-            )
+            yield MinimumVersionError(minimum_version, NitpickExtension.version).as_flake8_warning()
 
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})
