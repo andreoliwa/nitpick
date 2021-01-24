@@ -1,17 +1,15 @@
 """Configuration of the plugin."""
 import logging
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Iterator, Optional
 
 from nitpick.app import NitpickApp
 from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, TOOL_NITPICK, TOOL_NITPICK_JMEX
-from nitpick.exceptions import MinimumVersionError
+from nitpick.exceptions import MinimumVersionError, NitpickError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
-from nitpick.mixin import NitpickMixin
 from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
 from nitpick.schemas import ToolNitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.style import Style
-from nitpick.typedefs import YieldFlake8Error
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -21,7 +19,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
+class Config:
     """Plugin configuration, read from the project config."""
 
     def __init__(self) -> None:
@@ -48,7 +46,7 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
                 return False
         return True
 
-    def merge_styles(self) -> YieldFlake8Error:
+    def merge_styles(self) -> Iterator[NitpickError]:
         """Merge one or multiple style files."""
         if not self.validate_pyproject_tool_nitpick():
             # If the project is misconfigured, don't even continue.
@@ -64,7 +62,7 @@ class Config(NitpickMixin):  # pylint: disable=too-many-instance-attributes
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         if minimum_version and version_to_tuple(NitpickExtension.version) < version_to_tuple(minimum_version):
-            yield MinimumVersionError(minimum_version, NitpickExtension.version).as_flake8_warning()
+            yield MinimumVersionError(minimum_version, NitpickExtension.version)
 
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})

@@ -1,10 +1,16 @@
 """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
-from typing import Optional, Type
+from typing import Iterator, Optional, Type
 
 from nitpick.app import NitpickApp
+from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
-from nitpick.typedefs import YieldFlake8Error
+
+
+class PyProjectTomlError(NitpickError):
+    """Base for pyproject.toml errors."""
+
+    error_base_number = 310
 
 
 class PyProjectTomlPlugin(NitpickPlugin):
@@ -17,9 +23,9 @@ class PyProjectTomlPlugin(NitpickPlugin):
     """
 
     file_name = "pyproject.toml"
-    error_base_number = 310
+    error_class = PyProjectTomlError
 
-    def check_rules(self) -> YieldFlake8Error:
+    def check_rules(self) -> Iterator[NitpickError]:
         """Check missing key/value pairs in pyproject.toml."""
         if NitpickApp.current().config.pyproject_toml:
             comparison = NitpickApp.current().config.pyproject_toml.compare_with_flatten(self.file_dict)

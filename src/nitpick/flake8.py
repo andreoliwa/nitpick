@@ -2,6 +2,7 @@
 import itertools
 import logging
 from pathlib import Path
+from typing import Iterator
 
 import attr
 from flake8.options.manager import OptionManager
@@ -9,15 +10,14 @@ from flake8.options.manager import OptionManager
 from nitpick import __version__
 from nitpick.app import NitpickApp
 from nitpick.constants import PROJECT_NAME
-from nitpick.exceptions import AbsentFileError, PresentFileError
-from nitpick.mixin import NitpickMixin
+from nitpick.exceptions import AbsentFileError, InitError, NitpickError, PresentFileError
 from nitpick.plugins.base import FilePathTags
-from nitpick.typedefs import YieldFlake8Error
+from nitpick.typedefs import Flake8Error
 
 LOGGER = logging.getLogger(__name__)
 
 
-def check_files(present: bool) -> YieldFlake8Error:
+def check_files(present: bool) -> Iterator[NitpickError]:
     """Check files that should be present or absent."""
     key = "present" if present else "absent"
     message = "exist" if present else "be deleted"
@@ -32,11 +32,11 @@ def check_files(present: bool) -> YieldFlake8Error:
         if extra_message:
             full_message += f": {extra_message}"
         error_class = PresentFileError if present else AbsentFileError
-        yield error_class(full_message).as_flake8_warning()
+        yield error_class(full_message)
 
 
 @attr.s(hash=False)
-class NitpickExtension(NitpickMixin):
+class NitpickExtension:
     """Main class for the flake8 extension."""
 
     # Plugin config
@@ -44,19 +44,24 @@ class NitpickExtension(NitpickMixin):
     version = __version__
 
     # NitpickMixin
-    error_base_number = 100
+    error_class = InitError
 
     # Plugin arguments passed by Flake8
     tree = attr.ib(default=None)
     filename = attr.ib(default="(none)")
 
-    def run(self) -> YieldFlake8Error:
+    def run(self) -> Iterator[Flake8Error]:
         """Run the check plugin."""
+        for err in self.collect_nitpick_errors():
+            yield err.as_flake8_warning()
+
+    def collect_nitpick_errors(self) -> Iterator[NitpickError]:
+        """Collect all possible Nitpick errors."""
         has_errors = False
         app = NitpickApp.current()
-        for err in app.init_errors:
+        for init_err in app.init_errors:
             has_errors = True
-            yield err.as_flake8_warning()
+            yield init_err
         if has_errors:
             return []
 
@@ -70,9 +75,9 @@ class NitpickExtension(NitpickMixin):
         yield from itertools.chain(app.config.merge_styles(), check_files(True), check_files(False))
 
         has_errors = False
-        for err in app.style_errors:
+        for style_err in app.style_errors:
             has_errors = True
-            yield err.as_flake8_warning()
+            yield style_err
         if has_errors:
             return []
 
@@ -83,7 +88,6 @@ class NitpickExtension(NitpickMixin):
                 continue
 
             # For each file name, find the plugin(s) that can handle the file.
-            # FIXME[AA]: def Nitpick.get_file_info(config_key) -> FilePathTags
             for plugin_instance in app.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 file=FilePathTags(config_key)
             ):

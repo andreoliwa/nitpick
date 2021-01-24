@@ -45,20 +45,20 @@ class NitpickError(Exception):
         )
 
 
-class PluginError(NitpickError):
-    """Plugin error."""
+class InitError(NitpickError):
+    """Init errors."""
 
     error_base_number = 100
 
 
-class NoRootDirError(PluginError):
+class NoRootDirError(InitError):
     """No root dir found."""
 
     number = 1
     message = "No root dir found (is this a Python project?)"
 
 
-class NoPythonFileError(PluginError):
+class NoPythonFileError(InitError):
     """No Python file was found."""
 
     number = 2
@@ -69,13 +69,13 @@ class NoPythonFileError(PluginError):
         super().__init__(self.message, **kwargs)
 
 
-class PresentFileError(PluginError):
+class PresentFileError(InitError):
     """File exists when it shouldn't."""
 
     number = 3
 
 
-class AbsentFileError(PluginError):
+class AbsentFileError(InitError):
     """File doesn't exist when it should."""
 
     number = 4
@@ -107,6 +107,12 @@ class StyleError(NitpickError):
     def __init__(self, style_file_name: str, **kwargs) -> None:
         self.style_file_name = style_file_name
         super().__init__(**kwargs)
+
+
+class PluginError(NitpickError):
+    """Base for plugin errors."""
+
+    error_base_number = 300
 
 
 class Deprecation:

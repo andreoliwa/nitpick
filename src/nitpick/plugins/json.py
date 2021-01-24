@@ -1,17 +1,18 @@
 """JSON files."""
 import json
 import logging
-from typing import Optional, Type
+from typing import Iterator, Optional, Type
 
 from sortedcontainers import SortedDict
 
 from nitpick import fields
+from nitpick.exceptions import NitpickError
 from nitpick.formats import JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
 from nitpick.schemas import BaseNitpickSchema
-from nitpick.typedefs import JsonDict, YieldFlake8Error
+from nitpick.typedefs import JsonDict
 
 KEY_CONTAINS_KEYS = "contains_keys"
 KEY_CONTAINS_JSON = "contains_json"
@@ -25,6 +26,12 @@ class JSONFileSchema(BaseNitpickSchema):
     contains_json = fields.Dict(fields.NonEmptyString, fields.JSONString)
 
 
+class JsonError(NitpickError):
+    """Base for JSON errors."""
+
+    error_base_number = 340
+
+
 class JSONPlugin(NitpickPlugin):
     """Checker for any JSON file.
 
@@ -32,14 +39,14 @@ class JSONPlugin(NitpickPlugin):
     Example: :ref:`the default config for package.json <default-package-json>`.
     """
 
-    error_base_number = 340
+    error_class = JsonError
 
     validation_schema = JSONFileSchema
     identify_tags = {"json"}
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
 
-    def check_rules(self) -> YieldFlake8Error:
+    def check_rules(self) -> Iterator[NitpickError]:
         """Check missing keys and JSON content."""
         yield from self._check_contained_keys()
         yield from self._check_contained_json()
@@ -60,14 +67,14 @@ class JSONPlugin(NitpickPlugin):
         suggestion = self.get_suggested_json()
         return JSONFormat(data=suggestion).reformatted if suggestion else ""
 
-    def _check_contained_keys(self) -> YieldFlake8Error:
+    def _check_contained_keys(self) -> Iterator[NitpickError]:
         json_fmt = JSONFormat(path=self.file_path)
         suggested_json = self.get_suggested_json(json_fmt.as_data)
         if not suggested_json:
             return
-        yield self.flake8_error(8, " has missing keys:", JSONFormat(data=suggested_json).reformatted)
+        yield self.error_class(" has missing keys:", JSONFormat(data=suggested_json).reformatted, 8)
 
-    def _check_contained_json(self) -> YieldFlake8Error:
+    def _check_contained_json(self) -> Iterator[NitpickError]:
         actual_fmt = JSONFormat(path=self.file_path)
         expected = {}
         # TODO: accept key as a jmespath expression, value is valid JSON
