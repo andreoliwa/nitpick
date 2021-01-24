@@ -37,7 +37,7 @@ class NitpickExtension(NitpickMixin):
         app = NitpickApp.current()
         for err in app.init_errors:
             has_errors = True
-            yield NitpickApp.as_flake8_warning(err)
+            yield err.as_flake8_warning()
         if has_errors:
             return []
 
@@ -53,7 +53,7 @@ class NitpickExtension(NitpickMixin):
         has_errors = False
         for err in app.style_errors:
             has_errors = True
-            yield NitpickApp.as_flake8_warning(err)
+            yield err.as_flake8_warning()
         if has_errors:
             return []
 
