@@ -67,6 +67,18 @@ class NoPythonFileError(PluginError):
         super().__init__(self.message, **kwargs)
 
 
+class PresentFileError(PluginError):
+    """File exists when it shouldn't."""
+
+    number = 3
+
+
+class AbsentFileError(PluginError):
+    """File doesn't exist when it should."""
+
+    number = 4
+
+
 class ConfigError(NitpickError):
     """Config error."""
 

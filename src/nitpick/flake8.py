@@ -9,11 +9,30 @@ from flake8.options.manager import OptionManager
 from nitpick import __version__
 from nitpick.app import NitpickApp
 from nitpick.constants import PROJECT_NAME
+from nitpick.exceptions import AbsentFileError, PresentFileError
 from nitpick.mixin import NitpickMixin
 from nitpick.plugins.base import FilePathTags
 from nitpick.typedefs import YieldFlake8Error
 
 LOGGER = logging.getLogger(__name__)
+
+
+def check_files(present: bool) -> YieldFlake8Error:
+    """Check files that should be present or absent."""
+    key = "present" if present else "absent"
+    message = "exist" if present else "be deleted"
+    absent = not present
+    for file_name, extra_message in NitpickApp.current().config.nitpick_files_section.get(key, {}).items():
+        file_path: Path = NitpickApp.current().root_dir / file_name
+        exists = file_path.exists()
+        if (present and exists) or (absent and not exists):
+            continue
+
+        full_message = f"File {file_name} should {message}"
+        if extra_message:
+            full_message += f": {extra_message}"
+        error_class = PresentFileError if present else AbsentFileError
+        yield error_class(full_message).as_flake8_warning()
 
 
 @attr.s(hash=False)
@@ -48,7 +67,7 @@ class NitpickExtension(NitpickMixin):
             return []
         LOGGER.debug("Nitpicking file: %s", self.filename)
 
-        yield from itertools.chain(app.config.merge_styles(), self.check_files(True), self.check_files(False))
+        yield from itertools.chain(app.config.merge_styles(), check_files(True), check_files(False))
 
         has_errors = False
         for err in app.style_errors:
@@ -71,23 +90,6 @@ class NitpickExtension(NitpickMixin):
                 yield from plugin_instance.process(config_dict)
 
         return []
-
-    def check_files(self, present: bool) -> YieldFlake8Error:
-        """Check files that should be present or absent."""
-        key = "present" if present else "absent"
-        message = "exist" if present else "be deleted"
-        absent = not present
-        for file_name, extra_message in NitpickApp.current().config.nitpick_files_section.get(key, {}).items():
-            file_path = NitpickApp.current().root_dir / file_name  # type: Path
-            exists = file_path.exists()
-            if (present and exists) or (absent and not exists):
-                continue
-
-            full_message = "File {} should {}".format(file_name, message)
-            if extra_message:
-                full_message += ": {}".format(extra_message)
-
-            yield self.flake8_error(3 if present else 4, full_message)
 
     @staticmethod
     def add_options(option_manager: OptionManager):
