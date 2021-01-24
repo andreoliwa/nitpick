@@ -39,7 +39,9 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
         if path_from_root is not None:
             self.file_name = path_from_root
 
-        self.error_prefix = "File {}".format(self.file_name)
+        self.error_prefix = "File {}".format(self.file_name)  # TODO: remove this after all plugins have error_class
+        if self.error_class:
+            self.error_class.error_prefix = self.error_prefix
         self.file_path = NitpickApp.current().root_dir / self.file_name  # type: Path
 
         # Configuration for this file as a TOML dict, taken from the style file.
@@ -84,7 +86,11 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
                 phrases.append(message)
             if suggestion:
                 phrases.append("Create it with this content:")
-            yield self.flake8_error(1, ". ".join(phrases), suggestion)
+            joined_message = ". ".join(phrases)
+            if self.error_class:
+                yield self.error_class(joined_message, suggestion, 1).as_flake8_warning()
+            else:
+                yield self.flake8_error(1, joined_message, suggestion)
         elif not should_exist and file_exists:
             # Only display this message if the style is valid.
             if not NitpickApp.current().style_errors:

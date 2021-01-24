@@ -85,7 +85,7 @@ endif
 .PHONY: test
 
 test-quick .cache/make/test-quick: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests on a single Python version
-	tox -e py37
+	tox -e py36
 	touch .cache/make/test-quick
 .PHONY: test
 

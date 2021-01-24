@@ -15,11 +15,13 @@ class NitpickError(Exception):
     error_base_number: int = 0
     error_prefix: str = ""
     number: int = 0
+    add_to_base_number: bool = True
 
-    def __init__(self, message: str = "", number: int = 0, suggestion: str = "", add_to_base_number=True) -> None:
+    def __init__(self, message: str = "", suggestion: str = "", number: int = 0, add_to_base_number=True) -> None:
         self.message: str = message or self.message
-        self.number: int = number or self.number
         self.suggestion: str = suggestion
+        if number:
+            self.number = number
         self.add_to_base_number = add_to_base_number
 
         super().__init__(self.message)
