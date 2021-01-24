@@ -13,11 +13,13 @@ Why does this file exist, and why not put this in __main__?
 
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
+import itertools
 from enum import Enum
 
 import click
 
 from nitpick import Nitpick
+from nitpick.config import Config
 
 
 class NitpickFlags(Enum):
@@ -38,5 +40,8 @@ class NitpickFlags(Enum):
 )
 def nitpick_cli(offline=False, check=False):
     """Enforce the same configuration across multiple projects."""
-    Nitpick(offline, check).cli_debug_info()
+    nit = Nitpick(offline, check)
     # FIXME[AA]: follow steps of NitpickExtension.run()
+
+    for err in itertools.chain(Config().merge_styles(), nit.check_files(True), nit.check_files(False)):
+        click.echo(str(err))

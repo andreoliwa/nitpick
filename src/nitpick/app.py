@@ -24,7 +24,8 @@ from nitpick.constants import (
 )
 from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir, StyleError
 from nitpick.generic import Borg, climb_directory_tree
-from nitpick.typedefs import Flake8Error
+from nitpick.mixin import NitpickMixin
+from nitpick.typedefs import Flake8Error, YieldFlake8Error
 
 if TYPE_CHECKING:
     from nitpick.config import Config
@@ -115,10 +116,11 @@ def load_plugins() -> PluginManager:
 
 
 # FIXME[AA]: move methods to Nitpick after removing NitpickApp
-class _TransitionMixin:  # pylint: disable=too-few-public-methods
+class _TransitionMixin(NitpickMixin):  # pylint: disable=too-few-public-methods
     """Mixin class to transition from NitpickApp (flake8) to Nitpick (CLI)."""
 
     root_dir: Path
+    style_errors: List[NitpickError] = []
 
     def clear_cache_dir(self) -> Path:
         """Clear the cache directory (on the project root or on the current directory)."""
@@ -126,6 +128,31 @@ class _TransitionMixin:  # pylint: disable=too-few-public-methods
         cache_dir = cache_root / PROJECT_NAME
         rmtree(str(cache_dir), ignore_errors=True)
         return cache_dir
+
+    def check_files(self, present: bool) -> YieldFlake8Error:
+        """Check files that should be present or absent."""
+        key = "present" if present else "absent"
+        message = "exist" if present else "be deleted"
+        absent = not present
+        for file_name, extra_message in NitpickApp.current().config.nitpick_files_section.get(key, {}).items():
+            file_path = NitpickApp.current().root_dir / file_name  # type: Path
+            exists = file_path.exists()
+            if (present and exists) or (absent and not exists):
+                continue
+
+            full_message = "File {} should {}".format(file_name, message)
+            if extra_message:
+                full_message += ": {}".format(extra_message)
+
+            yield self.flake8_error(3 if present else 4, full_message)
+
+    def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:
+        """Add a style error to the internal list."""
+        err = StyleError(file_name)
+        err.message = "File {} has an incorrect style. {}".format(file_name, message)
+        if invalid_data:
+            err.suggestion = invalid_data
+        self.style_errors.append(err)
 
 
 # FIXME[AA]: move all attributes+methods to Nitpick or _TransitionMixin, then remove this class
@@ -160,7 +187,7 @@ class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attribu
             app.main_python_file = find_main_python_file(app.root_dir)
             app.config = Config()
             app.plugin_manager = load_plugins()
-            NitpickPlugin.load_fixed_dynamic_classes()
+            NitpickPlugin.load_fixed_dynamic_classes(app.plugin_manager)
         except (NoRootDir, NoPythonFile) as err:
             app.init_errors.append(err)
 
@@ -247,7 +274,7 @@ class Nitpick(Borg, _TransitionMixin):
             self.cache_dir = self.clear_cache_dir()
             self.main_python_file = find_main_python_file(self.root_dir)
             self.plugin_manager = load_plugins()
-            NitpickPlugin.load_fixed_dynamic_classes()
+            NitpickPlugin.load_fixed_dynamic_classes(self.plugin_manager)
 
     def cli_debug_info(self):
         """Display debug config on the CLI."""

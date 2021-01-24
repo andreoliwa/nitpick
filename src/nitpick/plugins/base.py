@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional, Set, Type
 
 import jmespath
 from identify import identify
+from pluggy import PluginManager
 
 from nitpick.app import NitpickApp
 from nitpick.exceptions import Deprecation
@@ -51,11 +52,11 @@ class NitpickPlugin(NitpickMixin, metaclass=abc.ABCMeta):
         )  # type: JsonDict
 
     @classmethod
-    def load_fixed_dynamic_classes(cls) -> None:
+    def load_fixed_dynamic_classes(cls, plugin_manager: PluginManager) -> None:
         """Separate classes with fixed file names from classes with dynamic files names."""
         cls.fixed_name_classes = set()
         cls.dynamic_name_classes = set()
-        for plugin_class in NitpickApp.current().plugin_manager.hook.plugin_class():  # pylint: disable=no-member
+        for plugin_class in plugin_manager.hook.plugin_class():  # pylint: disable=no-member
             if plugin_class.file_name:
                 cls.fixed_name_classes.add(plugin_class)
             else:

@@ -14,7 +14,6 @@ from toml import TomlDecodeError
 
 from nitpick import __version__, fields
 from nitpick.app import NitpickApp
-from nitpick.cli import NitpickFlags
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
@@ -186,6 +185,8 @@ class Style:
         try:
             response = requests.get(new_url)
         except requests.ConnectionError:
+            from nitpick.cli import NitpickFlags  # pylint: disable=import-outside-toplevel
+
             click.secho(
                 "Your network is unreachable. Fix your connection or use {} / {}=1".format(
                     NitpickApp.format_flag(NitpickFlags.OFFLINE), NitpickApp.format_env(NitpickFlags.OFFLINE)
