@@ -122,6 +122,9 @@ class _TransitionMixin(NitpickMixin):  # pylint: disable=too-few-public-methods
     root_dir: Path
     style_errors: List[NitpickError] = []
 
+    # NitpickMixin
+    error_base_number = 100
+
     def clear_cache_dir(self) -> Path:
         """Clear the cache directory (on the project root or on the current directory)."""
         cache_root = self.root_dir / CACHE_DIR_NAME  # type: Path
