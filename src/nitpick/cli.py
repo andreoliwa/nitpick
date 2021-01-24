@@ -13,12 +13,21 @@ Why does this file exist, and why not put this in __main__?
 
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
+from enum import Enum
+
 import click
 
 from nitpick import Nitpick
 
 
+class NitpickFlags(Enum):
+    """Flags to be used with the CLI."""
+
+    OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
+
+
 @click.command()
+@click.option(f"--{NitpickFlags.OFFLINE.name.lower()}", is_flag=True, default=False, help=NitpickFlags.OFFLINE.value)
 @click.option(
     "--check",
     "-c",
@@ -27,8 +36,7 @@ from nitpick import Nitpick
     help="Don't modify the configuration files, just print the difference."
     " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
 )
-# FIXME[AA]: add offline option
-def nitpick_cli(check=False):
+def nitpick_cli(offline=False, check=False):
     """Enforce the same configuration across multiple projects."""
-    Nitpick(check=check).cli_debug_info()
+    Nitpick(offline, check).cli_debug_info()
     # FIXME[AA]: follow steps of NitpickExtension.run()

@@ -8,6 +8,7 @@ from flake8.options.manager import OptionManager
 
 from nitpick import __version__
 from nitpick.app import NitpickApp
+from nitpick.cli import NitpickFlags
 from nitpick.constants import PROJECT_NAME
 from nitpick.mixin import NitpickMixin
 from nitpick.plugins.base import FilePathTags
@@ -92,10 +93,10 @@ class NitpickExtension(NitpickMixin):
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(
-            NitpickApp.format_flag(NitpickApp.Flags.OFFLINE),
+            NitpickApp.format_flag(NitpickFlags.OFFLINE),
             action="store_true",
             # dest="offline",
-            help=NitpickApp.Flags.OFFLINE.value,
+            help=NitpickFlags.OFFLINE.value,
         )
 
     @staticmethod
@@ -107,5 +108,5 @@ class NitpickExtension(NitpickMixin):
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        NitpickApp.create_app(offline=bool(options.nitpick_offline or NitpickApp.get_env(NitpickApp.Flags.OFFLINE)))
+        NitpickApp.create_app(offline=bool(options.nitpick_offline or NitpickApp.get_env(NitpickFlags.OFFLINE)))
         LOGGER.info("Offline mode: %s", NitpickApp.current().offline)

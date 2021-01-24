@@ -137,11 +137,6 @@ class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attribu
     config = None  # type: Config
     plugin_manager = None  # type: PluginManager
 
-    class Flags(Enum):
-        """Flags to be used with flake8 CLI."""
-
-        OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
-
     def __init__(self) -> None:
         self.init_errors = []  # type: List[NitpickError]
         self.style_errors = []  # type: List[NitpickError]
