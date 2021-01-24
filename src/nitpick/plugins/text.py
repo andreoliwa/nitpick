@@ -1,15 +1,15 @@
 """Text files."""
 import logging
-from typing import Optional, Type
+from typing import Iterator, Optional, Type
 
 from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
 
 from nitpick import fields
+from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
 from nitpick.schemas import help_message
-from nitpick.typedefs import YieldFlake8Error
 
 LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +30,12 @@ class TextSchema(Schema):
     contains = fields.List(fields.Nested(TextItemSchema))
 
 
+class TextError(NitpickError):
+    """Base for text file errors."""
+
+    error_base_number = 350
+
+
 class TextPlugin(NitpickPlugin):
     """Checker for text files.
 
@@ -44,7 +50,7 @@ class TextPlugin(NitpickPlugin):
         line = "def"
     """
 
-    error_base_number = 350
+    error_class = TextError
     identify_tags = {"text"}
     validation_schema = TextSchema
 
@@ -59,13 +65,13 @@ class TextPlugin(NitpickPlugin):
         """Suggest the initial content for this missing file."""
         return "\n".join(self._expected_lines())
 
-    def check_rules(self) -> YieldFlake8Error:
+    def check_rules(self) -> Iterator[NitpickError]:
         """Check missing lines."""
         expected = OrderedSet(self._expected_lines())
         actual = OrderedSet(self.file_path.read_text().split("\n"))
         missing = expected - actual
         if missing:
-            yield self.flake8_error(2, " has missing lines:", "\n".join(sorted(missing)))
+            yield TextError(" has missing lines:", "\n".join(sorted(missing)), 2)
 
 
 @hookimpl

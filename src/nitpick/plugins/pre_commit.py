@@ -1,14 +1,15 @@
 """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
 
 import attr
 
+from nitpick.exceptions import NitpickError
 from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
-from nitpick.typedefs import JsonDict, YamlData, YieldFlake8Error
+from nitpick.typedefs import JsonDict, YamlData
 
 KEY_REPOS = "repos"
 KEY_HOOKS = "hooks"
@@ -57,6 +58,54 @@ class PreCommitHook:
         return OrderedDict(hooks)
 
 
+class PreCommitError(NitpickError):
+    """Base for pre-commit errors."""
+
+    error_base_number = 330
+
+
+class NoRootKeyError(PreCommitError):
+    """No root key."""
+
+    number = 1
+
+
+class HookNotFoundError(PreCommitError):
+    """Hook not found."""
+
+    number = 2
+
+
+class RepoDoesNotExistError(PreCommitError):
+    """Repo does not exist."""
+
+    number = 3
+
+
+class MissingKeyInRepoError(PreCommitError):
+    """Missing key in repo."""
+
+    number = 4
+
+
+class StyleFileMissingNameError(PreCommitError):
+    """Missing name."""
+
+    number = 5
+
+
+class MissingKeyInHookError(PreCommitError):
+    """Missing key in hook."""
+
+    number = 6
+
+
+class MissingHookWithIDError(PreCommitError):
+    """Missing hook with specified ID."""
+
+    number = 7
+
+
 class PreCommitPlugin(NitpickPlugin):
     """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file.
 
@@ -64,7 +113,7 @@ class PreCommitPlugin(NitpickPlugin):
     """
 
     file_name = ".pre-commit-config.yaml"
-    error_base_number = 330
+    error_class = PreCommitError
 
     actual_yaml = None  # type: YAMLFormat
     actual_hooks = OrderedDict()  # type: OrderedDict[str, PreCommitHook]
@@ -89,13 +138,13 @@ class PreCommitPlugin(NitpickPlugin):
         suggested.update(original)
         return YAMLFormat(data=suggested).reformatted
 
-    def check_rules(self) -> YieldFlake8Error:
+    def check_rules(self) -> Iterator[NitpickError]:
         """Check the rules for the pre-commit hooks."""
         self.actual_yaml = YAMLFormat(path=self.file_path)
         if KEY_REPOS not in self.actual_yaml.as_data:
             # TODO: if the 'repos' key doesn't exist, assume repos are in the root of the .yml file
             #  Having the 'repos' key is not actually a requirement. 'pre-commit-validate-config' works without it.
-            yield self.flake8_error(1, " doesn't have the {!r} root key".format(KEY_REPOS))
+            yield NoRootKeyError(f" doesn't have the {KEY_REPOS!r} root key")
             return
 
         # Check the root values in the configuration file
@@ -105,7 +154,7 @@ class PreCommitPlugin(NitpickPlugin):
 
         yield from self.check_hooks()
 
-    def check_hooks(self) -> YieldFlake8Error:
+    def check_hooks(self) -> Iterator[NitpickError]:
         """Check the repositories configured in pre-commit."""
         self.actual_hooks = PreCommitHook.get_all_hooks_from(self.actual_yaml.as_data.get(KEY_REPOS))
         self.actual_hooks_by_key = {name: index for index, name in enumerate(self.actual_hooks)}
@@ -119,15 +168,13 @@ class PreCommitPlugin(NitpickPlugin):
 
             yield from self.check_repo_old_format(index, data)
 
-    def check_repo_block(self, expected_repo_block: OrderedDict) -> YieldFlake8Error:
+    def check_repo_block(self, expected_repo_block: OrderedDict) -> Iterator[NitpickError]:
         """Check a repo with a YAML string configuration."""
         expected_hooks = PreCommitHook.get_all_hooks_from(YAMLFormat(string=expected_repo_block.get(KEY_YAML)).as_list)
         for unique_key, hook in expected_hooks.items():
             if unique_key not in self.actual_hooks:
-                yield self.flake8_error(
-                    2,
-                    ": hook {!r} not found. Use this:".format(hook.hook_id),
-                    YAMLFormat(data=hook.yaml.as_data).reformatted,
+                yield HookNotFoundError(
+                    f": hook {hook.hook_id!r} not found. Use this:", YAMLFormat(data=hook.yaml.as_data).reformatted
                 )
                 continue
 
@@ -140,28 +187,29 @@ class PreCommitPlugin(NitpickPlugin):
             revision_message = " (rev: {})".format(current_revision) if current_revision else ""
             yield from self.warn_missing_different(comparison, ": hook {!r}{}".format(hook.hook_id, revision_message))
 
-    def check_repo_old_format(self, index: int, repo_data: OrderedDict) -> YieldFlake8Error:
+    def check_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[NitpickError]:
         """Check repos using the old deprecated format with ``hooks`` and ``repo`` keys."""
         actual = self.actual_yaml.as_data.get(KEY_REPOS, [])  # type: List[YamlData]
 
         repo_name = repo_data.get(KEY_REPO)
+
         if not repo_name:
-            yield self.flake8_error(2, ": style file is missing {!r} key in repo #{}".format(KEY_REPO, index))
+            yield HookNotFoundError(f": style file is missing {KEY_REPO!r} key in repo #{index}")
             return
 
         actual_repo_dict = find_object_by_key(actual, KEY_REPO, repo_name)
         if not actual_repo_dict:
-            yield self.flake8_error(3, ": repo {!r} does not exist under {!r}".format(repo_name, KEY_REPOS))
+            yield RepoDoesNotExistError(f": repo {repo_name!r} does not exist under {KEY_REPOS!r}")
             return
 
         if KEY_HOOKS not in actual_repo_dict:
-            yield self.flake8_error(4, ": missing {!r} in repo {!r}".format(KEY_HOOKS, repo_name))
+            yield MissingKeyInRepoError(f": missing {KEY_HOOKS!r} in repo {repo_name!r}")
             return
 
         actual_hooks = actual_repo_dict.get(KEY_HOOKS) or []
         yaml_expected_hooks = repo_data.get(KEY_HOOKS)
         if not yaml_expected_hooks:
-            yield self.flake8_error(5, ": style file is missing {!r} in repo {!r}".format(KEY_HOOKS, repo_name))
+            yield StyleFileMissingNameError(f": style file is missing {KEY_HOOKS!r} in repo {repo_name!r}")
             return
 
         expected_hooks = YAMLFormat(string=yaml_expected_hooks).as_data
@@ -169,12 +217,12 @@ class PreCommitPlugin(NitpickPlugin):
             hook_id = expected_dict.get(KEY_ID)
             if not hook_id:
                 expected_yaml = self.format_hook(expected_dict)
-                yield self.flake8_error(6, ": style file is missing {!r} in hook:\n{}".format(KEY_ID, expected_yaml))
+                yield MissingKeyInHookError(f": style file is missing {KEY_ID!r} in hook:\n{expected_yaml}")
                 continue
             actual_dict = find_object_by_key(actual_hooks, KEY_ID, hook_id)
             if not actual_dict:
                 expected_yaml = self.format_hook(expected_dict)
-                yield self.flake8_error(7, ": missing hook with id {!r}:\n{}".format(hook_id, expected_yaml))
+                yield MissingHookWithIDError(f": missing hook with id {hook_id!r}:\n{expected_yaml}")
                 continue
 
     @staticmethod

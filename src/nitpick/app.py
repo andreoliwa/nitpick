@@ -13,19 +13,9 @@ import pluggy
 from pluggy import PluginManager
 
 from nitpick import plugins
-from nitpick.constants import (
-    CACHE_DIR_NAME,
-    ERROR_PREFIX,
-    MANAGE_PY,
-    MISSING,
-    PROJECT_NAME,
-    ROOT_FILES,
-    ROOT_PYTHON_FILES,
-)
-from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir, StyleError
+from nitpick.constants import CACHE_DIR_NAME, MANAGE_PY, MISSING, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
+from nitpick.exceptions import NitpickError, NoPythonFileError, NoRootDirError, StyleError
 from nitpick.generic import Borg, climb_directory_tree
-from nitpick.mixin import NitpickMixin
-from nitpick.typedefs import Flake8Error, YieldFlake8Error
 
 if TYPE_CHECKING:
     from nitpick.config import Config
@@ -76,7 +66,7 @@ def find_root_dir() -> Path:
 
     if not root_dirs:
         LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
-        raise NoRootDir()
+        raise NoRootDirError()
 
     # If multiple roots are found, get the top one (grandparent dir)
     return sorted(root_dirs)[0]
@@ -104,7 +94,7 @@ def find_main_python_file(root_dir: Path) -> Path:  # TODO: add unit tests
             LOGGER.info("Found the file %s", the_file)
             return Path(the_file)
 
-    raise NoPythonFile(root_dir)
+    raise NoPythonFileError(root_dir)
 
 
 def load_plugins() -> PluginManager:
@@ -116,13 +106,12 @@ def load_plugins() -> PluginManager:
 
 
 # FIXME[AA]: move methods to Nitpick after removing NitpickApp
-class _TransitionMixin(NitpickMixin):  # pylint: disable=too-few-public-methods
+class _TransitionMixin:  # pylint: disable=too-few-public-methods
     """Mixin class to transition from NitpickApp (flake8) to Nitpick (CLI)."""
 
     root_dir: Path
     style_errors: List[NitpickError] = []
 
-    # NitpickMixin
     error_base_number = 100
 
     def clear_cache_dir(self) -> Path:
@@ -131,23 +120,6 @@ class _TransitionMixin(NitpickMixin):  # pylint: disable=too-few-public-methods
         cache_dir = cache_root / PROJECT_NAME
         rmtree(str(cache_dir), ignore_errors=True)
         return cache_dir
-
-    def check_files(self, present: bool) -> YieldFlake8Error:
-        """Check files that should be present or absent."""
-        key = "present" if present else "absent"
-        message = "exist" if present else "be deleted"
-        absent = not present
-        for file_name, extra_message in NitpickApp.current().config.nitpick_files_section.get(key, {}).items():
-            file_path = NitpickApp.current().root_dir / file_name  # type: Path
-            exists = file_path.exists()
-            if (present and exists) or (absent and not exists):
-                continue
-
-            full_message = "File {} should {}".format(file_name, message)
-            if extra_message:
-                full_message += ": {}".format(extra_message)
-
-            yield self.flake8_error(3 if present else 4, full_message)
 
     def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:
         """Add a style error to the internal list."""
@@ -191,7 +163,7 @@ class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attribu
             app.config = Config()
             app.plugin_manager = load_plugins()
             NitpickPlugin.load_fixed_dynamic_classes(app.plugin_manager)
-        except (NoRootDir, NoPythonFile) as err:
+        except (NoRootDirError, NoPythonFileError) as err:
             app.init_errors.append(err)
 
         return app
@@ -201,35 +173,6 @@ class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attribu
     def current(cls) -> "NitpickApp":
         """Return a single instance of the class (singleton)."""
         return cls()
-
-    @staticmethod
-    def as_flake8_warning(nitpick_error: NitpickError) -> Flake8Error:
-        """Return a flake8 error as a tuple."""
-        joined_number = (
-            nitpick_error.error_base_number + nitpick_error.number
-            if nitpick_error.add_to_base_number
-            else nitpick_error.number
-        )
-        suggestion_with_newline = (
-            click.style("\n{}".format(nitpick_error.suggestion.rstrip()), fg="green")
-            if nitpick_error.suggestion
-            else ""
-        )
-
-        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
-
-        return (
-            0,
-            0,
-            "{}{:03d} {}{}{}".format(
-                ERROR_PREFIX,
-                joined_number,
-                nitpick_error.error_prefix,
-                nitpick_error.message.rstrip(),
-                suggestion_with_newline,
-            ),
-            NitpickExtension,
-        )
 
     def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:
         """Add a style error to the internal list."""

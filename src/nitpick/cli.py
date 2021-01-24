@@ -40,8 +40,9 @@ class NitpickFlags(Enum):
 )
 def nitpick_cli(offline=False, check=False):
     """Enforce the same configuration across multiple projects."""
-    nit = Nitpick(offline, check)
     # FIXME[AA]: follow steps of NitpickExtension.run()
+    from nitpick.flake8 import check_files  # pylint: disable=import-outside-toplevel
 
-    for err in itertools.chain(Config().merge_styles(), nit.check_files(True), nit.check_files(False)):
+    Nitpick(offline, check)
+    for err in itertools.chain(Config().merge_styles(), check_files(True), check_files(False)):
         click.echo(str(err))

@@ -2,13 +2,13 @@
 from configparser import ConfigParser
 from enum import IntEnum
 from io import StringIO
-from typing import Any, Dict, List, Optional, Set, Tuple, Type
+from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
 import dictdiffer
 
+from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
-from nitpick.typedefs import YieldFlake8Error
 
 
 class ErrorCodes(IntEnum):
@@ -21,6 +21,12 @@ class ErrorCodes(IntEnum):
     InvalidCommaSeparatedValuesSection = 5
 
 
+class SetupCfgError(NitpickError):
+    """Base for setup.cfg errors."""
+
+    error_base_number = 320
+
+
 class SetupCfgPlugin(NitpickPlugin):
     """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_ config file.
 
@@ -28,7 +34,7 @@ class SetupCfgPlugin(NitpickPlugin):
     """
 
     file_name = "setup.cfg"
-    error_base_number = 320
+    error_class = SetupCfgError
     COMMA_SEPARATED_VALUES = "comma_separated_values"
     SECTION_SEPARATOR = "."
 
@@ -60,7 +66,7 @@ class SetupCfgPlugin(NitpickPlugin):
             return self.get_example_cfg(missing_cfg)
         return ""
 
-    def check_rules(self) -> YieldFlake8Error:
+    def check_rules(self) -> Iterator[NitpickError]:
         """Check missing sections and missing key/value pairs in setup.cfg."""
         setup_cfg = ConfigParser()
         with self.file_path.open() as handle:
@@ -69,15 +75,15 @@ class SetupCfgPlugin(NitpickPlugin):
         actual_sections = set(setup_cfg.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
-            yield self.flake8_error(ErrorCodes.MissingSections, " has some missing sections. Use this:", missing)
+            yield self.error_class(" has some missing sections. Use this:", missing, ErrorCodes.MissingSections)
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
         missing_csv = csv_sections.difference(actual_sections)
         if missing_csv:
-            yield self.flake8_error(
-                ErrorCodes.InvalidCommaSeparatedValuesSection,
-                ": invalid sections on {}:".format(self.COMMA_SEPARATED_VALUES),
+            yield self.error_class(
+                f": invalid sections on {self.COMMA_SEPARATED_VALUES}:",
                 ", ".join(sorted(missing_csv)),
+                ErrorCodes.InvalidCommaSeparatedValuesSection,
             )
             return
 
@@ -91,7 +97,7 @@ class SetupCfgPlugin(NitpickPlugin):
                 elif diff_type == dictdiffer.ADD:
                     yield from self.show_missing_keys(section, key, values)
 
-    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> YieldFlake8Error:
+    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[NitpickError]:
         """Compare different keys, with special treatment when they are lists or numeric."""
         combined = "{}.{}".format(section, key)
         if combined in self.comma_separated_values:
@@ -100,10 +106,11 @@ class SetupCfgPlugin(NitpickPlugin):
             expected_set = {s.strip() for s in raw_expected.split(",")}
             missing = expected_set - actual_set
             if missing:
-                yield self.flake8_error(
+                joined = ",".join(sorted(missing))
+                yield SetupCfgError(
+                    f" has missing values in the {key!r} key. Include those values:",
+                    f"[{section}]\n{key} = (...),{joined}",
                     ErrorCodes.MissingValues,
-                    " has missing values in the {!r} key. Include those values:".format(key),
-                    "[{}]\n{} = (...),{}".format(section, key, ",".join(sorted(missing))),
                 )
             return
 
@@ -115,23 +122,23 @@ class SetupCfgPlugin(NitpickPlugin):
             actual = raw_actual
             expected = raw_expected
         if actual != expected:
-            yield self.flake8_error(
+            yield SetupCfgError(
+                f": [{section}]{key} is {raw_actual} but it should be like this:",
+                f"[{section}]\n{key} = {raw_expected}",
                 ErrorCodes.ActualExpected,
-                ": [{}]{} is {} but it should be like this:".format(section, key, raw_actual),
-                "[{}]\n{} = {}".format(section, key, raw_expected),
             )
 
     def show_missing_keys(  # pylint: disable=unused-argument
         self, section, key, values: List[Tuple[str, Any]]
-    ) -> YieldFlake8Error:
+    ) -> Iterator[NitpickError]:
         """Show the keys that are not present in a section."""
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield self.flake8_error(
-            ErrorCodes.MissingKeyValuePairs,
-            ": section [{}] has some missing key/value pairs. Use this:".format(section),
+        yield SetupCfgError(
+            f": section [{section}] has some missing key/value pairs. Use this:",
             output,
+            ErrorCodes.MissingKeyValuePairs,
         )
 
     @staticmethod

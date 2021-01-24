@@ -29,7 +29,6 @@ Submodules
    nitpick.flake8
    nitpick.formats
    nitpick.generic
-   nitpick.mixin
    nitpick.schemas
    nitpick.style
    nitpick.typedefs
