@@ -1,20 +1,18 @@
 """Configuration of the plugin."""
 import logging
-from typing import TYPE_CHECKING, Iterator, Optional
+from pathlib import Path
+from typing import Iterator, Optional
+
+from pluggy import PluginManager
 
 from nitpick.app import NitpickApp
 from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, TOOL_NITPICK, TOOL_NITPICK_JMEX
 from nitpick.exceptions import MinimumVersionError, NitpickError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
-from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
 from nitpick.schemas import ToolNitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.style import Style
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from nitpick.typedefs import JsonDict, StrOrList
+from nitpick.typedefs import JsonDict, StrOrList
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,29 +20,37 @@ LOGGER = logging.getLogger(__name__)
 class Config:
     """Plugin configuration, read from the project config."""
 
-    def __init__(self) -> None:
+    def __init__(self, project_root: Path, plugin_manager: PluginManager) -> None:
+        self.project_root: Path = project_root
+        self.plugin_manager: PluginManager = plugin_manager
 
-        self.pyproject_toml = None  # type: Optional[TOMLFormat]
-        self.tool_nitpick_dict = {}  # type: JsonDict
-        self.style_dict = {}  # type: JsonDict
-        self.nitpick_section = {}  # type: JsonDict
-        self.nitpick_files_section = {}  # type: JsonDict
+        self.pyproject_toml: Optional[TOMLFormat] = None
+        self.tool_nitpick_dict: JsonDict = {}
+        self.style_dict: JsonDict = {}
+        self.nitpick_section: JsonDict = {}
+        self.nitpick_files_section: JsonDict = {}
 
     def validate_pyproject_tool_nitpick(self) -> bool:
         """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
-        pyproject_path = NitpickApp.current().root_dir / PyProjectTomlPlugin.file_name  # type: Path
-        if pyproject_path.exists():
-            self.pyproject_toml = TOMLFormat(path=pyproject_path)
-            self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
-            pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
-            if pyproject_errors:
-                NitpickApp.current().add_style_error(
-                    PyProjectTomlPlugin.file_name,
-                    "Invalid data in [{}]:".format(TOOL_NITPICK),
-                    flatten_marshmallow_errors(pyproject_errors),
-                )
-                return False
-        return True
+        # pylint: disable=import-outside-toplevel
+        from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
+
+        pyproject_path: Path = self.project_root / PyProjectTomlPlugin.file_name
+        if not pyproject_path.exists():
+            return True
+
+        self.pyproject_toml = TOMLFormat(path=pyproject_path)
+        self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
+        pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
+        if not pyproject_errors:
+            return True
+
+        NitpickApp.current().add_style_error(
+            PyProjectTomlPlugin.file_name,
+            f"Invalid data in [{TOOL_NITPICK}]:",
+            flatten_marshmallow_errors(pyproject_errors),
+        )
+        return False
 
     def merge_styles(self) -> Iterator[NitpickError]:
         """Merge one or multiple style files."""
@@ -52,8 +58,8 @@ class Config:
             # If the project is misconfigured, don't even continue.
             return
 
-        configured_styles = self.tool_nitpick_dict.get("style", "")  # type: StrOrList
-        style = Style()
+        configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
+        style = Style(self.project_root, self.plugin_manager)
         style.find_initial_styles(configured_styles)
 
         self.style_dict = style.merge_toml_dict()

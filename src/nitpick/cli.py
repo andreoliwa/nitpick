@@ -43,6 +43,7 @@ def nitpick_cli(offline=False, check=False):
     # FIXME[AA]: follow steps of NitpickExtension.run()
     from nitpick.flake8 import check_files  # pylint: disable=import-outside-toplevel
 
-    Nitpick(offline, check)
-    for err in itertools.chain(Config().merge_styles(), check_files(True), check_files(False)):
+    nit = Nitpick(offline, check)
+    config = Config(nit.project_root, nit.plugin_manager)
+    for err in itertools.chain(config.merge_styles(), check_files(True), check_files(False)):
         click.echo(str(err))

@@ -1,16 +1,16 @@
 """Base class for file checkers."""
 import abc
+from functools import lru_cache
 from typing import TYPE_CHECKING, Iterator, Optional, Set, Type
 
 import jmespath
 from identify import identify
-from pluggy import PluginManager
 
 from nitpick.app import NitpickApp
 from nitpick.exceptions import Deprecation, NitpickError, PluginError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
-from nitpick.typedefs import JsonDict
+from nitpick.typedefs import JsonDict, mypy_property
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -28,9 +28,6 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
     validation_schema = None  # type: Optional[Schema]
 
-    fixed_name_classes = set()  # type: Set[Type[NitpickPlugin]]
-    dynamic_name_classes = set()  # type: Set[Type[NitpickPlugin]]
-
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
     identify_tags: Set[str] = set()
 
@@ -41,26 +38,16 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             self.file_name = path_from_root
 
         self.error_class.error_prefix = "File {}".format(self.file_name)
-        self.file_path = NitpickApp.current().root_dir / self.file_name  # type: Path
+        self.file_path = NitpickApp.current().project_root / self.file_name  # type: Path
 
         # Configuration for this file as a TOML dict, taken from the style file.
         self.file_dict = {}  # type: JsonDict
 
-        # Nitpick configuration for this file as a TOML dict, taken from the style file.
-        self.nitpick_file_dict = search_dict(
-            'files."{}"'.format(self.file_name), NitpickApp.current().config.nitpick_section, {}
-        )  # type: JsonDict
-
-    @classmethod
-    def load_fixed_dynamic_classes(cls, plugin_manager: PluginManager) -> None:
-        """Separate classes with fixed file names from classes with dynamic files names."""
-        cls.fixed_name_classes = set()
-        cls.dynamic_name_classes = set()
-        for plugin_class in plugin_manager.hook.plugin_class():  # pylint: disable=no-member
-            if plugin_class.file_name:
-                cls.fixed_name_classes.add(plugin_class)
-            else:
-                cls.dynamic_name_classes.add(plugin_class)
+    @mypy_property
+    @lru_cache()
+    def nitpick_file_dict(self) -> JsonDict:
+        """Nitpick configuration for this file as a TOML dict, taken from the style file."""
+        return search_dict(f'files."{self.file_name}"', NitpickApp.current().config.nitpick_section, {})
 
     @classmethod
     def get_compiled_jmespath_file_names(cls):

@@ -1,14 +1,16 @@
 """Style files."""
 import logging
 from collections import OrderedDict
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Type
+from typing import Any, Dict, List, Optional, Set, Tuple, Type
 from urllib.parse import urlparse, urlunparse
 
 import click
 import requests
 from identify import identify
 from marshmallow import Schema
+from pluggy import PluginManager
 from slugify import slugify
 from toml import TomlDecodeError
 
@@ -31,19 +33,22 @@ from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marsh
 from nitpick.typedefs import JsonDict, StrOrList
 
 LOGGER = logging.getLogger(__name__)
+Plugins = Set[Type[NitpickPlugin]]
 
 
 class Style:
     """Include styles recursively from one another."""
 
-    def __init__(self) -> None:
+    def __init__(self, project_root: Path, plugin_manager: PluginManager) -> None:
+        self.project_root: Path = project_root
+        self.plugin_manager: PluginManager = plugin_manager
         self._all_styles = MergeDict()
-        self._already_included = set()  # type: Set[str]
-        self._first_full_path = ""  # type: str
+        self._already_included: Set[str] = set()
+        self._first_full_path: str = ""
 
-        self._dynamic_schema_class = BaseStyleSchema  # type: type
+        self._dynamic_schema_class: type = BaseStyleSchema
         self.rebuild_dynamic_schema()
-        self.style_errors = {}  # type: Dict[str, Any]
+        self.style_errors: Dict[str, Any] = {}
 
     @staticmethod
     def get_default_style_url():
@@ -56,7 +61,7 @@ class Style:
             chosen_styles = configured_styles
             log_message = "Styles configured in {}: %s".format(PyProjectTomlPlugin.file_name)
         else:
-            paths = climb_directory_tree(NitpickApp.current().root_dir, [NITPICK_STYLE_TOML])
+            paths = climb_directory_tree(self.project_root, [NITPICK_STYLE_TOML])
             if paths:
                 chosen_styles = str(sorted(paths)[0])
                 log_message = "Found style climbing the directory tree: %s"
@@ -98,7 +103,7 @@ class Style:
                 return
 
             try:
-                display_name = str(style_path.relative_to(app.root_dir))
+                display_name = str(style_path.relative_to(self.project_root))
             except ValueError:
                 display_name = style_uri
 
@@ -125,9 +130,7 @@ class Style:
             else:
                 schemas = [
                     plugin.validation_schema
-                    for plugin in NitpickApp.current().plugin_manager.hook.can_handle(  # pylint: disable=no-member
-                        file=file
-                    )
+                    for plugin in self.plugin_manager.hook.can_handle(file=file)  # pylint: disable=no-member
                 ]
                 if not schemas:
                     self.style_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
@@ -275,22 +278,36 @@ class Style:
             field = fields.Dict(fields.String, **kwargs)
         return {unique_file_name_with_underscore: field}
 
+    @lru_cache()
+    def load_fixed_dynamic_classes(self) -> Tuple[Plugins, Plugins]:
+        """Separate classes with fixed file names from classes with dynamic files names."""
+        fixed_name_classes: Plugins = set()
+        dynamic_name_classes: Plugins = set()
+        for plugin_class in self.plugin_manager.hook.plugin_class():  # pylint: disable=no-member
+            if plugin_class.file_name:
+                fixed_name_classes.add(plugin_class)
+            else:
+                dynamic_name_classes.add(plugin_class)
+        return fixed_name_classes, dynamic_name_classes
+
     def rebuild_dynamic_schema(self, data: JsonDict = None) -> None:
         """Rebuild the dynamic Marshmallow schema when needed, adding new fields that were found on the style."""
-        new_files_found = OrderedDict()  # type: Dict[str, fields.Field]
+        new_files_found: Dict[str, fields.Field] = OrderedDict()
+
+        fixed_name_classes, dynamic_name_classes = self.load_fixed_dynamic_classes()
 
         if data is None:
             # Data is empty; so this is the first time the dynamic class is being rebuilt.
             # Loop on classes with predetermined names, and add fields for them on the dynamic validation schema.
             # E.g.: setup.cfg, pre-commit, pyproject.toml: files whose names we already know at this point.
-            for subclass in NitpickPlugin.fixed_name_classes:
+            for subclass in fixed_name_classes:
                 new_files_found.update(self.file_field_pair(subclass.file_name, subclass))
         else:
-            handled_tags = {}  # type: Dict[str, Type[NitpickPlugin]]
+            handled_tags: Dict[str, Type[NitpickPlugin]] = {}
 
             # Data was provided; search it to find new dynamic files to add to the validation schema).
             # E.g.: JSON files that were configured on some TOML style file.
-            for subclass in NitpickPlugin.dynamic_name_classes:
+            for subclass in dynamic_name_classes:
                 for tag in subclass.identify_tags:
                     # FIXME[AA]: WRONG! a tag should be handled by multiple classes...
                     # A tag can only be handled by a single subclass.

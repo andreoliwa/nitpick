@@ -41,7 +41,7 @@ style_mapping = SortedDict(
         "python39.toml": "Python 3.9",
     }
 )
-app = NitpickApp.create_app()
+app = NitpickApp.current()
 
 divider = ".. auto-generated-from-here"
 docs_dir = Path(__file__).parent.absolute()  # type: Path

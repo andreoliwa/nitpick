@@ -43,7 +43,7 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def __init__(self, path_from_root: str = None) -> None:
         super().__init__(path_from_root)
-        self.comma_separated_values = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))  # type: Set[str]
+        self.comma_separated_values: Set[str] = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""

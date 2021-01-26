@@ -11,7 +11,14 @@ from nitpick import __version__
 from nitpick.app import NitpickApp
 from nitpick.cli import NitpickFlags
 from nitpick.constants import PROJECT_NAME
-from nitpick.exceptions import AbsentFileError, InitError, NitpickError, PresentFileError
+from nitpick.exceptions import (
+    AbsentFileError,
+    InitError,
+    NitpickError,
+    NoPythonFileError,
+    NoRootDirError,
+    PresentFileError,
+)
 from nitpick.plugins.base import FilePathTags
 from nitpick.typedefs import Flake8Error
 
@@ -24,7 +31,7 @@ def check_files(present: bool) -> Iterator[NitpickError]:
     message = "exist" if present else "be deleted"
     absent = not present
     for file_name, extra_message in NitpickApp.current().config.nitpick_files_section.get(key, {}).items():
-        file_path: Path = NitpickApp.current().root_dir / file_name
+        file_path: Path = NitpickApp.current().project_root / file_name
         exists = file_path.exists()
         if (present and exists) or (absent and not exists):
             continue
@@ -58,18 +65,16 @@ class NitpickExtension:
 
     def collect_nitpick_errors(self) -> Iterator[NitpickError]:
         """Collect all possible Nitpick errors."""
-        has_errors = False
         app = NitpickApp.current()
-        for init_err in app.init_errors:
-            has_errors = True
-            yield init_err
-        if has_errors:
-            return []
 
         current_python_file = Path(self.filename)
-        if current_python_file.absolute() != app.main_python_file.absolute():
-            # Only report warnings once, for the main Python file of this project.
-            LOGGER.debug("Ignoring file: %s", self.filename)
+        try:
+            if current_python_file.absolute() != app.main_python_file.absolute():
+                # Only report warnings once, for the main Python file of this project.
+                LOGGER.debug("Ignoring file: %s", self.filename)
+                return []
+        except (NoRootDirError, NoPythonFileError) as err:
+            yield err
             return []
         LOGGER.debug("Nitpicking file: %s", self.filename)
 
@@ -115,5 +120,6 @@ class NitpickExtension:
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        NitpickApp.create_app(offline=bool(options.nitpick_offline or NitpickApp.get_env(NitpickFlags.OFFLINE)))
-        LOGGER.info("Offline mode: %s", NitpickApp.current().offline)
+        nit = NitpickApp.current()
+        nit.offline = bool(options.nitpick_offline or NitpickApp.get_env(NitpickFlags.OFFLINE))
+        LOGGER.info("Offline mode: %s", nit.offline)
