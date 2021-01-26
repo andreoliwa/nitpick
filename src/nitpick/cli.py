@@ -20,6 +20,7 @@ import click
 
 from nitpick import Nitpick
 from nitpick.config import Config
+from nitpick.constants import ERROR_PREFIX
 
 
 class NitpickFlags(Enum):
@@ -40,10 +41,12 @@ class NitpickFlags(Enum):
 )
 def nitpick_cli(offline=False, check=False):
     """Enforce the same configuration across multiple projects."""
-    # FIXME[AA]: follow steps of NitpickExtension.run()
     from nitpick.flake8 import check_files  # pylint: disable=import-outside-toplevel
 
     nit = Nitpick(offline, check)
     config = Config(nit.project_root, nit.plugin_manager)
     for err in itertools.chain(config.merge_styles(), check_files(True), check_files(False)):
-        click.echo(str(err))
+        click.echo(f"{ERROR_PREFIX}{err.number:03} {err.message}{err.suggestion}")
+    # FIXME[AA]: replace NitpickApp by Nitpick everywhere
+    # FIXME[AA]: rename Nitpick
+    # FIXME[AA]: follow steps of NitpickExtension.run()
