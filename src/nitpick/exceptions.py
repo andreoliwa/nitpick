@@ -14,6 +14,7 @@ class NitpickError(Exception):
 
     error_base_number: int = 0
     error_prefix: str = ""
+    message: str = ""
     number: int = 0
     add_to_base_number: bool = True
 
@@ -102,11 +103,10 @@ class StyleError(NitpickError):
 
     number = 1
     add_to_base_number = False
-    message = "Invalid style"
 
-    def __init__(self, style_file_name: str, **kwargs) -> None:
-        self.style_file_name = style_file_name
-        super().__init__(**kwargs)
+    def __init__(self, style_file_name: str, message: str = "", suggestion: str = "", **kwargs) -> None:
+        message = f"File {style_file_name} has an incorrect style. {message}"
+        super().__init__(message, suggestion, **kwargs)
 
 
 class PluginError(NitpickError):

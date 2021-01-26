@@ -288,13 +288,13 @@ def test_symlink_subdir(offline, request):
     """Test relative styles in subdirectories of a symlink dir."""
     target_dir = TEMP_PATH / "target_dir"  # type: Path
     ProjectMock(request).named_style(
-        "{}/parent".format(target_dir),
+        f"{target_dir}/parent",
         """
         [nitpick.styles]
         include = "styles/child.toml"
         """,
     ).named_style(
-        "{}/styles/child".format(target_dir),
+        f"{target_dir}/styles/child",
         """
         ["pyproject.toml".tool.black]
         line-length = 86

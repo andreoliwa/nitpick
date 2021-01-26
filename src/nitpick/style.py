@@ -3,7 +3,7 @@ import logging
 from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Type
+from typing import Dict, Iterator, List, Optional, Set, Tuple, Type
 from urllib.parse import urlparse, urlunparse
 
 import click
@@ -24,7 +24,7 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.exceptions import Deprecation
+from nitpick.exceptions import Deprecation, NitpickError, StyleError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
@@ -48,14 +48,13 @@ class Style:
 
         self._dynamic_schema_class: type = BaseStyleSchema
         self.rebuild_dynamic_schema()
-        self.style_errors: Dict[str, Any] = {}
 
     @staticmethod
     def get_default_style_url():
         """Return the URL of the default style for the current version."""
         return "{}/v{}/{}".format(RAW_GITHUB_CONTENT_BASE_URL, __version__, NITPICK_STYLE_TOML)
 
-    def find_initial_styles(self, configured_styles: StrOrList):
+    def find_initial_styles(self, configured_styles: StrOrList) -> Iterator[NitpickError]:
         """Find the initial style(s) and include them."""
         if configured_styles:
             chosen_styles = configured_styles
@@ -70,7 +69,7 @@ class Style:
                 log_message = "Loading default Nitpick style %s"
         LOGGER.info(log_message, chosen_styles)
 
-        self.include_multiple_styles(chosen_styles)
+        yield from self.include_multiple_styles(chosen_styles)
 
     @staticmethod
     def validate_schema(schema: Type[Schema], path_from_root: str, original_data: JsonDict) -> Dict[str, List[str]]:
@@ -85,7 +84,7 @@ class Style:
             local_errors = {path_from_root: local_errors}
         return local_errors
 
-    def include_multiple_styles(self, chosen_styles: StrOrList) -> None:
+    def include_multiple_styles(self, chosen_styles: StrOrList) -> Iterator[NitpickError]:
         """Include a list of styles (or just one) into this style tree."""
         style_uris = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles  # type: List[str]
         for style_uri in style_uris:
@@ -94,12 +93,11 @@ class Style:
                 continue
 
             toml = TOMLFormat(path=style_path)
-            app = NitpickApp.current()
             try:
                 read_toml_dict = toml.as_data
             except TomlDecodeError as err:
-                app.add_style_error(style_path.name, pretty_exception(err, "Invalid TOML"))
                 # If the TOML itself could not be parsed, we can't go on
+                yield StyleError(style_path.name, pretty_exception(err, "Invalid TOML"))
                 return
 
             try:
@@ -107,20 +105,19 @@ class Style:
             except ValueError:
                 display_name = style_uri
 
-            toml_dict = self._validate_config(read_toml_dict)
+            toml_dict, validation_errors = self._validate_config(read_toml_dict)
 
-            if self.style_errors:
-                NitpickApp.current().add_style_error(
-                    display_name, "Invalid config:", flatten_marshmallow_errors(self.style_errors)
-                )
+            if validation_errors:
+                yield StyleError(display_name, "Invalid config:", flatten_marshmallow_errors(validation_errors))
+
             self._all_styles.add(toml_dict)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
             if sub_styles:
-                self.include_multiple_styles(sub_styles)
+                yield from self.include_multiple_styles(sub_styles)
 
-    def _validate_config(self, config_dict: dict) -> dict:
-        self.style_errors = {}
+    def _validate_config(self, config_dict: Dict) -> Tuple[Dict, Dict]:
+        validation_errors = {}
         toml_dict = OrderedDict()
         for key, value_dict in config_dict.items():
             file = FilePathTags(key)
@@ -133,7 +130,7 @@ class Style:
                     for plugin in self.plugin_manager.hook.can_handle(file=file)  # pylint: disable=no-member
                 ]
                 if not schemas:
-                    self.style_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
+                    validation_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
 
             all_errors = {}
             valid_schema = False
@@ -147,8 +144,8 @@ class Style:
 
             if not valid_schema:
                 Deprecation.jsonfile_section(all_errors, False)
-                self.style_errors.update(all_errors)
-        return toml_dict
+                validation_errors.update(all_errors)
+        return toml_dict, validation_errors
 
     def get_style_path(self, style_uri: str) -> Optional[Path]:
         """Get the style path from the URI. Add the .toml extension if it's missing."""

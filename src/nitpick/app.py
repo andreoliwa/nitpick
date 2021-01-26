@@ -6,7 +6,7 @@ from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from shutil import rmtree
-from typing import TYPE_CHECKING, List, Set
+from typing import TYPE_CHECKING, Set
 
 import click
 import pluggy
@@ -14,7 +14,7 @@ from pluggy import PluginManager
 
 from nitpick import plugins
 from nitpick.constants import CACHE_DIR_NAME, MANAGE_PY, MISSING, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
-from nitpick.exceptions import NitpickError, NoPythonFileError, NoRootDirError, StyleError
+from nitpick.exceptions import NoPythonFileError, NoRootDirError
 from nitpick.generic import Borg, climb_directory_tree
 from nitpick.typedefs import mypy_property
 
@@ -110,8 +110,6 @@ def clear_cache_dir(project_root: Path) -> Path:  # TODO: add unit tests
 class _TransitionMixin:  # pylint: disable=too-few-public-methods
     """Mixin class to transition from NitpickApp (flake8) to Nitpick (CLI)."""
 
-    style_errors: List[NitpickError] = []
-
     error_base_number = 100
 
     @mypy_property
@@ -140,14 +138,6 @@ class _TransitionMixin:  # pylint: disable=too-few-public-methods
 
         return Config(self.project_root, self.plugin_manager)
 
-    def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:
-        """Add a style error to the internal list."""
-        err = StyleError(file_name)
-        err.message = "File {} has an incorrect style. {}".format(file_name, message)
-        if invalid_data:
-            err.suggestion = invalid_data
-        self.style_errors.append(err)
-
     @mypy_property
     @lru_cache()
     def plugin_manager(self) -> PluginManager:
@@ -163,8 +153,6 @@ class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attribu
     """The Nitpick application."""
 
     def __init__(self) -> None:
-        self.style_errors = []  # type: List[NitpickError]
-
         self.offline = False
 
     @classmethod
@@ -172,14 +160,6 @@ class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attribu
     def current(cls) -> "NitpickApp":
         """Return a single instance of the class (singleton)."""
         return cls()
-
-    def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:
-        """Add a style error to the internal list."""
-        err = StyleError(file_name)
-        err.message = "File {} has an incorrect style. {}".format(file_name, message)
-        if invalid_data:
-            err.suggestion = invalid_data
-        self.style_errors.append(err)
 
     @classmethod
     def format_flag(cls, flag: Enum) -> str:

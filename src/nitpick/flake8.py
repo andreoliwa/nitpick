@@ -78,14 +78,14 @@ class NitpickExtension:
             return []
         LOGGER.debug("Nitpicking file: %s", self.filename)
 
-        yield from itertools.chain(app.config.merge_styles(), check_files(True), check_files(False))
-
         has_errors = False
-        for style_err in app.style_errors:
+        for style_err in app.config.merge_styles():
             has_errors = True
             yield style_err
         if has_errors:
             return []
+
+        yield from itertools.chain(check_files(True), check_files(False))
 
         # Get all root keys from the merged style.
         for config_key, config_dict in app.config.style_dict.items():

@@ -5,9 +5,8 @@ from typing import Iterator, Optional
 
 from pluggy import PluginManager
 
-from nitpick.app import NitpickApp
 from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, TOOL_NITPICK, TOOL_NITPICK_JMEX
-from nitpick.exceptions import MinimumVersionError, NitpickError
+from nitpick.exceptions import MinimumVersionError, NitpickError, StyleError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import ToolNitpickSectionSchema, flatten_marshmallow_errors
@@ -30,37 +29,39 @@ class Config:
         self.nitpick_section: JsonDict = {}
         self.nitpick_files_section: JsonDict = {}
 
-    def validate_pyproject_tool_nitpick(self) -> bool:
+    def validate_pyproject_tool_nitpick(self) -> None:
         """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
         # pylint: disable=import-outside-toplevel
         from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
 
         pyproject_path: Path = self.project_root / PyProjectTomlPlugin.file_name
         if not pyproject_path.exists():
-            return True
+            return
 
         self.pyproject_toml = TOMLFormat(path=pyproject_path)
         self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
         pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
         if not pyproject_errors:
-            return True
+            return
 
-        NitpickApp.current().add_style_error(
+        raise StyleError(
             PyProjectTomlPlugin.file_name,
             f"Invalid data in [{TOOL_NITPICK}]:",
             flatten_marshmallow_errors(pyproject_errors),
         )
-        return False
 
     def merge_styles(self) -> Iterator[NitpickError]:
         """Merge one or multiple style files."""
-        if not self.validate_pyproject_tool_nitpick():
+        try:
+            self.validate_pyproject_tool_nitpick()
+        except StyleError as err:
             # If the project is misconfigured, don't even continue.
+            yield err
             return
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
         style = Style(self.project_root, self.plugin_manager)
-        style.find_initial_styles(configured_styles)
+        yield from style.find_initial_styles(configured_styles)
 
         self.style_dict = style.merge_toml_dict()
 
