@@ -90,7 +90,7 @@ test-quick .cache/make/test-quick: .cache/make/long-poetry src/*/* styles/*/* te
 .PHONY: test
 
 pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
-	poetry run python -m pytest
+	poetry run python -m pytest --doctest-modules
 .PHONY: pytest
 
 doc .cache/make/doc: docs/*/* styles/*/* *.rst *.md # Build documentation only
