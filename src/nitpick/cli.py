@@ -14,23 +14,48 @@ Why does this file exist, and why not put this in __main__?
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
 import itertools
+import os
 from enum import Enum
 
 import click
 
-from nitpick import Nitpick
+from nitpick.app import create_app
 from nitpick.config import Config
-from nitpick.constants import ERROR_PREFIX
+from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
 
 
-class NitpickFlags(Enum):
+class _FlagMixin:
+    """Private mixin used to test the flags."""
+
+    name: str
+
+    def as_flake8_flag(self) -> str:
+        """Format the name of a flag to be used on the CLI."""
+        slug = self.name.lower().replace("_", "-")
+        return f"--{PROJECT_NAME}-{slug}"
+
+    def as_envvar(self) -> str:
+        """Format the name of an environment variable."""
+        return f"{PROJECT_NAME.upper()}_{self.name.upper()}"
+
+    def get_environ(self) -> str:
+        """Get the value of an environment variable."""
+        return os.environ.get(self.as_envvar(), "")
+
+
+class NitpickFlag(_FlagMixin, Enum):
     """Flags to be used with the CLI."""
 
     OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
 
 
 @click.command()
-@click.option(f"--{NitpickFlags.OFFLINE.name.lower()}", is_flag=True, default=False, help=NitpickFlags.OFFLINE.value)
+@click.option(
+    f"--{NitpickFlag.OFFLINE.name.lower()}",  # pylint: disable=no-member
+    is_flag=True,
+    default=False,
+    help=NitpickFlag.OFFLINE.value,
+)
 @click.option(
     "--check",
     "-c",
@@ -43,10 +68,11 @@ def nitpick_cli(offline=False, check=False):
     """Enforce the same configuration across multiple projects."""
     from nitpick.flake8 import check_files  # pylint: disable=import-outside-toplevel
 
-    nit = Nitpick(offline, check)
-    config = Config(nit.project_root, nit.plugin_manager)
+    app = create_app()
+    app.offline = offline
+    app.check = check
+
+    config = Config(app.project_root, app.plugin_manager)
     for err in itertools.chain(config.merge_styles(), check_files(True), check_files(False)):
         click.echo(f"{ERROR_PREFIX}{err.number:03} {err.message}{err.suggestion}")
-    # FIXME[AA]: replace NitpickApp by Nitpick everywhere
-    # FIXME[AA]: rename Nitpick
     # FIXME[AA]: follow steps of NitpickExtension.run()

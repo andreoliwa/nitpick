@@ -1,7 +1,19 @@
 """Config tests."""
 import pytest
 
+from nitpick.app import Nitpick, create_app
 from tests.helpers import ProjectMock
+
+
+def test_singleton():
+    """Single instance of the Nitpick class; forbid direct instantiation."""
+    app1 = create_app()
+    app2 = create_app()
+    assert app1 is app2
+
+    with pytest.raises(TypeError) as err:
+        Nitpick()
+    assert "This class cannot be instantiated directly" in str(err)
 
 
 def test_no_root_dir(request):

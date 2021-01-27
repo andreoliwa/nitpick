@@ -15,7 +15,7 @@ import click
 from slugify import slugify
 from sortedcontainers import SortedDict
 
-from nitpick.app import NitpickApp
+from nitpick.app import create_app
 from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
 
 style_mapping = SortedDict(
@@ -41,7 +41,7 @@ style_mapping = SortedDict(
         "python39.toml": "Python 3.9",
     }
 )
-app = NitpickApp.current()
+app = create_app()
 
 divider = ".. auto-generated-from-here"
 docs_dir = Path(__file__).parent.absolute()  # type: Path

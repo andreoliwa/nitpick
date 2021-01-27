@@ -7,7 +7,8 @@ import pytest
 import requests
 from flake8.main import cli
 
-from nitpick.app import NitpickApp
+from nitpick.app import create_app
+from nitpick.cli import _FlagMixin
 from nitpick.constants import READ_THE_DOCS_URL
 from tests.helpers import ProjectMock
 
@@ -80,31 +81,31 @@ def test_present_files(request):
 def test_flag_format_env_variable():
     """Test flag formatting and env variable."""
 
-    class OtherFlags(Enum):
+    class OtherFlags(_FlagMixin, Enum):
         """Some flags to be used on the assertions below."""
 
         MULTI_WORD = 1
         SOME_OPTION = 2
 
-    assert NitpickApp.format_flag(OtherFlags.MULTI_WORD) == "--nitpick-multi-word"
+    assert OtherFlags.MULTI_WORD.as_flake8_flag() == "--nitpick-multi-word"
     os.environ["NITPICK_SOME_OPTION"] = "something"
-    assert NitpickApp.format_env(OtherFlags.SOME_OPTION) == "NITPICK_SOME_OPTION"
-    assert NitpickApp.get_env(OtherFlags.SOME_OPTION) == "something"
-    assert NitpickApp.get_env(OtherFlags.MULTI_WORD) == ""
+    assert OtherFlags.SOME_OPTION.as_envvar() == "NITPICK_SOME_OPTION"
+    assert OtherFlags.SOME_OPTION.get_environ() == "something"
+    assert OtherFlags.MULTI_WORD.get_environ() == ""
 
 
 def test_offline_flag_env_variable(tmpdir):
     """Test if the offline flag or environment variable was set."""
     with tmpdir.as_cwd():
         _call_main([])
-        assert NitpickApp.current().offline is False
+        assert create_app().offline is False
 
         _call_main(["--nitpick-offline"])
-        assert NitpickApp.current().offline is True
+        assert create_app().offline is True
 
         os.environ["NITPICK_OFFLINE"] = "1"
         _call_main([])
-        assert NitpickApp.current().offline is True
+        assert create_app().offline is True
 
 
 @mock.patch("requests.get")

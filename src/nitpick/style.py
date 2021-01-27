@@ -15,7 +15,7 @@ from slugify import slugify
 from toml import TomlDecodeError
 
 from nitpick import __version__, fields
-from nitpick.app import NitpickApp
+from nitpick.app import create_app
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
@@ -160,7 +160,8 @@ class Style:
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
-        if NitpickApp.current().offline:
+        app = create_app()
+        if app.offline:
             # No style will be fetched in offline mode
             return None
 
@@ -179,17 +180,17 @@ class Style:
         if new_url in self._already_included:
             return None
 
-        if not NitpickApp.current().cache_dir:
+        if not app.cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
         try:
             response = requests.get(new_url)
         except requests.ConnectionError:
-            from nitpick.cli import NitpickFlags  # pylint: disable=import-outside-toplevel
+            from nitpick.cli import NitpickFlag  # pylint: disable=import-outside-toplevel
 
             click.secho(
                 "Your network is unreachable. Fix your connection or use {} / {}=1".format(
-                    NitpickApp.format_flag(NitpickFlags.OFFLINE), NitpickApp.format_env(NitpickFlags.OFFLINE)
+                    NitpickFlag.OFFLINE.as_flake8_flag(), NitpickFlag.OFFLINE.as_envvar()
                 ),
                 fg="red",
                 err=True,
@@ -203,8 +204,8 @@ class Style:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = NitpickApp.current().cache_dir / "{}.toml".format(slugify(new_url))
-        NitpickApp.current().cache_dir.mkdir(parents=True, exist_ok=True)
+        style_path = app.cache_dir / "{}.toml".format(slugify(new_url))
+        app.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
         LOGGER.info("Loading style from URL %s into %s", new_url, style_path)
@@ -241,7 +242,7 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        app = NitpickApp.current()
+        app = create_app()
         if not app.cache_dir:
             return {}
         merged_dict = self._all_styles.merge()

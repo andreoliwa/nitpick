@@ -1,8 +1,6 @@
 """The Nitpick application."""
 import itertools
 import logging
-import os
-from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from shutil import rmtree
@@ -13,9 +11,9 @@ import pluggy
 from pluggy import PluginManager
 
 from nitpick import plugins
-from nitpick.constants import CACHE_DIR_NAME, MANAGE_PY, MISSING, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
+from nitpick.constants import CACHE_DIR_NAME, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
 from nitpick.exceptions import NoPythonFileError, NoRootDirError
-from nitpick.generic import Borg, climb_directory_tree
+from nitpick.generic import climb_directory_tree
 from nitpick.typedefs import mypy_property
 
 if TYPE_CHECKING:
@@ -106,11 +104,23 @@ def clear_cache_dir(project_root: Path) -> Path:  # TODO: add unit tests
     return project_cache_dir
 
 
-# FIXME[AA]: move methods to Nitpick after removing NitpickApp
-class _TransitionMixin:  # pylint: disable=too-few-public-methods
-    """Mixin class to transition from NitpickApp (flake8) to Nitpick (CLI)."""
+class Nitpick:
+    """The Nitpick API."""
 
-    error_base_number = 100
+    _allow_init = False
+
+    def __init__(self):
+        if not self._allow_init:
+            raise TypeError("This class cannot be instantiated directly. Call create_app() instead")
+        self.offline = False
+        self.check = False
+
+    def cli_debug_info(self):
+        """Display debug config on the CLI."""
+        click.echo(f"Offline? {self.offline}")
+        click.echo(f"Check only? {self.check}")
+        click.echo(f"Root dir: {self.project_root}")
+        click.echo(f"Cache dir: {self.cache_dir}")
 
     @mypy_property
     @lru_cache()
@@ -148,49 +158,10 @@ class _TransitionMixin:  # pylint: disable=too-few-public-methods
         return plugin_manager
 
 
-# FIXME[AA]: move all attributes+methods to Nitpick or _TransitionMixin, then remove this class
-class NitpickApp(_TransitionMixin):  # pylint: disable=too-many-instance-attributes
-    """The Nitpick application."""
-
-    def __init__(self) -> None:
-        self.offline = False
-
-    @classmethod
-    @lru_cache(typed=True)
-    def current(cls) -> "NitpickApp":
-        """Return a single instance of the class (singleton)."""
-        return cls()
-
-    @classmethod
-    def format_flag(cls, flag: Enum) -> str:
-        """Format the name of a flag to be used on the CLI."""
-        return "--{}-{}".format(PROJECT_NAME, flag.name.lower().replace("_", "-"))
-
-    @classmethod
-    def format_env(cls, flag: Enum) -> str:
-        """Format the name of an environment variable."""
-        return "{}_{}".format(PROJECT_NAME.upper(), flag.name.upper())
-
-    @classmethod
-    def get_env(cls, flag: Enum) -> str:
-        """Get the value of an environment variable."""
-        return os.environ.get(cls.format_env(flag), "")
-
-
-class Nitpick(Borg, _TransitionMixin):
-    """The Nitpick API."""
-
-    offline: bool
-    check: bool
-
-    def __init__(self, offline=MISSING, check=MISSING):
-        super().__init__()
-        self._init_attribute("offline", offline, False)
-        self._init_attribute("check", check, False)
-
-    def cli_debug_info(self):
-        """Display debug config on the CLI."""
-        click.echo(f"Offline? {self.offline}")
-        click.echo(f"Check only? {self.check}")
-        click.echo(f"Root dir: {self.project_root}")
-        click.echo(f"Cache dir: {self.cache_dir}")
+@lru_cache()
+def create_app() -> Nitpick:
+    """Return a single instance of the class (create_app)."""
+    Nitpick._allow_init = True  # pylint: disable=protected-access
+    instance = Nitpick()
+    Nitpick._allow_init = False  # pylint: disable=protected-access
+    return instance

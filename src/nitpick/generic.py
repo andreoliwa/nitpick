@@ -12,7 +12,7 @@ from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Set, Tup
 import jmespath
 from jmespath.parser import ParsedResult
 
-from nitpick.constants import DOUBLE_QUOTE, MISSING, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
+from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
 from nitpick.typedefs import JsonDict, PathOrStr
 
 
@@ -246,27 +246,4 @@ def is_url(url: str) -> bool:
 
 def pretty_exception(err: Exception, message: str):
     """Return a pretty error message with the full path of the Exception."""
-    return "{} ({}.{}: {})".format(message, err.__module__, err.__class__.__name__, str(err))
-
-
-class Borg:  # pylint: disable=too-few-public-methods
-    """Provides singleton-like behavior sharing state between instances.
-
-    Taken from `python-patterns / creational / Borg
-        <https://github.com/faif/python-patterns/blob/master/patterns/creational/borg.py>`_.
-    """
-
-    _shared_state: Dict[Any, Any] = {}
-
-    def __init__(self):
-        self.__dict__ = self._shared_state
-
-    def _init_attribute(self, attribute: str, value: Optional[Any], default: Any) -> None:
-        """Init an attribute with a value or a default."""
-        if value is not MISSING:
-            setattr(self, attribute, value)
-            return
-
-        # Init the first instance with the default value
-        if not hasattr(self, attribute):
-            setattr(self, attribute, default)
+    return f"{message} ({err.__module__}.{err.__class__.__name__}: {str(err)})"

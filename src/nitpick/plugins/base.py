@@ -1,21 +1,18 @@
 """Base class for file checkers."""
 import abc
 from functools import lru_cache
-from typing import TYPE_CHECKING, Iterator, Optional, Set, Type
+from pathlib import Path
+from typing import Iterator, Optional, Set, Type
 
 import jmespath
 from identify import identify
+from marshmallow import Schema
 
-from nitpick.app import NitpickApp
+from nitpick.app import create_app
 from nitpick.exceptions import Deprecation, NitpickError, PluginError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
 from nitpick.typedefs import JsonDict, mypy_property
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from marshmallow import Schema
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):
@@ -26,7 +23,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
-    validation_schema = None  # type: Optional[Schema]
+    validation_schema: Optional[Schema] = None
 
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
     identify_tags: Set[str] = set()
@@ -38,16 +35,16 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             self.file_name = path_from_root
 
         self.error_class.error_prefix = "File {}".format(self.file_name)
-        self.file_path = NitpickApp.current().project_root / self.file_name  # type: Path
+        self.file_path: Path = create_app().project_root / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict = {}  # type: JsonDict
+        self.file_dict: JsonDict = {}
 
     @mypy_property
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
-        return search_dict(f'files."{self.file_name}"', NitpickApp.current().config.nitpick_section, {})
+        return search_dict(f'files."{self.file_name}"', create_app().config.nitpick_section, {})
 
     @classmethod
     def get_compiled_jmespath_file_names(cls):
@@ -59,7 +56,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.file_dict = config or {}
 
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-        should_exist = NitpickApp.current().config.nitpick_files_section.get(self.file_name, True)  # type: bool
+        app = create_app()
+        should_exist: bool = app.config.nitpick_files_section.get(self.file_name, True)
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
@@ -67,7 +65,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if not suggestion and self.skip_empty_suggestion:
                 return
             phrases = [" was not found"]
-            message = NitpickApp.current().config.nitpick_files_section.get(self.file_name)
+            message = app.config.nitpick_files_section.get(self.file_name)
             if message and isinstance(message, str):
                 phrases.append(message)
             if suggestion:
@@ -76,8 +74,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             yield self.error_class(joined_message, suggestion, 1)
         elif not should_exist and file_exists:
             # Only display this message if the style is valid.
-            if not NitpickApp.current().style_errors:
-                yield self.error_class(" should be deleted", number=2)
+            yield self.error_class(" should be deleted", number=2)
         elif file_exists and config_data_exists:
             yield from self.check_rules()
 

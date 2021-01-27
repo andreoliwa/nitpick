@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, List, Set
 from _pytest.fixtures import FixtureRequest
 from testfixtures import compare
 
-from nitpick.app import NitpickApp
+from nitpick.app import create_app
 from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
 from nitpick.flake8 import NitpickExtension
 from nitpick.formats import TOMLFormat
@@ -76,10 +76,10 @@ class ProjectMock:
         - Change the working dir to the mocked project root.
         - Lint one of the project files. If no index is provided, use the default file that's always created.
         """
-        NitpickApp.current.cache_clear()
+        create_app.cache_clear()
         os.chdir(str(self.root_dir))
-        nit = NitpickApp.current()
-        nit.offline = offline
+        app = create_app()
+        app.offline = offline
 
         npc = NitpickExtension(filename=str(self.files_to_lint[file_index]))
         self._original_errors = list(npc.run())

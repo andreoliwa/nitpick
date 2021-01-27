@@ -8,8 +8,8 @@ import attr
 from flake8.options.manager import OptionManager
 
 from nitpick import __version__
-from nitpick.app import NitpickApp
-from nitpick.cli import NitpickFlags
+from nitpick.app import create_app
+from nitpick.cli import NitpickFlag
 from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import (
     AbsentFileError,
@@ -30,8 +30,9 @@ def check_files(present: bool) -> Iterator[NitpickError]:
     key = "present" if present else "absent"
     message = "exist" if present else "be deleted"
     absent = not present
-    for file_name, extra_message in NitpickApp.current().config.nitpick_files_section.get(key, {}).items():
-        file_path: Path = NitpickApp.current().project_root / file_name
+    app = create_app()
+    for file_name, extra_message in app.config.nitpick_files_section.get(key, {}).items():
+        file_path: Path = app.project_root / file_name
         exists = file_path.exists()
         if (present and exists) or (absent and not exists):
             continue
@@ -65,7 +66,7 @@ class NitpickExtension:
 
     def collect_nitpick_errors(self) -> Iterator[NitpickError]:
         """Collect all possible Nitpick errors."""
-        app = NitpickApp.current()
+        app = create_app()
 
         current_python_file = Path(self.filename)
         try:
@@ -105,10 +106,10 @@ class NitpickExtension:
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(
-            NitpickApp.format_flag(NitpickFlags.OFFLINE),
+            NitpickFlag.OFFLINE.as_flake8_flag(),
             action="store_true",
             # dest="offline",
-            help=NitpickFlags.OFFLINE.value,
+            help=NitpickFlag.OFFLINE.value,
         )
 
     @staticmethod
@@ -120,6 +121,6 @@ class NitpickExtension:
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        nit = NitpickApp.current()
-        nit.offline = bool(options.nitpick_offline or NitpickApp.get_env(NitpickFlags.OFFLINE))
-        LOGGER.info("Offline mode: %s", nit.offline)
+        app = create_app()
+        app.offline = bool(options.nitpick_offline or NitpickFlag.OFFLINE.get_environ())
+        LOGGER.info("Offline mode: %s", app.offline)
