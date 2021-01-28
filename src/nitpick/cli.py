@@ -16,10 +16,11 @@ Why does this file exist, and why not put this in __main__?
 import itertools
 import os
 from enum import Enum
+from pathlib import Path
 
 import click
 
-from nitpick.app import create_app
+from nitpick.app import Nitpick, create_app
 from nitpick.config import Config
 from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
 
@@ -51,6 +52,12 @@ class NitpickFlag(_FlagMixin, Enum):
 
 @click.command()
 @click.option(
+    "--project",
+    "-p",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
+    help="Path to project root",
+)
+@click.option(
     f"--{NitpickFlag.OFFLINE.name.lower()}",  # pylint: disable=no-member
     is_flag=True,
     default=False,
@@ -64,13 +71,15 @@ class NitpickFlag(_FlagMixin, Enum):
     help="Don't modify the configuration files, just print the difference."
     " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
 )
-def nitpick_cli(offline=False, check=False):
+def nitpick_cli(project: Path = None, offline=False, check=False):
     """Enforce the same configuration across multiple projects."""
     from nitpick.flake8 import check_files  # pylint: disable=import-outside-toplevel
 
     app = create_app()
-    app.offline = offline
-    app.check = check
+
+    # "error: Too many arguments for" class with generated __init__ method by metaclass
+    # https://github.com/python/mypy/issues/3937
+    app.options = Nitpick.Options(project, offline, check)  # type:ignore
 
     config = Config(app.project_root, app.plugin_manager)
     for err in itertools.chain(config.merge_styles(), check_files(True), check_files(False)):

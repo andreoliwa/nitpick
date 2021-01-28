@@ -4,11 +4,12 @@ import logging
 from functools import lru_cache
 from pathlib import Path
 from shutil import rmtree
-from typing import TYPE_CHECKING, Set
+from typing import TYPE_CHECKING, Optional, Set
 
 import click
 import pluggy
 from pluggy import PluginManager
+from pydantic.dataclasses import dataclass
 
 from nitpick import plugins
 from nitpick.constants import CACHE_DIR_NAME, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
@@ -109,16 +110,23 @@ class Nitpick:
 
     _allow_init = False
 
+    @dataclass(eq=False)
+    class Options:
+        """Options."""
+
+        project_root: Optional[Path] = None
+        offline: bool = False
+        check: bool = False
+
     def __init__(self):
         if not self._allow_init:
             raise TypeError("This class cannot be instantiated directly. Call create_app() instead")
-        self.offline = False
-        self.check = False
+        self.options: Nitpick.Options = Nitpick.Options()
 
     def cli_debug_info(self):
         """Display debug config on the CLI."""
-        click.echo(f"Offline? {self.offline}")
-        click.echo(f"Check only? {self.check}")
+        click.echo(f"Offline? {self.options.offline}")
+        click.echo(f"Check only? {self.options.check}")
         click.echo(f"Root dir: {self.project_root}")
         click.echo(f"Cache dir: {self.cache_dir}")
 

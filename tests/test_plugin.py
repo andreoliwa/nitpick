@@ -98,14 +98,14 @@ def test_offline_flag_env_variable(tmpdir):
     """Test if the offline flag or environment variable was set."""
     with tmpdir.as_cwd():
         _call_main([])
-        assert create_app().offline is False
+        assert create_app().options.offline is False
 
         _call_main(["--nitpick-offline"])
-        assert create_app().offline is True
+        assert create_app().options.offline is True
 
         os.environ["NITPICK_OFFLINE"] = "1"
         _call_main([])
-        assert create_app().offline is True
+        assert create_app().options.offline is True
 
 
 @mock.patch("requests.get")

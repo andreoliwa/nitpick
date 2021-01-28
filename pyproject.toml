@@ -63,6 +63,7 @@ marshmallow-polyfield = "^5.7"
 identify = "*"
 "more-itertools" = "*"
 pluggy = "*"
+pydantic = "*"
 
 pylint = {version = "*", optional = true}
 pytest = {version = "*", optional = true}

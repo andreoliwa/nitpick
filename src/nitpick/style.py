@@ -161,7 +161,7 @@ class Style:
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
         app = create_app()
-        if app.offline:
+        if app.options.offline:
             # No style will be fetched in offline mode
             return None
 

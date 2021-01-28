@@ -79,7 +79,7 @@ class ProjectMock:
         create_app.cache_clear()
         os.chdir(str(self.root_dir))
         app = create_app()
-        app.offline = offline
+        app.options.offline = offline
 
         npc = NitpickExtension(filename=str(self.files_to_lint[file_index]))
         self._original_errors = list(npc.run())

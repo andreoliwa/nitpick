@@ -122,5 +122,5 @@ class NitpickExtension:
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
         app = create_app()
-        app.offline = bool(options.nitpick_offline or NitpickFlag.OFFLINE.get_environ())
-        LOGGER.info("Offline mode: %s", app.offline)
+        app.options.offline = bool(options.nitpick_offline or NitpickFlag.OFFLINE.get_environ())
+        LOGGER.info("Offline mode: %s", app.options.offline)
