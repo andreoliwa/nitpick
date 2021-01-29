@@ -1,7 +1,7 @@
 """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
 from typing import Iterator, Optional, Type
 
-from nitpick.app import create_app
+from nitpick.app import Nitpick
 from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
@@ -27,7 +27,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
     def check_rules(self) -> Iterator[NitpickError]:
         """Check missing key/value pairs in pyproject.toml."""
-        file = create_app().config.pyproject_toml
+        file = Nitpick.create().config.pyproject_toml
         if file:
             comparison = file.compare_with_flatten(self.file_dict)
             yield from self.warn_missing_different(comparison)

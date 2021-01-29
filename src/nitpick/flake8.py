@@ -8,7 +8,7 @@ import attr
 from flake8.options.manager import OptionManager
 
 from nitpick import __version__
-from nitpick.app import create_app
+from nitpick.app import Nitpick
 from nitpick.cli import NitpickFlag
 from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import (
@@ -30,7 +30,7 @@ def check_files(present: bool) -> Iterator[NitpickError]:
     key = "present" if present else "absent"
     message = "exist" if present else "be deleted"
     absent = not present
-    app = create_app()
+    app = Nitpick.create()
     for file_name, extra_message in app.config.nitpick_files_section.get(key, {}).items():
         file_path: Path = app.project_root / file_name
         exists = file_path.exists()
@@ -66,7 +66,7 @@ class NitpickExtension:
 
     def collect_nitpick_errors(self) -> Iterator[NitpickError]:
         """Collect all possible Nitpick errors."""
-        app = create_app()
+        app = Nitpick.create()
 
         current_python_file = Path(self.filename)
         try:
@@ -121,6 +121,6 @@ class NitpickExtension:
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        app = create_app()
+        app = Nitpick.create()
         app.options.offline = bool(options.nitpick_offline or NitpickFlag.OFFLINE.get_environ())
         LOGGER.info("Offline mode: %s", app.options.offline)

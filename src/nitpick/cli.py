@@ -20,7 +20,7 @@ from pathlib import Path
 
 import click
 
-from nitpick.app import Nitpick, create_app
+from nitpick.app import Nitpick
 from nitpick.config import Config
 from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
 
@@ -75,7 +75,7 @@ def nitpick_cli(project: Path = None, offline=False, check=False):
     """Enforce the same configuration across multiple projects."""
     from nitpick.flake8 import check_files  # pylint: disable=import-outside-toplevel
 
-    app = create_app()
+    app = Nitpick.create()
 
     # "error: Too many arguments for" class with generated __init__ method by metaclass
     # https://github.com/python/mypy/issues/3937

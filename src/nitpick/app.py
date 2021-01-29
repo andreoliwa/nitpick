@@ -120,8 +120,17 @@ class Nitpick:
 
     def __init__(self):
         if not self._allow_init:
-            raise TypeError("This class cannot be instantiated directly. Call create_app() instead")
+            raise TypeError("This class cannot be instantiated directly. Call Nitpick.create() instead")
         self.options: Nitpick.Options = Nitpick.Options()
+
+    @classmethod
+    @lru_cache()
+    def create(cls) -> "Nitpick":
+        """Return a single instance of the class."""
+        Nitpick._allow_init = True
+        instance = cls()
+        Nitpick._allow_init = False
+        return instance
 
     def cli_debug_info(self):
         """Display debug config on the CLI."""
@@ -164,12 +173,3 @@ class Nitpick:
         plugin_manager.add_hookspecs(plugins)
         plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
         return plugin_manager
-
-
-@lru_cache()
-def create_app() -> Nitpick:
-    """Return a single instance of the class (create_app)."""
-    Nitpick._allow_init = True  # pylint: disable=protected-access
-    instance = Nitpick()
-    Nitpick._allow_init = False  # pylint: disable=protected-access
-    return instance

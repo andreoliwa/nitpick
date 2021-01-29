@@ -15,7 +15,7 @@ from slugify import slugify
 from toml import TomlDecodeError
 
 from nitpick import __version__, fields
-from nitpick.app import create_app
+from nitpick.app import Nitpick
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
@@ -160,7 +160,7 @@ class Style:
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
-        app = create_app()
+        app = Nitpick.create()
         if app.options.offline:
             # No style will be fetched in offline mode
             return None
@@ -242,7 +242,7 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        app = create_app()
+        app = Nitpick.create()
         if not app.cache_dir:
             return {}
         merged_dict = self._all_styles.merge()

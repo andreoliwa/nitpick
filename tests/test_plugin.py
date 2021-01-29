@@ -7,7 +7,7 @@ import pytest
 import requests
 from flake8.main import cli
 
-from nitpick.app import create_app
+from nitpick.app import Nitpick
 from nitpick.cli import _FlagMixin
 from nitpick.constants import READ_THE_DOCS_URL
 from tests.helpers import ProjectMock
@@ -98,14 +98,14 @@ def test_offline_flag_env_variable(tmpdir):
     """Test if the offline flag or environment variable was set."""
     with tmpdir.as_cwd():
         _call_main([])
-        assert create_app().options.offline is False
+        assert Nitpick.create().options.offline is False
 
         _call_main(["--nitpick-offline"])
-        assert create_app().options.offline is True
+        assert Nitpick.create().options.offline is True
 
         os.environ["NITPICK_OFFLINE"] = "1"
         _call_main([])
-        assert create_app().options.offline is True
+        assert Nitpick.create().options.offline is True
 
 
 @mock.patch("requests.get")
