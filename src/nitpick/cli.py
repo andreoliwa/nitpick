@@ -19,6 +19,7 @@ from itertools import chain
 from pathlib import Path
 
 import click
+from loguru import logger
 
 from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
 from nitpick.core import Nitpick
@@ -71,13 +72,20 @@ class NitpickFlag(_FlagMixin, Enum):
     help="Don't modify the configuration files, just print the difference."
     " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
 )
-def nitpick_cli(project_root: Path = None, offline=False, check=False):
+@click.option("--verbose", "-v", is_flag=True, default=False, help="Verbose logging")
+def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=False):
     """Enforce the same configuration across multiple projects."""
+    if verbose:
+        logger.enable(PROJECT_NAME)
+
     if not check:
-        click.secho("Apply mode is not yet implemented; running a check instead", fg="red")
+        logger.warning("Apply mode is not yet implemented; running a check instead")
 
     nit = Nitpick.singleton().init(project_root, offline)
 
     for err in chain(nit.project.merge_styles(offline), nit.check_present_absent()):
         click.echo(f"{ERROR_PREFIX}{err.number:03} {err.message}{err.suggestion}")
+
     # FIXME[AA]: follow steps of NitpickExtension.run()
+
+    click.secho("All done! ✨ 🍰 ✨", fg="bright_white")

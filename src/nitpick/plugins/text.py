@@ -1,5 +1,4 @@
 """Text files."""
-import logging
 from typing import Iterator, Optional, Type
 
 from marshmallow import Schema
@@ -10,8 +9,6 @@ from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FileData, NitpickPlugin
 from nitpick.schemas import help_message
-
-LOGGER = logging.getLogger(__name__)
 
 TEXT_FILE_RTFD_PAGE = "plugins.html#text-files"
 

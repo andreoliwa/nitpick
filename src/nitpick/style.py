@@ -1,5 +1,4 @@
 """Style files."""
-import logging
 from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
@@ -10,6 +9,7 @@ from urllib.parse import urlparse, urlunparse
 import click
 import requests
 from identify import identify
+from loguru import logger
 from marshmallow import Schema
 from pluggy import PluginManager
 from slugify import slugify
@@ -34,7 +34,6 @@ from nitpick.project import Project, climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList, mypy_property
 
-LOGGER = logging.getLogger(__name__)
 Plugins = Set[Type[NitpickPlugin]]
 
 
@@ -76,16 +75,16 @@ class Style:
         """Find the initial style(s) and include them."""
         if configured_styles:
             chosen_styles = configured_styles
-            log_message = f"Styles configured in {PYPROJECT_TOML}: %s"
+            log_message = f"Styles configured in {PYPROJECT_TOML}"
         else:
             paths = climb_directory_tree(self.project.root, [NITPICK_STYLE_TOML])
             if paths:
                 chosen_styles = str(sorted(paths)[0])
-                log_message = "Found style climbing the directory tree: %s"
+                log_message = "Found style climbing the directory tree"
             else:
                 chosen_styles = self.get_default_style_url()
-                log_message = "Loading default Nitpick style %s"
-        LOGGER.info(log_message, chosen_styles)
+                log_message = "Loading default Nitpick style"
+        logger.info(log_message + ": {}", chosen_styles)
 
         yield from self.include_multiple_styles(chosen_styles)
 
@@ -221,11 +220,11 @@ class Style:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = self.cache_dir / "{}.toml".format(slugify(new_url))
+        style_path = self.cache_dir / f"{slugify(new_url)}.toml"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
-        LOGGER.info("Loading style from URL %s into %s", new_url, style_path)
+        logger.debug("Loading style from URL {} into {}", new_url, style_path)
         self._already_included.add(new_url)
 
         return style_path
@@ -251,9 +250,9 @@ class Style:
             return None
 
         if not style_path.exists():
-            raise FileNotFoundError("Local style file does not exist: {}".format(style_path))
+            raise FileNotFoundError(f"Local style file does not exist: {style_path}")
 
-        LOGGER.info("Loading style from file: %s", style_path)
+        logger.debug(f"Loading style from {style_path}")
         self._already_included.add(str(style_path))
         return style_path
 

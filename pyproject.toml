@@ -71,6 +71,7 @@ sphinx = {version = "*", optional = true}
 sphinx_rtd_theme = {version = "*", optional = true}
 pydantic = "*"
 autorepr = "*"
+loguru = "*"
 
 [tool.poetry.extras]
 lint = ["pylint"]

@@ -1,13 +1,12 @@
 """The Nitpick application."""
-import logging
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterator, Union
 
+from loguru import logger
+
 from nitpick.exceptions import AbsentFileError, NitpickError, PresentFileError
 from nitpick.project import Project
-
-LOGGER = logging.getLogger(__name__)
 
 
 class Nitpick:
@@ -53,6 +52,7 @@ class Nitpick:
 
         for present in (True, False):
             key = "present" if present else "absent"
+            logger.info(f"Checking {key} files")
             message = "exist" if present else "be deleted"
             absent = not present
             for file_name, extra_message in self.project.nitpick_files_section.get(key, {}).items():

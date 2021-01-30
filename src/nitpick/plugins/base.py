@@ -1,6 +1,6 @@
 """Base class for file checkers."""
 import abc
-from dataclasses import dataclass
+from dataclasses import dataclass  # pylint: disable=wrong-import-order
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterator, Optional, Set, Type
@@ -38,7 +38,7 @@ class FileData:
 class NitpickPlugin(metaclass=abc.ABCMeta):
     """Base class for file checkers."""
 
-    file_name = ""  # FIXME[AA]: remove
+    file_name = ""  # FIXME[AA]: remove this after fixing dynamic/fixed schema loading
     error_class: Type[NitpickError] = PluginError
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.

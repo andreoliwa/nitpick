@@ -5,6 +5,7 @@ from typing import Iterator
 
 import attr
 from flake8.options.manager import OptionManager
+from loguru import logger
 
 from nitpick import __version__
 from nitpick.cli import NitpickFlag
@@ -13,8 +14,6 @@ from nitpick.core import Nitpick
 from nitpick.exceptions import InitError, NitpickError, NoPythonFileError, NoRootDirError
 from nitpick.plugins.base import FileData
 from nitpick.typedefs import Flake8Error
-
-LOGGER = logging.getLogger(__name__)
 
 
 @attr.s(hash=False)
@@ -49,12 +48,12 @@ class NitpickExtension:
             main_python_file: Path = nit.project.find_main_python_file()
             if current_python_file.absolute() != main_python_file.absolute():
                 # Only report warnings once, for the main Python file of this project.
-                LOGGER.debug("Ignoring file: %s", self.filename)
+                logger.debug("Ignoring file: {}", self.filename)
                 return []
         except (NoRootDirError, NoPythonFileError) as err:
             yield err
             return []
-        LOGGER.debug("Nitpicking file: %s", self.filename)
+        logger.debug("Nitpicking file: {}", self.filename)
 
         has_errors = False
         for style_err in nit.project.merge_styles(nit.offline):
@@ -96,4 +95,4 @@ class NitpickExtension:
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
         nit = Nitpick.singleton().init(offline=bool(options.nitpick_offline or NitpickFlag.OFFLINE.get_environ()))
-        LOGGER.info("Offline mode: %s", nit.offline)
+        logger.info("Offline mode: {}", nit.offline)

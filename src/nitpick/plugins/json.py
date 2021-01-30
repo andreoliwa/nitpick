@@ -1,8 +1,8 @@
 """JSON files."""
 import json
-import logging
 from typing import Iterator, Optional, Type
 
+from loguru import logger
 from sortedcontainers import SortedDict
 
 from nitpick import fields
@@ -16,7 +16,6 @@ from nitpick.typedefs import JsonDict
 
 KEY_CONTAINS_KEYS = "contains_keys"
 KEY_CONTAINS_JSON = "contains_json"
-LOGGER = logging.getLogger(__name__)
 
 
 class JSONFileSchema(BaseNitpickSchema):
@@ -84,7 +83,7 @@ class JSONPlugin(NitpickPlugin):
             except json.JSONDecodeError as err:
                 # This should not happen, because the style was already validated before.
                 # Maybe the NIP??? code was disabled by the user?
-                LOGGER.error("%s on %s while checking %s", err, KEY_CONTAINS_JSON, self.file_path)
+                logger.error(f"{err} on {KEY_CONTAINS_JSON} while checking {self.file_path}")
                 continue
 
         yield from self.warn_missing_different(

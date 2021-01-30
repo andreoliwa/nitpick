@@ -1,12 +1,12 @@
 """A project to be nitpicked."""
 import itertools
-import logging
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterable, Iterator, Optional, Set, Union
 
 import pluggy
-from autorepr import autorepr  # pylint: disable=import-error
+from autorepr import autorepr
+from loguru import logger
 from marshmallow_polyfield import PolyField
 from pluggy import PluginManager
 
@@ -26,8 +26,6 @@ from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, mypy_property
-
-LOGGER = logging.getLogger(__name__)
 
 
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[Set[Path]]:
@@ -81,7 +79,7 @@ def find_root() -> Path:
             break
 
     if not root_dirs:
-        LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
+        logger.error("No files found while climbing directory tree from {}", str(starting_file))
         raise NoRootDirError()
 
     # If multiple roots are found, get the top one (grandparent dir)
@@ -137,7 +135,7 @@ class Project:
             self.root.glob("*/*.py"),
         ):
             if the_file.exists():
-                LOGGER.info("Found the file %s", the_file)
+                logger.info("Found the file {}", the_file)
                 return Path(the_file)
 
         raise NoPythonFileError(self.root)
@@ -188,6 +186,7 @@ class Project:
         from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
+        logger.info(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickExtension.version) < version_to_tuple(minimum_version):
             yield MinimumVersionError(minimum_version, NitpickExtension.version)
 
