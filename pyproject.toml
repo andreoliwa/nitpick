@@ -63,14 +63,14 @@ marshmallow-polyfield = "^5.7"
 identify = "*"
 "more-itertools" = "*"
 pluggy = "*"
-pydantic = "*"
-
 pylint = {version = "*", optional = true}
 pytest = {version = "*", optional = true}
 testfixtures = {version = "*", optional = true}
 responses = {version = "*", optional = true}
 sphinx = {version = "*", optional = true}
 sphinx_rtd_theme = {version = "*", optional = true}
+pydantic = "*"
+autorepr = "*"
 
 [tool.poetry.extras]
 lint = ["pylint"]

@@ -10,12 +10,13 @@ MERGED_STYLE_TOML = "merged-style{}".format(TOML_EXTENSION)
 RAW_GITHUB_CONTENT_BASE_URL = "https://raw.githubusercontent.com/andreoliwa/{}".format(PROJECT_NAME)
 READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 
-# Python special files
+# Special files
 PYPROJECT_TOML = "pyproject.toml"
 SETUP_CFG = "setup.cfg"
 ROOT_PYTHON_FILES = ("setup.py", "app.py", "wsgi.py", "autoapp.py")
 ROOT_FILES = (PYPROJECT_TOML, SETUP_CFG, "requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 MANAGE_PY = "manage.py"
+PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'

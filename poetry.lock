@@ -65,6 +65,14 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six"]
 
 [[package]]
+name = "autorepr"
+version = "0.3.0"
+description = "Makes civilized __repr__, __str__, and __unicode__ methods"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "babel"
 version = "2.9.0"
 description = "Internationalization utilities"
@@ -893,7 +901,7 @@ test = ["pytest", "testfixtures", "responses"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "ae0ba0f42099f74f8b5c98c1d0c04b2c7b91fc320670081a59a547f8cbb15dd4"
+content-hash = "ad53fd618e00d667969a01b0e593fbaaad416fb2a9f6fc173781f95287fc511e"
 
 [metadata.files]
 alabaster = [
@@ -919,6 +927,11 @@ atomicwrites = [
 attrs = [
     {file = "attrs-20.3.0-py2.py3-none-any.whl", hash = "sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6"},
     {file = "attrs-20.3.0.tar.gz", hash = "sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700"},
+]
+autorepr = [
+    {file = "autorepr-0.3.0-py2-none-any.whl", hash = "sha256:c34567e4073630feb52d9c788fc198085e9e9de4817e3b93b7c4c534fc689f11"},
+    {file = "autorepr-0.3.0-py2.py3-none-any.whl", hash = "sha256:1d9010d14fb325d3961e3aa73692685563f97d6ba4a2f0f735329fb37422599c"},
+    {file = "autorepr-0.3.0.tar.gz", hash = "sha256:ef770b84793d5433e6bb893054973b8c7ce6b487274f9c3f734f678cae11e85e"},
 ]
 babel = [
     {file = "Babel-2.9.0-py2.py3-none-any.whl", hash = "sha256:9d35c22fcc79893c3ecc85ac4a56cde1ecf3f19c540bba0922308a6c06ca6fa5"},

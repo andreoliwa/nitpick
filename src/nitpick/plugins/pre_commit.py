@@ -4,6 +4,7 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
 
 import attr
 
+from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.exceptions import NitpickError
 from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
@@ -112,7 +113,7 @@ class PreCommitPlugin(NitpickPlugin):
     Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
     """
 
-    file_name = ".pre-commit-config.yaml"
+    file_name = PRE_COMMIT_CONFIG_YAML
     error_class = PreCommitError
 
     actual_yaml = None  # type: YAMLFormat
@@ -247,6 +248,6 @@ def plugin_class() -> Type["NitpickPlugin"]:
 @hookimpl
 def can_handle(data: FileData) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle pre-commit config file."""
-    if data.path_from_root == PreCommitPlugin.file_name:
+    if data.path_from_root == PRE_COMMIT_CONFIG_YAML:
         return PreCommitPlugin(data)
     return None

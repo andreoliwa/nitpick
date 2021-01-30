@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Iterable, Iterator, Optional, Set, Union
 
 import pluggy
+from autorepr import autorepr  # pylint: disable=import-error
 from marshmallow_polyfield import PolyField
 from pluggy import PluginManager
 
@@ -97,6 +98,8 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
 
 class Project:
     """A project to be nitpicked."""
+
+    __repr__ = autorepr(["_supplied_root", "root"])
 
     def __init__(self, root: Union[Path, str] = None) -> None:
         self._supplied_root = root
