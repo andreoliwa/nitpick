@@ -44,6 +44,49 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
     return None
 
 
+# TODO: add unit tests with tmp_path https://docs.pytest.org/en/stable/tmpdir.html
+def find_root() -> Path:
+    """Find the root dir of the Python project (the one that has one of the ``ROOT_FILES``).
+
+    Start from the current working dir.
+    """
+    root_dirs: Set[Path] = set()
+    seen: Set[Path] = set()
+
+    all_files = list(Path.cwd().glob("*"))
+    # Don't fail if the current dir is empty
+    starting_file = str(all_files[0]) if all_files else ""
+    starting_dir = Path(starting_file).parent.absolute()
+    while True:
+        project_files = climb_directory_tree(starting_dir, ROOT_FILES)
+        if project_files and project_files & seen:
+            break
+        seen.update(project_files or [])
+
+        if not project_files:
+            # If none of the root files were found, try again with manage.py.
+            # On Django projects, it can be in another dir inside the root dir.
+            project_files = climb_directory_tree(starting_file, [MANAGE_PY])
+            if not project_files or project_files & seen:
+                break
+            seen.update(project_files)
+
+        for found in project_files or []:
+            root_dirs.add(found.parent)
+
+        # Climb up one directory to search for more project files
+        starting_dir = starting_dir.parent
+        if not starting_dir:
+            break
+
+    if not root_dirs:
+        LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
+        raise NoRootDirError()
+
+    # If multiple roots are found, get the top one (grandparent dir)
+    return sorted(root_dirs)[0]
+
+
 class ToolNitpickSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
 
@@ -55,10 +98,8 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
 class Project:
     """A project to be nitpicked."""
 
-    root: Path
-
     def __init__(self, root: Union[Path, str] = None) -> None:
-        self._lazy_root = root
+        self._supplied_root = root
 
         self.pyproject_toml: Optional[TOMLFormat] = None
         self.tool_nitpick_dict: JsonDict = {}
@@ -66,47 +107,13 @@ class Project:
         self.nitpick_section: JsonDict = {}
         self.nitpick_files_section: JsonDict = {}
 
-    @staticmethod
-    def _find_root() -> Path:  # TODO: add unit tests with tmp_path https://docs.pytest.org/en/stable/tmpdir.html
-        """Find the root dir of the Python project (the one that has one of the ``ROOT_FILES``).
-
-        Start from the current working dir.
-        """
-        root_dirs: Set[Path] = set()
-        seen: Set[Path] = set()
-
-        all_files = list(Path.cwd().glob("*"))
-        # Don't fail if the current dir is empty
-        starting_file = str(all_files[0]) if all_files else ""
-        starting_dir = Path(starting_file).parent.absolute()
-        while True:
-            project_files = climb_directory_tree(starting_dir, ROOT_FILES)
-            if project_files and project_files & seen:
-                break
-            seen.update(project_files or [])
-
-            if not project_files:
-                # If none of the root files were found, try again with manage.py.
-                # On Django projects, it can be in another dir inside the root dir.
-                project_files = climb_directory_tree(starting_file, [MANAGE_PY])
-                if not project_files or project_files & seen:
-                    break
-                seen.update(project_files)
-
-            for found in project_files or []:
-                root_dirs.add(found.parent)
-
-            # Climb up one directory to search for more project files
-            starting_dir = starting_dir.parent
-            if not starting_dir:
-                break
-
-        if not root_dirs:
-            LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
-            raise NoRootDirError()
-
-        # If multiple roots are found, get the top one (grandparent dir)
-        return sorted(root_dirs)[0]
+    @mypy_property
+    @lru_cache()
+    def root(self) -> Path:
+        """Root dir of the project."""
+        if self._supplied_root:
+            return Path(self._supplied_root)
+        return find_root()
 
     def find_main_python_file(self) -> Path:  # TODO: add unit tests
         """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.
@@ -117,11 +124,6 @@ class Project:
         3. Any other ``*.py`` Python file on the root dir and subdir.
         This avoid long recursions when there is a ``node_modules`` subdir for instance.
         """
-        if self._lazy_root:  # FIXME[AA]: create root property with lru_cache
-            self.root = Path(self._lazy_root)
-        else:
-            self.root = self._find_root()
-
         for the_file in itertools.chain(
             # 1.
             [self.root / root_file for root_file in ROOT_PYTHON_FILES],
