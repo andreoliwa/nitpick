@@ -25,20 +25,20 @@ class FileData:
     tags: Set[str]
 
     @classmethod
-    def create(cls, project: Project, path_from_root: str):
+    def create(cls, project: Project, path_from_root: str) -> "FileData":
         """Clean the file name and get its tags."""
         if Deprecation.pre_commit_without_dash(path_from_root):
             clean_path = "." + path_from_root
         else:
             clean_path = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
         tags = set(identify.tags_from_filename(clean_path))
-        return FileData(project, clean_path, tags)
+        return cls(project, clean_path, tags)
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):
     """Base class for file checkers."""
 
-    file_name = ""  # FIXME[AA]: remove this after fixing dynamic/fixed schema loading
+    file_name = ""  # FIXME[AA]: remove file_name attribute after fixing dynamic/fixed schema loading
     error_class: Type[NitpickError] = PluginError
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
@@ -71,8 +71,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
         return jmespath.compile(f"nitpick.{cls.__name__}.file_names")
 
-    def process(self, config: JsonDict) -> Iterator[NitpickError]:
-        """Process the file, check if it should exist, check rules."""
+    def enforce_rules(self, config: JsonDict) -> Iterator[NitpickError]:
+        """Enforce the configuration rules."""
         self.file_dict = config or {}
 
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)

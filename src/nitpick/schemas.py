@@ -15,7 +15,7 @@ def flatten_marshmallow_errors(errors: Dict) -> str:
     formatted = []
     for field, data in SortedDict(flatten(errors)).items():
         if isinstance(data, list):
-            messages_per_field = ["{}: {}".format(field, ", ".join(data))]  # FIXME[AA]: .format() to f-strings
+            messages_per_field = ["{}: {}".format(field, ", ".join(data))]  # TODO: .format() to f-strings
         elif isinstance(data, dict):
             messages_per_field = [
                 "{}[{}]: {}".format(field, index, ", ".join(messages)) for index, messages in data.items()

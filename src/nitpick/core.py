@@ -5,7 +5,9 @@ from typing import Iterator, Union
 
 from loguru import logger
 
+from nitpick import PROJECT_NAME
 from nitpick.exceptions import AbsentFileError, NitpickError, PresentFileError
+from nitpick.plugins.base import FileData
 from nitpick.project import Project
 
 
@@ -45,14 +47,14 @@ class Nitpick:
 
         return self
 
-    def check_present_absent(self) -> Iterator[NitpickError]:
+    def enforce_present_absent(self) -> Iterator[NitpickError]:
         """Check styles and files that should be present or absent."""
         if not self.project:
             return
 
         for present in (True, False):
             key = "present" if present else "absent"
-            logger.info(f"Checking {key} files")
+            logger.info(f"Enforce {key} files")
             message = "exist" if present else "be deleted"
             absent = not present
             for file_name, extra_message in self.project.nitpick_files_section.get(key, {}).items():
@@ -66,3 +68,23 @@ class Nitpick:
                     full_message += f": {extra_message}"
                 error_class = PresentFileError if present else AbsentFileError
                 yield error_class(full_message)
+
+    def enforce_style(self):
+        """Read the merged style and enforce the rules in it.
+
+        1. Get all root keys from the merged style
+        2. All except "nitpick" are file names.
+        3. For each file name, find the plugin(s) that can handle the file.
+        """
+
+        # 1.
+        for config_key, config_dict in self.project.style_dict.items():
+            # 2.
+            if config_key == PROJECT_NAME:
+                continue
+
+            # 3.
+            for plugin_instance in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
+                data=FileData.create(self.project, config_key)
+            ):
+                yield from plugin_instance.enforce_rules(config_dict)

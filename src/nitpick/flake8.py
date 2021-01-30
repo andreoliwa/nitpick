@@ -1,5 +1,6 @@
 """Flake8 plugin to check files."""
 import logging
+from itertools import chain
 from pathlib import Path
 from typing import Iterator
 
@@ -12,7 +13,6 @@ from nitpick.cli import NitpickFlag
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
 from nitpick.exceptions import InitError, NitpickError, NoPythonFileError, NoRootDirError
-from nitpick.plugins.base import FileData
 from nitpick.typedefs import Flake8Error
 
 
@@ -62,20 +62,7 @@ class NitpickExtension:
         if has_errors:
             return []
 
-        yield from nit.check_present_absent()
-
-        # Get all root keys from the merged style.
-        for config_key, config_dict in nit.project.style_dict.items():
-            # All except "nitpick" are file names.
-            if config_key == PROJECT_NAME:
-                continue
-
-            # For each file name, find the plugin(s) that can handle the file.
-            for plugin_instance in nit.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
-                data=FileData.create(nit.project, config_key)
-            ):
-                yield from plugin_instance.process(config_dict)
-
+        yield from chain(nit.enforce_present_absent(), nit.enforce_style())
         return []
 
     @staticmethod

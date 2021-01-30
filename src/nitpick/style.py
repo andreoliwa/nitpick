@@ -322,7 +322,7 @@ class Style:
             # E.g.: JSON files that were configured on some TOML style file.
             for subclass in dynamic_name_classes:
                 for tag in subclass.identify_tags:
-                    # FIXME[AA]: WRONG! a tag should be handled by multiple classes...
+                    # TODO: WRONG! a tag should be handled by multiple classes...
                     # A tag can only be handled by a single subclass.
                     # If more than one class handle a tag, the latest one will be the handler.
                     handled_tags[tag] = subclass

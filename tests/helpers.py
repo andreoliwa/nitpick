@@ -38,7 +38,7 @@ def assert_conditions(*args):
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
-    # FIXME[AA]: use Python 3.6 type annotations
+    # TODO: use Python 3.6 type annotations
     _original_errors = []  # type: List[Flake8Error]
     _errors = set()  # type: Set[str]
 
@@ -49,6 +49,7 @@ class ProjectMock:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         subdir = "/".join(pytest_request.module.__name__.split(".")[1:])
         caller_function_name = pytest_request.node.name
+        # TODO: use tmp_path instead of self.root_dir
         self.root_dir = TEMP_PATH / subdir / caller_function_name  # type: Path
 
         # To make debugging of mock projects easy, each test should not reuse another test directory.

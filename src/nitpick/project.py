@@ -49,6 +49,7 @@ def find_root() -> Path:
 
     Start from the current working dir.
     """
+    # FIXME[AA]: add logging here
     root_dirs: Set[Path] = set()
     seen: Set[Path] = set()
 

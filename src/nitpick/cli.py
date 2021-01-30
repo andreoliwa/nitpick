@@ -83,9 +83,8 @@ def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=F
 
     nit = Nitpick.singleton().init(project_root, offline)
 
-    for err in chain(nit.project.merge_styles(offline), nit.check_present_absent()):
+    for err in chain(nit.project.merge_styles(offline), nit.enforce_present_absent(), nit.enforce_style()):
         click.echo(f"{ERROR_PREFIX}{err.number:03} {err.message}{err.suggestion}")
 
-    # FIXME[AA]: follow steps of NitpickExtension.run()
-
     click.secho("All done! ✨ 🍰 ✨", fg="bright_white")
+    # FIXME[AA]: add a CLI test with one error and the expected stdout results
