@@ -8,13 +8,19 @@ from typing import TYPE_CHECKING, List, Set
 from _pytest.fixtures import FixtureRequest
 from testfixtures import compare
 
-from nitpick.app import Nitpick
-from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
+from nitpick.constants import (
+    CACHE_DIR_NAME,
+    ERROR_PREFIX,
+    MERGED_STYLE_TOML,
+    NITPICK_STYLE_TOML,
+    PROJECT_NAME,
+    PYPROJECT_TOML,
+    SETUP_CFG,
+)
+from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickExtension
 from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
-from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
-from nitpick.plugins.setup_cfg import SetupCfgPlugin
 from nitpick.typedefs import PathOrStr
 from tests.conftest import TEMP_PATH
 
@@ -76,10 +82,9 @@ class ProjectMock:
         - Change the working dir to the mocked project root.
         - Lint one of the project files. If no index is provided, use the default file that's always created.
         """
-        Nitpick.create.cache_clear()
+        Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
-        app = Nitpick.create()
-        app.options.offline = offline
+        Nitpick.singleton().init(offline=offline)
 
         npc = NitpickExtension(filename=str(self.files_to_lint[file_index]))
         self._original_errors = list(npc.run())
@@ -142,11 +147,11 @@ class ProjectMock:
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""
-        return self.save_file(SetupCfgPlugin.file_name, file_contents)
+        return self.save_file(SETUP_CFG, file_contents)
 
     def pyproject_toml(self, file_contents: str) -> "ProjectMock":
         """Save pyproject.toml."""
-        return self.save_file(PyProjectTomlPlugin.file_name, file_contents)
+        return self.save_file(PYPROJECT_TOML, file_contents)
 
     def pre_commit(self, file_contents: str) -> "ProjectMock":
         """Save .pre-commit-config.yaml."""

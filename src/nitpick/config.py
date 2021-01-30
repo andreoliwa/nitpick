@@ -5,7 +5,7 @@ from typing import Iterator, Optional
 
 from pluggy import PluginManager
 
-from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, TOOL_NITPICK, TOOL_NITPICK_JMEX
+from nitpick.constants import NITPICK_MINIMUM_VERSION_JMEX, PYPROJECT_TOML, TOOL_NITPICK, TOOL_NITPICK_JMEX
 from nitpick.exceptions import MinimumVersionError, NitpickError, StyleError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
@@ -16,7 +16,7 @@ from nitpick.typedefs import JsonDict, StrOrList
 LOGGER = logging.getLogger(__name__)
 
 
-class Config:
+class Config:  # FIXME[AA]: Merge Config class into Project class
     """Plugin configuration, read from the project config."""
 
     def __init__(self, project_root: Path, plugin_manager: PluginManager) -> None:
@@ -32,9 +32,7 @@ class Config:
     def validate_pyproject_tool_nitpick(self) -> None:
         """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
         # pylint: disable=import-outside-toplevel
-        from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
-
-        pyproject_path: Path = self.project_root / PyProjectTomlPlugin.file_name
+        pyproject_path: Path = self.project_root / PYPROJECT_TOML
         if not pyproject_path.exists():
             return
 
@@ -45,9 +43,7 @@ class Config:
             return
 
         raise StyleError(
-            PyProjectTomlPlugin.file_name,
-            f"Invalid data in [{TOOL_NITPICK}]:",
-            flatten_marshmallow_errors(pyproject_errors),
+            PYPROJECT_TOML, f"Invalid data in [{TOOL_NITPICK}]:", flatten_marshmallow_errors(pyproject_errors)
         )
 
     def merge_styles(self) -> Iterator[NitpickError]:

@@ -8,7 +8,7 @@ import jmespath
 from identify import identify
 from marshmallow import Schema
 
-from nitpick.app import Nitpick
+from nitpick.core import Nitpick
 from nitpick.exceptions import Deprecation, NitpickError, PluginError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
@@ -30,12 +30,12 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     skip_empty_suggestion = False
 
-    def __init__(self, path_from_root: str = None) -> None:
+    def __init__(self, path_from_root: str = None) -> None:  # FIXME[AA]: receive project as argument?
         if path_from_root is not None:
             self.file_name = path_from_root
 
         self.error_class.error_prefix = "File {}".format(self.file_name)
-        self.file_path: Path = Nitpick.create().project_root / self.file_name
+        self.file_path: Path = Nitpick.singleton().project.root / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
         self.file_dict: JsonDict = {}
@@ -44,7 +44,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
-        return search_dict(f'files."{self.file_name}"', Nitpick.create().config.nitpick_section, {})
+        return search_dict(f'files."{self.file_name}"', Nitpick.singleton().config.nitpick_section, {})
 
     @classmethod
     def get_compiled_jmespath_file_names(cls):
@@ -56,8 +56,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.file_dict = config or {}
 
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-        app = Nitpick.create()
-        should_exist: bool = app.config.nitpick_files_section.get(self.file_name, True)
+        nit = Nitpick.singleton()
+        should_exist: bool = nit.config.nitpick_files_section.get(self.file_name, True)
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
@@ -65,7 +65,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if not suggestion and self.skip_empty_suggestion:
                 return
             phrases = [" was not found"]
-            message = app.config.nitpick_files_section.get(self.file_name)
+            message = nit.config.nitpick_files_section.get(self.file_name)
             if message and isinstance(message, str):
                 phrases.append(message)
             if suggestion:

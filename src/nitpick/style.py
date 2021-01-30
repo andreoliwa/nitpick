@@ -15,20 +15,21 @@ from slugify import slugify
 from toml import TomlDecodeError
 
 from nitpick import __version__, fields
-from nitpick.app import Nitpick
 from nitpick.constants import (
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
     PROJECT_NAME,
+    PYPROJECT_TOML,
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.exceptions import Deprecation, NitpickError, StyleError
+from nitpick.core import Nitpick
+from nitpick.exceptions import Deprecation, NitpickError, StyleError, pretty_exception
 from nitpick.formats import TOMLFormat
-from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
+from nitpick.generic import MergeDict, is_url, search_dict
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
-from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
+from nitpick.project import climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList
 
@@ -58,7 +59,7 @@ class Style:
         """Find the initial style(s) and include them."""
         if configured_styles:
             chosen_styles = configured_styles
-            log_message = "Styles configured in {}: %s".format(PyProjectTomlPlugin.file_name)
+            log_message = f"Styles configured in {PYPROJECT_TOML}: %s"
         else:
             paths = climb_directory_tree(self.project_root, [NITPICK_STYLE_TOML])
             if paths:
@@ -160,8 +161,8 @@ class Style:
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
-        app = Nitpick.create()
-        if app.options.offline:
+        nit = Nitpick.singleton()
+        if nit.offline:
             # No style will be fetched in offline mode
             return None
 
@@ -180,7 +181,7 @@ class Style:
         if new_url in self._already_included:
             return None
 
-        if not app.cache_dir:
+        if not nit.cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
         try:
@@ -204,8 +205,8 @@ class Style:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = app.cache_dir / "{}.toml".format(slugify(new_url))
-        app.cache_dir.mkdir(parents=True, exist_ok=True)
+        style_path = nit.cache_dir / "{}.toml".format(slugify(new_url))
+        nit.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
         LOGGER.info("Loading style from URL %s into %s", new_url, style_path)
@@ -242,18 +243,18 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        app = Nitpick.create()
-        if not app.cache_dir:
+        nit = Nitpick.singleton()
+        if not nit.cache_dir:
             return {}
         merged_dict = self._all_styles.merge()
         # TODO: check if the merged style file is still needed
-        merged_style_path = app.cache_dir / MERGED_STYLE_TOML  # type: Path
+        merged_style_path = nit.cache_dir / MERGED_STYLE_TOML  # type: Path
         toml = TOMLFormat(data=merged_dict)
 
         attempt = 1
         while attempt < 5:
             try:
-                app.cache_dir.mkdir(parents=True, exist_ok=True)
+                nit.cache_dir.mkdir(parents=True, exist_ok=True)
                 merged_style_path.write_text(toml.reformatted)
                 break
             except OSError:

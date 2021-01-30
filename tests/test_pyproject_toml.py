@@ -1,5 +1,5 @@
 """pyproject.toml tests."""
-from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
+from nitpick.constants import PYPROJECT_TOML
 from tests.helpers import ProjectMock
 
 
@@ -15,4 +15,4 @@ def test_suggest_initial_contents(request):
         [nitpick.files.present]
         "pyproject.toml" = "Do something"
         """
-    ).flake8().assert_errors_contain("NIP103 File {} should exist: Do something".format(PyProjectTomlPlugin.file_name))
+    ).flake8().assert_errors_contain(f"NIP103 File {PYPROJECT_TOML} should exist: Do something")

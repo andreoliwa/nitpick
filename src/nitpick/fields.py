@@ -6,7 +6,7 @@ from marshmallow.fields import Dict, Field, List, Nested, String
 from marshmallow.validate import Length
 from more_itertools import always_iterable
 
-from nitpick.generic import pretty_exception
+from nitpick.exceptions import pretty_exception
 
 __all__ = ("Dict", "List", "String", "Nested", "Field")
 

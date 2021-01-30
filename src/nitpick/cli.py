@@ -13,16 +13,15 @@ Why does this file exist, and why not put this in __main__?
 
   Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
-import itertools
 import os
 from enum import Enum
+from itertools import chain
 from pathlib import Path
 
 import click
 
-from nitpick.app import Nitpick
-from nitpick.config import Config
 from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
+from nitpick.core import Nitpick
 
 
 class _FlagMixin:
@@ -54,6 +53,7 @@ class NitpickFlag(_FlagMixin, Enum):
 @click.option(
     "--project",
     "-p",
+    "project_root",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
     help="Path to project root",
 )
@@ -71,17 +71,13 @@ class NitpickFlag(_FlagMixin, Enum):
     help="Don't modify the configuration files, just print the difference."
     " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
 )
-def nitpick_cli(project: Path = None, offline=False, check=False):
+def nitpick_cli(project_root: Path = None, offline=False, check=False):
     """Enforce the same configuration across multiple projects."""
-    from nitpick.flake8 import check_files  # pylint: disable=import-outside-toplevel
+    if not check:
+        click.secho("Apply mode is not yet implemented; running a check instead", fg="red")
 
-    app = Nitpick.create()
+    nit = Nitpick.singleton().init(project_root, offline)
 
-    # "error: Too many arguments for" class with generated __init__ method by metaclass
-    # https://github.com/python/mypy/issues/3937
-    app.options = Nitpick.Options(project, offline, check)  # type:ignore
-
-    config = Config(app.project_root, app.plugin_manager)
-    for err in itertools.chain(config.merge_styles(), check_files(True), check_files(False)):
+    for err in chain(nit.config.merge_styles(), nit.check_present_absent()):
         click.echo(f"{ERROR_PREFIX}{err.number:03} {err.message}{err.suggestion}")
     # FIXME[AA]: follow steps of NitpickExtension.run()

@@ -6,14 +6,13 @@
 """
 import collections
 import re
-from pathlib import Path
-from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, MutableMapping, Tuple, Union
 
 import jmespath
 from jmespath.parser import ParsedResult
 
 from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
-from nitpick.typedefs import JsonDict, PathOrStr
+from nitpick.typedefs import JsonDict
 
 
 def get_subclasses(cls):
@@ -139,21 +138,6 @@ class MergeDict:
         return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN)
 
 
-def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[Set[Path]]:
-    """Climb the directory tree looking for file patterns."""
-    current_dir = Path(starting_path).absolute()  # type: Path
-    if current_dir.is_file():
-        current_dir = current_dir.parent
-
-    while current_dir.anchor != str(current_dir):
-        for root_file in file_patterns:
-            found_files = list(current_dir.glob(root_file))
-            if found_files:
-                return set(found_files)
-        current_dir = current_dir.parent
-    return None
-
-
 def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) -> dict:
     """Find an object in a list, using a key/value pair to search.
 
@@ -242,8 +226,3 @@ def is_url(url: str) -> bool:
     True
     """
     return url.startswith("http")
-
-
-def pretty_exception(err: Exception, message: str):
-    """Return a pretty error message with the full path of the Exception."""
-    return f"{message} ({err.__module__}.{err.__class__.__name__}: {str(err)})"

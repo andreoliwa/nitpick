@@ -6,6 +6,7 @@ from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
 import dictdiffer
 
+from nitpick.constants import SETUP_CFG
 from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
@@ -33,7 +34,7 @@ class SetupCfgPlugin(NitpickPlugin):
     Example: :ref:`flake8 configuration <default-flake8>`.
     """
 
-    file_name = "setup.cfg"
+    file_name = SETUP_CFG
     error_class = SetupCfgError
     COMMA_SEPARATED_VALUES = "comma_separated_values"
     SECTION_SEPARATOR = "."
@@ -159,6 +160,6 @@ def plugin_class() -> Type["NitpickPlugin"]:
 @hookimpl
 def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle the setup.cfg file."""
-    if file.path_from_root == SetupCfgPlugin.file_name:
+    if file.path_from_root == SETUP_CFG:
         return SetupCfgPlugin()
     return None

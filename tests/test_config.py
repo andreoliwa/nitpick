@@ -1,14 +1,14 @@
 """Config tests."""
 import pytest
 
-from nitpick.app import Nitpick
+from nitpick.core import Nitpick
 from tests.helpers import ProjectMock
 
 
 def test_singleton():
     """Single instance of the Nitpick class; forbid direct instantiation."""
-    app1 = Nitpick.create()
-    app2 = Nitpick.create()
+    app1 = Nitpick.singleton()
+    app2 = Nitpick.singleton()
     assert app1 is app2
 
     with pytest.raises(TypeError) as err:
