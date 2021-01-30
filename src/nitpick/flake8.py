@@ -57,7 +57,7 @@ class NitpickExtension:
         LOGGER.debug("Nitpicking file: %s", self.filename)
 
         has_errors = False
-        for style_err in nit.project.merge_styles():
+        for style_err in nit.project.merge_styles(nit.offline):
             has_errors = True
             yield style_err
         if has_errors:

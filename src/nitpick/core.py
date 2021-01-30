@@ -2,11 +2,10 @@
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Optional, Union
+from typing import Iterator, Union
 
 from nitpick.exceptions import AbsentFileError, NitpickError, PresentFileError
-from nitpick.project import Project, clear_cache_dir
-from nitpick.typedefs import mypy_property
+from nitpick.project import Project
 
 LOGGER = logging.getLogger(__name__)
 
@@ -46,14 +45,6 @@ class Nitpick:
             self.offline = offline
 
         return self
-
-    @mypy_property
-    @lru_cache()
-    def cache_dir(self) -> Optional[Path]:  # FIXME[AA]: move to Project
-        """Clear the cache directory (on the project root or on the current directory)."""
-        if not self.project:
-            return Path()
-        return clear_cache_dir(self.project.root)
 
     def check_present_absent(self) -> Iterator[NitpickError]:
         """Check styles and files that should be present or absent."""

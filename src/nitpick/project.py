@@ -3,7 +3,6 @@ import itertools
 import logging
 from functools import lru_cache
 from pathlib import Path
-from shutil import rmtree
 from typing import Iterable, Iterator, Optional, Set, Union
 
 import pluggy
@@ -12,7 +11,6 @@ from pluggy import PluginManager
 
 from nitpick import fields, plugins
 from nitpick.constants import (
-    CACHE_DIR_NAME,
     MANAGE_PY,
     NITPICK_MINIMUM_VERSION_JMEX,
     PROJECT_NAME,
@@ -44,16 +42,6 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
                 return set(found_files)
         current_dir = current_dir.parent
     return None
-
-
-def clear_cache_dir(project_root: Optional[Path]) -> Optional[Path]:  # TODO: add unit tests
-    """Clear the cache directory (on the project root or on the current directory)."""
-    if not project_root:
-        return None
-    cache_root: Path = project_root / CACHE_DIR_NAME
-    project_cache_dir = cache_root / PROJECT_NAME
-    rmtree(str(project_cache_dir), ignore_errors=True)
-    return project_cache_dir
 
 
 class ToolNitpickSectionSchema(BaseNitpickSchema):
@@ -175,7 +163,7 @@ class Project:
             PYPROJECT_TOML, f"Invalid data in [{TOOL_NITPICK}]:", flatten_marshmallow_errors(pyproject_errors)
         )
 
-    def merge_styles(self) -> Iterator[NitpickError]:
+    def merge_styles(self, offline: bool) -> Iterator[NitpickError]:
         """Merge one or multiple style files."""
         try:
             self.validate_pyproject_tool_nitpick()
@@ -187,7 +175,7 @@ class Project:
         from nitpick.style import Style  # pylint: disable=import-outside-toplevel
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
-        style = Style(self.root, self.plugin_manager)
+        style = Style(self.root, self.plugin_manager, offline)
         yield from style.find_initial_styles(configured_styles)
 
         self.style_dict = style.merge_toml_dict()

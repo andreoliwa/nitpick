@@ -3,7 +3,7 @@ $(shell mkdir -p .cache/make)
 
 .PHONY: Makefile
 
-build: .remove-old-cache .cache/make/lint .cache/make/test-quick .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
+build: .remove-old-cache .cache/make/lint .cache/make/test-one .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
 .PHONY: build
 
 help:
@@ -12,6 +12,9 @@ help:
 	@echo
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
+
+fast: pytest pre-commit # Run pytest and pre-commit fast, without tox
+.PHONY: fast
 
 full-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project fully, like in CI
 .PHONY: full-build
@@ -64,6 +67,10 @@ lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/
 	touch .cache/make/lint
 .PHONY: lint
 
+pre-commit: # Run pre-commit for all files
+	pre-commit run --all-files
+.PHONY: pre-commit
+
 nitpick: # Run the nitpick pre-commit hook to check local style changes
 	pre-commit run --all-files nitpick-local
 .PHONY: nitpick
@@ -84,9 +91,9 @@ endif
 	touch .cache/make/test
 .PHONY: test
 
-test-quick .cache/make/test-quick: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests on a single Python version
+test-one .cache/make/test-one: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests on a single Python version
 	tox -e py36
-	touch .cache/make/test-quick
+	touch .cache/make/test-one
 .PHONY: test
 
 pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)

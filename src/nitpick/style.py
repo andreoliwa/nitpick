@@ -3,6 +3,7 @@ import logging
 from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
+from shutil import rmtree
 from typing import Dict, Iterator, List, Optional, Set, Tuple, Type
 from urllib.parse import urlparse, urlunparse
 
@@ -16,6 +17,7 @@ from toml import TomlDecodeError
 
 from nitpick import __version__, fields
 from nitpick.constants import (
+    CACHE_DIR_NAME,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
@@ -24,31 +26,46 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.core import Nitpick
 from nitpick.exceptions import Deprecation, NitpickError, StyleError, pretty_exception
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
 from nitpick.plugins.base import FilePathTags, NitpickPlugin
 from nitpick.project import climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
-from nitpick.typedefs import JsonDict, StrOrList
+from nitpick.typedefs import JsonDict, StrOrList, mypy_property
 
 LOGGER = logging.getLogger(__name__)
 Plugins = Set[Type[NitpickPlugin]]
 
 
+def clear_cache_dir(project_root: Path) -> Path:  # TODO: add unit tests
+    """Clear the cache directory (on the project root or on the current directory)."""
+    cache_root: Path = project_root / CACHE_DIR_NAME
+    project_cache_dir = cache_root / PROJECT_NAME
+    rmtree(str(project_cache_dir), ignore_errors=True)
+    return project_cache_dir
+
+
 class Style:
     """Include styles recursively from one another."""
 
-    def __init__(self, project_root: Path, plugin_manager: PluginManager) -> None:
+    def __init__(self, project_root: Path, plugin_manager: PluginManager, offline: bool) -> None:
         self.project_root: Path = project_root
         self.plugin_manager: PluginManager = plugin_manager
+        self.offline = offline
+
         self._all_styles = MergeDict()
         self._already_included: Set[str] = set()
         self._first_full_path: str = ""
 
         self._dynamic_schema_class: type = BaseStyleSchema
         self.rebuild_dynamic_schema()
+
+    @mypy_property
+    @lru_cache()
+    def cache_dir(self) -> Path:
+        """Clear the cache directory (on the project root or on the current directory)."""
+        return clear_cache_dir(self.project_root)
 
     @staticmethod
     def get_default_style_url():
@@ -161,8 +178,7 @@ class Style:
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
-        nit = Nitpick.singleton()
-        if nit.offline:
+        if self.offline:
             # No style will be fetched in offline mode
             return None
 
@@ -181,7 +197,7 @@ class Style:
         if new_url in self._already_included:
             return None
 
-        if not nit.cache_dir:
+        if not self.cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
         try:
@@ -205,8 +221,8 @@ class Style:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = nit.cache_dir / "{}.toml".format(slugify(new_url))
-        nit.cache_dir.mkdir(parents=True, exist_ok=True)
+        style_path = self.cache_dir / "{}.toml".format(slugify(new_url))
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
         LOGGER.info("Loading style from URL %s into %s", new_url, style_path)
@@ -243,18 +259,17 @@ class Style:
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        nit = Nitpick.singleton()
-        if not nit.cache_dir:
+        if not self.cache_dir:
             return {}
         merged_dict = self._all_styles.merge()
         # TODO: check if the merged style file is still needed
-        merged_style_path = nit.cache_dir / MERGED_STYLE_TOML  # type: Path
+        merged_style_path = self.cache_dir / MERGED_STYLE_TOML  # type: Path
         toml = TOMLFormat(data=merged_dict)
 
         attempt = 1
         while attempt < 5:
             try:
-                nit.cache_dir.mkdir(parents=True, exist_ok=True)
+                self.cache_dir.mkdir(parents=True, exist_ok=True)
                 merged_style_path.write_text(toml.reformatted)
                 break
             except OSError:
