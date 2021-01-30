@@ -1,15 +1,49 @@
 """A project to be nitpicked."""
 import itertools
 import logging
+from functools import lru_cache
 from pathlib import Path
 from shutil import rmtree
-from typing import Iterable, Optional, Set, Union
+from typing import Iterable, Iterator, Optional, Set, Union
 
-from nitpick.constants import CACHE_DIR_NAME, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
-from nitpick.exceptions import NoPythonFileError, NoRootDirError
-from nitpick.typedefs import PathOrStr
+import pluggy
+from marshmallow_polyfield import PolyField
+from pluggy import PluginManager
+
+from nitpick import fields, plugins
+from nitpick.constants import (
+    CACHE_DIR_NAME,
+    MANAGE_PY,
+    NITPICK_MINIMUM_VERSION_JMEX,
+    PROJECT_NAME,
+    PYPROJECT_TOML,
+    ROOT_FILES,
+    ROOT_PYTHON_FILES,
+    TOOL_NITPICK,
+    TOOL_NITPICK_JMEX,
+)
+from nitpick.exceptions import MinimumVersionError, NitpickError, NoPythonFileError, NoRootDirError, StyleError
+from nitpick.formats import TOMLFormat
+from nitpick.generic import search_dict, version_to_tuple
+from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
+from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, mypy_property
 
 LOGGER = logging.getLogger(__name__)
+
+
+def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[Set[Path]]:
+    """Climb the directory tree looking for file patterns."""
+    current_dir = Path(starting_path).absolute()  # type: Path
+    if current_dir.is_file():
+        current_dir = current_dir.parent
+
+    while current_dir.anchor != str(current_dir):
+        for root_file in file_patterns:
+            found_files = list(current_dir.glob(root_file))
+            if found_files:
+                return set(found_files)
+        current_dir = current_dir.parent
+    return None
 
 
 def clear_cache_dir(project_root: Optional[Path]) -> Optional[Path]:  # TODO: add unit tests
@@ -22,13 +56,27 @@ def clear_cache_dir(project_root: Optional[Path]) -> Optional[Path]:  # TODO: ad
     return project_cache_dir
 
 
-class Project:  # pylint: disable=too-few-public-methods
+class ToolNitpickSectionSchema(BaseNitpickSchema):
+    """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
+
+    error_messages = {"unknown": help_message("Unknown configuration", "tool_nitpick_section.html")}
+
+    style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
+
+
+class Project:
     """A project to be nitpicked."""
 
     root: Path
 
     def __init__(self, root: Union[Path, str] = None) -> None:
         self._lazy_root = root
+
+        self.pyproject_toml: Optional[TOMLFormat] = None
+        self.tool_nitpick_dict: JsonDict = {}
+        self.style_dict: JsonDict = {}
+        self.nitpick_section: JsonDict = {}
+        self.nitpick_files_section: JsonDict = {}
 
     @staticmethod
     def _find_root() -> Path:  # TODO: add unit tests with tmp_path https://docs.pytest.org/en/stable/tmpdir.html
@@ -81,7 +129,7 @@ class Project:  # pylint: disable=too-few-public-methods
         3. Any other ``*.py`` Python file on the root dir and subdir.
         This avoid long recursions when there is a ``node_modules`` subdir for instance.
         """
-        if self._lazy_root:
+        if self._lazy_root:  # FIXME[AA]: create root property with lru_cache
             self.root = Path(self._lazy_root)
         else:
             self.root = self._find_root()
@@ -101,17 +149,54 @@ class Project:  # pylint: disable=too-few-public-methods
 
         raise NoPythonFileError(self.root)
 
+    @mypy_property
+    @lru_cache()
+    def plugin_manager(self) -> PluginManager:
+        """Load all defined plugins."""
+        plugin_manager = pluggy.PluginManager(PROJECT_NAME)
+        plugin_manager.add_hookspecs(plugins)
+        plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
+        return plugin_manager
 
-def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[Set[Path]]:
-    """Climb the directory tree looking for file patterns."""
-    current_dir = Path(starting_path).absolute()  # type: Path
-    if current_dir.is_file():
-        current_dir = current_dir.parent
+    def validate_pyproject_tool_nitpick(self) -> None:
+        """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
+        # pylint: disable=import-outside-toplevel
+        pyproject_path: Path = self.root / PYPROJECT_TOML
+        if not pyproject_path.exists():
+            return
 
-    while current_dir.anchor != str(current_dir):
-        for root_file in file_patterns:
-            found_files = list(current_dir.glob(root_file))
-            if found_files:
-                return set(found_files)
-        current_dir = current_dir.parent
-    return None
+        self.pyproject_toml = TOMLFormat(path=pyproject_path)
+        self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
+        pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
+        if not pyproject_errors:
+            return
+
+        raise StyleError(
+            PYPROJECT_TOML, f"Invalid data in [{TOOL_NITPICK}]:", flatten_marshmallow_errors(pyproject_errors)
+        )
+
+    def merge_styles(self) -> Iterator[NitpickError]:
+        """Merge one or multiple style files."""
+        try:
+            self.validate_pyproject_tool_nitpick()
+        except StyleError as err:
+            # If the project is misconfigured, don't even continue.
+            yield err
+            return
+
+        from nitpick.style import Style  # pylint: disable=import-outside-toplevel
+
+        configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
+        style = Style(self.root, self.plugin_manager)
+        yield from style.find_initial_styles(configured_styles)
+
+        self.style_dict = style.merge_toml_dict()
+
+        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
+
+        minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
+        if minimum_version and version_to_tuple(NitpickExtension.version) < version_to_tuple(minimum_version):
+            yield MinimumVersionError(minimum_version, NitpickExtension.version)
+
+        self.nitpick_section = self.style_dict.get("nitpick", {})
+        self.nitpick_files_section = self.nitpick_section.get("files", {})

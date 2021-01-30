@@ -78,6 +78,6 @@ def nitpick_cli(project_root: Path = None, offline=False, check=False):
 
     nit = Nitpick.singleton().init(project_root, offline)
 
-    for err in chain(nit.config.merge_styles(), nit.check_present_absent()):
+    for err in chain(nit.project.merge_styles(), nit.check_present_absent()):
         click.echo(f"{ERROR_PREFIX}{err.number:03} {err.message}{err.suggestion}")
     # FIXME[AA]: follow steps of NitpickExtension.run()

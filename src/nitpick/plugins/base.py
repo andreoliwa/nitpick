@@ -44,7 +44,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
-        return search_dict(f'files."{self.file_name}"', Nitpick.singleton().config.nitpick_section, {})
+        return search_dict(f'files."{self.file_name}"', Nitpick.singleton().project.nitpick_section, {})
 
     @classmethod
     def get_compiled_jmespath_file_names(cls):
@@ -57,7 +57,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
         nit = Nitpick.singleton()
-        should_exist: bool = nit.config.nitpick_files_section.get(self.file_name, True)
+        should_exist: bool = nit.project.nitpick_files_section.get(self.file_name, True)
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
@@ -65,7 +65,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if not suggestion and self.skip_empty_suggestion:
                 return
             phrases = [" was not found"]
-            message = nit.config.nitpick_files_section.get(self.file_name)
+            message = nit.project.nitpick_files_section.get(self.file_name)
             if message and isinstance(message, str):
                 phrases.append(message)
             if suggestion:

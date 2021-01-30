@@ -94,6 +94,7 @@ pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (t
 .PHONY: pytest
 
 doc .cache/make/doc: docs/*/* styles/*/* *.rst *.md # Build documentation only
+	mkdir -p docs/_static
 	@rm -rf docs/source
 	tox -e docs
 	touch .cache/make/doc

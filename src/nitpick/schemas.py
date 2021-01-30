@@ -39,14 +39,6 @@ class BaseNitpickSchema(Schema):
     error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html")}
 
 
-class ToolNitpickSectionSchema(BaseNitpickSchema):
-    """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
-
-    error_messages = {"unknown": help_message("Unknown configuration", "tool_nitpick_section.html")}
-
-    style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
-
-
 class NitpickStylesSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick.styles]`` section on the style file."""
 

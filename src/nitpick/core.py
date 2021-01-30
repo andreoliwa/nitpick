@@ -2,19 +2,11 @@
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, Optional, Union
+from typing import Iterator, Optional, Union
 
-import pluggy
-from pluggy import PluginManager
-
-from nitpick import plugins
-from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import AbsentFileError, NitpickError, PresentFileError
 from nitpick.project import Project, clear_cache_dir
 from nitpick.typedefs import mypy_property
-
-if TYPE_CHECKING:
-    from nitpick.config import Config
 
 LOGGER = logging.getLogger(__name__)
 
@@ -57,31 +49,11 @@ class Nitpick:
 
     @mypy_property
     @lru_cache()
-    def cache_dir(self) -> Optional[Path]:
+    def cache_dir(self) -> Optional[Path]:  # FIXME[AA]: move to Project
         """Clear the cache directory (on the project root or on the current directory)."""
         if not self.project:
             return Path()
         return clear_cache_dir(self.project.root)
-
-    @mypy_property
-    @lru_cache()
-    def config(self) -> Optional["Config"]:
-        """Configuration."""
-        if not self.project:
-            return None
-
-        from nitpick.config import Config  # pylint: disable=import-outside-toplevel
-
-        return Config(self.project.root, self.plugin_manager)
-
-    @mypy_property
-    @lru_cache()
-    def plugin_manager(self) -> PluginManager:
-        """Load all defined plugins."""
-        plugin_manager = pluggy.PluginManager(PROJECT_NAME)
-        plugin_manager.add_hookspecs(plugins)
-        plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
-        return plugin_manager
 
     def check_present_absent(self) -> Iterator[NitpickError]:
         """Check styles and files that should be present or absent."""
@@ -92,7 +64,7 @@ class Nitpick:
             key = "present" if present else "absent"
             message = "exist" if present else "be deleted"
             absent = not present
-            for file_name, extra_message in self.config.nitpick_files_section.get(key, {}).items():
+            for file_name, extra_message in self.project.nitpick_files_section.get(key, {}).items():
                 file_path: Path = self.project.root / file_name
                 exists = file_path.exists()
                 if (present and exists) or (absent and not exists):

@@ -57,7 +57,7 @@ class NitpickExtension:
         LOGGER.debug("Nitpicking file: %s", self.filename)
 
         has_errors = False
-        for style_err in nit.config.merge_styles():
+        for style_err in nit.project.merge_styles():
             has_errors = True
             yield style_err
         if has_errors:
@@ -66,13 +66,13 @@ class NitpickExtension:
         yield from nit.check_present_absent()
 
         # Get all root keys from the merged style.
-        for config_key, config_dict in nit.config.style_dict.items():
+        for config_key, config_dict in nit.project.style_dict.items():
             # All except "nitpick" are file names.
             if config_key == PROJECT_NAME:
                 continue
 
             # For each file name, find the plugin(s) that can handle the file.
-            for plugin_instance in nit.plugin_manager.hook.can_handle(  # pylint: disable=no-member
+            for plugin_instance in nit.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 file=FilePathTags(config_key)
             ):
                 yield from plugin_instance.process(config_dict)

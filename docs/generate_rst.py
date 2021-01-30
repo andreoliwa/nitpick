@@ -41,7 +41,7 @@ style_mapping = SortedDict(
         "python39.toml": "Python 3.9",
     }
 )
-nit = Nitpick.singleton()
+nit = Nitpick.singleton().init()
 
 divider = ".. auto-generated-from-here"
 docs_dir = Path(__file__).parent.absolute()  # type: Path
@@ -133,7 +133,7 @@ def generate_plugins_rst():
 
     # Sort order: classes with fixed file names first, then alphabetically by class name
     for plugin_class in sorted(
-        nit.plugin_manager.hook.plugin_class(),  # pylint: disable=no-member
+        nit.project.plugin_manager.hook.plugin_class(),  # pylint: disable=no-member
         key=lambda c: "0" if c.file_name else "1" + c.__name__,
     ):
         header = plugin_class.file_name

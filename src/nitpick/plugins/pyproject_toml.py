@@ -28,7 +28,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
     def check_rules(self) -> Iterator[NitpickError]:
         """Check missing key/value pairs in pyproject.toml."""
-        file = Nitpick.singleton().config.pyproject_toml
+        file = Nitpick.singleton().project.pyproject_toml
         if file:
             comparison = file.compare_with_flatten(self.file_dict)
             yield from self.warn_missing_different(comparison)

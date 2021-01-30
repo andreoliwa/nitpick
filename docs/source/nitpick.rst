@@ -20,15 +20,15 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   nitpick.app
    nitpick.cli
-   nitpick.config
    nitpick.constants
+   nitpick.core
    nitpick.exceptions
    nitpick.fields
    nitpick.flake8
    nitpick.formats
    nitpick.generic
+   nitpick.project
    nitpick.schemas
    nitpick.style
    nitpick.typedefs
