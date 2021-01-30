@@ -8,7 +8,7 @@ from nitpick.exceptions import NitpickError
 from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
+from nitpick.plugins.base import FileData, NitpickPlugin
 from nitpick.typedefs import JsonDict, YamlData
 
 KEY_REPOS = "repos"
@@ -245,8 +245,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle pre-commit config file."""
-    if file.path_from_root == PreCommitPlugin.file_name:
-        return PreCommitPlugin()
+    if data.path_from_root == PreCommitPlugin.file_name:
+        return PreCommitPlugin(data)
     return None

@@ -177,7 +177,7 @@ class Project:
         from nitpick.style import Style  # pylint: disable=import-outside-toplevel
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
-        style = Style(self.root, self.plugin_manager, offline)
+        style = Style(self, self.plugin_manager, offline)
         yield from style.find_initial_styles(configured_styles)
 
         self.style_dict = style.merge_toml_dict()

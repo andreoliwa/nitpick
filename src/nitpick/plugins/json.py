@@ -10,7 +10,7 @@ from nitpick.exceptions import NitpickError
 from nitpick.formats import JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
+from nitpick.plugins.base import FileData, NitpickPlugin
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict
 
@@ -99,8 +99,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
     """Handle JSON files."""
-    if JSONPlugin.identify_tags & file.tags:
-        return JSONPlugin(file.path_from_root)
+    if JSONPlugin.identify_tags & data.tags:
+        return JSONPlugin(data)
     return None

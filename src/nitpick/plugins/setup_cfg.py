@@ -1,6 +1,7 @@
 """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
 from configparser import ConfigParser
 from enum import IntEnum
+from functools import lru_cache
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
@@ -9,7 +10,8 @@ import dictdiffer
 from nitpick.constants import SETUP_CFG
 from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
+from nitpick.plugins.base import FileData, NitpickPlugin
+from nitpick.typedefs import mypy_property
 
 
 class ErrorCodes(IntEnum):
@@ -42,9 +44,11 @@ class SetupCfgPlugin(NitpickPlugin):
     expected_sections = set()  # type: Set[str]
     missing_sections = set()  # type: Set[str]
 
-    def __init__(self, path_from_root: str = None) -> None:
-        super().__init__(path_from_root)
-        self.comma_separated_values: Set[str] = set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))
+    @mypy_property
+    @lru_cache()
+    def comma_separated_values(self) -> Set[str]:
+        """Set of comma separated values."""
+        return set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
@@ -158,8 +162,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle the setup.cfg file."""
-    if file.path_from_root == SETUP_CFG:
-        return SetupCfgPlugin()
+    if data.path_from_root == SETUP_CFG:
+        return SetupCfgPlugin(data)
     return None

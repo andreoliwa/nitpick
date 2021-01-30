@@ -38,6 +38,7 @@ def assert_conditions(*args):
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
+    # FIXME[AA]: use Python 3.6 type annotations
     _original_errors = []  # type: List[Flake8Error]
     _errors = set()  # type: Set[str]
 

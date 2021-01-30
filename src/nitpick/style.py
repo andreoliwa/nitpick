@@ -29,8 +29,8 @@ from nitpick.constants import (
 from nitpick.exceptions import Deprecation, NitpickError, StyleError, pretty_exception
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
-from nitpick.project import climb_directory_tree
+from nitpick.plugins.base import FileData, NitpickPlugin
+from nitpick.project import Project, climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList, mypy_property
 
@@ -49,8 +49,8 @@ def clear_cache_dir(project_root: Path) -> Path:  # TODO: add unit tests
 class Style:
     """Include styles recursively from one another."""
 
-    def __init__(self, project_root: Path, plugin_manager: PluginManager, offline: bool) -> None:
-        self.project_root: Path = project_root
+    def __init__(self, project: Project, plugin_manager: PluginManager, offline: bool) -> None:
+        self.project: Project = project
         self.plugin_manager: PluginManager = plugin_manager
         self.offline = offline
 
@@ -65,7 +65,7 @@ class Style:
     @lru_cache()
     def cache_dir(self) -> Path:
         """Clear the cache directory (on the project root or on the current directory)."""
-        return clear_cache_dir(self.project_root)
+        return clear_cache_dir(self.project.root)
 
     @staticmethod
     def get_default_style_url():
@@ -78,7 +78,7 @@ class Style:
             chosen_styles = configured_styles
             log_message = f"Styles configured in {PYPROJECT_TOML}: %s"
         else:
-            paths = climb_directory_tree(self.project_root, [NITPICK_STYLE_TOML])
+            paths = climb_directory_tree(self.project.root, [NITPICK_STYLE_TOML])
             if paths:
                 chosen_styles = str(sorted(paths)[0])
                 log_message = "Found style climbing the directory tree: %s"
@@ -119,7 +119,7 @@ class Style:
                 return
 
             try:
-                display_name = str(style_path.relative_to(self.project_root))
+                display_name = str(style_path.relative_to(self.project.root))
             except ValueError:
                 display_name = style_uri
 
@@ -138,14 +138,14 @@ class Style:
         validation_errors = {}
         toml_dict = OrderedDict()
         for key, value_dict in config_dict.items():
-            file = FilePathTags(key)
-            toml_dict[file.path_from_root] = value_dict
+            data = FileData.create(self.project, key)
+            toml_dict[data.path_from_root] = value_dict
             if key == PROJECT_NAME:
                 schemas = [NitpickSectionSchema]
             else:
                 schemas = [
                     plugin.validation_schema
-                    for plugin in self.plugin_manager.hook.can_handle(file=file)  # pylint: disable=no-member
+                    for plugin in self.plugin_manager.hook.can_handle(data=data)  # pylint: disable=no-member
                 ]
                 if not schemas:
                     validation_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
@@ -153,7 +153,7 @@ class Style:
             all_errors = {}
             valid_schema = False
             for schema in schemas:
-                errors = self.validate_schema(schema, file.path_from_root, value_dict)
+                errors = self.validate_schema(schema, data.path_from_root, value_dict)
                 if not errors:
                     # When multiple schemas match a file type, exit when a valid schema is found
                     valid_schema = True
@@ -185,7 +185,7 @@ class Style:
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
             domain_plus_url = str(rest).strip("/").rstrip("/") + "/" + url
-            new_url = "{}://{}".format(prefix, domain_plus_url)
+            new_url = f"{prefix}://{domain_plus_url}"
         else:
             new_url = url
 

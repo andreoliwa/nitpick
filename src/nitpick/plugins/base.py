@@ -1,5 +1,6 @@
 """Base class for file checkers."""
 import abc
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterator, Optional, Set, Type
@@ -8,17 +9,36 @@ import jmespath
 from identify import identify
 from marshmallow import Schema
 
-from nitpick.core import Nitpick
 from nitpick.exceptions import Deprecation, NitpickError, PluginError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
+from nitpick.project import Project
 from nitpick.typedefs import JsonDict, mypy_property
+
+
+@dataclass
+class FileData:
+    """File information needed by the plugin."""
+
+    project: Project
+    path_from_root: str
+    tags: Set[str]
+
+    @classmethod
+    def create(cls, project: Project, path_from_root: str):
+        """Clean the file name and get its tags."""
+        if Deprecation.pre_commit_without_dash(path_from_root):
+            clean_path = "." + path_from_root
+        else:
+            clean_path = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
+        tags = set(identify.tags_from_filename(clean_path))
+        return FileData(project, clean_path, tags)
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):
     """Base class for file checkers."""
 
-    file_name = ""
+    file_name = ""  # FIXME[AA]: remove
     error_class: Type[NitpickError] = PluginError
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
@@ -30,12 +50,12 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     skip_empty_suggestion = False
 
-    def __init__(self, path_from_root: str = None) -> None:  # FIXME[AA]: receive project as argument?
-        if path_from_root is not None:
-            self.file_name = path_from_root
+    def __init__(self, data: FileData) -> None:
+        self.data = data
+        self.file_name = data.path_from_root
 
         self.error_class.error_prefix = "File {}".format(self.file_name)
-        self.file_path: Path = Nitpick.singleton().project.root / self.file_name
+        self.file_path: Path = self.data.project.root / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
         self.file_dict: JsonDict = {}
@@ -44,20 +64,19 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
-        return search_dict(f'files."{self.file_name}"', Nitpick.singleton().project.nitpick_section, {})
+        return search_dict(f'files."{self.file_name}"', self.data.project.nitpick_section, {})
 
     @classmethod
     def get_compiled_jmespath_file_names(cls):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
-        return jmespath.compile("nitpick.{}.file_names".format(cls.__name__))
+        return jmespath.compile(f"nitpick.{cls.__name__}.file_names")
 
     def process(self, config: JsonDict) -> Iterator[NitpickError]:
         """Process the file, check if it should exist, check rules."""
         self.file_dict = config or {}
 
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-        nit = Nitpick.singleton()
-        should_exist: bool = nit.project.nitpick_files_section.get(self.file_name, True)
+        should_exist: bool = self.data.project.nitpick_files_section.get(self.file_name, True)
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
@@ -65,7 +84,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if not suggestion and self.skip_empty_suggestion:
                 return
             phrases = [" was not found"]
-            message = nit.project.nitpick_files_section.get(self.file_name)
+            message = self.data.project.nitpick_files_section.get(self.file_name)
             if message and isinstance(message, str):
                 phrases.append(message)
             if suggestion:
@@ -95,14 +114,3 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             yield self.error_class(
                 f"{prefix_message} has different values. Use this:", comparison.diff_format.reformatted, 9
             )
-
-
-class FilePathTags:  # pylint: disable=too-few-public-methods
-    """Clean the file name and get its tags."""
-
-    def __init__(self, path_from_root: str) -> None:
-        if Deprecation.pre_commit_without_dash(path_from_root):
-            self.path_from_root = "." + path_from_root
-        else:
-            self.path_from_root = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
-        self.tags = set(identify.tags_from_filename(path_from_root))

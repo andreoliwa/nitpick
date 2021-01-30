@@ -5,7 +5,7 @@ from nitpick.constants import PYPROJECT_TOML
 from nitpick.core import Nitpick
 from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
+from nitpick.plugins.base import FileData, NitpickPlugin
 
 
 class PyProjectTomlError(NitpickError):
@@ -45,8 +45,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
     """Handle pyproject.toml file."""
-    if file.path_from_root == PYPROJECT_TOML:
-        return PyProjectTomlPlugin()
+    if data.path_from_root == PYPROJECT_TOML:
+        return PyProjectTomlPlugin(data)
     return None

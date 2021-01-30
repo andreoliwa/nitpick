@@ -11,7 +11,7 @@ from nitpick.cli import NitpickFlag
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
 from nitpick.exceptions import InitError, NitpickError, NoPythonFileError, NoRootDirError
-from nitpick.plugins.base import FilePathTags
+from nitpick.plugins.base import FileData
 from nitpick.typedefs import Flake8Error
 
 LOGGER = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ class NitpickExtension:
 
             # For each file name, find the plugin(s) that can handle the file.
             for plugin_instance in nit.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
-                file=FilePathTags(config_key)
+                data=FileData.create(nit.project, config_key)
             ):
                 yield from plugin_instance.process(config_dict)
 

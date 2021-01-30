@@ -8,7 +8,7 @@ from marshmallow.orderedset import OrderedSet
 from nitpick import fields
 from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
+from nitpick.plugins.base import FileData, NitpickPlugin
 from nitpick.schemas import help_message
 
 LOGGER = logging.getLogger(__name__)
@@ -81,8 +81,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
     """Handle text files."""
-    if TextPlugin.identify_tags & file.tags:
-        return TextPlugin(file.path_from_root)
+    if TextPlugin.identify_tags & data.tags:
+        return TextPlugin(data)
     return None
