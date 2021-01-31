@@ -26,7 +26,7 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.exceptions import Deprecation, Fuss, StyleError, pretty_exception
+from nitpick.exceptions import Deprecation, NitpickError, StyleError, pretty_exception
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
 from nitpick.plugins.base import FileData, NitpickPlugin
@@ -71,7 +71,7 @@ class Style:
         """Return the URL of the default style for the current version."""
         return "{}/v{}/{}".format(RAW_GITHUB_CONTENT_BASE_URL, __version__, NITPICK_STYLE_TOML)
 
-    def find_initial_styles(self, configured_styles: StrOrList) -> Iterator[Fuss]:
+    def find_initial_styles(self, configured_styles: StrOrList) -> Iterator[NitpickError]:
         """Find the initial style(s) and include them."""
         if configured_styles:
             chosen_styles = configured_styles
@@ -101,7 +101,7 @@ class Style:
             local_errors = {path_from_root: local_errors}
         return local_errors
 
-    def include_multiple_styles(self, chosen_styles: StrOrList) -> Iterator[Fuss]:
+    def include_multiple_styles(self, chosen_styles: StrOrList) -> Iterator[NitpickError]:
         """Include a list of styles (or just one) into this style tree."""
         style_uris = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles  # type: List[str]
         for style_uri in style_uris:

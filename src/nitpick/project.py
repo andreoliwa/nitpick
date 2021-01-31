@@ -21,7 +21,7 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.exceptions import Fuss, MinimumVersionError, NoPythonFileError, NoRootDirError, StyleError
+from nitpick.exceptions import MinimumVersionError, NitpickError, NoPythonFileError, NoRootDirError, StyleError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
@@ -108,10 +108,10 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
 class Project:
     """A project to be nitpicked."""
 
-    __repr__ = autorepr(["_supplied_root", "root"])
+    __repr__ = autorepr(["_chosen_root", "root"])
 
     def __init__(self, root: PathOrStr = None) -> None:
-        self._supplied_root = root
+        self._chosen_root = root
 
         self.pyproject_toml: Optional[TOMLFormat] = None
         self.tool_nitpick_dict: JsonDict = {}
@@ -123,7 +123,7 @@ class Project:
     @lru_cache()
     def root(self) -> Path:
         """Root dir of the project."""
-        return find_root(self._supplied_root)
+        return find_root(self._chosen_root)
 
     def find_main_python_file(self) -> Path:  # TODO: add unit tests
         """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.
@@ -175,7 +175,7 @@ class Project:
             PYPROJECT_TOML, f"Invalid data in [{TOOL_NITPICK}]:", flatten_marshmallow_errors(pyproject_errors)
         )
 
-    def merge_styles(self, offline: bool) -> Iterator[Fuss]:
+    def merge_styles(self, offline: bool) -> Iterator[NitpickError]:
         """Merge one or multiple style files."""
         try:
             self.validate_pyproject_tool_nitpick()

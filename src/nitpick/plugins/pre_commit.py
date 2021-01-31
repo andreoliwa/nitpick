@@ -5,7 +5,7 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
 import attr
 
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
-from nitpick.exceptions import Fuss
+from nitpick.exceptions import NitpickError
 from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
@@ -59,7 +59,7 @@ class PreCommitHook:
         return OrderedDict(hooks)
 
 
-class PreCommitError(Fuss):
+class PreCommitError(NitpickError):
     """Base for pre-commit errors."""
 
     error_base_number = 330
@@ -139,7 +139,7 @@ class PreCommitPlugin(NitpickPlugin):
         suggested.update(original)
         return YAMLFormat(data=suggested).reformatted
 
-    def enforce_rules(self) -> Iterator[Fuss]:
+    def enforce_rules(self) -> Iterator[NitpickError]:
         """Enforce rules for the pre-commit hooks."""
         self.actual_yaml = YAMLFormat(path=self.file_path)
         if KEY_REPOS not in self.actual_yaml.as_data:
@@ -155,7 +155,7 @@ class PreCommitPlugin(NitpickPlugin):
 
         yield from self.enforce_hooks()
 
-    def enforce_hooks(self) -> Iterator[Fuss]:
+    def enforce_hooks(self) -> Iterator[NitpickError]:
         """Enforce the repositories configured in pre-commit."""
         self.actual_hooks = PreCommitHook.get_all_hooks_from(self.actual_yaml.as_data.get(KEY_REPOS))
         self.actual_hooks_by_key = {name: index for index, name in enumerate(self.actual_hooks)}
@@ -169,7 +169,7 @@ class PreCommitPlugin(NitpickPlugin):
 
             yield from self.enforce_repo_old_format(index, data)
 
-    def enforce_repo_block(self, expected_repo_block: OrderedDict) -> Iterator[Fuss]:
+    def enforce_repo_block(self, expected_repo_block: OrderedDict) -> Iterator[NitpickError]:
         """Enforce a repo with a YAML string configuration."""
         expected_hooks = PreCommitHook.get_all_hooks_from(YAMLFormat(string=expected_repo_block.get(KEY_YAML)).as_list)
         for unique_key, hook in expected_hooks.items():
@@ -188,7 +188,7 @@ class PreCommitPlugin(NitpickPlugin):
             revision_message = " (rev: {})".format(current_revision) if current_revision else ""
             yield from self.warn_missing_different(comparison, ": hook {!r}{}".format(hook.hook_id, revision_message))
 
-    def enforce_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[Fuss]:
+    def enforce_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[NitpickError]:
         """Enforce repos using the old deprecated format with ``hooks`` and ``repo`` keys."""
         actual = self.actual_yaml.as_data.get(KEY_REPOS, [])  # type: List[YamlData]
 

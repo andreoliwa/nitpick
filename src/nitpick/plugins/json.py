@@ -6,7 +6,7 @@ from loguru import logger
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.exceptions import Fuss
+from nitpick.exceptions import NitpickError
 from nitpick.formats import JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
@@ -25,7 +25,7 @@ class JSONFileSchema(BaseNitpickSchema):
     contains_json = fields.Dict(fields.NonEmptyString, fields.JSONString)
 
 
-class JsonError(Fuss):
+class JsonError(NitpickError):
     """Base for JSON errors."""
 
     error_base_number = 340
@@ -45,7 +45,7 @@ class JSONPlugin(NitpickPlugin):
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
 
-    def enforce_rules(self) -> Iterator[Fuss]:
+    def enforce_rules(self) -> Iterator[NitpickError]:
         """Enforce rules for missing keys and JSON content."""
         yield from self._check_contained_keys()
         yield from self._check_contained_json()
@@ -66,14 +66,14 @@ class JSONPlugin(NitpickPlugin):
         suggestion = self.get_suggested_json()
         return JSONFormat(data=suggestion).reformatted if suggestion else ""
 
-    def _check_contained_keys(self) -> Iterator[Fuss]:
+    def _check_contained_keys(self) -> Iterator[NitpickError]:
         json_fmt = JSONFormat(path=self.file_path)
         suggested_json = self.get_suggested_json(json_fmt.as_data)
         if not suggested_json:
             return
         yield self.error_class(" has missing keys:", JSONFormat(data=suggested_json).reformatted, 8)
 
-    def _check_contained_json(self) -> Iterator[Fuss]:
+    def _check_contained_json(self) -> Iterator[NitpickError]:
         actual_fmt = JSONFormat(path=self.file_path)
         expected = {}
         # TODO: accept key as a jmespath expression, value is valid JSON

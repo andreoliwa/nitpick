@@ -5,7 +5,7 @@ from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
 
 from nitpick import fields
-from nitpick.exceptions import Fuss
+from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FileData, NitpickPlugin
 from nitpick.schemas import help_message
@@ -27,7 +27,7 @@ class TextSchema(Schema):
     contains = fields.List(fields.Nested(TextItemSchema))
 
 
-class TextError(Fuss):
+class TextError(NitpickError):
     """Base for text file errors."""
 
     error_base_number = 350
@@ -62,7 +62,7 @@ class TextPlugin(NitpickPlugin):
         """Suggest the initial content for this missing file."""
         return "\n".join(self._expected_lines())
 
-    def enforce_rules(self) -> Iterator[Fuss]:
+    def enforce_rules(self) -> Iterator[NitpickError]:
         """Enforce rules for missing lines."""
         expected = OrderedSet(self._expected_lines())
         actual = OrderedSet(self.file_path.read_text().split("\n"))

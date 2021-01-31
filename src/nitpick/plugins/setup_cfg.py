@@ -8,7 +8,7 @@ from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 import dictdiffer
 
 from nitpick.constants import SETUP_CFG
-from nitpick.exceptions import Fuss
+from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FileData, NitpickPlugin
 from nitpick.typedefs import mypy_property
@@ -24,7 +24,7 @@ class ErrorCodes(IntEnum):
     InvalidCommaSeparatedValuesSection = 5
 
 
-class SetupCfgError(Fuss):
+class SetupCfgError(NitpickError):
     """Base for setup.cfg errors."""
 
     error_base_number = 320
@@ -71,7 +71,7 @@ class SetupCfgPlugin(NitpickPlugin):
             return self.get_example_cfg(missing_cfg)
         return ""
 
-    def enforce_rules(self) -> Iterator[Fuss]:
+    def enforce_rules(self) -> Iterator[NitpickError]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
         setup_cfg = ConfigParser()
         with self.file_path.open() as handle:
@@ -102,7 +102,7 @@ class SetupCfgPlugin(NitpickPlugin):
                 elif diff_type == dictdiffer.ADD:
                     yield from self.show_missing_keys(section, key, values)
 
-    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
+    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[NitpickError]:
         """Compare different keys, with special treatment when they are lists or numeric."""
         combined = "{}.{}".format(section, key)
         if combined in self.comma_separated_values:
@@ -135,7 +135,7 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def show_missing_keys(  # pylint: disable=unused-argument
         self, section, key, values: List[Tuple[str, Any]]
-    ) -> Iterator[Fuss]:
+    ) -> Iterator[NitpickError]:
         """Show the keys that are not present in a section."""
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)

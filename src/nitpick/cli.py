@@ -15,7 +15,6 @@ Why does this file exist, and why not put this in __main__?
 """
 import os
 from enum import Enum
-from itertools import chain
 from pathlib import Path
 
 import click
@@ -81,9 +80,7 @@ def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=F
     if not check:
         logger.warning("Apply mode is not yet implemented; running a check instead")
 
-    nit = Nitpick.singleton().init(project_root, offline)
-
-    for err in chain(nit.project.merge_styles(offline), nit.enforce_present_absent(), nit.enforce_style()):
+    for err in Nitpick.singleton().init(project_root, offline).run():
         click.echo(err.pretty)
 
     click.secho("All done! ✨ 🍰 ✨", fg="bright_white")

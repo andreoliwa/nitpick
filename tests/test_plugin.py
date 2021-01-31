@@ -33,7 +33,7 @@ def test_absent_files(request):
         xxx = "Remove this"
         yyy = "Remove that"
         """
-    ).touch_file("xxx").touch_file("yyy").flake8().assert_errors_contain(
+    ).touch_file("xxx").touch_file("yyy").simulate_run().assert_errors_contain(
         "NIP104 File xxx should be deleted: Remove this"
     ).assert_errors_contain(
         "NIP104 File yyy should be deleted: Remove that"
@@ -50,7 +50,7 @@ def test_missing_message(request):
         missing_message = "Install poetry and run 'poetry init' to create it"
         """
         )
-        .flake8()
+        .simulate_run()
     )
     project.assert_errors_contain(
         """
@@ -71,7 +71,9 @@ def test_present_files(request):
         ".env" = ""
         "another-file.txt" = ""
         """
-    ).flake8().assert_errors_contain("NIP103 File .editorconfig should exist: Create this file").assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
+        "NIP103 File .editorconfig should exist: Create this file"
+    ).assert_errors_contain(
         "NIP103 File .env should exist"
     ).assert_errors_contain(
         "NIP103 File another-file.txt should exist", 3
@@ -112,14 +114,14 @@ def test_offline_flag_env_variable(tmpdir):
 def test_offline_doesnt_raise_connection_error(mocked_get, request):
     """On offline mode, no requests are made, so no connection errors should be raised."""
     mocked_get.side_effect = requests.ConnectionError("A forced error")
-    ProjectMock(request).flake8(offline=True)
+    ProjectMock(request).simulate_run(offline=True)
 
 
 @mock.patch("requests.get")
 def test_offline_recommend_using_flag(mocked_get, request, capsys):
     """Recommend using the flag on a connection error."""
     mocked_get.side_effect = requests.ConnectionError("error message from connection here")
-    ProjectMock(request).flake8()
+    ProjectMock(request).simulate_run()
     out, err = capsys.readouterr()
     assert out == ""
     assert err == "Your network is unreachable. Fix your connection or use --nitpick-offline / NITPICK_OFFLINE=1\n"

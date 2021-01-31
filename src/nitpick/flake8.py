@@ -12,7 +12,7 @@ from nitpick import __version__
 from nitpick.cli import NitpickFlag
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
-from nitpick.exceptions import Fuss, InitError, NoPythonFileError, NoRootDirError
+from nitpick.exceptions import InitError, NitpickError, NoPythonFileError, NoRootDirError
 from nitpick.typedefs import Flake8Error
 
 
@@ -34,9 +34,9 @@ class NitpickFlake8Extension:
     def run(self) -> Iterator[Flake8Error]:
         """Run the check plugin."""
         for err in self.collect_nitpick_errors():
-            yield err.as_flake8_warning
+            yield err.as_flake8_error
 
-    def collect_nitpick_errors(self) -> Iterator[Fuss]:
+    def collect_nitpick_errors(self) -> Iterator[NitpickError]:
         """Collect all possible Nitpick errors."""
         nit = Nitpick.singleton()
 

@@ -1,5 +1,6 @@
 """Nitpick exceptions."""
 import warnings
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict
 
@@ -9,11 +10,21 @@ from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.typedefs import Flake8Error
 
 
-class Fuss(Exception):  # TODO: use a dataclass instead of inheriting from Exception?
-    """The base class for Nitpick error messages.
+@dataclass
+class Fuss:
+    """Nitpick makes a fuss when configuration doesn't match.
 
-    Inspired on :py:class:`SyntaxError` and :py:class:`pyflakes.messages.Message`.
+    Fields inspired on :py:class:`SyntaxError` and :py:class:`pyflakes.messages.Message`.
     """
+
+    filename: str
+    code: int
+    message: str
+    suggestion: str = ""
+
+
+class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting from Exception?
+    """The base class for Nitpick exceptions."""
 
     error_base_number: int = 0
     error_prefix: str = ""
@@ -23,8 +34,8 @@ class Fuss(Exception):  # TODO: use a dataclass instead of inheriting from Excep
 
     # TODO: display filename, line and (if possible) column of the error, like flake8 does with .py files
     filename: str = ""
-    lineno: int = 1
-    col: int = 0
+    # lineno: int = 1
+    # col: int = 0
 
     def __init__(self, message: str = "", suggestion: str = "", number: int = 0, add_to_base_number=True) -> None:
         self.message: str = message or self.message
@@ -46,7 +57,7 @@ class Fuss(Exception):  # TODO: use a dataclass instead of inheriting from Excep
         return self.error_base_number + self.number if self.add_to_base_number else self.number
 
     @property
-    def as_flake8_warning(self) -> Flake8Error:
+    def as_flake8_error(self) -> Flake8Error:
         """Return the error as a tuple to flake8."""
         from nitpick.flake8 import NitpickFlake8Extension  # pylint: disable=import-outside-toplevel
 
@@ -63,8 +74,13 @@ class Fuss(Exception):  # TODO: use a dataclass instead of inheriting from Excep
         # TODO: f"{self.filename}:{self.lineno}:{self.col + 1} "
         return f"{FLAKE8_PREFIX}{self.error_code:03} {self.error_prefix}{self.message.rstrip()}{self.suggestion_nl}"
 
+    @property
+    def as_dataclass(self):
+        """Error as a dataclass."""
+        return Fuss(self.filename, self.error_code, self.message, self.suggestion_nl)
 
-class InitError(Fuss):
+
+class InitError(NitpickError):
     """Init errors."""
 
     error_base_number = 100
@@ -88,19 +104,19 @@ class NoPythonFileError(InitError):
         super().__init__(self.message, **kwargs)
 
 
-class PresentFileError(InitError):
-    """File exists when it shouldn't."""
+class MissingFileError(InitError):
+    """File doesn't exist when it should."""
 
     number = 3
 
 
-class AbsentFileError(InitError):
-    """File doesn't exist when it should."""
+class FileShouldBeDeletedError(InitError):
+    """File exists when it shouldn't."""
 
     number = 4
 
 
-class ConfigError(Fuss):
+class ConfigError(NitpickError):
     """Config error."""
 
     error_base_number = 200
@@ -116,7 +132,7 @@ class MinimumVersionError(ConfigError):
         super().__init__(self.message.format(project=PROJECT_NAME, expected=expected, actual=actual))
 
 
-class StyleError(Fuss):
+class StyleError(NitpickError):
     """An error in a style file."""
 
     number = 1
@@ -127,7 +143,7 @@ class StyleError(Fuss):
         super().__init__(message, suggestion, **kwargs)
 
 
-class PluginError(Fuss):
+class PluginError(NitpickError):
     """Base for plugin errors."""
 
     error_base_number = 300

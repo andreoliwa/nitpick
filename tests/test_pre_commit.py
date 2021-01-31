@@ -13,7 +13,7 @@ def test_pre_commit_has_no_configuration(request):
 
     Also the file should not be deleted unless explicitly asked.
     """
-    ProjectMock(request).style("").pre_commit("").flake8().assert_no_errors()
+    ProjectMock(request).style("").pre_commit("").simulate_run().assert_no_errors()
 
 
 def test_pre_commit_referenced_in_style(request):
@@ -23,7 +23,7 @@ def test_pre_commit_referenced_in_style(request):
         [".pre-commit-config.yaml"]
         fail_fast = true
         """
-    ).pre_commit("").flake8().assert_single_error(
+    ).pre_commit("").simulate_run().assert_single_error(
         "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
     )
 
@@ -35,7 +35,7 @@ def test_suggest_initial_contents(request):
         [tool.nitpick]
         style = ["isort", "black"]
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[32m
         repos:
@@ -70,7 +70,7 @@ def test_root_values_on_missing_file(request):
         fail_fast = true
         whatever = "1"
         """
-    ).flake8().assert_errors_contain_unordered(
+    ).simulate_run().assert_errors_contain_unordered(
         """
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[32m
         bla_bla: oh yeah
@@ -98,7 +98,7 @@ def test_root_values_on_existing_file(request):
         something: false
         another_thing: "nope"
         """
-    ).flake8().assert_errors_contain_unordered(
+    ).simulate_run().assert_errors_contain_unordered(
         """
         NIP338 File .pre-commit-config.yaml has missing values:\x1b[32m
         blabla: what
@@ -126,7 +126,7 @@ def test_missing_repos(request):
         - hooks:
           - id: whatever
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
     )
 
@@ -144,7 +144,7 @@ def test_missing_repo_key(request):
         - hooks:
           - id: whatever
         """
-    ).flake8().assert_single_error(
+    ).simulate_run().assert_single_error(
         "NIP332 File .pre-commit-config.yaml: style file is missing 'repo' key in repo #0"
     )
 
@@ -162,7 +162,7 @@ def test_repo_does_not_exist(request):
         - hooks:
           - id: whatever
         """
-    ).flake8().assert_single_error(
+    ).simulate_run().assert_single_error(
         "NIP333 File .pre-commit-config.yaml: repo 'local' does not exist under 'repos'"
     )
 
@@ -179,7 +179,7 @@ def test_missing_hooks_in_repo(request):
         repos:
         - repo: whatever
         """
-    ).flake8().assert_single_error(
+    ).simulate_run().assert_single_error(
         "NIP334 File .pre-commit-config.yaml: missing 'hooks' in repo 'whatever'"
     )
 
@@ -198,7 +198,7 @@ def test_style_missing_hooks_in_repo(request):
           hooks:
           - id: isort
         """
-    ).flake8().assert_single_error(
+    ).simulate_run().assert_single_error(
         "NIP335 File .pre-commit-config.yaml: style file is missing 'hooks' in repo 'another'"
     )
 
@@ -221,7 +221,7 @@ def test_style_missing_id_in_hook(request):
           hooks:
           - id: isort
         """
-    ).flake8().assert_single_error(
+    ).simulate_run().assert_single_error(
         """
         NIP336 File .pre-commit-config.yaml: style file is missing 'id' in hook:
             name: isort
@@ -249,7 +249,7 @@ def test_missing_hook_with_id(request):
           hooks:
           - id: isort
         """
-    ).flake8().assert_single_error(
+    ).simulate_run().assert_single_error(
         """
         NIP337 File .pre-commit-config.yaml: missing hook with id 'black':
           - id: black
@@ -378,7 +378,7 @@ def test_missing_different_values(request):
               - id: my-hook
                 args: [--different, args, --should, throw, errors]
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/mirrors-mypy
@@ -444,7 +444,9 @@ def test_pre_commit_section_without_dot_deprecated(request):
     )
 
     with pytest.deprecated_call() as warning_list:
-        project.flake8().assert_single_error("NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key")
+        project.simulate_run().assert_single_error(
+            "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
+        )
 
     assert len(warning_list) == 1
     assert (

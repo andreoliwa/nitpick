@@ -1,12 +1,13 @@
 """The Nitpick application."""
 from functools import lru_cache
+from itertools import chain
 from pathlib import Path
 from typing import Iterator, Union
 
 from loguru import logger
 
 from nitpick import PROJECT_NAME
-from nitpick.exceptions import AbsentFileError, Fuss, PresentFileError
+from nitpick.exceptions import FileShouldBeDeletedError, MissingFileError, NitpickError
 from nitpick.plugins.base import FileData
 from nitpick.project import Project
 
@@ -47,7 +48,11 @@ class Nitpick:
 
         return self
 
-    def enforce_present_absent(self) -> Iterator[Fuss]:
+    def run(self) -> Iterator[NitpickError]:
+        """Run Nitpick."""
+        yield from chain(self.project.merge_styles(self.offline), self.enforce_present_absent(), self.enforce_style())
+
+    def enforce_present_absent(self) -> Iterator[NitpickError]:
         """Enforce files that should be present or absent."""
         if not self.project:
             return
@@ -66,7 +71,7 @@ class Nitpick:
                 full_message = f"File {file_name} should {message}"
                 if extra_message:
                     full_message += f": {extra_message}"
-                error_class = PresentFileError if present else AbsentFileError
+                error_class = MissingFileError if present else FileShouldBeDeletedError
                 yield error_class(full_message)
 
     def enforce_style(self):

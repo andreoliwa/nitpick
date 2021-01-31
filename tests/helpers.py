@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import TYPE_CHECKING, List, Set
+from typing import List, Set
 
 from _pytest.fixtures import FixtureRequest
 from testfixtures import compare
@@ -18,14 +18,12 @@ from nitpick.constants import (
     SETUP_CFG,
 )
 from nitpick.core import Nitpick
+from nitpick.exceptions import NitpickError
 from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
-from nitpick.typedefs import PathOrStr
+from nitpick.typedefs import Flake8Error, PathOrStr
 from tests.conftest import TEMP_PATH
-
-if TYPE_CHECKING:
-    from nitpick.typedefs import Flake8Error  # pylint: disable=ungrouped-imports
 
 
 def assert_conditions(*args):
@@ -39,23 +37,24 @@ class ProjectMock:
     """A mocked Python project to help on tests."""
 
     # TODO: use Python 3.6 type annotations
-    _original_errors = []  # type: List[Flake8Error]
-    _errors = set()  # type: Set[str]
-
-    fixtures_dir = Path(__file__).parent / "fixtures"  # type: Path
-    styles_dir = Path(__file__).parent.parent / "styles"  # type: Path
+    fixtures_dir: Path = Path(__file__).parent / "fixtures"
+    styles_dir: Path = Path(__file__).parent.parent / "styles"
 
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
+        self._fuss_errors: Set[NitpickError] = set()
+        self._flake8_errors: List[Flake8Error] = []
+        self._flake8_errors_as_string: Set[str] = set()
+
         subdir = "/".join(pytest_request.module.__name__.split(".")[1:])
         caller_function_name = pytest_request.node.name
         # TODO: use tmp_path instead of self.root_dir
-        self.root_dir = TEMP_PATH / subdir / caller_function_name  # type: Path
+        self.root_dir: Path = TEMP_PATH / subdir / caller_function_name
 
         # To make debugging of mock projects easy, each test should not reuse another test directory.
         self.root_dir.mkdir(parents=True)
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
-        self.files_to_lint = []  # type: List[Path]
+        self.files_to_lint: List[Path] = []
 
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
@@ -76,8 +75,8 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def flake8(self, offline=False, file_index: int = 0) -> "ProjectMock":
-        """Simulate a manual flake8 run.
+    def simulate_run(self, offline=False) -> "ProjectMock":
+        """Simulate the use of the API and a manual flake8 run.
 
         - Clear the singleton cache.
         - Recreate the global app.
@@ -87,16 +86,17 @@ class ProjectMock:
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
         Nitpick.singleton().init(offline=offline)
+        # FIXME[AA]: from here
+        # self._fuss_errors = set(nit.run())
 
-        npc = NitpickFlake8Extension(filename=str(self.files_to_lint[file_index]))
-        self._original_errors = list(npc.run())
+        npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
+        self._flake8_errors = list(npc.run())
 
-        self._errors = set()
-        for flake8_error in self._original_errors:
-            line, col, message, class_ = flake8_error
+        self._flake8_errors_as_string = set()
+        for line, col, message, class_ in self._flake8_errors:
             if not (line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension):
                 raise AssertionError()
-            self._errors.add(message)
+            self._flake8_errors_as_string.add(message)
         return self
 
     def save_file(self, file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
@@ -164,13 +164,13 @@ class ProjectMock:
         if expected_error:
             print("Expected error:\n{}".format(expected_error))
         print("\nError count:")
-        print(len(self._errors))
+        print(len(self._flake8_errors_as_string))
         print("\nAll errors:")
-        print(sorted(self._errors))
+        print(sorted(self._flake8_errors_as_string))
         print("\nAll errors with pprint():")
-        pprint(sorted(self._errors), width=150)
+        pprint(sorted(self._flake8_errors_as_string), width=150)
         print("\nAll errors with pure print():")
-        for error in sorted(self._errors):
+        for error in sorted(self._flake8_errors_as_string):
             print()
             print(error)
         print("\nProject root:", self.root_dir)
@@ -179,7 +179,7 @@ class ProjectMock:
     def _assert_error_count(self, expected_error: str, expected_count: int = None) -> "ProjectMock":
         """Assert the error count is correct."""
         if expected_count is not None:
-            actual = len(self._errors)
+            actual = len(self._flake8_errors_as_string)
             if expected_count != actual:
                 self.raise_assertion_error(expected_error, "Expected {} errors, got {}".format(expected_count, actual))
         return self
@@ -187,7 +187,7 @@ class ProjectMock:
     def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
         """Assert the error is in the error set."""
         expected_error = dedent(raw_error).strip()
-        if expected_error not in self._errors:
+        if expected_error not in self._flake8_errors_as_string:
             self.raise_assertion_error(expected_error)
         self._assert_error_count(expected_error, expected_count)
         return self
@@ -202,7 +202,7 @@ class ProjectMock:
         original_expected_error = dedent(raw_error).strip()
         expected_error = original_expected_error.replace("\x1b[0m", "")
         expected_error_lines = set(expected_error.split("\n"))
-        for actual_error in self._errors:
+        for actual_error in self._flake8_errors_as_string:
             if set(actual_error.replace("\x1b[0m", "").split("\n")) == expected_error_lines:
                 self._assert_error_count(raw_error, expected_count)
                 return self
@@ -216,7 +216,7 @@ class ProjectMock:
 
     def assert_no_errors(self) -> "ProjectMock":
         """Assert that there are no errors."""
-        if not self._errors:
+        if not self._flake8_errors_as_string:
             return self
 
         self.raise_assertion_error("")
