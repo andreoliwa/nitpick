@@ -32,7 +32,7 @@ class JsonError(NitpickError):
 
 
 class JSONPlugin(NitpickPlugin):
-    """Checker for any JSON file.
+    """Enforce configurations for any JSON file.
 
     Add the configurations for the file name you wish to check.
     Example: :ref:`the default config for package.json <default-package-json>`.
@@ -45,8 +45,8 @@ class JSONPlugin(NitpickPlugin):
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
 
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check missing keys and JSON content."""
+    def enforce_rules(self) -> Iterator[NitpickError]:
+        """Enforce rules for missing keys and JSON content."""
         yield from self._check_contained_keys()
         yield from self._check_contained_json()
 

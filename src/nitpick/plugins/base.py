@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import Iterator, Optional, Set, Type
 
 import jmespath
+from autorepr import autotext
 from identify import identify
+from loguru import logger
 from marshmallow import Schema
 
 from nitpick.exceptions import Deprecation, NitpickError, PluginError
@@ -38,7 +40,9 @@ class FileData:
 class NitpickPlugin(metaclass=abc.ABCMeta):
     """Base class for file checkers."""
 
-    file_name = ""  # FIXME[AA]: remove file_name attribute after fixing dynamic/fixed schema loading
+    __str__, __unicode__ = autotext("{self.data.path_from_root} ({self.__class__.__name__})")
+
+    file_name = ""  # TODO: remove file_name attribute after fixing dynamic/fixed schema loading
     error_class: Type[NitpickError] = PluginError
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
@@ -71,8 +75,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
         return jmespath.compile(f"nitpick.{cls.__name__}.file_names")
 
-    def enforce_rules(self, config: JsonDict) -> Iterator[NitpickError]:
-        """Enforce the configuration rules."""
+    def entry_point(self, config: JsonDict) -> Iterator[NitpickError]:
+        """Entry point of the Nitpick plugin."""
         self.file_dict = config or {}
 
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
@@ -80,6 +84,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
+            logger.info(f"{self}: Suggest initial contents for {self.file_name}")
             suggestion = self.suggest_initial_contents()
             if not suggestion and self.skip_empty_suggestion:
                 return
@@ -92,14 +97,16 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             joined_message = ". ".join(phrases)
             yield self.error_class(joined_message, suggestion, 1)
         elif not should_exist and file_exists:
+            logger.info(f"{self}: File {self.file_name} exists when it should not")
             # Only display this message if the style is valid.
             yield self.error_class(" should be deleted", number=2)
         elif file_exists and config_data_exists:
-            yield from self.check_rules()
+            logger.info(f"{self}: Enforcing rules")
+            yield from self.enforce_rules()
 
     @abc.abstractmethod
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check rules for this file. It should be overridden by inherited classes if needed."""
+    def enforce_rules(self) -> Iterator[NitpickError]:
+        """Enforce rules for this file. It should be overridden by inherited classes if needed."""
 
     @abc.abstractmethod
     def suggest_initial_contents(self) -> str:

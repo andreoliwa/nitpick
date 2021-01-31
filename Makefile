@@ -13,8 +13,8 @@ help:
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
 
-fast: pytest pre-commit # Run pytest and pre-commit fast, without tox
-.PHONY: fast
+quick: pytest pre-commit # Run pytest and pre-commit fast, without tox
+.PHONY: quick
 
 full-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project fully, like in CI
 .PHONY: full-build

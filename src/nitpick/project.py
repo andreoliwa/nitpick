@@ -2,7 +2,7 @@
 import itertools
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, Iterator, Optional, Set, Union
+from typing import Iterable, Iterator, Optional, Set
 
 import pluggy
 from autorepr import autorepr
@@ -28,9 +28,9 @@ from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, mypy_property
 
 
-def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Optional[Set[Path]]:
+def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Set[Path]:  # TODO: add unit test
     """Climb the directory tree looking for file patterns."""
-    current_dir = Path(starting_path).absolute()  # type: Path
+    current_dir: Path = Path(starting_path).absolute()
     if current_dir.is_file():
         current_dir = current_dir.parent
 
@@ -40,28 +40,33 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
             if found_files:
                 return set(found_files)
         current_dir = current_dir.parent
-    return None
+    return set()
 
 
 # TODO: add unit tests with tmp_path https://docs.pytest.org/en/stable/tmpdir.html
-def find_root() -> Path:
+def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
     """Find the root dir of the Python project (the one that has one of the ``ROOT_FILES``).
 
     Start from the current working dir.
     """
-    # FIXME[AA]: add logging here
     root_dirs: Set[Path] = set()
     seen: Set[Path] = set()
 
-    all_files = list(Path.cwd().glob("*"))
+    if not current_dir:
+        current_dir = Path.cwd()
+    logger.debug(f"Searching root from current dir: {current_dir!r}")
+    all_files = list(Path(current_dir).glob("*"))
+
     # Don't fail if the current dir is empty
     starting_file = str(all_files[0]) if all_files else ""
     starting_dir = Path(starting_file).parent.absolute()
     while True:
+        logger.debug(f"Climbing dir: {starting_dir}")
         project_files = climb_directory_tree(starting_dir, ROOT_FILES)
         if project_files and project_files & seen:
             break
-        seen.update(project_files or [])
+        seen.update(project_files)
+        logger.debug(f"Project files seen: {project_files}")
 
         if not project_files:
             # If none of the root files were found, try again with manage.py.
@@ -70,9 +75,12 @@ def find_root() -> Path:
             if not project_files or project_files & seen:
                 break
             seen.update(project_files)
+            logger.debug(f"Project files seen: {project_files}")
 
-        for found in project_files or []:
+        for found in project_files:
             root_dirs.add(found.parent)
+        if project_files:
+            logger.debug(f"Root dirs: {root_dirs}")
 
         # Climb up one directory to search for more project files
         starting_dir = starting_dir.parent
@@ -80,11 +88,13 @@ def find_root() -> Path:
             break
 
     if not root_dirs:
-        logger.error("No files found while climbing directory tree from {}", str(starting_file))
+        logger.error(f"No files found while climbing directory tree from {starting_file}")
         raise NoRootDirError()
 
     # If multiple roots are found, get the top one (grandparent dir)
-    return sorted(root_dirs)[0]
+    top_dir = sorted(root_dirs)[0]
+    logger.debug(f"Top root dir found: {top_dir}")
+    return top_dir
 
 
 class ToolNitpickSectionSchema(BaseNitpickSchema):
@@ -100,7 +110,7 @@ class Project:
 
     __repr__ = autorepr(["_supplied_root", "root"])
 
-    def __init__(self, root: Union[Path, str] = None) -> None:
+    def __init__(self, root: PathOrStr = None) -> None:
         self._supplied_root = root
 
         self.pyproject_toml: Optional[TOMLFormat] = None
@@ -113,9 +123,7 @@ class Project:
     @lru_cache()
     def root(self) -> Path:
         """Root dir of the project."""
-        if self._supplied_root:
-            return Path(self._supplied_root)
-        return find_root()
+        return find_root(self._supplied_root)
 
     def find_main_python_file(self) -> Path:  # TODO: add unit tests
         """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.

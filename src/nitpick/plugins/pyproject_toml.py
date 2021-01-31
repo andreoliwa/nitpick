@@ -1,4 +1,4 @@
-"""Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
+"""Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
 from typing import Iterator, Optional, Type
 
 from nitpick.constants import PYPROJECT_TOML
@@ -15,7 +15,7 @@ class PyProjectTomlError(NitpickError):
 
 
 class PyProjectTomlPlugin(NitpickPlugin):
-    """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
+    """Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
     See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
 
@@ -26,8 +26,8 @@ class PyProjectTomlPlugin(NitpickPlugin):
     file_name = PYPROJECT_TOML
     error_class = PyProjectTomlError
 
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check missing key/value pairs in pyproject.toml."""
+    def enforce_rules(self) -> Iterator[NitpickError]:
+        """Enforce rules for missing key/value pairs in pyproject.toml."""
         file = Nitpick.singleton().project.pyproject_toml
         if file:
             comparison = file.compare_with_flatten(self.file_dict)

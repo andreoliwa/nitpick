@@ -34,7 +34,7 @@ class TextError(NitpickError):
 
 
 class TextPlugin(NitpickPlugin):
-    """Checker for text files.
+    """Enforce configuration on text files.
 
     To check if ``some.txt`` file contains the lines ``abc`` and ``def`` (in any order):
 
@@ -62,8 +62,8 @@ class TextPlugin(NitpickPlugin):
         """Suggest the initial content for this missing file."""
         return "\n".join(self._expected_lines())
 
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check missing lines."""
+    def enforce_rules(self) -> Iterator[NitpickError]:
+        """Enforce rules for missing lines."""
         expected = OrderedSet(self._expected_lines())
         actual = OrderedSet(self.file_path.read_text().split("\n"))
         missing = expected - actual

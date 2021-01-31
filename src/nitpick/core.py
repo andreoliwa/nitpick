@@ -48,7 +48,7 @@ class Nitpick:
         return self
 
     def enforce_present_absent(self) -> Iterator[NitpickError]:
-        """Check styles and files that should be present or absent."""
+        """Enforce files that should be present or absent."""
         if not self.project:
             return
 
@@ -79,6 +79,8 @@ class Nitpick:
 
         # 1.
         for config_key, config_dict in self.project.style_dict.items():
+            logger.info(f"{config_key}: Finding plugins to enforce style")
+
             # 2.
             if config_key == PROJECT_NAME:
                 continue
@@ -87,4 +89,4 @@ class Nitpick:
             for plugin_instance in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 data=FileData.create(self.project, config_key)
             ):
-                yield from plugin_instance.enforce_rules(config_dict)
+                yield from plugin_instance.entry_point(config_dict)

@@ -1,4 +1,4 @@
-"""Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>` config file."""
+"""Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`."""
 from configparser import ConfigParser
 from enum import IntEnum
 from functools import lru_cache
@@ -31,7 +31,7 @@ class SetupCfgError(NitpickError):
 
 
 class SetupCfgPlugin(NitpickPlugin):
-    """Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_ config file.
+    """Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_.
 
     Example: :ref:`flake8 configuration <default-flake8>`.
     """
@@ -71,8 +71,8 @@ class SetupCfgPlugin(NitpickPlugin):
             return self.get_example_cfg(missing_cfg)
         return ""
 
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check missing sections and missing key/value pairs in setup.cfg."""
+    def enforce_rules(self) -> Iterator[NitpickError]:
+        """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
         setup_cfg = ConfigParser()
         with self.file_path.open() as handle:
             setup_cfg.read_file(handle)

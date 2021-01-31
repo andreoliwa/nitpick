@@ -1,4 +1,4 @@
-"""Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file."""
+"""Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_."""
 from collections import OrderedDict
 from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
 
@@ -108,7 +108,7 @@ class MissingHookWithIDError(PreCommitError):
 
 
 class PreCommitPlugin(NitpickPlugin):
-    """Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file.
+    """Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
 
     Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
     """
@@ -139,8 +139,8 @@ class PreCommitPlugin(NitpickPlugin):
         suggested.update(original)
         return YAMLFormat(data=suggested).reformatted
 
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check the rules for the pre-commit hooks."""
+    def enforce_rules(self) -> Iterator[NitpickError]:
+        """Enforce rules for the pre-commit hooks."""
         self.actual_yaml = YAMLFormat(path=self.file_path)
         if KEY_REPOS not in self.actual_yaml.as_data:
             # TODO: if the 'repos' key doesn't exist, assume repos are in the root of the .yml file
@@ -153,10 +153,10 @@ class PreCommitPlugin(NitpickPlugin):
             YAMLFormat(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(self.file_dict)
         )
 
-        yield from self.check_hooks()
+        yield from self.enforce_hooks()
 
-    def check_hooks(self) -> Iterator[NitpickError]:
-        """Check the repositories configured in pre-commit."""
+    def enforce_hooks(self) -> Iterator[NitpickError]:
+        """Enforce the repositories configured in pre-commit."""
         self.actual_hooks = PreCommitHook.get_all_hooks_from(self.actual_yaml.as_data.get(KEY_REPOS))
         self.actual_hooks_by_key = {name: index for index, name in enumerate(self.actual_hooks)}
         self.actual_hooks_by_index = list(self.actual_hooks)
@@ -164,13 +164,13 @@ class PreCommitPlugin(NitpickPlugin):
         all_expected_blocks = self.file_dict.get(KEY_REPOS, [])  # type: List[OrderedDict]
         for index, data in enumerate(all_expected_blocks):
             if KEY_YAML in data:
-                yield from self.check_repo_block(data)
+                yield from self.enforce_repo_block(data)
                 continue
 
-            yield from self.check_repo_old_format(index, data)
+            yield from self.enforce_repo_old_format(index, data)
 
-    def check_repo_block(self, expected_repo_block: OrderedDict) -> Iterator[NitpickError]:
-        """Check a repo with a YAML string configuration."""
+    def enforce_repo_block(self, expected_repo_block: OrderedDict) -> Iterator[NitpickError]:
+        """Enforce a repo with a YAML string configuration."""
         expected_hooks = PreCommitHook.get_all_hooks_from(YAMLFormat(string=expected_repo_block.get(KEY_YAML)).as_list)
         for unique_key, hook in expected_hooks.items():
             if unique_key not in self.actual_hooks:
@@ -188,8 +188,8 @@ class PreCommitPlugin(NitpickPlugin):
             revision_message = " (rev: {})".format(current_revision) if current_revision else ""
             yield from self.warn_missing_different(comparison, ": hook {!r}{}".format(hook.hook_id, revision_message))
 
-    def check_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[NitpickError]:
-        """Check repos using the old deprecated format with ``hooks`` and ``repo`` keys."""
+    def enforce_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[NitpickError]:
+        """Enforce repos using the old deprecated format with ``hooks`` and ``repo`` keys."""
         actual = self.actual_yaml.as_data.get(KEY_REPOS, [])  # type: List[YamlData]
 
         repo_name = repo_data.get(KEY_REPO)
