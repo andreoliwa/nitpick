@@ -1,6 +1,6 @@
 """Base class for file checkers."""
 import abc
-from dataclasses import dataclass  # pylint: disable=wrong-import-order
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterator, Optional, Set, Type

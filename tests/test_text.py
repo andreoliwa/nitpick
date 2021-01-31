@@ -37,7 +37,7 @@ def test_text_configuration(request):
         ["ghi.txt".whatever]
         wrong = "everything"
         """
-    ).simulate_run().assert_errors_contain(
+    ).simulate_run(call_api=False).assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
         "abc.txt".contains.0.invalid: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.

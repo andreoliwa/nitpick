@@ -13,7 +13,7 @@ Below are the currently included plugins.
 setup.cfg
 ---------
 
-Checker for the `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_ config file.
+Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_.
 
 Example: :ref:`flake8 configuration <default-flake8>`.
 
@@ -22,7 +22,7 @@ Example: :ref:`flake8 configuration <default-flake8>`.
 pyproject.toml
 --------------
 
-Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
+Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
 See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
 
@@ -34,7 +34,7 @@ There are many other examples in :ref:`defaults`.
 .pre-commit-config.yaml
 -----------------------
 
-Checker for the `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_ file.
+Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
 
 Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
 
@@ -43,7 +43,7 @@ Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
 JSON files
 ----------
 
-Checker for any JSON file.
+Enforce configurations for any JSON file.
 
 Add the configurations for the file name you wish to check.
 Example: :ref:`the default config for package.json <default-package-json>`.
@@ -53,7 +53,7 @@ Example: :ref:`the default config for package.json <default-package-json>`.
 Text files
 ----------
 
-Checker for text files.
+Enforce configuration on text files.
 
 To check if ``some.txt`` file contains the lines ``abc`` and ``def`` (in any order):
 

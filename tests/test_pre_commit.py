@@ -440,7 +440,7 @@ def test_pre_commit_section_without_dot_deprecated(request):
     )
 
     with pytest.deprecated_call() as warning_list:
-        project.simulate_run().assert_single_error(
+        project.simulate_run(call_api=False).assert_single_error(
             "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
         )
 

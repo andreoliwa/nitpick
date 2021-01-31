@@ -75,8 +75,8 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def simulate_run(self, offline=False) -> "ProjectMock":
-        """Simulate the use of the API and a manual flake8 run.
+    def simulate_run(self, offline=False, call_api=True) -> "ProjectMock":
+        """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
         - Recreate the global app.
@@ -85,9 +85,9 @@ class ProjectMock:
         """
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
-        Nitpick.singleton().init(offline=offline)
-        # FIXME[AA]: from here
-        # self._fuss_errors = set(nit.run())
+        nit = Nitpick.singleton().init(offline=offline)
+        if call_api:
+            self._fuss_errors = set(nit.run())
 
         npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
         self._flake8_errors = list(npc.run())
