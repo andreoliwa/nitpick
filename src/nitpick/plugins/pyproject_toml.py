@@ -3,12 +3,12 @@ from typing import Iterator, Optional, Type
 
 from nitpick.constants import PYPROJECT_TOML
 from nitpick.core import Nitpick
-from nitpick.exceptions import NitpickError
+from nitpick.exceptions import Fuss
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FileData, NitpickPlugin
 
 
-class PyProjectTomlError(NitpickError):
+class PyProjectTomlError(Fuss):
     """Base for pyproject.toml errors."""
 
     error_base_number = 310
@@ -26,7 +26,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
     file_name = PYPROJECT_TOML
     error_class = PyProjectTomlError
 
-    def enforce_rules(self) -> Iterator[NitpickError]:
+    def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing key/value pairs in pyproject.toml."""
         file = Nitpick.singleton().project.pyproject_toml
         if file:

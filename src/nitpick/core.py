@@ -6,7 +6,7 @@ from typing import Iterator, Union
 from loguru import logger
 
 from nitpick import PROJECT_NAME
-from nitpick.exceptions import AbsentFileError, NitpickError, PresentFileError
+from nitpick.exceptions import AbsentFileError, Fuss, PresentFileError
 from nitpick.plugins.base import FileData
 from nitpick.project import Project
 
@@ -47,7 +47,7 @@ class Nitpick:
 
         return self
 
-    def enforce_present_absent(self) -> Iterator[NitpickError]:
+    def enforce_present_absent(self) -> Iterator[Fuss]:
         """Enforce files that should be present or absent."""
         if not self.project:
             return

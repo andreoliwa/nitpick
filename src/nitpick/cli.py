@@ -21,7 +21,7 @@ from pathlib import Path
 import click
 from loguru import logger
 
-from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
+from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
 
 
@@ -84,7 +84,7 @@ def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=F
     nit = Nitpick.singleton().init(project_root, offline)
 
     for err in chain(nit.project.merge_styles(offline), nit.enforce_present_absent(), nit.enforce_style()):
-        click.echo(f"{ERROR_PREFIX}{err.number:03} {err.message}{err.suggestion}")
+        click.echo(err.pretty)
 
     click.secho("All done! ✨ 🍰 ✨", fg="bright_white")
     # FIXME[AA]: add an API test with one error and the expected error results

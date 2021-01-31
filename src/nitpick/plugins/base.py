@@ -11,7 +11,7 @@ from identify import identify
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.exceptions import Deprecation, NitpickError, PluginError
+from nitpick.exceptions import Deprecation, Fuss, PluginError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
 from nitpick.project import Project
@@ -43,7 +43,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     __str__, __unicode__ = autotext("{self.data.path_from_root} ({self.__class__.__name__})")
 
     file_name = ""  # TODO: remove file_name attribute after fixing dynamic/fixed schema loading
-    error_class: Type[NitpickError] = PluginError
+    error_class: Type[Fuss] = PluginError
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
@@ -75,7 +75,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
         return jmespath.compile(f"nitpick.{cls.__name__}.file_names")
 
-    def entry_point(self, config: JsonDict) -> Iterator[NitpickError]:
+    def entry_point(self, config: JsonDict) -> Iterator[Fuss]:
         """Entry point of the Nitpick plugin."""
         self.file_dict = config or {}
 
@@ -105,14 +105,14 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             yield from self.enforce_rules()
 
     @abc.abstractmethod
-    def enforce_rules(self) -> Iterator[NitpickError]:
+    def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for this file. It should be overridden by inherited classes if needed."""
 
     @abc.abstractmethod
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
 
-    def warn_missing_different(self, comparison: Comparison, prefix_message: str = "") -> Iterator[NitpickError]:
+    def warn_missing_different(self, comparison: Comparison, prefix_message: str = "") -> Iterator[Fuss]:
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
         if comparison.missing_format:

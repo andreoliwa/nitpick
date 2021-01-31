@@ -10,7 +10,7 @@ from testfixtures import compare
 
 from nitpick.constants import (
     CACHE_DIR_NAME,
-    ERROR_PREFIX,
+    FLAKE8_PREFIX,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     PROJECT_NAME,
@@ -18,7 +18,7 @@ from nitpick.constants import (
     SETUP_CFG,
 )
 from nitpick.core import Nitpick
-from nitpick.flake8 import NitpickExtension
+from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import PathOrStr
@@ -88,13 +88,13 @@ class ProjectMock:
         os.chdir(str(self.root_dir))
         Nitpick.singleton().init(offline=offline)
 
-        npc = NitpickExtension(filename=str(self.files_to_lint[file_index]))
+        npc = NitpickFlake8Extension(filename=str(self.files_to_lint[file_index]))
         self._original_errors = list(npc.run())
 
         self._errors = set()
         for flake8_error in self._original_errors:
             line, col, message, class_ = flake8_error
-            if not (line == 0 and col == 0 and message.startswith(ERROR_PREFIX) and class_ is NitpickExtension):
+            if not (line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension):
                 raise AssertionError()
             self._errors.add(message)
         return self

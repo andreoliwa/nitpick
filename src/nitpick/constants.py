@@ -2,7 +2,7 @@
 import jmespath
 
 PROJECT_NAME = "nitpick"
-ERROR_PREFIX = "NIP"
+FLAKE8_PREFIX = "NIP"
 CACHE_DIR_NAME = ".cache"
 TOML_EXTENSION = ".toml"
 NITPICK_STYLE_TOML = "nitpick-style{}".format(TOML_EXTENSION)

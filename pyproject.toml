@@ -33,7 +33,7 @@ classifiers = [
 nitpick = "nitpick.cli:nitpick_cli"
 
 [tool.poetry.plugins."flake8.extension"]
-NIP = "nitpick.flake8:NitpickExtension"
+NIP = "nitpick.flake8:NitpickFlake8Extension"
 
 [tool.poetry.plugins.nitpick]
 text = "nitpick.plugins.text"

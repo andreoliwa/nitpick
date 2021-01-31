@@ -21,7 +21,7 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.exceptions import MinimumVersionError, NitpickError, NoPythonFileError, NoRootDirError, StyleError
+from nitpick.exceptions import Fuss, MinimumVersionError, NoPythonFileError, NoRootDirError, StyleError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
@@ -175,7 +175,7 @@ class Project:
             PYPROJECT_TOML, f"Invalid data in [{TOOL_NITPICK}]:", flatten_marshmallow_errors(pyproject_errors)
         )
 
-    def merge_styles(self, offline: bool) -> Iterator[NitpickError]:
+    def merge_styles(self, offline: bool) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
         try:
             self.validate_pyproject_tool_nitpick()
@@ -192,12 +192,12 @@ class Project:
 
         self.style_dict = style.merge_toml_dict()
 
-        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
+        from nitpick.flake8 import NitpickFlake8Extension  # pylint: disable=import-outside-toplevel
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         logger.info(f"Minimum version: {minimum_version}")
-        if minimum_version and version_to_tuple(NitpickExtension.version) < version_to_tuple(minimum_version):
-            yield MinimumVersionError(minimum_version, NitpickExtension.version)
+        if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
+            yield MinimumVersionError(minimum_version, NitpickFlake8Extension.version)
 
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})

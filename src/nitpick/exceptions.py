@@ -5,18 +5,26 @@ from typing import Any, Dict
 
 import click
 
-from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
+from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.typedefs import Flake8Error
 
 
-class NitpickError(Exception):
-    """A Nitpick error  raise flake8 errors."""
+class Fuss(Exception):  # TODO: use a dataclass instead of inheriting from Exception?
+    """The base class for Nitpick error messages.
+
+    Inspired on :py:class:`SyntaxError` and :py:class:`pyflakes.messages.Message`.
+    """
 
     error_base_number: int = 0
     error_prefix: str = ""
     message: str = ""
     number: int = 0
     add_to_base_number: bool = True
+
+    # TODO: display filename, line and (if possible) column of the error, like flake8 does with .py files
+    filename: str = ""
+    lineno: int = 1
+    col: int = 0
 
     def __init__(self, message: str = "", suggestion: str = "", number: int = 0, add_to_base_number=True) -> None:
         self.message: str = message or self.message
@@ -27,26 +35,36 @@ class NitpickError(Exception):
 
         super().__init__(self.message)
 
-    def as_flake8_warning(self) -> Flake8Error:
-        """Return a flake8 error as a tuple."""
-        joined_number = self.error_base_number + self.number if self.add_to_base_number else self.number
-        suggestion_with_newline = (
-            click.style("\n{}".format(self.suggestion.rstrip()), fg="green") if self.suggestion else ""
-        )
+    @property
+    def suggestion_nl(self) -> str:
+        """Suggestion with newline."""
+        return click.style("\n{}".format(self.suggestion.rstrip()), fg="green") if self.suggestion else ""
 
-        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
+    @property
+    def error_code(self) -> int:
+        """Joined number, adding the base number with this class' number."""
+        return self.error_base_number + self.number if self.add_to_base_number else self.number
+
+    @property
+    def as_flake8_warning(self) -> Flake8Error:
+        """Return the error as a tuple to flake8."""
+        from nitpick.flake8 import NitpickFlake8Extension  # pylint: disable=import-outside-toplevel
 
         return (
             0,
             0,
-            "{}{:03d} {}{}{}".format(
-                ERROR_PREFIX, joined_number, self.error_prefix, self.message.rstrip(), suggestion_with_newline
-            ),
-            NitpickExtension,
+            f"{FLAKE8_PREFIX}{self.error_code:03} {self.error_prefix}{self.message.rstrip()}{self.suggestion_nl}",
+            NitpickFlake8Extension,
         )
 
+    @property
+    def pretty(self) -> str:
+        """Message to be used on the CLI."""
+        # TODO: f"{self.filename}:{self.lineno}:{self.col + 1} "
+        return f"{FLAKE8_PREFIX}{self.error_code:03} {self.error_prefix}{self.message.rstrip()}{self.suggestion_nl}"
 
-class InitError(NitpickError):
+
+class InitError(Fuss):
     """Init errors."""
 
     error_base_number = 100
@@ -82,7 +100,7 @@ class AbsentFileError(InitError):
     number = 4
 
 
-class ConfigError(NitpickError):
+class ConfigError(Fuss):
     """Config error."""
 
     error_base_number = 200
@@ -98,7 +116,7 @@ class MinimumVersionError(ConfigError):
         super().__init__(self.message.format(project=PROJECT_NAME, expected=expected, actual=actual))
 
 
-class StyleError(NitpickError):
+class StyleError(Fuss):
     """An error in a style file."""
 
     number = 1
@@ -109,7 +127,7 @@ class StyleError(NitpickError):
         super().__init__(message, suggestion, **kwargs)
 
 
-class PluginError(NitpickError):
+class PluginError(Fuss):
     """Base for plugin errors."""
 
     error_base_number = 300
