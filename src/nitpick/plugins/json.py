@@ -71,7 +71,9 @@ class JSONPlugin(NitpickPlugin):
         suggested_json = self.get_suggested_json(json_fmt.as_data)
         if not suggested_json:
             return
-        yield self.error_class(" has missing keys:", JSONFormat(data=suggested_json).reformatted, 8)
+        yield self.error_class(
+            " has missing keys:", JSONFormat(data=suggested_json).reformatted, 8
+        )  # FIXME[AA]: specific, add code
 
     def _check_contained_json(self) -> Iterator[NitpickError]:
         actual_fmt = JSONFormat(path=self.file_path)

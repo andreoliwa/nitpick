@@ -51,14 +51,14 @@ class NitpickFlake8Extension:
                 logger.debug("Ignoring file: {}", self.filename)
                 return []
         except (NoRootDirError, NoPythonFileError) as err:
-            yield err
+            yield err  # FIXME[AA]: predefined, fixed codes
             return []
         logger.debug("Nitpicking file: {}", self.filename)
 
         has_errors = False
         for style_err in nit.project.merge_styles(nit.offline):
             has_errors = True
-            yield style_err
+            yield style_err  # FIXME[AA]: predefined, fixed codes (style errors)
         if has_errors:
             return []
 

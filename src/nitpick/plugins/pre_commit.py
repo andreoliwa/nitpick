@@ -145,7 +145,7 @@ class PreCommitPlugin(NitpickPlugin):
         if KEY_REPOS not in self.actual_yaml.as_data:
             # TODO: if the 'repos' key doesn't exist, assume repos are in the root of the .yml file
             #  Having the 'repos' key is not actually a requirement. 'pre-commit-validate-config' works without it.
-            yield NoRootKeyError(f" doesn't have the {KEY_REPOS!r} root key")
+            yield NoRootKeyError(f" doesn't have the {KEY_REPOS!r} root key")  # FIXME[AA]: specific, add
             return
 
         # Check the root values in the configuration file
@@ -176,7 +176,7 @@ class PreCommitPlugin(NitpickPlugin):
             if unique_key not in self.actual_hooks:
                 yield HookNotFoundError(
                     f": hook {hook.hook_id!r} not found. Use this:", YAMLFormat(data=hook.yaml.as_data).reformatted
-                )
+                )  # FIXME[AA]: specific, add code
                 continue
 
             comparison = YAMLFormat(data=self.actual_hooks[unique_key].single_hook).compare_with_dictdiffer(

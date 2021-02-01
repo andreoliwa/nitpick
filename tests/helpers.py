@@ -88,6 +88,7 @@ class ProjectMock:
         nit = Nitpick.singleton().init(offline=offline)
         if call_api:
             self._fuss_errors = set(nit.run())
+            first = list(self._fuss_errors)[0] if self._fuss_errors else None
 
         npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
         self._flake8_errors = list(npc.run())
