@@ -51,14 +51,20 @@ class NitpickFlake8Extension:
                 logger.debug("Ignoring file: {}", self.filename)
                 return []
         except (NoRootDirError, NoPythonFileError) as err:
-            yield err  # FIXME[AA]: predefined, fixed codes
+            # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
+            #  then raise an error with them to interrupt execution and return
+            #  yield err.as_fuss
+            yield err
             return []
         logger.debug("Nitpicking file: {}", self.filename)
 
         has_errors = False
         for style_err in nit.project.merge_styles(nit.offline):
             has_errors = True
-            yield style_err  # FIXME[AA]: predefined, fixed codes (style errors)
+            # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
+            #  then raise an error with them to interrupt execution and return
+            #  yield err.as_fuss
+            yield style_err
         if has_errors:
             return []
 

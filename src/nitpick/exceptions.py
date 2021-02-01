@@ -9,6 +9,13 @@ import click
 from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.typedefs import Flake8Error
 
+"""
+make_fuss
+
+predefined or specific?
+add: bool
+"""
+
 
 @dataclass
 class Fuss:

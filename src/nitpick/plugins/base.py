@@ -95,11 +95,13 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if suggestion:
                 phrases.append("Create it with this content:")
             joined_message = ". ".join(phrases)
-            yield self.error_class(joined_message, suggestion, 1)  # FIXME[AA]: pre, add code
+            # self.make_fuss(PredefinedCodes.CreateFile, joined_message, suggestion, 1) # add
+            yield self.error_class(joined_message, suggestion, 1)
         elif not should_exist and file_exists:
             logger.info(f"{self}: File {self.file_name} exists when it should not")
             # Only display this message if the style is valid.
-            yield self.error_class(" should be deleted", number=2)  # FIXME[AA]: pre, add code
+            # self.make_fuss(PredefinedCodes.DeleteFile, number=1) # add
+            yield self.error_class(" should be deleted", number=2)
         elif file_exists and config_data_exists:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
@@ -116,10 +118,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
         if comparison.missing_format:
-            yield self.error_class(
-                f"{prefix_message} has missing values:", comparison.missing_format.reformatted, 8
-            )  # FIXME[AA]: pre, add code
+            # self.make_fuss(PredefinedCodes.HasMissingValues, add=8)
+            yield self.error_class(f"{prefix_message} has missing values:", comparison.missing_format.reformatted, 8)
         if comparison.diff_format:
+            # self.make_fuss(PredefinedCodes.HasDifferentValues, add=9)
             yield self.error_class(
                 f"{prefix_message} has different values. Use this:", comparison.diff_format.reformatted, 9
-            )  # FIXME[AA]: pre, add code
+            )

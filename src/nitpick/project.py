@@ -181,8 +181,9 @@ class Project:
             self.validate_pyproject_tool_nitpick()
         except StyleError as err:
             # If the project is misconfigured, don't even continue.
-            yield err  # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
-            # then raise an error with them to interrupt execution and return
+            # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
+            #  then raise an error with them to interrupt execution and return
+            yield err
             return
 
         from nitpick.style import Style  # pylint: disable=import-outside-toplevel
@@ -198,7 +199,8 @@ class Project:
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         logger.info(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
-            yield MinimumVersionError(minimum_version, NitpickFlake8Extension.version)  # FIXME[AA]: pre, fixed code
+            # self.make_fuss(Predefined.MinimumVersion, minimum_version, NitpickFlake8Extension.version)
+            yield MinimumVersionError(minimum_version, NitpickFlake8Extension.version)
 
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})
