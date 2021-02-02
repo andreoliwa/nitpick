@@ -162,7 +162,7 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
     """Handle the setup.cfg file."""
     if data.path_from_root == SETUP_CFG:
         return SetupCfgPlugin(data)

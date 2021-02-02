@@ -1,8 +1,9 @@
 """Flake8 plugin to check files."""
 import logging
+from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Union
 
 import attr
 from flake8.options.manager import OptionManager
@@ -10,9 +11,9 @@ from loguru import logger
 
 from nitpick import __version__
 from nitpick.cli import NitpickFlag
-from nitpick.constants import PROJECT_NAME
+from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.core import Nitpick
-from nitpick.exceptions import InitError, NitpickError, NoPythonFileError, NoRootDirError
+from nitpick.exceptions import Fuss, InitError, NitpickError, NoPythonFileError, NoRootDirError
 from nitpick.typedefs import Flake8Error
 
 
@@ -33,10 +34,25 @@ class NitpickFlake8Extension:
 
     def run(self) -> Iterator[Flake8Error]:
         """Run the check plugin."""
-        for err in self.collect_nitpick_errors():
-            yield err.as_flake8_error
+        for err in self.collect_errors():
+            yield self.build_flake8_error(err)
 
-    def collect_nitpick_errors(self) -> Iterator[NitpickError]:
+    def build_flake8_error(self, obj: Union[Fuss, NitpickError]) -> Flake8Error:
+        """Return a flake8 error from objects."""
+        if isinstance(obj, Fuss):
+            line = f"{FLAKE8_PREFIX}{obj.code:03} {obj.message}{obj.suggestion}"
+        elif isinstance(obj, NitpickError):
+            line = f"{FLAKE8_PREFIX}{obj.error_code:03} {obj.error_prefix}{obj.message.rstrip()}{obj.suggestion_nl}"
+        else:
+            line = ""
+        return (
+            0,
+            0,
+            line,
+            self.__class__,
+        )
+
+    def collect_errors(self) -> Iterator[NitpickError]:
         """Collect all possible Nitpick errors."""
         nit = Nitpick.singleton()
 
@@ -53,8 +69,7 @@ class NitpickFlake8Extension:
         except (NoRootDirError, NoPythonFileError) as err:
             # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
             #  then raise an error with them to interrupt execution and return
-            #  yield err.as_fuss
-            yield err
+            yield err  # make_error(no root/no python error??) or yield err.as_fuss
             return []
         logger.debug("Nitpicking file: {}", self.filename)
 
@@ -63,8 +78,7 @@ class NitpickFlake8Extension:
             has_errors = True
             # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
             #  then raise an error with them to interrupt execution and return
-            #  yield err.as_fuss
-            yield style_err
+            yield style_err  # make_error(style error??) or yield err.as_fuss
         if has_errors:
             return []
 
@@ -72,6 +86,7 @@ class NitpickFlake8Extension:
         return []
 
     @staticmethod
+    @lru_cache()  # To avoid calling this function twice in the same process
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(

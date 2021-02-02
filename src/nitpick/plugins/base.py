@@ -11,7 +11,7 @@ from identify import identify
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.exceptions import Deprecation, NitpickError, PluginError
+from nitpick.exceptions import CodeEnum, Deprecation, NitpickError, PluginError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
 from nitpick.project import Project
@@ -58,7 +58,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.data = data
         self.file_name = data.path_from_root
 
-        self.error_class.error_prefix = "File {}".format(self.file_name)
+        self.error_class.error_prefix = f"File {self.file_name}"
         self.file_path: Path = self.data.project.root / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
@@ -95,16 +95,24 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if suggestion:
                 phrases.append("Create it with this content:")
             joined_message = ". ".join(phrases)
-            # self.make_fuss(PredefinedCodes.CreateFile, joined_message, suggestion, 1) # add
+            # self.make_error(PredefinedCodes.CreateFile, joined_message, suggestion, 1) # add
             yield self.error_class(joined_message, suggestion, 1)
         elif not should_exist and file_exists:
             logger.info(f"{self}: File {self.file_name} exists when it should not")
             # Only display this message if the style is valid.
-            # self.make_fuss(PredefinedCodes.DeleteFile, number=1) # add
+            # self.make_error(PredefinedCodes.DeleteFile, number=1) # add
             yield self.error_class(" should be deleted", number=2)
         elif file_exists and config_data_exists:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
+
+    def make_error(self, item: CodeEnum, suggestion: str = "", **kwargs):
+        """Make an error."""  # FIXME[AA]: make a fuss
+        if kwargs:
+            formatted = item.message.format(**kwargs)
+        else:
+            formatted = item.message
+        return NitpickError(f"File {self.data.path_from_root}{formatted}", suggestion, item.code)
 
     @abc.abstractmethod
     def enforce_rules(self) -> Iterator[NitpickError]:
@@ -118,10 +126,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
         if comparison.missing_format:
-            # self.make_fuss(PredefinedCodes.HasMissingValues, add=8)
+            # self.make_error(PredefinedCodes.HasMissingValues, add=8)
             yield self.error_class(f"{prefix_message} has missing values:", comparison.missing_format.reformatted, 8)
         if comparison.diff_format:
-            # self.make_fuss(PredefinedCodes.HasDifferentValues, add=9)
+            # self.make_error(PredefinedCodes.HasDifferentValues, add=9)
             yield self.error_class(
                 f"{prefix_message} has different values. Use this:", comparison.diff_format.reformatted, 9
             )

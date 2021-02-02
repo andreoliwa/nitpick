@@ -45,7 +45,7 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
     """Handle pyproject.toml file."""
     if data.path_from_root == PYPROJECT_TOML:
         return PyProjectTomlPlugin(data)

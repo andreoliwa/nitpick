@@ -1,20 +1,13 @@
 """Nitpick exceptions."""
 import warnings
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict
 
 import click
 
 from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
-from nitpick.typedefs import Flake8Error
-
-"""
-make_fuss
-
-predefined or specific?
-add: bool
-"""
 
 
 @dataclass
@@ -28,6 +21,14 @@ class Fuss:
     code: int
     message: str
     suggestion: str = ""
+
+
+class CodeEnum(Enum):
+    """Base enum with codes and their messages."""
+
+    def __init__(self, code: int, message: str) -> None:
+        self.code = code
+        self.message = message
 
 
 class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting from Exception?
@@ -62,18 +63,6 @@ class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting fr
     def error_code(self) -> int:
         """Joined number, adding the base number with this class' number."""
         return self.error_base_number + self.number if self.add_to_base_number else self.number
-
-    @property
-    def as_flake8_error(self) -> Flake8Error:
-        """Return the error as a tuple to flake8."""
-        from nitpick.flake8 import NitpickFlake8Extension  # pylint: disable=import-outside-toplevel
-
-        return (
-            0,
-            0,
-            f"{FLAKE8_PREFIX}{self.error_code:03} {self.error_prefix}{self.message.rstrip()}{self.suggestion_nl}",
-            NitpickFlake8Extension,
-        )
 
     @property
     def pretty(self) -> str:
