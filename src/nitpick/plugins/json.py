@@ -6,7 +6,7 @@ from loguru import logger
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.exceptions import NitpickError
+from nitpick.exceptions import CodeEnum, NitpickError
 from nitpick.formats import JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
@@ -25,12 +25,6 @@ class JSONFileSchema(BaseNitpickSchema):
     contains_json = fields.Dict(fields.NonEmptyString, fields.JSONString)
 
 
-class JsonError(NitpickError):
-    """Base for JSON errors."""
-
-    error_base_number = 340
-
-
 class JSONPlugin(NitpickPlugin):
     """Enforce configurations for any JSON file.
 
@@ -38,12 +32,16 @@ class JSONPlugin(NitpickPlugin):
     Example: :ref:`the default config for package.json <default-package-json>`.
     """
 
-    error_class = JsonError
-
     validation_schema = JSONFileSchema
     identify_tags = {"json"}
+    error_base_code = 340
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
+
+    class Codes(CodeEnum):
+        """Error codes for this plugin."""
+
+        MissingKeys = (348, " has missing keys:")
 
     def enforce_rules(self) -> Iterator[NitpickError]:
         """Enforce rules for missing keys and JSON content."""
@@ -71,8 +69,7 @@ class JSONPlugin(NitpickPlugin):
         suggested_json = self.get_suggested_json(json_fmt.as_data)
         if not suggested_json:
             return
-        # self.make_error(self.Codes.HasMissingKeys, suggestion=JSONFormat(data=suggested_json).reformatted, add=8)
-        yield self.error_class(" has missing keys:", JSONFormat(data=suggested_json).reformatted, 8)
+        yield self.make_error(self.Codes.MissingKeys, JSONFormat(data=suggested_json).reformatted)
 
     def _check_contained_json(self) -> Iterator[NitpickError]:
         actual_fmt = JSONFormat(path=self.file_path)

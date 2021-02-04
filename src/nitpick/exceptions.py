@@ -26,15 +26,25 @@ class Fuss:
 class CodeEnum(Enum):
     """Base enum with codes and their messages."""
 
-    def __init__(self, code: int, message: str) -> None:
+    def __init__(self, code: int, message: str = "") -> None:
         self.code = code
         self.message = message
+
+
+class SharedCodes(CodeEnum):
+    """Shared error codes used by all plugins."""
+
+    CreateFile = (1, " was not found")
+    CreateFileWithSuggestion = (1, " was not found. Create it with this content:")
+    DeleteFile = (2, " should be deleted")
+    MissingValues = (8, "{prefix} has missing values:")
+    DifferentValues = (9, "{prefix} has different values. Use this:")
 
 
 class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting from Exception?
     """The base class for Nitpick exceptions."""
 
-    error_base_number: int = 0
+    error_base_code: int = 0
     error_prefix: str = ""
     message: str = ""
     number: int = 0
@@ -62,7 +72,7 @@ class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting fr
     @property
     def error_code(self) -> int:
         """Joined number, adding the base number with this class' number."""
-        return self.error_base_number + self.number if self.add_to_base_number else self.number
+        return self.error_base_code + self.number if self.add_to_base_number else self.number
 
     @property
     def pretty(self) -> str:
@@ -79,7 +89,7 @@ class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting fr
 class InitError(NitpickError):
     """Init errors."""
 
-    error_base_number = 100
+    error_base_code = 100
 
 
 class NoRootDirError(InitError):
@@ -115,7 +125,7 @@ class FileShouldBeDeletedError(InitError):
 class ConfigError(NitpickError):
     """Config error."""
 
-    error_base_number = 200
+    error_base_code = 200
 
 
 class MinimumVersionError(ConfigError):
@@ -137,12 +147,6 @@ class StyleError(NitpickError):
     def __init__(self, style_file_name: str, message: str = "", suggestion: str = "", **kwargs) -> None:
         message = f"File {style_file_name} has an incorrect style. {message}"
         super().__init__(message, suggestion, **kwargs)
-
-
-class PluginError(NitpickError):
-    """Base for plugin errors."""
-
-    error_base_number = 300
 
 
 class Deprecation:

@@ -72,7 +72,7 @@ class Nitpick:
                 if extra_message:
                     full_message += f": {extra_message}"
                 error_class = MissingFileError if present else FileShouldBeDeletedError
-                # self.make_error(PredefinedCodes.MissingFile if present else PredefinedCodes.FileShouldBeDeleted)
+                # FIXME[AA]: self.make_error(SharedCodes.MissingFile if present else SharedCodes.FileShouldBeDeleted)
                 yield error_class(full_message)
 
     def enforce_style(self):

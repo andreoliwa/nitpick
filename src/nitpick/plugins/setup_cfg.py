@@ -1,6 +1,5 @@
 """Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`."""
 from configparser import ConfigParser
-from enum import IntEnum
 from functools import lru_cache
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
@@ -8,26 +7,13 @@ from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 import dictdiffer
 
 from nitpick.constants import SETUP_CFG
-from nitpick.exceptions import NitpickError
+from nitpick.exceptions import CodeEnum, NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FileData, NitpickPlugin
 from nitpick.typedefs import mypy_property
 
-
-class ErrorCodes(IntEnum):
-    """Setup.cfg error codes."""
-
-    MissingSections = 1
-    MissingValues = 2
-    ActualExpected = 3
-    MissingKeyValuePairs = 4
-    InvalidCommaSeparatedValuesSection = 5
-
-
-class SetupCfgError(NitpickError):
-    """Base for setup.cfg errors."""
-
-    error_base_number = 320
+COMMA_SEPARATED_VALUES = "comma_separated_values"
+SECTION_SEPARATOR = "."
 
 
 class SetupCfgPlugin(NitpickPlugin):
@@ -37,18 +23,25 @@ class SetupCfgPlugin(NitpickPlugin):
     """
 
     file_name = SETUP_CFG
-    error_class = SetupCfgError
-    COMMA_SEPARATED_VALUES = "comma_separated_values"
-    SECTION_SEPARATOR = "."
+    error_base_code = 320
 
     expected_sections = set()  # type: Set[str]
     missing_sections = set()  # type: Set[str]
+
+    class Codes(CodeEnum):
+        """Error codes for this plugin."""
+
+        MissingSections = (321, " has some missing sections. Use this:")
+        MissingValues = (322, " has missing values in the {key!r} key. Include those values:")
+        ActualExpected = (323, ": [{section}]{key} is {actual} but it should be like this:")
+        MissingKeyValuePairs = (324, ": section [{section}] has some missing key/value pairs. Use this:")
+        InvalidCommaSeparatedValuesSection = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
 
     @mypy_property
     @lru_cache()
     def comma_separated_values(self) -> Set[str]:
         """Set of comma separated values."""
-        return set(self.nitpick_file_dict.get(self.COMMA_SEPARATED_VALUES, []))
+        return set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
@@ -80,15 +73,14 @@ class SetupCfgPlugin(NitpickPlugin):
         actual_sections = set(setup_cfg.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
-            yield self.error_class(" has some missing sections. Use this:", missing, ErrorCodes.MissingSections)
+            yield self.make_error(self.Codes.MissingSections, missing)
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
         missing_csv = csv_sections.difference(actual_sections)
         if missing_csv:
-            yield self.error_class(
-                f": invalid sections on {self.COMMA_SEPARATED_VALUES}:",
+            yield self.make_error(
+                self.Codes.InvalidCommaSeparatedValuesSection,
                 ", ".join(sorted(missing_csv)),
-                ErrorCodes.InvalidCommaSeparatedValuesSection,
             )
             return
 
@@ -112,11 +104,7 @@ class SetupCfgPlugin(NitpickPlugin):
             missing = expected_set - actual_set
             if missing:
                 joined = ",".join(sorted(missing))
-                yield SetupCfgError(
-                    f" has missing values in the {key!r} key. Include those values:",
-                    f"[{section}]\n{key} = (...),{joined}",
-                    ErrorCodes.MissingValues,
-                )
+                yield self.make_error(self.Codes.MissingValues, f"[{section}]\n{key} = (...),{joined}", key=key)
             return
 
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
@@ -127,10 +115,12 @@ class SetupCfgPlugin(NitpickPlugin):
             actual = raw_actual
             expected = raw_expected
         if actual != expected:
-            yield SetupCfgError(
-                f": [{section}]{key} is {raw_actual} but it should be like this:",
+            yield self.make_error(
+                self.Codes.ActualExpected,
                 f"[{section}]\n{key} = {raw_expected}",
-                ErrorCodes.ActualExpected,
+                section=section,
+                key=key,
+                actual=raw_actual,
             )
 
     def show_missing_keys(  # pylint: disable=unused-argument
@@ -140,11 +130,7 @@ class SetupCfgPlugin(NitpickPlugin):
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield SetupCfgError(
-            f": section [{section}] has some missing key/value pairs. Use this:",
-            output,
-            ErrorCodes.MissingKeyValuePairs,
-        )
+        yield self.make_error(self.Codes.MissingKeyValuePairs, output, section=section)
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:

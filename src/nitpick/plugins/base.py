@@ -3,7 +3,7 @@ import abc
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Optional, Set, Type
+from typing import Iterator, Optional, Set
 
 import jmespath
 from autorepr import autotext
@@ -11,7 +11,7 @@ from identify import identify
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.exceptions import CodeEnum, Deprecation, NitpickError, PluginError
+from nitpick.exceptions import CodeEnum, Deprecation, NitpickError, SharedCodes
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
 from nitpick.project import Project
@@ -43,7 +43,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     __str__, __unicode__ = autotext("{self.data.path_from_root} ({self.__class__.__name__})")
 
     file_name = ""  # TODO: remove file_name attribute after fixing dynamic/fixed schema loading
-    error_class: Type[NitpickError] = PluginError
+    error_base_code: int = 0
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
@@ -58,7 +58,6 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.data = data
         self.file_name = data.path_from_root
 
-        self.error_class.error_prefix = f"File {self.file_name}"
         self.file_path: Path = self.data.project.root / self.file_name
 
         # Configuration for this file as a TOML dict, taken from the style file.
@@ -88,20 +87,15 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             suggestion = self.suggest_initial_contents()
             if not suggestion and self.skip_empty_suggestion:
                 return
-            phrases = [" was not found"]
-            message = self.data.project.nitpick_files_section.get(self.file_name)
-            if message and isinstance(message, str):
-                phrases.append(message)
             if suggestion:
-                phrases.append("Create it with this content:")
-            joined_message = ". ".join(phrases)
-            # self.make_error(PredefinedCodes.CreateFile, joined_message, suggestion, 1) # add
-            yield self.error_class(joined_message, suggestion, 1)
+                yield self.make_error(SharedCodes.CreateFileWithSuggestion, suggestion)
+            else:
+                yield self.make_error(SharedCodes.CreateFile)
+
         elif not should_exist and file_exists:
             logger.info(f"{self}: File {self.file_name} exists when it should not")
             # Only display this message if the style is valid.
-            # self.make_error(PredefinedCodes.DeleteFile, number=1) # add
-            yield self.error_class(" should be deleted", number=2)
+            yield self.make_error(SharedCodes.DeleteFile)
         elif file_exists and config_data_exists:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
@@ -112,7 +106,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             formatted = item.message.format(**kwargs)
         else:
             formatted = item.message
-        return NitpickError(f"File {self.data.path_from_root}{formatted}", suggestion, item.code)
+        base = self.error_base_code if item.__class__ is SharedCodes else 0
+        return NitpickError(f"File {self.data.path_from_root}{formatted}", suggestion, base + item.code)
 
     @abc.abstractmethod
     def enforce_rules(self) -> Iterator[NitpickError]:
@@ -122,14 +117,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
 
-    def warn_missing_different(self, comparison: Comparison, prefix_message: str = "") -> Iterator[NitpickError]:
+    def warn_missing_different(self, comparison: Comparison, prefix: str = "") -> Iterator[NitpickError]:
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
         if comparison.missing_format:
-            # self.make_error(PredefinedCodes.HasMissingValues, add=8)
-            yield self.error_class(f"{prefix_message} has missing values:", comparison.missing_format.reformatted, 8)
+            yield self.make_error(SharedCodes.MissingValues, comparison.missing_format.reformatted, prefix=prefix)
         if comparison.diff_format:
-            # self.make_error(PredefinedCodes.HasDifferentValues, add=9)
-            yield self.error_class(
-                f"{prefix_message} has different values. Use this:", comparison.diff_format.reformatted, 9
-            )
+            yield self.make_error(SharedCodes.DifferentValues, comparison.diff_format.reformatted, prefix=prefix)

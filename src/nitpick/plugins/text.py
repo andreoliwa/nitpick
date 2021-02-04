@@ -5,7 +5,7 @@ from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
 
 from nitpick import fields
-from nitpick.exceptions import NitpickError
+from nitpick.exceptions import CodeEnum, NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FileData, NitpickPlugin
 from nitpick.schemas import help_message
@@ -27,12 +27,6 @@ class TextSchema(Schema):
     contains = fields.List(fields.Nested(TextItemSchema))
 
 
-class TextError(NitpickError):
-    """Base for text file errors."""
-
-    error_base_number = 350
-
-
 class TextPlugin(NitpickPlugin):
     """Enforce configuration on text files.
 
@@ -47,13 +41,19 @@ class TextPlugin(NitpickPlugin):
         line = "def"
     """
 
-    error_class = TextError
     identify_tags = {"text"}
     validation_schema = TextSchema
 
     #: All other files are also text files, and they already have a suggested content message
     # TODO: this is a hack to avoid rethinking the whole schema validation now (this will have to be done some day)
     skip_empty_suggestion = True
+
+    error_base_code = 350
+
+    class Codes(CodeEnum):
+        """Error codes for this plugin."""
+
+        MissingLines = (352, " has missing lines:")
 
     def _expected_lines(self):
         return [obj.get("line") for obj in self.file_dict.get("contains", {})]
@@ -68,7 +68,7 @@ class TextPlugin(NitpickPlugin):
         actual = OrderedSet(self.file_path.read_text().split("\n"))
         missing = expected - actual
         if missing:
-            yield TextError(" has missing lines:", "\n".join(sorted(missing)), 2)
+            yield self.make_error(self.Codes.MissingLines, "\n".join(sorted(missing)))
 
 
 @hookimpl

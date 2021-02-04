@@ -8,12 +8,6 @@ from nitpick.plugins import hookimpl
 from nitpick.plugins.base import FileData, NitpickPlugin
 
 
-class PyProjectTomlError(NitpickError):
-    """Base for pyproject.toml errors."""
-
-    error_base_number = 310
-
-
 class PyProjectTomlPlugin(NitpickPlugin):
     """Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
@@ -24,7 +18,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
     """
 
     file_name = PYPROJECT_TOML
-    error_class = PyProjectTomlError
+    error_base_code = 310
 
     def enforce_rules(self) -> Iterator[NitpickError]:
         """Enforce rules for missing key/value pairs in pyproject.toml."""

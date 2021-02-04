@@ -59,12 +59,6 @@ class PreCommitHook:
         return OrderedDict(hooks)
 
 
-class PreCommitError(NitpickError):  # FIXME[AA]: kill
-    """Base for pre-commit errors."""
-
-    error_base_number = 330
-
-
 class PreCommitPlugin(NitpickPlugin):
     """Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
 
@@ -72,7 +66,7 @@ class PreCommitPlugin(NitpickPlugin):
     """
 
     file_name = PRE_COMMIT_CONFIG_YAML
-    error_class = PreCommitError
+    error_base_code = 330
 
     actual_yaml: YAMLFormat
     actual_hooks: Dict[str, PreCommitHook] = OrderedDict()
