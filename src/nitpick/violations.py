@@ -11,24 +11,20 @@ from nitpick.plugins.data import FileData
 class ViolationEnum(Enum):
     """Base enum with violation codes and messages."""
 
-    def __init__(self, code: int, message: str = "") -> None:  # FIXME[AA]: add_to_base=False
+    def __init__(self, code: int, message: str = "", add_to_base=False) -> None:
         self.code = code
         self.message = message
+        self.add_code = add_to_base
 
 
 class SharedViolations(ViolationEnum):
     """Shared violations used by all plugins."""
 
-    CreateFile = (1, " was not found")
-    CreateFileWithSuggestion = (1, " was not found. Create it with this content:")
-    DeleteFile = (2, " should be deleted")
-    MissingValues = (8, "{prefix} has missing values:")
-    DifferentValues = (9, "{prefix} has different values. Use this:")
-
-
-class BasicViolations(ViolationEnum):
-    """Basic violations (root dir, Python files, present/absent files)."""
-
+    CreateFile = (1, " was not found", True)
+    CreateFileWithSuggestion = (1, " was not found. Create it with this content:", True)
+    DeleteFile = (2, " should be deleted", True)
+    MissingValues = (8, "{prefix} has missing values:", True)
+    DifferentValues = (9, "{prefix} has different values. Use this:", True)
     MissingFile = (103, " should exist{extra}")
     FileShouldBeDeleted = (104, " should be deleted{extra}")
 
@@ -48,5 +44,5 @@ class Reporter:  # pylint: disable=too-few-public-methods
             formatted = violation.message.format(**kwargs)
         else:
             formatted = violation.message
-        base = self.violation_base_code if violation.__class__ is SharedViolations else 0
+        base = self.violation_base_code if violation.add_code else 0
         return NitpickError(f"File {self.data.path_from_root}{formatted}", suggestion, base + violation.code)

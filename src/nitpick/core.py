@@ -10,7 +10,7 @@ from nitpick import PROJECT_NAME
 from nitpick.exceptions import NitpickError
 from nitpick.plugins.data import FileData
 from nitpick.project import Project
-from nitpick.violations import BasicViolations, Reporter
+from nitpick.violations import Reporter, SharedViolations
 
 
 class Nitpick:
@@ -71,7 +71,7 @@ class Nitpick:
                 reporter = Reporter(FileData.create(self.project, filename))
 
                 extra = f": {custom_message}" if custom_message else ""
-                violation = BasicViolations.MissingFile if present else BasicViolations.FileShouldBeDeleted
+                violation = SharedViolations.MissingFile if present else SharedViolations.FileShouldBeDeleted
                 yield reporter.make_error(violation, extra=extra)
 
     def enforce_style(self):
