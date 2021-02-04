@@ -1,0 +1,27 @@
+"""Data needed by the plugins."""
+from dataclasses import dataclass
+from typing import Set
+
+from identify import identify
+
+from nitpick.exceptions import Deprecation
+from nitpick.project import Project
+
+
+@dataclass
+class FileData:
+    """File information needed by the plugin."""
+
+    project: Project
+    path_from_root: str
+    tags: Set[str]
+
+    @classmethod
+    def create(cls, project: Project, path_from_root: str) -> "FileData":
+        """Clean the file name and get its tags."""
+        if Deprecation.pre_commit_without_dash(path_from_root):
+            clean_path = "." + path_from_root
+        else:
+            clean_path = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
+        tags = set(identify.tags_from_filename(clean_path))
+        return cls(project, clean_path, tags)

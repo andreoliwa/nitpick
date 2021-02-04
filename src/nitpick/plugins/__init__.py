@@ -12,7 +12,8 @@ import pluggy
 from nitpick.constants import PROJECT_NAME
 
 if TYPE_CHECKING:
-    from nitpick.plugins.base import FileData, NitpickPlugin
+    from nitpick.plugins.base import NitpickPlugin
+    from nitpick.plugins.data import FileData
 
 hookspec = pluggy.HookspecMarker(PROJECT_NAME)
 hookimpl = pluggy.HookimplMarker(PROJECT_NAME)

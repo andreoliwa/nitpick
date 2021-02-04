@@ -7,13 +7,25 @@ from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 import dictdiffer
 
 from nitpick.constants import SETUP_CFG
-from nitpick.exceptions import CodeEnum, NitpickError
+from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FileData, NitpickPlugin
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.data import FileData
 from nitpick.typedefs import mypy_property
+from nitpick.violations import ViolationEnum
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"
 SECTION_SEPARATOR = "."
+
+
+class Violations(ViolationEnum):
+    """Violations for this plugin."""
+
+    MissingSections = (321, " has some missing sections. Use this:")
+    MissingValues = (322, " has missing values in the {key!r} key. Include those values:")
+    KeyHasDifferentValue = (323, ": [{section}]{key} is {actual} but it should be like this:")
+    MissingKeyValuePairs = (324, ": section [{section}] has some missing key/value pairs. Use this:")
+    InvalidCommaSeparatedValuesSection = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
 
 
 class SetupCfgPlugin(NitpickPlugin):
@@ -23,19 +35,10 @@ class SetupCfgPlugin(NitpickPlugin):
     """
 
     file_name = SETUP_CFG
-    error_base_code = 320
+    violation_base_code = 320
 
     expected_sections = set()  # type: Set[str]
     missing_sections = set()  # type: Set[str]
-
-    class Codes(CodeEnum):
-        """Error codes for this plugin."""
-
-        MissingSections = (321, " has some missing sections. Use this:")
-        MissingValues = (322, " has missing values in the {key!r} key. Include those values:")
-        ActualExpected = (323, ": [{section}]{key} is {actual} but it should be like this:")
-        MissingKeyValuePairs = (324, ": section [{section}] has some missing key/value pairs. Use this:")
-        InvalidCommaSeparatedValuesSection = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
 
     @mypy_property
     @lru_cache()
@@ -73,14 +76,13 @@ class SetupCfgPlugin(NitpickPlugin):
         actual_sections = set(setup_cfg.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
-            yield self.make_error(self.Codes.MissingSections, missing)
+            yield self.reporter.make_error(Violations.MissingSections, missing)
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
         missing_csv = csv_sections.difference(actual_sections)
         if missing_csv:
-            yield self.make_error(
-                self.Codes.InvalidCommaSeparatedValuesSection,
-                ", ".join(sorted(missing_csv)),
+            yield self.reporter.make_error(
+                Violations.InvalidCommaSeparatedValuesSection, ", ".join(sorted(missing_csv))
             )
             return
 
@@ -104,7 +106,9 @@ class SetupCfgPlugin(NitpickPlugin):
             missing = expected_set - actual_set
             if missing:
                 joined = ",".join(sorted(missing))
-                yield self.make_error(self.Codes.MissingValues, f"[{section}]\n{key} = (...),{joined}", key=key)
+                yield self.reporter.make_error(
+                    Violations.MissingValues, f"[{section}]\n{key} = (...),{joined}", key=key
+                )
             return
 
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
@@ -115,8 +119,8 @@ class SetupCfgPlugin(NitpickPlugin):
             actual = raw_actual
             expected = raw_expected
         if actual != expected:
-            yield self.make_error(
-                self.Codes.ActualExpected,
+            yield self.reporter.make_error(
+                Violations.KeyHasDifferentValue,
                 f"[{section}]\n{key} = {raw_expected}",
                 section=section,
                 key=key,
@@ -130,7 +134,7 @@ class SetupCfgPlugin(NitpickPlugin):
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield self.make_error(self.Codes.MissingKeyValuePairs, output, section=section)
+        yield self.reporter.make_error(Violations.MissingKeyValuePairs, output, section=section)
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:

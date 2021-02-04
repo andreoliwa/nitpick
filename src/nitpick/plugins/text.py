@@ -5,10 +5,12 @@ from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
 
 from nitpick import fields
-from nitpick.exceptions import CodeEnum, NitpickError
+from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FileData, NitpickPlugin
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.data import FileData
 from nitpick.schemas import help_message
+from nitpick.violations import ViolationEnum
 
 TEXT_FILE_RTFD_PAGE = "plugins.html#text-files"
 
@@ -25,6 +27,12 @@ class TextSchema(Schema):
 
     error_messages = {"unknown": help_message("Unknown configuration", TEXT_FILE_RTFD_PAGE)}
     contains = fields.List(fields.Nested(TextItemSchema))
+
+
+class Violations(ViolationEnum):
+    """Violations for this plugin."""
+
+    MissingLines = (352, " has missing lines:")
 
 
 class TextPlugin(NitpickPlugin):
@@ -48,12 +56,7 @@ class TextPlugin(NitpickPlugin):
     # TODO: this is a hack to avoid rethinking the whole schema validation now (this will have to be done some day)
     skip_empty_suggestion = True
 
-    error_base_code = 350
-
-    class Codes(CodeEnum):
-        """Error codes for this plugin."""
-
-        MissingLines = (352, " has missing lines:")
+    violation_base_code = 350
 
     def _expected_lines(self):
         return [obj.get("line") for obj in self.file_dict.get("contains", {})]
@@ -68,7 +71,7 @@ class TextPlugin(NitpickPlugin):
         actual = OrderedSet(self.file_path.read_text().split("\n"))
         missing = expected - actual
         if missing:
-            yield self.make_error(self.Codes.MissingLines, "\n".join(sorted(missing)))
+            yield self.reporter.make_error(Violations.MissingLines, "\n".join(sorted(missing)))
 
 
 @hookimpl

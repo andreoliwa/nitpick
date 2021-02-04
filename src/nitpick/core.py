@@ -8,7 +8,7 @@ from loguru import logger
 
 from nitpick import PROJECT_NAME
 from nitpick.exceptions import FileShouldBeDeletedError, MissingFileError, NitpickError
-from nitpick.plugins.base import FileData
+from nitpick.plugins.data import FileData
 from nitpick.project import Project
 
 

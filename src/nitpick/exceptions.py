@@ -1,7 +1,6 @@
 """Nitpick exceptions."""
 import warnings
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from typing import Any, Dict
 
@@ -23,28 +22,10 @@ class Fuss:
     suggestion: str = ""
 
 
-class CodeEnum(Enum):
-    """Base enum with codes and their messages."""
-
-    def __init__(self, code: int, message: str = "") -> None:
-        self.code = code
-        self.message = message
-
-
-class SharedCodes(CodeEnum):
-    """Shared error codes used by all plugins."""
-
-    CreateFile = (1, " was not found")
-    CreateFileWithSuggestion = (1, " was not found. Create it with this content:")
-    DeleteFile = (2, " should be deleted")
-    MissingValues = (8, "{prefix} has missing values:")
-    DifferentValues = (9, "{prefix} has different values. Use this:")
-
-
 class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting from Exception?
     """The base class for Nitpick exceptions."""
 
-    error_base_code: int = 0
+    violation_base_code: int = 0
     error_prefix: str = ""
     message: str = ""
     number: int = 0
@@ -72,7 +53,7 @@ class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting fr
     @property
     def error_code(self) -> int:
         """Joined number, adding the base number with this class' number."""
-        return self.error_base_code + self.number if self.add_to_base_number else self.number
+        return self.violation_base_code + self.number if self.add_to_base_number else self.number
 
     @property
     def pretty(self) -> str:
@@ -89,7 +70,7 @@ class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting fr
 class InitError(NitpickError):
     """Init errors."""
 
-    error_base_code = 100
+    violation_base_code = 100
 
 
 class NoRootDirError(InitError):
@@ -125,7 +106,7 @@ class FileShouldBeDeletedError(InitError):
 class ConfigError(NitpickError):
     """Config error."""
 
-    error_base_code = 200
+    violation_base_code = 200
 
 
 class MinimumVersionError(ConfigError):

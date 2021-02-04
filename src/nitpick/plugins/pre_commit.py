@@ -5,12 +5,14 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
 import attr
 
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
-from nitpick.exceptions import CodeEnum, NitpickError
+from nitpick.exceptions import NitpickError
 from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FileData, NitpickPlugin
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.data import FileData
 from nitpick.typedefs import JsonDict, YamlData
+from nitpick.violations import ViolationEnum
 
 KEY_REPOS = "repos"
 KEY_HOOKS = "hooks"
@@ -59,6 +61,19 @@ class PreCommitHook:
         return OrderedDict(hooks)
 
 
+class Violations(ViolationEnum):
+    """Violations for this plugin."""
+
+    NoRootKey = (331, f" doesn't have the {KEY_REPOS!r} root key")
+    HookNotFound = (332, ": hook {id!r} not found. Use this:")
+    StyleMissingIndex = (332, ": style file is missing {key!r} key in repo #{index}")
+    RepoDoesNotExist = (333, ": repo {repo!r} does not exist under {key!r}")
+    MissingKeyInRepo = (334, ": missing {key!r} in repo {repo!r}")
+    StyleFileMissingName = (335, ": style file is missing {key!r} in repo {repo!r}")
+    MissingKeyInHook = (336, ": style file is missing {key!r} in hook:\n{yaml}")
+    MissingHookWithID = (337, ": missing hook with id {id!r}:\n{yaml}")
+
+
 class PreCommitPlugin(NitpickPlugin):
     """Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
 
@@ -66,24 +81,12 @@ class PreCommitPlugin(NitpickPlugin):
     """
 
     file_name = PRE_COMMIT_CONFIG_YAML
-    error_base_code = 330
+    violation_base_code = 330
 
     actual_yaml: YAMLFormat
     actual_hooks: Dict[str, PreCommitHook] = OrderedDict()
     actual_hooks_by_key: Dict[str, int] = {}
     actual_hooks_by_index: List[str] = []
-
-    class Codes(CodeEnum):
-        """Error codes for this plugin."""
-
-        NoRootKey = (331, f" doesn't have the {KEY_REPOS!r} root key")
-        HookNotFound = (332, ": hook {id!r} not found. Use this:")
-        StyleMissingIndex = (332, ": style file is missing {key!r} key in repo #{index}")
-        RepoDoesNotExist = (333, ": repo {repo!r} does not exist under {key!r}")
-        MissingKeyInRepo = (334, ": missing {key!r} in repo {repo!r}")
-        StyleFileMissingName = (335, ": style file is missing {key!r} in repo {repo!r}")
-        MissingKeyInHook = (336, ": style file is missing {key!r} in hook:\n{yaml}")
-        MissingHookWithID = (337, ": missing hook with id {id!r}:\n{yaml}")
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
@@ -109,7 +112,7 @@ class PreCommitPlugin(NitpickPlugin):
         if KEY_REPOS not in self.actual_yaml.as_data:
             # TODO: if the 'repos' key doesn't exist, assume repos are in the root of the .yml file
             #  Having the 'repos' key is not actually a requirement. 'pre-commit-validate-config' works without it.
-            yield self.make_error(self.Codes.NoRootKey)
+            yield self.reporter.make_error(Violations.NoRootKey)
             return
 
         # Check the root values in the configuration file
@@ -140,8 +143,8 @@ class PreCommitPlugin(NitpickPlugin):
             if unique_key not in self.actual_hooks:
                 # self.make_error(self.Codes.HookNotFound, message=f": hook {hook.hook_id!r} not found. Use this:",
                 #  suggestion=YAMLFormat(data=hook.yaml.as_data).reformatted)
-                yield self.make_error(
-                    self.Codes.HookNotFound, YAMLFormat(data=hook.yaml.as_data).reformatted, id=hook.hook_id
+                yield self.reporter.make_error(
+                    Violations.HookNotFound, YAMLFormat(data=hook.yaml.as_data).reformatted, id=hook.hook_id
                 )
                 continue
 
@@ -161,22 +164,22 @@ class PreCommitPlugin(NitpickPlugin):
         repo_name = repo_data.get(KEY_REPO)
 
         if not repo_name:
-            yield self.make_error(self.Codes.StyleMissingIndex, key=KEY_REPO, index=index)
+            yield self.reporter.make_error(Violations.StyleMissingIndex, key=KEY_REPO, index=index)
             return
 
         actual_repo_dict = find_object_by_key(actual, KEY_REPO, repo_name)
         if not actual_repo_dict:
-            yield self.make_error(self.Codes.RepoDoesNotExist, repo=repo_name, key=KEY_REPOS)
+            yield self.reporter.make_error(Violations.RepoDoesNotExist, repo=repo_name, key=KEY_REPOS)
             return
 
         if KEY_HOOKS not in actual_repo_dict:
-            yield self.make_error(self.Codes.MissingKeyInRepo, key=KEY_HOOKS, repo=repo_name)
+            yield self.reporter.make_error(Violations.MissingKeyInRepo, key=KEY_HOOKS, repo=repo_name)
             return
 
         actual_hooks = actual_repo_dict.get(KEY_HOOKS) or []
         yaml_expected_hooks = repo_data.get(KEY_HOOKS)
         if not yaml_expected_hooks:
-            yield self.make_error(self.Codes.StyleFileMissingName, key=KEY_HOOKS, repo=repo_name)
+            yield self.reporter.make_error(Violations.StyleFileMissingName, key=KEY_HOOKS, repo=repo_name)
             return
 
         expected_hooks = YAMLFormat(string=yaml_expected_hooks).as_data
@@ -184,12 +187,12 @@ class PreCommitPlugin(NitpickPlugin):
             hook_id = expected_dict.get(KEY_ID)
             if not hook_id:
                 expected_yaml = self.format_hook(expected_dict)
-                yield self.make_error(self.Codes.MissingKeyInHook, key=KEY_ID, yaml=expected_yaml)
+                yield self.reporter.make_error(Violations.MissingKeyInHook, key=KEY_ID, yaml=expected_yaml)
                 continue
             actual_dict = find_object_by_key(actual_hooks, KEY_ID, hook_id)
             if not actual_dict:
                 expected_yaml = self.format_hook(expected_dict)
-                yield self.make_error(self.Codes.MissingHookWithID, id=hook_id, yaml=expected_yaml)
+                yield self.reporter.make_error(Violations.MissingHookWithID, id=hook_id, yaml=expected_yaml)
                 continue
 
     @staticmethod

@@ -29,7 +29,8 @@ from nitpick.constants import (
 from nitpick.exceptions import Deprecation, NitpickError, StyleError, pretty_exception
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
-from nitpick.plugins.base import FileData, NitpickPlugin
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.data import FileData
 from nitpick.project import Project, climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList, mypy_property

@@ -1,40 +1,20 @@
 """Base class for file checkers."""
 import abc
-from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Optional, Set
+from typing import Iterator, Optional, Set, Type
 
 import jmespath
 from autorepr import autotext
-from identify import identify
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.exceptions import CodeEnum, Deprecation, NitpickError, SharedCodes
+from nitpick.exceptions import NitpickError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
-from nitpick.project import Project
+from nitpick.plugins.data import FileData
 from nitpick.typedefs import JsonDict, mypy_property
-
-
-@dataclass
-class FileData:
-    """File information needed by the plugin."""
-
-    project: Project
-    path_from_root: str
-    tags: Set[str]
-
-    @classmethod
-    def create(cls, project: Project, path_from_root: str) -> "FileData":
-        """Clean the file name and get its tags."""
-        if Deprecation.pre_commit_without_dash(path_from_root):
-            clean_path = "." + path_from_root
-        else:
-            clean_path = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
-        tags = set(identify.tags_from_filename(clean_path))
-        return cls(project, clean_path, tags)
+from nitpick.violations import Reporter, SharedViolations, ViolationEnum
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):
@@ -43,7 +23,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     __str__, __unicode__ = autotext("{self.data.path_from_root} ({self.__class__.__name__})")
 
     file_name = ""  # TODO: remove file_name attribute after fixing dynamic/fixed schema loading
-    error_base_code: int = 0
+    violation_base_code: int = 0
+    error_codes: Optional[Type[ViolationEnum]] = None
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
@@ -57,6 +38,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     def __init__(self, data: FileData) -> None:
         self.data = data
         self.file_name = data.path_from_root
+        self.reporter = Reporter(data, self.violation_base_code)
 
         self.file_path: Path = self.data.project.root / self.file_name
 
@@ -88,26 +70,17 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if not suggestion and self.skip_empty_suggestion:
                 return
             if suggestion:
-                yield self.make_error(SharedCodes.CreateFileWithSuggestion, suggestion)
+                yield self.reporter.make_error(SharedViolations.CreateFileWithSuggestion, suggestion)
             else:
-                yield self.make_error(SharedCodes.CreateFile)
+                yield self.reporter.make_error(SharedViolations.CreateFile)
 
         elif not should_exist and file_exists:
             logger.info(f"{self}: File {self.file_name} exists when it should not")
             # Only display this message if the style is valid.
-            yield self.make_error(SharedCodes.DeleteFile)
+            yield self.reporter.make_error(SharedViolations.DeleteFile)
         elif file_exists and config_data_exists:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
-
-    def make_error(self, item: CodeEnum, suggestion: str = "", **kwargs):
-        """Make an error."""  # FIXME[AA]: make a fuss
-        if kwargs:
-            formatted = item.message.format(**kwargs)
-        else:
-            formatted = item.message
-        base = self.error_base_code if item.__class__ is SharedCodes else 0
-        return NitpickError(f"File {self.data.path_from_root}{formatted}", suggestion, base + item.code)
 
     @abc.abstractmethod
     def enforce_rules(self) -> Iterator[NitpickError]:
@@ -121,6 +94,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
         if comparison.missing_format:
-            yield self.make_error(SharedCodes.MissingValues, comparison.missing_format.reformatted, prefix=prefix)
+            yield self.reporter.make_error(
+                SharedViolations.MissingValues, comparison.missing_format.reformatted, prefix=prefix
+            )
         if comparison.diff_format:
-            yield self.make_error(SharedCodes.DifferentValues, comparison.diff_format.reformatted, prefix=prefix)
+            yield self.reporter.make_error(
+                SharedViolations.DifferentValues, comparison.diff_format.reformatted, prefix=prefix
+            )

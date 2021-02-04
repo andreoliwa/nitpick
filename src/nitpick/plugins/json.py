@@ -6,13 +6,15 @@ from loguru import logger
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.exceptions import CodeEnum, NitpickError
+from nitpick.exceptions import NitpickError
 from nitpick.formats import JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FileData, NitpickPlugin
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.data import FileData
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict
+from nitpick.violations import ViolationEnum
 
 KEY_CONTAINS_KEYS = "contains_keys"
 KEY_CONTAINS_JSON = "contains_json"
@@ -25,6 +27,12 @@ class JSONFileSchema(BaseNitpickSchema):
     contains_json = fields.Dict(fields.NonEmptyString, fields.JSONString)
 
 
+class Violations(ViolationEnum):
+    """Violations for this plugin."""
+
+    MissingKeys = (348, " has missing keys:")
+
+
 class JSONPlugin(NitpickPlugin):
     """Enforce configurations for any JSON file.
 
@@ -34,16 +42,9 @@ class JSONPlugin(NitpickPlugin):
 
     validation_schema = JSONFileSchema
     identify_tags = {"json"}
-    error_base_code = 340
-    # FIXME[AA]: reporter = Reporter(340, JsonCodes: CodeEnum)
-    #  self.reporter.make_error(...)
+    violation_base_code = 340
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
-
-    class Codes(CodeEnum):
-        """Error codes for this plugin."""
-
-        MissingKeys = (348, " has missing keys:")
 
     def enforce_rules(self) -> Iterator[NitpickError]:
         """Enforce rules for missing keys and JSON content."""
@@ -71,7 +72,7 @@ class JSONPlugin(NitpickPlugin):
         suggested_json = self.get_suggested_json(json_fmt.as_data)
         if not suggested_json:
             return
-        yield self.make_error(self.Codes.MissingKeys, JSONFormat(data=suggested_json).reformatted)
+        yield self.reporter.make_error(Violations.MissingKeys, JSONFormat(data=suggested_json).reformatted)
 
     def _check_contained_json(self) -> Iterator[NitpickError]:
         actual_fmt = JSONFormat(path=self.file_path)
