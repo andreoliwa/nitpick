@@ -3,9 +3,12 @@
 Name inspired by `flake8's violations <https://flake8.pycqa.org/en/latest/user/error-codes.html>`_.
 """
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from nitpick.exceptions import NitpickError
-from nitpick.plugins.data import FileData
+
+if TYPE_CHECKING:
+    from nitpick.plugins.data import FileData
 
 
 class ViolationEnum(Enum):
@@ -27,6 +30,10 @@ class SharedViolations(ViolationEnum):
     DifferentValues = (9, "{prefix} has different values. Use this:", True)
     MissingFile = (103, " should exist{extra}")
     FileShouldBeDeleted = (104, " should be deleted{extra}")
+    MinimumVersion = (
+        203,
+        ": the style file you're using requires {project}>={expected} (you have {actual}). Please upgrade",
+    )
 
 
 # TODO: the Reporter class should track a global list of codes with __new__(),
@@ -34,7 +41,7 @@ class SharedViolations(ViolationEnum):
 class Reporter:  # pylint: disable=too-few-public-methods
     """Error reporter."""
 
-    def __init__(self, data: FileData, violation_base_code: int = 0) -> None:
+    def __init__(self, data: "FileData", violation_base_code: int = 0) -> None:
         self.data = data
         self.violation_base_code = violation_base_code
 

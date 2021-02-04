@@ -180,7 +180,7 @@ def test_minimum_version(mocked_version, offline, request):
     ).simulate_run(
         offline=offline
     ).assert_single_error(
-        "NIP203 The style file you're using requires nitpick>=1.0 (you have 0.5.3). Please upgrade"
+        "NIP203 File pyproject.toml: the style file you're using requires nitpick>=1.0 (you have 0.5.3). Please upgrade"
     )
 
 

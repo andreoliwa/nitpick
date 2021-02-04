@@ -21,11 +21,12 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.exceptions import MinimumVersionError, NitpickError, NoPythonFileError, NoRootDirError, StyleError
+from nitpick.exceptions import NitpickError, NoPythonFileError, NoRootDirError, StyleError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, mypy_property
+from nitpick.violations import Reporter, SharedViolations
 
 
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Set[Path]:  # TODO: add unit test
@@ -190,7 +191,8 @@ class Project:
             yield err  # make_error(style error??) or yield err.as_fuss
             return
 
-        from nitpick.style import Style  # pylint: disable=import-outside-toplevel
+        # pylint: disable=import-outside-toplevel
+        from nitpick.style import Style
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
         style = Style(self, self.plugin_manager, offline)
@@ -198,13 +200,19 @@ class Project:
 
         self.style_dict = style.merge_toml_dict()
 
-        from nitpick.flake8 import NitpickFlake8Extension  # pylint: disable=import-outside-toplevel
+        from nitpick.flake8 import NitpickFlake8Extension
+        from nitpick.plugins.data import FileData
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         logger.info(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
-            # self.make_error(Predefined.MinimumVersion, minimum_version, NitpickFlake8Extension.version)
-            yield MinimumVersionError(minimum_version, NitpickFlake8Extension.version)
+            reporter = Reporter(FileData.create(self, PYPROJECT_TOML))
+            yield reporter.make_error(
+                SharedViolations.MinimumVersion,
+                project=PROJECT_NAME,
+                expected=minimum_version,
+                actual=NitpickFlake8Extension.version,
+            )
 
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})

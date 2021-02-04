@@ -13,7 +13,7 @@ from nitpick import __version__
 from nitpick.cli import NitpickFlag
 from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.core import Nitpick
-from nitpick.exceptions import Fuss, InitError, NitpickError, NoPythonFileError, NoRootDirError
+from nitpick.exceptions import Fuss, NitpickError, NoPythonFileError, NoRootDirError
 from nitpick.typedefs import Flake8Error
 
 
@@ -24,10 +24,6 @@ class NitpickFlake8Extension:
     # Plugin config
     name = PROJECT_NAME
     version = __version__
-
-    # NitpickMixin
-    error_class = InitError
-    # FIXME[AA]: reporter = Reporter(100, InitCodes: CodeEnum)
 
     # Plugin arguments passed by Flake8
     tree = attr.ib(default=None)
@@ -53,6 +49,7 @@ class NitpickFlake8Extension:
         nit = Nitpick.singleton()
 
         current_python_file = Path(self.filename)
+        # FIXME[AA]: reporter = Reporter(100, InitCodes: CodeEnum)
         try:
             if not nit.project:
                 raise NoRootDirError
