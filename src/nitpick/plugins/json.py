@@ -35,6 +35,8 @@ class JSONPlugin(NitpickPlugin):
     validation_schema = JSONFileSchema
     identify_tags = {"json"}
     error_base_code = 340
+    # FIXME[AA]: reporter = Reporter(340, JsonCodes: CodeEnum)
+    #  self.reporter.make_error(...)
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
 

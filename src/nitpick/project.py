@@ -89,7 +89,9 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
 
     if not root_dirs:
         logger.error(f"No files found while climbing directory tree from {starting_file}")
-        raise NoRootDirError()
+        raise NoRootDirError
+        # FIXME[AA]: raise StopExecution(InitCodes.NoRootDir)
+        #  or self.reporter.raise_error(InitCodes.NoRootDir)
 
     # If multiple roots are found, get the top one (grandparent dir)
     top_dir = sorted(root_dirs)[0]
@@ -148,6 +150,8 @@ class Project:
                 return Path(the_file)
 
         raise NoPythonFileError(self.root)
+        # FIXME[AA]: raise StopExecution(InitCodes.NoPythonFile)
+        #  or self.reporter.stop_execution(InitCodes.NoPythonFile, root=self.root)
 
     @mypy_property
     @lru_cache()
