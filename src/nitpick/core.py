@@ -7,9 +7,10 @@ from typing import Iterator, Union
 from loguru import logger
 
 from nitpick import PROJECT_NAME
-from nitpick.exceptions import FileShouldBeDeletedError, MissingFileError, NitpickError
+from nitpick.exceptions import NitpickError
 from nitpick.plugins.data import FileData
 from nitpick.project import Project
+from nitpick.violations import BasicViolations, Reporter
 
 
 class Nitpick:
@@ -60,20 +61,18 @@ class Nitpick:
         for present in (True, False):
             key = "present" if present else "absent"
             logger.info(f"Enforce {key} files")
-            message = "exist" if present else "be deleted"
             absent = not present
-            for file_name, extra_message in self.project.nitpick_files_section.get(key, {}).items():
-                file_path: Path = self.project.root / file_name
+            for filename, custom_message in self.project.nitpick_files_section.get(key, {}).items():
+                file_path: Path = self.project.root / filename
                 exists = file_path.exists()
                 if (present and exists) or (absent and not exists):
                     continue
 
-                full_message = f"File {file_name} should {message}"
-                if extra_message:
-                    full_message += f": {extra_message}"
-                error_class = MissingFileError if present else FileShouldBeDeletedError
-                # FIXME[AA]: self.make_error(SharedCodes.MissingFile if present else SharedCodes.FileShouldBeDeleted)
-                yield error_class(full_message)
+                reporter = Reporter(FileData.create(self.project, filename))
+
+                extra = f": {custom_message}" if custom_message else ""
+                violation = BasicViolations.MissingFile if present else BasicViolations.FileShouldBeDeleted
+                yield reporter.make_error(violation, extra=extra)
 
     def enforce_style(self):
         """Read the merged style and enforce the rules in it.

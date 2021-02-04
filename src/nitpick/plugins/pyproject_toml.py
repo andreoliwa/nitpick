@@ -18,7 +18,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
     There are many other examples in :ref:`defaults`.
     """
 
-    file_name = PYPROJECT_TOML
+    filename = PYPROJECT_TOML
     violation_base_code = 310
 
     def enforce_rules(self) -> Iterator[NitpickError]:

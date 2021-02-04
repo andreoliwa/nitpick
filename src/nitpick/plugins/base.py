@@ -22,7 +22,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     __str__, __unicode__ = autotext("{self.data.path_from_root} ({self.__class__.__name__})")
 
-    file_name = ""  # TODO: remove file_name attribute after fixing dynamic/fixed schema loading
+    filename = ""  # TODO: remove filename attribute after fixing dynamic/fixed schema loading
     violation_base_code: int = 0
     error_codes: Optional[Type[ViolationEnum]] = None
 
@@ -37,10 +37,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     def __init__(self, data: FileData) -> None:
         self.data = data
-        self.file_name = data.path_from_root
+        self.filename = data.path_from_root
         self.reporter = Reporter(data, self.violation_base_code)
 
-        self.file_path: Path = self.data.project.root / self.file_name
+        self.file_path: Path = self.data.project.root / self.filename
 
         # Configuration for this file as a TOML dict, taken from the style file.
         self.file_dict: JsonDict = {}
@@ -49,23 +49,23 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
-        return search_dict(f'files."{self.file_name}"', self.data.project.nitpick_section, {})
+        return search_dict(f'files."{self.filename}"', self.data.project.nitpick_section, {})
 
     @classmethod
-    def get_compiled_jmespath_file_names(cls):
+    def get_compiled_jmespath_filenames(cls):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
-        return jmespath.compile(f"nitpick.{cls.__name__}.file_names")
+        return jmespath.compile(f"nitpick.{cls.__name__}.filenames")
 
     def entry_point(self, config: JsonDict) -> Iterator[NitpickError]:
         """Entry point of the Nitpick plugin."""
         self.file_dict = config or {}
 
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-        should_exist: bool = self.data.project.nitpick_files_section.get(self.file_name, True)
+        should_exist: bool = self.data.project.nitpick_files_section.get(self.filename, True)
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
-            logger.info(f"{self}: Suggest initial contents for {self.file_name}")
+            logger.info(f"{self}: Suggest initial contents for {self.filename}")
             suggestion = self.suggest_initial_contents()
             if not suggestion and self.skip_empty_suggestion:
                 return
@@ -75,7 +75,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
                 yield self.reporter.make_error(SharedViolations.CreateFile)
 
         elif not should_exist and file_exists:
-            logger.info(f"{self}: File {self.file_name} exists when it should not")
+            logger.info(f"{self}: File {self.filename} exists when it should not")
             # Only display this message if the style is valid.
             yield self.reporter.make_error(SharedViolations.DeleteFile)
         elif file_exists and config_data_exists:

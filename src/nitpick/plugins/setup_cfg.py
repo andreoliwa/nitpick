@@ -34,7 +34,7 @@ class SetupCfgPlugin(NitpickPlugin):
     Example: :ref:`flake8 configuration <default-flake8>`.
     """
 
-    file_name = SETUP_CFG
+    filename = SETUP_CFG
     violation_base_code = 320
 
     expected_sections = set()  # type: Set[str]

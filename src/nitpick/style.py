@@ -230,11 +230,11 @@ class Style:
 
         return style_path
 
-    def fetch_style_from_local_path(self, partial_file_name: str) -> Optional[Path]:
+    def fetch_style_from_local_path(self, partial_filename: str) -> Optional[Path]:
         """Fetch a style file from a local path."""
-        if partial_file_name and not partial_file_name.endswith(TOML_EXTENSION):
-            partial_file_name += TOML_EXTENSION
-        expanded_path = Path(partial_file_name).expanduser()
+        if partial_filename and not partial_filename.endswith(TOML_EXTENSION):
+            partial_filename += TOML_EXTENSION
+        expanded_path = Path(partial_filename).expanduser()
 
         if not str(expanded_path).startswith("/") and self._first_full_path:
             # Prepend the previous path to the partial file name.
@@ -278,11 +278,11 @@ class Style:
         return merged_dict
 
     @staticmethod
-    def file_field_pair(file_name: str, base_file_class: Type[NitpickPlugin]) -> Dict[str, fields.Field]:
+    def file_field_pair(filename: str, base_file_class: Type[NitpickPlugin]) -> Dict[str, fields.Field]:
         """Return a schema field with info from a config file class."""
-        unique_file_name_with_underscore = slugify(file_name, separator="_")
+        unique_filename_with_underscore = slugify(filename, separator="_")
 
-        kwargs = {"data_key": file_name}
+        kwargs = {"data_key": filename}
         if base_file_class.validation_schema:
             field = fields.Nested(base_file_class.validation_schema, **kwargs)
         else:
@@ -290,7 +290,7 @@ class Style:
             # it can be anything they allow.
             # It's out of Nitpick's scope to validate those files.
             field = fields.Dict(fields.String, **kwargs)
-        return {unique_file_name_with_underscore: field}
+        return {unique_filename_with_underscore: field}
 
     @lru_cache()
     def load_fixed_dynamic_classes(self) -> Tuple[Plugins, Plugins]:
@@ -298,7 +298,7 @@ class Style:
         fixed_name_classes: Plugins = set()
         dynamic_name_classes: Plugins = set()
         for plugin_class in self.plugin_manager.hook.plugin_class():  # pylint: disable=no-member
-            if plugin_class.file_name:
+            if plugin_class.filename:
                 fixed_name_classes.add(plugin_class)
             else:
                 dynamic_name_classes.add(plugin_class)
@@ -315,7 +315,7 @@ class Style:
             # Loop on classes with predetermined names, and add fields for them on the dynamic validation schema.
             # E.g.: setup.cfg, pre-commit, pyproject.toml: files whose names we already know at this point.
             for subclass in fixed_name_classes:
-                new_files_found.update(self.file_field_pair(subclass.file_name, subclass))
+                new_files_found.update(self.file_field_pair(subclass.filename, subclass))
         else:
             handled_tags: Dict[str, Type[NitpickPlugin]] = {}
 
@@ -328,9 +328,9 @@ class Style:
                     # If more than one class handle a tag, the latest one will be the handler.
                     handled_tags[tag] = subclass
 
-                jmex = subclass.get_compiled_jmespath_file_names()
-                for configured_file_name in search_dict(jmex, data, []):
-                    new_files_found.update(self.file_field_pair(configured_file_name, subclass))
+                jmex = subclass.get_compiled_jmespath_filenames()
+                for configured_filename in search_dict(jmex, data, []):
+                    new_files_found.update(self.file_field_pair(configured_filename, subclass))
 
             self._find_subclasses(data, handled_tags, new_files_found)
 

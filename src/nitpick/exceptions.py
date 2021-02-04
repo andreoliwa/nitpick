@@ -91,18 +91,6 @@ class NoPythonFileError(InitError):
         super().__init__(self.message, **kwargs)
 
 
-class MissingFileError(InitError):
-    """File doesn't exist when it should."""
-
-    number = 3
-
-
-class FileShouldBeDeletedError(InitError):
-    """File exists when it shouldn't."""
-
-    number = 4
-
-
 class ConfigError(NitpickError):
     """Config error."""
 
@@ -125,8 +113,8 @@ class StyleError(NitpickError):
     number = 1
     add_to_base_number = False
 
-    def __init__(self, style_file_name: str, message: str = "", suggestion: str = "", **kwargs) -> None:
-        message = f"File {style_file_name} has an incorrect style. {message}"
+    def __init__(self, style_filename: str, message: str = "", suggestion: str = "", **kwargs) -> None:
+        message = f"File {style_filename} has an incorrect style. {message}"
         super().__init__(message, suggestion, **kwargs)
 
 
@@ -142,7 +130,7 @@ class Deprecation:
         """The pre-commit config should start with a dot on the config file."""
         from nitpick.plugins.pre_commit import PreCommitPlugin  # pylint: disable=import-outside-toplevel
 
-        if path_from_root == PreCommitPlugin.file_name[1:]:
+        if path_from_root == PreCommitPlugin.filename[1:]:
             warnings.warn(
                 'The section name for dotfiles should start with a dot: [".{}"]'.format(path_from_root),
                 DeprecationWarning,

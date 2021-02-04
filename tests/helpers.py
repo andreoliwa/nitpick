@@ -101,29 +101,29 @@ class ProjectMock:
             self._flake8_errors_as_string.add(message)
         return self
 
-    def save_file(self, file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
+    def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents.
 
         Create the parent dirs if the file name contains a slash.
 
-        :param file_name: If it starts with a slash, then it's already a root.
+        :param filename: If it starts with a slash, then it's already a root.
             If it doesn't, then we add the root dir before the partial name.
         :param file_contents: Contents to save in the file.
         :param lint: Should we lint the file or not? Python (.py) files are always linted.
         """
-        if str(file_name).startswith("/"):
-            path = Path(file_name)  # type: Path
+        if str(filename).startswith("/"):
+            path = Path(filename)  # type: Path
         else:
-            path = self.root_dir / file_name
+            path = self.root_dir / filename
         path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
         path.write_text(dedent(file_contents).strip())
         return self
 
-    def touch_file(self, file_name: PathOrStr) -> "ProjectMock":
+    def touch_file(self, filename: PathOrStr) -> "ProjectMock":
         """Save an empty file (like the ``touch`` command)."""
-        return self.save_file(file_name, "")
+        return self.save_file(filename, "")
 
     def style(self, file_contents: str) -> "ProjectMock":
         """Save the default style file."""
@@ -135,19 +135,19 @@ class ProjectMock:
         If a style file is modified (file name or contents), tests might break.
         This is a good way to test the style files indirectly.
         """
-        for file_name in args:
-            style_path = Path(self.styles_dir) / self.ensure_toml_extension(file_name)
-            self.named_style(file_name, style_path.read_text())
+        for filename in args:
+            style_path = Path(self.styles_dir) / self.ensure_toml_extension(filename)
+            self.named_style(filename, style_path.read_text())
         return self
 
-    def named_style(self, file_name: PathOrStr, file_contents: str) -> "ProjectMock":
+    def named_style(self, filename: PathOrStr, file_contents: str) -> "ProjectMock":
         """Save a style file with a name. Add the .toml extension if needed."""
-        return self.save_file(self.ensure_toml_extension(file_name), file_contents)
+        return self.save_file(self.ensure_toml_extension(filename), file_contents)
 
     @staticmethod
-    def ensure_toml_extension(file_name: PathOrStr) -> PathOrStr:
+    def ensure_toml_extension(filename: PathOrStr) -> PathOrStr:
         """Ensure a file name has the .toml extension."""
-        return file_name if str(file_name).endswith(".toml") else "{}.toml".format(file_name)
+        return filename if str(filename).endswith(".toml") else "{}.toml".format(filename)
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""
@@ -159,7 +159,7 @@ class ProjectMock:
 
     def pre_commit(self, file_contents: str) -> "ProjectMock":
         """Save .pre-commit-config.yaml."""
-        return self.save_file(PreCommitPlugin.file_name, file_contents)
+        return self.save_file(PreCommitPlugin.filename, file_contents)
 
     def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""

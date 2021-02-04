@@ -11,7 +11,7 @@ from nitpick.plugins.data import FileData
 class ViolationEnum(Enum):
     """Base enum with violation codes and messages."""
 
-    def __init__(self, code: int, message: str = "") -> None:
+    def __init__(self, code: int, message: str = "") -> None:  # FIXME[AA]: add_to_base=False
         self.code = code
         self.message = message
 
@@ -26,10 +26,19 @@ class SharedViolations(ViolationEnum):
     DifferentValues = (9, "{prefix} has different values. Use this:")
 
 
+class BasicViolations(ViolationEnum):
+    """Basic violations (root dir, Python files, present/absent files)."""
+
+    MissingFile = (103, " should exist{extra}")
+    FileShouldBeDeleted = (104, " should be deleted{extra}")
+
+
+# TODO: the Reporter class should track a global list of codes with __new__(),
+#  to be used by the `nitpick codes` CLI command
 class Reporter:  # pylint: disable=too-few-public-methods
     """Error reporter."""
 
-    def __init__(self, data: FileData, violation_base_code: int) -> None:
+    def __init__(self, data: FileData, violation_base_code: int = 0) -> None:
         self.data = data
         self.violation_base_code = violation_base_code
 

@@ -134,9 +134,9 @@ def generate_plugins_rst():
     # Sort order: classes with fixed file names first, then alphabetically by class name
     for plugin_class in sorted(
         nit.project.plugin_manager.hook.plugin_class(),  # pylint: disable=no-member
-        key=lambda c: "0" if c.file_name else "1" + c.__name__,
+        key=lambda c: "0" if c.filename else "1" + c.__name__,
     ):
-        header = plugin_class.file_name
+        header = plugin_class.filename
         if not header:
             # module_name = file_class.__module__
             module = import_module(plugin_class.__module__)

@@ -340,8 +340,8 @@ def test_relative_style_on_urls(request):
             version = "1.0"
             """,
     }
-    for file_name, body in mapping.items():
-        responses.add(responses.GET, "{}/{}.toml".format(base_url, file_name), dedent(body), status=200)
+    for filename, body in mapping.items():
+        responses.add(responses.GET, "{}/{}.toml".format(base_url, filename), dedent(body), status=200)
 
     project = ProjectMock(request)
 

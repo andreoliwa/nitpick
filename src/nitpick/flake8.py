@@ -28,8 +28,6 @@ class NitpickFlake8Extension:
     # NitpickMixin
     error_class = InitError
     # FIXME[AA]: reporter = Reporter(100, InitCodes: CodeEnum)
-    # FIXME[AA]: the Reporter class should track a global list of codes with __new__(),
-    #  to be used by the `nitpick codes` CLI command
 
     # Plugin arguments passed by Flake8
     tree = attr.ib(default=None)
@@ -48,12 +46,7 @@ class NitpickFlake8Extension:
             line = f"{FLAKE8_PREFIX}{obj.error_code:03} {obj.error_prefix}{obj.message.rstrip()}{obj.suggestion_nl}"
         else:
             line = ""
-        return (
-            0,
-            0,
-            line,
-            self.__class__,
-        )
+        return 0, 0, line, self.__class__
 
     def collect_errors(self) -> Iterator[NitpickError]:
         """Collect all possible Nitpick errors."""

@@ -80,7 +80,7 @@ class PreCommitPlugin(NitpickPlugin):
     Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
     """
 
-    file_name = PRE_COMMIT_CONFIG_YAML
+    filename = PRE_COMMIT_CONFIG_YAML
     violation_base_code = 330
 
     actual_yaml: YAMLFormat
