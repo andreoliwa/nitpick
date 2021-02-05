@@ -9,12 +9,11 @@ from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.exceptions import NitpickError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
 from nitpick.plugins.data import FileData
 from nitpick.typedefs import JsonDict, mypy_property
-from nitpick.violations import Reporter, SharedViolations, ViolationEnum
+from nitpick.violations import Fuss, Reporter, SharedViolations, ViolationEnum
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):
@@ -56,7 +55,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
         return jmespath.compile(f"nitpick.{cls.__name__}.filenames")
 
-    def entry_point(self, config: JsonDict) -> Iterator[NitpickError]:
+    def entry_point(self, config: JsonDict) -> Iterator[Fuss]:
         """Entry point of the Nitpick plugin."""
         self.file_dict = config or {}
 
@@ -70,34 +69,34 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if not suggestion and self.skip_empty_suggestion:
                 return
             if suggestion:
-                yield self.reporter.make_error(SharedViolations.CreateFileWithSuggestion, suggestion)
+                yield self.reporter.make_fuss(SharedViolations.CreateFileWithSuggestion, suggestion)
             else:
-                yield self.reporter.make_error(SharedViolations.CreateFile)
+                yield self.reporter.make_fuss(SharedViolations.CreateFile)
 
         elif not should_exist and file_exists:
             logger.info(f"{self}: File {self.filename} exists when it should not")
             # Only display this message if the style is valid.
-            yield self.reporter.make_error(SharedViolations.DeleteFile)
+            yield self.reporter.make_fuss(SharedViolations.DeleteFile)
         elif file_exists and config_data_exists:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
 
     @abc.abstractmethod
-    def enforce_rules(self) -> Iterator[NitpickError]:
+    def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for this file. It should be overridden by inherited classes if needed."""
 
     @abc.abstractmethod
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
 
-    def warn_missing_different(self, comparison: Comparison, prefix: str = "") -> Iterator[NitpickError]:
+    def warn_missing_different(self, comparison: Comparison, prefix: str = "") -> Iterator[Fuss]:
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
         if comparison.missing_format:
-            yield self.reporter.make_error(
+            yield self.reporter.make_fuss(
                 SharedViolations.MissingValues, comparison.missing_format.reformatted, prefix=prefix
             )
         if comparison.diff_format:
-            yield self.reporter.make_error(
+            yield self.reporter.make_fuss(
                 SharedViolations.DifferentValues, comparison.diff_format.reformatted, prefix=prefix
             )

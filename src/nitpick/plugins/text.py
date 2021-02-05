@@ -5,12 +5,11 @@ from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
 
 from nitpick import fields
-from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.data import FileData
 from nitpick.schemas import help_message
-from nitpick.violations import ViolationEnum
+from nitpick.violations import Fuss, ViolationEnum
 
 TEXT_FILE_RTFD_PAGE = "plugins.html#text-files"
 
@@ -65,13 +64,13 @@ class TextPlugin(NitpickPlugin):
         """Suggest the initial content for this missing file."""
         return "\n".join(self._expected_lines())
 
-    def enforce_rules(self) -> Iterator[NitpickError]:
+    def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing lines."""
         expected = OrderedSet(self._expected_lines())
         actual = OrderedSet(self.file_path.read_text().split("\n"))
         missing = expected - actual
         if missing:
-            yield self.reporter.make_error(Violations.MissingLines, "\n".join(sorted(missing)))
+            yield self.reporter.make_fuss(Violations.MissingLines, "\n".join(sorted(missing)))
 
 
 @hookimpl

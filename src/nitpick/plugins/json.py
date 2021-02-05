@@ -6,7 +6,6 @@ from loguru import logger
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.exceptions import NitpickError
 from nitpick.formats import JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
@@ -14,7 +13,7 @@ from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.data import FileData
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict
-from nitpick.violations import ViolationEnum
+from nitpick.violations import Fuss, ViolationEnum
 
 KEY_CONTAINS_KEYS = "contains_keys"
 KEY_CONTAINS_JSON = "contains_json"
@@ -46,7 +45,7 @@ class JSONPlugin(NitpickPlugin):
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
 
-    def enforce_rules(self) -> Iterator[NitpickError]:
+    def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
         yield from self._check_contained_keys()
         yield from self._check_contained_json()
@@ -67,14 +66,14 @@ class JSONPlugin(NitpickPlugin):
         suggestion = self.get_suggested_json()
         return JSONFormat(data=suggestion).reformatted if suggestion else ""
 
-    def _check_contained_keys(self) -> Iterator[NitpickError]:
+    def _check_contained_keys(self) -> Iterator[Fuss]:
         json_fmt = JSONFormat(path=self.file_path)
         suggested_json = self.get_suggested_json(json_fmt.as_data)
         if not suggested_json:
             return
-        yield self.reporter.make_error(Violations.MissingKeys, JSONFormat(data=suggested_json).reformatted)
+        yield self.reporter.make_fuss(Violations.MissingKeys, JSONFormat(data=suggested_json).reformatted)
 
-    def _check_contained_json(self) -> Iterator[NitpickError]:
+    def _check_contained_json(self) -> Iterator[Fuss]:
         actual_fmt = JSONFormat(path=self.file_path)
         expected = {}
         # TODO: accept key as a jmespath expression, value is valid JSON

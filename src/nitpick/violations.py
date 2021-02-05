@@ -2,13 +2,43 @@
 
 Name inspired by `flake8's violations <https://flake8.pycqa.org/en/latest/user/error-codes.html>`_.
 """
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from nitpick.exceptions import NitpickError
+import click
+
+from nitpick.constants import FLAKE8_PREFIX
 
 if TYPE_CHECKING:
     from nitpick.plugins.data import FileData
+
+
+@dataclass
+class Fuss:
+    """Nitpick makes a fuss when configuration doesn't match.
+
+    Fields inspired on :py:class:`SyntaxError` and :py:class:`pyflakes.messages.Message`.
+    """
+
+    filename: str
+    code: int
+    message: str
+    suggestion: str = ""
+    lineno: int = 1
+
+    @property
+    def colored_suggestion(self) -> str:
+        """Suggestion with color."""
+        return click.style("\n{}".format(self.suggestion.rstrip()), fg="green") if self.suggestion else ""
+
+    @property
+    def pretty(self) -> str:
+        """Message to be used on the CLI."""
+        return (
+            f"{self.filename}:{self.lineno}: {FLAKE8_PREFIX}{self.code:03}"
+            f" {self.message.rstrip()}{self.colored_suggestion}"
+        )
 
 
 class ViolationEnum(Enum):
@@ -61,12 +91,11 @@ class Reporter:  # pylint: disable=too-few-public-methods
         self.data: Optional["FileData"] = data
         self.violation_base_code = violation_base_code
 
-    def make_error(self, violation: ViolationEnum, suggestion: str = "", **kwargs) -> NitpickError:
-        """Make an error."""  # FIXME[AA]: make a fuss
-        prefix = f"File {self.data.path_from_root}" if self.data else ""
+    def make_fuss(self, violation: ViolationEnum, suggestion: str = "", **kwargs) -> Fuss:
+        """Make a fuss."""
         if kwargs:
             formatted = violation.message.format(**kwargs)
         else:
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
-        return NitpickError(f"{prefix}{formatted}", suggestion, base + violation.code)
+        return Fuss(self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)

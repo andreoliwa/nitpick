@@ -6,11 +6,11 @@ from typing import Iterator, Union
 
 from loguru import logger
 
-from nitpick import PROJECT_NAME
-from nitpick.exceptions import NitpickError, QuitComplaining
+from nitpick.constants import PROJECT_NAME
+from nitpick.exceptions import QuitComplainingError
 from nitpick.plugins.data import FileData
 from nitpick.project import Project
-from nitpick.violations import ProjectViolations, Reporter
+from nitpick.violations import Fuss, ProjectViolations, Reporter
 
 
 class Nitpick:
@@ -49,16 +49,16 @@ class Nitpick:
 
         return self
 
-    def run(self) -> Iterator[NitpickError]:
+    def run(self) -> Iterator[Fuss]:
         """Run Nitpick."""
         try:
             yield from chain(
                 self.project.merge_styles(self.offline), self.enforce_present_absent(), self.enforce_style()
             )
-        except QuitComplaining as err:
-            yield from err.nitpick_errors
+        except QuitComplainingError as err:
+            yield from err.fusses
 
-    def enforce_present_absent(self) -> Iterator[NitpickError]:
+    def enforce_present_absent(self) -> Iterator[Fuss]:
         """Enforce files that should be present or absent."""
         if not self.project:
             return
@@ -77,7 +77,7 @@ class Nitpick:
 
                 extra = f": {custom_message}" if custom_message else ""
                 violation = ProjectViolations.MissingFile if present else ProjectViolations.FileShouldBeDeleted
-                yield reporter.make_error(violation, extra=extra)
+                yield reporter.make_fuss(violation, extra=extra)
 
     def enforce_style(self):
         """Read the merged style and enforce the rules in it.

@@ -21,12 +21,12 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.exceptions import NitpickError, QuitComplaining
+from nitpick.exceptions import QuitComplainingError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, mypy_property
-from nitpick.violations import ProjectViolations, Reporter, StyleViolations
+from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
 
 
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Set[Path]:  # TODO: add unit test
@@ -90,7 +90,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
 
     if not root_dirs:
         logger.error(f"No files found while climbing directory tree from {starting_file}")
-        raise QuitComplaining(Reporter().make_error(ProjectViolations.NoRootDir))
+        raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NoRootDir))
 
     # If multiple roots are found, get the top one (grandparent dir)
     top_dir = sorted(root_dirs)[0]
@@ -148,7 +148,7 @@ class Project:
                 logger.info("Found the file {}", the_file)
                 return Path(the_file)
 
-        raise QuitComplaining(Reporter().make_error(ProjectViolations.NoPythonFile, root=str(self.root)))
+        raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NoPythonFile, root=str(self.root)))
 
     @mypy_property
     @lru_cache()
@@ -174,15 +174,15 @@ class Project:
 
         from nitpick.plugins.data import FileData
 
-        raise QuitComplaining(
-            Reporter(FileData(self, PYPROJECT_TOML)).make_error(
+        raise QuitComplainingError(
+            Reporter(FileData(self, PYPROJECT_TOML)).make_fuss(
                 StyleViolations.InvalidDataToolNitpick,
                 flatten_marshmallow_errors(pyproject_errors),
                 section=TOOL_NITPICK,
             )
         )
 
-    def merge_styles(self, offline: bool) -> Iterator[NitpickError]:
+    def merge_styles(self, offline: bool) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
         self.validate_pyproject_tool_nitpick()
 
@@ -193,7 +193,7 @@ class Project:
         style = Style(self, self.plugin_manager, offline)
         style_errors = list(style.find_initial_styles(configured_styles))
         if style_errors:
-            raise QuitComplaining(style_errors)
+            raise QuitComplainingError(style_errors)
 
         self.style_dict = style.merge_toml_dict()
 
@@ -202,7 +202,7 @@ class Project:
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         logger.info(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
-            yield Reporter().make_error(
+            yield Reporter().make_fuss(
                 ProjectViolations.MinimumVersion,
                 project=PROJECT_NAME,
                 expected=minimum_version,

@@ -2,7 +2,7 @@
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Union
+from typing import Iterator
 
 import attr
 from flake8.options.manager import OptionManager
@@ -12,8 +12,9 @@ from nitpick import __version__
 from nitpick.cli import NitpickFlag
 from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.core import Nitpick
-from nitpick.exceptions import Fuss, NitpickError, QuitComplaining
+from nitpick.exceptions import QuitComplainingError
 from nitpick.typedefs import Flake8Error
+from nitpick.violations import Fuss
 
 
 @attr.s(hash=False)
@@ -31,23 +32,19 @@ class NitpickFlake8Extension:
     def run(self) -> Iterator[Flake8Error]:
         """Run the check plugin."""
         try:
-            for fuss in self.collect_errors():
-                yield self.build_flake8_error(fuss)
-        except QuitComplaining as err:
-            for nitpick_error in err.nitpick_errors:
-                yield self.build_flake8_error(nitpick_error)
+            for collected_fuss in self.collect_errors():
+                yield self.build_flake8_error(collected_fuss)
+        except QuitComplainingError as err:
+            for error_fuss in err.fusses:
+                yield self.build_flake8_error(error_fuss)
 
-    def build_flake8_error(self, obj: Union[Fuss, NitpickError]) -> Flake8Error:
-        """Return a flake8 error from objects."""
-        if isinstance(obj, Fuss):
-            line = f"{FLAKE8_PREFIX}{obj.code:03} File {obj.filename}{obj.message}{obj.suggestion}"
-        elif isinstance(obj, NitpickError):
-            line = f"{FLAKE8_PREFIX}{obj.code:03} {obj.message.rstrip()}{obj.suggestion_nl}"
-        else:
-            line = ""
+    def build_flake8_error(self, obj: Fuss) -> Flake8Error:
+        """Return a flake8 error from a fuss."""
+        prefix = f"File {obj.filename}" if obj.filename else ""
+        line = f"{FLAKE8_PREFIX}{obj.code:03} {prefix}{obj.message}{obj.colored_suggestion}"
         return 0, 0, line, self.__class__
 
-    def collect_errors(self) -> Iterator[NitpickError]:
+    def collect_errors(self) -> Iterator[Fuss]:
         """Collect all possible Nitpick errors."""
         nit = Nitpick.singleton()
 

@@ -7,12 +7,11 @@ from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 import dictdiffer
 
 from nitpick.constants import SETUP_CFG
-from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.data import FileData
 from nitpick.typedefs import mypy_property
-from nitpick.violations import ViolationEnum
+from nitpick.violations import Fuss, ViolationEnum
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"
 SECTION_SEPARATOR = "."
@@ -67,7 +66,7 @@ class SetupCfgPlugin(NitpickPlugin):
             return self.get_example_cfg(missing_cfg)
         return ""
 
-    def enforce_rules(self) -> Iterator[NitpickError]:
+    def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
         setup_cfg = ConfigParser()
         with self.file_path.open() as handle:
@@ -76,14 +75,12 @@ class SetupCfgPlugin(NitpickPlugin):
         actual_sections = set(setup_cfg.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
-            yield self.reporter.make_error(Violations.MissingSections, missing)
+            yield self.reporter.make_fuss(Violations.MissingSections, missing)
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
         missing_csv = csv_sections.difference(actual_sections)
         if missing_csv:
-            yield self.reporter.make_error(
-                Violations.InvalidCommaSeparatedValuesSection, ", ".join(sorted(missing_csv))
-            )
+            yield self.reporter.make_fuss(Violations.InvalidCommaSeparatedValuesSection, ", ".join(sorted(missing_csv)))
             return
 
         for section in self.expected_sections - self.missing_sections:
@@ -96,7 +93,7 @@ class SetupCfgPlugin(NitpickPlugin):
                 elif diff_type == dictdiffer.ADD:
                     yield from self.show_missing_keys(section, key, values)
 
-    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[NitpickError]:
+    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
         """Compare different keys, with special treatment when they are lists or numeric."""
         combined = "{}.{}".format(section, key)
         if combined in self.comma_separated_values:
@@ -106,9 +103,7 @@ class SetupCfgPlugin(NitpickPlugin):
             missing = expected_set - actual_set
             if missing:
                 joined = ",".join(sorted(missing))
-                yield self.reporter.make_error(
-                    Violations.MissingValues, f"[{section}]\n{key} = (...),{joined}", key=key
-                )
+                yield self.reporter.make_fuss(Violations.MissingValues, f"[{section}]\n{key} = (...),{joined}", key=key)
             return
 
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
@@ -119,7 +114,7 @@ class SetupCfgPlugin(NitpickPlugin):
             actual = raw_actual
             expected = raw_expected
         if actual != expected:
-            yield self.reporter.make_error(
+            yield self.reporter.make_fuss(
                 Violations.KeyHasDifferentValue,
                 f"[{section}]\n{key} = {raw_expected}",
                 section=section,
@@ -129,12 +124,12 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def show_missing_keys(  # pylint: disable=unused-argument
         self, section, key, values: List[Tuple[str, Any]]
-    ) -> Iterator[NitpickError]:
+    ) -> Iterator[Fuss]:
         """Show the keys that are not present in a section."""
         missing_cfg = ConfigParser()
         missing_cfg[section] = dict(values)
         output = self.get_example_cfg(missing_cfg)
-        yield self.reporter.make_error(Violations.MissingKeyValuePairs, output, section=section)
+        yield self.reporter.make_fuss(Violations.MissingKeyValuePairs, output, section=section)
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:

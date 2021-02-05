@@ -18,11 +18,11 @@ from nitpick.constants import (
     SETUP_CFG,
 )
 from nitpick.core import Nitpick
-from nitpick.exceptions import NitpickError
 from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr
+from nitpick.violations import Fuss
 from tests.conftest import TEMP_PATH
 
 
@@ -42,7 +42,7 @@ class ProjectMock:
 
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
-        self._fuss_errors: Set[NitpickError] = set()
+        self._fusses: List[Fuss] = []
         self._flake8_errors: List[Flake8Error] = []
         self._flake8_errors_as_string: Set[str] = set()
 
@@ -87,9 +87,7 @@ class ProjectMock:
         os.chdir(str(self.root_dir))
         nit = Nitpick.singleton().init(offline=offline)
         if call_api:
-            self._fuss_errors = set(nit.run())
-            first = list(self._fuss_errors)[0] if self._fuss_errors else None
-            assert first or first is None  # FIXME[AA]:
+            self._fusses = list(nit.run())
 
         npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
         self._flake8_errors = list(npc.run())
@@ -164,7 +162,7 @@ class ProjectMock:
     def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""
         if expected_error:
-            print("Expected error:\n{}".format(expected_error))
+            print(f"Expected error:\n<<<{expected_error}>>>")
         print("\nError count:")
         print(len(self._flake8_errors_as_string))
         print("\nAll errors:")
@@ -174,7 +172,7 @@ class ProjectMock:
         print("\nAll errors with pure print():")
         for error in sorted(self._flake8_errors_as_string):
             print()
-            print(error)
+            print(f"<<<{error}>>>")
         print("\nProject root:", self.root_dir)
         raise AssertionError(assertion_message or expected_error)
 
