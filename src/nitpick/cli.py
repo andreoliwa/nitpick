@@ -84,5 +84,4 @@ def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=F
         click.echo(err.pretty)
 
     click.secho("All done! ✨ 🍰 ✨", fg="bright_white")
-    # FIXME[AA]: add an API test with one error and the expected error results
     # FIXME[AA]: add a CLI test with one error and the expected stdout results

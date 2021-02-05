@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from nitpick.plugins.data import FileData
 
 
-@dataclass
+@dataclass(frozen=True)
 class Fuss:
     """Nitpick makes a fuss when configuration doesn't match.
 

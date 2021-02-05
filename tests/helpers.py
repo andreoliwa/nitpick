@@ -42,7 +42,7 @@ class ProjectMock:
 
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
-        self._fusses: List[Fuss] = []
+        self._actual_fusses: Set[Fuss] = set()
         self._flake8_errors: List[Flake8Error] = []
         self._flake8_errors_as_string: Set[str] = set()
 
@@ -87,7 +87,7 @@ class ProjectMock:
         os.chdir(str(self.root_dir))
         nit = Nitpick.singleton().init(offline=offline)
         if call_api:
-            self._fusses = list(nit.run())
+            self._actual_fusses = set(nit.run())
 
         npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
         self._flake8_errors = list(npc.run())
@@ -227,3 +227,7 @@ class ProjectMock:
         expected = TOMLFormat(path=self.cache_dir / MERGED_STYLE_TOML)
         actual = TOMLFormat(string=dedent(toml_string))
         compare(expected.as_data, actual.as_data)
+
+    def assert_fusses_are_exactly(self, *args: Fuss):
+        """Assert the exact set of fusses."""
+        compare(expected=set(args), actual=self._actual_fusses)

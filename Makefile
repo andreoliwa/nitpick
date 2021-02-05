@@ -71,6 +71,10 @@ pre-commit: # Run pre-commit for all files
 	pre-commit run --all-files
 .PHONY: pre-commit
 
+pylint: # Run pylint for all files
+	pre-commit run --all-files pylint
+.PHONY: pylint
+
 nitpick: # Run the nitpick pre-commit hook to check local style changes
 	pre-commit run --all-files nitpick-local
 .PHONY: nitpick

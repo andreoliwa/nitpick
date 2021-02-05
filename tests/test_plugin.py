@@ -10,6 +10,7 @@ from flake8.main import cli
 from nitpick.cli import _FlagMixin
 from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.core import Nitpick
+from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
 
@@ -37,6 +38,9 @@ def test_absent_files(request):
         "NIP104 File xxx should be deleted: Remove this"
     ).assert_errors_contain(
         "NIP104 File yyy should be deleted: Remove that"
+    ).assert_fusses_are_exactly(
+        Fuss(filename="xxx", code=104, message=" should be deleted: Remove this", suggestion="", lineno=1),
+        Fuss(filename="yyy", code=104, message=" should be deleted: Remove that", suggestion="", lineno=1),
     )
 
 
@@ -53,11 +57,18 @@ def test_missing_message(request):
         .simulate_run()
     )
     project.assert_errors_contain(
-        """
+        f"""
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
-        nitpick.files."pyproject.toml": Unknown file. See {}nitpick_section.html#nitpick-files.\x1b[0m
-        """.format(
-            READ_THE_DOCS_URL
+        nitpick.files."pyproject.toml": Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.\x1b[0m
+        """
+    ).assert_fusses_are_exactly(
+        Fuss(
+            filename="nitpick-style.toml",
+            code=1,
+            message=" has an incorrect style. Invalid config:",
+            # pylint: disable=line-too-long
+            suggestion=f"""nitpick.files."pyproject.toml": Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.""",
+            lineno=1,
         )
     )
 
@@ -77,6 +88,10 @@ def test_present_files(request):
         "NIP103 File .env should exist"
     ).assert_errors_contain(
         "NIP103 File another-file.txt should exist", 3
+    ).assert_fusses_are_exactly(
+        Fuss(filename=".editorconfig", code=103, message=" should exist: Create this file", suggestion="", lineno=1),
+        Fuss(filename=".env", code=103, message=" should exist", suggestion="", lineno=1),
+        Fuss(filename="another-file.txt", code=103, message=" should exist", suggestion="", lineno=1),
     )
 
 
