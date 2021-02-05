@@ -81,7 +81,7 @@ def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=F
         logger.warning("Apply mode is not yet implemented; running a check instead")
 
     for err in Nitpick.singleton().init(project_root, offline).run():
-        click.echo(err.as_dataclass)
+        click.echo(err.pretty)
 
     click.secho("All done! ✨ 🍰 ✨", fg="bright_white")
     # FIXME[AA]: add an API test with one error and the expected error results

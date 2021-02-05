@@ -25,24 +25,15 @@ class Fuss:
 class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting from Exception?
     """The base class for Nitpick exceptions."""
 
-    violation_base_code: int = 0
-    error_prefix: str = ""
-    message: str = ""
-    number: int = 0
-    add_to_base_number: bool = True
-
     # TODO: display filename, line and (if possible) column of the error, like flake8 does with .py files
     filename: str = ""
     # lineno: int = 1
     # col: int = 0
 
-    def __init__(self, message: str = "", suggestion: str = "", number: int = 0, add_to_base_number=True) -> None:
+    def __init__(self, message: str = "", suggestion: str = "", code: int = 0) -> None:
+        self.code = code
         self.message: str = message or self.message
         self.suggestion: str = suggestion
-        if number:
-            self.number = number
-        self.add_to_base_number = add_to_base_number
-
         super().__init__(self.message)
 
     @property
@@ -51,20 +42,15 @@ class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting fr
         return click.style("\n{}".format(self.suggestion.rstrip()), fg="green") if self.suggestion else ""
 
     @property
-    def error_code(self) -> int:
-        """Joined number, adding the base number with this class' number."""
-        return self.violation_base_code + self.number if self.add_to_base_number else self.number
-
-    @property
     def pretty(self) -> str:
         """Message to be used on the CLI."""
         # TODO: f"{self.filename}:{self.lineno}:{self.col + 1} "
-        return f"{FLAKE8_PREFIX}{self.error_code:03} {self.error_prefix}{self.message.rstrip()}{self.suggestion_nl}"
+        return f"{FLAKE8_PREFIX}{self.code:03} {self.message.rstrip()}{self.suggestion_nl}"
 
     @property
     def as_dataclass(self):
         """Error as a dataclass."""
-        return Fuss(self.filename, self.error_code, self.message, self.suggestion_nl)
+        return Fuss(self.filename, self.code, self.message, self.suggestion_nl)
 
 
 class QuitComplaining(Exception):

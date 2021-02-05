@@ -40,9 +40,9 @@ class NitpickFlake8Extension:
     def build_flake8_error(self, obj: Union[Fuss, NitpickError]) -> Flake8Error:
         """Return a flake8 error from objects."""
         if isinstance(obj, Fuss):
-            line = f"{FLAKE8_PREFIX}{obj.code:03} {obj.message}{obj.suggestion}"
+            line = f"{FLAKE8_PREFIX}{obj.code:03} File {obj.filename}{obj.message}{obj.suggestion}"
         elif isinstance(obj, NitpickError):
-            line = f"{FLAKE8_PREFIX}{obj.error_code:03} {obj.error_prefix}{obj.message.rstrip()}{obj.suggestion_nl}"
+            line = f"{FLAKE8_PREFIX}{obj.code:03} {obj.message.rstrip()}{obj.suggestion_nl}"
         else:
             line = ""
         return 0, 0, line, self.__class__
