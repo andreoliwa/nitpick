@@ -80,8 +80,14 @@ def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=F
     if not check:
         logger.warning("Apply mode is not yet implemented; running a check instead")
 
-    for err in Nitpick.singleton().init(project_root, offline).run():
-        click.echo(err.pretty)
+    nit = Nitpick.singleton().init(project_root, offline)
+    if project_root:
+        root: Path = nit.project.root
+        path = f"~/{root.relative_to(root.home())}/"
+    else:
+        path = ""
+    for err in nit.run():
+        click.echo(f"{path}{err.pretty}")
 
     click.secho("All done! ✨ 🍰 ✨", fg="bright_white")
     # FIXME[AA]: add a CLI test with one error and the expected stdout results
