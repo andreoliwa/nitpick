@@ -18,6 +18,7 @@ from enum import Enum
 from pathlib import Path
 
 import click
+from click.exceptions import Exit
 from loguru import logger
 
 from nitpick.constants import PROJECT_NAME
@@ -81,13 +82,19 @@ def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=F
         logger.warning("Apply mode is not yet implemented; running a check instead")
 
     nit = Nitpick.singleton().init(project_root, offline)
+    path = ""
     if project_root:
         root: Path = nit.project.root
-        path = f"~/{root.relative_to(root.home())}/"
-    else:
-        path = ""
+        try:
+            path = f"~/{root.relative_to(root.home())}/"
+        except ValueError:
+            pass
+
+    valid = True
     for err in nit.run():
+        valid = False
         click.echo(f"{path}{err.pretty}")
 
     click.secho("All done! ✨ 🍰 ✨", fg="bright_white")
-    # FIXME[AA]: add a CLI test with one error and the expected stdout results
+    if not valid:
+        raise Exit(1)

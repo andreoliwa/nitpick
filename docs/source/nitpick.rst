@@ -32,3 +32,4 @@ Submodules
    nitpick.schemas
    nitpick.style
    nitpick.typedefs
+   nitpick.violations

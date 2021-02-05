@@ -27,7 +27,7 @@ def test_multiple_root_dirs(request):
     """Multiple possible "root dirs" found (e.g.: a requirements.txt file inside a docs dir)."""
     ProjectMock(request, setup_py=False).touch_file("docs/requirements.txt").touch_file("docs/conf.py").pyproject_toml(
         ""
-    ).style("").simulate_run().assert_no_errors()
+    ).style("").simulate_run().assert_no_errors().assert_cli_output()
 
 
 def test_no_python_file_root_dir(request):

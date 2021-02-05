@@ -6,8 +6,11 @@ from textwrap import dedent
 from typing import List, Set
 
 from _pytest.fixtures import FixtureRequest
+from click.testing import CliRunner
+from more_itertools.more import always_iterable
 from testfixtures import compare
 
+from nitpick.cli import nitpick_cli
 from nitpick.constants import (
     CACHE_DIR_NAME,
     FLAKE8_PREFIX,
@@ -21,7 +24,7 @@ from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
-from nitpick.typedefs import Flake8Error, PathOrStr
+from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss
 from tests.conftest import TEMP_PATH
 
@@ -222,12 +225,27 @@ class ProjectMock:
         self.raise_assertion_error("")
         return self
 
-    def assert_merged_style(self, toml_string: str):
+    def assert_merged_style(self, toml_string: str) -> "ProjectMock":
         """Assert the contents of the merged style file."""
         expected = TOMLFormat(path=self.cache_dir / MERGED_STYLE_TOML)
         actual = TOMLFormat(string=dedent(toml_string))
         compare(expected.as_data, actual.as_data)
+        return self
 
-    def assert_fusses_are_exactly(self, *args: Fuss):
+    def assert_fusses_are_exactly(self, *args: Fuss) -> "ProjectMock":
         """Assert the exact set of fusses."""
         compare(expected=set(args), actual=self._actual_fusses)
+        return self
+
+    def assert_cli_output(self, str_or_lines: StrOrList = None) -> "ProjectMock":
+        """Assert the expected CLI output."""
+        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir)])
+        if isinstance(str_or_lines, str):
+            expected_lines = dedent(str_or_lines).strip().splitlines()
+        else:
+            expected_lines = list(always_iterable(str_or_lines))
+        expected_lines.append("All done! ✨ 🍰 ✨")
+
+        compare(actual=result.output.splitlines(), expected=expected_lines)
+        compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
+        return self
