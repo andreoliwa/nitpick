@@ -7,10 +7,10 @@ from typing import Iterator, Union
 from loguru import logger
 
 from nitpick import PROJECT_NAME
-from nitpick.exceptions import NitpickError
+from nitpick.exceptions import NitpickError, QuitComplaining
 from nitpick.plugins.data import FileData
 from nitpick.project import Project
-from nitpick.violations import Reporter, SharedViolations
+from nitpick.violations import ProjectViolations, Reporter
 
 
 class Nitpick:
@@ -51,7 +51,12 @@ class Nitpick:
 
     def run(self) -> Iterator[NitpickError]:
         """Run Nitpick."""
-        yield from chain(self.project.merge_styles(self.offline), self.enforce_present_absent(), self.enforce_style())
+        try:
+            yield from chain(
+                self.project.merge_styles(self.offline), self.enforce_present_absent(), self.enforce_style()
+            )
+        except QuitComplaining as err:
+            yield from err.nitpick_errors
 
     def enforce_present_absent(self) -> Iterator[NitpickError]:
         """Enforce files that should be present or absent."""
@@ -71,7 +76,7 @@ class Nitpick:
                 reporter = Reporter(FileData.create(self.project, filename))
 
                 extra = f": {custom_message}" if custom_message else ""
-                violation = SharedViolations.MissingFile if present else SharedViolations.FileShouldBeDeleted
+                violation = ProjectViolations.MissingFile if present else ProjectViolations.FileShouldBeDeleted
                 yield reporter.make_error(violation, extra=extra)
 
     def enforce_style(self):

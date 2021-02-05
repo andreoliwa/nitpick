@@ -1,7 +1,6 @@
 """Flake8 plugin to check files."""
 import logging
 from functools import lru_cache
-from itertools import chain
 from pathlib import Path
 from typing import Iterator, Union
 
@@ -13,7 +12,7 @@ from nitpick import __version__
 from nitpick.cli import NitpickFlag
 from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.core import Nitpick
-from nitpick.exceptions import Fuss, NitpickError, NoPythonFileError, NoRootDirError
+from nitpick.exceptions import Fuss, NitpickError, QuitComplaining
 from nitpick.typedefs import Flake8Error
 
 
@@ -31,8 +30,12 @@ class NitpickFlake8Extension:
 
     def run(self) -> Iterator[Flake8Error]:
         """Run the check plugin."""
-        for err in self.collect_errors():
-            yield self.build_flake8_error(err)
+        try:
+            for fuss in self.collect_errors():
+                yield self.build_flake8_error(fuss)
+        except QuitComplaining as err:
+            for nitpick_error in err.nitpick_errors:
+                yield self.build_flake8_error(nitpick_error)
 
     def build_flake8_error(self, obj: Union[Fuss, NitpickError]) -> Flake8Error:
         """Return a flake8 error from objects."""
@@ -49,33 +52,14 @@ class NitpickFlake8Extension:
         nit = Nitpick.singleton()
 
         current_python_file = Path(self.filename)
-        # FIXME[AA]: reporter = Reporter(100, InitCodes: CodeEnum)
-        try:
-            if not nit.project:
-                raise NoRootDirError
-
-            main_python_file: Path = nit.project.find_main_python_file()
-            if current_python_file.absolute() != main_python_file.absolute():
-                # Only report warnings once, for the main Python file of this project.
-                logger.debug("Ignoring file: {}", self.filename)
-                return []
-        except (NoRootDirError, NoPythonFileError) as err:
-            # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
-            #  then raise an error with them to interrupt execution and return
-            yield err  # make_error(no root/no python error??) or yield err.as_fuss
-            return []
-        logger.debug("Nitpicking file: {}", self.filename)
-
-        has_errors = False
-        for style_err in nit.project.merge_styles(nit.offline):
-            has_errors = True
-            # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
-            #  then raise an error with them to interrupt execution and return
-            yield style_err  # make_error(style error??) or yield err.as_fuss
-        if has_errors:
+        main_python_file: Path = nit.project.find_main_python_file()
+        if current_python_file.absolute() != main_python_file.absolute():
+            # Only report warnings once, for the main Python file of this project.
+            logger.debug("Ignoring other Python file: {}", self.filename)
             return []
 
-        yield from chain(nit.enforce_present_absent(), nit.enforce_style())
+        logger.debug("Nitpicking file through flake8: {}", self.filename)
+        yield from nit.run()
         return []
 
     @staticmethod

@@ -1,5 +1,5 @@
 """Data needed by the plugins."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Set
 
 from identify import identify
@@ -14,7 +14,7 @@ class FileData:
 
     project: Project
     path_from_root: str
-    tags: Set[str]
+    tags: Set[str] = field(default_factory=set)
 
     @classmethod
     def create(cls, project: Project, path_from_root: str) -> "FileData":

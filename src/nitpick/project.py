@@ -21,12 +21,12 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.exceptions import NitpickError, NoPythonFileError, NoRootDirError, StyleError
+from nitpick.exceptions import NitpickError, QuitComplaining
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
 from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, mypy_property
-from nitpick.violations import Reporter, SharedViolations
+from nitpick.violations import ProjectViolations, Reporter, StyleViolations
 
 
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Set[Path]:  # TODO: add unit test
@@ -90,9 +90,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
 
     if not root_dirs:
         logger.error(f"No files found while climbing directory tree from {starting_file}")
-        raise NoRootDirError
-        # FIXME[AA]: raise StopExecution(InitCodes.NoRootDir)
-        #  or self.reporter.raise_error(InitCodes.NoRootDir)
+        raise QuitComplaining(Reporter().make_error(ProjectViolations.NoRootDir))
 
     # If multiple roots are found, get the top one (grandparent dir)
     top_dir = sorted(root_dirs)[0]
@@ -150,9 +148,7 @@ class Project:
                 logger.info("Found the file {}", the_file)
                 return Path(the_file)
 
-        raise NoPythonFileError(self.root)
-        # FIXME[AA]: raise StopExecution(InitCodes.NoPythonFile)
-        #  or self.reporter.stop_execution(InitCodes.NoPythonFile, root=self.root)
+        raise QuitComplaining(Reporter().make_error(ProjectViolations.NoPythonFile, root=str(self.root)))
 
     @mypy_property
     @lru_cache()
@@ -176,39 +172,38 @@ class Project:
         if not pyproject_errors:
             return
 
-        raise StyleError(
-            PYPROJECT_TOML, f"Invalid data in [{TOOL_NITPICK}]:", flatten_marshmallow_errors(pyproject_errors)
+        from nitpick.plugins.data import FileData
+
+        raise QuitComplaining(
+            Reporter(FileData(self, PYPROJECT_TOML)).make_error(
+                StyleViolations.InvalidDataToolNitpick,
+                flatten_marshmallow_errors(pyproject_errors),
+                section=TOOL_NITPICK,
+            )
         )
 
     def merge_styles(self, offline: bool) -> Iterator[NitpickError]:
         """Merge one or multiple style files."""
-        try:
-            self.validate_pyproject_tool_nitpick()
-        except StyleError as err:
-            # If the project is misconfigured, don't even continue.
-            # FIXME[AA]: a NitpickError can have List[Fuss]; collect all fusses,
-            #  then raise an error with them to interrupt execution and return
-            yield err  # make_error(style error??) or yield err.as_fuss
-            return
+        self.validate_pyproject_tool_nitpick()
 
         # pylint: disable=import-outside-toplevel
         from nitpick.style import Style
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
         style = Style(self, self.plugin_manager, offline)
-        yield from style.find_initial_styles(configured_styles)
+        style_errors = list(style.find_initial_styles(configured_styles))
+        if style_errors:
+            raise QuitComplaining(style_errors)
 
         self.style_dict = style.merge_toml_dict()
 
         from nitpick.flake8 import NitpickFlake8Extension
-        from nitpick.plugins.data import FileData
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         logger.info(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
-            reporter = Reporter(FileData.create(self, PYPROJECT_TOML))
-            yield reporter.make_error(
-                SharedViolations.MinimumVersion,
+            yield Reporter().make_error(
+                ProjectViolations.MinimumVersion,
                 project=PROJECT_NAME,
                 expected=minimum_version,
                 actual=NitpickFlake8Extension.version,

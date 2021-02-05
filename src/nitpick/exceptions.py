@@ -1,10 +1,10 @@
 """Nitpick exceptions."""
 import warnings
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List, Union
 
 import click
+from more_itertools import always_iterable
 
 from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 
@@ -67,39 +67,12 @@ class NitpickError(Exception):  # TODO: use a dataclass instead of inheriting fr
         return Fuss(self.filename, self.error_code, self.message, self.suggestion_nl)
 
 
-class InitError(NitpickError):
-    """Init errors."""
+class QuitComplaining(Exception):
+    """Quit complaining and exit the application."""
 
-    violation_base_code = 100
-
-
-class NoRootDirError(InitError):
-    """No root dir found."""
-
-    number = 1
-    message = "No root dir found (is this a Python project?)"
-
-
-class NoPythonFileError(InitError):
-    """No Python file was found."""
-
-    number = 2
-    message = "No Python file was found on the root dir and subdir of {!r}"
-
-    def __init__(self, root_dir: Path, **kwargs) -> None:
-        self.message = self.message.format(str(root_dir))
-        super().__init__(self.message, **kwargs)
-
-
-class StyleError(NitpickError):
-    """An error in a style file."""
-
-    number = 1
-    add_to_base_number = False
-
-    def __init__(self, style_filename: str, message: str = "", suggestion: str = "", **kwargs) -> None:
-        message = f"File {style_filename} has an incorrect style. {message}"
-        super().__init__(message, suggestion, **kwargs)
+    def __init__(self, nitpick_errors: Union[NitpickError, List[NitpickError]]) -> None:  # FIXME[AA]: fuss: Fuss
+        super().__init__()
+        self.nitpick_errors: List[NitpickError] = list(always_iterable(nitpick_errors))
 
 
 class Deprecation:
@@ -139,6 +112,6 @@ class Deprecation:
         return False
 
 
-def pretty_exception(err: Exception, message: str):
+def pretty_exception(err: Exception, message: str = ""):
     """Return a pretty error message with the full path of the Exception."""
     return f"{message} ({err.__module__}.{err.__class__.__name__}: {str(err)})"

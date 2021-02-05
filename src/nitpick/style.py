@@ -26,7 +26,7 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.exceptions import Deprecation, NitpickError, StyleError, pretty_exception
+from nitpick.exceptions import Deprecation, NitpickError, QuitComplaining, pretty_exception
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
 from nitpick.plugins.base import NitpickPlugin
@@ -34,6 +34,7 @@ from nitpick.plugins.data import FileData
 from nitpick.project import Project, climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList, mypy_property
+from nitpick.violations import Reporter, StyleViolations
 
 Plugins = Set[Type[NitpickPlugin]]
 
@@ -115,8 +116,11 @@ class Style:
                 read_toml_dict = toml.as_data
             except TomlDecodeError as err:
                 # If the TOML itself could not be parsed, we can't go on
-                yield StyleError(style_path.name, pretty_exception(err, "Invalid TOML"))
-                return
+                raise QuitComplaining(
+                    Reporter(FileData(self.project, style_path.name)).make_error(
+                        StyleViolations.InvalidTOML, exception=pretty_exception(err)
+                    )
+                ) from err
 
             try:
                 display_name = str(style_path.relative_to(self.project.root))
@@ -126,7 +130,9 @@ class Style:
             toml_dict, validation_errors = self._validate_config(read_toml_dict)
 
             if validation_errors:
-                yield StyleError(display_name, "Invalid config:", flatten_marshmallow_errors(validation_errors))
+                yield Reporter(FileData(self.project, display_name)).make_error(
+                    StyleViolations.InvalidConfig, flatten_marshmallow_errors(validation_errors)
+                )
 
             self._all_styles.add(toml_dict)
 
