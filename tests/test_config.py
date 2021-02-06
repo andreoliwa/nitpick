@@ -67,7 +67,7 @@ def test_at_least_one_python_file(python_file, error, request):
     )
     if error:
         project.assert_single_error(
-            "NIP102 No Python file was found on the root dir and subdir of {!r}".format(str(project.root_dir))
+            f"NIP102 No Python file was found on the root dir and subdir of {str(project.root_dir)!r}"
         )
     else:
         project.assert_no_errors()

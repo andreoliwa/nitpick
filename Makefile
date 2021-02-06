@@ -13,7 +13,7 @@ help:
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
 
-quick: pytest pre-commit # Run pytest and pre-commit fast, without tox
+quick: pytest nitpick pre-commit pylint # Run pytest and pre-commit fast, without tox
 .PHONY: quick
 
 full-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project fully, like in CI
@@ -39,7 +39,7 @@ install: install-pre-commit install-poetry # Install pre-commit hooks and Poetry
 
 # Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
 install-poetry .cache/make/long-poetry src/nitpick.egg-info/entry_points.txt: pyproject.toml # Install Poetry dependencies
-	poetry install
+	poetry install -E test -E lint
 	touch .cache/make/long-poetry
 .PHONY: install-poetry
 
@@ -72,16 +72,12 @@ pre-commit: # Run pre-commit for all files
 .PHONY: pre-commit
 
 pylint: # Run pylint for all files
-	pre-commit run --all-files pylint
+	poetry run pylint src/
 .PHONY: pylint
 
-nitpick: # Run the nitpick pre-commit hook to check local style changes
-	pre-commit run --all-files nitpick-local
-.PHONY: nitpick
-
-flake8: # Run flake8 to check local style changes
+nitpick: # Run Nitpick locally on itself (with flake8)
 	poetry run flake8 --select=NIP
-.PHONY: flake8
+.PHONY: nitpick
 
 TOX_PYTHON_ENVS = $(shell tox -l | egrep '^py' | xargs echo | tr ' ' ',')
 

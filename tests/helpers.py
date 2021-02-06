@@ -237,15 +237,22 @@ class ProjectMock:
         compare(expected=set(args), actual=self._actual_fusses)
         return self
 
-    def assert_cli_output(self, str_or_lines: StrOrList = None) -> "ProjectMock":
+    def assert_cli_output(self, str_or_lines: StrOrList = None, violations=0) -> "ProjectMock":
         """Assert the expected CLI output."""
         result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir)])
+        actual: List[str] = result.output.splitlines()
+
         if isinstance(str_or_lines, str):
             expected_lines = dedent(str_or_lines).strip().splitlines()
         else:
             expected_lines = list(always_iterable(str_or_lines))
         expected_lines.append("All done! ✨ 🍰 ✨")
+        if violations:
+            plural = "s" if violations > 1 else ""
+            expected_lines.append(f"{violations} violation{plural}.")
+        elif str_or_lines:
+            del actual[-1]
 
-        compare(actual=result.output.splitlines(), expected=expected_lines)
+        compare(actual=actual, expected=expected_lines)
         compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
         return self
