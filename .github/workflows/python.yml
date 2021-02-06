@@ -21,11 +21,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # https://github.com/marketplace/actions/run-tox-gh-actions
-      # Instead of installing and running tox and tox-gh-actions,
-      # you can simply use this composite run steps action.
-      - name: Run tox with tox-gh-actions
-        uses: ymyzk/tox-gh-actions@main
+      # https://github.com/ymyzk/tox-gh-actions
+      # This action didn't work: https://github.com/marketplace/actions/run-tox-gh-actions ¯\_(ツ)_/¯
+      # Error: Unable to resolve action `ymyzk/tox-gh-actions@main`, unable to find version `main`
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install tox tox-gh-actions
+      - name: Test with tox
+        run: tox
 
       # https://github.com/marketplace/actions/coveralls-github-action
       - name: Coveralls
