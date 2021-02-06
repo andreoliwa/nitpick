@@ -9,7 +9,6 @@ cache:
   directories:
     - $HOME/.cache/pip
     - $PRE_COMMIT_HOME
-# FIXME[AA]: remove this dir and all Travis references
 # https://docs.travis-ci.com/user/languages/python/
 language: python
 # https://docs.travis-ci.com/user/reference/xenial/
@@ -30,6 +29,7 @@ dist: xenial
 install:
   - pip install tox coveralls
 before_script:
+  # TODO: remove all Travis references after configuring Code Climate test coverage https://docs.codeclimate.com/docs/configuring-test-coverage#section-quick-guide
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then chmod +x ./cc-test-reporter; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./cc-test-reporter before-build; fi

@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
-        os: [ubuntu-latest] # FIXME[AA]: , macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -37,5 +37,3 @@ jobs:
       # Solution here: https://github.com/coverallsapp/github-action/issues/30#issuecomment-612523058
       - name: Coveralls Python
         uses: AndreMiras/coveralls-python-action@v20201129
-        with:
-          python-version: 3.8
