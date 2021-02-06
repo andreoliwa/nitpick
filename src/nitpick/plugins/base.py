@@ -64,7 +64,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
-            self._suggest()
+            yield from self._suggest()
         elif not should_exist and file_exists:
             logger.info(f"{self}: File {self.filename} exists when it should not")
             # Only display this message if the style is valid.
