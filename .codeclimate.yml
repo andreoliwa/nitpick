@@ -1,0 +1,6 @@
+plugins:
+  # https://docs.codeclimate.com/docs/editorconfig
+  editorconfig:
+    enabled: true
+    config:
+      editorconfig: .editorconfig
