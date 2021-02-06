@@ -3,19 +3,18 @@ import itertools
 import logging
 import os
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 from shutil import rmtree
 from typing import TYPE_CHECKING, List, Set
 
-import click
 import pluggy
 from pluggy import PluginManager
 
 from nitpick import plugins
-from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
-from nitpick.exceptions import NitpickError, NoPythonFile, NoRootDir, StyleError
+from nitpick.constants import CACHE_DIR_NAME, MANAGE_PY, PROJECT_NAME, ROOT_FILES, ROOT_PYTHON_FILES
+from nitpick.exceptions import NitpickError, NoPythonFileError, NoRootDirError, StyleError
 from nitpick.generic import climb_directory_tree
-from nitpick.typedefs import Flake8Error
 
 if TYPE_CHECKING:
     from nitpick.config import Config
@@ -25,8 +24,6 @@ LOGGER = logging.getLogger(__name__)
 
 class NitpickApp:  # pylint: disable=too-many-instance-attributes
     """The Nitpick application."""
-
-    _current_app = None  # type: NitpickApp
 
     root_dir = None  # type: Path
     cache_dir = None  # type: Path
@@ -40,8 +37,8 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
 
     def __init__(self) -> None:
-        self.init_errors = []  # type: List[NitpickError]
-        self.style_errors = []  # type: List[NitpickError]
+        self.init_errors: List[NitpickError] = []
+        self.style_errors: List[NitpickError] = []
 
         self.offline = False
 
@@ -52,8 +49,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         from nitpick.config import Config  # pylint: disable=redefined-outer-name
         from nitpick.plugins.base import NitpickPlugin
 
-        app = cls()
-        cls._current_app = app
+        app = cls.current()
         app.offline = offline
 
         try:
@@ -64,7 +60,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
             app.config = Config()
             app.plugin_manager = app.load_plugins()
             NitpickPlugin.load_fixed_dynamic_classes()
-        except (NoRootDir, NoPythonFile) as err:
+        except (NoRootDirError, NoPythonFileError) as err:
             app.init_errors.append(err)
 
         return app
@@ -78,9 +74,10 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
         return plugin_manager
 
     @classmethod
+    @lru_cache(typed=True)
     def current(cls):
-        """Get the current app from the stack."""
-        return cls._current_app
+        """Return a single instance of the class (singleton)."""
+        return cls()
 
     @staticmethod
     def find_root_dir() -> Path:
@@ -125,7 +122,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
 
         if not root_dirs:
             LOGGER.error("No files found while climbing directory tree from %s", str(starting_file))
-            raise NoRootDir()
+            raise NoRootDirError()
 
         # If multiple roots are found, get the top one (grandparent dir)
         return sorted(root_dirs)[0]
@@ -159,36 +156,7 @@ class NitpickApp:  # pylint: disable=too-many-instance-attributes
                 LOGGER.info("Found the file %s", the_file)
                 return Path(the_file)
 
-        raise NoPythonFile(self.root_dir)
-
-    @staticmethod
-    def as_flake8_warning(nitpick_error: NitpickError) -> Flake8Error:
-        """Return a flake8 error as a tuple."""
-        joined_number = (
-            nitpick_error.error_base_number + nitpick_error.number
-            if nitpick_error.add_to_base_number
-            else nitpick_error.number
-        )
-        suggestion_with_newline = (
-            click.style("\n{}".format(nitpick_error.suggestion.rstrip()), fg="green")
-            if nitpick_error.suggestion
-            else ""
-        )
-
-        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
-
-        return (
-            0,
-            0,
-            "{}{:03d} {}{}{}".format(
-                ERROR_PREFIX,
-                joined_number,
-                nitpick_error.error_prefix,
-                nitpick_error.message.rstrip(),
-                suggestion_with_newline,
-            ),
-            NitpickExtension,
-        )
+        raise NoPythonFileError(self.root_dir)
 
     def add_style_error(self, file_name: str, message: str, invalid_data: str = None) -> None:
         """Add a style error to the internal list."""

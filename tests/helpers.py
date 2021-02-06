@@ -71,10 +71,12 @@ class ProjectMock:
     def flake8(self, offline=False, file_index: int = 0) -> "ProjectMock":
         """Simulate a manual flake8 run.
 
+        - Clear the singleton cache.
         - Recreate the global app.
         - Change the working dir to the mocked project root.
         - Lint one of the project files. If no index is provided, use the default file that's always created.
         """
+        NitpickApp.current.cache_clear()
         os.chdir(str(self.root_dir))
         NitpickApp.create_app(offline)
 

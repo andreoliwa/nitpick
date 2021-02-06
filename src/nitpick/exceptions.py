@@ -3,49 +3,98 @@ import warnings
 from pathlib import Path
 from typing import Any, Dict
 
-from nitpick.constants import PROJECT_NAME
+import click
+
+from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
+from nitpick.typedefs import Flake8Error
 
 
 class NitpickError(Exception):
     """A Nitpick error  raise flake8 errors."""
 
-    error_base_number = 0  # type: int
-    error_prefix = ""  # type: str
+    error_base_number: int = 0
+    error_prefix: str = ""
+    number: int = 0
+    add_to_base_number: bool = True
 
-    number = 0  # type: int
-    message = ""  # type: str
-    suggestion = None  # type: str
-    add_to_base_number = True
+    def __init__(self, message: str = "", suggestion: str = "", number: int = 0, add_to_base_number=True) -> None:
+        self.message: str = message or self.message
+        self.suggestion: str = suggestion
+        if number:
+            self.number = number
+        self.add_to_base_number = add_to_base_number
 
-    def __init__(self, *args: object) -> None:
-        if not args:
-            super().__init__(self.message)
-        else:
-            super().__init__(*args)
+        super().__init__(self.message)
+
+    def as_flake8_warning(self) -> Flake8Error:
+        """Return a flake8 error as a tuple."""
+        joined_number = self.error_base_number + self.number if self.add_to_base_number else self.number
+        suggestion_with_newline = (
+            click.style("\n{}".format(self.suggestion.rstrip()), fg="green") if self.suggestion else ""
+        )
+
+        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
+
+        return (
+            0,
+            0,
+            "{}{:03d} {}{}{}".format(
+                ERROR_PREFIX, joined_number, self.error_prefix, self.message.rstrip(), suggestion_with_newline
+            ),
+            NitpickExtension,
+        )
 
 
-class PluginError(NitpickError):
-    """Plugin error."""
+class InitError(NitpickError):
+    """Init errors."""
 
     error_base_number = 100
 
 
-class NoRootDir(PluginError):
+class NoRootDirError(InitError):
     """No root dir found."""
 
     number = 1
     message = "No root dir found (is this a Python project?)"
 
 
-class NoPythonFile(PluginError):
+class NoPythonFileError(InitError):
     """No Python file was found."""
 
     number = 2
     message = "No Python file was found on the root dir and subdir of {!r}"
 
-    def __init__(self, root_dir: Path, *args: object) -> None:
+    def __init__(self, root_dir: Path, **kwargs) -> None:
         self.message = self.message.format(str(root_dir))
-        super().__init__(self.message, *args)
+        super().__init__(self.message, **kwargs)
+
+
+class PresentFileError(InitError):
+    """File exists when it shouldn't."""
+
+    number = 3
+
+
+class AbsentFileError(InitError):
+    """File doesn't exist when it should."""
+
+    number = 4
+
+
+class ConfigError(NitpickError):
+    """Config error."""
+
+    error_base_number = 200
+
+
+class MinimumVersionError(ConfigError):
+    """Warn about minimum Nitpick version."""
+
+    number = 3
+    message = "The style file you're using requires {project}>={expected} (you have {actual}). Please upgrade"
+
+    def __init__(self, expected: str, actual: str) -> None:
+        super().__init__(self.message.format(project=PROJECT_NAME, expected=expected, actual=actual))
 
 
 class StyleError(NitpickError):
@@ -53,10 +102,17 @@ class StyleError(NitpickError):
 
     number = 1
     add_to_base_number = False
+    message = "Invalid style"
 
-    def __init__(self, style_file_name: str, *args: object) -> None:
+    def __init__(self, style_file_name: str, **kwargs) -> None:
         self.style_file_name = style_file_name
-        super().__init__(*args)
+        super().__init__(**kwargs)
+
+
+class PluginError(NitpickError):
+    """Base for plugin errors."""
+
+    error_base_number = 300
 
 
 class Deprecation:
