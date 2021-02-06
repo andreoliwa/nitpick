@@ -70,7 +70,10 @@ doc = ["sphinx", "sphinx_rtd_theme"]
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-jedi = "<0.19.0" # TODO: remove when this is fixed https://github.com/ipython/ipython/issues/12745
+# TODO: ipython/jedi version conflict:
+#  https://github.com/ipython/ipython/issues/12740#issuecomment-751273584
+#  https://github.com/ipython/ipython/issues/12677#issuecomment-759747704
+jedi = "<0.18.0"
 ipdb = "*"
 icecream = "*"
 
