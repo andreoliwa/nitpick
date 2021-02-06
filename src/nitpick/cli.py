@@ -49,7 +49,12 @@ class NitpickFlag(_FlagMixin, Enum):
     OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
 
 
-@click.command()
+@click.group()
+def nitpick_cli():
+    """Enforce the same configuration across multiple projects."""
+
+
+@nitpick_cli.command()
 @click.option(
     "--project",
     "-p",
@@ -72,8 +77,8 @@ class NitpickFlag(_FlagMixin, Enum):
     " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
 )
 @click.option("--verbose", "-v", is_flag=True, default=False, help="Verbose logging")
-def nitpick_cli(project_root: Path = None, offline=False, check=False, verbose=False):
-    """Enforce the same configuration across multiple projects."""
+def run(project_root: Path = None, offline=False, check=False, verbose=False):
+    """Apply suggestions to configuration files."""
     if verbose:
         logger.enable(PROJECT_NAME)
 
