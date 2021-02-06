@@ -34,15 +34,7 @@ repos:
       - id: python-no-eval
       - id: python-no-log-warn
       - id: rst-backticks
-  - repo: local
-    hooks:
-      # Run flake8 locally with nitpick and all the plugins configured in pyproject.toml
-      - id: nitpick-local
-        name: Nitpick (Locally on itself)
-        entry: poetry run flake8 --select=NIP -j 0
-        language: python
-        types: [python]
-        always_run: true
+  # Run nitpick with tox, because local repos don't seem to work well with https://pre-commit.ci/
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
     hooks:
@@ -65,15 +57,10 @@ repos:
     rev: v0.790
     hooks:
       - id: mypy
+  # Run pylint with tox, because local repos don't seem to work well with https://pre-commit.ci/
+  # Note for future attempts with pylint as a pre-commit hook:
   # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.
   # This solution helped: https://github.com/pre-commit/pre-commit/issues/1309
-  - repo: local
-    hooks:
-      - id: pylint
-        name: pylint
-        entry: .tox/lint/bin/pylint
-        language: system
-        types: [python]
   - repo: https://github.com/PyCQA/bandit
     rev: 1.6.2
     hooks:

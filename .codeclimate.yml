@@ -1,0 +1,22 @@
+plugins:
+  bandit: # https://docs.codeclimate.com/docs/bandit
+    enabled: true
+  editorconfig: # https://docs.codeclimate.com/docs/editorconfig
+    enabled: true
+  fixme: # https://docs.codeclimate.com/docs/fixme
+    enabled: false
+  git-legal: # https://docs.codeclimate.com/docs/git-legal
+    enabled: true
+  markdownlint: # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
+    # https://github.com/markdownlint/markdownlint
+    enabled: false
+  pep8: # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit
+    enabled: false
+  pylint: # https://docs.codeclimate.com/docs/pylint Already checked by pre-commit
+    enabled: false
+  radon: # https://docs.codeclimate.com/docs/radon
+    enabled: true
+  shellcheck: #https://docs.codeclimate.com/docs/shellcheck
+    enabled: true
+  sonar-python: #https://docs.codeclimate.com/docs/sonar-python
+    enabled: true
