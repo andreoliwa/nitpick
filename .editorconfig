@@ -15,9 +15,12 @@ trim_trailing_whitespace = true
 
 # Matches multiple files with brace expansion notation
 # Set default charset
-[*.{js,json,py}]
+[*.{js,json}]
 charset = utf-8
 indent_size = 2
+
+[*.py]
+charset = utf-8
 
 [*.{yml,yaml}]
 indent_size = 2

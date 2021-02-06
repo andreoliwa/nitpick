@@ -64,15 +64,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
-            logger.info(f"{self}: Suggest initial contents for {self.filename}")
-            suggestion = self.suggest_initial_contents()
-            if not suggestion and self.skip_empty_suggestion:
-                return
-            if suggestion:
-                yield self.reporter.make_fuss(SharedViolations.CreateFileWithSuggestion, suggestion)
-            else:
-                yield self.reporter.make_fuss(SharedViolations.CreateFile)
-
+            self._suggest()
         elif not should_exist and file_exists:
             logger.info(f"{self}: File {self.filename} exists when it should not")
             # Only display this message if the style is valid.
@@ -80,6 +72,16 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         elif file_exists and config_data_exists:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
+
+    def _suggest(self):
+        suggestion = self.suggest_initial_contents()
+        if not suggestion and self.skip_empty_suggestion:
+            return
+        logger.info(f"{self}: Suggest initial contents for {self.filename}")
+        if suggestion:
+            yield self.reporter.make_fuss(SharedViolations.CreateFileWithSuggestion, suggestion)
+        else:
+            yield self.reporter.make_fuss(SharedViolations.CreateFile)
 
     @abc.abstractmethod
     def enforce_rules(self) -> Iterator[Fuss]:

@@ -1,7 +1,7 @@
-# https://docs.codeclimate.com/docs/advanced-configuration#default-checks
 version: "2"
 
 # https://docs.codeclimate.com/docs/maintainability#section-checks
+# https://docs.codeclimate.com/docs/advanced-configuration#default-checks
 checks:
   file-lines:
     config:
