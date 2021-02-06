@@ -1,6 +1,16 @@
 plugins:
+  # https://docs.codeclimate.com/docs/bandit
+  bandit:
+    enabled: true
   # https://docs.codeclimate.com/docs/editorconfig
   editorconfig:
     enabled: true
-    config:
-      editorconfig: .editorconfig
+  # https://docs.codeclimate.com/docs/fixme
+  fixme:
+    enabled: true
+  # https://docs.codeclimate.com/docs/git-legal
+  git-legal:
+    enabled: true
+  # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
+  markdownlint:
+    enabled: false
