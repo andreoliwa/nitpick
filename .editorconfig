@@ -1,25 +1,31 @@
 # http://editorconfig.org/
 # top-most EditorConfig file
-root=true
+root = true
 
 # Unix-style newlines with a newline ending every file
 [*]
-end_of_line=lf
-insert_final_newline=true
-indent_style=space
-indent_size=4
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+tab_width = 4
+indent_size = tab
 
 # Whitespace at the end of lines
-trim_trailing_whitespace=true
+trim_trailing_whitespace = true
 
 # Matches multiple files with brace expansion notation
 # Set default charset
 [*.{js,json,py}]
-charset=utf-8
-indent_size=2
+charset = utf-8
+indent_size = 2
 
 [*.{yml,yaml}]
-indent_size=2
+indent_size = 2
 
 [Makefile]
-indent_style=tab
+indent_style = tab
+
+[*.rst]
+# Unset for RST, so codeclimate doesn't complain of auto-generated Sphinx files
+# https://docs.codeclimate.com/docs/editorconfig
+indent_size = unset
