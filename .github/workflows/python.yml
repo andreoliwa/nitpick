@@ -37,3 +37,5 @@ jobs:
       # Solution here: https://github.com/coverallsapp/github-action/issues/30#issuecomment-612523058
       - name: Coveralls Python
         uses: AndreMiras/coveralls-python-action@v20201129
+        with:
+          python-version: 3.8
