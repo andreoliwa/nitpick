@@ -31,8 +31,9 @@ jobs:
       - name: Test with tox
         run: tox
 
-      # https://github.com/marketplace/actions/coveralls-github-action
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # https://github.com/marketplace/actions/coveralls-python
+      # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
+      # It fails with "Error: Lcov file not found."
+      # Solution here: https://github.com/coverallsapp/github-action/issues/30#issuecomment-612523058
+      - name: Coveralls Python
+        uses: AndreMiras/coveralls-python-action@v20201129
