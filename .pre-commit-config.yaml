@@ -34,6 +34,7 @@ repos:
       - id: python-no-eval
       - id: python-no-log-warn
       - id: rst-backticks
+  # FIXME[AA]: run nitpick and pylint on tox -e lint
 #  - repo: local
 #    hooks:
 #      # Run flake8 locally with nitpick and all the plugins configured in pyproject.toml
