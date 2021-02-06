@@ -9,6 +9,7 @@ cache:
   directories:
     - $HOME/.cache/pip
     - $PRE_COMMIT_HOME
+# FIXME[AA]: remove this dir and all Travis references
 # https://docs.travis-ci.com/user/languages/python/
 language: python
 # https://docs.travis-ci.com/user/reference/xenial/
