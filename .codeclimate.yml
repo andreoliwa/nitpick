@@ -9,7 +9,7 @@ checks:
       threshold: 1000
   method-complexity:
     config:
-      threshold: 10  # Same as [flake8]max-complexity
+      threshold: 10 # Same as [flake8]max-complexity
 plugins:
   bandit: # https://docs.codeclimate.com/docs/bandit
     enabled: true

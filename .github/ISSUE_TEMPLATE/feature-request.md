@@ -1,10 +1,9 @@
 ---
 name: Feature request
 about: Suggest a feature to help us improve
-title: ''
-labels: 'enhancement'
-assignees: ''
-
+title: ""
+labels: "enhancement"
+assignees: ""
 ---
 
 Your feature may already be reported!
