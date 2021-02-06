@@ -34,6 +34,11 @@ repos:
       - id: python-no-eval
       - id: python-no-log-warn
       - id: rst-backticks
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.2.1
+    hooks:
+      - id: prettier
+        stages: [commit]
   # Run nitpick with tox, because local repos don't seem to work well with https://pre-commit.ci/
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4

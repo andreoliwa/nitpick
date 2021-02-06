@@ -1,0 +1,4 @@
+# https://prettier.io/docs/en/configuration.html
+index.html
+_includes/*
+*.min.css
