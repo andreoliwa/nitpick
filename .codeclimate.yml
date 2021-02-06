@@ -28,6 +28,9 @@ plugins:
     enabled: false
   radon: # https://docs.codeclimate.com/docs/radon
     enabled: true
+    config:
+      # https://radon.readthedocs.io/en/latest/commandline.html#the-cc-command
+      threshold: "C"
   shellcheck: #https://docs.codeclimate.com/docs/shellcheck
     enabled: true
   sonar-python: #https://docs.codeclimate.com/docs/sonar-python
