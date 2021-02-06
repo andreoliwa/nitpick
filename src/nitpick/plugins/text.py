@@ -1,17 +1,15 @@
 """Text files."""
-import logging
 from typing import Iterator, Optional, Type
 
 from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
 
 from nitpick import fields
-from nitpick.exceptions import NitpickError
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.data import FileData
 from nitpick.schemas import help_message
-
-LOGGER = logging.getLogger(__name__)
+from nitpick.violations import Fuss, ViolationEnum
 
 TEXT_FILE_RTFD_PAGE = "plugins.html#text-files"
 
@@ -30,14 +28,14 @@ class TextSchema(Schema):
     contains = fields.List(fields.Nested(TextItemSchema))
 
 
-class TextError(NitpickError):
-    """Base for text file errors."""
+class Violations(ViolationEnum):
+    """Violations for this plugin."""
 
-    error_base_number = 350
+    MissingLines = (352, " has missing lines:")
 
 
 class TextPlugin(NitpickPlugin):
-    """Checker for text files.
+    """Enforce configuration on text files.
 
     To check if ``some.txt`` file contains the lines ``abc`` and ``def`` (in any order):
 
@@ -50,13 +48,14 @@ class TextPlugin(NitpickPlugin):
         line = "def"
     """
 
-    error_class = TextError
     identify_tags = {"text"}
     validation_schema = TextSchema
 
     #: All other files are also text files, and they already have a suggested content message
     # TODO: this is a hack to avoid rethinking the whole schema validation now (this will have to be done some day)
     skip_empty_suggestion = True
+
+    violation_base_code = 350
 
     def _expected_lines(self):
         return [obj.get("line") for obj in self.file_dict.get("contains", {})]
@@ -65,13 +64,13 @@ class TextPlugin(NitpickPlugin):
         """Suggest the initial content for this missing file."""
         return "\n".join(self._expected_lines())
 
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check missing lines."""
+    def enforce_rules(self) -> Iterator[Fuss]:
+        """Enforce rules for missing lines."""
         expected = OrderedSet(self._expected_lines())
         actual = OrderedSet(self.file_path.read_text().split("\n"))
         missing = expected - actual
         if missing:
-            yield TextError(" has missing lines:", "\n".join(sorted(missing)), 2)
+            yield self.reporter.make_fuss(Violations.MissingLines, "\n".join(sorted(missing)))
 
 
 @hookimpl
@@ -81,8 +80,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
     """Handle text files."""
-    if TextPlugin.identify_tags & file.tags:
-        return TextPlugin(file.path_from_root)
+    if TextPlugin.identify_tags & data.tags:
+        return TextPlugin(data)
     return None

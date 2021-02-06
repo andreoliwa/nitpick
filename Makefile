@@ -3,7 +3,7 @@ $(shell mkdir -p .cache/make)
 
 .PHONY: Makefile
 
-build: .remove-old-cache .cache/make/lint .cache/make/test-quick .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
+build: .remove-old-cache .cache/make/lint .cache/make/test-one .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
 .PHONY: build
 
 help:
@@ -12,6 +12,9 @@ help:
 	@echo
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
+
+quick: pytest nitpick pre-commit pylint # Run pytest and pre-commit fast, without tox
+.PHONY: quick
 
 full-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project fully, like in CI
 .PHONY: full-build
@@ -36,7 +39,7 @@ install: install-pre-commit install-poetry # Install pre-commit hooks and Poetry
 
 # Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
 install-poetry .cache/make/long-poetry src/nitpick.egg-info/entry_points.txt: pyproject.toml # Install Poetry dependencies
-	poetry install
+	poetry install -E test -E lint
 	touch .cache/make/long-poetry
 .PHONY: install-poetry
 
@@ -64,13 +67,17 @@ lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/
 	touch .cache/make/lint
 .PHONY: lint
 
-nitpick: # Run the nitpick pre-commit hook to check local style changes
-	pre-commit run --all-files nitpick-local
-.PHONY: nitpick
+pre-commit: # Run pre-commit for all files
+	pre-commit run --all-files
+.PHONY: pre-commit
 
-flake8: # Run flake8 to check local style changes
+pylint: # Run pylint for all files
+	poetry run pylint src/
+.PHONY: pylint
+
+nitpick: # Run Nitpick locally on itself (with flake8)
 	poetry run flake8 --select=NIP
-.PHONY: flake8
+.PHONY: nitpick
 
 TOX_PYTHON_ENVS = $(shell tox -l | egrep '^py' | xargs echo | tr ' ' ',')
 
@@ -84,16 +91,17 @@ endif
 	touch .cache/make/test
 .PHONY: test
 
-test-quick .cache/make/test-quick: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests on a single Python version
+test-one .cache/make/test-one: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests on a single Python version
 	tox -e py36
-	touch .cache/make/test-quick
+	touch .cache/make/test-one
 .PHONY: test
 
 pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
-	poetry run python -m pytest
+	poetry run python -m pytest --doctest-modules
 .PHONY: pytest
 
 doc .cache/make/doc: docs/*/* styles/*/* *.rst *.md # Build documentation only
+	mkdir -p docs/_static
 	@rm -rf docs/source
 	tox -e docs
 	touch .cache/make/doc

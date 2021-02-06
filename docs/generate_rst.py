@@ -15,8 +15,8 @@ import click
 from slugify import slugify
 from sortedcontainers import SortedDict
 
-from nitpick.app import NitpickApp
 from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
+from nitpick.core import Nitpick
 
 style_mapping = SortedDict(
     {
@@ -41,7 +41,7 @@ style_mapping = SortedDict(
         "python39.toml": "Python 3.9",
     }
 )
-app = NitpickApp.create_app()
+nit = Nitpick.singleton().init()
 
 divider = ".. auto-generated-from-here"
 docs_dir = Path(__file__).parent.absolute()  # type: Path
@@ -133,9 +133,10 @@ def generate_plugins_rst():
 
     # Sort order: classes with fixed file names first, then alphabetically by class name
     for plugin_class in sorted(
-        app.plugin_manager.hook.plugin_class(), key=lambda c: "0" if c.file_name else "1" + c.__name__
+        nit.project.plugin_manager.hook.plugin_class(),  # pylint: disable=no-member
+        key=lambda c: "0" if c.filename else "1" + c.__name__,
     ):
-        header = plugin_class.file_name
+        header = plugin_class.filename
         if not header:
             # module_name = file_class.__module__
             module = import_module(plugin_class.__module__)

@@ -1,7 +1,7 @@
-nitpick.app module
+nitpick.cli module
 ==================
 
-.. automodule:: nitpick.app
+.. automodule:: nitpick.cli
    :members:
    :undoc-members:
    :show-inheritance:

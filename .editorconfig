@@ -7,14 +7,19 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 indent_style = space
-indent_size = 4
+tab_width = 4
+indent_size = tab
 
 # Whitespace at the end of lines
 trim_trailing_whitespace = true
 
 # Matches multiple files with brace expansion notation
 # Set default charset
-[*.{js,py}]
+[*.{js,json}]
+charset = utf-8
+indent_size = 2
+
+[*.py]
 charset = utf-8
 
 [*.{yml,yaml}]
@@ -22,3 +27,8 @@ indent_size = 2
 
 [Makefile]
 indent_style = tab
+
+[*.rst]
+# Unset for RST, so codeclimate doesn't complain of auto-generated Sphinx files
+# https://docs.codeclimate.com/docs/editorconfig
+indent_size = unset

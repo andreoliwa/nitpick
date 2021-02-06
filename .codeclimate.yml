@@ -1,3 +1,15 @@
+version: "2"
+
+# https://docs.codeclimate.com/docs/maintainability#section-checks
+# https://docs.codeclimate.com/docs/advanced-configuration#default-checks
+checks:
+  file-lines:
+    config:
+      # Pylint's default is also 1000: https://github.com/PyCQA/pylint/blob/master/pylint/checkers/format.py#L294-L300
+      threshold: 1000
+  method-complexity:
+    config:
+      threshold: 10  # Same as [flake8]max-complexity
 plugins:
   bandit: # https://docs.codeclimate.com/docs/bandit
     enabled: true
@@ -16,6 +28,9 @@ plugins:
     enabled: false
   radon: # https://docs.codeclimate.com/docs/radon
     enabled: true
+    config:
+      # https://radon.readthedocs.io/en/latest/commandline.html#the-cc-command
+      threshold: "C"
   shellcheck: #https://docs.codeclimate.com/docs/shellcheck
     enabled: true
   sonar-python: #https://docs.codeclimate.com/docs/sonar-python

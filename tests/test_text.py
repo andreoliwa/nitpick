@@ -13,7 +13,7 @@ def test_suggest_initial_contents(request):
         [["requirements.txt".contains]]
         line = "some-package==1.0.0"
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP351 File requirements.txt was not found. Create it with this content:\x1b[32m
         sphinx>=1.3.0
@@ -37,7 +37,7 @@ def test_text_configuration(request):
         ["ghi.txt".whatever]
         wrong = "everything"
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run(call_api=False).assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
         "abc.txt".contains.0.invalid: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.
@@ -60,7 +60,7 @@ def test_text_file_contains_line(request):
         [["my.txt".contains]]
         line = "www"
         """
-    ).save_file("my.txt", "def\nghi\nwww").flake8().assert_errors_contain(
+    ).save_file("my.txt", "def\nghi\nwww").simulate_run().assert_errors_contain(
         """
         NIP352 File my.txt has missing lines:\x1b[32m
         abc
@@ -76,7 +76,7 @@ def test_yaml_file_as_text(request):
         [[".gitlab-ci.yml".contains]]
         line = "    - mypy -p ims --junit-xml report-mypy.xml"
         """
-    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").flake8().assert_errors_contain(
+    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").simulate_run().assert_errors_contain(
         """
         NIP352 File .gitlab-ci.yml has missing lines:\x1b[32m
             - mypy -p ims --junit-xml report-mypy.xml\x1b[0m

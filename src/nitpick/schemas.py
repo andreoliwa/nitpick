@@ -15,7 +15,7 @@ def flatten_marshmallow_errors(errors: Dict) -> str:
     formatted = []
     for field, data in SortedDict(flatten(errors)).items():
         if isinstance(data, list):
-            messages_per_field = ["{}: {}".format(field, ", ".join(data))]
+            messages_per_field = ["{}: {}".format(field, ", ".join(data))]  # TODO: .format() to f-strings
         elif isinstance(data, dict):
             messages_per_field = [
                 "{}[{}]: {}".format(field, index, ", ".join(messages)) for index, messages in data.items()
@@ -37,14 +37,6 @@ class BaseNitpickSchema(Schema):
     """Base schema for all others, with default error messages."""
 
     error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html")}
-
-
-class ToolNitpickSectionSchema(BaseNitpickSchema):
-    """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
-
-    error_messages = {"unknown": help_message("Unknown configuration", "tool_nitpick_section.html")}
-
-    style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
 
 
 class NitpickStylesSectionSchema(BaseNitpickSchema):

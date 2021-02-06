@@ -11,7 +11,7 @@ def test_suggest_initial_contents(request):
         [tool.nitpick]
         style = ["package-json"]
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP341 File package.json was not found. Create it with this content:\x1b[32m
         {
@@ -36,7 +36,7 @@ def test_json_file_contains_keys(request):
         [tool.nitpick]
         style = ["package-json"]
         """
-    ).save_file("package.json", '{"name": "myproject", "version": "0.0.1"}').flake8().assert_errors_contain(
+    ).save_file("package.json", '{"name": "myproject", "version": "0.0.1"}').simulate_run().assert_errors_contain(
         """
         NIP348 File package.json has missing keys:\x1b[32m
         {
@@ -63,7 +63,9 @@ def test_missing_different_values(request):
         """
         formatting = """ {"doesnt":"matter","here":true,"on.the": "config file"} """
         '''
-    ).save_file("my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}').flake8().assert_errors_contain(
+    ).save_file(
+        "my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}'
+    ).simulate_run().assert_errors_contain(
         """
         NIP348 File my.json has missing values:\x1b[32m
         {
@@ -115,7 +117,7 @@ def test_invalid_json(request):
         ["another.json".with]
         extra = "key"
         '''
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
         "another.json".contains_json.some_field.value: Invalid JSON (json.decoder.JSONDecodeError: Invalid control character at: line 1 column 37 (char 36))
@@ -135,7 +137,7 @@ def test_json_configuration(request):
         ["their.json"]
         x = 1
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
         "their.json".x: Unknown configuration. See https://nitpick.rtfd.io/en/latest/nitpick_section.html.
@@ -159,7 +161,7 @@ def test_jsonfile_deprecated(request):
             ["my.json"]
             contains_keys = ["x"]
             """
-        ).save_file("my.json", '{"x":1}').flake8().assert_no_errors()
+        ).save_file("my.json", '{"x":1}').simulate_run(call_api=False).assert_no_errors()
 
         assert len(captured) == 1
         assert issubclass(captured[-1].category, DeprecationWarning)
