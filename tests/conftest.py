@@ -19,6 +19,10 @@ if sys.platform == "darwin" and not _ROOT.startswith("/private"):
 TEMP_PATH = Path(_ROOT).expanduser().absolute()
 
 
+# TODO: remove this fixture and env var and use https://docs.pytest.org/en/stable/tmpdir.html instead
+#  shutil.rmtree() is failing when GitHub Actions runs the tests on Windows:
+#  PermissionError: [WinError 32] The process cannot access the file because it is being used by another process:
+#  'C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpkop3vfso\\test_text\\test_yaml_file_as_text'
 @pytest.fixture(scope="session", autouse=True)
 def delete_project_temp_root():
     """Delete the temporary root before or after running the tests, depending on the env variable."""
