@@ -40,7 +40,7 @@ repos:
       - id: nitpick-local
         name: Nitpick (Locally on itself)
         entry: poetry run flake8 --select=NIP -j 0
-        language: python
+        language: system
         always_run: true
         additional_dependencies: ["poetry"]
   - repo: https://gitlab.com/pycqa/flake8
@@ -72,7 +72,7 @@ repos:
       - id: pylint
         name: pylint
         entry: poetry run pylint
-        language: python
+        language: system
         types: [python]
         # TODO: tox also installs pylint on .tox/lint/bin/pylint; remove pre-commit from tox?
         additional_dependencies: ["poetry"]
