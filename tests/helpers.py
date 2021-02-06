@@ -3,23 +3,30 @@ import os
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import TYPE_CHECKING, List, Set
+from typing import List, Set
 
 from _pytest.fixtures import FixtureRequest
+from click.testing import CliRunner
+from more_itertools.more import always_iterable
 from testfixtures import compare
 
-from nitpick.app import NitpickApp
-from nitpick.constants import CACHE_DIR_NAME, ERROR_PREFIX, MERGED_STYLE_TOML, NITPICK_STYLE_TOML, PROJECT_NAME
-from nitpick.flake8 import NitpickExtension
+from nitpick.cli import nitpick_cli
+from nitpick.constants import (
+    CACHE_DIR_NAME,
+    FLAKE8_PREFIX,
+    MERGED_STYLE_TOML,
+    NITPICK_STYLE_TOML,
+    PROJECT_NAME,
+    PYPROJECT_TOML,
+    SETUP_CFG,
+)
+from nitpick.core import Nitpick
+from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
-from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
-from nitpick.plugins.setup_cfg import SetupCfgPlugin
-from nitpick.typedefs import PathOrStr
+from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
+from nitpick.violations import Fuss
 from tests.conftest import TEMP_PATH
-
-if TYPE_CHECKING:
-    from nitpick.typedefs import Flake8Error  # pylint: disable=ungrouped-imports
 
 
 def assert_conditions(*args):
@@ -32,22 +39,25 @@ def assert_conditions(*args):
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
-    _original_errors = []  # type: List[Flake8Error]
-    _errors = set()  # type: Set[str]
-
-    fixtures_dir = Path(__file__).parent / "fixtures"  # type: Path
-    styles_dir = Path(__file__).parent.parent / "styles"  # type: Path
+    # TODO: use Python 3.6 type annotations
+    fixtures_dir: Path = Path(__file__).parent / "fixtures"
+    styles_dir: Path = Path(__file__).parent.parent / "styles"
 
     def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
+        self._actual_fusses: Set[Fuss] = set()
+        self._flake8_errors: List[Flake8Error] = []
+        self._flake8_errors_as_string: Set[str] = set()
+
         subdir = "/".join(pytest_request.module.__name__.split(".")[1:])
         caller_function_name = pytest_request.node.name
-        self.root_dir = TEMP_PATH / subdir / caller_function_name  # type: Path
+        # TODO: use tmp_path instead of self.root_dir
+        self.root_dir: Path = TEMP_PATH / subdir / caller_function_name
 
         # To make debugging of mock projects easy, each test should not reuse another test directory.
         self.root_dir.mkdir(parents=True)
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
-        self.files_to_lint = []  # type: List[Path]
+        self.files_to_lint: List[Path] = []
 
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
@@ -68,52 +78,53 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def flake8(self, offline=False, file_index: int = 0) -> "ProjectMock":
-        """Simulate a manual flake8 run.
+    def simulate_run(self, offline=False, call_api=True) -> "ProjectMock":
+        """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
         - Recreate the global app.
         - Change the working dir to the mocked project root.
         - Lint one of the project files. If no index is provided, use the default file that's always created.
         """
-        NitpickApp.current.cache_clear()
+        Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
-        NitpickApp.create_app(offline)
+        nit = Nitpick.singleton().init(offline=offline)
+        if call_api:
+            self._actual_fusses = set(nit.run())
 
-        npc = NitpickExtension(filename=str(self.files_to_lint[file_index]))
-        self._original_errors = list(npc.run())
+        npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
+        self._flake8_errors = list(npc.run())
 
-        self._errors = set()
-        for flake8_error in self._original_errors:
-            line, col, message, class_ = flake8_error
-            if not (line == 0 and col == 0 and message.startswith(ERROR_PREFIX) and class_ is NitpickExtension):
+        self._flake8_errors_as_string = set()
+        for line, col, message, class_ in self._flake8_errors:
+            if not (line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension):
                 raise AssertionError()
-            self._errors.add(message)
+            self._flake8_errors_as_string.add(message)
         return self
 
-    def save_file(self, file_name: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
+    def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents.
 
         Create the parent dirs if the file name contains a slash.
 
-        :param file_name: If it starts with a slash, then it's already a root.
+        :param filename: If it starts with a slash, then it's already a root.
             If it doesn't, then we add the root dir before the partial name.
         :param file_contents: Contents to save in the file.
         :param lint: Should we lint the file or not? Python (.py) files are always linted.
         """
-        if str(file_name).startswith("/"):
-            path = Path(file_name)  # type: Path
+        if str(filename).startswith("/"):
+            path = Path(filename)  # type: Path
         else:
-            path = self.root_dir / file_name
+            path = self.root_dir / filename
         path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
         path.write_text(dedent(file_contents).strip())
         return self
 
-    def touch_file(self, file_name: PathOrStr) -> "ProjectMock":
+    def touch_file(self, filename: PathOrStr) -> "ProjectMock":
         """Save an empty file (like the ``touch`` command)."""
-        return self.save_file(file_name, "")
+        return self.save_file(filename, "")
 
     def style(self, file_contents: str) -> "ProjectMock":
         """Save the default style file."""
@@ -125,53 +136,53 @@ class ProjectMock:
         If a style file is modified (file name or contents), tests might break.
         This is a good way to test the style files indirectly.
         """
-        for file_name in args:
-            style_path = Path(self.styles_dir) / self.ensure_toml_extension(file_name)
-            self.named_style(file_name, style_path.read_text())
+        for filename in args:
+            style_path = Path(self.styles_dir) / self.ensure_toml_extension(filename)
+            self.named_style(filename, style_path.read_text())
         return self
 
-    def named_style(self, file_name: PathOrStr, file_contents: str) -> "ProjectMock":
+    def named_style(self, filename: PathOrStr, file_contents: str) -> "ProjectMock":
         """Save a style file with a name. Add the .toml extension if needed."""
-        return self.save_file(self.ensure_toml_extension(file_name), file_contents)
+        return self.save_file(self.ensure_toml_extension(filename), file_contents)
 
     @staticmethod
-    def ensure_toml_extension(file_name: PathOrStr) -> PathOrStr:
+    def ensure_toml_extension(filename: PathOrStr) -> PathOrStr:
         """Ensure a file name has the .toml extension."""
-        return file_name if str(file_name).endswith(".toml") else "{}.toml".format(file_name)
+        return filename if str(filename).endswith(".toml") else "{}.toml".format(filename)
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""
-        return self.save_file(SetupCfgPlugin.file_name, file_contents)
+        return self.save_file(SETUP_CFG, file_contents)
 
     def pyproject_toml(self, file_contents: str) -> "ProjectMock":
         """Save pyproject.toml."""
-        return self.save_file(PyProjectTomlPlugin.file_name, file_contents)
+        return self.save_file(PYPROJECT_TOML, file_contents)
 
     def pre_commit(self, file_contents: str) -> "ProjectMock":
         """Save .pre-commit-config.yaml."""
-        return self.save_file(PreCommitPlugin.file_name, file_contents)
+        return self.save_file(PreCommitPlugin.filename, file_contents)
 
     def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""
         if expected_error:
-            print("Expected error:\n{}".format(expected_error))
+            print(f"Expected error:\n<<<{expected_error}>>>")
         print("\nError count:")
-        print(len(self._errors))
+        print(len(self._flake8_errors_as_string))
         print("\nAll errors:")
-        print(sorted(self._errors))
+        print(sorted(self._flake8_errors_as_string))
         print("\nAll errors with pprint():")
-        pprint(sorted(self._errors), width=150)
+        pprint(sorted(self._flake8_errors_as_string), width=150)
         print("\nAll errors with pure print():")
-        for error in sorted(self._errors):
+        for error in sorted(self._flake8_errors_as_string):
             print()
-            print(error)
+            print(f"<<<{error}>>>")
         print("\nProject root:", self.root_dir)
         raise AssertionError(assertion_message or expected_error)
 
     def _assert_error_count(self, expected_error: str, expected_count: int = None) -> "ProjectMock":
         """Assert the error count is correct."""
         if expected_count is not None:
-            actual = len(self._errors)
+            actual = len(self._flake8_errors_as_string)
             if expected_count != actual:
                 self.raise_assertion_error(expected_error, "Expected {} errors, got {}".format(expected_count, actual))
         return self
@@ -179,7 +190,7 @@ class ProjectMock:
     def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
         """Assert the error is in the error set."""
         expected_error = dedent(raw_error).strip()
-        if expected_error not in self._errors:
+        if expected_error not in self._flake8_errors_as_string:
             self.raise_assertion_error(expected_error)
         self._assert_error_count(expected_error, expected_count)
         return self
@@ -194,7 +205,7 @@ class ProjectMock:
         original_expected_error = dedent(raw_error).strip()
         expected_error = original_expected_error.replace("\x1b[0m", "")
         expected_error_lines = set(expected_error.split("\n"))
-        for actual_error in self._errors:
+        for actual_error in self._flake8_errors_as_string:
             if set(actual_error.replace("\x1b[0m", "").split("\n")) == expected_error_lines:
                 self._assert_error_count(raw_error, expected_count)
                 return self
@@ -208,14 +219,40 @@ class ProjectMock:
 
     def assert_no_errors(self) -> "ProjectMock":
         """Assert that there are no errors."""
-        if not self._errors:
+        if not self._flake8_errors_as_string:
             return self
 
         self.raise_assertion_error("")
         return self
 
-    def assert_merged_style(self, toml_string: str):
+    def assert_merged_style(self, toml_string: str) -> "ProjectMock":
         """Assert the contents of the merged style file."""
         expected = TOMLFormat(path=self.cache_dir / MERGED_STYLE_TOML)
         actual = TOMLFormat(string=dedent(toml_string))
         compare(expected.as_data, actual.as_data)
+        return self
+
+    def assert_fusses_are_exactly(self, *args: Fuss) -> "ProjectMock":
+        """Assert the exact set of fusses."""
+        compare(expected=set(args), actual=self._actual_fusses)
+        return self
+
+    def assert_cli_output(self, str_or_lines: StrOrList = None, violations=0) -> "ProjectMock":
+        """Assert the expected CLI output."""
+        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir)])
+        actual: List[str] = result.output.splitlines()
+
+        if isinstance(str_or_lines, str):
+            expected_lines = dedent(str_or_lines).strip().splitlines()
+        else:
+            expected_lines = list(always_iterable(str_or_lines))
+        expected_lines.append("All done! ✨ 🍰 ✨")
+        if violations:
+            plural = "s" if violations > 1 else ""
+            expected_lines.append(f"{violations} violation{plural}.")
+        elif str_or_lines:
+            del actual[-1]
+
+        compare(actual=actual, expected=expected_lines)
+        compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
+        return self

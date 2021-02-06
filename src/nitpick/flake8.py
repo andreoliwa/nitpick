@@ -1,50 +1,29 @@
 """Flake8 plugin to check files."""
-import itertools
 import logging
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterator
 
 import attr
 from flake8.options.manager import OptionManager
+from loguru import logger
 
 from nitpick import __version__
-from nitpick.app import NitpickApp
-from nitpick.constants import PROJECT_NAME
-from nitpick.exceptions import AbsentFileError, InitError, NitpickError, PresentFileError
-from nitpick.plugins.base import FilePathTags
+from nitpick.cli import NitpickFlag
+from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
+from nitpick.core import Nitpick
+from nitpick.exceptions import QuitComplainingError
 from nitpick.typedefs import Flake8Error
-
-LOGGER = logging.getLogger(__name__)
-
-
-def check_files(present: bool) -> Iterator[NitpickError]:
-    """Check files that should be present or absent."""
-    key = "present" if present else "absent"
-    message = "exist" if present else "be deleted"
-    absent = not present
-    for file_name, extra_message in NitpickApp.current().config.nitpick_files_section.get(key, {}).items():
-        file_path: Path = NitpickApp.current().root_dir / file_name
-        exists = file_path.exists()
-        if (present and exists) or (absent and not exists):
-            continue
-
-        full_message = f"File {file_name} should {message}"
-        if extra_message:
-            full_message += f": {extra_message}"
-        error_class = PresentFileError if present else AbsentFileError
-        yield error_class(full_message)
+from nitpick.violations import Fuss
 
 
 @attr.s(hash=False)
-class NitpickExtension:
+class NitpickFlake8Extension:
     """Main class for the flake8 extension."""
 
     # Plugin config
     name = PROJECT_NAME
     version = __version__
-
-    # NitpickMixin
-    error_class = InitError
 
     # Plugin arguments passed by Flake8
     tree = attr.ib(default=None)
@@ -52,57 +31,40 @@ class NitpickExtension:
 
     def run(self) -> Iterator[Flake8Error]:
         """Run the check plugin."""
-        for err in self.collect_nitpick_errors():
-            yield err.as_flake8_warning()
+        try:
+            for collected_fuss in self.collect_errors():
+                yield self.build_flake8_error(collected_fuss)
+        except QuitComplainingError as err:
+            for error_fuss in err.fusses:
+                yield self.build_flake8_error(error_fuss)
 
-    def collect_nitpick_errors(self) -> Iterator[NitpickError]:
+    def build_flake8_error(self, obj: Fuss) -> Flake8Error:
+        """Return a flake8 error from a fuss."""
+        prefix = f"File {obj.filename}" if obj.filename else ""
+        line = f"{FLAKE8_PREFIX}{obj.code:03} {prefix}{obj.message}{obj.colored_suggestion}"
+        return 0, 0, line, self.__class__
+
+    def collect_errors(self) -> Iterator[Fuss]:
         """Collect all possible Nitpick errors."""
-        has_errors = False
-        app = NitpickApp.current()
-        for init_err in app.init_errors:
-            has_errors = True
-            yield init_err
-        if has_errors:
-            return []
+        nit = Nitpick.singleton()
 
         current_python_file = Path(self.filename)
-        if current_python_file.absolute() != app.main_python_file.absolute():
+        main_python_file: Path = nit.project.find_main_python_file()
+        if current_python_file.absolute() != main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
-            LOGGER.debug("Ignoring file: %s", self.filename)
-            return []
-        LOGGER.debug("Nitpicking file: %s", self.filename)
-
-        yield from itertools.chain(app.config.merge_styles(), check_files(True), check_files(False))
-
-        has_errors = False
-        for style_err in app.style_errors:
-            has_errors = True
-            yield style_err
-        if has_errors:
+            logger.debug("Ignoring other Python file: {}", self.filename)
             return []
 
-        # Get all root keys from the merged style.
-        for config_key, config_dict in app.config.style_dict.items():
-            # All except "nitpick" are file names.
-            if config_key == PROJECT_NAME:
-                continue
-
-            # For each file name, find the plugin(s) that can handle the file.
-            for plugin_instance in app.plugin_manager.hook.can_handle(  # pylint: disable=no-member
-                file=FilePathTags(config_key)
-            ):
-                yield from plugin_instance.process(config_dict)
-
+        logger.debug("Nitpicking file through flake8: {}", self.filename)
+        yield from nit.run()
         return []
 
     @staticmethod
+    @lru_cache()  # To avoid calling this function twice in the same process
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(
-            NitpickApp.format_flag(NitpickApp.Flags.OFFLINE),
-            action="store_true",
-            # dest="offline",
-            help=NitpickApp.Flags.OFFLINE.value,
+            NitpickFlag.OFFLINE.as_flake8_flag(), action="store_true", help=NitpickFlag.OFFLINE.value
         )
 
     @staticmethod
@@ -114,5 +76,5 @@ class NitpickExtension:
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        NitpickApp.create_app(offline=bool(options.nitpick_offline or NitpickApp.get_env(NitpickApp.Flags.OFFLINE)))
-        LOGGER.info("Offline mode: %s", NitpickApp.current().offline)
+        nit = Nitpick.singleton().init(offline=bool(options.nitpick_offline or NitpickFlag.OFFLINE.get_environ()))
+        logger.info("Offline mode: {}", nit.offline)

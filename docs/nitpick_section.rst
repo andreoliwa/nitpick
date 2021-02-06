@@ -14,8 +14,8 @@ Show an upgrade message to the developer if Nitpick's version is below ``minimum
 
 .. code-block:: toml
 
-	[nitpick]
-	minimum_version = "0.10.0"
+    [nitpick]
+    minimum_version = "0.10.0"
 
 [nitpick.files]
 ---------------

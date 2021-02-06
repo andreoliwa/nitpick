@@ -2,21 +2,19 @@
 import abc
 import io
 import json
-import logging
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Type, Union
 
 import dictdiffer
 import toml
+from loguru import logger
 from ruamel.yaml import YAML, RoundTripRepresenter
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, unflatten
 from nitpick.typedefs import JsonDict, PathOrStr, YamlData
-
-LOGGER = logging.getLogger(__name__)
 
 
 class Comparison:
@@ -80,7 +78,7 @@ class Comparison:
                 self.diff_dict.update(unflatten({key[0]: raw_expected}))
                 return
 
-        LOGGER.warning("Err... this is unexpected, please open an issue: key=%s raw_expected=%s", key, raw_expected)
+        logger.warning("Err... this is unexpected, please open an issue: key={} raw_expected={}", key, raw_expected)
 
 
 class BaseFormat(metaclass=abc.ABCMeta):

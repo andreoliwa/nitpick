@@ -1,123 +1,104 @@
 """Base class for file checkers."""
 import abc
-from typing import TYPE_CHECKING, Iterator, Optional, Set, Type
+from functools import lru_cache
+from pathlib import Path
+from typing import Iterator, Optional, Set, Type
 
 import jmespath
-from identify import identify
+from autorepr import autotext
+from loguru import logger
+from marshmallow import Schema
 
-from nitpick.app import NitpickApp
-from nitpick.exceptions import Deprecation, NitpickError, PluginError
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
-from nitpick.typedefs import JsonDict
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from marshmallow import Schema
+from nitpick.plugins.data import FileData
+from nitpick.typedefs import JsonDict, mypy_property
+from nitpick.violations import Fuss, Reporter, SharedViolations, ViolationEnum
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):
     """Base class for file checkers."""
 
-    file_name = ""
-    error_class: Type[NitpickError] = PluginError
+    __str__, __unicode__ = autotext("{self.data.path_from_root} ({self.__class__.__name__})")
+
+    filename = ""  # TODO: remove filename attribute after fixing dynamic/fixed schema loading
+    violation_base_code: int = 0
+    error_codes: Optional[Type[ViolationEnum]] = None
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
-    validation_schema = None  # type: Optional[Schema]
-
-    fixed_name_classes = set()  # type: Set[Type[NitpickPlugin]]
-    dynamic_name_classes = set()  # type: Set[Type[NitpickPlugin]]
+    validation_schema: Optional[Schema] = None
 
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
     identify_tags: Set[str] = set()
 
     skip_empty_suggestion = False
 
-    def __init__(self, path_from_root: str = None) -> None:
-        if path_from_root is not None:
-            self.file_name = path_from_root
+    def __init__(self, data: FileData) -> None:
+        self.data = data
+        self.filename = data.path_from_root
+        self.reporter = Reporter(data, self.violation_base_code)
 
-        self.error_class.error_prefix = "File {}".format(self.file_name)
-        self.file_path = NitpickApp.current().root_dir / self.file_name  # type: Path
+        self.file_path: Path = self.data.project.root / self.filename
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict = {}  # type: JsonDict
+        self.file_dict: JsonDict = {}
 
-        # Nitpick configuration for this file as a TOML dict, taken from the style file.
-        self.nitpick_file_dict = search_dict(
-            'files."{}"'.format(self.file_name), NitpickApp.current().config.nitpick_section, {}
-        )  # type: JsonDict
-
-    @classmethod
-    def load_fixed_dynamic_classes(cls) -> None:
-        """Separate classes with fixed file names from classes with dynamic files names."""
-        cls.fixed_name_classes = set()
-        cls.dynamic_name_classes = set()
-        for plugin_class in NitpickApp.current().plugin_manager.hook.plugin_class():
-            if plugin_class.file_name:
-                cls.fixed_name_classes.add(plugin_class)
-            else:
-                cls.dynamic_name_classes.add(plugin_class)
+    @mypy_property
+    @lru_cache()
+    def nitpick_file_dict(self) -> JsonDict:
+        """Nitpick configuration for this file as a TOML dict, taken from the style file."""
+        return search_dict(f'files."{self.filename}"', self.data.project.nitpick_section, {})
 
     @classmethod
-    def get_compiled_jmespath_file_names(cls):
+    def get_compiled_jmespath_filenames(cls):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
-        return jmespath.compile("nitpick.{}.file_names".format(cls.__name__))
+        return jmespath.compile(f"nitpick.{cls.__name__}.filenames")
 
-    def process(self, config: JsonDict) -> Iterator[NitpickError]:
-        """Process the file, check if it should exist, check rules."""
+    def entry_point(self, config: JsonDict) -> Iterator[Fuss]:
+        """Entry point of the Nitpick plugin."""
         self.file_dict = config or {}
 
         config_data_exists = bool(self.file_dict or self.nitpick_file_dict)
-        should_exist = NitpickApp.current().config.nitpick_files_section.get(self.file_name, True)  # type: bool
+        should_exist: bool = self.data.project.nitpick_files_section.get(self.filename, True)
         file_exists = self.file_path.exists()
 
         if config_data_exists and not file_exists:
-            suggestion = self.suggest_initial_contents()
-            if not suggestion and self.skip_empty_suggestion:
-                return
-            phrases = [" was not found"]
-            message = NitpickApp.current().config.nitpick_files_section.get(self.file_name)
-            if message and isinstance(message, str):
-                phrases.append(message)
-            if suggestion:
-                phrases.append("Create it with this content:")
-            joined_message = ". ".join(phrases)
-            yield self.error_class(joined_message, suggestion, 1)
+            yield from self._suggest()
         elif not should_exist and file_exists:
+            logger.info(f"{self}: File {self.filename} exists when it should not")
             # Only display this message if the style is valid.
-            if not NitpickApp.current().style_errors:
-                yield self.error_class(" should be deleted", number=2)
+            yield self.reporter.make_fuss(SharedViolations.DeleteFile)
         elif file_exists and config_data_exists:
-            yield from self.check_rules()
+            logger.info(f"{self}: Enforcing rules")
+            yield from self.enforce_rules()
+
+    def _suggest(self):
+        suggestion = self.suggest_initial_contents()
+        if not suggestion and self.skip_empty_suggestion:
+            return
+        logger.info(f"{self}: Suggest initial contents for {self.filename}")
+        if suggestion:
+            yield self.reporter.make_fuss(SharedViolations.CreateFileWithSuggestion, suggestion)
+        else:
+            yield self.reporter.make_fuss(SharedViolations.CreateFile)
 
     @abc.abstractmethod
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check rules for this file. It should be overridden by inherited classes if needed."""
+    def enforce_rules(self) -> Iterator[Fuss]:
+        """Enforce rules for this file. It should be overridden by inherited classes if needed."""
 
     @abc.abstractmethod
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
 
-    def warn_missing_different(self, comparison: Comparison, prefix_message: str = "") -> Iterator[NitpickError]:
+    def warn_missing_different(self, comparison: Comparison, prefix: str = "") -> Iterator[Fuss]:
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
         if comparison.missing_format:
-            yield self.error_class(f"{prefix_message} has missing values:", comparison.missing_format.reformatted, 8)
-        if comparison.diff_format:
-            yield self.error_class(
-                f"{prefix_message} has different values. Use this:", comparison.diff_format.reformatted, 9
+            yield self.reporter.make_fuss(
+                SharedViolations.MissingValues, comparison.missing_format.reformatted, prefix=prefix
             )
-
-
-class FilePathTags:  # pylint: disable=too-few-public-methods
-    """Clean the file name and get its tags."""
-
-    def __init__(self, path_from_root: str) -> None:
-        if Deprecation.pre_commit_without_dash(path_from_root):
-            self.path_from_root = "." + path_from_root
-        else:
-            self.path_from_root = "." + path_from_root[1:] if path_from_root.startswith("-") else path_from_root
-        self.tags = set(identify.tags_from_filename(path_from_root))
+        if comparison.diff_format:
+            yield self.reporter.make_fuss(
+                SharedViolations.DifferentValues, comparison.diff_format.reformatted, prefix=prefix
+            )

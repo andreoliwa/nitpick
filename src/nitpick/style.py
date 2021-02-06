@@ -1,71 +1,94 @@
 """Style files."""
-import logging
 from collections import OrderedDict
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Type
+from shutil import rmtree
+from typing import Dict, Iterator, List, Optional, Set, Tuple, Type
 from urllib.parse import urlparse, urlunparse
 
 import click
 import requests
 from identify import identify
+from loguru import logger
 from marshmallow import Schema
+from pluggy import PluginManager
 from slugify import slugify
 from toml import TomlDecodeError
 
 from nitpick import __version__, fields
-from nitpick.app import NitpickApp
 from nitpick.constants import (
+    CACHE_DIR_NAME,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
     PROJECT_NAME,
+    PYPROJECT_TOML,
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.exceptions import Deprecation
+from nitpick.exceptions import Deprecation, QuitComplainingError, pretty_exception
 from nitpick.formats import TOMLFormat
-from nitpick.generic import MergeDict, climb_directory_tree, is_url, pretty_exception, search_dict
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
-from nitpick.plugins.pyproject_toml import PyProjectTomlPlugin
+from nitpick.generic import MergeDict, is_url, search_dict
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.data import FileData
+from nitpick.project import Project, climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
-from nitpick.typedefs import JsonDict, StrOrList
+from nitpick.typedefs import JsonDict, StrOrList, mypy_property
+from nitpick.violations import Fuss, Reporter, StyleViolations
 
-LOGGER = logging.getLogger(__name__)
+Plugins = Set[Type[NitpickPlugin]]
+
+
+def clear_cache_dir(project_root: Path) -> Path:  # TODO: add unit tests
+    """Clear the cache directory (on the project root or on the current directory)."""
+    cache_root: Path = project_root / CACHE_DIR_NAME
+    project_cache_dir = cache_root / PROJECT_NAME
+    rmtree(str(project_cache_dir), ignore_errors=True)
+    return project_cache_dir
 
 
 class Style:
     """Include styles recursively from one another."""
 
-    def __init__(self) -> None:
-        self._all_styles = MergeDict()
-        self._already_included = set()  # type: Set[str]
-        self._first_full_path = ""  # type: str
+    def __init__(self, project: Project, plugin_manager: PluginManager, offline: bool) -> None:
+        self.project: Project = project
+        self.plugin_manager: PluginManager = plugin_manager
+        self.offline = offline
 
-        self._dynamic_schema_class = BaseStyleSchema  # type: type
+        self._all_styles = MergeDict()
+        self._already_included: Set[str] = set()
+        self._first_full_path: str = ""
+
+        self._dynamic_schema_class: type = BaseStyleSchema
         self.rebuild_dynamic_schema()
-        self.style_errors = {}  # type: Dict[str, Any]
+
+    @mypy_property
+    @lru_cache()
+    def cache_dir(self) -> Path:
+        """Clear the cache directory (on the project root or on the current directory)."""
+        return clear_cache_dir(self.project.root)
 
     @staticmethod
     def get_default_style_url():
         """Return the URL of the default style for the current version."""
         return "{}/v{}/{}".format(RAW_GITHUB_CONTENT_BASE_URL, __version__, NITPICK_STYLE_TOML)
 
-    def find_initial_styles(self, configured_styles: StrOrList):
+    def find_initial_styles(self, configured_styles: StrOrList) -> Iterator[Fuss]:
         """Find the initial style(s) and include them."""
         if configured_styles:
             chosen_styles = configured_styles
-            log_message = "Styles configured in {}: %s".format(PyProjectTomlPlugin.file_name)
+            log_message = f"Styles configured in {PYPROJECT_TOML}"
         else:
-            paths = climb_directory_tree(NitpickApp.current().root_dir, [NITPICK_STYLE_TOML])
+            paths = climb_directory_tree(self.project.root, [NITPICK_STYLE_TOML])
             if paths:
                 chosen_styles = str(sorted(paths)[0])
-                log_message = "Found style climbing the directory tree: %s"
+                log_message = "Found style climbing the directory tree"
             else:
                 chosen_styles = self.get_default_style_url()
-                log_message = "Loading default Nitpick style %s"
-        LOGGER.info(log_message, chosen_styles)
+                log_message = "Loading default Nitpick style"
+        logger.info(log_message + ": {}", chosen_styles)
 
-        self.include_multiple_styles(chosen_styles)
+        yield from self.include_multiple_styles(chosen_styles)
 
     @staticmethod
     def validate_schema(schema: Type[Schema], path_from_root: str, original_data: JsonDict) -> Dict[str, List[str]]:
@@ -80,62 +103,63 @@ class Style:
             local_errors = {path_from_root: local_errors}
         return local_errors
 
-    def include_multiple_styles(self, chosen_styles: StrOrList) -> None:
+    def include_multiple_styles(self, chosen_styles: StrOrList) -> Iterator[Fuss]:
         """Include a list of styles (or just one) into this style tree."""
-        style_uris = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles  # type: List[str]
+        style_uris: List[str] = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles
         for style_uri in style_uris:
-            style_path = self.get_style_path(style_uri)  # type: Optional[Path]
+            style_path: Optional[Path] = self.get_style_path(style_uri)
             if not style_path:
                 continue
 
             toml = TOMLFormat(path=style_path)
-            app = NitpickApp.current()
             try:
                 read_toml_dict = toml.as_data
             except TomlDecodeError as err:
-                app.add_style_error(style_path.name, pretty_exception(err, "Invalid TOML"))
                 # If the TOML itself could not be parsed, we can't go on
-                return
+                raise QuitComplainingError(
+                    Reporter(FileData(self.project, style_path.name)).make_fuss(
+                        StyleViolations.InvalidTOML, exception=pretty_exception(err)
+                    )
+                ) from err
 
             try:
-                display_name = str(style_path.relative_to(app.root_dir))
+                display_name = str(style_path.relative_to(self.project.root))
             except ValueError:
                 display_name = style_uri
 
-            toml_dict = self._validate_config(read_toml_dict)
+            toml_dict, validation_errors = self._validate_config(read_toml_dict)
 
-            if self.style_errors:
-                NitpickApp.current().add_style_error(
-                    display_name, "Invalid config:", flatten_marshmallow_errors(self.style_errors)
+            if validation_errors:
+                yield Reporter(FileData(self.project, display_name)).make_fuss(
+                    StyleViolations.InvalidConfig, flatten_marshmallow_errors(validation_errors)
                 )
+
             self._all_styles.add(toml_dict)
 
             sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
             if sub_styles:
-                self.include_multiple_styles(sub_styles)
+                yield from self.include_multiple_styles(sub_styles)
 
-    def _validate_config(self, config_dict: dict) -> dict:
-        self.style_errors = {}
+    def _validate_config(self, config_dict: Dict) -> Tuple[Dict, Dict]:
+        validation_errors = {}
         toml_dict = OrderedDict()
         for key, value_dict in config_dict.items():
-            file = FilePathTags(key)
-            toml_dict[file.path_from_root] = value_dict
+            data = FileData.create(self.project, key)
+            toml_dict[data.path_from_root] = value_dict
             if key == PROJECT_NAME:
                 schemas = [NitpickSectionSchema]
             else:
                 schemas = [
                     plugin.validation_schema
-                    for plugin in NitpickApp.current().plugin_manager.hook.can_handle(  # pylint: disable=no-member
-                        file=file
-                    )
+                    for plugin in self.plugin_manager.hook.can_handle(data=data)  # pylint: disable=no-member
                 ]
                 if not schemas:
-                    self.style_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
+                    validation_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
 
             all_errors = {}
             valid_schema = False
             for schema in schemas:
-                errors = self.validate_schema(schema, file.path_from_root, value_dict)
+                errors = self.validate_schema(schema, data.path_from_root, value_dict)
                 if not errors:
                     # When multiple schemas match a file type, exit when a valid schema is found
                     valid_schema = True
@@ -144,8 +168,8 @@ class Style:
 
             if not valid_schema:
                 Deprecation.jsonfile_section(all_errors, False)
-                self.style_errors.update(all_errors)
-        return toml_dict
+                validation_errors.update(all_errors)
+        return toml_dict, validation_errors
 
     def get_style_path(self, style_uri: str) -> Optional[Path]:
         """Get the style path from the URI. Add the .toml extension if it's missing."""
@@ -160,14 +184,14 @@ class Style:
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
-        if NitpickApp.current().offline:
+        if self.offline:
             # No style will be fetched in offline mode
             return None
 
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
             domain_plus_url = str(rest).strip("/").rstrip("/") + "/" + url
-            new_url = "{}://{}".format(prefix, domain_plus_url)
+            new_url = f"{prefix}://{domain_plus_url}"
         else:
             new_url = url
 
@@ -179,15 +203,17 @@ class Style:
         if new_url in self._already_included:
             return None
 
-        if not NitpickApp.current().cache_dir:
+        if not self.cache_dir:
             raise FileNotFoundError("Cache dir does not exist")
 
         try:
             response = requests.get(new_url)
         except requests.ConnectionError:
+            from nitpick.cli import NitpickFlag  # pylint: disable=import-outside-toplevel
+
             click.secho(
                 "Your network is unreachable. Fix your connection or use {} / {}=1".format(
-                    NitpickApp.format_flag(NitpickApp.Flags.OFFLINE), NitpickApp.format_env(NitpickApp.Flags.OFFLINE)
+                    NitpickFlag.OFFLINE.as_flake8_flag(), NitpickFlag.OFFLINE.as_envvar()
                 ),
                 fg="red",
                 err=True,
@@ -201,20 +227,20 @@ class Style:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
-        style_path = NitpickApp.current().cache_dir / "{}.toml".format(slugify(new_url))
-        NitpickApp.current().cache_dir.mkdir(parents=True, exist_ok=True)
+        style_path = self.cache_dir / f"{slugify(new_url)}.toml"
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
 
-        LOGGER.info("Loading style from URL %s into %s", new_url, style_path)
+        logger.debug("Loading style from URL {} into {}", new_url, style_path)
         self._already_included.add(new_url)
 
         return style_path
 
-    def fetch_style_from_local_path(self, partial_file_name: str) -> Optional[Path]:
+    def fetch_style_from_local_path(self, partial_filename: str) -> Optional[Path]:
         """Fetch a style file from a local path."""
-        if partial_file_name and not partial_file_name.endswith(TOML_EXTENSION):
-            partial_file_name += TOML_EXTENSION
-        expanded_path = Path(partial_file_name).expanduser()
+        if partial_filename and not partial_filename.endswith(TOML_EXTENSION):
+            partial_filename += TOML_EXTENSION
+        expanded_path = Path(partial_filename).expanduser()
 
         if not str(expanded_path).startswith("/") and self._first_full_path:
             # Prepend the previous path to the partial file name.
@@ -231,26 +257,25 @@ class Style:
             return None
 
         if not style_path.exists():
-            raise FileNotFoundError("Local style file does not exist: {}".format(style_path))
+            raise FileNotFoundError(f"Local style file does not exist: {style_path}")
 
-        LOGGER.info("Loading style from file: %s", style_path)
+        logger.debug(f"Loading style from {style_path}")
         self._already_included.add(str(style_path))
         return style_path
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        app = NitpickApp.current()
-        if not app.cache_dir:
+        if not self.cache_dir:
             return {}
         merged_dict = self._all_styles.merge()
         # TODO: check if the merged style file is still needed
-        merged_style_path = app.cache_dir / MERGED_STYLE_TOML  # type: Path
+        merged_style_path = self.cache_dir / MERGED_STYLE_TOML  # type: Path
         toml = TOMLFormat(data=merged_dict)
 
         attempt = 1
         while attempt < 5:
             try:
-                app.cache_dir.mkdir(parents=True, exist_ok=True)
+                self.cache_dir.mkdir(parents=True, exist_ok=True)
                 merged_style_path.write_text(toml.reformatted)
                 break
             except OSError:
@@ -259,11 +284,11 @@ class Style:
         return merged_dict
 
     @staticmethod
-    def file_field_pair(file_name: str, base_file_class: Type[NitpickPlugin]) -> Dict[str, fields.Field]:
+    def file_field_pair(filename: str, base_file_class: Type[NitpickPlugin]) -> Dict[str, fields.Field]:
         """Return a schema field with info from a config file class."""
-        unique_file_name_with_underscore = slugify(file_name, separator="_")
+        unique_filename_with_underscore = slugify(filename, separator="_")
 
-        kwargs = {"data_key": file_name}
+        kwargs = {"data_key": filename}
         if base_file_class.validation_schema:
             field = fields.Nested(base_file_class.validation_schema, **kwargs)
         else:
@@ -271,33 +296,47 @@ class Style:
             # it can be anything they allow.
             # It's out of Nitpick's scope to validate those files.
             field = fields.Dict(fields.String, **kwargs)
-        return {unique_file_name_with_underscore: field}
+        return {unique_filename_with_underscore: field}
+
+    @lru_cache()
+    def load_fixed_dynamic_classes(self) -> Tuple[Plugins, Plugins]:
+        """Separate classes with fixed file names from classes with dynamic files names."""
+        fixed_name_classes: Plugins = set()
+        dynamic_name_classes: Plugins = set()
+        for plugin_class in self.plugin_manager.hook.plugin_class():  # pylint: disable=no-member
+            if plugin_class.filename:
+                fixed_name_classes.add(plugin_class)
+            else:
+                dynamic_name_classes.add(plugin_class)
+        return fixed_name_classes, dynamic_name_classes
 
     def rebuild_dynamic_schema(self, data: JsonDict = None) -> None:
         """Rebuild the dynamic Marshmallow schema when needed, adding new fields that were found on the style."""
-        new_files_found = OrderedDict()  # type: Dict[str, fields.Field]
+        new_files_found: Dict[str, fields.Field] = OrderedDict()
+
+        fixed_name_classes, dynamic_name_classes = self.load_fixed_dynamic_classes()
 
         if data is None:
             # Data is empty; so this is the first time the dynamic class is being rebuilt.
             # Loop on classes with predetermined names, and add fields for them on the dynamic validation schema.
             # E.g.: setup.cfg, pre-commit, pyproject.toml: files whose names we already know at this point.
-            for subclass in NitpickPlugin.fixed_name_classes:
-                new_files_found.update(self.file_field_pair(subclass.file_name, subclass))
+            for subclass in fixed_name_classes:
+                new_files_found.update(self.file_field_pair(subclass.filename, subclass))
         else:
-            handled_tags = {}  # type: Dict[str, Type[NitpickPlugin]]
+            handled_tags: Dict[str, Type[NitpickPlugin]] = {}
 
             # Data was provided; search it to find new dynamic files to add to the validation schema).
             # E.g.: JSON files that were configured on some TOML style file.
-            for subclass in NitpickPlugin.dynamic_name_classes:
+            for subclass in dynamic_name_classes:
                 for tag in subclass.identify_tags:
                     # TODO: WRONG! a tag should be handled by multiple classes...
                     # A tag can only be handled by a single subclass.
                     # If more than one class handle a tag, the latest one will be the handler.
                     handled_tags[tag] = subclass
 
-                jmex = subclass.get_compiled_jmespath_file_names()
-                for configured_file_name in search_dict(jmex, data, []):
-                    new_files_found.update(self.file_field_pair(configured_file_name, subclass))
+                jmex = subclass.get_compiled_jmespath_filenames()
+                for configured_filename in search_dict(jmex, data, []):
+                    new_files_found.update(self.file_field_pair(configured_filename, subclass))
 
             self._find_subclasses(data, handled_tags, new_files_found)
 

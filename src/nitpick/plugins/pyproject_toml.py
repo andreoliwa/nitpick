@@ -1,20 +1,16 @@
-"""Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
+"""Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
 from typing import Iterator, Optional, Type
 
-from nitpick.app import NitpickApp
-from nitpick.exceptions import NitpickError
+from nitpick.constants import PYPROJECT_TOML
+from nitpick.core import Nitpick
 from nitpick.plugins import hookimpl
-from nitpick.plugins.base import FilePathTags, NitpickPlugin
-
-
-class PyProjectTomlError(NitpickError):
-    """Base for pyproject.toml errors."""
-
-    error_base_number = 310
+from nitpick.plugins.base import NitpickPlugin
+from nitpick.plugins.data import FileData
+from nitpick.violations import Fuss
 
 
 class PyProjectTomlPlugin(NitpickPlugin):
-    """Checker for `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
+    """Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
     See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
 
@@ -22,13 +18,14 @@ class PyProjectTomlPlugin(NitpickPlugin):
     There are many other examples in :ref:`defaults`.
     """
 
-    file_name = "pyproject.toml"
-    error_class = PyProjectTomlError
+    filename = PYPROJECT_TOML
+    violation_base_code = 310
 
-    def check_rules(self) -> Iterator[NitpickError]:
-        """Check missing key/value pairs in pyproject.toml."""
-        if NitpickApp.current().config.pyproject_toml:
-            comparison = NitpickApp.current().config.pyproject_toml.compare_with_flatten(self.file_dict)
+    def enforce_rules(self) -> Iterator[Fuss]:
+        """Enforce rules for missing key/value pairs in pyproject.toml."""
+        file = Nitpick.singleton().project.pyproject_toml
+        if file:
+            comparison = file.compare_with_flatten(self.file_dict)
             yield from self.warn_missing_different(comparison)
 
     def suggest_initial_contents(self) -> str:
@@ -43,8 +40,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(file: FilePathTags) -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
     """Handle pyproject.toml file."""
-    if file.path_from_root == PyProjectTomlPlugin.file_name:
-        return PyProjectTomlPlugin()
+    if data.path_from_root == PYPROJECT_TOML:
+        return PyProjectTomlPlugin(data)
     return None

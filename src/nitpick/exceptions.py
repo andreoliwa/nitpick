@@ -1,118 +1,19 @@
 """Nitpick exceptions."""
 import warnings
-from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List, Union
 
-import click
+from more_itertools import always_iterable
 
-from nitpick.constants import ERROR_PREFIX, PROJECT_NAME
-from nitpick.typedefs import Flake8Error
-
-
-class NitpickError(Exception):
-    """A Nitpick error  raise flake8 errors."""
-
-    error_base_number: int = 0
-    error_prefix: str = ""
-    number: int = 0
-    add_to_base_number: bool = True
-
-    def __init__(self, message: str = "", suggestion: str = "", number: int = 0, add_to_base_number=True) -> None:
-        self.message: str = message or self.message
-        self.suggestion: str = suggestion
-        if number:
-            self.number = number
-        self.add_to_base_number = add_to_base_number
-
-        super().__init__(self.message)
-
-    def as_flake8_warning(self) -> Flake8Error:
-        """Return a flake8 error as a tuple."""
-        joined_number = self.error_base_number + self.number if self.add_to_base_number else self.number
-        suggestion_with_newline = (
-            click.style("\n{}".format(self.suggestion.rstrip()), fg="green") if self.suggestion else ""
-        )
-
-        from nitpick.flake8 import NitpickExtension  # pylint: disable=import-outside-toplevel
-
-        return (
-            0,
-            0,
-            "{}{:03d} {}{}{}".format(
-                ERROR_PREFIX, joined_number, self.error_prefix, self.message.rstrip(), suggestion_with_newline
-            ),
-            NitpickExtension,
-        )
+from nitpick.constants import PROJECT_NAME
+from nitpick.violations import Fuss
 
 
-class InitError(NitpickError):
-    """Init errors."""
+class QuitComplainingError(Exception):
+    """Quit complaining and exit the application."""
 
-    error_base_number = 100
-
-
-class NoRootDirError(InitError):
-    """No root dir found."""
-
-    number = 1
-    message = "No root dir found (is this a Python project?)"
-
-
-class NoPythonFileError(InitError):
-    """No Python file was found."""
-
-    number = 2
-    message = "No Python file was found on the root dir and subdir of {!r}"
-
-    def __init__(self, root_dir: Path, **kwargs) -> None:
-        self.message = self.message.format(str(root_dir))
-        super().__init__(self.message, **kwargs)
-
-
-class PresentFileError(InitError):
-    """File exists when it shouldn't."""
-
-    number = 3
-
-
-class AbsentFileError(InitError):
-    """File doesn't exist when it should."""
-
-    number = 4
-
-
-class ConfigError(NitpickError):
-    """Config error."""
-
-    error_base_number = 200
-
-
-class MinimumVersionError(ConfigError):
-    """Warn about minimum Nitpick version."""
-
-    number = 3
-    message = "The style file you're using requires {project}>={expected} (you have {actual}). Please upgrade"
-
-    def __init__(self, expected: str, actual: str) -> None:
-        super().__init__(self.message.format(project=PROJECT_NAME, expected=expected, actual=actual))
-
-
-class StyleError(NitpickError):
-    """An error in a style file."""
-
-    number = 1
-    add_to_base_number = False
-    message = "Invalid style"
-
-    def __init__(self, style_file_name: str, **kwargs) -> None:
-        self.style_file_name = style_file_name
-        super().__init__(**kwargs)
-
-
-class PluginError(NitpickError):
-    """Base for plugin errors."""
-
-    error_base_number = 300
+    def __init__(self, fusses: Union[Fuss, List[Fuss]]) -> None:
+        super().__init__()
+        self.fusses: List[Fuss] = list(always_iterable(fusses))
 
 
 class Deprecation:
@@ -127,7 +28,7 @@ class Deprecation:
         """The pre-commit config should start with a dot on the config file."""
         from nitpick.plugins.pre_commit import PreCommitPlugin  # pylint: disable=import-outside-toplevel
 
-        if path_from_root == PreCommitPlugin.file_name[1:]:
+        if path_from_root == PreCommitPlugin.filename[1:]:
             warnings.warn(
                 'The section name for dotfiles should start with a dot: [".{}"]'.format(path_from_root),
                 DeprecationWarning,
@@ -150,3 +51,8 @@ class Deprecation:
                 )
                 return True
         return False
+
+
+def pretty_exception(err: Exception, message: str = ""):
+    """Return a pretty error message with the full path of the Exception."""
+    return f"{message} ({err.__module__}.{err.__class__.__name__}: {str(err)})"

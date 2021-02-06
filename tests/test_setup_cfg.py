@@ -4,7 +4,7 @@ from tests.helpers import ProjectMock
 
 def test_setup_cfg_has_no_configuration(request):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(request).style("").setup_cfg("").flake8().assert_no_errors()
+    ProjectMock(request).style("").setup_cfg("").simulate_run().assert_no_errors()
 
 
 def test_comma_separated_keys_on_style_file(request):
@@ -26,7 +26,7 @@ def test_comma_separated_keys_on_style_file(request):
             eat = spam,eggs,cheese
             """
         )
-        .flake8()
+        .simulate_run()
     )
     project.assert_single_error(
         """
@@ -53,7 +53,7 @@ def test_suggest_initial_contents(request):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
         [flake8]
@@ -89,7 +89,7 @@ def test_missing_sections(request):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).flake8().assert_single_error(
+    ).simulate_run().assert_single_error(
         """
         NIP321 File setup.cfg has some missing sections. Use this:\x1b[32m
         [flake8]
@@ -123,7 +123,7 @@ def test_different_missing_keys(request):
         ["setup.cfg".flake8]
         max-line-length = 112
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP323 File setup.cfg: [isort]line_length is 30 but it should be like this:\x1b[32m
         [isort]
@@ -151,7 +151,7 @@ def test_invalid_configuration_comma_separated_values(request):
         [nitpick.files."setup.cfg"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude"]
         """
-    ).flake8().assert_errors_contain(
+    ).simulate_run().assert_errors_contain(
         """
         NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
         [flake8]
@@ -170,7 +170,7 @@ def test_invalid_section_dot_fields(request):
         [nitpick.files."setup.cfg"]
         comma_separated_values = ["no_dot", "multiple.dots.here", ".filed_only", "section_only."]
         """
-    ).setup_cfg("").flake8().assert_errors_contain(
+    ).setup_cfg("").simulate_run().assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
         nitpick.files."setup.cfg".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
@@ -200,6 +200,6 @@ def test_invalid_sections_comma_separated_values(request):
         ignore = W503,E203,FI12,FI15,FI16,FI17,FI18,FI50,FI51,FI53,FI54,FI55,FI58,PT003,C408
         per-file-ignores = tests/**.py:FI18,setup.py:FI18,tests/**.py:BZ01
         """
-    ).flake8().assert_single_error(
+    ).simulate_run().assert_single_error(
         "NIP325 File setup.cfg: invalid sections on comma_separated_values:\x1b[32m\naaa, falek8\x1b[0m"
     )
