@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        python-version: ["3.6"] # FIXME[AA]: , "3.7", "3.8", "3.9"]
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
         os: [ubuntu-latest] # FIXME[AA]: , macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
