@@ -11,6 +11,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=andreoliwa/nitpick)](https://dependabot.com)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/develop.svg)](https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/develop)
 
 Flake8 plugin to enforce the same tool configuration ([flake8](https://gitlab.com/pycqa/flake8), [isort](https://github.com/PyCQA/isort), [mypy](http://mypy-lang.org/), [Pylint](https://www.pylint.org)...) across multiple Python projects.
 
