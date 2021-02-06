@@ -35,5 +35,18 @@ jobs:
       # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
       # It fails with "Error: Lcov file not found."
       # Solution here: https://github.com/coverallsapp/github-action/issues/30#issuecomment-612523058
-      - name: Coveralls Python
-        uses: AndreMiras/coveralls-python-action@v20201129
+      - name: Coveralls
+        uses: AndreMiras/coveralls-python-action@develop
+        with:
+          parallel: true
+          flag-name: Unit Test
+
+  # https://github.com/marketplace/actions/coveralls-python
+  coveralls_finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: AndreMiras/coveralls-python-action@develop
+        with:
+          parallel-finished: true
