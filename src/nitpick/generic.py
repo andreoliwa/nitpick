@@ -5,6 +5,7 @@
     from nitpick.generic import *
 """
 import collections
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -241,6 +242,6 @@ def relative_to_cur_home_abs(path_or_str: Optional[PathOrStr]) -> str:
         return str(path.relative_to(Path.cwd())).lstrip(".")
 
     try:
-        return f"~/{path.relative_to(path.home())}"
+        return f"~{os.path.sep}{path.relative_to(path.home())}"
     except ValueError:
         return str(path.absolute())

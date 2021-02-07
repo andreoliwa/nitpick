@@ -1,4 +1,5 @@
 """The Nitpick application."""
+import os
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
@@ -112,5 +113,5 @@ class Nitpick:
         """Echo a message on the terminal, with the relative path at the beginning."""
         relative = relative_to_cur_home_abs(self.project.root)
         if relative:
-            relative += "/"
+            relative += os.path.sep
         click.echo(f"{relative}{message}")
