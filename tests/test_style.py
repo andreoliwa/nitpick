@@ -1,5 +1,6 @@
 """Style tests."""
 # pylint: disable=no-member
+import sys
 from textwrap import dedent
 from typing import TYPE_CHECKING
 from unittest import mock
@@ -190,6 +191,7 @@ def test_minimum_version(mocked_version, offline, tmp_path):
 
 
 @pytest.mark.parametrize("offline", [False, True])
+@pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 def test_relative_and_other_root_dirs(offline, tmp_path):
     """Test styles in relative and in other root dirs."""
     another_dir: Path = tmp_path / "another_dir"

@@ -43,8 +43,9 @@ def test_merge_dicts_extending_lists():
 
 @mock.patch.object(Path, "cwd")
 @mock.patch.object(Path, "home")
-@pytest.mark.skipif(sys.platform == "win32", reason="Different path separator on Windows")
-# TODO: create a separate test mocking current and home folders on Windows. e.g: C:\\Users\\runneradmin\\
+@pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
+# TODO: fix Windows tests.
+#  For this one, create a separate test mocking current and home folders on Windows. e.g: C:\\Users\\runneradmin\\
 def test_relative_to_cur_home_full(home, cwd):
     """Mock the home and current dirs, and test relative paths to them (testing Linux-only)."""
     home_dir = "/home/john"
