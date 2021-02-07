@@ -81,6 +81,12 @@ def test_multiple_styles_overriding_values(offline, request):
         line_length = 120
         xxx = yyy\x1b[0m
         """
+    ).assert_cli_output(
+        """
+        pyproject.toml (exists)
+        setup.cfg (not found)
+        """,
+        command="ls",
     )
 
 

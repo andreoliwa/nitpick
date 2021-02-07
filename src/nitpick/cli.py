@@ -15,6 +15,7 @@ Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 import os
 from enum import Enum
 from pathlib import Path
+from typing import Optional
 
 import click
 from click.exceptions import Exit
@@ -22,6 +23,7 @@ from loguru import logger
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
+from nitpick.generic import relative_to_cur_home_abs
 
 
 class _FlagMixin:
@@ -50,15 +52,9 @@ class NitpickFlag(_FlagMixin, Enum):
 
 
 @click.group()
-def nitpick_cli():
-    """Enforce the same configuration across multiple projects."""
-
-
-@nitpick_cli.command()
 @click.option(
     "--project",
     "-p",
-    "project_root",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
     help="Path to project root",
 )
@@ -68,6 +64,22 @@ def nitpick_cli():
     default=False,
     help=NitpickFlag.OFFLINE.value,
 )
+def nitpick_cli(project: Path = None, offline=False):  # pylint: disable=unused-argument
+    """Enforce the same configuration across multiple projects."""
+
+
+def get_nitpick(context: click.Context) -> Nitpick:
+    """Create a Nitpick instance from the click context parameters."""
+    project = None
+    offline = False
+    if context.parent:
+        project = context.parent.params["project"]
+        offline = context.parent.params["offline"]
+    project_root: Optional[Path] = Path(project) if project else None
+    return Nitpick.singleton().init(project_root, offline)
+
+
+@nitpick_cli.command()
 @click.option(
     "--check",
     "-c",
@@ -77,7 +89,8 @@ def nitpick_cli():
     " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
 )
 @click.option("--verbose", "-v", is_flag=True, default=False, help="Verbose logging")
-def run(project_root: Path = None, offline=False, check=False, verbose=False):
+@click.pass_context
+def run(context, check=False, verbose=False):
     """Apply suggestions to configuration files."""
     if verbose:
         logger.enable(PROJECT_NAME)
@@ -85,22 +98,33 @@ def run(project_root: Path = None, offline=False, check=False, verbose=False):
     if not check:
         logger.warning("Apply mode is not yet implemented; running a check instead")
 
-    nit = Nitpick.singleton().init(project_root, offline)
-    path = ""
-    if project_root:
-        root: Path = nit.project.root
-        try:
-            path = f"~/{root.relative_to(root.home())}/"
-        except ValueError:
-            pass
-
+    nit = get_nitpick(context)
     violations = 0
-    for err in nit.run():
+    for fuss in nit.run():
         violations += 1
-        click.echo(f"{path}{err.pretty}")
+        nit.echo(fuss.pretty)
 
-    click.secho("All done! ✨ 🍰 ✨", fg="bright_white")
     if violations:
         plural = "s" if violations > 1 else ""
-        click.secho(f"{violations} violation{plural}.")
+        click.secho(f"❌ {violations} violation{plural}.")
         raise Exit(1)
+
+
+@nitpick_cli.command()
+@click.pass_context
+def ls(context):  # pylint: disable=invalid-name
+    """List of files configured in the Nitpick style."""
+    nit = get_nitpick(context)
+    fusses = list(nit.project.merge_styles(nit.offline))
+    if fusses:
+        for fuss in fusses:
+            click.echo(fuss.pretty)
+        raise Exit(1)  # FIXME[AA]: test ls with invalid style
+
+    # FIXME[AA]: test API .configured_files
+    for file in nit.configured_files:  # type: Path
+        click.echo(relative_to_cur_home_abs(file) + " ", nl=False)
+        if file.exists():
+            click.secho("(exists)", fg="green")
+        else:
+            click.secho("(not found)", fg="red")

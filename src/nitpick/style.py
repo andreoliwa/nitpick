@@ -71,7 +71,7 @@ class Style:
     @staticmethod
     def get_default_style_url():
         """Return the URL of the default style for the current version."""
-        return "{}/v{}/{}".format(RAW_GITHUB_CONTENT_BASE_URL, __version__, NITPICK_STYLE_TOML)
+        return f"{RAW_GITHUB_CONTENT_BASE_URL}/v{__version__}/{NITPICK_STYLE_TOML}"
 
     def find_initial_styles(self, configured_styles: StrOrList) -> Iterator[Fuss]:
         """Find the initial style(s) and include them."""

@@ -2,12 +2,14 @@
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import Iterator, Union
+from typing import Iterator, List, Union
 
+import click
 from loguru import logger
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import QuitComplainingError
+from nitpick.generic import relative_to_cur_home_abs
 from nitpick.plugins.data import FileData
 from nitpick.project import Project
 from nitpick.violations import Fuss, ProjectViolations, Reporter
@@ -100,3 +102,15 @@ class Nitpick:
                 data=FileData.create(self.project, config_key)
             ):
                 yield from plugin_instance.entry_point(config_dict)
+
+    @property
+    def configured_files(self) -> List[Path]:
+        """List of files configured in the Nitpick style."""
+        return [Path(self.project.root) / key for key in self.project.style_dict.keys() if key != PROJECT_NAME]
+
+    def echo(self, message: str):
+        """Echo a message on the terminal, with the relative path at the beginning."""
+        relative = relative_to_cur_home_abs(self.project.root)
+        if relative:
+            relative += "/"
+        click.echo(f"{relative}{message}")

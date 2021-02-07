@@ -6,13 +6,15 @@
 """
 import collections
 import re
-from typing import Any, Dict, Iterable, List, MutableMapping, Tuple, Union
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, Union
 
 import jmespath
 from jmespath.parser import ParsedResult
 
 from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
-from nitpick.typedefs import JsonDict
+from nitpick.typedefs import JsonDict, PathOrStr
 
 
 def get_subclasses(cls):
@@ -226,3 +228,19 @@ def is_url(url: str) -> bool:
     True
     """
     return url.startswith("http")
+
+
+@lru_cache()
+def relative_to_cur_home_abs(path_or_str: Optional[PathOrStr]) -> str:
+    """Return a relative path to the current dir, to the home dir or a full dir."""
+    if not path_or_str:
+        return ""
+
+    path = Path(path_or_str)
+    if str(path).startswith(str(Path.cwd())):
+        return str(path.relative_to(Path.cwd())).lstrip(".")
+
+    try:
+        return f"~/{path.relative_to(path.home())}"
+    except ValueError:
+        return str(path.absolute())
