@@ -8,17 +8,17 @@ from nitpick.plugins.pre_commit import PreCommitHook
 from tests.helpers import ProjectMock
 
 
-def test_pre_commit_has_no_configuration(request):
+def test_pre_commit_has_no_configuration(tmp_path):
     """No errors should be raised if pre-commit is not referenced in any style file.
 
     Also the file should not be deleted unless explicitly asked.
     """
-    ProjectMock(request).style("").pre_commit("").simulate_run().assert_no_errors()
+    ProjectMock(tmp_path).style("").pre_commit("").simulate_run().assert_no_errors()
 
 
-def test_pre_commit_referenced_in_style(request):
+def test_pre_commit_referenced_in_style(tmp_path):
     """Only check files if they have configured styles."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [".pre-commit-config.yaml"]
         fail_fast = true
@@ -28,9 +28,9 @@ def test_pre_commit_referenced_in_style(request):
     )
 
 
-def test_suggest_initial_contents(request):
+def test_suggest_initial_contents(tmp_path):
     """Suggest initial contents for missing pre-commit config file."""
-    ProjectMock(request).load_styles("isort", "black").pyproject_toml(
+    ProjectMock(tmp_path).load_styles("isort", "black").pyproject_toml(
         """
         [tool.nitpick]
         style = ["isort", "black"]
@@ -57,9 +57,9 @@ def test_suggest_initial_contents(request):
     )
 
 
-def test_root_values_on_missing_file(request):
+def test_root_values_on_missing_file(tmp_path):
     """Test values on the root of the config file when it's missing."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [".pre-commit-config.yaml"]
         bla_bla = "oh yeah"
@@ -76,9 +76,9 @@ def test_root_values_on_missing_file(request):
     )
 
 
-def test_root_values_on_existing_file(request):
+def test_root_values_on_existing_file(tmp_path):
     """Test values on the root of the config file when there is a file."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [".pre-commit-config.yaml"]
         fail_fast = true
@@ -109,9 +109,9 @@ def test_root_values_on_existing_file(request):
     )
 
 
-def test_missing_repos(request):
+def test_missing_repos(tmp_path):
     """Test missing repos on file."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [".pre-commit-config.yaml"]
         fail_fast = true
@@ -127,9 +127,9 @@ def test_missing_repos(request):
     )
 
 
-def test_missing_repo_key(request):
+def test_missing_repo_key(tmp_path):
     """Test missing repo key on the style file."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [[".pre-commit-config.yaml".repos]]
         grepo = "glocal"
@@ -145,9 +145,9 @@ def test_missing_repo_key(request):
     )
 
 
-def test_repo_does_not_exist(request):
+def test_repo_does_not_exist(tmp_path):
     """Test repo does not exist on the pre-commit file."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [[".pre-commit-config.yaml".repos]]
         repo = "local"
@@ -163,9 +163,9 @@ def test_repo_does_not_exist(request):
     )
 
 
-def test_missing_hooks_in_repo(request):
+def test_missing_hooks_in_repo(tmp_path):
     """Test missing hooks in repo."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [[".pre-commit-config.yaml".repos]]
         repo = "whatever"
@@ -180,9 +180,9 @@ def test_missing_hooks_in_repo(request):
     )
 
 
-def test_style_missing_hooks_in_repo(request):
+def test_style_missing_hooks_in_repo(tmp_path):
     """Test style file is missing hooks in repo."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [[".pre-commit-config.yaml".repos]]
         repo = "another"
@@ -199,9 +199,9 @@ def test_style_missing_hooks_in_repo(request):
     )
 
 
-def test_style_missing_id_in_hook(request):
+def test_style_missing_id_in_hook(tmp_path):
     """Test style file is missing id in hook."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         '''
         [[".pre-commit-config.yaml".repos]]
         repo = "another"
@@ -226,9 +226,9 @@ def test_style_missing_id_in_hook(request):
     )
 
 
-def test_missing_hook_with_id(request):
+def test_missing_hook_with_id(tmp_path):
     """Test missing hook with specific id."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         '''
         [[".pre-commit-config.yaml".repos]]
         repo = "other"
@@ -319,11 +319,11 @@ def test_get_all_hooks_from():
     )
 
 
-def test_missing_different_values(request):
+def test_missing_different_values(tmp_path):
     """Test missing and different values on the hooks."""
     # TODO: add loaded and named styles automatically to pyproject_toml
     # pylint: disable=line-too-long
-    ProjectMock(request).named_style(
+    ProjectMock(tmp_path).named_style(
         "root",
         '''
         [[".pre-commit-config.yaml".repos]]
@@ -426,10 +426,10 @@ def test_missing_different_values(request):
     )
 
 
-def test_pre_commit_section_without_dot_deprecated(request):
+def test_pre_commit_section_without_dot_deprecated(tmp_path):
     """A pre-commit section without dot is deprecated."""
     project = (
-        ProjectMock(request)
+        ProjectMock(tmp_path)
         .style(
             """
         ["pre-commit-config.yaml"]

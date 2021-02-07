@@ -4,9 +4,9 @@ import warnings
 from tests.helpers import ProjectMock
 
 
-def test_suggest_initial_contents(request):
+def test_suggest_initial_contents(tmp_path):
     """Suggest initial contents for missing JSON file."""
-    ProjectMock(request).load_styles("package-json").pyproject_toml(
+    ProjectMock(tmp_path).load_styles("package-json").pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
@@ -29,9 +29,9 @@ def test_suggest_initial_contents(request):
     )
 
 
-def test_json_file_contains_keys(request):
+def test_json_file_contains_keys(tmp_path):
     """Test if JSON file contains keys."""
-    ProjectMock(request).load_styles("package-json").pyproject_toml(
+    ProjectMock(tmp_path).load_styles("package-json").pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
@@ -52,9 +52,9 @@ def test_json_file_contains_keys(request):
     )
 
 
-def test_missing_different_values(request):
+def test_missing_different_values(tmp_path):
     """Test missing and different values on the JSON file."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         '''
         ["my.json".contains_json]
         "some.dotted.root.key" = """
@@ -104,10 +104,10 @@ def test_missing_different_values(request):
     )
 
 
-def test_invalid_json(request):
+def test_invalid_json(tmp_path):
     """Test invalid JSON on a TOML style."""
     # pylint: disable=line-too-long
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         '''
         ["another.json".contains_json]
         some_field = """
@@ -127,9 +127,9 @@ def test_invalid_json(request):
     )
 
 
-def test_json_configuration(request):
+def test_json_configuration(tmp_path):
     """Test configuration for JSON files."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         ["your.json".has]
         an_extra = "key"
@@ -147,13 +147,13 @@ def test_json_configuration(request):
     )
 
 
-def test_jsonfile_deprecated(request):
+def test_jsonfile_deprecated(tmp_path):
     """Test configuration for JSON files."""
     with warnings.catch_warnings(record=True) as captured:
         # Cause all warnings to always be triggered.
         warnings.simplefilter("always")
 
-        ProjectMock(request).style(
+        ProjectMock(tmp_path).style(
             """
             [nitpick.JSONFile]
             file_names = ["my.json"]

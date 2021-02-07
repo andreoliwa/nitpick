@@ -26,9 +26,9 @@ def _call_main(argv, retv=0):
     assert excinfo.value.code == retv
 
 
-def test_absent_files(request):
+def test_absent_files(tmp_path):
     """Test absent files from the style configuration."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [nitpick.files.absent]
         xxx = "Remove this"
@@ -44,10 +44,10 @@ def test_absent_files(request):
     )
 
 
-def test_missing_message(request):
+def test_missing_message(tmp_path):
     """Test if the breaking style change "missing_message" key points to the correct help page."""
     project = (
-        ProjectMock(request)
+        ProjectMock(tmp_path)
         .style(
             """
         [nitpick.files."pyproject.toml"]
@@ -73,9 +73,9 @@ def test_missing_message(request):
     )
 
 
-def test_present_files(request):
+def test_present_files(tmp_path):
     """Test present files from the style configuration."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [nitpick.files.present]
         ".editorconfig" = "Create this file"
@@ -126,17 +126,17 @@ def test_offline_flag_env_variable(tmpdir):
 
 
 @mock.patch("requests.get")
-def test_offline_doesnt_raise_connection_error(mocked_get, request):
+def test_offline_doesnt_raise_connection_error(mocked_get, tmp_path):
     """On offline mode, no requests are made, so no connection errors should be raised."""
     mocked_get.side_effect = requests.ConnectionError("A forced error")
-    ProjectMock(request).simulate_run(offline=True)
+    ProjectMock(tmp_path).simulate_run(offline=True)
 
 
 @mock.patch("requests.get")
-def test_offline_recommend_using_flag(mocked_get, request, capsys):
+def test_offline_recommend_using_flag(mocked_get, tmp_path, capsys):
     """Recommend using the flag on a connection error."""
     mocked_get.side_effect = requests.ConnectionError("error message from connection here")
-    ProjectMock(request).simulate_run(call_api=False)
+    ProjectMock(tmp_path).simulate_run(call_api=False)
     out, err = capsys.readouterr()
     assert out == ""
     assert err == "Your network is unreachable. Fix your connection or use --nitpick-offline / NITPICK_OFFLINE=1\n"

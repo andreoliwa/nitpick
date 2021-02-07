@@ -5,7 +5,6 @@ from pprint import pprint
 from textwrap import dedent
 from typing import List, Set
 
-from _pytest.fixtures import FixtureRequest
 from click.testing import CliRunner
 from more_itertools.more import always_iterable
 from testfixtures import compare
@@ -26,7 +25,6 @@ from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss
-from tests.conftest import TEMP_PATH
 
 
 def assert_conditions(*args):
@@ -43,19 +41,13 @@ class ProjectMock:
     fixtures_dir: Path = Path(__file__).parent / "fixtures"
     styles_dir: Path = Path(__file__).parent.parent / "styles"
 
-    def __init__(self, pytest_request: FixtureRequest, **kwargs) -> None:
+    def __init__(self, tmp_path: Path, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         self._actual_fusses: Set[Fuss] = set()
         self._flake8_errors: List[Flake8Error] = []
         self._flake8_errors_as_string: Set[str] = set()
 
-        subdir = "/".join(pytest_request.module.__name__.split(".")[1:])
-        caller_function_name = pytest_request.node.name
-        # TODO: use tmp_path instead of self.root_dir
-        self.root_dir: Path = TEMP_PATH / subdir / caller_function_name
-
-        # To make debugging of mock projects easy, each test should not reuse another test directory.
-        self.root_dir.mkdir(parents=True)
+        self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
         self.files_to_lint: List[Path] = []
 

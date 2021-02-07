@@ -16,24 +16,24 @@ def test_singleton():
     assert "This class cannot be instantiated directly" in str(err)
 
 
-def test_no_root_dir(request):
+def test_no_root_dir(tmp_path):
     """No root dir."""
-    ProjectMock(request, pyproject_toml=False, setup_py=False).create_symlink("hello.py").simulate_run(
+    ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py").simulate_run(
         call_api=False
     ).assert_single_error("NIP101 No root dir found (is this a Python project?)")
 
 
-def test_multiple_root_dirs(request):
+def test_multiple_root_dirs(tmp_path):
     """Multiple possible "root dirs" found (e.g.: a requirements.txt file inside a docs dir)."""
-    ProjectMock(request, setup_py=False).touch_file("docs/requirements.txt").touch_file("docs/conf.py").pyproject_toml(
+    ProjectMock(tmp_path, setup_py=False).touch_file("docs/requirements.txt").touch_file("docs/conf.py").pyproject_toml(
         ""
     ).style("").simulate_run().assert_no_errors().assert_cli_output()
 
 
-def test_no_python_file_root_dir(request):
+def test_no_python_file_root_dir(tmp_path):
     """No Python file on the root dir."""
     project = (
-        ProjectMock(request, setup_py=False)
+        ProjectMock(tmp_path, setup_py=False)
         .pyproject_toml("")
         .save_file("whatever.sh", "", lint=True)
         .simulate_run(call_api=False)
@@ -46,10 +46,10 @@ def test_no_python_file_root_dir(request):
 @pytest.mark.parametrize(
     "python_file,error", [("depth1.py", False), ("subdir/depth2.py", False), ("subdir/another/depth3.py", True)]
 )
-def test_at_least_one_python_file(python_file, error, request):
+def test_at_least_one_python_file(python_file, error, tmp_path):
     """At least one Python file on the root dir, even if it's not a main file."""
     project = (
-        ProjectMock(request, setup_py=False)
+        ProjectMock(tmp_path, setup_py=False)
         .style(
             """
             ["pyproject.toml".tool.black]
@@ -73,9 +73,9 @@ def test_at_least_one_python_file(python_file, error, request):
         project.assert_no_errors()
 
 
-def test_django_project_structure(request):
+def test_django_project_structure(tmp_path):
     """Django project with pyproject.toml in the parent dir of manage.py's dir."""
-    ProjectMock(request, setup_py=False).pyproject_toml(
+    ProjectMock(tmp_path, setup_py=False).pyproject_toml(
         """
         [tool.black]
         lines = 100

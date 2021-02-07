@@ -2,9 +2,9 @@
 from tests.helpers import ProjectMock
 
 
-def test_suggest_initial_contents(request):
+def test_suggest_initial_contents(tmp_path):
     """Suggest initial contents for a text file."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [["requirements.txt".contains]]
         # File contains this exact line anywhere
@@ -22,10 +22,10 @@ def test_suggest_initial_contents(request):
     )
 
 
-def test_text_configuration(request):
+def test_text_configuration(tmp_path):
     """Test configuration for text files."""
     # pylint: disable=line-too-long
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [["abc.txt".contains]]
         invalid = "key"
@@ -49,9 +49,9 @@ def test_text_configuration(request):
     )
 
 
-def test_text_file_contains_line(request):
+def test_text_file_contains_line(tmp_path):
     """Test if the text file contains a line."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [["my.txt".contains]]
         line = "qqq"
@@ -69,9 +69,9 @@ def test_text_file_contains_line(request):
     )
 
 
-def test_yaml_file_as_text(request):
+def test_yaml_file_as_text(tmp_path):
     """A YAML file is also a text file, so it could be checked with the text plugin."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [[".gitlab-ci.yml".contains]]
         line = "    - mypy -p ims --junit-xml report-mypy.xml"

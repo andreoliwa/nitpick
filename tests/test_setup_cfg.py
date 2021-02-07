@@ -2,15 +2,15 @@
 from tests.helpers import ProjectMock
 
 
-def test_setup_cfg_has_no_configuration(request):
+def test_setup_cfg_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(request).style("").setup_cfg("").simulate_run().assert_no_errors()
+    ProjectMock(tmp_path).style("").setup_cfg("").simulate_run().assert_no_errors()
 
 
-def test_comma_separated_keys_on_style_file(request):
+def test_comma_separated_keys_on_style_file(tmp_path):
     """Comma separated keys on the style file."""
     project = (
-        ProjectMock(request)
+        ProjectMock(tmp_path)
         .style(
             """
             [nitpick.files."setup.cfg"]
@@ -37,9 +37,9 @@ def test_comma_separated_keys_on_style_file(request):
     )
 
 
-def test_suggest_initial_contents(request):
+def test_suggest_initial_contents(tmp_path):
     """Suggest contents when setup.cfg does not exist."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [nitpick.files.present]
         "setup.cfg" = "Do something here"
@@ -71,9 +71,9 @@ def test_suggest_initial_contents(request):
     )
 
 
-def test_missing_sections(request):
+def test_missing_sections(tmp_path):
     """Test missing sections."""
-    ProjectMock(request).setup_cfg(
+    ProjectMock(tmp_path).setup_cfg(
         """
         [mypy]
         ignore_missing_imports = true
@@ -101,9 +101,9 @@ def test_missing_sections(request):
     )
 
 
-def test_different_missing_keys(request):
+def test_different_missing_keys(tmp_path):
     """Test different and missing keys."""
-    ProjectMock(request).setup_cfg(
+    ProjectMock(tmp_path).setup_cfg(
         """
         [mypy]
         ignore_missing_imports = true
@@ -138,9 +138,9 @@ def test_different_missing_keys(request):
     )
 
 
-def test_invalid_configuration_comma_separated_values(request):
+def test_invalid_configuration_comma_separated_values(tmp_path):
     """Test an invalid configuration for comma_separated_values."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         ["setup.cfg".flake8]
         max-line-length = 85
@@ -163,9 +163,9 @@ def test_invalid_configuration_comma_separated_values(request):
     )
 
 
-def test_invalid_section_dot_fields(request):
+def test_invalid_section_dot_fields(tmp_path):
     """Test invalid section/field pairs."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         [nitpick.files."setup.cfg"]
         comma_separated_values = ["no_dot", "multiple.dots.here", ".filed_only", "section_only."]
@@ -181,9 +181,9 @@ def test_invalid_section_dot_fields(request):
     )
 
 
-def test_invalid_sections_comma_separated_values(request):
+def test_invalid_sections_comma_separated_values(tmp_path):
     """Test invalid sections on comma_separated_values."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         ["setup.cfg".flake8]
         ignore = "W503,E203,FI58,PT003,C408"

@@ -2,10 +2,10 @@
 from tests.helpers import ProjectMock
 
 
-def test_simple_error(request):
+def test_simple_error(tmp_path):
     """A simple error on the CLI."""
     project = (
-        ProjectMock(request)
+        ProjectMock(tmp_path)
         .style(
             """
         ["pyproject.toml".tool.black]

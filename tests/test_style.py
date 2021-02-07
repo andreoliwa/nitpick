@@ -9,7 +9,6 @@ import pytest
 import responses
 
 from nitpick.constants import READ_THE_DOCS_URL, TOML_EXTENSION
-from tests.conftest import TEMP_PATH
 from tests.helpers import ProjectMock, assert_conditions
 
 if TYPE_CHECKING:
@@ -17,9 +16,9 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.parametrize("offline", [False, True])
-def test_multiple_styles_overriding_values(offline, request):
+def test_multiple_styles_overriding_values(offline, tmp_path):
     """Test multiple style files with precedence (the latest ones overrides the previous ones)."""
-    ProjectMock(request).named_style(
+    ProjectMock(tmp_path).named_style(
         "isort1",
         """
         ["setup.cfg".isort]
@@ -91,9 +90,9 @@ def test_multiple_styles_overriding_values(offline, request):
 
 
 @pytest.mark.parametrize("offline", [False, True])
-def test_include_styles_overriding_values(offline, request):
+def test_include_styles_overriding_values(offline, tmp_path):
     """One style file can include another (also recursively). Ignore styles that were already included."""
-    ProjectMock(request).named_style(
+    ProjectMock(tmp_path).named_style(
         "isort1",
         """
         [nitpick.styles]
@@ -159,10 +158,10 @@ def test_include_styles_overriding_values(offline, request):
 
 @pytest.mark.parametrize("offline", [False, True])
 @mock.patch("nitpick.flake8.NitpickFlake8Extension.version", new_callable=PropertyMock(return_value="0.5.3"))
-def test_minimum_version(mocked_version, offline, request):
+def test_minimum_version(mocked_version, offline, tmp_path):
     """Stamp a style file with a minimum required version, to indicate new features or breaking changes."""
     assert_conditions(mocked_version == "0.5.3")
-    ProjectMock(request).named_style(
+    ProjectMock(tmp_path).named_style(
         "parent",
         """
         [nitpick.styles]
@@ -191,11 +190,11 @@ def test_minimum_version(mocked_version, offline, request):
 
 
 @pytest.mark.parametrize("offline", [False, True])
-def test_relative_and_other_root_dirs(offline, request):
+def test_relative_and_other_root_dirs(offline, tmp_path):
     """Test styles in relative and in other root dirs."""
-    another_dir = TEMP_PATH / "another_dir"  # type: Path
+    another_dir: Path = tmp_path / "another_dir"
     project = (
-        ProjectMock(request)
+        ProjectMock(tmp_path)
         .named_style(
             "{}/main".format(another_dir),
             """
@@ -290,10 +289,10 @@ def test_relative_and_other_root_dirs(offline, request):
 
 
 @pytest.mark.parametrize("offline", [False, True])
-def test_symlink_subdir(offline, request):
+def test_symlink_subdir(offline, tmp_path):
     """Test relative styles in subdirectories of a symlink dir."""
-    target_dir = TEMP_PATH / "target_dir"  # type: Path
-    ProjectMock(request).named_style(
+    target_dir: Path = tmp_path / "target_dir"  # type
+    ProjectMock(tmp_path).named_style(
         f"{target_dir}/parent",
         """
         [nitpick.styles]
@@ -324,7 +323,7 @@ def test_symlink_subdir(offline, request):
 
 
 @responses.activate
-def test_relative_style_on_urls(request):
+def test_relative_style_on_urls(tmp_path):
     """Read styles from relative paths on URLs."""
     base_url = "http://www.example.com/sub/folder"
     mapping = {
@@ -349,7 +348,7 @@ def test_relative_style_on_urls(request):
     for filename, body in mapping.items():
         responses.add(responses.GET, "{}/{}.toml".format(base_url, filename), dedent(body), status=200)
 
-    project = ProjectMock(request)
+    project = ProjectMock(tmp_path)
 
     common_pyproject = """
         [tool.black]
@@ -413,7 +412,7 @@ def test_relative_style_on_urls(request):
 
 
 @responses.activate
-def test_fetch_private_github_urls(request):
+def test_fetch_private_github_urls(tmp_path):
     """Fetch private GitHub URLs with a token on the query string."""
     base_url = "https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style"
     query_string = "?token=xxx"
@@ -424,7 +423,7 @@ def test_fetch_private_github_urls(request):
         """
     responses.add(responses.GET, full_private_url, dedent(body), status=200)
 
-    project = ProjectMock(request).pyproject_toml(
+    project = ProjectMock(tmp_path).pyproject_toml(
         """
         [tool.nitpick]
         style = "{}{}"
@@ -443,9 +442,9 @@ def test_fetch_private_github_urls(request):
 
 
 @pytest.mark.parametrize("offline", [False, True])
-def test_merge_styles_into_single_file(offline, request):
+def test_merge_styles_into_single_file(offline, tmp_path):
     """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit repos)."""
-    ProjectMock(request).load_styles("black", "isort").named_style(
+    ProjectMock(tmp_path).load_styles("black", "isort").named_style(
         "isort_overrides",
         """
         ["setup.cfg".isort]
@@ -504,9 +503,9 @@ def test_merge_styles_into_single_file(offline, request):
 
 
 @pytest.mark.parametrize("offline", [False, True])
-def test_invalid_tool_nitpick_on_pyproject_toml(offline, request):
+def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
     """Test invalid [tool.nitpick] on pyproject.toml."""
-    project = ProjectMock(request)
+    project = ProjectMock(tmp_path)
     for style, error_message in [
         (
             'style = [""]\nextra_values = "also raise warnings"',
@@ -527,9 +526,9 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, request):
         )
 
 
-def test_invalid_toml(request):
+def test_invalid_toml(tmp_path):
     """Invalid TOML should emit a NIP warning, not raise TomlDecodeError."""
-    ProjectMock(request).style(
+    ProjectMock(tmp_path).style(
         """
         ["setup.cfg".flake8]
         ignore = D100,D104,D202,E203,W503
@@ -542,9 +541,9 @@ def test_invalid_toml(request):
 
 
 @pytest.mark.parametrize("offline", [False, True])
-def test_invalid_nitpick_files(offline, request):
+def test_invalid_nitpick_files(offline, tmp_path):
     """Invalid [nitpick.files] section."""
-    ProjectMock(request).named_style(
+    ProjectMock(tmp_path).named_style(
         "some_style",
         """
         [xxx]
