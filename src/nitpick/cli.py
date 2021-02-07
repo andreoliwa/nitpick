@@ -23,7 +23,7 @@ from loguru import logger
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
-from nitpick.generic import relative_to_cur_home_abs
+from nitpick.generic import relative_to_current_dir
 
 
 class _FlagMixin:
@@ -113,7 +113,10 @@ def run(context, check=False, verbose=False):
 @nitpick_cli.command()
 @click.pass_context
 def ls(context):  # pylint: disable=invalid-name
-    """List of files configured in the Nitpick style."""
+    """List of files configured in the Nitpick style.
+
+    Display existing files in green and absent files in red.
+    """
     nit = get_nitpick(context)
     fusses = list(nit.project.merge_styles(nit.offline))
     if fusses:
@@ -123,8 +126,4 @@ def ls(context):  # pylint: disable=invalid-name
 
     # TODO: test API .configured_files
     for file in nit.configured_files:  # type: Path
-        click.echo(relative_to_cur_home_abs(file) + " ", nl=False)
-        if file.exists():
-            click.secho("(exists)", fg="green")
-        else:
-            click.secho("(not found)", fg="red")
+        click.secho(relative_to_current_dir(file), fg="green" if file.exists() else "red")

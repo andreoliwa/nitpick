@@ -83,8 +83,8 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         """
     ).assert_cli_output(
         """
-        pyproject.toml (exists)
-        setup.cfg (not found)
+        pyproject.toml
+        setup.cfg
         """,
         command="ls",
     )
@@ -190,6 +190,7 @@ def test_minimum_version(mocked_version, offline, tmp_path):
     )
 
 
+# TODO: fix Windows tests
 @pytest.mark.parametrize("offline", [False, True])
 @pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 def test_relative_and_other_root_dirs(offline, tmp_path):
