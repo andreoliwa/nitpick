@@ -12,8 +12,9 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
-        # TODO: add Windows back after fixing delete_project_temp_root() on conftest.py
-        os: [ubuntu-latest, macos-latest] # TODO: , windows-latest]
+        # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
+        # See https://github.com/actions/virtual-environments/issues/1816
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
