@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [windows-latest] # FIXME[AA]: ubuntu-latest, macos-latest,
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install tox tox-gh-actions
       - name: Test with tox
-        run: tox
+        run: tox -vv
 
       # https://github.com/marketplace/actions/coveralls-python
       # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
