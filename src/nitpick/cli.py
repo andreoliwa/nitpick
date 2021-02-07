@@ -119,9 +119,9 @@ def ls(context):  # pylint: disable=invalid-name
     if fusses:
         for fuss in fusses:
             click.echo(fuss.pretty)
-        raise Exit(1)  # FIXME[AA]: test ls with invalid style
+        raise Exit(1)  # TODO: test ls with invalid style
 
-    # FIXME[AA]: test API .configured_files
+    # TODO: test API .configured_files
     for file in nit.configured_files:  # type: Path
         click.echo(relative_to_cur_home_abs(file) + " ", nl=False)
         if file.exists():
