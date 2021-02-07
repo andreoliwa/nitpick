@@ -12,7 +12,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9"]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # TODO: rename back to ubuntu-latest after this is done: https://github.com/actions/virtual-environments/issues/1816
+        os: [ubuntu-20.04, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -36,7 +37,7 @@ jobs:
       # It fails with "Error: Lcov file not found."
       # Solution here: https://github.com/coverallsapp/github-action/issues/30#issuecomment-612523058
       - name: Coveralls
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         uses: AndreMiras/coveralls-python-action@develop
         with:
           parallel: true
@@ -45,7 +46,7 @@ jobs:
   # https://github.com/marketplace/actions/coveralls-python
   coveralls_finish:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Coveralls Finished
         uses: AndreMiras/coveralls-python-action@develop
