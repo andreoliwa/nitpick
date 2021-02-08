@@ -10,7 +10,7 @@ from loguru import logger
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import QuitComplainingError
-from nitpick.generic import relative_to_cur_home_abs
+from nitpick.generic import relative_to_current_dir
 from nitpick.plugins.data import FileData
 from nitpick.project import Project
 from nitpick.violations import Fuss, ProjectViolations, Reporter
@@ -111,7 +111,7 @@ class Nitpick:
 
     def echo(self, message: str):
         """Echo a message on the terminal, with the relative path at the beginning."""
-        relative = relative_to_cur_home_abs(self.project.root)
+        relative = relative_to_current_dir(self.project.root)
         if relative:
             relative += os.path.sep
         click.echo(f"{relative}{message}")
