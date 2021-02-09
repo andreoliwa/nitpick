@@ -3,7 +3,7 @@ import os
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import Iterator, List, Set, Union
+from typing import Iterator, List, Union
 
 import click
 from loguru import logger
@@ -107,9 +107,9 @@ class Nitpick:
             ):
                 yield from plugin_instance.entry_point(config_dict)
 
-    def filter_keys(self, *partial_names: str) -> Set[str]:
+    def filter_keys(self, *partial_names: str) -> List[str]:
         """Filter keys, keeping only the selected partial names."""
-        rv = set()
+        rv = []
         for key in self.project.style_dict.keys():
             if key == PROJECT_NAME:
                 continue
@@ -121,7 +121,7 @@ class Nitpick:
                     break
 
             if include:
-                rv.add(key)
+                rv.append(key)
         return rv
 
     def configured_files(self, *partial_names: str) -> List[Path]:
