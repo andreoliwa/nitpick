@@ -90,8 +90,12 @@ def get_nitpick(context: click.Context) -> Nitpick:
 )
 @click.option("--verbose", "-v", is_flag=True, default=False, help="Verbose logging")
 @click.pass_context
-def run(context, check=False, verbose=False):
-    """Apply suggestions to configuration files."""
+@click.argument("files", nargs=-1)
+def run(context, check, verbose, files):
+    """Apply suggestions to configuration files.
+
+    You can use partial and multiple file names in the FILES argument.
+    """
     if verbose:
         logger.enable(PROJECT_NAME)
 
@@ -100,7 +104,7 @@ def run(context, check=False, verbose=False):
 
     nit = get_nitpick(context)
     violations = 0
-    for fuss in nit.run():
+    for fuss in nit.run(*files):
         violations += 1
         nit.echo(fuss.pretty)
 
@@ -112,10 +116,12 @@ def run(context, check=False, verbose=False):
 
 @nitpick_cli.command()
 @click.pass_context
-def ls(context):  # pylint: disable=invalid-name
+@click.argument("files", nargs=-1)
+def ls(context, files):  # pylint: disable=invalid-name
     """List of files configured in the Nitpick style.
 
     Display existing files in green and absent files in red.
+    You can use partial and multiple file names in the FILES argument.
     """
     nit = get_nitpick(context)
     fusses = list(nit.project.merge_styles(nit.offline))
@@ -125,5 +131,5 @@ def ls(context):  # pylint: disable=invalid-name
         raise Exit(1)  # TODO: test ls with invalid style
 
     # TODO: test API .configured_files
-    for file in nit.configured_files:  # type: Path
+    for file in nit.configured_files(*files):
         click.secho(relative_to_current_dir(file), fg="green" if file.exists() else "red")
