@@ -71,6 +71,7 @@ repos:
     hooks:
       - id: bandit
         args: [--ini, setup.cfg]
+        exclude: tests/
   - repo: https://github.com/openstack/bashate
     rev: 2.0.0
     hooks:

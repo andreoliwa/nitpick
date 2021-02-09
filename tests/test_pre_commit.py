@@ -39,17 +39,17 @@ def test_suggest_initial_contents(tmp_path):
         """
         NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[32m
         repos:
-          - repo: https://github.com/pre-commit/mirrors-isort
-            rev: v5.6.4
+          - repo: https://github.com/PyCQA/isort
+            rev: 5.7.0
             hooks:
               - id: isort
-          - repo: https://github.com/python/black
+          - repo: https://github.com/psf/black
             rev: 20.8b1
             hooks:
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.8.0
+            rev: v1.9.2
             hooks:
               - id: blacken-docs
                 additional_dependencies: [black==20.8b1]\x1b[0m
@@ -378,7 +378,7 @@ def test_missing_different_values(tmp_path):
         """
         NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/mirrors-mypy
-            rev: v0.790
+            rev: v0.800
             hooks:
               - id: mypy\x1b[0m
         """
@@ -386,7 +386,7 @@ def test_missing_different_values(tmp_path):
         """
         NIP332 File .pre-commit-config.yaml: hook 'python-check-mock-methods' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/pygrep-hooks
-            rev: v1.7.0
+            rev: v1.7.1
             hooks:
               - id: python-check-mock-methods\x1b[0m
         """
@@ -398,17 +398,17 @@ def test_missing_different_values(tmp_path):
     ).assert_errors_contain(
         """
         NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.7.0\x1b[0m
+        rev: v1.7.1\x1b[0m
         """
     ).assert_errors_contain(
         """
         NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.7.0\x1b[0m
+        rev: v1.7.1\x1b[0m
         """
     ).assert_errors_contain(
         """
         NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.7.0\x1b[0m
+        rev: v1.7.1\x1b[0m
         """
     ).assert_errors_contain(
         """
@@ -420,7 +420,7 @@ def test_missing_different_values(tmp_path):
     ).assert_errors_contain(
         """
         NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.7.0\x1b[0m
+        rev: v1.7.1\x1b[0m
         """,
         8,
     )
