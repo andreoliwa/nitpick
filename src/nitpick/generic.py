@@ -5,7 +5,6 @@
     from nitpick.generic import *
 """
 import collections
-import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -232,8 +231,8 @@ def is_url(url: str) -> bool:
 
 
 @lru_cache()
-def relative_to_cur_home_abs(path_or_str: Optional[PathOrStr]) -> str:
-    """Return a relative path to the current dir, to the home dir or a full dir."""
+def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:
+    """Return a relative path to the current dir or an absolute path."""
     if not path_or_str:
         return ""
 
@@ -241,7 +240,4 @@ def relative_to_cur_home_abs(path_or_str: Optional[PathOrStr]) -> str:
     if str(path).startswith(str(Path.cwd())):
         return str(path.relative_to(Path.cwd())).lstrip(".")
 
-    try:
-        return f"~{os.path.sep}{path.relative_to(path.home())}"
-    except ValueError:
-        return str(path.absolute())
+    return str(path.absolute())
