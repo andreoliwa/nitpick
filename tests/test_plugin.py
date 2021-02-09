@@ -136,7 +136,7 @@ def test_offline_doesnt_raise_connection_error(mocked_get, tmp_path):
 def test_offline_recommend_using_flag(mocked_get, tmp_path, capsys):
     """Recommend using the flag on a connection error."""
     mocked_get.side_effect = requests.ConnectionError("error message from connection here")
-    ProjectMock(tmp_path).simulate_run(call_api=False)
+    ProjectMock(tmp_path).simulate_run(api=False)
     out, err = capsys.readouterr()
     assert out == ""
     assert err == "Your network is unreachable. Fix your connection or use --nitpick-offline / NITPICK_OFFLINE=1\n"

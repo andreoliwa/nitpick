@@ -104,7 +104,7 @@ def run(context, check, verbose, files):
 
     nit = get_nitpick(context)
     violations = 0
-    for fuss in nit.run(*files):
+    for fuss in nit.run(*files, check=check):
         violations += 1
         nit.echo(fuss.pretty)
 

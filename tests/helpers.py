@@ -70,7 +70,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def simulate_run(self, offline=False, call_api=True) -> "ProjectMock":
+    def simulate_run(self, offline=False, api=True, flake8=True) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -81,18 +81,26 @@ class ProjectMock:
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
         nit = Nitpick.singleton().init(offline=offline)
-        if call_api:
+
+        if api:
             self._actual_fusses = set(nit.run())
 
-        npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
-        self._flake8_errors = list(npc.run())
+        if flake8:
+            npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
+            self._flake8_errors = list(npc.run())
+            self._flake8_errors_as_string = set()
+            for line, col, message, class_ in self._flake8_errors:
+                if not (
+                    line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension
+                ):
+                    raise AssertionError()
+                self._flake8_errors_as_string.add(message)
 
-        self._flake8_errors_as_string = set()
-        for line, col, message, class_ in self._flake8_errors:
-            if not (line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension):
-                raise AssertionError()
-            self._flake8_errors_as_string.add(message)
         return self
+
+    def api(self):
+        """Test only the API, no flake8 plugin."""
+        return self.simulate_run(flake8=False)
 
     def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents.
@@ -224,9 +232,13 @@ class ProjectMock:
         compare(expected.as_data, actual.as_data)
         return self
 
-    def assert_fusses_are_exactly(self, *args: Fuss) -> "ProjectMock":
+    def assert_fusses_are_exactly(self, *expected_fusses: Fuss) -> "ProjectMock":
         """Assert the exact set of fusses."""
-        compare(expected=set(args), actual=self._actual_fusses)
+        clean_fusses = {
+            Fuss(orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
+            for orig in expected_fusses
+        }
+        compare(expected=clean_fusses, actual=self._actual_fusses)
         return self
 
     def assert_cli_output(self, str_or_lines: StrOrList = None, command: str = "run", violations=0) -> "ProjectMock":

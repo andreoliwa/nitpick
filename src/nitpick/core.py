@@ -52,13 +52,13 @@ class Nitpick:
 
         return self
 
-    def run(self, *partial_names: str) -> Iterator[Fuss]:
+    def run(self, *partial_names: str, check=False) -> Iterator[Fuss]:
         """Run Nitpick."""
         try:
             yield from chain(
                 self.project.merge_styles(self.offline),
                 self.enforce_present_absent(),
-                self.enforce_style(*partial_names),
+                self.enforce_style(*partial_names, check=check),
             )
         except QuitComplainingError as err:
             yield from err.fusses
@@ -84,7 +84,7 @@ class Nitpick:
                 violation = ProjectViolations.MissingFile if present else ProjectViolations.FileShouldBeDeleted
                 yield reporter.make_fuss(violation, extra=extra)
 
-    def enforce_style(self, *partial_names: str):
+    def enforce_style(self, *partial_names: str, check=False):
         """Read the merged style and enforce the rules in it.
 
         1. Get all root keys from the merged style
@@ -105,7 +105,7 @@ class Nitpick:
             for plugin_instance in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 data=FileData.create(self.project, config_key)
             ):
-                yield from plugin_instance.entry_point(config_dict)
+                yield from plugin_instance.entry_point(config_dict, check)
 
     def filter_keys(self, *partial_names: str) -> List[str]:
         """Filter keys, keeping only the selected partial names."""
