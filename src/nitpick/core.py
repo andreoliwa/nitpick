@@ -52,11 +52,13 @@ class Nitpick:
 
         return self
 
-    def run(self) -> Iterator[Fuss]:
+    def run(self, *partial_names: str, check=False) -> Iterator[Fuss]:
         """Run Nitpick."""
         try:
             yield from chain(
-                self.project.merge_styles(self.offline), self.enforce_present_absent(), self.enforce_style()
+                self.project.merge_styles(self.offline),
+                self.enforce_present_absent(),
+                self.enforce_style(*partial_names, check=check),
             )
         except QuitComplainingError as err:
             yield from err.fusses
@@ -82,7 +84,7 @@ class Nitpick:
                 violation = ProjectViolations.MissingFile if present else ProjectViolations.FileShouldBeDeleted
                 yield reporter.make_fuss(violation, extra=extra)
 
-    def enforce_style(self):
+    def enforce_style(self, *partial_names: str, check=False):
         """Read the merged style and enforce the rules in it.
 
         1. Get all root keys from the merged style
@@ -91,7 +93,8 @@ class Nitpick:
         """
 
         # 1.
-        for config_key, config_dict in self.project.style_dict.items():
+        for config_key in self.filter_keys(*partial_names):
+            config_dict = self.project.style_dict[config_key]
             logger.info(f"{config_key}: Finding plugins to enforce style")
 
             # 2.
@@ -102,12 +105,28 @@ class Nitpick:
             for plugin_instance in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 data=FileData.create(self.project, config_key)
             ):
-                yield from plugin_instance.entry_point(config_dict)
+                yield from plugin_instance.entry_point(config_dict, check)
 
-    @property
-    def configured_files(self) -> List[Path]:
-        """List of files configured in the Nitpick style."""
-        return [Path(self.project.root) / key for key in self.project.style_dict.keys() if key != PROJECT_NAME]
+    def filter_keys(self, *partial_names: str) -> List[str]:
+        """Filter keys, keeping only the selected partial names."""
+        rv = []
+        for key in self.project.style_dict.keys():
+            if key == PROJECT_NAME:
+                continue
+
+            include = bool(not partial_names)
+            for name in partial_names:
+                if name in key:
+                    include = True
+                    break
+
+            if include:
+                rv.append(key)
+        return rv
+
+    def configured_files(self, *partial_names: str) -> List[Path]:
+        """List of files configured in the Nitpick style. Filter only the selected partial names."""
+        return [Path(self.project.root) / key for key in self.filter_keys(*partial_names)]
 
     def echo(self, message: str):
         """Echo a message on the terminal, with the relative path at the beginning."""

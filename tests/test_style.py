@@ -482,13 +482,13 @@ def test_merge_styles_into_single_file(offline, tmp_path):
 
         [[".pre-commit-config.yaml".repos]]
         yaml = """
-          - repo: https://github.com/python/black
+          - repo: https://github.com/psf/black
             rev: 20.8b1
             hooks:
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.8.0
+            rev: v1.9.2
             hooks:
               - id: blacken-docs
                 additional_dependencies: [black==20.8b1]
@@ -496,8 +496,8 @@ def test_merge_styles_into_single_file(offline, tmp_path):
 
         [[".pre-commit-config.yaml".repos]]
         yaml = """
-          - repo: https://github.com/pre-commit/mirrors-isort
-            rev: v5.6.4
+          - repo: https://github.com/PyCQA/isort
+            rev: 5.7.0
             hooks:
               - id: isort
         """

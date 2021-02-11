@@ -28,7 +28,9 @@ indent_size = 2
 [Makefile]
 indent_style = tab
 
-[*.rst]
-# Unset for RST, so codeclimate doesn't complain of auto-generated Sphinx files
+[*.{rst,toml}]
+# Unset indentation for some files, so codeclimate doesn't complain
 # https://docs.codeclimate.com/docs/editorconfig
+# rst: auto-generated Sphinx files
+# toml: style files than contain YAML indented with 2 spaces
 indent_size = unset

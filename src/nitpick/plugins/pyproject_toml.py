@@ -26,6 +26,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
         file = Nitpick.singleton().project.pyproject_toml
         if file:
             comparison = file.compare_with_flatten(self.file_dict)
+            # FIXME[AA]: use MergeDict to apply the difference, and toml to save the file
             yield from self.warn_missing_different(comparison)
 
     def suggest_initial_contents(self) -> str:
