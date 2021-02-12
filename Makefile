@@ -34,9 +34,6 @@ clean-test: # Clean test output
 	@fd --changed-before 30m short .cache/make --exec-batch rm -v '{}' ;
 .PHONY: .remove-old-cache
 
-install: install-pre-commit install-poetry # Install pre-commit hooks and Poetry dependencies
-.PHONY: install
-
 # Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
 install-poetry .cache/make/long-poetry src/nitpick.egg-info/entry_points.txt: pyproject.toml # Install Poetry dependencies
 	poetry install -E test -E lint
@@ -50,34 +47,10 @@ install-pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-com
 	touch .cache/make/long-pre-commit
 .PHONY: install-pre-commit
 
-update: update-pre-commit update-poetry # Update pre-commit hooks and Poetry dependencies
-.PHONY: update
-
-update-pre-commit: # Update pre-commit hooks
-	@# Uncomment the line below to auto update all repos except a few filtered out with egrep
-	yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e commitlint | sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate
-.PHONY: update-pre-commit
-
-update-poetry: # Update Poetry dependencies
-	poetry update
-.PHONY: update-poetry
-
 lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry # Lint the project (tox running pre-commit, flake8)
 	tox -e lint
 	touch .cache/make/lint
 .PHONY: lint
-
-pre-commit: # Run pre-commit for all files
-	pre-commit run --all-files
-.PHONY: pre-commit
-
-pylint: # Run pylint for all files
-	poetry run pylint src/
-.PHONY: pylint
-
-nitpick: # Run Nitpick locally on itself (with flake8)
-	poetry run flake8 --select=NIP
-.PHONY: nitpick
 
 TOX_PYTHON_ENVS = $(shell tox -l | egrep '^py' | xargs echo | tr ' ' ',')
 
@@ -107,12 +80,6 @@ doc .cache/make/doc: docs/*/* styles/*/* *.rst *.md # Build documentation only
 	touch .cache/make/doc
 .PHONY: doc
 
-tox: # Run full tox (recreating environments)
-	tox -r
-	touch .cache/make/lint
-	touch .cache/make/test
-	touch .cache/make/doc
-.PHONY: tox
 
 ci: # Simulate CI run (force clean docs and tests, but do not update pre-commit nor Poetry)
 	@rm -rf .cache/make/*doc* .cache/make/lint .cache/make/test docs/_build docs/source
