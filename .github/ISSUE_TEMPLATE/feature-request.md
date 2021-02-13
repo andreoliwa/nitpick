@@ -14,6 +14,7 @@ If you found an issue, write a comment or upvote it with a thumbs-up 👍🏻.
 
 <!--- What is the problem you're trying to solve? How has this issue affected you? What are you trying to accomplish? -->
 <!--- Providing context helps to come up with a generic solution that is useful for you and others -->
+<!--- You can write in the user story format: As a <role> I can <capability>, so that <receive benefit> -->
 
 ## Possible solution
 

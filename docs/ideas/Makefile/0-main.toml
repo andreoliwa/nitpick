@@ -1,0 +1,29 @@
+# https://www.gnu.org/software/make/manual/make.html#Introduction
+
+[[Makefile.contains]]
+block = """
+REFRESH_AFTER = 1h
+"""
+
+[[Makefile.rules]]
+target = ".PHONY"
+prerequisites = ["help Makefile always-run"]
+
+[[Makefile.rules]]
+target = "dev"
+prerequisites = ["always-run .cache/make/auto-pre-commit .cache/make/auto-poetry .cache/make/sphinx .cache/make/run .cache/make/pytest"]
+
+[[Makefile.rules]]
+target = "always-run"
+recipes_contains_block = """
+	@mkdir -p .cache/make
+	@# Remove files named auto* if they are older than 1 hour, so the targets will be rebuilt
+	@fd --changed-before $(RERUN_AFTER) auto .cache/make --exec-batch rm '{}' ;
+"""
+
+[[Makefile.rules]]
+target = ".cache/make/run"
+recipes_contains_block = """
+	pre-commit run --all-files
+	touch .cache/make/run
+"""

@@ -1,0 +1,21 @@
+[[Makefile.rules]]
+target = ".PHONY"
+prerequisites = ["poetry"]
+
+[[Makefile.rules]]
+target = "help"
+recipes_contains_block = """
+	@echo '  poetry      to update dependencies'
+"""
+
+[[Makefile.contains]]
+block = """
+poetry:
+	-rm .cache/make/auto-poetry
+	$(MAKE)
+
+.cache/make/auto-poetry: pyproject.toml
+	poetry update
+	touch .cache/make/auto-poetry
+	-rm .cache/make/run
+"""
