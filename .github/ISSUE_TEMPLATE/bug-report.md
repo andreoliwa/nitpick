@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a bug report to help us improve
+about: Create a bug report
 title: ""
 labels: "bug"
 assignees: ""
@@ -8,20 +8,17 @@ assignees: ""
 
 Your bug may already be reported!
 Please search on the [issue tracker](https://github.com/andreoliwa/nitpick/issues) before creating one.
+If you found an issue, write a comment or upvote it with a thumbs-up 👍🏻.
 
-## Expected Behavior
+## Expected behavior
 
-<!--- Tell us what should happen -->
+<!--- What should happen? -->
 
-## Current Behavior
+## Current behavior
 
-<!--- Tell us what happens instead of the expected behaviour -->
+<!--- What happens instead of the expected behaviour? -->
 
-## Possible Solution
-
-<!--- Not obligatory, but suggest a fix/reason for the bug -->
-
-## Steps to Reproduce
+## Steps to reproduce
 
 <!--- Provide a link to a live example or an unambiguous set of steps to -->
 <!--- reproduce this bug. Include code to reproduce, if relevant -->
@@ -31,23 +28,23 @@ Please search on the [issue tracker](https://github.com/andreoliwa/nitpick/issue
 1. <!-- do also -->
 1. <!-- then this happens -->
 
+## Possible Solution
+
+<!--- Not obligatory, but suggest a fix/reason for the bug -->
+
 ## Context
 
 <!--- How has this issue affected you? What are you trying to accomplish? -->
-<!--- Providing context helps us come up with a solution that is most useful in the real world -->
+<!--- Providing context helps to come up with a generic solution that is useful for you and others -->
 
-## Your Environment
+## Your environment
 
 <!--- Include as many relevant details about the environment you experienced the bug in -->
 
 - `nitpick` version used:
-
 - Python version:
-
 - Operating System and version:
-
 - Link to your project:
-
 - Run the following commands and paste the output:
 
   ```shell script
@@ -59,4 +56,4 @@ Please search on the [issue tracker](https://github.com/andreoliwa/nitpick/issue
 
 For more information, see the [CONTRIBUTING](https://github.com/andreoliwa/nitpick/blob/master/CONTRIBUTING.rst) guide.
 
-<!-- Thanks to https://github.com/stevemao/github-issue-templates/ for this template -->
+<!-- Thanks to https://github.com/stevemao/github-issue-templates/ for the original template -->

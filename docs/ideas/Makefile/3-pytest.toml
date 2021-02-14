@@ -1,0 +1,20 @@
+[[Makefile.rules]]
+target = ".PHONY"
+prerequisites = ["pytest"]
+
+[[Makefile.rules]]
+target = "help"
+recipes_contains_block = """
+	@echo '  pytest      to run tests'
+"""
+
+[[Makefile.contains]]
+block = """
+pytest:
+	-rm .cache/make/pytest
+	$(MAKE)
+
+.cache/make/pytest: nitpick/* styles/* tests/*
+	pytest
+	touch .cache/make/pytest
+"""

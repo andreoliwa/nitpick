@@ -1,0 +1,22 @@
+# semantic-release needs a special checker
+release = """{
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "bumpversion --allow-dirty --no-commit --no-tag --new-version ${nextRelease.version} patch"
+        }
+      ],
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
+  }
+"""
