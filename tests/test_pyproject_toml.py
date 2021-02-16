@@ -28,24 +28,32 @@ def test_missing_different_values(tmp_path):
     ProjectMock(tmp_path).style(
         """
         ["pyproject.toml".something]
-        yadayada = "no"
+        yada = "after"
         """
     ).pyproject_toml(
         """
         [something]
-        x = 1
-        yadayada = "oh yes"
-        abc = "123"
+        x = 1  # comment for x
+        yada = "before"  # comment for yada yada
+        abc = "123" # comment for abc
         """
-    ).api().assert_fusses_are_exactly(
+    ).check().assert_fusses_are_exactly(
         Fuss(
             PYPROJECT_TOML,
             319,
             " has different values. Use this:",
             """
             [something]
-            yadayada = "no"
+            yada = "after"
             """,
         )
+    ).apply().assert_file_contents(
+        PYPROJECT_TOML,
+        """
+        [something]
+        x = 1  # comment for x
+        yada = "after"  # comment for yada yada
+        abc = "123" # comment for abc
+        """,
     )
     # FIXME[AA]: test missing

@@ -99,9 +99,6 @@ def run(context, check, verbose, files):
     if verbose:
         logger.enable(PROJECT_NAME)
 
-    if not check:
-        logger.warning("Apply mode is not yet implemented; running a check instead")
-
     nit = get_nitpick(context)
     violations = 0
     for fuss in nit.run(*files, check=check):

@@ -52,7 +52,7 @@ class Nitpick:
 
         return self
 
-    def run(self, *partial_names: str, check=False) -> Iterator[Fuss]:
+    def run(self, *partial_names: str, check=True) -> Iterator[Fuss]:
         """Run Nitpick."""
         try:
             yield from chain(

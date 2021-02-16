@@ -70,7 +70,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def simulate_run(self, offline=False, api=True, flake8=True) -> "ProjectMock":
+    def simulate_run(self, offline=False, api=True, flake8=True, check=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -83,7 +83,7 @@ class ProjectMock:
         nit = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_fusses = set(nit.run())
+            self._actual_fusses = set(nit.run(check=check))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -98,9 +98,17 @@ class ProjectMock:
 
         return self
 
-    def api(self):
-        """Test only the API, no flake8 plugin."""
-        return self.simulate_run(flake8=False)
+    def flake8(self):
+        """Test only the flake8 plugin, no API."""
+        return self.simulate_run(api=False)
+
+    def check(self):
+        """Test only the API in check mode, no flake8 plugin."""
+        return self.simulate_run(flake8=False, check=True)
+
+    def apply(self):
+        """Test only the API in apply mode, no flake8 plugin."""
+        return self.simulate_run(flake8=False, check=False)
 
     def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents.
@@ -113,7 +121,7 @@ class ProjectMock:
         :param lint: Should we lint the file or not? Python (.py) files are always linted.
         """
         if str(filename).startswith("/"):
-            path = Path(filename)  # type: Path
+            path: Path = Path(filename)
         else:
             path = self.root_dir / filename
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -243,7 +251,10 @@ class ProjectMock:
 
     def assert_cli_output(self, str_or_lines: StrOrList = None, command: str = "run", violations=0) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
-        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command])
+        cli_args = ["--project", str(self.root_dir), command]
+        if command == "run":
+            cli_args.append("--check")
+        result = CliRunner().invoke(nitpick_cli, cli_args)
         actual: List[str] = result.output.splitlines()
 
         if isinstance(str_or_lines, str):
@@ -267,3 +278,8 @@ class ProjectMock:
         if command == "run":
             compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
         return self
+
+    def assert_file_contents(self, filename: PathOrStr, file_contents: str):
+        """Assert the file has the expected contents."""
+        path = self.root_dir / filename
+        compare(path.read_text(), dedent(file_contents).strip())
