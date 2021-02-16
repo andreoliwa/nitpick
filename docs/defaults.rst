@@ -42,13 +42,13 @@ Content of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitp
 
     [[".pre-commit-config.yaml".repos]]
     yaml = """
-      - repo: https://github.com/python/black
+      - repo: https://github.com/psf/black
         rev: 20.8b1
         hooks:
           - id: black
             args: [--safe, --quiet]
       - repo: https://github.com/asottile/blacken-docs
-        rev: v1.8.0
+        rev: v1.9.2
         hooks:
           - id: blacken-docs
             additional_dependencies: [black==20.8b1]
@@ -143,8 +143,8 @@ Content of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitp
 
     [[".pre-commit-config.yaml".repos]]
     yaml = """
-      - repo: https://github.com/pre-commit/mirrors-isort
-        rev: v5.6.4
+      - repo: https://github.com/PyCQA/isort
+        rev: 5.7.0
         hooks:
           - id: isort
     """
@@ -178,7 +178,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.790
+        rev: v0.800
         hooks:
           - id: mypy
     """
@@ -245,7 +245,7 @@ Content of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        rev: v3.0.0
+        rev: v4.1.0
         hooks:
           - id: commitlint
             stages: [commit-msg]
@@ -264,13 +264,13 @@ Content of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/an
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v3.3.0
+        rev: v3.4.0
         hooks:
           - id: debug-statements
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.7.3
+        rev: v2.10.0
         hooks:
           - id: pyupgrade
     """
@@ -302,7 +302,7 @@ Content of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/and
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pygrep-hooks
-        rev: v1.7.0
+        rev: v1.7.1
         hooks:
           - id: python-check-blanket-noqa
           - id: python-check-mock-methods
