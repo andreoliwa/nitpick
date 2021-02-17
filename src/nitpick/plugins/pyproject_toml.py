@@ -7,10 +7,11 @@ from tomlkit.toml_document import TOMLDocument
 
 from nitpick.constants import PYPROJECT_TOML
 from nitpick.core import Nitpick
+from nitpick.generic import singleton
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.data import FileData
-from nitpick.violations import Fuss
+from nitpick.violations import Fuss, ViolationCounter
 
 
 def change_toml(document: TOMLDocument, dictionary):
@@ -49,6 +50,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
             document = parse(file.as_string)
             change_toml(document, comparison.diff_format.as_data)
             self.file_path.write_text(dumps(document))
+            singleton(ViolationCounter).fixed += 1
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""

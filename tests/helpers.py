@@ -264,8 +264,7 @@ class ProjectMock:
 
         if command == "run":
             if violations:
-                plural = "s" if violations > 1 else ""
-                expected.append(f"❌ {violations} violation{plural}.")
+                expected.append(f"Violations: ❌ {violations} to change manually.")
             elif str_or_lines:
                 # If the number of violations was not passed but a list of errors was,
                 # remove the violation count from the actual results.

@@ -152,7 +152,7 @@ class PreCommitPlugin(NitpickPlugin):
             # Display the current revision of the hook
             current_revision = comparison.flat_actual.get("rev", None)
             revision_message = " (rev: {})".format(current_revision) if current_revision else ""
-            yield from self.warn_missing_different(comparison, ": hook {!r}{}".format(hook.hook_id, revision_message))
+            yield from self.warn_missing_different(comparison, f": hook {hook.hook_id!r}{revision_message}")
 
     def enforce_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[Fuss]:
         """Enforce repos using the old deprecated format with ``hooks`` and ``repo`` keys."""

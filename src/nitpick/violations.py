@@ -9,9 +9,33 @@ from typing import TYPE_CHECKING, Optional
 import click
 
 from nitpick.constants import FLAKE8_PREFIX
+from nitpick.generic import singleton
 
 if TYPE_CHECKING:
     from nitpick.plugins.data import FileData
+
+
+@dataclass
+class ViolationCounter:
+    """Violation counter."""
+
+    manual: int = 0
+    fixed: int = 0
+
+    def __str__(self) -> str:
+        """String representation with error counts and emojis."""
+        parts = []
+        if self.fixed:
+            parts.append(f"✅ {self.fixed} fixed")
+        if self.manual:
+            parts.append(f"❌ {self.manual} to change manually")
+        if not parts:
+            return "🎖 No violations found."
+        return f"Violations: {', '.join(parts)}."
+
+    def reset(self):
+        """Reset the counters."""
+        self.manual = self.fixed = 0
 
 
 @dataclass(frozen=True)
@@ -98,4 +122,6 @@ class Reporter:  # pylint: disable=too-few-public-methods
         else:
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
+        singleton(ViolationCounter).manual += 1
+
         return Fuss(self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)

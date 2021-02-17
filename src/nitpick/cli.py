@@ -23,7 +23,8 @@ from loguru import logger
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
-from nitpick.generic import relative_to_current_dir
+from nitpick.generic import relative_to_current_dir, singleton
+from nitpick.violations import ViolationCounter
 
 
 class _FlagMixin:
@@ -100,14 +101,12 @@ def run(context, check, verbose, files):
         logger.enable(PROJECT_NAME)
 
     nit = get_nitpick(context)
-    violations = 0
     for fuss in nit.run(*files, check=check):
-        violations += 1
         nit.echo(fuss.pretty)
 
-    if violations:
-        plural = "s" if violations > 1 else ""
-        click.secho(f"❌ {violations} violation{plural}.")
+    counter = singleton(ViolationCounter)
+    if counter.manual or counter.fixed:
+        click.secho(str(counter))
         raise Exit(1)
 
 
