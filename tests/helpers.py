@@ -249,34 +249,37 @@ class ProjectMock:
         compare(expected=clean_violations, actual=self._actual_violations)
         return self
 
-    def assert_cli_output(self, str_or_lines: StrOrList = None, command: str = "run", violations=0) -> "ProjectMock":
-        """Assert the expected CLI output for the chosen command."""
-        cli_args = ["--project", str(self.root_dir), command]
-        if command == "run":
-            cli_args.append("--check")
-        result = CliRunner().invoke(nitpick_cli, cli_args)
+    def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str):
+        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *args])
         actual: List[str] = result.output.splitlines()
 
         if isinstance(str_or_lines, str):
             expected = dedent(str_or_lines).strip().splitlines()
         else:
             expected = list(always_iterable(str_or_lines))
+        return result, actual, expected
 
-        if command == "run":
-            if violations:
-                expected.append(f"Violations: ❌ {violations} to change manually.")
-            elif str_or_lines:
-                # If the number of violations was not passed but a list of errors was,
-                # remove the violation count from the actual results.
-                # This is useful when checking only if the error is contained in a list of errors,
-                # regardless of the violation count.
-                assert actual
-                del actual[-1]
+    def cli_run(self, str_or_lines: StrOrList = None, violations=0) -> "ProjectMock":
+        """Assert the expected CLI output for the chosen command."""
+        result, actual, expected = self._simulate_cli("run", str_or_lines, "--check")
+        if violations:
+            expected.append(f"Violations: ❌ {violations} to change manually.")
+        elif str_or_lines:
+            # If the number of violations was not passed but a list of errors was,
+            # remove the violation count from the actual results.
+            # This is useful when checking only if the error is contained in a list of errors,
+            # regardless of the violation count.
+            assert actual
+            del actual[-1]
 
         compare(actual=actual, expected=expected)
-        if command == "run":
-            compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
+        compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
         return self
+
+    def cli_ls(self, str_or_lines: StrOrList):
+        """Run the ls command and assert the output."""
+        _, actual, expected = self._simulate_cli("ls", str_or_lines)
+        compare(actual=actual, expected=expected)
 
     def assert_file_contents(self, filename: PathOrStr, file_contents: str):
         """Assert the file has the expected contents."""

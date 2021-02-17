@@ -25,7 +25,7 @@ def test_simple_error(tmp_path):
         )
     )
 
-    project.assert_cli_output(
+    project.cli_run(
         f"""
         {str(project.root_dir)}/pyproject.toml:1: NIP318  has missing values:
         [tool.black]
