@@ -97,11 +97,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     def warn_missing_different(self, comparison: Comparison, prefix: str = "") -> Iterator[Fuss]:
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
-        if comparison.missing_format:
-            yield self.reporter.make_fuss(
-                SharedViolations.MissingValues, comparison.missing_format.reformatted, prefix=prefix
-            )
-        if comparison.diff_format:
-            yield self.reporter.make_fuss(
-                SharedViolations.DifferentValues, comparison.diff_format.reformatted, prefix=prefix
-            )
+        if comparison.missing:
+            yield self.reporter.make_fuss(SharedViolations.MissingValues, comparison.missing.reformatted, prefix=prefix)
+        if comparison.diff:
+            yield self.reporter.make_fuss(SharedViolations.DifferentValues, comparison.diff.reformatted, prefix=prefix)

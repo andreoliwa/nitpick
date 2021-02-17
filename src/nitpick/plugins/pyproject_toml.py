@@ -54,11 +54,11 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
         document = parse(file.as_string)
         counter = singleton(ViolationCounter)
-        if comparison.diff_format:
-            change_toml(document, comparison.diff_format.as_data)
+        if comparison.diff:
+            change_toml(document, comparison.diff.as_data)
             counter.fixed += 1
-        if comparison.missing_format:
-            change_toml(document, comparison.missing_format.as_data)
+        if comparison.missing:
+            change_toml(document, comparison.missing.as_data)
             counter.fixed += 1
         self.file_path.write_text(dumps(document))
 
