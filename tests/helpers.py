@@ -70,7 +70,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def simulate_run(self, offline=False, api=True, flake8=True, check=False) -> "ProjectMock":
+    def simulate_run(self, offline=False, api=True, flake8=True, check=True) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
