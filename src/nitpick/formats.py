@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Callable, List, Optional, Type, Union
 
 import dictdiffer
-import toml
+import toml  # TODO: replace by tomlkit, to keep only one TOML module
 from loguru import logger
 from ruamel.yaml import YAML, RoundTripRepresenter
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
@@ -36,6 +36,11 @@ class Comparison:
 
         self.diff_format = None  # type: Optional[BaseFormat]
         self.diff_dict = {}  # type: Union[JsonDict, YamlData]
+
+    @property
+    def has_changes(self) -> bool:
+        """Return True is there is a difference or something missing."""
+        return bool(self.missing_format or self.diff_format)
 
     @staticmethod
     def _normalize_value(value: Union[JsonDict, YamlData, "BaseFormat"]) -> JsonDict:

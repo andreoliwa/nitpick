@@ -102,11 +102,11 @@ class ProjectMock:
         """Test only the flake8 plugin, no API."""
         return self.simulate_run(api=False)
 
-    def check(self):
+    def api_check(self):
         """Test only the API in check mode, no flake8 plugin."""
         return self.simulate_run(flake8=False, check=True)
 
-    def apply(self):
+    def api_apply(self):
         """Test only the API in apply mode, no flake8 plugin."""
         return self.simulate_run(flake8=False, check=False)
 
@@ -284,4 +284,6 @@ class ProjectMock:
     def assert_file_contents(self, filename: PathOrStr, file_contents: str):
         """Assert the file has the expected contents."""
         path = self.root_dir / filename
-        compare(path.read_text(), dedent(file_contents).strip())
+        actual = path.read_text().strip()
+        expected = dedent(file_contents).strip()
+        compare(actual=actual, expected=expected)

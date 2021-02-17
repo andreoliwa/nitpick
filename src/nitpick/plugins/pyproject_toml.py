@@ -18,7 +18,10 @@ def change_toml(document: TOMLDocument, dictionary):
     """Traverse a TOML document recursively and change values, keeping its formatting and comments."""
     for key, value in dictionary.items():
         if isinstance(value, (dict, OrderedDict)):
-            change_toml(document[key], value)
+            if key in document:
+                change_toml(document[key], value)
+            else:
+                document.add(key, value)
         else:
             document[key] = value
 
@@ -46,11 +49,18 @@ class PyProjectTomlPlugin(NitpickPlugin):
             yield from self.warn_missing_different(comparison)
             return
 
+        if not comparison.has_changes:
+            return
+
+        document = parse(file.as_string)
+        counter = singleton(ViolationCounter)
         if comparison.diff_format:
-            document = parse(file.as_string)
             change_toml(document, comparison.diff_format.as_data)
-            self.file_path.write_text(dumps(document))
-            singleton(ViolationCounter).fixed += 1
+            counter.fixed += 1
+        if comparison.missing_format:
+            change_toml(document, comparison.missing_format.as_data)
+            counter.fixed += 1
+        self.file_path.write_text(dumps(document))
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""

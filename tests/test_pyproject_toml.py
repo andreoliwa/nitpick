@@ -27,6 +27,9 @@ def test_missing_different_values(tmp_path):
         """
         ["pyproject.toml".something]
         yada = "after"
+
+        ["pyproject.toml".tool]
+        missing = "value"
         """
     ).pyproject_toml(
         """
@@ -35,23 +38,33 @@ def test_missing_different_values(tmp_path):
         yada = "before"  # comment for yada yada
         abc = "123" # comment for abc
         """
-    ).check().assert_violations(
+    ).api_check().assert_violations(
         Fuss(
-            PYPROJECT_TOML,
-            319,
-            " has different values. Use this:",
-            """
+            filename=PYPROJECT_TOML,
+            code=319,
+            message=" has different values. Use this:",
+            suggestion="""
             [something]
             yada = "after"
             """,
-        )
-    ).apply().assert_file_contents(
+        ),
+        Fuss(
+            filename=PYPROJECT_TOML,
+            code=318,
+            message=" has missing values:",
+            suggestion="""
+            [tool]
+            missing = "value"
+            """,
+        ),
+    ).api_apply().assert_file_contents(
         PYPROJECT_TOML,
         """
         [something]
         x = 1  # comment for x
         yada = "after"  # comment for yada yada
         abc = "123" # comment for abc
+        [tool]
+        missing = "value"
         """,
     )
-    # FIXME[AA]: test missing
