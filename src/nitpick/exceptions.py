@@ -11,9 +11,9 @@ from nitpick.violations import Fuss
 class QuitComplainingError(Exception):
     """Quit complaining and exit the application."""
 
-    def __init__(self, fusses: Union[Fuss, List[Fuss]]) -> None:
+    def __init__(self, violations: Union[Fuss, List[Fuss]]) -> None:
         super().__init__()
-        self.fusses: List[Fuss] = list(always_iterable(fusses))
+        self.violations: List[Fuss] = list(always_iterable(violations))
 
 
 class Deprecation:

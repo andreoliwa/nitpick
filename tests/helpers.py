@@ -43,7 +43,7 @@ class ProjectMock:
 
     def __init__(self, tmp_path: Path, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
-        self._actual_fusses: Set[Fuss] = set()
+        self._actual_violations: Set[Fuss] = set()
         self._flake8_errors: List[Flake8Error] = []
         self._flake8_errors_as_string: Set[str] = set()
 
@@ -83,7 +83,7 @@ class ProjectMock:
         nit = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_fusses = set(nit.run(check=check))
+            self._actual_violations = set(nit.run(check=check))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -240,13 +240,13 @@ class ProjectMock:
         compare(expected.as_data, actual.as_data)
         return self
 
-    def assert_fusses_are_exactly(self, *expected_fusses: Fuss) -> "ProjectMock":
-        """Assert the exact set of fusses."""
-        clean_fusses = {
+    def assert_violations(self, *expected_violations: Fuss) -> "ProjectMock":
+        """Assert the exact set of violations."""
+        clean_violations = {
             Fuss(orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
-            for orig in expected_fusses
+            for orig in expected_violations
         }
-        compare(expected=clean_fusses, actual=self._actual_fusses)
+        compare(expected=clean_violations, actual=self._actual_violations)
         return self
 
     def assert_cli_output(self, str_or_lines: StrOrList = None, command: str = "run", violations=0) -> "ProjectMock":

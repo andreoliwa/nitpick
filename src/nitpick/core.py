@@ -62,7 +62,7 @@ class Nitpick:
                 self.enforce_style(*partial_names, check=check),
             )
         except QuitComplainingError as err:
-            yield from err.fusses
+            yield from err.violations
 
     def enforce_present_absent(self) -> Iterator[Fuss]:
         """Enforce files that should be present or absent."""

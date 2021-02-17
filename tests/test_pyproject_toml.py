@@ -37,7 +37,7 @@ def test_missing_different_values(tmp_path):
         yada = "before"  # comment for yada yada
         abc = "123" # comment for abc
         """
-    ).check().assert_fusses_are_exactly(
+    ).check().assert_violations(
         Fuss(
             PYPROJECT_TOML,
             319,
