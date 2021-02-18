@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ViolationCounter:
+class ViolationCounter:  # FIXME[AA]: move counters to the Reporter class
     """Violation counter."""
 
     manual: int = 0
@@ -123,12 +123,12 @@ class Reporter:  # pylint: disable=too-few-public-methods
         self.data: Optional["FileData"] = data
         self.violation_base_code = violation_base_code
 
-    def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed_or_manual=False, **kwargs) -> Fuss:
+    def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed=False, **kwargs) -> Fuss:
         """Make a fuss."""
         if kwargs:
             formatted = violation.message.format(**kwargs)
         else:
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
-        singleton(ViolationCounter).increment(fixed_or_manual)
+        singleton(ViolationCounter).increment(fixed)
         return Fuss(self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)
