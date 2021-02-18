@@ -5,15 +5,15 @@ $(shell mkdir -p .cache/make)
 
 .PHONY: Makefile
 
+build: .remove-old-cache .cache/make/lint .cache/make/test-one .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
+.PHONY: build
+
 help:
 	@echo 'Choose one of the following targets:'
 	@cat Makefile | egrep '^[a-z0-9 ./-]*:.*#' | sed -E -e 's/:.+# */@ /g' -e 's/ .+@/@/g' | sort | awk -F@ '{printf "  \033[1;34m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
-
-build: .remove-old-cache .cache/make/lint .cache/make/test-one .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
-.PHONY: build
 
 quick: pytest nitpick pre-commit pylint # Run pytest and pre-commit fast, without tox
 .PHONY: quick

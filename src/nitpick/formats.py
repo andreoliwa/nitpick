@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Callable, List, Optional, Type, Union
 
 import dictdiffer
-import toml  # TODO: replace by tomlkit, to keep only one TOML module
+import toml
 from loguru import logger
 from ruamel.yaml import YAML, RoundTripRepresenter
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
