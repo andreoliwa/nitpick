@@ -22,10 +22,9 @@ from nitpick.constants import (
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
-from nitpick.generic import singleton
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
-from nitpick.violations import Fuss, ViolationCounter
+from nitpick.violations import Fuss, Reporter
 
 
 def assert_conditions(*args):
@@ -249,11 +248,10 @@ class ProjectMock:
         }
         compare(expected=clean_violations, actual=self._actual_violations)
 
-        counter: ViolationCounter = singleton(ViolationCounter)
         if fixed is not None:
-            compare(expected=fixed, actual=counter.fixed)
+            compare(expected=fixed, actual=Reporter.fixed)
         if manual is not None:
-            compare(expected=manual, actual=counter.manual)
+            compare(expected=manual, actual=Reporter.manual)
 
         return self
 

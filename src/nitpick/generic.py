@@ -241,9 +241,3 @@ def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:
         return str(path.relative_to(Path.cwd())).lstrip(".")
 
     return str(path.absolute())
-
-
-@lru_cache(typed=True)
-def singleton(cls):
-    """Return a single instance of ``cls``."""
-    return cls()

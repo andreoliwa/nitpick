@@ -10,11 +10,11 @@ from loguru import logger
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import QuitComplainingError
-from nitpick.generic import relative_to_current_dir, singleton
+from nitpick.generic import relative_to_current_dir
 from nitpick.plugins.data import FileData
 from nitpick.project import Project
 from nitpick.typedefs import PathOrStr
-from nitpick.violations import Fuss, ProjectViolations, Reporter, ViolationCounter
+from nitpick.violations import Fuss, ProjectViolations, Reporter
 
 if TYPE_CHECKING:
     from nitpick.plugins import NitpickPlugin
@@ -53,7 +53,7 @@ class Nitpick:
 
     def run(self, *partial_names: str, check=True) -> Iterator[Fuss]:
         """Run Nitpick."""
-        singleton(ViolationCounter).reset()
+        Reporter.reset()
 
         try:
             yield from chain(
