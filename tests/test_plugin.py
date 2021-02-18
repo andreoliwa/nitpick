@@ -38,7 +38,7 @@ def test_absent_files(tmp_path):
         "NIP104 File xxx should be deleted: Remove this"
     ).assert_errors_contain(
         "NIP104 File yyy should be deleted: Remove that"
-    ).assert_fusses_are_exactly(
+    ).assert_violations(
         Fuss(filename="xxx", code=104, message=" should be deleted: Remove this", suggestion="", lineno=1),
         Fuss(filename="yyy", code=104, message=" should be deleted: Remove that", suggestion="", lineno=1),
     )
@@ -61,7 +61,7 @@ def test_missing_message(tmp_path):
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
         nitpick.files."pyproject.toml": Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.\x1b[0m
         """
-    ).assert_fusses_are_exactly(
+    ).assert_violations(
         Fuss(
             filename="nitpick-style.toml",
             code=1,
@@ -88,7 +88,7 @@ def test_present_files(tmp_path):
         "NIP103 File .env should exist"
     ).assert_errors_contain(
         "NIP103 File another-file.txt should exist", 3
-    ).assert_fusses_are_exactly(
+    ).assert_violations(
         Fuss(filename=".editorconfig", code=103, message=" should exist: Create this file", suggestion="", lineno=1),
         Fuss(filename=".env", code=103, message=" should exist", suggestion="", lineno=1),
         Fuss(filename="another-file.txt", code=103, message=" should exist", suggestion="", lineno=1),
@@ -136,7 +136,7 @@ def test_offline_doesnt_raise_connection_error(mocked_get, tmp_path):
 def test_offline_recommend_using_flag(mocked_get, tmp_path, capsys):
     """Recommend using the flag on a connection error."""
     mocked_get.side_effect = requests.ConnectionError("error message from connection here")
-    ProjectMock(tmp_path).simulate_run(call_api=False)
+    ProjectMock(tmp_path).simulate_run(api=False)
     out, err = capsys.readouterr()
     assert out == ""
     assert err == "Your network is unreachable. Fix your connection or use --nitpick-offline / NITPICK_OFFLINE=1\n"

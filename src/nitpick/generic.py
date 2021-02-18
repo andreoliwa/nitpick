@@ -4,8 +4,8 @@
 
     from nitpick.generic import *
 """
-import collections
 import re
+from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, Union
@@ -95,7 +95,7 @@ def quoted_split(string_: str, separator=".") -> List[str]:
     ]
 
 
-def unflatten(dict_, separator=".") -> collections.OrderedDict:
+def unflatten(dict_, separator=".", sort=True) -> OrderedDict:
     """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
 
     >>> expected = {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
@@ -106,15 +106,15 @@ def unflatten(dict_, separator=".") -> collections.OrderedDict:
       ...
     TypeError: 'str' object does not support item assignment
     """
-    items = collections.OrderedDict()  # type: collections.OrderedDict[str, Any]
-    for root_key, root_value in sorted(dict_.items()):
+    items: OrderedDict = OrderedDict()
+    for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
         all_keys = quoted_split(root_key, separator)
         sub_items = items
         for key in all_keys[:-1]:
             try:
                 sub_items = sub_items[key]
             except KeyError:
-                sub_items[key] = collections.OrderedDict()
+                sub_items[key] = OrderedDict()
                 sub_items = sub_items[key]
 
         sub_items[all_keys[-1]] = root_value
@@ -126,8 +126,8 @@ class MergeDict:
     """A dictionary that can merge other dictionaries into it."""
 
     def __init__(self, original_dict: JsonDict = None) -> None:
-        self._all_flattened = {}  # type: JsonDict
-        self._current_lists = {}  # type: Dict[str, Iterable]
+        self._all_flattened: OrderedDict = OrderedDict()
+        self._current_lists: Dict[str, Iterable] = {}
         self.add(original_dict or {})
 
     def add(self, other: JsonDict) -> None:
@@ -135,9 +135,9 @@ class MergeDict:
         flattened_other = flatten(other, separator=SEPARATOR_FLATTEN, current_lists=self._current_lists)
         self._all_flattened.update(flattened_other)
 
-    def merge(self) -> JsonDict:
+    def merge(self, sort=True) -> JsonDict:
         """Merge the dictionaries, replacing values with identical keys and extending lists."""
-        return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN)
+        return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN, sort=sort)
 
 
 def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) -> dict:

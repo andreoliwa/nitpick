@@ -50,7 +50,10 @@ extensions = [
     # http://www.sphinx-doc.org/en/master/usage/extensions/to do.html
     "sphinx.ext.todo",
     # http://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
-    "sphinx.ext.viewcode",
+    # TODO: Disabling because it's failing with an error:
+    #  Extension error (sphinx.ext.viewcode): Handler <function env_purge_doc at 0x111c79670> for event 'env-purge-doc'
+    #  threw an exception (exception: cannot unpack non-iterable bool object)
+    # "sphinx.ext.viewcode",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

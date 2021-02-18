@@ -3,7 +3,7 @@ import os
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import Iterator, List, Union
+from typing import TYPE_CHECKING, Iterator, List
 
 import click
 from loguru import logger
@@ -13,7 +13,11 @@ from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import relative_to_current_dir
 from nitpick.plugins.data import FileData
 from nitpick.project import Project
+from nitpick.typedefs import PathOrStr
 from nitpick.violations import Fuss, ProjectViolations, Reporter
+
+if TYPE_CHECKING:
+    from nitpick.plugins import NitpickPlugin
 
 
 class Nitpick:
@@ -38,30 +42,27 @@ class Nitpick:
         Nitpick._allow_init = False
         return instance
 
-    def init(self, path_or_project: Union[Path, Project] = None, offline: bool = None) -> "Nitpick":
+    def init(self, project_root: PathOrStr = None, offline: bool = None) -> "Nitpick":
         """Initialize attributes of the singleton."""
-        if path_or_project is None or isinstance(path_or_project, (Path, str)):
-            self.project = Project(path_or_project)
-        elif isinstance(path_or_project, Project):
-            self.project = path_or_project
-        else:
-            raise TypeError("path_or_project should be a Path or a Project")
+        self.project = Project(project_root)
 
         if offline is not None:
             self.offline = offline
 
         return self
 
-    def run(self, *partial_names: str) -> Iterator[Fuss]:
+    def run(self, *partial_names: str, check=True) -> Iterator[Fuss]:
         """Run Nitpick."""
+        Reporter.reset()
+
         try:
             yield from chain(
                 self.project.merge_styles(self.offline),
                 self.enforce_present_absent(),
-                self.enforce_style(*partial_names),
+                self.enforce_style(*partial_names, check=check),
             )
         except QuitComplainingError as err:
-            yield from err.fusses
+            yield from err.violations
 
     def enforce_present_absent(self) -> Iterator[Fuss]:
         """Enforce files that should be present or absent."""
@@ -84,7 +85,7 @@ class Nitpick:
                 violation = ProjectViolations.MissingFile if present else ProjectViolations.FileShouldBeDeleted
                 yield reporter.make_fuss(violation, extra=extra)
 
-    def enforce_style(self, *partial_names: str):
+    def enforce_style(self, *partial_names: str, check=False):
         """Read the merged style and enforce the rules in it.
 
         1. Get all root keys from the merged style
@@ -104,13 +105,13 @@ class Nitpick:
             # 3.
             for plugin_instance in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 data=FileData.create(self.project, config_key)
-            ):
-                yield from plugin_instance.entry_point(config_dict)
+            ):  # type: NitpickPlugin
+                yield from plugin_instance.entry_point(config_dict, check)
 
     def filter_keys(self, *partial_names: str) -> List[str]:
         """Filter keys, keeping only the selected partial names."""
         rv = []
-        for key in self.project.style_dict.keys():
+        for key in self.project.style_dict:
             if key == PROJECT_NAME:
                 continue
 

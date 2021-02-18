@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := quick
+
 # Create the cache dir if it doesn't exist
 $(shell mkdir -p .cache/make)
 

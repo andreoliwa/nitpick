@@ -24,7 +24,7 @@ from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
-from nitpick.violations import Fuss
+from nitpick.violations import Fuss, Reporter
 
 
 def assert_conditions(*args):
@@ -43,7 +43,7 @@ class ProjectMock:
 
     def __init__(self, tmp_path: Path, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
-        self._actual_fusses: Set[Fuss] = set()
+        self._actual_violations: Set[Fuss] = set()
         self._flake8_errors: List[Flake8Error] = []
         self._flake8_errors_as_string: Set[str] = set()
 
@@ -70,7 +70,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def simulate_run(self, offline=False, call_api=True) -> "ProjectMock":
+    def simulate_run(self, offline=False, api=True, flake8=True, check=True) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -81,18 +81,34 @@ class ProjectMock:
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
         nit = Nitpick.singleton().init(offline=offline)
-        if call_api:
-            self._actual_fusses = set(nit.run())
 
-        npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
-        self._flake8_errors = list(npc.run())
+        if api:
+            self._actual_violations = set(nit.run(check=check))
 
-        self._flake8_errors_as_string = set()
-        for line, col, message, class_ in self._flake8_errors:
-            if not (line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension):
-                raise AssertionError()
-            self._flake8_errors_as_string.add(message)
+        if flake8:
+            npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
+            self._flake8_errors = list(npc.run())
+            self._flake8_errors_as_string = set()
+            for line, col, message, class_ in self._flake8_errors:
+                if not (
+                    line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension
+                ):
+                    raise AssertionError()
+                self._flake8_errors_as_string.add(message)
+
         return self
+
+    def flake8(self):
+        """Test only the flake8 plugin, no API."""
+        return self.simulate_run(api=False)
+
+    def api_check(self):
+        """Test only the API in check mode, no flake8 plugin."""
+        return self.simulate_run(flake8=False, check=True)
+
+    def api_apply(self):
+        """Test only the API in apply mode, no flake8 plugin."""
+        return self.simulate_run(flake8=False, check=False)
 
     def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents.
@@ -105,7 +121,7 @@ class ProjectMock:
         :param lint: Should we lint the file or not? Python (.py) files are always linted.
         """
         if str(filename).startswith("/"):
-            path = Path(filename)  # type: Path
+            path: Path = Path(filename)
         else:
             path = self.root_dir / filename
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -224,34 +240,56 @@ class ProjectMock:
         compare(expected.as_data, actual.as_data)
         return self
 
-    def assert_fusses_are_exactly(self, *args: Fuss) -> "ProjectMock":
-        """Assert the exact set of fusses."""
-        compare(expected=set(args), actual=self._actual_fusses)
+    def assert_violations(self, *expected_violations: Fuss, manual: int = None, fixed: int = None) -> "ProjectMock":
+        """Assert the exact set of violations."""
+        clean_violations = {
+            Fuss(orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
+            for orig in expected_violations
+        }
+        compare(expected=clean_violations, actual=self._actual_violations)
+
+        if fixed is not None:
+            compare(expected=fixed, actual=Reporter.fixed)
+        if manual is not None:
+            compare(expected=manual, actual=Reporter.manual)
+
         return self
 
-    def assert_cli_output(self, str_or_lines: StrOrList = None, command: str = "run", violations=0) -> "ProjectMock":
-        """Assert the expected CLI output for the chosen command."""
-        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command])
+    def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str):
+        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *args])
         actual: List[str] = result.output.splitlines()
 
         if isinstance(str_or_lines, str):
             expected = dedent(str_or_lines).strip().splitlines()
         else:
             expected = list(always_iterable(str_or_lines))
+        return result, actual, expected
 
-        if command == "run":
-            if violations:
-                plural = "s" if violations > 1 else ""
-                expected.append(f"❌ {violations} violation{plural}.")
-            elif str_or_lines:
-                # If the number of violations was not passed but a list of errors was,
-                # remove the violation count from the actual results.
-                # This is useful when checking only if the error is contained in a list of errors,
-                # regardless of the violation count.
-                assert actual
-                del actual[-1]
+    def cli_run(self, str_or_lines: StrOrList = None, violations=0) -> "ProjectMock":
+        """Assert the expected CLI output for the chosen command."""
+        result, actual, expected = self._simulate_cli("run", str_or_lines, "--check")
+        if violations:
+            expected.append(f"Violations: ❌ {violations} to change manually.")
+        elif str_or_lines:
+            # If the number of violations was not passed but a list of errors was,
+            # remove the violation count from the actual results.
+            # This is useful when checking only if the error is contained in a list of errors,
+            # regardless of the violation count.
+            assert actual
+            del actual[-1]
 
         compare(actual=actual, expected=expected)
-        if command == "run":
-            compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
+        compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
         return self
+
+    def cli_ls(self, str_or_lines: StrOrList):
+        """Run the ls command and assert the output."""
+        _, actual, expected = self._simulate_cli("ls", str_or_lines)
+        compare(actual=actual, expected=expected)
+
+    def assert_file_contents(self, filename: PathOrStr, file_contents: str):
+        """Assert the file has the expected contents."""
+        path = self.root_dir / filename
+        actual = path.read_text().strip()
+        expected = dedent(file_contents).strip()
+        compare(actual=actual, expected=expected)

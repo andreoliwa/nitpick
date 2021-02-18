@@ -24,6 +24,7 @@ from loguru import logger
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
 from nitpick.generic import relative_to_current_dir
+from nitpick.violations import Reporter
 
 
 class _FlagMixin:
@@ -99,18 +100,12 @@ def run(context, check, verbose, files):
     if verbose:
         logger.enable(PROJECT_NAME)
 
-    if not check:
-        logger.warning("Apply mode is not yet implemented; running a check instead")
-
     nit = get_nitpick(context)
-    violations = 0
-    for fuss in nit.run(*files):
-        violations += 1
+    for fuss in nit.run(*files, check=check):
         nit.echo(fuss.pretty)
 
-    if violations:
-        plural = "s" if violations > 1 else ""
-        click.secho(f"❌ {violations} violation{plural}.")
+    if Reporter.manual or Reporter.fixed:
+        click.secho(Reporter.get_counts())
         raise Exit(1)
 
 
@@ -124,9 +119,9 @@ def ls(context, files):  # pylint: disable=invalid-name
     You can use partial and multiple file names in the FILES argument.
     """
     nit = get_nitpick(context)
-    fusses = list(nit.project.merge_styles(nit.offline))
-    if fusses:
-        for fuss in fusses:
+    violations = list(nit.project.merge_styles(nit.offline))
+    if violations:
+        for fuss in violations:
             click.echo(fuss.pretty)
         raise Exit(1)  # TODO: test ls with invalid style
 
