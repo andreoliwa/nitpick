@@ -22,7 +22,8 @@ class ViolationCounter:
     manual: int = 0
     fixed: int = 0
 
-    def __str__(self) -> str:
+    @property
+    def summary(self) -> str:
         """String representation with error counts and emojis."""
         parts = []
         if self.fixed:
@@ -36,6 +37,13 @@ class ViolationCounter:
     def reset(self):
         """Reset the counters."""
         self.manual = self.fixed = 0
+
+    def increment(self, fixed_or_manual=False):
+        """Increment the fixed ou manual count."""
+        if fixed_or_manual:
+            self.fixed += 1
+        else:
+            self.manual += 1
 
 
 @dataclass(frozen=True)
@@ -115,13 +123,12 @@ class Reporter:  # pylint: disable=too-few-public-methods
         self.data: Optional["FileData"] = data
         self.violation_base_code = violation_base_code
 
-    def make_fuss(self, violation: ViolationEnum, suggestion: str = "", **kwargs) -> Fuss:
+    def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed_or_manual=False, **kwargs) -> Fuss:
         """Make a fuss."""
         if kwargs:
             formatted = violation.message.format(**kwargs)
         else:
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
-        singleton(ViolationCounter).manual += 1
-
+        singleton(ViolationCounter).increment(fixed_or_manual)
         return Fuss(self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)

@@ -1,10 +1,9 @@
+.DEFAULT_GOAL := quick
+
 # Create the cache dir if it doesn't exist
 $(shell mkdir -p .cache/make)
 
 .PHONY: Makefile
-
-build: .remove-old-cache .cache/make/lint .cache/make/test-one .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
-.PHONY: build
 
 help:
 	@echo 'Choose one of the following targets:'
@@ -12,6 +11,9 @@ help:
 	@echo
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
+
+build: .remove-old-cache .cache/make/lint .cache/make/test-one .cache/make/doc # Simple build: no upgrades (pre-commit/Poetry), test only latest Python. For local development and bug fixes (default target)
+.PHONY: build
 
 quick: pytest nitpick pre-commit pylint # Run pytest and pre-commit fast, without tox
 .PHONY: quick

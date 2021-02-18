@@ -22,9 +22,10 @@ from nitpick.constants import (
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
+from nitpick.generic import singleton
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
-from nitpick.violations import Fuss
+from nitpick.violations import Fuss, ViolationCounter
 
 
 def assert_conditions(*args):
@@ -240,13 +241,20 @@ class ProjectMock:
         compare(expected.as_data, actual.as_data)
         return self
 
-    def assert_violations(self, *expected_violations: Fuss) -> "ProjectMock":
+    def assert_violations(self, *expected_violations: Fuss, manual: int = None, fixed: int = None) -> "ProjectMock":
         """Assert the exact set of violations."""
         clean_violations = {
             Fuss(orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
             for orig in expected_violations
         }
         compare(expected=clean_violations, actual=self._actual_violations)
+
+        counter: ViolationCounter = singleton(ViolationCounter)
+        if fixed is not None:
+            compare(expected=fixed, actual=counter.fixed)
+        if manual is not None:
+            compare(expected=manual, actual=counter.manual)
+
         return self
 
     def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str):

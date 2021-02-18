@@ -104,9 +104,9 @@ def run(context, check, verbose, files):
     for fuss in nit.run(*files, check=check):
         nit.echo(fuss.pretty)
 
-    counter = singleton(ViolationCounter)
+    counter: ViolationCounter = singleton(ViolationCounter)
     if counter.manual or counter.fixed:
-        click.secho(str(counter))
+        click.secho(counter.summary)
         raise Exit(1)
 
 

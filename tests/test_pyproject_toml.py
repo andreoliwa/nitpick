@@ -38,7 +38,7 @@ def test_missing_different_values(tmp_path):
         yada = "before"  # comment for yada yada
         abc = "123" # comment for abc
         """
-    ).api_check().assert_violations(
+    ).api_apply().assert_violations(
         Fuss(
             filename=PYPROJECT_TOML,
             code=319,
@@ -57,7 +57,9 @@ def test_missing_different_values(tmp_path):
             missing = "value"
             """,
         ),
-    ).api_apply().assert_file_contents(
+        manual=0,
+        fixed=2,
+    ).assert_file_contents(
         PYPROJECT_TOML,
         """
         [something]

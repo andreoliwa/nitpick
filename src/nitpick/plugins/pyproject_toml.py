@@ -11,7 +11,7 @@ from nitpick.generic import singleton
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.data import FileData
-from nitpick.violations import Fuss, ViolationCounter
+from nitpick.violations import Fuss, SharedViolations, ViolationCounter
 
 
 def change_toml(document: TOMLDocument, dictionary):
@@ -45,22 +45,21 @@ class PyProjectTomlPlugin(NitpickPlugin):
             return
 
         comparison = file.compare_with_flatten(self.file_dict)
-        if not self.apply:
-            yield from self.warn_missing_different(comparison)
-            return
-
         if not comparison.has_changes:
             return
 
-        document = parse(file.as_string)
-        counter = singleton(ViolationCounter)
+        if self.apply:
+            document = parse(file.as_string)
         if comparison.diff:
-            change_toml(document, comparison.diff.as_data)
-            counter.fixed += 1
+            if self.apply:
+                change_toml(document, comparison.diff.as_data)
+            yield self.reporter.make_fuss(SharedViolations.DifferentValues, comparison.diff.reformatted, prefix="")
         if comparison.missing:
-            change_toml(document, comparison.missing.as_data)
-            counter.fixed += 1
-        self.file_path.write_text(dumps(document))
+            if self.apply:
+                change_toml(document, comparison.missing.as_data)
+            yield self.reporter.make_fuss(SharedViolations.MissingValues, comparison.missing.reformatted, prefix="")
+        if self.apply:
+            self.file_path.write_text(dumps(document))
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
