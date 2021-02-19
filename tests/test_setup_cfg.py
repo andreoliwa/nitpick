@@ -45,6 +45,16 @@ def test_comma_separated_keys_on_style_file(tmp_path):
 
 def test_suggest_initial_contents(tmp_path):
     """Suggest contents when setup.cfg does not exist."""
+    expected_content = """
+        [flake8]
+        max-line-length = 120
+
+        [isort]
+        line_length = 120
+
+        [mypy]
+        ignore_missing_imports = True"""
+
     ProjectMock(tmp_path).style(
         """
         [nitpick.files.present]
@@ -64,17 +74,13 @@ def test_suggest_initial_contents(tmp_path):
             SETUP_CFG,
             SharedViolations.CreateFileWithSuggestion.code + SetupCfgPlugin.violation_base_code,
             " was not found. Create it with this content:",
-            """
-            [flake8]
-            max-line-length = 120
-
-            [isort]
-            line_length = 120
-
-            [mypy]
-            ignore_missing_imports = True""",
+            expected_content,
         ),
         Fuss(SETUP_CFG, 103, " should exist: Do something here"),
+        fixed=1,
+        manual=1,
+    ).assert_file_contents(
+        SETUP_CFG, expected_content
     )
 
 

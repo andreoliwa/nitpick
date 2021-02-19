@@ -53,6 +53,10 @@ class SetupCfgPlugin(NitpickPlugin):
         self.updater = ConfigUpdater()
         return self.get_missing_output()
 
+    def write_new_file(self) -> None:
+        """Write the new file."""
+        self.updater.write(self.file_path.open("w"))
+
     def get_missing_output(self, actual_sections: Set[str] = None) -> str:
         """Get a missing output string example from the missing sections in setup.cfg."""
         self.expected_sections = set(self.file_dict.keys())
