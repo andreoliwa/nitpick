@@ -5,6 +5,7 @@ from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
 import dictdiffer
+from configupdater import ConfigUpdater
 
 from nitpick.constants import SETUP_CFG
 from nitpick.plugins import hookimpl
@@ -36,8 +37,10 @@ class SetupCfgPlugin(NitpickPlugin):
     filename = SETUP_CFG
     violation_base_code = 320
 
-    expected_sections = set()  # type: Set[str]
-    missing_sections = set()  # type: Set[str]
+    expected_sections: Set[str] = set()
+    missing_sections: Set[str] = set()
+    parser: ConfigParser
+    updater: ConfigUpdater
 
     @mypy_property
     @lru_cache()
@@ -57,22 +60,23 @@ class SetupCfgPlugin(NitpickPlugin):
         if self.missing_sections:
             missing_cfg = ConfigParser()
             for section in sorted(self.missing_sections):
-                expected_config = self.file_dict[section]  # type: Dict
-                if not isinstance(expected_config, dict):
-                    # Silently ignore invalid sections for now, to avoid exceptions.
-                    # This should be solved in https://github.com/andreoliwa/nitpick/issues/69
-                    continue
+                expected_config: Dict = self.file_dict[section]
                 missing_cfg[section] = expected_config
             return self.get_example_cfg(missing_cfg)
         return ""
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
-        setup_cfg = ConfigParser()
+        # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
+        self.parser = ConfigParser()
         with self.file_path.open() as handle:
-            setup_cfg.read_file(handle)
+            self.parser.read_file(handle)
 
-        actual_sections = set(setup_cfg.sections())
+        if self.apply:
+            self.updater = ConfigUpdater()
+            self.updater.read(str(self.file_path))
+
+        actual_sections = set(self.parser.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
             yield self.reporter.make_fuss(Violations.MissingSections, missing)
@@ -85,7 +89,7 @@ class SetupCfgPlugin(NitpickPlugin):
 
         for section in self.expected_sections - self.missing_sections:
             expected_dict = self.file_dict[section]
-            actual_dict = dict(setup_cfg[section])
+            actual_dict = dict(self.parser[section])
             # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
             for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):
                 if diff_type == dictdiffer.CHANGE:
@@ -93,9 +97,12 @@ class SetupCfgPlugin(NitpickPlugin):
                 elif diff_type == dictdiffer.ADD:
                     yield from self.show_missing_keys(section, key, values)
 
+        if self.apply:
+            self.updater.update()
+
     def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
         """Compare different keys, with special treatment when they are lists or numeric."""
-        combined = "{}.{}".format(section, key)
+        combined = f"{section}.{key}"
         if combined in self.comma_separated_values:
             # The values might contain spaces
             actual_set = {s.strip() for s in raw_actual.split(",")}
@@ -114,12 +121,15 @@ class SetupCfgPlugin(NitpickPlugin):
             actual = raw_actual
             expected = raw_expected
         if actual != expected:
+            if self.apply:
+                self.updater[section][key] = expected
             yield self.reporter.make_fuss(
                 Violations.KeyHasDifferentValue,
                 f"[{section}]\n{key} = {raw_expected}",
                 section=section,
                 key=key,
                 actual=raw_actual,
+                fixed=self.apply,
             )
 
     def show_missing_keys(  # pylint: disable=unused-argument

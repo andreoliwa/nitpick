@@ -1,4 +1,7 @@
 """setup.cfg tests."""
+from nitpick.constants import SETUP_CFG
+from nitpick.plugins.setup_cfg import Violations
+from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
 
@@ -101,15 +104,18 @@ def test_missing_sections(tmp_path):
     )
 
 
-def test_different_missing_keys(tmp_path):
-    """Test different and missing keys."""
+def test_missing_different_values(tmp_path):
+    """Test different and missing keys/values."""
     ProjectMock(tmp_path).setup_cfg(
         """
         [mypy]
+        # Line comment with hash (inline comments are not supported)
         ignore_missing_imports = true
+
         [isort]
         line_length = 30
         [flake8]
+        ; Line comment with semicolon
         xxx = "aaa"
         """
     ).style(
@@ -123,18 +129,38 @@ def test_different_missing_keys(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 112
         """
-    ).simulate_run().assert_errors_contain(
+    ).api_apply().assert_violations(
+        Fuss(
+            SETUP_CFG,
+            Violations.KeyHasDifferentValue.code,
+            ": [isort]line_length is 30 but it should be like this:",
+            """
+            [isort]
+            line_length = 110""",
+        ),
+        Fuss(
+            SETUP_CFG,
+            Violations.MissingKeyValuePairs.code,
+            ": section [flake8] has some missing key/value pairs. Use this:",
+            """
+            [flake8]
+            max-line-length = 112""",
+        ),
+        fixed=1,
+        manual=1,
+    ).assert_file_contents(
+        SETUP_CFG,
         """
-        NIP323 File setup.cfg: [isort]line_length is 30 but it should be like this:\x1b[32m
+        [mypy]
+        # Line comment with hash (inline comments are not supported)
+        ignore_missing_imports = true
+
         [isort]
-        line_length = 110\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP324 File setup.cfg: section [flake8] has some missing key/value pairs. Use this:\x1b[32m
+        line_length = 30
         [flake8]
-        max-line-length = 112\x1b[0m
-        """
+        ; Line comment with semicolon
+        xxx = "aaa"
+        """,
     )
 
 
