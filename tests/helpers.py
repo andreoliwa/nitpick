@@ -111,7 +111,7 @@ class ProjectMock:
         return self.simulate_run(flake8=False, check=False)
 
     def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
-        """Save a file in the root dir with the desired contents.
+        """Save a file in the root dir with the desired contents and a new line at the end.
 
         Create the parent dirs if the file name contains a slash.
 
@@ -127,7 +127,8 @@ class ProjectMock:
         path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
-        path.write_text(dedent(file_contents).strip())
+        clean = dedent(file_contents).strip()
+        path.write_text(f"{clean}\n")
         return self
 
     def touch_file(self, filename: PathOrStr) -> "ProjectMock":

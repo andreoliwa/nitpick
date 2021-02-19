@@ -95,15 +95,31 @@ def test_missing_sections(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).simulate_run().assert_single_error(
+    ).api_apply().assert_violations(
+        Fuss(
+            SETUP_CFG,
+            Violations.MissingSections.code,
+            " has some missing sections. Use this:",
+            """
+            [flake8]
+            max-line-length = 120
+
+            [isort]
+            line_length = 120""",
+        ),
+        fixed=1,
+    ).assert_file_contents(
+        SETUP_CFG,
         """
-        NIP321 File setup.cfg has some missing sections. Use this:\x1b[32m
+        [mypy]
+        ignore_missing_imports = true
+
         [flake8]
         max-line-length = 120
 
         [isort]
-        line_length = 120\x1b[0m
-        """
+        line_length = 120
+        """,
     )
 
 

@@ -66,6 +66,7 @@ def test_missing_different_values(tmp_path):
         x = 1  # comment for x
         yada = "after"  # comment for yada yada
         abc = "123" # comment for abc
+
         [tool]
         missing = "value"
         """,

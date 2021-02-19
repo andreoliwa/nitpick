@@ -61,6 +61,10 @@ class SetupCfgPlugin(NitpickPlugin):
             missing_cfg = ConfigParser()
             for section in sorted(self.missing_sections):
                 expected_config: Dict = self.file_dict[section]
+                if self.apply:
+                    self.updater.last_item.add_after.space(1)
+                    self.updater.add_section(section)
+                    self.updater[section].update(expected_config)
                 missing_cfg[section] = expected_config
             return self.get_example_cfg(missing_cfg)
         return ""
@@ -79,7 +83,7 @@ class SetupCfgPlugin(NitpickPlugin):
         actual_sections = set(self.parser.sections())
         missing = self.get_missing_output(actual_sections)
         if missing:
-            yield self.reporter.make_fuss(Violations.MissingSections, missing)
+            yield self.reporter.make_fuss(Violations.MissingSections, missing, self.apply)
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
         missing_csv = csv_sections.difference(actual_sections)
