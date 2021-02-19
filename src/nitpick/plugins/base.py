@@ -77,7 +77,6 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     def post_init(self):
         """Hook for post initialization after the instance was created."""
-        pass
 
     def _suggest_when_file_not_found(self):
         suggestion = self.initial_contents
