@@ -22,7 +22,7 @@ class Violations(ViolationEnum):
     """Violations for this plugin."""
 
     MissingSections = (321, " has some missing sections. Use this:")
-    MissingValues = (322, " has missing values in the {key!r} key. Include those values:")
+    MissingValuesInList = (322, " has missing values in the {key!r} key. Include those values:")
     KeyHasDifferentValue = (323, ": [{section}]{key} is {actual} but it should be like this:")
     MissingKeyValuePairs = (324, ": section [{section}] has some missing key/value pairs. Use this:")
     InvalidCommaSeparatedValuesSection = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
@@ -98,7 +98,7 @@ class SetupCfgPlugin(NitpickPlugin):
                     yield from self.show_missing_keys(section, key, values)
 
         if self.apply:
-            self.updater.update()
+            self.updater.update_file()
 
     def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
         """Compare different keys, with special treatment when they are lists or numeric."""
@@ -109,8 +109,13 @@ class SetupCfgPlugin(NitpickPlugin):
             expected_set = {s.strip() for s in raw_expected.split(",")}
             missing = expected_set - actual_set
             if missing:
-                joined = ",".join(sorted(missing))
-                yield self.reporter.make_fuss(Violations.MissingValues, f"[{section}]\n{key} = (...),{joined}", key=key)
+                joined_values = ",".join(sorted(missing))
+                value_to_append = f",{joined_values}"
+                if self.apply:
+                    self.updater[section][key].value += value_to_append
+                yield self.reporter.make_fuss(
+                    Violations.MissingValuesInList, f"[{section}]\n{key} = (...){value_to_append}", key=key, fixed=True
+                )
             return
 
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
@@ -122,7 +127,7 @@ class SetupCfgPlugin(NitpickPlugin):
             expected = raw_expected
         if actual != expected:
             if self.apply:
-                self.updater[section][key] = expected
+                self.updater[section][key].value = expected
             yield self.reporter.make_fuss(
                 Violations.KeyHasDifferentValue,
                 f"[{section}]\n{key} = {raw_expected}",

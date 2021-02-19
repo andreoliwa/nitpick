@@ -12,31 +12,34 @@ def test_setup_cfg_has_no_configuration(tmp_path):
 
 def test_comma_separated_keys_on_style_file(tmp_path):
     """Comma separated keys on the style file."""
-    project = (
-        ProjectMock(tmp_path)
-        .style(
-            """
-            [nitpick.files."setup.cfg"]
-            comma_separated_values = ["food.eat"]
+    ProjectMock(tmp_path).style(
+        """
+        [nitpick.files."setup.cfg"]
+        comma_separated_values = ["food.eat"]
 
-            ["setup.cfg".food]
-            eat = "salt,ham,eggs"
-            """
-        )
-        .setup_cfg(
+        ["setup.cfg".food]
+        eat = "salt,ham,eggs"
+        """
+    ).setup_cfg(
+        """
+        [food]
+        eat = spam,eggs,cheese
+        """
+    ).api_apply().assert_violations(
+        Fuss(
+            SETUP_CFG,
+            Violations.MissingValuesInList.code,
+            " has missing values in the 'eat' key. Include those values:",
             """
             [food]
-            eat = spam,eggs,cheese
-            """
+            eat = (...),ham,salt""",
         )
-        .simulate_run()
-    )
-    project.assert_single_error(
+    ).assert_file_contents(
+        SETUP_CFG,
         """
-        NIP322 File setup.cfg has missing values in the 'eat' key. Include those values:\x1b[32m
         [food]
-        eat = (...),ham,salt\x1b[0m
-        """
+        eat = spam,eggs,cheese,ham,salt
+        """,
     )
 
 
@@ -156,7 +159,7 @@ def test_missing_different_values(tmp_path):
         ignore_missing_imports = true
 
         [isort]
-        line_length = 30
+        line_length = 110
         [flake8]
         ; Line comment with semicolon
         xxx = "aaa"
