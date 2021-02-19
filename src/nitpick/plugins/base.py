@@ -59,6 +59,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     def start(self) -> Iterator[Fuss]:
         """Entry point of the Nitpick plugin."""
+        self.post_init()
+
         has_config_dict = bool(self.file_dict or self.nitpick_file_dict)
         should_exist: bool = self.data.project.nitpick_files_section.get(self.filename, True)
         file_exists = self.file_path.exists()
@@ -72,6 +74,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         elif file_exists and has_config_dict:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
+
+    def post_init(self):
+        """Hook for post initialization after the instance was created."""
+        pass
 
     def _suggest_when_file_not_found(self):
         suggestion = self.initial_contents

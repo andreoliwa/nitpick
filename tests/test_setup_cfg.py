@@ -1,7 +1,7 @@
 """setup.cfg tests."""
 from nitpick.constants import SETUP_CFG
 from nitpick.plugins.setup_cfg import SetupCfgPlugin, Violations
-from nitpick.violations import Fuss, SharedViolations
+from nitpick.violations import Fuss, ProjectViolations, SharedViolations
 from tests.helpers import ProjectMock
 
 
@@ -76,7 +76,7 @@ def test_suggest_initial_contents(tmp_path):
             " was not found. Create it with this content:",
             expected_content,
         ),
-        Fuss(SETUP_CFG, 103, " should exist: Do something here"),
+        Fuss(SETUP_CFG, ProjectViolations.MissingFile.code, " should exist: Do something here"),
         fixed=1,
         manual=1,
     ).assert_file_contents(
@@ -204,15 +204,18 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
         [nitpick.files."setup.cfg"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude"]
         """
-    ).simulate_run().assert_errors_contain(
-        """
-        NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
-        [flake8]
-        ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503
-        max-complexity = 12
-        max-line-length = 85
-        select = E241,C,E,F,W,B,B9\x1b[0m
-        """
+    ).api_check().assert_violations(
+        Fuss(
+            SETUP_CFG,
+            321,
+            " was not found. Create it with this content:",
+            """
+            [flake8]
+            ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503
+            max-complexity = 12
+            max-line-length = 85
+            select = E241,C,E,F,W,B,B9""",
+        )
     )
 
 
@@ -223,14 +226,17 @@ def test_invalid_section_dot_fields(tmp_path):
         [nitpick.files."setup.cfg"]
         comma_separated_values = ["no_dot", "multiple.dots.here", ".filed_only", "section_only."]
         """
-    ).setup_cfg("").simulate_run().assert_errors_contain(
-        """
-        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
-        nitpick.files."setup.cfg".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
-        nitpick.files."setup.cfg".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
-        nitpick.files."setup.cfg".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
-        nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>\x1b[0m
-        """
+    ).setup_cfg("").api_check().assert_violations(
+        Fuss(
+            "nitpick-style.toml",
+            1,
+            " has an incorrect style. Invalid config:",
+            """
+            nitpick.files."setup.cfg".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
+            nitpick.files."setup.cfg".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
+            nitpick.files."setup.cfg".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
+            nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>""",
+        ),
     )
 
 
@@ -253,6 +259,6 @@ def test_invalid_sections_comma_separated_values(tmp_path):
         ignore = W503,E203,FI12,FI15,FI16,FI17,FI18,FI50,FI51,FI53,FI54,FI55,FI58,PT003,C408
         per-file-ignores = tests/**.py:FI18,setup.py:FI18,tests/**.py:BZ01
         """
-    ).simulate_run().assert_single_error(
-        "NIP325 File setup.cfg: invalid sections on comma_separated_values:\x1b[32m\naaa, falek8\x1b[0m"
+    ).api_apply().assert_violations(
+        Fuss(SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
     )

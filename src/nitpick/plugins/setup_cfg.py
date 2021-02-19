@@ -1,6 +1,5 @@
 """Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`."""
 from configparser import ConfigParser
-from functools import lru_cache
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
@@ -11,7 +10,6 @@ from nitpick.constants import SETUP_CFG
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.data import FileData
-from nitpick.typedefs import mypy_property
 from nitpick.violations import Fuss, ViolationEnum
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"
@@ -41,17 +39,16 @@ class SetupCfgPlugin(NitpickPlugin):
     missing_sections: Set[str] = set()
     parser: ConfigParser
     updater: ConfigUpdater
+    comma_separated_values: Set[str]
 
-    @mypy_property
-    @lru_cache()
-    def comma_separated_values(self) -> Set[str]:
-        """Set of comma separated values."""
-        return set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
+    def post_init(self):
+        """Post initialization after the instance was created."""
+        self.updater = ConfigUpdater()
+        self.comma_separated_values = set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
 
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        self.updater = ConfigUpdater()
         return self.get_missing_output()
 
     def write_new_file(self) -> None:
@@ -84,7 +81,6 @@ class SetupCfgPlugin(NitpickPlugin):
             self.parser.read_file(handle)
 
         if self.apply:
-            self.updater = ConfigUpdater()
             self.updater.read(str(self.file_path))
 
         actual_sections = set(self.parser.sections())
