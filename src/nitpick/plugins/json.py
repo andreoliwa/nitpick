@@ -61,7 +61,8 @@ class JSONPlugin(NitpickPlugin):
 
         return SortedDict(unflatten({key: self.SOME_VALUE_PLACEHOLDER for key in missing}))
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         suggestion = self.get_suggested_json()
         return JSONFormat(data=suggestion).reformatted if suggestion else ""
@@ -98,8 +99,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
     """Handle JSON files."""
     if JSONPlugin.identify_tags & data.tags:
-        return JSONPlugin(data)
+        return JSONPlugin
     return None

@@ -87,7 +87,8 @@ class PreCommitPlugin(NitpickPlugin):
     actual_hooks_by_key: Dict[str, int] = {}
     actual_hooks_by_index: List[str] = []
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         original = dict(self.file_dict).copy()
         original_repos = original.pop(KEY_REPOS, [])
@@ -212,8 +213,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
     """Handle pre-commit config file."""
     if data.path_from_root == PRE_COMMIT_CONFIG_YAML:
-        return PreCommitPlugin(data)
+        return PreCommitPlugin
     return None

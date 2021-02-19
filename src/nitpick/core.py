@@ -3,7 +3,7 @@ import os
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, List
+from typing import TYPE_CHECKING, Iterator, List, Type
 
 import click
 from loguru import logger
@@ -103,10 +103,11 @@ class Nitpick:
                 continue
 
             # 3.
-            for plugin_instance in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
-                data=FileData.create(self.project, config_key)
-            ):  # type: NitpickPlugin
-                yield from plugin_instance.entry_point(config_dict, check)
+            data = FileData.create(self.project, config_key)
+            for plugin_class in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
+                data=data
+            ):  # type: Type[NitpickPlugin]
+                yield from plugin_class(data, config_dict, check).start()
 
     def filter_keys(self, *partial_names: str) -> List[str]:
         """Filter keys, keeping only the selected partial names."""

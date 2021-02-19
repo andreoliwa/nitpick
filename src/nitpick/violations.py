@@ -27,6 +27,8 @@ class Fuss:
     suggestion: str = ""
     lineno: int = 1
 
+    # FIXME[AA]: add fixed: bool
+
     @property
     def colored_suggestion(self) -> str:
         """Suggestion with color."""

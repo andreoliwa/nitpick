@@ -48,7 +48,8 @@ class SetupCfgPlugin(NitpickPlugin):
         """Set of comma separated values."""
         return set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         self.updater = ConfigUpdater()
         return self.get_missing_output()
@@ -175,8 +176,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
     """Handle the setup.cfg file."""
     if data.path_from_root == SETUP_CFG:
-        return SetupCfgPlugin(data)
+        return SetupCfgPlugin
     return None

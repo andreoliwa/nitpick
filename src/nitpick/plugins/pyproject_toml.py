@@ -65,7 +65,8 @@ class PyProjectTomlPlugin(NitpickPlugin):
             change_toml(document, change_dict.as_data)
         yield self.reporter.make_fuss(violation, change_dict.reformatted, prefix="", fixed=self.apply)
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         return ""
 
@@ -77,8 +78,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
     """Handle pyproject.toml file."""
     if data.path_from_root == PYPROJECT_TOML:
-        return PyProjectTomlPlugin(data)
+        return PyProjectTomlPlugin
     return None

@@ -60,7 +60,8 @@ class TextPlugin(NitpickPlugin):
     def _expected_lines(self):
         return [obj.get("line") for obj in self.file_dict.get("contains", {})]
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         return "\n".join(self._expected_lines())
 
@@ -80,8 +81,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
     """Handle text files."""
     if TextPlugin.identify_tags & data.tags:
-        return TextPlugin(data)
+        return TextPlugin
     return None

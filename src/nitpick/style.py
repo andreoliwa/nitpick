@@ -150,8 +150,8 @@ class Style:
                 schemas = [NitpickSectionSchema]
             else:
                 schemas = [
-                    plugin.validation_schema
-                    for plugin in self.plugin_manager.hook.can_handle(data=data)  # pylint: disable=no-member
+                    plugin_class.validation_schema
+                    for plugin_class in self.plugin_manager.hook.can_handle(data=data)  # pylint: disable=no-member
                 ]
                 if not schemas:
                     validation_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
