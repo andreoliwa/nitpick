@@ -145,10 +145,13 @@ class SetupCfgPlugin(NitpickPlugin):
         self, section, key, values: List[Tuple[str, Any]]
     ) -> Iterator[Fuss]:
         """Show the keys that are not present in a section."""
-        missing_cfg = ConfigParser()
-        missing_cfg[section] = dict(values)
-        output = self.get_example_cfg(missing_cfg)
-        yield self.reporter.make_fuss(Violations.MissingKeyValuePairs, output, section=section)
+        parser = ConfigParser()
+        missing_dict = dict(values)
+        parser[section] = missing_dict
+        output = self.get_example_cfg(parser)
+        if self.apply:
+            self.updater[section].update(missing_dict)
+        yield self.reporter.make_fuss(Violations.MissingKeyValuePairs, output, self.apply, section=section)
 
     @staticmethod
     def get_example_cfg(config_parser: ConfigParser) -> str:

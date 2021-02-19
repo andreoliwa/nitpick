@@ -165,8 +165,8 @@ def test_missing_different_values(tmp_path):
             [flake8]
             max-line-length = 112""",
         ),
-        fixed=1,
-        manual=1,
+        fixed=2,
+        manual=0,
     ).assert_file_contents(
         SETUP_CFG,
         """
@@ -179,6 +179,7 @@ def test_missing_different_values(tmp_path):
         [flake8]
         ; Line comment with semicolon
         xxx = "aaa"
+        max-line-length = 112
         """,
     )
 
