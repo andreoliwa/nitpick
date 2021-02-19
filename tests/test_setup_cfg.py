@@ -1,7 +1,7 @@
 """setup.cfg tests."""
 from nitpick.constants import SETUP_CFG
-from nitpick.plugins.setup_cfg import Violations
-from nitpick.violations import Fuss
+from nitpick.plugins.setup_cfg import SetupCfgPlugin, Violations
+from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
 
 
@@ -59,21 +59,22 @@ def test_suggest_initial_contents(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).simulate_run().assert_errors_contain(
-        """
-        NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
-        [flake8]
-        max-line-length = 120
+    ).api_apply().assert_violations(
+        Fuss(
+            SETUP_CFG,
+            SharedViolations.CreateFileWithSuggestion.code + SetupCfgPlugin.violation_base_code,
+            " was not found. Create it with this content:",
+            """
+            [flake8]
+            max-line-length = 120
 
-        [isort]
-        line_length = 120
+            [isort]
+            line_length = 120
 
-        [mypy]
-        ignore_missing_imports = True\x1b[0m
-        """,
-        2,
-    ).assert_errors_contain(
-        "NIP103 File setup.cfg should exist: Do something here"
+            [mypy]
+            ignore_missing_imports = True""",
+        ),
+        Fuss(SETUP_CFG, 103, " should exist: Do something here"),
     )
 
 

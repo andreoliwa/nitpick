@@ -50,6 +50,7 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def suggest_initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
+        self.updater = ConfigUpdater()
         return self.get_missing_output()
 
     def get_missing_output(self, actual_sections: Set[str] = None) -> str:
@@ -62,7 +63,8 @@ class SetupCfgPlugin(NitpickPlugin):
             for section in sorted(self.missing_sections):
                 expected_config: Dict = self.file_dict[section]
                 if self.apply:
-                    self.updater.last_item.add_after.space(1)
+                    if self.updater.last_item:
+                        self.updater.last_item.add_after.space(1)
                     self.updater.add_section(section)
                     self.updater[section].update(expected_config)
                 missing_cfg[section] = expected_config
