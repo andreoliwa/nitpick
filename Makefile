@@ -98,7 +98,7 @@ test-one .cache/make/test-one: .cache/make/long-poetry src/*/* styles/*/* tests/
 	touch .cache/make/test-one
 .PHONY: test
 
-pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
+pytest: # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
 	poetry run python -m pytest --doctest-modules
 .PHONY: pytest
 

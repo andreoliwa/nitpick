@@ -57,13 +57,14 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
         return jmespath.compile(f"nitpick.{cls.__name__}.filenames")
 
-    def start(self) -> Iterator[Fuss]:
+    def entry_point(self) -> Iterator[Fuss]:
         """Entry point of the Nitpick plugin."""
-        self.post_init()
+        self.init()
 
         has_config_dict = bool(self.file_dict or self.nitpick_file_dict)
         should_exist: bool = self.data.project.nitpick_files_section.get(self.filename, True)
         file_exists = self.file_path.exists()
+        should_write = True
 
         if has_config_dict and not file_exists:
             yield from self._suggest_when_file_not_found()
@@ -71,12 +72,16 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             logger.info(f"{self}: File {self.filename} exists when it should not")
             # Only display this message if the style is valid.
             yield self.reporter.make_fuss(SharedViolations.DeleteFile)
+            should_write = False
         elif file_exists and has_config_dict:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
 
-    def post_init(self):
-        """Hook for post initialization after the instance was created."""
+        if should_write and self.apply:
+            self.write_file(file_exists)
+
+    def init(self):
+        """Hook for plugin initialization after the instance was created."""
 
     def _suggest_when_file_not_found(self):
         suggestion = self.initial_contents
@@ -84,15 +89,13 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             return
         logger.info(f"{self}: Suggest initial contents for {self.filename}")
 
-        if self.apply:
-            self.write_new_file()
         if suggestion:
             yield self.reporter.make_fuss(SharedViolations.CreateFileWithSuggestion, suggestion, fixed=self.apply)
         else:
-            yield self.reporter.make_fuss(SharedViolations.CreateFile, fixed=self.apply)
+            yield self.reporter.make_fuss(SharedViolations.CreateFile)
 
-    def write_new_file(self) -> None:
-        """Hook to write the new file, to be used by inherited classes."""
+    def write_file(self, file_exists: bool) -> None:
+        """Hook to write the new file when apply mode is on. Should be used by inherited classes."""
 
     @abc.abstractmethod
     def enforce_rules(self) -> Iterator[Fuss]:

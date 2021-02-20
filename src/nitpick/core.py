@@ -107,7 +107,7 @@ class Nitpick:
             for plugin_class in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 data=data
             ):  # type: Type[NitpickPlugin]
-                yield from plugin_class(data, config_dict, check).start()
+                yield from plugin_class(data, config_dict, check).entry_point()
 
     def filter_keys(self, *partial_names: str) -> List[str]:
         """Filter keys, keeping only the selected partial names."""

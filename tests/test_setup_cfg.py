@@ -10,6 +10,10 @@ def test_setup_cfg_has_no_configuration(tmp_path):
     ProjectMock(tmp_path).style("").setup_cfg("").simulate_run().assert_no_errors()
 
 
+# FIXME[AA]: test if the default style is applied only on setup.cfg;
+#  maybe api_apply(file=SETUP_CFG).assert_violations() or something
+
+
 def test_comma_separated_keys_on_style_file(tmp_path):
     """Comma separated keys on the style file."""
     ProjectMock(tmp_path).style(
@@ -114,7 +118,7 @@ def test_missing_sections(tmp_path):
 
             [isort]
             line_length = 120""",
-        ),
+        )
     ).assert_file_contents(
         SETUP_CFG,
         """
@@ -238,7 +242,7 @@ def test_invalid_section_dot_fields(tmp_path):
             nitpick.files."setup.cfg".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
             nitpick.files."setup.cfg".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
             nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>""",
-        ),
+        )
     )
 
 

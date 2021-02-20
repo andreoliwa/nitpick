@@ -35,66 +35,76 @@ class SetupCfgPlugin(NitpickPlugin):
     filename = SETUP_CFG
     violation_base_code = 320
 
-    expected_sections: Set[str] = set()
-    missing_sections: Set[str] = set()
     parser: ConfigParser
     updater: ConfigUpdater
     comma_separated_values: Set[str]
 
-    def post_init(self):
+    def init(self):
         """Post initialization after the instance was created."""
+        self.parser = ConfigParser()
         self.updater = ConfigUpdater()
         self.comma_separated_values = set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
+
+    @property
+    def current_sections(self) -> Set[str]:
+        """Current sections of the .ini file, inclusing updated sections."""
+        return set(self.updater.sections())
 
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         return self.get_missing_output()
 
-    def write_new_file(self) -> None:
+    @property
+    def expected_sections(self) -> Set[str]:
+        """Expected sections (from the style config)."""
+        return set(self.file_dict.keys())
+
+    def missing_sections_compared_to(self, sections: Set[str] = None):
+        """Return the missing sections when compared to another set of sections."""
+        return
+
+    def write_file(self, file_exists: bool) -> None:
         """Write the new file."""
-        self.updater.write(self.file_path.open("w"))
+        if file_exists:
+            self.updater.update_file()
+        else:
+            self.updater.write(self.file_path.open("w"))
 
-    def get_missing_output(self, actual_sections: Set[str] = None) -> str:
+    def get_missing_output(self) -> str:
         """Get a missing output string example from the missing sections in setup.cfg."""
-        self.expected_sections = set(self.file_dict.keys())
-        self.missing_sections = self.expected_sections - (actual_sections or set())
+        missing = self.expected_sections - self.current_sections
+        if not missing:
+            return ""
 
-        if self.missing_sections:
-            missing_cfg = ConfigParser()
-            for section in sorted(self.missing_sections):
-                expected_config: Dict = self.file_dict[section]
-                if self.apply:
-                    if self.updater.last_item:
-                        self.updater.last_item.add_after.space(1)
-                    self.updater.add_section(section)
-                    self.updater[section].update(expected_config)
-                missing_cfg[section] = expected_config
-            return self.get_example_cfg(missing_cfg)
-        return ""
+        missing_cfg = ConfigParser()
+        for section in sorted(missing):
+            expected_config: Dict = self.file_dict[section]
+            if self.apply:
+                if self.updater.last_item:
+                    self.updater.last_item.add_after.space(1)
+                self.updater.add_section(section)
+                self.updater[section].update(expected_config)
+            missing_cfg[section] = expected_config
+        return self.get_example_cfg(missing_cfg)
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
-        # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
-        self.parser = ConfigParser()
         with self.file_path.open() as handle:
             self.parser.read_file(handle)
+        self.updater.read(str(self.file_path))
 
-        if self.apply:
-            self.updater.read(str(self.file_path))
-
-        actual_sections = set(self.parser.sections())
-        missing = self.get_missing_output(actual_sections)
+        # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
+        missing = self.get_missing_output()
         if missing:
             yield self.reporter.make_fuss(Violations.MissingSections, missing, self.apply)
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
-        missing_csv = csv_sections.difference(actual_sections)
+        missing_csv = csv_sections.difference(self.current_sections)
         if missing_csv:
             yield self.reporter.make_fuss(Violations.InvalidCommaSeparatedValuesSection, ", ".join(sorted(missing_csv)))
-            return
 
-        for section in self.expected_sections - self.missing_sections:
+        for section in self.expected_sections - self.current_sections:
             expected_dict = self.file_dict[section]
             actual_dict = dict(self.parser[section])
             # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
@@ -103,9 +113,6 @@ class SetupCfgPlugin(NitpickPlugin):
                     yield from self.compare_different_keys(section, key, values[0], values[1])
                 elif diff_type == dictdiffer.ADD:
                     yield from self.show_missing_keys(section, key, values)
-
-        if self.apply:
-            self.updater.update_file()
 
     def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
         """Compare different keys, with special treatment when they are lists or numeric."""
