@@ -241,19 +241,23 @@ class ProjectMock:
         compare(expected.as_data, actual.as_data)
         return self
 
-    def assert_violations(self, *expected_violations: Fuss, manual: int = None, fixed: int = None) -> "ProjectMock":
+    def assert_violations(self, *expected_violations: Fuss) -> "ProjectMock":
         """Assert the exact set of violations."""
-        clean_violations = {
-            Fuss(orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
-            for orig in expected_violations
-        }
+        manual: int = 0
+        fixed: int = 0
+
+        clean_violations: Set[Fuss] = set()
+        for orig in expected_violations:
+            if orig.fixed:
+                fixed += 1
+            else:
+                manual += 1
+            clean_violations.add(
+                Fuss(orig.fixed, orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
+            )
         compare(expected=clean_violations, actual=self._actual_violations)
-
-        if fixed is not None:
-            compare(expected=fixed, actual=Reporter.fixed)
-        if manual is not None:
-            compare(expected=manual, actual=Reporter.manual)
-
+        compare(expected=fixed, actual=Reporter.fixed)
+        compare(expected=manual, actual=Reporter.manual)
         return self
 
     def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str):

@@ -39,8 +39,8 @@ def test_absent_files(tmp_path):
     ).assert_errors_contain(
         "NIP104 File yyy should be deleted: Remove that"
     ).assert_violations(
-        Fuss(filename="xxx", code=104, message=" should be deleted: Remove this", suggestion="", lineno=1),
-        Fuss(filename="yyy", code=104, message=" should be deleted: Remove that", suggestion="", lineno=1),
+        Fuss(False, "xxx", 104, " should be deleted: Remove this"),
+        Fuss(False, "yyy", 104, " should be deleted: Remove that"),
     )
 
 
@@ -62,13 +62,13 @@ def test_missing_message(tmp_path):
         nitpick.files."pyproject.toml": Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.\x1b[0m
         """
     ).assert_violations(
+        # pylint: disable=line-too-long
         Fuss(
-            filename="nitpick-style.toml",
-            code=1,
-            message=" has an incorrect style. Invalid config:",
-            # pylint: disable=line-too-long
-            suggestion=f"""nitpick.files."pyproject.toml": Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.""",
-            lineno=1,
+            False,
+            "nitpick-style.toml",
+            1,
+            " has an incorrect style. Invalid config:",
+            f"""nitpick.files."pyproject.toml": Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.""",
         )
     )
 
@@ -82,16 +82,10 @@ def test_present_files(tmp_path):
         ".env" = ""
         "another-file.txt" = ""
         """
-    ).simulate_run().assert_errors_contain(
-        "NIP103 File .editorconfig should exist: Create this file"
-    ).assert_errors_contain(
-        "NIP103 File .env should exist"
-    ).assert_errors_contain(
-        "NIP103 File another-file.txt should exist", 3
-    ).assert_violations(
-        Fuss(filename=".editorconfig", code=103, message=" should exist: Create this file", suggestion="", lineno=1),
-        Fuss(filename=".env", code=103, message=" should exist", suggestion="", lineno=1),
-        Fuss(filename="another-file.txt", code=103, message=" should exist", suggestion="", lineno=1),
+    ).api_apply().assert_violations(
+        Fuss(False, ".editorconfig", 103, " should exist: Create this file"),
+        Fuss(False, ".env", 103, " should exist"),
+        Fuss(False, "another-file.txt", 103, " should exist"),
     )
 
 

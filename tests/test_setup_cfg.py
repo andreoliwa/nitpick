@@ -27,6 +27,7 @@ def test_comma_separated_keys_on_style_file(tmp_path):
         """
     ).api_apply().assert_violations(
         Fuss(
+            True,
             SETUP_CFG,
             Violations.MissingValuesInList.code,
             " has missing values in the 'eat' key. Include those values:",
@@ -71,14 +72,13 @@ def test_suggest_initial_contents(tmp_path):
         """
     ).api_apply().assert_violations(
         Fuss(
+            True,
             SETUP_CFG,
             SharedViolations.CreateFileWithSuggestion.code + SetupCfgPlugin.violation_base_code,
             " was not found. Create it with this content:",
             expected_content,
         ),
-        Fuss(SETUP_CFG, ProjectViolations.MissingFile.code, " should exist: Do something here"),
-        fixed=1,
-        manual=1,
+        Fuss(False, SETUP_CFG, ProjectViolations.MissingFile.code, " should exist: Do something here"),
     ).assert_file_contents(
         SETUP_CFG, expected_content
     )
@@ -104,6 +104,7 @@ def test_missing_sections(tmp_path):
         """
     ).api_apply().assert_violations(
         Fuss(
+            True,
             SETUP_CFG,
             Violations.MissingSections.code,
             " has some missing sections. Use this:",
@@ -114,7 +115,6 @@ def test_missing_sections(tmp_path):
             [isort]
             line_length = 120""",
         ),
-        fixed=1,
     ).assert_file_contents(
         SETUP_CFG,
         """
@@ -157,6 +157,7 @@ def test_missing_different_values(tmp_path):
         """
     ).api_apply().assert_violations(
         Fuss(
+            True,
             SETUP_CFG,
             Violations.KeyHasDifferentValue.code,
             ": [isort]line_length is 30 but it should be like this:",
@@ -165,6 +166,7 @@ def test_missing_different_values(tmp_path):
             line_length = 110""",
         ),
         Fuss(
+            True,
             SETUP_CFG,
             Violations.MissingKeyValuePairs.code,
             ": section [flake8] has some missing key/value pairs. Use this:",
@@ -172,8 +174,6 @@ def test_missing_different_values(tmp_path):
             [flake8]
             max-line-length = 112""",
         ),
-        fixed=2,
-        manual=0,
     ).assert_file_contents(
         SETUP_CFG,
         """
@@ -206,6 +206,7 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
         """
     ).api_check().assert_violations(
         Fuss(
+            False,
             SETUP_CFG,
             321,
             " was not found. Create it with this content:",
@@ -228,6 +229,7 @@ def test_invalid_section_dot_fields(tmp_path):
         """
     ).setup_cfg("").api_check().assert_violations(
         Fuss(
+            False,
             "nitpick-style.toml",
             1,
             " has an incorrect style. Invalid config:",
@@ -260,5 +262,5 @@ def test_invalid_sections_comma_separated_values(tmp_path):
         per-file-ignores = tests/**.py:FI18,setup.py:FI18,tests/**.py:BZ01
         """
     ).api_apply().assert_violations(
-        Fuss(SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
+        Fuss(False, SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
     )

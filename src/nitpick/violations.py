@@ -21,13 +21,12 @@ class Fuss:
     Fields inspired on :py:class:`SyntaxError` and :py:class:`pyflakes.messages.Message`.
     """
 
+    fixed: bool
     filename: str
     code: int
     message: str
     suggestion: str = ""
     lineno: int = 1
-
-    # FIXME[AA]: add fixed: bool
 
     @property
     def colored_suggestion(self) -> str:
@@ -104,7 +103,7 @@ class Reporter:  # pylint: disable=too-few-public-methods
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
         Reporter.increment(fixed)
-        return Fuss(self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)
+        return Fuss(fixed, self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)
 
     @classmethod
     def reset(cls):
