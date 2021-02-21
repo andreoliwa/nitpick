@@ -36,7 +36,6 @@ class SetupCfgPlugin(NitpickPlugin):
     violation_base_code = 320
     can_apply = True
 
-    parser: ConfigParser
     updater: ConfigUpdater
     comma_separated_values: Set[str]
 
@@ -78,7 +77,7 @@ class SetupCfgPlugin(NitpickPlugin):
         if not missing:
             return ""
 
-        missing_cfg = ConfigParser()
+        parser = ConfigParser()
         for section in sorted(missing):
             expected_config: Dict = self.expected_config[section]
             if self.apply:
@@ -86,8 +85,8 @@ class SetupCfgPlugin(NitpickPlugin):
                     self.updater.last_item.add_after.space(1)
                 self.updater.add_section(section)
                 self.updater[section].update(expected_config)
-            missing_cfg[section] = expected_config
-        return self.get_example_cfg(missing_cfg)
+            parser[section] = expected_config
+        return self.get_example_cfg(parser)
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
@@ -165,10 +164,10 @@ class SetupCfgPlugin(NitpickPlugin):
         yield self.reporter.make_fuss(Violations.MissingKeyValuePairs, output, self.apply, section=section)
 
     @staticmethod
-    def get_example_cfg(config_parser: ConfigParser) -> str:
+    def get_example_cfg(parser: ConfigParser) -> str:
         """Print an example of a config parser in a string instead of a file."""
         string_stream = StringIO()
-        config_parser.write(string_stream)
+        parser.write(string_stream)
         output = string_stream.getvalue().strip()
         return output
 
