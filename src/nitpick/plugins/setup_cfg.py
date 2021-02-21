@@ -34,6 +34,7 @@ class SetupCfgPlugin(NitpickPlugin):
 
     filename = SETUP_CFG
     violation_base_code = 320
+    can_apply = True
 
     parser: ConfigParser
     updater: ConfigUpdater

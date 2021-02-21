@@ -30,6 +30,9 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     violation_base_code: int = 0
     error_codes: Optional[Type[ViolationEnum]] = None
 
+    #: Indicate if this plugin can apply changes to files
+    can_apply: bool = False
+
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
     validation_schema: Optional[Schema] = None
@@ -39,7 +42,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     skip_empty_suggestion = False
 
-    def __init__(self, info: FileInfo, expected_config: JsonDict, apply=True) -> None:
+    def __init__(self, info: FileInfo, expected_config: JsonDict, apply=False) -> None:
         self.info = info
         self.filename = info.path_from_root
         self.reporter = Reporter(info, self.violation_base_code)
@@ -49,7 +52,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         # Configuration for this file as a TOML dict, taken from the style file.
         self.expected_config: JsonDict = expected_config or {}
 
-        self.apply = apply
+        self.apply = self.can_apply and apply
 
     @mypy_property
     @lru_cache()

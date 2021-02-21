@@ -38,6 +38,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
     filename = PYPROJECT_TOML
     violation_base_code = 310
+    can_apply = True
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing key/value pairs in pyproject.toml."""
