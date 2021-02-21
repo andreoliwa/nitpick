@@ -57,7 +57,7 @@ class SetupCfgPlugin(NitpickPlugin):
     @property
     def expected_sections(self) -> Set[str]:
         """Expected sections (from the style config)."""
-        return set(self.file_dict.keys())
+        return set(self.expected_config.keys())
 
     @property
     def missing_sections(self) -> Set[str]:
@@ -79,7 +79,7 @@ class SetupCfgPlugin(NitpickPlugin):
 
         missing_cfg = ConfigParser()
         for section in sorted(missing):
-            expected_config: Dict = self.file_dict[section]
+            expected_config: Dict = self.expected_config[section]
             if self.apply:
                 if self.updater.last_item:
                     self.updater.last_item.add_after.space(1)
@@ -105,7 +105,7 @@ class SetupCfgPlugin(NitpickPlugin):
             return
 
         for section in self.expected_sections.intersection(self.current_sections) - self.missing_sections:
-            expected_dict = self.file_dict[section]
+            expected_dict = self.expected_config[section]
             actual_dict = {k: v.value for k, v in self.updater[section].items()}
             # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
             for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):

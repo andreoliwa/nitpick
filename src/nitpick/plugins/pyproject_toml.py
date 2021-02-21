@@ -45,7 +45,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
         if not file:
             return
 
-        comparison = file.compare_with_flatten(self.file_dict)
+        comparison = file.compare_with_flatten(self.expected_config)
         if not comparison.has_changes:
             return
 

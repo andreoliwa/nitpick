@@ -90,7 +90,7 @@ class PreCommitPlugin(NitpickPlugin):
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        original = dict(self.file_dict).copy()
+        original = dict(self.expected_config).copy()
         original_repos = original.pop(KEY_REPOS, [])
         suggested: Dict[str, Any] = {KEY_REPOS: []} if original_repos else {}
         for repo in original_repos:
@@ -117,7 +117,9 @@ class PreCommitPlugin(NitpickPlugin):
 
         # Check the root values in the configuration file
         yield from self.warn_missing_different(
-            YAMLFormat(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(self.file_dict)
+            YAMLFormat(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(
+                self.expected_config
+            )
         )
 
         yield from self.enforce_hooks()
@@ -128,7 +130,7 @@ class PreCommitPlugin(NitpickPlugin):
         self.actual_hooks_by_key = {name: index for index, name in enumerate(self.actual_hooks)}
         self.actual_hooks_by_index = list(self.actual_hooks)
 
-        all_expected_blocks: List[OrderedDict] = self.file_dict.get(KEY_REPOS, [])
+        all_expected_blocks: List[OrderedDict] = self.expected_config.get(KEY_REPOS, [])
         for index, data in enumerate(all_expected_blocks):
             if KEY_YAML in data:
                 yield from self.enforce_repo_block(data)

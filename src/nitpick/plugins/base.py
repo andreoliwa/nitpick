@@ -47,7 +47,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.file_path: Path = self.info.project.root / self.filename
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict: JsonDict = expected_config or {}  # FIXME[AA]: rename to self.expected_config
+        self.expected_config: JsonDict = expected_config or {}
 
         self.apply = apply
 
@@ -66,7 +66,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Entry point of the Nitpick plugin."""
         self.init()
 
-        has_config_dict = bool(self.file_dict or self.nitpick_file_dict)
+        has_config_dict = bool(self.expected_config or self.nitpick_file_dict)
         should_exist: bool = bool(self.info.project.nitpick_files_section.get(self.filename, True))
         file_exists = self.file_path.exists()
         should_write = True

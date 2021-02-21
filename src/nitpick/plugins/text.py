@@ -58,7 +58,7 @@ class TextPlugin(NitpickPlugin):
     violation_base_code = 350
 
     def _expected_lines(self):
-        return [obj.get("line") for obj in self.file_dict.get("contains", {})]
+        return [obj.get("line") for obj in self.expected_config.get("contains", {})]
 
     @property
     def initial_contents(self) -> str:
