@@ -19,7 +19,7 @@ def test_singleton():
 def test_no_root_dir(tmp_path):
     """No root dir."""
     ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py").simulate_run(
-        call_api=False
+        api=False
     ).assert_single_error("NIP101 No root dir found (is this a Python project?)")
 
 
@@ -27,7 +27,7 @@ def test_multiple_root_dirs(tmp_path):
     """Multiple possible "root dirs" found (e.g.: a requirements.txt file inside a docs dir)."""
     ProjectMock(tmp_path, setup_py=False).touch_file("docs/requirements.txt").touch_file("docs/conf.py").pyproject_toml(
         ""
-    ).style("").simulate_run().assert_no_errors().assert_cli_output()
+    ).style("").simulate_run().assert_no_errors().cli_run()
 
 
 def test_no_python_file_root_dir(tmp_path):
@@ -36,7 +36,7 @@ def test_no_python_file_root_dir(tmp_path):
         ProjectMock(tmp_path, setup_py=False)
         .pyproject_toml("")
         .save_file("whatever.sh", "", lint=True)
-        .simulate_run(call_api=False)
+        .simulate_run(api=False)
     )
     project.assert_single_error(
         "NIP102 No Python file was found on the root dir and subdir of {!r}".format(str(project.root_dir))

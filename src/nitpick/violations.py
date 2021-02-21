@@ -87,15 +87,44 @@ class SharedViolations(ViolationEnum):
 class Reporter:  # pylint: disable=too-few-public-methods
     """Error reporter."""
 
+    manual: int = 0
+    fixed: int = 0
+
     def __init__(self, data: "FileData" = None, violation_base_code: int = 0) -> None:
         self.data: Optional["FileData"] = data
         self.violation_base_code = violation_base_code
 
-    def make_fuss(self, violation: ViolationEnum, suggestion: str = "", **kwargs) -> Fuss:
+    def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed=False, **kwargs) -> Fuss:
         """Make a fuss."""
         if kwargs:
             formatted = violation.message.format(**kwargs)
         else:
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
+        Reporter.increment(fixed)
         return Fuss(self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)
+
+    @classmethod
+    def reset(cls):
+        """Reset the counters."""
+        cls.manual = cls.fixed = 0
+
+    @classmethod
+    def increment(cls, fixed=False):
+        """Increment the fixed ou manual count."""
+        if fixed:
+            cls.fixed += 1
+        else:
+            cls.manual += 1
+
+    @classmethod
+    def get_counts(cls) -> str:
+        """String representation with error counts and emojis."""
+        parts = []
+        if cls.fixed:
+            parts.append(f"✅ {cls.fixed} fixed")
+        if cls.manual:
+            parts.append(f"❌ {cls.manual} to change manually")
+        if not parts:
+            return "🎖 No violations found."
+        return f"Violations: {', '.join(parts)}."

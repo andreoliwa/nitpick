@@ -1,0 +1,24 @@
+[[Makefile.rules]]
+target = ".PHONY"
+prerequisites = ["pre-commit"]
+
+[[Makefile.rules]]
+target = "help"
+recipes_contains_block = """
+	@echo '  pre-commit  to install and update pre-commit hooks'
+"""
+
+[[Makefile.contains]]
+block = """
+pre-commit:
+	-rm .cache/make/auto-pre-commit
+	$(MAKE)
+
+.cache/make/auto-pre-commit: .pre-commit-config.yaml .pre-commit-hooks.yaml
+	pre-commit install
+	pre-commit install --hook-type commit-msg
+	pre-commit autoupdate
+	pre-commit gc
+	touch .cache/make/auto-pre-commit
+	-rm .cache/make/run
+"""

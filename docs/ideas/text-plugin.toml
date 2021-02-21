@@ -1,0 +1,162 @@
+# (from https://gist.github.com/andreoliwa/c72e811cf051485fa9152d62541a87f6,
+# mentioned in https://github.com/andreoliwa/nitpick/issues/233)
+
+# This Nitpick TOML style below contains examples and ideas for the text plugin.
+# It's not a defined API spec (yet), it's just a brainstorming to see what's useful, feasible and extensible.
+# Ideas below might be implemented on demand.
+
+[["requirements.txt".contains]]
+# File contains these lines anywhere, in any order
+lines = """
+pytest
+coverage>=3.6
+fixtures>=1.3.1
+"""
+
+[["requirements.txt".contains]]
+# File also contains these lines, anywhere, in any order
+lines = """
+pylint
+ipython
+"""
+# Exact search (default true); if exact is false, partial line searches are considered
+exact = false
+
+[[Dockerfile.contains_sorted]]
+# Contain those lines in this order, the second appearing after the first.
+# - Search is partial, not exact
+# - Blank lines are ignored.
+lines = """
+ENV POETRY_VERSION="poetry==0.12.16"
+ENV PIP_VERSION="pip==19.1.1"
+
+pip3 install --upgrade ${PIP_VERSION} ${POETRY_VERSION}
+groupadd ${APP_USER} -g 1003
+useradd ${APP_USER} -m -u 1003 -g ${APP_USER}
+
+USER ${APP_USER}:${APP_USER}
+RUN mkdir ${APP_DIR}
+WORKDIR ${APP_DIR}
+
+ENV PRE_COMMIT_HOME=/data/jenkins/.cache/pre-commit
+
+COPY --chown=johndoe:johndoe pyproject.toml poetry.lock ${APP_DIR}/
+RUN poetry run pip3 install --upgrade ${PIP_VERSION} && \
+    poetry install --no-ansi --no-interaction
+
+COPY --chown=johndoe:johndoe . ${APP_DIR}/
+
+# Following best practices from https://github.com/docker-library/official-images#consistency
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD ["poetry", "run", "
+"""
+
+[["requirements.txt".contains_sorted]]
+# File contains this block
+block = """
+first block:
+line 1
+line 2
+"""
+
+[["requirements.txt".contains_sorted]]
+# File contains this second block anywhere after the first block.
+# It might contain any text between the first and second blocks.
+block = """
+second block:
+line 1
+line 2
+line 3
+"""
+
+[["requirements.txt".contains_sorted]]
+# File contains this third block anywhere after the second block.
+# It might contain any text between the second and third blocks.
+block = """
+then third block:
+single line
+"""
+
+[["requirements.txt".contains]]
+block = """
+any block 5:
+line 1
+line 2
+"""
+
+[["requirements.txt".contains]]
+block = """
+any block 2:
+line 1
+line 2
+line 3
+"""
+
+[["requirements.txt".contains]]
+block = """
+any block 7:
+single line
+"""
+
+[Jenkinsfile.starts_with]
+# occurs only once per file
+block = """
+library identifier: "company-shared-pipelines@master", retriever: modernSCM([
+  $class: 'GitSCMSource',
+  remote: 'git@github.com:company/infra.git',
+  credentialsId: 'company-bot-ssh-private-key'
+])
+"""
+
+[Dockerfile.starts_with]
+# The text file starts with a block, line or lines.
+# Only one of block/line/lines should be accepted. Accepting more than one makes no sense.
+block = """
+
+FROM python:3.7
+
+ENV TERM xterm-256color
+ENV APP_USER=johndoe
+ENV APP_DIR=/home/${APP_USER}/
+
+"""
+
+line = "FROM python:3\\.[6-9]"
+# Consider the block/line above as a regex and not a literal text
+regex = true
+
+# Using "lines" can be done with sets for consistency sake, but I don't see a use case in the real world.
+# In this example below, the first non-blank lines of the file should be those, independent of order.
+lines = """
+third
+first
+second
+"""
+
+["Jenkinsfile.deploy".starts_with]
+block = """
+library identifier: "company-shared-pipelines@master", retriever: modernSCM([
+  $class: 'GitSCMSource',
+  remote: 'git@github.com:company/infra.git',
+  credentialsId: 'company-bot-ssh-private-key'
+])
+
+deploymentPipeline {
+"""
+
+["requirements.txt".ends_with]
+# The text file ends with a block, line or lines.
+# Same rules as "starts_with" above.
+line = "single line"
+
+lines = """
+multiple
+lines
+in any order
+"""
+
+block = """
+a block
+with this
+exact order
+"""

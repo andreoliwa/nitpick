@@ -31,11 +31,16 @@ class Comparison:
 
         self.format_class = format_class
 
-        self.missing_format = None  # type: Optional[BaseFormat]
+        self.missing = None  # type: Optional[BaseFormat]
         self.missing_dict = {}  # type: Union[JsonDict, YamlData]
 
-        self.diff_format = None  # type: Optional[BaseFormat]
+        self.diff = None  # type: Optional[BaseFormat]
         self.diff_dict = {}  # type: Union[JsonDict, YamlData]
+
+    @property
+    def has_changes(self) -> bool:
+        """Return True is there is a difference or something missing."""
+        return bool(self.missing or self.diff)
 
     @staticmethod
     def _normalize_value(value: Union[JsonDict, YamlData, "BaseFormat"]) -> JsonDict:
@@ -51,7 +56,7 @@ class Comparison:
             return
         self.missing_dict = missing_dict
         if self.format_class:
-            self.missing_format = self.format_class(data=missing_dict)
+            self.missing = self.format_class(data=missing_dict)
 
     def set_diff(self, diff_dict):
         """Set the diff dict and corresponding format."""
@@ -59,7 +64,7 @@ class Comparison:
             return
         self.diff_dict = diff_dict
         if self.format_class:
-            self.diff_format = self.format_class(data=diff_dict)
+            self.diff = self.format_class(data=diff_dict)
 
     def update_pair(self, key, raw_expected):
         """Update a key on one of the comparison dicts, with its raw expected value."""

@@ -1,0 +1,23 @@
+[[Makefile.rules]]
+target = ".PHONY"
+prerequisites = ["sphinx"]
+
+[[Makefile.rules]]
+target = "help"
+recipes_contains_block = """
+	@echo '  sphinx      to build docs'
+"""
+
+[[Makefile.contains]]
+block = """
+sphinx:
+	-rm .cache/make/sphinx
+	$(MAKE)
+
+# $(O) is meant as a shortcut for $(SPHINXOPTS).
+.cache/make/sphinx: docs *.rst *.md
+	-rm -rf docs/source
+	sphinx-apidoc --force --module-first --separate --implicit-namespaces --output-dir docs/source nitpick/
+	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	touch .cache/make/sphinx
+"""

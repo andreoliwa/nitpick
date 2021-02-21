@@ -13,19 +13,19 @@ def test_simple_error(tmp_path):
         ProjectMock(tmp_path)
         .style(
             """
-        ["pyproject.toml".tool.black]
-        line-length = 100
-        """
+            ["pyproject.toml".tool.black]
+            line-length = 100
+            """
         )
         .pyproject_toml(
             """
-        [tool.blabla]
-        something = 22
-        """
+            [tool.blabla]
+            something = 22
+            """
         )
     )
 
-    project.assert_cli_output(
+    project.cli_run(
         f"""
         {str(project.root_dir)}/pyproject.toml:1: NIP318  has missing values:
         [tool.black]

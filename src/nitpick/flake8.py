@@ -35,7 +35,7 @@ class NitpickFlake8Extension:
             for collected_fuss in self.collect_errors():
                 yield self.build_flake8_error(collected_fuss)
         except QuitComplainingError as err:
-            for error_fuss in err.fusses:
+            for error_fuss in err.violations:
                 yield self.build_flake8_error(error_fuss)
 
     def build_flake8_error(self, obj: Fuss) -> Flake8Error:
