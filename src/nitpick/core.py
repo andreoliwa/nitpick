@@ -11,7 +11,7 @@ from loguru import logger
 from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import relative_to_current_dir
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.project import Project
 from nitpick.typedefs import PathOrStr
 from nitpick.violations import Fuss, ProjectViolations, Reporter
@@ -84,7 +84,7 @@ class Nitpick:
                 if (present and exists) or (absent and not exists):
                     continue
 
-                reporter = Reporter(FileData.create(self.project, filename))
+                reporter = Reporter(FileInfo.create(self.project, filename))
 
                 extra = f": {custom_message}" if custom_message else ""
                 violation = ProjectViolations.MissingFile if present else ProjectViolations.FileShouldBeDeleted
@@ -112,11 +112,10 @@ class Nitpick:
                 continue
 
             # 3.
-            data = FileData.create(self.project, config_key)
-            for plugin_class in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
-                data=data
-            ):  # type: Type[NitpickPlugin]
-                yield from plugin_class(data, config_dict, apply).entry_point()
+            info = FileInfo.create(self.project, config_key)
+            # pylint: disable=no-member
+            for plugin_class in self.project.plugin_manager.hook.can_handle(info=info):  # type: Type[NitpickPlugin]
+                yield from plugin_class(info, config_dict, apply).entry_point()
 
     def filter_keys(self, *partial_names: str) -> List[str]:
         """Filter keys, keeping only the selected partial names."""

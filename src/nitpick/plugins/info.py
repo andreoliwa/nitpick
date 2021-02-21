@@ -1,4 +1,4 @@
-"""Data needed by the plugins."""
+"""Info needed by the plugins."""
 from dataclasses import dataclass, field
 from typing import Set
 
@@ -9,7 +9,7 @@ from nitpick.project import Project
 
 
 @dataclass
-class FileData:
+class FileInfo:
     """File information needed by the plugin."""
 
     project: Project
@@ -17,7 +17,7 @@ class FileData:
     tags: Set[str] = field(default_factory=set)
 
     @classmethod
-    def create(cls, project: Project, path_from_root: str) -> "FileData":
+    def create(cls, project: Project, path_from_root: str) -> "FileInfo":
         """Clean the file name and get its tags."""
         if Deprecation.pre_commit_without_dash(path_from_root):
             clean_path = "." + path_from_root

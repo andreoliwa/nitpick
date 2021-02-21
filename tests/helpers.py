@@ -255,7 +255,7 @@ class ProjectMock:
             clean_violations.add(
                 Fuss(orig.fixed, orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
             )
-        compare(expected=clean_violations, actual=self._actual_violations)
+        compare(expected=clean_violations, actual=self._actual_violations)  # FIXME[AA]: compare as dict
         compare(expected=fixed, actual=Reporter.fixed)
         compare(expected=manual, actual=Reporter.manual)
         return self

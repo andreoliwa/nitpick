@@ -11,7 +11,7 @@ import click
 from nitpick.constants import FLAKE8_PREFIX
 
 if TYPE_CHECKING:
-    from nitpick.plugins.data import FileData
+    from nitpick.plugins.info import FileInfo
 
 
 @dataclass(frozen=True)
@@ -91,8 +91,8 @@ class Reporter:  # pylint: disable=too-few-public-methods
     manual: int = 0
     fixed: int = 0
 
-    def __init__(self, data: "FileData" = None, violation_base_code: int = 0) -> None:
-        self.data: Optional["FileData"] = data
+    def __init__(self, info: "FileInfo" = None, violation_base_code: int = 0) -> None:
+        self.info: Optional["FileInfo"] = info
         self.violation_base_code = violation_base_code
 
     def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed=False, **kwargs) -> Fuss:
@@ -103,7 +103,7 @@ class Reporter:  # pylint: disable=too-few-public-methods
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
         Reporter.increment(fixed)
-        return Fuss(fixed, self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)
+        return Fuss(fixed, self.info.path_from_root if self.info else "", base + violation.code, formatted, suggestion)
 
     @classmethod
     def reset(cls):

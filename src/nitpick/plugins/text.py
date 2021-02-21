@@ -7,7 +7,7 @@ from marshmallow.orderedset import OrderedSet
 from nitpick import fields
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.schemas import help_message
 from nitpick.violations import Fuss, ViolationEnum
 
@@ -81,8 +81,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle text files."""
-    if TextPlugin.identify_tags & data.tags:
+    if TextPlugin.identify_tags & info.tags:
         return TextPlugin
     return None

@@ -9,7 +9,7 @@ from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, YamlData
 from nitpick.violations import Fuss, ViolationEnum
 
@@ -213,8 +213,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle pre-commit config file."""
-    if data.path_from_root == PRE_COMMIT_CONFIG_YAML:
+    if info.path_from_root == PRE_COMMIT_CONFIG_YAML:
         return PreCommitPlugin
     return None

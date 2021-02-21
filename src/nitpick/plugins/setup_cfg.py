@@ -9,7 +9,7 @@ from configupdater import ConfigUpdater
 from nitpick.constants import SETUP_CFG
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.violations import Fuss, ViolationEnum
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"
@@ -179,8 +179,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle the setup.cfg file."""
-    if data.path_from_root == SETUP_CFG:
+    if info.path_from_root == SETUP_CFG:
         return SetupCfgPlugin
     return None

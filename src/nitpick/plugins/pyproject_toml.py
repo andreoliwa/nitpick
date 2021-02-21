@@ -11,7 +11,7 @@ from nitpick.core import Nitpick
 from nitpick.formats import BaseFormat
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 
@@ -78,8 +78,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle pyproject.toml file."""
-    if data.path_from_root == PYPROJECT_TOML:
+    if info.path_from_root == PYPROJECT_TOML:
         return PyProjectTomlPlugin
     return None

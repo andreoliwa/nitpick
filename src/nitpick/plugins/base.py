@@ -11,7 +11,7 @@ from marshmallow import Schema
 
 from nitpick.formats import Comparison
 from nitpick.generic import search_dict
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
 from nitpick.violations import Fuss, Reporter, SharedViolations, ViolationEnum
 
@@ -24,7 +24,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     :param apply: Flag to apply changes, if the plugin supports it (default: True).
     """
 
-    __str__, __unicode__ = autotext("{self.data.path_from_root} ({self.__class__.__name__})")
+    __str__, __unicode__ = autotext("{self.info.path_from_root} ({self.__class__.__name__})")
 
     filename = ""  # TODO: remove filename attribute after fixing dynamic/fixed schema loading
     violation_base_code: int = 0
@@ -39,12 +39,12 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     skip_empty_suggestion = False
 
-    def __init__(self, data: FileData, expected_config: JsonDict, apply=True) -> None:
-        self.data = data
-        self.filename = data.path_from_root
-        self.reporter = Reporter(data, self.violation_base_code)
+    def __init__(self, info: FileInfo, expected_config: JsonDict, apply=True) -> None:
+        self.info = info
+        self.filename = info.path_from_root
+        self.reporter = Reporter(info, self.violation_base_code)
 
-        self.file_path: Path = self.data.project.root / self.filename
+        self.file_path: Path = self.info.project.root / self.filename
 
         # Configuration for this file as a TOML dict, taken from the style file.
         self.file_dict: JsonDict = expected_config or {}  # FIXME[AA]: rename to self.expected_config
@@ -55,7 +55,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
-        return search_dict(f'files."{self.filename}"', self.data.project.nitpick_section, {})
+        return search_dict(f'files."{self.filename}"', self.info.project.nitpick_section, {})
 
     @classmethod
     def get_compiled_jmespath_filenames(cls):
@@ -67,7 +67,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.init()
 
         has_config_dict = bool(self.file_dict or self.nitpick_file_dict)
-        should_exist: bool = bool(self.data.project.nitpick_files_section.get(self.filename, True))
+        should_exist: bool = bool(self.info.project.nitpick_files_section.get(self.filename, True))
         file_exists = self.file_path.exists()
         should_write = True
 

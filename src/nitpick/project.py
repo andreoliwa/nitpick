@@ -172,10 +172,10 @@ class Project:
         if not pyproject_errors:
             return
 
-        from nitpick.plugins.data import FileData
+        from nitpick.plugins.info import FileInfo
 
         raise QuitComplainingError(
-            Reporter(FileData(self, PYPROJECT_TOML)).make_fuss(
+            Reporter(FileInfo(self, PYPROJECT_TOML)).make_fuss(
                 StyleViolations.InvalidDataToolNitpick,
                 flatten_marshmallow_errors(pyproject_errors),
                 section=TOOL_NITPICK,
