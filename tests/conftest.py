@@ -8,7 +8,7 @@ from tests.helpers import ProjectMock
 
 
 @pytest.fixture()
-def default_style_project(tmp_path) -> ProjectMock:
+def project_with_default_style(tmp_path) -> ProjectMock:
     """Project with the default Nitpick style."""
     nitpick_style = Path(__file__).parent.parent / NITPICK_STYLE_TOML
     return ProjectMock(tmp_path).pyproject_toml(

@@ -1,10 +1,12 @@
 """Test helpers."""
 import os
+import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
 from typing import List, Set
 
+import pytest
 from click.testing import CliRunner
 from more_itertools.more import always_iterable
 from testfixtures import compare
@@ -25,6 +27,9 @@ from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
+
+# TODO: fix Windows tests
+XFAIL_ON_WINDOWS = pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 
 
 def assert_conditions(*args):

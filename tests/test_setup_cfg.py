@@ -2,15 +2,16 @@
 from nitpick.constants import SETUP_CFG
 from nitpick.plugins.setup_cfg import SetupCfgPlugin, Violations
 from nitpick.violations import Fuss, ProjectViolations, SharedViolations
-from tests.helpers import ProjectMock
+from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 
 def test_setup_cfg_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(tmp_path).style("").setup_cfg("").simulate_run().assert_no_errors()
+    ProjectMock(tmp_path).style("").setup_cfg("").api_apply().assert_violations()
 
 
-def test_default_style_is_applied(default_style_project: ProjectMock):
+@XFAIL_ON_WINDOWS
+def test_default_style_is_applied(project_with_default_style):
     """Test if the default style is applied on an empty project."""
     expected_content = """
         [flake8]
@@ -36,7 +37,7 @@ def test_default_style_is_applied(default_style_project: ProjectMock):
         warn_redundant_casts = True
         warn_unused_ignores = True
     """
-    default_style_project.api_apply(SETUP_CFG).assert_violations(
+    project_with_default_style.api_apply(SETUP_CFG).assert_violations(
         Fuss(
             fixed=True,
             filename="setup.cfg",
