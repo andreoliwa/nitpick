@@ -246,16 +246,25 @@ class ProjectMock:
         manual: int = 0
         fixed: int = 0
 
-        clean_violations: Set[Fuss] = set()
+        stripped: Set[Fuss] = set()
         for orig in expected_violations:
             if orig.fixed:
                 fixed += 1
             else:
                 manual += 1
-            clean_violations.add(
+            stripped.add(
                 Fuss(orig.fixed, orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
             )
-        compare(expected=clean_violations, actual=self._actual_violations)  # FIXME[AA]: compare as dict
+        dict_difference = compare(
+            expected=[obj.__dict__ for obj in stripped],
+            actual=[obj.__dict__ for obj in self._actual_violations],
+            raises=False,
+        )
+        compare(
+            expected=stripped,
+            actual=self._actual_violations,
+            suffix=f"Comparing Fuss objects as dictionaries: {dict_difference}",
+        )
         compare(expected=fixed, actual=Reporter.fixed)
         compare(expected=manual, actual=Reporter.manual)
         return self
