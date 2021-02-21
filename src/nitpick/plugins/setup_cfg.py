@@ -110,28 +110,31 @@ class SetupCfgPlugin(NitpickPlugin):
             # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
             for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):
                 if diff_type == dictdiffer.CHANGE:
-                    yield from self.compare_different_keys(section, key, values[0], values[1])
+                    if f"{section}.{key}" in self.comma_separated_values:
+                        yield from self.enforce_comma_separated_values(section, key, values[0], values[1])
+                    else:
+                        yield from self.compare_different_keys(section, key, values[0], values[1])
                 elif diff_type == dictdiffer.ADD:
                     yield from self.show_missing_keys(section, key, values)
 
-    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
-        """Compare different keys, with special treatment when they are lists or numeric."""
-        combined = f"{section}.{key}"
-        if combined in self.comma_separated_values:
-            # The values might contain spaces
-            actual_set = {s.strip() for s in raw_actual.split(",")}
-            expected_set = {s.strip() for s in raw_expected.split(",")}
-            missing = expected_set - actual_set
-            if missing:
-                joined_values = ",".join(sorted(missing))
-                value_to_append = f",{joined_values}"
-                if self.apply:
-                    self.updater[section][key].value += value_to_append
-                yield self.reporter.make_fuss(
-                    Violations.MissingValuesInList, f"[{section}]\n{key} = (...){value_to_append}", key=key, fixed=True
-                )
+    def enforce_comma_separated_values(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
+        """Enforce sections and keys with comma-separated values. The values might contain spaces."""
+        actual_set = {s.strip() for s in raw_actual.split(",")}
+        expected_set = {s.strip() for s in raw_expected.split(",")}
+        missing = expected_set - actual_set
+        if not missing:
             return
 
+        joined_values = ",".join(sorted(missing))
+        value_to_append = f",{joined_values}"
+        if self.apply:
+            self.updater[section][key].value += value_to_append
+        yield self.reporter.make_fuss(
+            Violations.MissingValuesInList, f"[{section}]\n{key} = (...){value_to_append}", key=key, fixed=self.apply
+        )
+
+    def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
+        """Compare different keys, with special treatment when they are lists or numeric."""
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
             # A boolean "True" or "true" has the same effect on setup.cfg.
             actual = str(raw_actual).lower()
@@ -139,17 +142,19 @@ class SetupCfgPlugin(NitpickPlugin):
         else:
             actual = raw_actual
             expected = raw_expected
-        if actual != expected:
-            if self.apply:
-                self.updater[section][key].value = expected
-            yield self.reporter.make_fuss(
-                Violations.KeyHasDifferentValue,
-                f"[{section}]\n{key} = {raw_expected}",
-                section=section,
-                key=key,
-                actual=raw_actual,
-                fixed=self.apply,
-            )
+        if actual == expected:
+            return
+
+        if self.apply:
+            self.updater[section][key].value = expected
+        yield self.reporter.make_fuss(
+            Violations.KeyHasDifferentValue,
+            f"[{section}]\n{key} = {raw_expected}",
+            section=section,
+            key=key,
+            actual=raw_actual,
+            fixed=self.apply,
+        )
 
     def show_missing_keys(  # pylint: disable=unused-argument
         self, section, key, values: List[Tuple[str, Any]]
