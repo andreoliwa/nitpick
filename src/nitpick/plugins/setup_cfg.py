@@ -88,14 +88,11 @@ class SetupCfgPlugin(NitpickPlugin):
             parser[section] = expected_config
         return self.get_example_cfg(parser)
 
+    # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
         self.updater.read(str(self.file_path))
-
-        # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
-        missing = self.get_missing_output()
-        if missing:
-            yield self.reporter.make_fuss(Violations.MissingSections, missing, self.apply)
+        yield from self.enforce_missing_sections()
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
         missing_csv = csv_sections.difference(self.current_sections)
@@ -105,17 +102,27 @@ class SetupCfgPlugin(NitpickPlugin):
             return
 
         for section in self.expected_sections.intersection(self.current_sections) - self.missing_sections:
-            expected_dict = self.expected_config[section]
-            actual_dict = {k: v.value for k, v in self.updater[section].items()}
-            # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
-            for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):
-                if diff_type == dictdiffer.CHANGE:
-                    if f"{section}.{key}" in self.comma_separated_values:
-                        yield from self.enforce_comma_separated_values(section, key, values[0], values[1])
-                    else:
-                        yield from self.compare_different_keys(section, key, values[0], values[1])
-                elif diff_type == dictdiffer.ADD:
-                    yield from self.show_missing_keys(section, key, values)
+            yield from self.enforce_section(section)
+
+    def enforce_missing_sections(self) -> Iterator[Fuss]:
+        """Enforce missing sections."""
+        missing = self.get_missing_output()
+        if missing:
+            yield self.reporter.make_fuss(Violations.MissingSections, missing, self.apply)
+
+    def enforce_section(self, section: str) -> Iterator[Fuss]:
+        """Enforce rules for a section."""
+        expected_dict = self.expected_config[section]
+        actual_dict = {k: v.value for k, v in self.updater[section].items()}
+        # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
+        for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):
+            if diff_type == dictdiffer.CHANGE:
+                if f"{section}.{key}" in self.comma_separated_values:
+                    yield from self.enforce_comma_separated_values(section, key, values[0], values[1])
+                else:
+                    yield from self.compare_different_keys(section, key, values[0], values[1])
+            elif diff_type == dictdiffer.ADD:
+                yield from self.show_missing_keys(section, key, values)
 
     def enforce_comma_separated_values(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
         """Enforce sections and keys with comma-separated values. The values might contain spaces."""
