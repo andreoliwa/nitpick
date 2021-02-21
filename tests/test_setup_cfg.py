@@ -12,8 +12,40 @@ def test_setup_cfg_has_no_configuration(tmp_path):
 
 def test_default_style_is_applied(default_style_project: ProjectMock):
     """Test if the default style is applied on an empty project."""
-    # FIXME[AA]: default_style_project.api_apply(SETUP_CFG).assert_violations()
-    pass
+    expected_content = """
+        [flake8]
+        exclude = .tox,build
+        ignore = D107,D202,D203,D401,E203,E402,E501,W503
+        inline-quotes = double
+        max-line-length = 120
+
+        [isort]
+        combine_as_imports = True
+        force_grid_wrap = 0
+        include_trailing_comma = True
+        known_first_party = tests
+        line_length = 120
+        multi_line_output = 3
+        skip = .tox,build
+
+        [mypy]
+        follow_imports = skip
+        ignore_missing_imports = True
+        strict_optional = True
+        warn_no_return = True
+        warn_redundant_casts = True
+        warn_unused_ignores = True
+    """
+    default_style_project.api_apply(SETUP_CFG).assert_violations(
+        Fuss(
+            fixed=True,
+            filename="setup.cfg",
+            code=321,
+            message=" was not found. Create it with this content:",
+            suggestion=expected_content,
+            lineno=1,
+        )
+    ).assert_file_contents(SETUP_CFG, expected_content)
 
 
 def test_comma_separated_keys_on_style_file(tmp_path):
@@ -39,7 +71,8 @@ def test_comma_separated_keys_on_style_file(tmp_path):
             " has missing values in the 'eat' key. Include those values:",
             """
             [food]
-            eat = (...),ham,salt""",
+            eat = (...),ham,salt
+            """,
         )
     ).assert_file_contents(
         SETUP_CFG,
@@ -60,8 +93,8 @@ def test_suggest_initial_contents(tmp_path):
         line_length = 120
 
         [mypy]
-        ignore_missing_imports = True"""
-
+        ignore_missing_imports = True
+    """
     ProjectMock(tmp_path).style(
         """
         [nitpick.files.present]
@@ -119,7 +152,8 @@ def test_missing_sections(tmp_path):
             max-line-length = 120
 
             [isort]
-            line_length = 120""",
+            line_length = 120
+            """,
         )
     ).assert_file_contents(
         SETUP_CFG,
@@ -169,7 +203,8 @@ def test_missing_different_values(tmp_path):
             ": [isort]line_length is 30 but it should be like this:",
             """
             [isort]
-            line_length = 110""",
+            line_length = 110
+            """,
         ),
         Fuss(
             True,
@@ -178,7 +213,8 @@ def test_missing_different_values(tmp_path):
             ": section [flake8] has some missing key/value pairs. Use this:",
             """
             [flake8]
-            max-line-length = 112""",
+            max-line-length = 112
+            """,
         ),
     ).assert_file_contents(
         SETUP_CFG,
@@ -221,7 +257,8 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
             ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503
             max-complexity = 12
             max-line-length = 85
-            select = E241,C,E,F,W,B,B9""",
+            select = E241,C,E,F,W,B,B9
+            """,
         )
     )
 
@@ -243,7 +280,8 @@ def test_invalid_section_dot_fields(tmp_path):
             nitpick.files."setup.cfg".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
             nitpick.files."setup.cfg".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
             nitpick.files."setup.cfg".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
-            nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>""",
+            nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>
+            """,
         )
     )
 

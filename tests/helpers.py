@@ -252,9 +252,7 @@ class ProjectMock:
                 fixed += 1
             else:
                 manual += 1
-            stripped.add(
-                Fuss(orig.fixed, orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
-            )
+            stripped.add(Fuss(orig.fixed, orig.filename, orig.code, orig.message, dedent(orig.suggestion).strip()))
         dict_difference = compare(
             expected=[obj.__dict__ for obj in stripped],
             actual=[obj.__dict__ for obj in self._actual_violations],

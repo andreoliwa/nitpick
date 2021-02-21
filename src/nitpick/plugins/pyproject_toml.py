@@ -63,7 +63,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
             return
         if document:
             change_toml(document, change_dict.as_data)
-        yield self.reporter.make_fuss(violation, change_dict.reformatted, prefix="", fixed=self.apply)
+        yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.apply)
 
     @property
     def initial_contents(self) -> str:
