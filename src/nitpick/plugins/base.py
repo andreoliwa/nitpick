@@ -2,7 +2,7 @@
 import abc
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Optional, Set, Type
+from typing import Iterator, Optional, Set
 
 import jmespath
 from autorepr import autotext
@@ -13,7 +13,7 @@ from nitpick.formats import Comparison
 from nitpick.generic import search_dict
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
-from nitpick.violations import Fuss, Reporter, SharedViolations, ViolationEnum
+from nitpick.violations import Fuss, Reporter, SharedViolations
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):
@@ -28,7 +28,6 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     filename = ""  # TODO: remove filename attribute after fixing dynamic/fixed schema loading
     violation_base_code: int = 0
-    error_codes: Optional[Type[ViolationEnum]] = None
 
     #: Indicate if this plugin can apply changes to files
     can_apply: bool = False
@@ -79,7 +78,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         elif not should_exist and file_exists:
             logger.info(f"{self}: File {self.filename} exists when it should not")
             # Only display this message if the style is valid.
-            yield self.reporter.make_fuss(SharedViolations.DeleteFile)
+            yield self.reporter.make_fuss(SharedViolations.DELETE_FILE)
             should_write = False
         elif file_exists and has_config_dict:
             logger.info(f"{self}: Enforcing rules")
@@ -98,9 +97,9 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         logger.info(f"{self}: Suggest initial contents for {self.filename}")
 
         if suggestion:
-            yield self.reporter.make_fuss(SharedViolations.CreateFileWithSuggestion, suggestion, fixed=self.apply)
+            yield self.reporter.make_fuss(SharedViolations.CREATE_FILE_WITH_SUGGESTION, suggestion, fixed=self.apply)
         else:
-            yield self.reporter.make_fuss(SharedViolations.CreateFile)
+            yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
     def write_file(self, file_exists: bool) -> None:
         """Hook to write the new file when apply mode is on. Should be used by inherited classes."""
@@ -118,6 +117,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Warn about missing and different keys."""
         # pylint: disable=not-callable
         if comparison.missing:
-            yield self.reporter.make_fuss(SharedViolations.MissingValues, comparison.missing.reformatted, prefix=prefix)
+            yield self.reporter.make_fuss(
+                SharedViolations.MISSING_VALUES, comparison.missing.reformatted, prefix=prefix
+            )
         if comparison.diff:
-            yield self.reporter.make_fuss(SharedViolations.DifferentValues, comparison.diff.reformatted, prefix=prefix)
+            yield self.reporter.make_fuss(SharedViolations.DIFFERENT_VALUES, comparison.diff.reformatted, prefix=prefix)

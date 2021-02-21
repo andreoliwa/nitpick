@@ -29,7 +29,7 @@ class JSONFileSchema(BaseNitpickSchema):
 class Violations(ViolationEnum):
     """Violations for this plugin."""
 
-    MissingKeys = (348, " has missing keys:")
+    MISSING_KEYS = (348, " has missing keys:")
 
 
 class JSONPlugin(NitpickPlugin):
@@ -72,7 +72,7 @@ class JSONPlugin(NitpickPlugin):
         suggested_json = self.get_suggested_json(json_fmt.as_data)
         if not suggested_json:
             return
-        yield self.reporter.make_fuss(Violations.MissingKeys, JSONFormat(data=suggested_json).reformatted)
+        yield self.reporter.make_fuss(Violations.MISSING_KEYS, JSONFormat(data=suggested_json).reformatted)
 
     def _check_contained_json(self) -> Iterator[Fuss]:
         actual_fmt = JSONFormat(path=self.file_path)

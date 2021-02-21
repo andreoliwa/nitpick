@@ -63,14 +63,14 @@ class PreCommitHook:
 class Violations(ViolationEnum):
     """Violations for this plugin."""
 
-    NoRootKey = (331, f" doesn't have the {KEY_REPOS!r} root key")
-    HookNotFound = (332, ": hook {id!r} not found. Use this:")
-    StyleMissingIndex = (332, ": style file is missing {key!r} key in repo #{index}")
-    RepoDoesNotExist = (333, ": repo {repo!r} does not exist under {key!r}")
-    MissingKeyInRepo = (334, ": missing {key!r} in repo {repo!r}")
-    StyleFileMissingName = (335, ": style file is missing {key!r} in repo {repo!r}")
-    MissingKeyInHook = (336, ": style file is missing {key!r} in hook:\n{yaml}")
-    MissingHookWithID = (337, ": missing hook with id {id!r}:\n{yaml}")
+    NO_ROOT_KEY = (331, f" doesn't have the {KEY_REPOS!r} root key")
+    HOOK_NOT_FOUND = (332, ": hook {id!r} not found. Use this:")
+    STYLE_MISSING_INDEX = (332, ": style file is missing {key!r} key in repo #{index}")
+    REPO_DOES_NOT_EXIST = (333, ": repo {repo!r} does not exist under {key!r}")
+    MISSING_KEY_IN_REPO = (334, ": missing {key!r} in repo {repo!r}")
+    STYLE_FILE_MISSING_NAME = (335, ": style file is missing {key!r} in repo {repo!r}")
+    MISSING_KEY_IN_HOOK = (336, ": style file is missing {key!r} in hook:\n{yaml}")
+    MISSING_HOOK_WITH_ID = (337, ": missing hook with id {id!r}:\n{yaml}")
 
 
 class PreCommitPlugin(NitpickPlugin):
@@ -112,7 +112,7 @@ class PreCommitPlugin(NitpickPlugin):
         if KEY_REPOS not in self.actual_yaml.as_data:
             # TODO: if the 'repos' key doesn't exist, assume repos are in the root of the .yml file
             #  Having the 'repos' key is not actually a requirement. 'pre-commit-validate-config' works without it.
-            yield self.reporter.make_fuss(Violations.NoRootKey)
+            yield self.reporter.make_fuss(Violations.NO_ROOT_KEY)
             return
 
         # Check the root values in the configuration file
@@ -144,7 +144,7 @@ class PreCommitPlugin(NitpickPlugin):
         for unique_key, hook in expected_hooks.items():
             if unique_key not in self.actual_hooks:
                 yield self.reporter.make_fuss(
-                    Violations.HookNotFound, YAMLFormat(data=hook.yaml.as_data).reformatted, id=hook.hook_id
+                    Violations.HOOK_NOT_FOUND, YAMLFormat(data=hook.yaml.as_data).reformatted, id=hook.hook_id
                 )
                 continue
 
@@ -164,22 +164,22 @@ class PreCommitPlugin(NitpickPlugin):
         repo_name = repo_data.get(KEY_REPO)
 
         if not repo_name:
-            yield self.reporter.make_fuss(Violations.StyleMissingIndex, key=KEY_REPO, index=index)
+            yield self.reporter.make_fuss(Violations.STYLE_MISSING_INDEX, key=KEY_REPO, index=index)
             return
 
         actual_repo_dict = find_object_by_key(actual, KEY_REPO, repo_name)
         if not actual_repo_dict:
-            yield self.reporter.make_fuss(Violations.RepoDoesNotExist, repo=repo_name, key=KEY_REPOS)
+            yield self.reporter.make_fuss(Violations.REPO_DOES_NOT_EXIST, repo=repo_name, key=KEY_REPOS)
             return
 
         if KEY_HOOKS not in actual_repo_dict:
-            yield self.reporter.make_fuss(Violations.MissingKeyInRepo, key=KEY_HOOKS, repo=repo_name)
+            yield self.reporter.make_fuss(Violations.MISSING_KEY_IN_REPO, key=KEY_HOOKS, repo=repo_name)
             return
 
         actual_hooks = actual_repo_dict.get(KEY_HOOKS) or []
         yaml_expected_hooks = repo_data.get(KEY_HOOKS)
         if not yaml_expected_hooks:
-            yield self.reporter.make_fuss(Violations.StyleFileMissingName, key=KEY_HOOKS, repo=repo_name)
+            yield self.reporter.make_fuss(Violations.STYLE_FILE_MISSING_NAME, key=KEY_HOOKS, repo=repo_name)
             return
 
         expected_hooks = YAMLFormat(string=yaml_expected_hooks).as_data
@@ -187,12 +187,12 @@ class PreCommitPlugin(NitpickPlugin):
             hook_id = expected_dict.get(KEY_ID)
             expected_yaml = self.format_hook(expected_dict).rstrip()
             if not hook_id:
-                yield self.reporter.make_fuss(Violations.MissingKeyInHook, key=KEY_ID, yaml=expected_yaml)
+                yield self.reporter.make_fuss(Violations.MISSING_KEY_IN_HOOK, key=KEY_ID, yaml=expected_yaml)
                 continue
 
             actual_dict = find_object_by_key(actual_hooks, KEY_ID, hook_id)
             if not actual_dict:
-                yield self.reporter.make_fuss(Violations.MissingHookWithID, id=hook_id, yaml=expected_yaml)
+                yield self.reporter.make_fuss(Violations.MISSING_HOOK_WITH_ID, id=hook_id, yaml=expected_yaml)
                 continue
 
     @staticmethod

@@ -19,11 +19,11 @@ SECTION_SEPARATOR = "."
 class Violations(ViolationEnum):
     """Violations for this plugin."""
 
-    MissingSections = (321, " has some missing sections. Use this:")
-    MissingValuesInList = (322, " has missing values in the {key!r} key. Include those values:")
-    KeyHasDifferentValue = (323, ": [{section}]{key} is {actual} but it should be like this:")
-    MissingKeyValuePairs = (324, ": section [{section}] has some missing key/value pairs. Use this:")
-    InvalidCommaSeparatedValuesSection = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
+    MISSING_SECTIONS = (321, " has some missing sections. Use this:")
+    MISSING_VALUES_IN_LIST = (322, " has missing values in the {key!r} key. Include those values:")
+    KEY_HAS_DIFFERENT_VALUE = (323, ": [{section}]{key} is {actual} but it should be like this:")
+    MISSING_KEY_VALUE_PAIRS = (324, ": section [{section}] has some missing key/value pairs. Use this:")
+    INVALID_COMMA_SEPARATED_VALUES_SECTION = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
 
 
 class SetupCfgPlugin(NitpickPlugin):
@@ -97,7 +97,9 @@ class SetupCfgPlugin(NitpickPlugin):
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
         missing_csv = csv_sections.difference(self.current_sections)
         if missing_csv:
-            yield self.reporter.make_fuss(Violations.InvalidCommaSeparatedValuesSection, ", ".join(sorted(missing_csv)))
+            yield self.reporter.make_fuss(
+                Violations.INVALID_COMMA_SEPARATED_VALUES_SECTION, ", ".join(sorted(missing_csv))
+            )
             # Don't continue if the comma-separated values are invalid
             return
 
@@ -108,7 +110,7 @@ class SetupCfgPlugin(NitpickPlugin):
         """Enforce missing sections."""
         missing = self.get_missing_output()
         if missing:
-            yield self.reporter.make_fuss(Violations.MissingSections, missing, self.apply)
+            yield self.reporter.make_fuss(Violations.MISSING_SECTIONS, missing, self.apply)
 
     def enforce_section(self, section: str) -> Iterator[Fuss]:
         """Enforce rules for a section."""
@@ -137,7 +139,7 @@ class SetupCfgPlugin(NitpickPlugin):
         if self.apply:
             self.updater[section][key].value += value_to_append
         yield self.reporter.make_fuss(
-            Violations.MissingValuesInList, f"[{section}]\n{key} = (...){value_to_append}", key=key, fixed=self.apply
+            Violations.MISSING_VALUES_IN_LIST, f"[{section}]\n{key} = (...){value_to_append}", key=key, fixed=self.apply
         )
 
     def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
@@ -155,7 +157,7 @@ class SetupCfgPlugin(NitpickPlugin):
         if self.apply:
             self.updater[section][key].value = expected
         yield self.reporter.make_fuss(
-            Violations.KeyHasDifferentValue,
+            Violations.KEY_HAS_DIFFERENT_VALUE,
             f"[{section}]\n{key} = {raw_expected}",
             section=section,
             key=key,
@@ -173,7 +175,7 @@ class SetupCfgPlugin(NitpickPlugin):
         output = self.get_example_cfg(parser)
         if self.apply:
             self.updater[section].update(missing_dict)
-        yield self.reporter.make_fuss(Violations.MissingKeyValuePairs, output, self.apply, section=section)
+        yield self.reporter.make_fuss(Violations.MISSING_KEY_VALUE_PAIRS, output, self.apply, section=section)
 
     @staticmethod
     def get_example_cfg(parser: ConfigParser) -> str:

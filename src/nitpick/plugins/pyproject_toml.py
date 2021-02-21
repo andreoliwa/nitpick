@@ -52,8 +52,8 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
         document = parse(file.as_string) if self.apply else None
         yield from chain(
-            self.report(SharedViolations.DifferentValues, document, comparison.diff),
-            self.report(SharedViolations.MissingValues, document, comparison.missing),
+            self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
+            self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),
         )
         if self.apply:
             self.file_path.write_text(dumps(document))

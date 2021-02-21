@@ -93,7 +93,7 @@ class Nitpick:
                 reporter = Reporter(FileInfo.create(self.project, filename))
 
                 extra = f": {custom_message}" if custom_message else ""
-                violation = ProjectViolations.MissingFile if present else ProjectViolations.FileShouldBeDeleted
+                violation = ProjectViolations.MISSING_FILE if present else ProjectViolations.FILE_SHOULD_BE_DELETED
                 yield reporter.make_fuss(violation, extra=extra)
 
     def enforce_style(self, *partial_names: str, apply=True) -> Iterator[Fuss]:

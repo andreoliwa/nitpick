@@ -118,7 +118,7 @@ class Style:
                 # If the TOML itself could not be parsed, we can't go on
                 raise QuitComplainingError(
                     Reporter(FileInfo(self.project, style_path.name)).make_fuss(
-                        StyleViolations.InvalidTOML, exception=pretty_exception(err)
+                        StyleViolations.INVALID_TOML, exception=pretty_exception(err)
                     )
                 ) from err
 
@@ -131,7 +131,7 @@ class Style:
 
             if validation_errors:
                 yield Reporter(FileInfo(self.project, display_name)).make_fuss(
-                    StyleViolations.InvalidConfig, flatten_marshmallow_errors(validation_errors)
+                    StyleViolations.INVALID_CONFIG, flatten_marshmallow_errors(validation_errors)
                 )
 
             self._all_styles.add(toml_dict)

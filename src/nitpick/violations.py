@@ -54,20 +54,20 @@ class ViolationEnum(Enum):
 class StyleViolations(ViolationEnum):
     """Style violations."""
 
-    InvalidDataToolNitpick = (1, " has an incorrect style. Invalid data in [{section}]:")
-    InvalidTOML = (1, " has an incorrect style. Invalid TOML{exception}")
-    InvalidConfig = (1, " has an incorrect style. Invalid config:")
+    INVALID_DATA_TOOL_NITPICK = (1, " has an incorrect style. Invalid data in [{section}]:")
+    INVALID_TOML = (1, " has an incorrect style. Invalid TOML{exception}")
+    INVALID_CONFIG = (1, " has an incorrect style. Invalid config:")
 
 
 class ProjectViolations(ViolationEnum):
     """Project initialization violations."""
 
-    NoRootDir = (101, "No root dir found (is this a Python project?)")
-    NoPythonFile = (102, "No Python file was found on the root dir and subdir of {root!r}")
-    MissingFile = (103, " should exist{extra}")
-    FileShouldBeDeleted = (104, " should be deleted{extra}")
+    NO_ROOT_DIR = (101, "No root dir found (is this a Python project?)")
+    NO_PYTHON_FILE = (102, "No Python file was found on the root dir and subdir of {root!r}")
+    MISSING_FILE = (103, " should exist{extra}")
+    FILE_SHOULD_BE_DELETED = (104, " should be deleted{extra}")
 
-    MinimumVersion = (
+    MINIMUM_VERSION = (
         203,
         "The style file you're using requires {project}>={expected} (you have {actual}). Please upgrade",
     )
@@ -76,11 +76,11 @@ class ProjectViolations(ViolationEnum):
 class SharedViolations(ViolationEnum):
     """Shared violations used by all plugins."""
 
-    CreateFile = (1, " was not found", True)
-    CreateFileWithSuggestion = (1, " was not found. Create it with this content:", True)
-    DeleteFile = (2, " should be deleted", True)
-    MissingValues = (8, "{prefix} has missing values:", True)
-    DifferentValues = (9, "{prefix} has different values. Use this:", True)
+    CREATE_FILE = (1, " was not found", True)
+    CREATE_FILE_WITH_SUGGESTION = (1, " was not found. Create it with this content:", True)
+    DELETE_FILE = (2, " should be deleted", True)
+    MISSING_VALUES = (8, "{prefix} has missing values:", True)
+    DIFFERENT_VALUES = (9, "{prefix} has different values. Use this:", True)
 
 
 # TODO: the Reporter class should track a global list of codes with __new__(),

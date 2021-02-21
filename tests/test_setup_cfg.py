@@ -68,7 +68,7 @@ def test_comma_separated_keys_on_style_file(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.MissingValuesInList.code,
+            Violations.MISSING_VALUES_IN_LIST.code,
             " has missing values in the 'eat' key. Include those values:",
             """
             [food]
@@ -114,11 +114,11 @@ def test_suggest_initial_contents(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            SharedViolations.CreateFileWithSuggestion.code + SetupCfgPlugin.violation_base_code,
+            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + SetupCfgPlugin.violation_base_code,
             " was not found. Create it with this content:",
             expected_content,
         ),
-        Fuss(False, SETUP_CFG, ProjectViolations.MissingFile.code, " should exist: Do something here"),
+        Fuss(False, SETUP_CFG, ProjectViolations.MISSING_FILE.code, " should exist: Do something here"),
     ).assert_file_contents(
         SETUP_CFG, expected_content
     )
@@ -146,7 +146,7 @@ def test_missing_sections(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.MissingSections.code,
+            Violations.MISSING_SECTIONS.code,
             " has some missing sections. Use this:",
             """
             [flake8]
@@ -200,7 +200,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.KeyHasDifferentValue.code,
+            Violations.KEY_HAS_DIFFERENT_VALUE.code,
             ": [isort]line_length is 30 but it should be like this:",
             """
             [isort]
@@ -210,7 +210,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.MissingKeyValuePairs.code,
+            Violations.MISSING_KEY_VALUE_PAIRS.code,
             ": section [flake8] has some missing key/value pairs. Use this:",
             """
             [flake8]

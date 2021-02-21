@@ -31,7 +31,7 @@ class TextSchema(Schema):
 class Violations(ViolationEnum):
     """Violations for this plugin."""
 
-    MissingLines = (352, " has missing lines:")
+    MISSING_LINES = (352, " has missing lines:")
 
 
 class TextPlugin(NitpickPlugin):
@@ -71,7 +71,7 @@ class TextPlugin(NitpickPlugin):
         actual = OrderedSet(self.file_path.read_text().split("\n"))
         missing = expected - actual
         if missing:
-            yield self.reporter.make_fuss(Violations.MissingLines, "\n".join(sorted(missing)))
+            yield self.reporter.make_fuss(Violations.MISSING_LINES, "\n".join(sorted(missing)))
 
 
 @hookimpl
