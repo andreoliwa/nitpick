@@ -13,7 +13,7 @@ Submodules
    :maxdepth: 4
 
    nitpick.plugins.base
-   nitpick.plugins.data
+   nitpick.plugins.info
    nitpick.plugins.json
    nitpick.plugins.pre_commit
    nitpick.plugins.pyproject_toml
