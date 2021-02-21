@@ -41,7 +41,6 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def init(self):
         """Post initialization after the instance was created."""
-        self.parser = ConfigParser()
         self.updater = ConfigUpdater()
         self.comma_separated_values = set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
 
@@ -60,9 +59,10 @@ class SetupCfgPlugin(NitpickPlugin):
         """Expected sections (from the style config)."""
         return set(self.file_dict.keys())
 
-    def missing_sections_compared_to(self, sections: Set[str] = None):
-        """Return the missing sections when compared to another set of sections."""
-        return
+    @property
+    def missing_sections(self) -> Set[str]:
+        """Missing sections."""
+        return self.expected_sections - self.current_sections
 
     def write_file(self, file_exists: bool) -> None:
         """Write the new file."""
@@ -73,7 +73,7 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def get_missing_output(self) -> str:
         """Get a missing output string example from the missing sections in setup.cfg."""
-        missing = self.expected_sections - self.current_sections
+        missing = self.missing_sections
         if not missing:
             return ""
 
@@ -90,8 +90,6 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
-        with self.file_path.open() as handle:
-            self.parser.read_file(handle)
         self.updater.read(str(self.file_path))
 
         # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
@@ -103,10 +101,12 @@ class SetupCfgPlugin(NitpickPlugin):
         missing_csv = csv_sections.difference(self.current_sections)
         if missing_csv:
             yield self.reporter.make_fuss(Violations.InvalidCommaSeparatedValuesSection, ", ".join(sorted(missing_csv)))
+            # Don't continue if the comma-separated values are invalid
+            return
 
-        for section in self.expected_sections - self.current_sections:
+        for section in self.expected_sections.intersection(self.current_sections) - self.missing_sections:
             expected_dict = self.file_dict[section]
-            actual_dict = dict(self.parser[section])
+            actual_dict = {k: v.value for k, v in self.updater[section].items()}
             # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
             for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):
                 if diff_type == dictdiffer.CHANGE:

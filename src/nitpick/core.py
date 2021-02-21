@@ -51,15 +51,20 @@ class Nitpick:
 
         return self
 
-    def run(self, *partial_names: str, check=True) -> Iterator[Fuss]:
-        """Run Nitpick."""
+    def run(self, *partial_names: str, apply=False) -> Iterator[Fuss]:
+        """Run Nitpick.
+
+        :param partial_names: Names of the files to enforce configs for.
+        :param apply: Flag to apply changes, if the plugin supports it (default: True).
+        :return: Fuss generator.
+        """
         Reporter.reset()
 
         try:
             yield from chain(
                 self.project.merge_styles(self.offline),
                 self.enforce_present_absent(),
-                self.enforce_style(*partial_names, check=check),
+                self.enforce_style(*partial_names, apply=apply),
             )
         except QuitComplainingError as err:
             yield from err.violations
@@ -85,12 +90,16 @@ class Nitpick:
                 violation = ProjectViolations.MissingFile if present else ProjectViolations.FileShouldBeDeleted
                 yield reporter.make_fuss(violation, extra=extra)
 
-    def enforce_style(self, *partial_names: str, check=False):
+    def enforce_style(self, *partial_names: str, apply=True) -> Iterator[Fuss]:
         """Read the merged style and enforce the rules in it.
 
         1. Get all root keys from the merged style
         2. All except "nitpick" are file names.
         3. For each file name, find the plugin(s) that can handle the file.
+
+        :param partial_names: Names of the files to enforce configs for.
+        :param apply: Flag to apply changes, if the plugin supports it (default: True).
+        :return: Fuss generator.
         """
 
         # 1.
@@ -107,7 +116,7 @@ class Nitpick:
             for plugin_class in self.project.plugin_manager.hook.can_handle(  # pylint: disable=no-member
                 data=data
             ):  # type: Type[NitpickPlugin]
-                yield from plugin_class(data, config_dict, check).entry_point()
+                yield from plugin_class(data, config_dict, apply).entry_point()
 
     def filter_keys(self, *partial_names: str) -> List[str]:
         """Filter keys, keeping only the selected partial names."""

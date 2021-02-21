@@ -70,7 +70,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def simulate_run(self, offline=False, api=True, flake8=True, check=True) -> "ProjectMock":
+    def simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, apply=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -83,7 +83,7 @@ class ProjectMock:
         nit = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_violations = set(nit.run(check=check))
+            self._actual_violations = set(nit.run(*partial_names, apply=apply))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -104,11 +104,11 @@ class ProjectMock:
 
     def api_check(self):
         """Test only the API in check mode, no flake8 plugin."""
-        return self.simulate_run(flake8=False, check=True)
+        return self.simulate_run(flake8=False, apply=False)
 
-    def api_apply(self):
+    def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""
-        return self.simulate_run(flake8=False, check=False)
+        return self.simulate_run(*partial_names, flake8=False, apply=True)
 
     def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents and a new line at the end.
@@ -270,9 +270,9 @@ class ProjectMock:
             expected = list(always_iterable(str_or_lines))
         return result, actual, expected
 
-    def cli_run(self, str_or_lines: StrOrList = None, check=True, violations=0) -> "ProjectMock":
+    def cli_run(self, str_or_lines: StrOrList = None, apply=False, violations=0) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
-        cli_args = ["--check"] if check else []
+        cli_args = [] if apply else ["--check"]
         result, actual, expected = self._simulate_cli("run", str_or_lines, *cli_args)
         if violations:
             expected.append(f"Violations: ❌ {violations} to change manually.")

@@ -56,7 +56,7 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         something = 22
         """
     ).simulate_run(
-        offline=offline, check=True
+        offline=offline, apply=False
     ).assert_errors_contain(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
@@ -85,7 +85,7 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         """
         pyproject.toml
         setup.cfg
-        """,
+        """
     )
 
 

@@ -17,7 +17,12 @@ from nitpick.violations import Fuss, Reporter, SharedViolations, ViolationEnum
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):
-    """Base class for file checkers."""
+    """Base class for Nitpick plugins.
+
+    :param data: File information (project, path, tags).
+    :param expected_config: Expected configuration for the file
+    :param apply: Flag to apply changes, if the plugin supports it (default: True).
+    """
 
     __str__, __unicode__ = autotext("{self.data.path_from_root} ({self.__class__.__name__})")
 
@@ -34,7 +39,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     skip_empty_suggestion = False
 
-    def __init__(self, data: FileData, config: JsonDict, check=False) -> None:
+    def __init__(self, data: FileData, expected_config: JsonDict, apply=True) -> None:
         self.data = data
         self.filename = data.path_from_root
         self.reporter = Reporter(data, self.violation_base_code)
@@ -42,9 +47,9 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.file_path: Path = self.data.project.root / self.filename
 
         # Configuration for this file as a TOML dict, taken from the style file.
-        self.file_dict: JsonDict = config or {}
+        self.file_dict: JsonDict = expected_config or {}  # FIXME[AA]: rename to self.expected_config
 
-        self.apply = not check
+        self.apply = apply
 
     @mypy_property
     @lru_cache()
@@ -62,7 +67,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.init()
 
         has_config_dict = bool(self.file_dict or self.nitpick_file_dict)
-        should_exist: bool = self.data.project.nitpick_files_section.get(self.filename, True)
+        should_exist: bool = bool(self.data.project.nitpick_files_section.get(self.filename, True))
         file_exists = self.file_path.exists()
         should_write = True
 

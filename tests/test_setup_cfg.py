@@ -10,8 +10,10 @@ def test_setup_cfg_has_no_configuration(tmp_path):
     ProjectMock(tmp_path).style("").setup_cfg("").simulate_run().assert_no_errors()
 
 
-# FIXME[AA]: test if the default style is applied only on setup.cfg;
-#  maybe api_apply(file=SETUP_CFG).assert_violations() or something
+def test_default_style_is_applied(default_style_project: ProjectMock):
+    """Test if the default style is applied on an empty project."""
+    # FIXME[AA]: default_style_project.api_apply(SETUP_CFG).assert_violations()
+    pass
 
 
 def test_comma_separated_keys_on_style_file(tmp_path):
