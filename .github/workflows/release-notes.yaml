@@ -3,7 +3,7 @@ name: Release-Notes-Preview
 
 on:
   pull_request:
-    branches: [develop]
+    branches: [develop, semantic-release] # FIXME[AA]:
   issue_comment:
     types: [edited]
 
@@ -16,7 +16,7 @@ jobs:
           git fetch --prune --unshallow --tags
       - uses: snyk/release-notes-preview@v1.6.1
         with:
-          releaseBranch: develop
+          releaseBranch: semantic-release # FIXME[AA]:
         env:
           GITHUB_PR_USERNAME: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
