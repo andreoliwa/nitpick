@@ -63,7 +63,7 @@ jobs:
     # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif
     # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#determining-when-to-use-contexts
     # FIXME[AA]: remove 'refs/heads/semantic-release'
-    #    if: github.event_name == 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/semantic-release')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/semantic-release')
     runs-on: ubuntu-latest
     steps:
       - name: Echo
@@ -103,7 +103,9 @@ jobs:
           # Keeping all branches here, so it's easier to debug; just comment or change "pull_request.branches" above
           branches: |
             [
-              '.+'
+              'master',
+              'develop',
+              'semantic-release'
             ]
 
           # https://github.com/marketplace/actions/action-for-semantic-release#extra_plugins
