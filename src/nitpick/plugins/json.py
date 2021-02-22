@@ -10,7 +10,7 @@ from nitpick.formats import JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict
 from nitpick.violations import Fuss, ViolationEnum
@@ -29,7 +29,7 @@ class JSONFileSchema(BaseNitpickSchema):
 class Violations(ViolationEnum):
     """Violations for this plugin."""
 
-    MissingKeys = (348, " has missing keys:")
+    MISSING_KEYS = (348, " has missing keys:")
 
 
 class JSONPlugin(NitpickPlugin):
@@ -53,7 +53,7 @@ class JSONPlugin(NitpickPlugin):
     def get_suggested_json(self, raw_actual: JsonDict = None) -> JsonDict:
         """Return the suggested JSON based on actual values."""
         actual = set(flatten(raw_actual).keys()) if raw_actual else set()
-        expected = set(self.file_dict.get(KEY_CONTAINS_KEYS) or [])
+        expected = set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])
         # TODO: include "contains_json" keys in the suggestion as well
         missing = expected - actual
         if not missing:
@@ -61,7 +61,8 @@ class JSONPlugin(NitpickPlugin):
 
         return SortedDict(unflatten({key: self.SOME_VALUE_PLACEHOLDER for key in missing}))
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         suggestion = self.get_suggested_json()
         return JSONFormat(data=suggestion).reformatted if suggestion else ""
@@ -71,13 +72,13 @@ class JSONPlugin(NitpickPlugin):
         suggested_json = self.get_suggested_json(json_fmt.as_data)
         if not suggested_json:
             return
-        yield self.reporter.make_fuss(Violations.MissingKeys, JSONFormat(data=suggested_json).reformatted)
+        yield self.reporter.make_fuss(Violations.MISSING_KEYS, JSONFormat(data=suggested_json).reformatted)
 
     def _check_contained_json(self) -> Iterator[Fuss]:
         actual_fmt = JSONFormat(path=self.file_path)
         expected = {}
         # TODO: accept key as a jmespath expression, value is valid JSON
-        for key, json_string in (self.file_dict.get(KEY_CONTAINS_JSON) or {}).items():
+        for key, json_string in (self.expected_config.get(KEY_CONTAINS_JSON) or {}).items():
             try:
                 expected[key] = json.loads(json_string)
             except json.JSONDecodeError as err:
@@ -98,8 +99,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle JSON files."""
-    if JSONPlugin.identify_tags & data.tags:
-        return JSONPlugin(data)
+    if JSONPlugin.identify_tags & info.tags:
+        return JSONPlugin
     return None

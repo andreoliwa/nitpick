@@ -1,12 +1,8 @@
 """CLI tests."""
-import sys
-
-import pytest
-
-from tests.helpers import ProjectMock
+from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 
-@pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
+@XFAIL_ON_WINDOWS
 def test_simple_error(tmp_path):
     """A simple error on the CLI."""
     project = (

@@ -84,6 +84,7 @@ def get_nitpick(context: click.Context) -> Nitpick:
 @click.option(
     "--check",
     "-c",
+    "check_only",
     is_flag=True,
     default=False,
     help="Don't modify the configuration files, just print the difference."
@@ -92,7 +93,7 @@ def get_nitpick(context: click.Context) -> Nitpick:
 @click.option("--verbose", "-v", is_flag=True, default=False, help="Verbose logging")
 @click.pass_context
 @click.argument("files", nargs=-1)
-def run(context, check, verbose, files):
+def run(context, check_only, verbose, files):
     """Apply suggestions to configuration files.
 
     You can use partial and multiple file names in the FILES argument.
@@ -101,7 +102,7 @@ def run(context, check, verbose, files):
         logger.enable(PROJECT_NAME)
 
     nit = get_nitpick(context)
-    for fuss in nit.run(*files, check=check):
+    for fuss in nit.run(*files, apply=not check_only):
         nit.echo(fuss.pretty)
 
     if Reporter.manual or Reporter.fixed:

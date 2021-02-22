@@ -13,7 +13,7 @@ from nitpick.constants import PROJECT_NAME
 
 if TYPE_CHECKING:
     from nitpick.plugins.base import NitpickPlugin
-    from nitpick.plugins.data import FileData
+    from nitpick.plugins.info import FileInfo
 
 hookspec = pluggy.HookspecMarker(PROJECT_NAME)
 hookimpl = pluggy.HookimplMarker(PROJECT_NAME)
@@ -27,7 +27,7 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookspec
-def can_handle(data: "FileData") -> Optional["NitpickPlugin"]:  # pylint: disable=unused-argument
+def can_handle(info: "FileInfo") -> Optional[Type["NitpickPlugin"]]:  # pylint: disable=unused-argument
     """Return a valid :py:class:`nitpick.plugins.base.NitpickPlugin` instance or ``None``.
 
     :return: A plugin instance if your plugin handles this file info (path or any of its ``identify`` tags).

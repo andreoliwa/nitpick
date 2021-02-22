@@ -30,7 +30,7 @@ from nitpick.exceptions import Deprecation, QuitComplainingError, pretty_excepti
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.project import Project, climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList, mypy_property
@@ -117,8 +117,8 @@ class Style:
             except TomlDecodeError as err:
                 # If the TOML itself could not be parsed, we can't go on
                 raise QuitComplainingError(
-                    Reporter(FileData(self.project, style_path.name)).make_fuss(
-                        StyleViolations.InvalidTOML, exception=pretty_exception(err)
+                    Reporter(FileInfo(self.project, style_path.name)).make_fuss(
+                        StyleViolations.INVALID_TOML, exception=pretty_exception(err)
                     )
                 ) from err
 
@@ -130,8 +130,8 @@ class Style:
             toml_dict, validation_errors = self._validate_config(read_toml_dict)
 
             if validation_errors:
-                yield Reporter(FileData(self.project, display_name)).make_fuss(
-                    StyleViolations.InvalidConfig, flatten_marshmallow_errors(validation_errors)
+                yield Reporter(FileInfo(self.project, display_name)).make_fuss(
+                    StyleViolations.INVALID_CONFIG, flatten_marshmallow_errors(validation_errors)
                 )
 
             self._all_styles.add(toml_dict)
@@ -144,14 +144,14 @@ class Style:
         validation_errors = {}
         toml_dict = OrderedDict()
         for key, value_dict in config_dict.items():
-            data = FileData.create(self.project, key)
-            toml_dict[data.path_from_root] = value_dict
+            info = FileInfo.create(self.project, key)
+            toml_dict[info.path_from_root] = value_dict
             if key == PROJECT_NAME:
                 schemas = [NitpickSectionSchema]
             else:
                 schemas = [
-                    plugin.validation_schema
-                    for plugin in self.plugin_manager.hook.can_handle(data=data)  # pylint: disable=no-member
+                    plugin_class.validation_schema
+                    for plugin_class in self.plugin_manager.hook.can_handle(info=info)  # pylint: disable=no-member
                 ]
                 if not schemas:
                     validation_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
@@ -159,7 +159,7 @@ class Style:
             all_errors = {}
             valid_schema = False
             for schema in schemas:
-                errors = self.validate_schema(schema, data.path_from_root, value_dict)
+                errors = self.validate_schema(schema, info.path_from_root, value_dict)
                 if not errors:
                     # When multiple schemas match a file type, exit when a valid schema is found
                     valid_schema = True

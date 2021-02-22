@@ -11,7 +11,7 @@ import click
 from nitpick.constants import FLAKE8_PREFIX
 
 if TYPE_CHECKING:
-    from nitpick.plugins.data import FileData
+    from nitpick.plugins.info import FileInfo
 
 
 @dataclass(frozen=True)
@@ -21,6 +21,7 @@ class Fuss:
     Fields inspired on :py:class:`SyntaxError` and :py:class:`pyflakes.messages.Message`.
     """
 
+    fixed: bool
     filename: str
     code: int
     message: str
@@ -53,20 +54,20 @@ class ViolationEnum(Enum):
 class StyleViolations(ViolationEnum):
     """Style violations."""
 
-    InvalidDataToolNitpick = (1, " has an incorrect style. Invalid data in [{section}]:")
-    InvalidTOML = (1, " has an incorrect style. Invalid TOML{exception}")
-    InvalidConfig = (1, " has an incorrect style. Invalid config:")
+    INVALID_DATA_TOOL_NITPICK = (1, " has an incorrect style. Invalid data in [{section}]:")
+    INVALID_TOML = (1, " has an incorrect style. Invalid TOML{exception}")
+    INVALID_CONFIG = (1, " has an incorrect style. Invalid config:")
 
 
 class ProjectViolations(ViolationEnum):
     """Project initialization violations."""
 
-    NoRootDir = (101, "No root dir found (is this a Python project?)")
-    NoPythonFile = (102, "No Python file was found on the root dir and subdir of {root!r}")
-    MissingFile = (103, " should exist{extra}")
-    FileShouldBeDeleted = (104, " should be deleted{extra}")
+    NO_ROOT_DIR = (101, "No root dir found (is this a Python project?)")
+    NO_PYTHON_FILE = (102, "No Python file was found on the root dir and subdir of {root!r}")
+    MISSING_FILE = (103, " should exist{extra}")
+    FILE_SHOULD_BE_DELETED = (104, " should be deleted{extra}")
 
-    MinimumVersion = (
+    MINIMUM_VERSION = (
         203,
         "The style file you're using requires {project}>={expected} (you have {actual}). Please upgrade",
     )
@@ -75,11 +76,11 @@ class ProjectViolations(ViolationEnum):
 class SharedViolations(ViolationEnum):
     """Shared violations used by all plugins."""
 
-    CreateFile = (1, " was not found", True)
-    CreateFileWithSuggestion = (1, " was not found. Create it with this content:", True)
-    DeleteFile = (2, " should be deleted", True)
-    MissingValues = (8, "{prefix} has missing values:", True)
-    DifferentValues = (9, "{prefix} has different values. Use this:", True)
+    CREATE_FILE = (1, " was not found", True)
+    CREATE_FILE_WITH_SUGGESTION = (1, " was not found. Create it with this content:", True)
+    DELETE_FILE = (2, " should be deleted", True)
+    MISSING_VALUES = (8, "{prefix} has missing values:", True)
+    DIFFERENT_VALUES = (9, "{prefix} has different values. Use this:", True)
 
 
 # TODO: the Reporter class should track a global list of codes with __new__(),
@@ -90,8 +91,8 @@ class Reporter:  # pylint: disable=too-few-public-methods
     manual: int = 0
     fixed: int = 0
 
-    def __init__(self, data: "FileData" = None, violation_base_code: int = 0) -> None:
-        self.data: Optional["FileData"] = data
+    def __init__(self, info: "FileInfo" = None, violation_base_code: int = 0) -> None:
+        self.info: Optional["FileInfo"] = info
         self.violation_base_code = violation_base_code
 
     def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed=False, **kwargs) -> Fuss:
@@ -102,7 +103,7 @@ class Reporter:  # pylint: disable=too-few-public-methods
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
         Reporter.increment(fixed)
-        return Fuss(self.data.path_from_root if self.data else "", base + violation.code, formatted, suggestion)
+        return Fuss(fixed, self.info.path_from_root if self.info else "", base + violation.code, formatted, suggestion)
 
     @classmethod
     def reset(cls):
