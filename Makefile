@@ -41,6 +41,7 @@ install: install-pre-commit install-poetry # Install pre-commit hooks and Poetry
 
 # Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
 install-poetry .cache/make/long-poetry: pyproject.toml # Install Poetry dependencies
+	poetry env use python3.6
 	poetry install -E test -E lint
 	touch .cache/make/long-poetry
 .PHONY: install-poetry
@@ -94,7 +95,7 @@ endif
 .PHONY: test
 
 test-one .cache/make/test-one: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests on a single Python version
-	tox -e py36
+	tox -e clean,py38,report
 	touch .cache/make/test-one
 .PHONY: test
 
