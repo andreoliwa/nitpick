@@ -34,12 +34,17 @@ jobs:
           # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
           # https://github.com/semantic-release/semantic-release/releases
           semantic_version: 17.3.9
+
+          # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
+          dry_run: true # FIXME[AA]:
+
           # https://github.com/marketplace/actions/action-for-semantic-release#branches
-          # FIXME[AA]: does it work without this?
-          #          branches: |
-          #            [
-          #              'master'
-          #            ]
+          # Keeping all branches here, so it's easier to debug; just comment or change "pull_request.branches" above
+          branches: |
+            [
+              '.+'
+            ]
+
           # https://github.com/marketplace/actions/action-for-semantic-release#extra_plugins
           # https://github.com/semantic-release/changelog/releases
           # https://github.com/semantic-release/git/releases
@@ -48,8 +53,6 @@ jobs:
             @semantic-release/changelog@5.0.1
             @semantic-release/git@9.0.0
             @semantic-release/exec@5.0.0
-          # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
-          dry_run: true # FIXME[AA]:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: New release published

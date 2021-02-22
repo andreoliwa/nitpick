@@ -46,8 +46,6 @@ notifications:
     - https://coveralls.io/webhook
 stages:
   - name: test
-  - name: release
-    if: branch = master
 jobs:
   include:
     - stage: test
@@ -78,9 +76,3 @@ jobs:
     #        - PYTHONPATH=/c/Users/travis/AppData/Local/pypoetry/Cache/virtualenvs/nitpick-py3.7/lib/site-packages
     # Define the release stage that runs semantic-release
     # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
-    - stage: release
-      deploy:
-        # The stage release only runs on master (there's an "if: branch = master" on "stages" above).
-        # I'm keeping "all_branches: true" here so it's easier to debug Travis: just comment the mentioned "if".
-        on:
-          all_branches: true
