@@ -21,14 +21,11 @@ jobs:
         run: |
           python --version
           python3 --version
-          pyenv --version
-          pyenv version
-          pyenv versions
           pip --version
+          python3 -m pip --version
       - name: Starting deployment
         run: |
-          pyenv global 3.8
-          python -m pip install --upgrade pip poetry pre-commit bumpversion twine
+          python3 -m pip install --upgrade pip poetry pre-commit bumpversion twine
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v2
         with:
