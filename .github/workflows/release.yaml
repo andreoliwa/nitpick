@@ -11,7 +11,7 @@ on:
 
 jobs:
   release:
-    needs: [build]
+    needs: [build, coveralls_finish]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
