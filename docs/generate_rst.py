@@ -185,7 +185,7 @@ def generate_cli(filename: str) -> None:
     for command, short, long in CLI_MAPPING:
         header = f"``{command}``: {short}" if command else short
         blocks.append("")
-        parts = ["poetry", "run", "nitpick"]
+        parts = ["nitpick"]
         if command:
             parts.append(command)
         parts.append("--help")
@@ -193,10 +193,7 @@ def generate_cli(filename: str) -> None:
         output = check_output(parts).decode().strip()  # nosec
         blocks.append(
             clean_template.format(
-                header=header,
-                dashes="-" * len(header),
-                long=dedent(long),
-                help=indent(output, "    "),
+                header=header, dashes="-" * len(header), long=dedent(long), help=indent(output, "    ")
             )
         )
 
