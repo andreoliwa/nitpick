@@ -25,7 +25,8 @@ jobs:
           python3 -m pip --version
       - name: Starting deployment
         run: |
-          python3 -m pip install --upgrade pip setuptools poetry pre-commit bumpversion twine
+          python3 -m pip install --upgrade pip setuptools
+          python3 -m pip install --upgrade poetry pre-commit bumpversion twine
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v2
         with:
