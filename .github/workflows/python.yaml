@@ -11,10 +11,10 @@ jobs:
   build:
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.6"] # FIXME[AA]: #, "3.7", "3.8", "3.9"]
         # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
         # See https://github.com/actions/virtual-environments/issues/1816
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest] # FIXME[AA]: , macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -59,13 +59,17 @@ jobs:
   # Depend on another workflow - Code to Cloud / GitHub Actions - GitHub Support Community
   # https://github.community/t/depend-on-another-workflow/16311
   release:
-    needs: [build, coveralls_finish]
+    needs: coveralls_finish
     # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif
     # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#determining-when-to-use-contexts
     # FIXME[AA]: remove 'refs/heads/semantic-release'
-    if: github.event_name == 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/semantic-release')
+    #    if: github.event_name == 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/semantic-release')
     runs-on: ubuntu-latest
     steps:
+      - name: Echo
+        run: |
+          echo github.event_name=${{ github.event_name }}
+          echo github.ref=${{ github.ref }}
       - name: Checkout
         uses: actions/checkout@v2
         with:
