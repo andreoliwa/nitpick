@@ -60,25 +60,27 @@ jobs:
   # https://github.community/t/depend-on-another-workflow/16311
   release:
     needs: [build, coveralls_finish]
+    # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif
     # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#determining-when-to-use-contexts
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/semantic-release' # FIXME[AA]:
+    # FIXME[AA]: remove 'refs/heads/semantic-release'
+    if: github.event_name == 'pull_request' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/semantic-release')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           persist-credentials: false
-      - name: Install dependencies
+      # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
+      - name: Add to PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install pip/setuptools first
         run: |
           python --version
           python3 --version
           python3 -m pip --version
-
-          # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-          # Upgrade pip/setuptools first, so the line below will use the upgraded versions
           python3 -m pip install --upgrade pip setuptools
+      - name: Install pre-commit bumpversion twine
+        run: |
           python3 -m pip install --upgrade poetry pre-commit bumpversion twine
           pre-commit --version
           twine --version
