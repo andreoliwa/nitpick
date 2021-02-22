@@ -28,7 +28,9 @@ jobs:
       # Error: Unable to resolve action `ymyzk/tox-gh-actions@main`, unable to find version `main`
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip tox tox-gh-actions
+          # Upgrade pip first, so the line below will use the upgraded version
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade tox tox-gh-actions
       - name: Test with tox
         run: tox
 

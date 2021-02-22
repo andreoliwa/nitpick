@@ -24,6 +24,7 @@ jobs:
           python3 --version
           pip --version
           python3 -m pip --version
+          # Upgrade pip/setuptools first, so the line below will use the upgraded versions
           python3 -m pip install --upgrade pip setuptools
           python3 -m pip install --upgrade poetry pre-commit bumpversion twine
           pre-commit --version
