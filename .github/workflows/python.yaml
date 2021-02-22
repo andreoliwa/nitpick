@@ -72,8 +72,11 @@ jobs:
         run: |
           python --version
           python3 --version
-          pip --version
           python3 -m pip --version
+
+          # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
           # Upgrade pip/setuptools first, so the line below will use the upgraded versions
           python3 -m pip install --upgrade pip setuptools
           python3 -m pip install --upgrade poetry pre-commit bumpversion twine
