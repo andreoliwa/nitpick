@@ -1,0 +1,63 @@
+# https://github.com/marketplace/actions/action-for-semantic-release
+name: Release
+
+on:
+  pull_request:
+    branches: [
+        master,
+        semantic-release, # FIXME[AA]:
+      ]
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - name: Installed versions
+        run: |
+          python --version
+          python3 --version
+          pyenv --version
+          pyenv version
+          pyenv versions
+          pip --version
+      - name: Starting deployment
+        run: |
+          pyenv global 3.8
+          python -m pip install --upgrade pip poetry pre-commit bumpversion twine
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v2
+        with:
+          # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
+          # https://github.com/semantic-release/semantic-release/releases
+          semantic_version: 17.3.9
+          # https://github.com/marketplace/actions/action-for-semantic-release#branches
+          # FIXME[AA]: does it work without this?
+          #          branches: |
+          #            [
+          #              'master'
+          #            ]
+          # https://github.com/marketplace/actions/action-for-semantic-release#extra_plugins
+          # https://github.com/semantic-release/changelog/releases
+          # https://github.com/semantic-release/git/releases
+          # https://github.com/semantic-release/exec/releases
+          extra_plugins: |
+            @semantic-release/changelog@5.0.1
+            @semantic-release/git@9.0.0
+            @semantic-release/exec@5.0.0
+          # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
+          dry_run: true # FIXME[AA]:
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: New release published
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          echo ${{ steps.semantic.outputs.new_release_version }}
+          echo ${{ steps.semantic.outputs.new_release_major_version }}
+          echo ${{ steps.semantic.outputs.new_release_minor_version }}
+          echo ${{ steps.semantic.outputs.new_release_patch_version }}
+          echo ${{ steps.semantic.outputs.new_release_channel }}
+          echo ${{ steps.semantic.outputs.new_release_notes }}

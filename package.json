@@ -33,7 +33,7 @@
             "package.json",
             "docs/conf.py",
             "docs/targets.rst",
-            "docs/installation_guide.rst",
+            "docs/quickstart.rst",
             "nitpick-style.toml",
             "README.md",
             "CHANGELOG.md"

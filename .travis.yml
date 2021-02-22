@@ -79,17 +79,8 @@ jobs:
     # Define the release stage that runs semantic-release
     # https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/travis.md
     - stage: release
-      language: node_js
-      node_js: 10
-      script: skip
-      install: skip
-      before_script: skip
-      after_script: skip
       deploy:
         # The stage release only runs on master (there's an "if: branch = master" on "stages" above).
         # I'm keeping "all_branches: true" here so it's easier to debug Travis: just comment the mentioned "if".
         on:
           all_branches: true
-        provider: script
-        cleanup: false
-        script: bash .travis/deploy.sh
