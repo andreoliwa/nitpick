@@ -3,7 +3,10 @@ name: Release-Notes-Preview
 
 on:
   pull_request:
-    branches: [develop, semantic-release] # FIXME[AA]:
+    # This workflow is not working for some reason. It is stuck with this message:
+    #  Release Notes Confirmation Pending — awaiting release notes review
+    #  Keeping the YAML file to check back again in the future
+    branches: [release-notes-preview-is-not-working] # [develop]
   issue_comment:
     types: [edited]
 
@@ -16,7 +19,7 @@ jobs:
           git fetch --prune --unshallow --tags
       - uses: snyk/release-notes-preview@v1.6.1
         with:
-          releaseBranch: semantic-release # FIXME[AA]:
+          releaseBranch: develop
         env:
           GITHUB_PR_USERNAME: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
