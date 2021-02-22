@@ -52,11 +52,12 @@ Useful if you maintain multiple projects and want to use the same configs in all
 .. toctree::
    :caption: Contents:
 
-   installation_guide
+   quickstart
    styles
    auto_detection
    tool_nitpick_section
    nitpick_section
+   cli
    plugins
    defaults
    troubleshooting
@@ -65,7 +66,7 @@ Useful if you maintain multiple projects and want to use the same configs in all
 
 .. toctree::
    :maxdepth: 1
-   :caption: API:
+   :caption: API Reference:
 
    source/modules
 

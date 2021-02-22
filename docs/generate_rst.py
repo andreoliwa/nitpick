@@ -1,4 +1,4 @@
-"""Generate .rst files content from Python classes. Run on the dev machine with "make", and commit on GitHub.
+"""Generate .rst files content from Python classes. Run on the dev machine with "make doc", and commit on GitHub.
 
 The ``include`` directive is not working on Read the Docs.
 It doesn't recognise the "styles" dir anywhere (on the root, under "docs", under "_static"...).
@@ -8,7 +8,8 @@ import sys
 from importlib import import_module
 from pathlib import Path
 from pprint import pprint
-from textwrap import dedent
+from subprocess import check_output  # nosec
+from textwrap import dedent, indent
 from typing import List
 
 import click
@@ -18,7 +19,11 @@ from sortedcontainers import SortedDict
 from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
 from nitpick.core import Nitpick
 
-style_mapping = SortedDict(
+DIVIDER = ".. auto-generated-from-here"
+DOCS_DIR: Path = Path(__file__).parent.absolute()
+STYLES_DIR: Path = DOCS_DIR.parent / "styles"
+
+STYLE_MAPPING = SortedDict(
     {
         "black.toml": "black_",
         "flake8.toml": "flake8_",
@@ -41,27 +46,38 @@ style_mapping = SortedDict(
         "python39.toml": "Python 3.9",
     }
 )
+CLI_MAPPING = [
+    ("", "Main options", ""),
+    (
+        "run",
+        "Apply style to files",
+        """
+        At the end of execution, this command displays:
+
+        - the number of fixed violations;
+        - the number of violations that have to be changed manually.
+        """,
+    ),
+    ("ls", "List configures files", ""),
+]
+
 nit = Nitpick.singleton().init()
 
-divider = ".. auto-generated-from-here"
-docs_dir = Path(__file__).parent.absolute()  # type: Path
-styles_dir = docs_dir.parent / "styles"  # type: Path
 
-
-def write_rst(rst_file: Path, blocks: List[str]):
+def write_rst(filename: str, blocks: List[str]):
     """Write content to the .rst file."""
+    rst_file: Path = DOCS_DIR / filename
+
     old_content = rst_file.read_text()
-    cut_position = old_content.index(divider)
-    new_content = old_content[: cut_position + len(divider) + 1]
+    cut_position = old_content.index(DIVIDER)
+    new_content = old_content[: cut_position + len(DIVIDER) + 1]
     new_content += "\n".join(blocks)
     rst_file.write_text(new_content.strip() + "\n")
-    click.secho("{} generated".format(rst_file), fg="green")
+    click.secho(f"{rst_file} generated", fg="green")
 
 
-def generate_defaults_rst():
+def generate_defaults(filename: str):
     """Generate defaults.rst with hardcoded TOML content."""
-    rst_file = docs_dir / "defaults.rst"  # type: Path
-
     template = """
         .. _default-{link}:
 
@@ -76,14 +92,14 @@ def generate_defaults_rst():
     """
     clean_template = dedent(template).strip()
     blocks = []
-    for toml_file, header in style_mapping.items():
-        style_path = styles_dir / toml_file
+    for toml_file, header in STYLE_MAPPING.items():
+        style_path = STYLES_DIR / toml_file
         toml_content = style_path.read_text().strip()
         if not toml_content:
             # Skip empty TOML styles
             continue
 
-        base_name = str(style_path.relative_to(styles_dir.parent))
+        base_name = str(style_path.relative_to(STYLES_DIR.parent))
         indented_lines = [("    " + line.rstrip()).rstrip() for line in toml_content.split("\n")]
         blocks.append("")
         blocks.append(
@@ -97,12 +113,12 @@ def generate_defaults_rst():
             )
         )
 
-    write_rst(rst_file, blocks)
+    write_rst(filename, blocks)
 
     missing = SortedDict()
-    for existing_toml_path in sorted(styles_dir.glob("**/*.toml")):
-        partial_name = str(existing_toml_path.relative_to(styles_dir))
-        if partial_name not in style_mapping:
+    for existing_toml_path in sorted(STYLES_DIR.glob("**/*.toml")):
+        partial_name = str(existing_toml_path.relative_to(STYLES_DIR))
+        if partial_name not in STYLE_MAPPING:
             missing[partial_name] = existing_toml_path.stem
 
     if missing:
@@ -116,10 +132,8 @@ def generate_defaults_rst():
         sys.exit(1)
 
 
-def generate_plugins_rst():
+def generate_plugins(filename: str) -> None:
     """Generate plugins.rst with the docstrings from :py:class:`nitpick.plugins.base.NitpickPlugin` classes."""
-    rst_file = docs_dir / "plugins.rst"  # type: Path
-
     template = """
         .. _{link}:
 
@@ -140,11 +154,7 @@ def generate_plugins_rst():
         if not header:
             # module_name = file_class.__module__
             module = import_module(plugin_class.__module__)
-            header = module.__doc__.strip(" .")
-
-        # Padding with any char except space (it doesn't work)
-        indented_doc = "xxxx" + plugin_class.__doc__
-        stripped_lines = [line[4:] for line in indented_doc.split("\n")]
+            header = (module.__doc__ or "").strip(" .")
 
         blocks.append("")
         blocks.append(
@@ -152,12 +162,48 @@ def generate_plugins_rst():
                 link=slugify(plugin_class.__name__),
                 header=header,
                 dashes="-" * len(header),
-                description="\n".join(stripped_lines).strip(),
+                description=dedent(f"    {plugin_class.__doc__}").strip(),
             )
         )
-    write_rst(rst_file, blocks)
+    write_rst(filename, blocks)
+
+
+def generate_cli(filename: str) -> None:
+    """Generate CLI docs."""
+    template = """
+        {header}
+        {dashes}
+        {long}
+
+        .. code-block:: shell
+
+        {help}
+    """
+    clean_template = dedent(template).strip()
+    blocks = []
+
+    for command, short, long in CLI_MAPPING:
+        header = f"``{command}``: {short}" if command else short
+        blocks.append("")
+        parts = ["poetry", "run", "nitpick"]
+        if command:
+            parts.append(command)
+        parts.append("--help")
+        print(" ".join(parts))
+        output = check_output(parts).decode().strip()  # nosec
+        blocks.append(
+            clean_template.format(
+                header=header,
+                dashes="-" * len(header),
+                long=dedent(long),
+                help=indent(output, "    "),
+            )
+        )
+
+    write_rst(filename, blocks)
 
 
 if __name__ == "__main__":
-    generate_defaults_rst()
-    generate_plugins_rst()
+    generate_defaults("defaults.rst")
+    generate_plugins("plugins.rst")
+    generate_cli("cli.rst")
