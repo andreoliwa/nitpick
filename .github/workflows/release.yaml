@@ -11,22 +11,24 @@ on:
 
 jobs:
   release:
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           persist-credentials: false
-      - name: Installed versions
+      - name: Install dependencies
         run: |
           python --version
           python3 --version
           pip --version
           python3 -m pip --version
-      - name: Starting deployment
-        run: |
           python3 -m pip install --upgrade pip setuptools
           python3 -m pip install --upgrade poetry pre-commit bumpversion twine
+          pre-commit --version
+          twine --version
+          python3 -m pip freeze
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v2
         with:
@@ -54,6 +56,8 @@ jobs:
             @semantic-release/exec@5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          TWINE_TEST_PASSWORD: ${{ secrets.TWINE_TEST_PASSWORD }}
       - name: New release published
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
