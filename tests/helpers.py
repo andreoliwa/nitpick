@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import List, Set
+from typing import Dict, Iterable, List, Optional, Set
 
 import pytest
 from click.testing import CliRunner
@@ -28,6 +28,9 @@ from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
 
+FIXTURES_DIR: Path = Path(__file__).parent / "fixtures"
+STYLES_DIR: Path = Path(__file__).parent.parent / "styles"
+
 # TODO: fix Windows tests
 XFAIL_ON_WINDOWS = pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 
@@ -43,8 +46,6 @@ class ProjectMock:
     """A mocked Python project to help on tests."""
 
     # TODO: use Python 3.6 type annotations
-    fixtures_dir: Path = Path(__file__).parent / "fixtures"
-    styles_dir: Path = Path(__file__).parent.parent / "styles"
 
     def __init__(self, tmp_path: Path, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
@@ -67,7 +68,7 @@ class ProjectMock:
         :param target_file: Target file name (default: source file name).
         """
         path = self.root_dir / link_name  # type: Path
-        full_source_path = Path(target_dir or self.fixtures_dir) / (target_file or link_name)
+        full_source_path = Path(target_dir or FIXTURES_DIR) / (target_file or link_name)
         if not full_source_path.exists():
             raise RuntimeError(f"Source file does not exist: {full_source_path}")
         path.symlink_to(full_source_path)
@@ -107,13 +108,57 @@ class ProjectMock:
         """Test only the flake8 plugin, no API."""
         return self.simulate_run(api=False)
 
-    def api_check(self):
+    def api_check(self, *partial_names: str):
         """Test only the API in check mode, no flake8 plugin."""
-        return self.simulate_run(flake8=False, apply=False)
+        return self.simulate_run(*partial_names, flake8=False, apply=False)
 
     def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""
         return self.simulate_run(*partial_names, flake8=False, apply=True)
+
+    def api_check_then_apply(
+        self, *expected_violations_when_applying: Fuss, partial_names: Optional[Iterable[str]] = None
+    ) -> "ProjectMock":
+        """Assert that check mode does not change files, and that apply mode changes them.
+
+        Perform a series of calls and assertions:
+        1. Call the API in check mode, assert violations, assert files contents were not modified.
+        2. Call the API in apply mode and assert violations again.
+
+        :param expected_violations_when_applying: Expected violations when "apply mode" is on.
+        :param partial_names: Names of the files to enforce configs for.
+        :return: ``self`` for method chaining (fluent interface)
+        """
+        partial_names = partial_names or []
+        expected_filenames = set()
+        expected_violations_when_checking = []
+        for orig in expected_violations_when_applying:
+            expected_filenames.add(orig.filename)
+            expected_violations_when_checking.append(
+                Fuss(False, orig.filename, orig.code, orig.message, orig.suggestion)
+            )
+
+        contents_before_check = self.read_multiple_files(expected_filenames)
+        self.api_check(*partial_names).assert_violations(*expected_violations_when_checking)
+        contents_after_check = self.read_multiple_files(expected_filenames)
+        compare(expected=contents_before_check, actual=contents_after_check)
+
+        return self.api_apply(*partial_names).assert_violations(*expected_violations_when_applying)
+
+    def read_file(self, filename: PathOrStr) -> Optional[str]:
+        """Read file contents.
+
+        :param filename: Filename from project root.
+        :return: File contents, or ``one`` when the file doesn't exist.
+        """
+        path = self.root_dir / filename
+        if not path.exists():
+            return None
+        return path.read_text().strip()
+
+    def read_multiple_files(self, filenames: Iterable[PathOrStr]) -> Dict[PathOrStr, Optional[str]]:
+        """Read multiple files and return a hash with filename (key) and contents (value)."""
+        return {filename: self.read_file(filename) for filename in filenames}
 
     def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents and a new line at the end.
@@ -151,7 +196,7 @@ class ProjectMock:
         This is a good way to test the style files indirectly.
         """
         for filename in args:
-            style_path = Path(self.styles_dir) / self.ensure_toml_extension(filename)
+            style_path = Path(STYLES_DIR) / self.ensure_toml_extension(filename)
             self.named_style(filename, style_path.read_text())
         return self
 
@@ -307,7 +352,6 @@ class ProjectMock:
 
     def assert_file_contents(self, filename: PathOrStr, file_contents: str):
         """Assert the file has the expected contents."""
-        path = self.root_dir / filename
-        actual = path.read_text().strip()
+        actual = self.read_file(filename)
         expected = dedent(file_contents).strip()
         compare(actual=actual, expected=expected)

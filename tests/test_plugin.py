@@ -82,7 +82,7 @@ def test_present_files(tmp_path):
         ".env" = ""
         "another-file.txt" = ""
         """
-    ).api_apply().assert_violations(
+    ).api_check_then_apply(
         Fuss(False, ".editorconfig", 103, " should exist: Create this file"),
         Fuss(False, ".env", 103, " should exist"),
         Fuss(False, "another-file.txt", 103, " should exist"),

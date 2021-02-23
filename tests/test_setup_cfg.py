@@ -7,7 +7,7 @@ from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 def test_setup_cfg_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(tmp_path).style("").setup_cfg("").api_apply().assert_violations()
+    ProjectMock(tmp_path).style("").setup_cfg("").api_check_then_apply()
 
 
 @XFAIL_ON_WINDOWS
@@ -37,7 +37,7 @@ def test_default_style_is_applied(project_with_default_style):
         warn_redundant_casts = True
         warn_unused_ignores = True
     """
-    project_with_default_style.api_apply(SETUP_CFG).assert_violations(
+    project_with_default_style.api_check_then_apply(
         Fuss(
             fixed=True,
             filename="setup.cfg",
@@ -45,7 +45,8 @@ def test_default_style_is_applied(project_with_default_style):
             message=" was not found. Create it with this content:",
             suggestion=expected_content,
             lineno=1,
-        )
+        ),
+        partial_names=[SETUP_CFG],
     ).assert_file_contents(SETUP_CFG, expected_content)
 
 
@@ -64,7 +65,7 @@ def test_comma_separated_keys_on_style_file(tmp_path):
         [food]
         eat = spam,eggs,cheese
         """
-    ).api_apply().assert_violations(
+    ).api_check_then_apply(
         Fuss(
             True,
             SETUP_CFG,
@@ -110,7 +111,7 @@ def test_suggest_initial_contents(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).api_apply().assert_violations(
+    ).api_check_then_apply(
         Fuss(
             True,
             SETUP_CFG,
@@ -142,7 +143,7 @@ def test_missing_sections(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).api_apply().assert_violations(
+    ).api_check_then_apply(
         Fuss(
             True,
             SETUP_CFG,
@@ -196,7 +197,7 @@ def test_missing_different_values(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 112
         """
-    ).api_apply().assert_violations(
+    ).api_check_then_apply(
         Fuss(
             True,
             SETUP_CFG,
@@ -306,6 +307,6 @@ def test_invalid_sections_comma_separated_values(tmp_path):
         ignore = W503,E203,FI12,FI15,FI16,FI17,FI18,FI50,FI51,FI53,FI54,FI55,FI58,PT003,C408
         per-file-ignores = tests/**.py:FI18,setup.py:FI18,tests/**.py:BZ01
         """
-    ).api_apply().assert_violations(
+    ).api_check_then_apply(
         Fuss(False, SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
     )
