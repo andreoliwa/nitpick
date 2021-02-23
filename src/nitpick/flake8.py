@@ -9,9 +9,9 @@ from flake8.options.manager import OptionManager
 from loguru import logger
 
 from nitpick import __version__
-from nitpick.cli import NitpickFlag
 from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.core import Nitpick
+from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
 from nitpick.typedefs import Flake8Error
 from nitpick.violations import Fuss
@@ -64,7 +64,7 @@ class NitpickFlake8Extension:
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(
-            NitpickFlag.OFFLINE.as_flake8_flag(), action="store_true", help=NitpickFlag.OFFLINE.value
+            OptionEnum.OFFLINE.as_flake8_flag(), action="store_true", help=OptionEnum.OFFLINE.value
         )
 
     @staticmethod
@@ -76,5 +76,5 @@ class NitpickFlake8Extension:
         log_mapping = {1: logging.INFO, 2: logging.DEBUG}
         logging.basicConfig(level=log_mapping.get(options.verbose, logging.WARNING))
 
-        nit = Nitpick.singleton().init(offline=bool(options.nitpick_offline or NitpickFlag.OFFLINE.get_environ()))
+        nit = Nitpick.singleton().init(offline=bool(options.nitpick_offline or OptionEnum.OFFLINE.get_environ()))
         logger.info("Offline mode: {}", nit.offline)

@@ -139,7 +139,7 @@ class Project:
             # 1.
             [self.root / root_file for root_file in ROOT_PYTHON_FILES],
             # 2.
-            self.root.glob("*/{}".format(MANAGE_PY)),
+            self.root.glob(f"*/{MANAGE_PY}"),
             # 3.
             self.root.glob("*.py"),
             self.root.glob("*/*.py"),

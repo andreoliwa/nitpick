@@ -12,8 +12,6 @@ problems: the code will get executed twice:
 
 Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
 """
-import os
-from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -23,33 +21,9 @@ from loguru import logger
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
+from nitpick.enums import OptionEnum
 from nitpick.generic import relative_to_current_dir
 from nitpick.violations import Reporter
-
-
-class _FlagMixin:
-    """Private mixin used to test the flags."""
-
-    name: str
-
-    def as_flake8_flag(self) -> str:
-        """Format the name of a flag to be used on the CLI."""
-        slug = self.name.lower().replace("_", "-")
-        return f"--{PROJECT_NAME}-{slug}"
-
-    def as_envvar(self) -> str:
-        """Format the name of an environment variable."""
-        return f"{PROJECT_NAME.upper()}_{self.name.upper()}"
-
-    def get_environ(self) -> str:
-        """Get the value of an environment variable."""
-        return os.environ.get(self.as_envvar(), "")
-
-
-class NitpickFlag(_FlagMixin, Enum):
-    """Flags to be used with the CLI."""
-
-    OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
 
 
 @click.group()
@@ -60,10 +34,10 @@ class NitpickFlag(_FlagMixin, Enum):
     help="Path to project root",
 )
 @click.option(
-    f"--{NitpickFlag.OFFLINE.name.lower()}",  # pylint: disable=no-member
+    f"--{OptionEnum.OFFLINE.name.lower()}",  # pylint: disable=no-member
     is_flag=True,
     default=False,
-    help=NitpickFlag.OFFLINE.value,
+    help=OptionEnum.OFFLINE.value,
 )
 def nitpick_cli(project: Path = None, offline=False):  # pylint: disable=unused-argument
     """Enforce the same configuration across multiple projects."""

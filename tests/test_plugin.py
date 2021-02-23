@@ -7,9 +7,9 @@ import pytest
 import requests
 from flake8.main import cli
 
-from nitpick.cli import _FlagMixin
 from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.core import Nitpick
+from nitpick.enums import _OptionMixin
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
@@ -92,7 +92,7 @@ def test_present_files(tmp_path):
 def test_flag_format_env_variable():
     """Test flag formatting and env variable."""
 
-    class OtherFlags(_FlagMixin, Enum):
+    class OtherFlags(_OptionMixin, Enum):
         """Some flags to be used on the assertions below."""
 
         MULTI_WORD = 1

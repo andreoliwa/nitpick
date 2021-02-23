@@ -45,7 +45,7 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
 
     items = []  # type: List[Tuple[str, Any]]
     for key, value in dict_.items():
-        quoted_key = "{quote}{key}{quote}".format(quote=DOUBLE_QUOTE, key=key) if separator in str(key) else key
+        quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if separator in str(key) else key
         new_key = str(parent_key) + separator + str(quoted_key) if parent_key else quoted_key
         if isinstance(value, dict):
             items.extend(flatten(value, new_key, separator, current_lists).items())
@@ -83,7 +83,7 @@ def quoted_split(string_: str, separator=".") -> List[str]:
         return string_.split(separator)
 
     quoted_regex = re.compile(
-        "([{single}{double}][^{single}{double}]+[{single}{double}])".format(single=SINGLE_QUOTE, double=DOUBLE_QUOTE)
+        f"([{SINGLE_QUOTE}{DOUBLE_QUOTE}][^{SINGLE_QUOTE}{DOUBLE_QUOTE}]+[{SINGLE_QUOTE}{DOUBLE_QUOTE}])"
     )
 
     def remove_quotes(match):

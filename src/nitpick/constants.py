@@ -1,13 +1,15 @@
 """Constants."""
+import os
+
 import jmespath
 
 PROJECT_NAME = "nitpick"
 FLAKE8_PREFIX = "NIP"
 CACHE_DIR_NAME = ".cache"
 TOML_EXTENSION = ".toml"
-NITPICK_STYLE_TOML = "nitpick-style{}".format(TOML_EXTENSION)
-MERGED_STYLE_TOML = "merged-style{}".format(TOML_EXTENSION)
-RAW_GITHUB_CONTENT_BASE_URL = "https://raw.githubusercontent.com/andreoliwa/{}".format(PROJECT_NAME)
+NITPICK_STYLE_TOML = f"nitpick-style{TOML_EXTENSION}"
+MERGED_STYLE_TOML = f"merged-style{TOML_EXTENSION}"
+RAW_GITHUB_CONTENT_BASE_URL = f"https://raw.githubusercontent.com/andreoliwa/{PROJECT_NAME}"
 READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 
 # Special files
@@ -35,3 +37,7 @@ TOOL_NITPICK = "tool.nitpick"
 TOOL_NITPICK_JMEX = jmespath.compile(TOOL_NITPICK)
 NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
 NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
+
+#: Dot/slash is used to indicate a local style file
+SLASH = os.path.sep
+DOT_SLASH = f".{SLASH}"

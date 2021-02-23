@@ -69,7 +69,7 @@ class ProjectMock:
         path = self.root_dir / link_name  # type: Path
         full_source_path = Path(target_dir or self.fixtures_dir) / (target_file or link_name)
         if not full_source_path.exists():
-            raise RuntimeError("Source file does not exist: {}".format(full_source_path))
+            raise RuntimeError(f"Source file does not exist: {full_source_path}")
         path.symlink_to(full_source_path)
         if path.suffix == ".py":
             self.files_to_lint.append(path)
@@ -162,7 +162,7 @@ class ProjectMock:
     @staticmethod
     def ensure_toml_extension(filename: PathOrStr) -> PathOrStr:
         """Ensure a file name has the .toml extension."""
-        return filename if str(filename).endswith(".toml") else "{}.toml".format(filename)
+        return filename if str(filename).endswith(".toml") else f"{filename}.toml"
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""
@@ -198,7 +198,7 @@ class ProjectMock:
         if expected_count is not None:
             actual = len(self._flake8_errors_as_string)
             if expected_count != actual:
-                self.raise_assertion_error(expected_error, "Expected {} errors, got {}".format(expected_count, actual))
+                self.raise_assertion_error(expected_error, f"Expected {expected_count} errors, got {actual}")
         return self
 
     def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":

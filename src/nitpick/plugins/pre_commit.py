@@ -31,7 +31,7 @@ class PreCommitHook:
     @property
     def unique_key(self) -> str:
         """Unique key of this hook, to be used in a dict."""
-        return "{}_{}".format(self.repo, self.hook_id)
+        return f"{self.repo}_{self.hook_id}"
 
     @property
     def key_value_pair(self) -> Tuple[str, "PreCommitHook"]:
@@ -52,7 +52,7 @@ class PreCommitHook:
             for index, hook in enumerate(repo.get(KEY_HOOKS, [])):
                 repo_data_only = repo.copy()
                 repo_data_only.pop(KEY_HOOKS)
-                hook_data_only = search_dict("{}[{}]".format(KEY_HOOKS, index), repo, {})
+                hook_data_only = search_dict(f"{KEY_HOOKS}[{index}]", repo, {})
                 repo_data_only.update({KEY_HOOKS: [hook_data_only]})
                 hooks.append(
                     PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YAMLFormat(data=[repo_data_only])).key_value_pair
@@ -154,7 +154,7 @@ class PreCommitPlugin(NitpickPlugin):
 
             # Display the current revision of the hook
             current_revision = comparison.flat_actual.get("rev", None)
-            revision_message = " (rev: {})".format(current_revision) if current_revision else ""
+            revision_message = f" (rev: {current_revision})" if current_revision else ""
             yield from self.warn_missing_different(comparison, f": hook {hook.hook_id!r}{revision_message}")
 
     def enforce_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[Fuss]:
@@ -202,9 +202,9 @@ class PreCommitPlugin(NitpickPlugin):
         output: List[str] = []
         for line in lines.split("\n"):
             if line.startswith("id:"):
-                output.insert(0, "  - {}".format(line))
+                output.insert(0, f"  - {line}")
             else:
-                output.append("    {}".format(line))
+                output.append(f"    {line}")
         return "\n".join(output)
 
 

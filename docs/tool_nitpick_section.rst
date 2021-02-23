@@ -12,7 +12,27 @@ You can configure your own style like this:
     [tool.nitpick]
     style = "/path/to/your-style-file.toml"
 
-You can set ``style`` with any local file or URL. E.g.: you can use the raw URL of a `GitHub Gist <https://gist.github.com>`_.
+You can set ``style`` with any local file or URL.
+
+Remote style
+------------
+
+Use the URL of the remote file. If it's hosted on GitHub, use the raw GitHub URL:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/v0.23.1/nitpick-style.toml"
+
+You can also use the raw URL of a `GitHub Gist <https://gist.github.com>`_:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "https://gist.githubusercontent.com/andreoliwa/f4fccf4e3e83a3228e8422c01a48be61/raw/ff3447bddfc5a8665538ddf9c250734e7a38eabb/remote-style.toml"
+
+Local style
+-----------
 
 Using a file in your home directory:
 
@@ -20,6 +40,9 @@ Using a file in your home directory:
 
     [tool.nitpick]
     style = "~/some/path/to/another-style.toml"
+
+Multiple styles
+---------------
 
 You can also use multiple styles and mix local files and URLs:
 
@@ -32,5 +55,23 @@ You can also use multiple styles and mix local files and URLs:
         "https://example.com/on/the/web/third.toml"
     ]
 
-The order is important: each style will override any keys that might be set by the previous ``.toml`` file.
-If a key is defined in more than one file, the value from the last file will prevail.
+.. note::
+
+  The order is important: each style will override any keys that might be set by the previous ``.toml`` file.
+
+  If a key is defined in more than one file, the value from the last file will prevail.
+
+Override a remote style
+-----------------------
+
+You can use a remote style as a starting point, and override settings on your local style file.
+
+Use ``./`` to indicate the local style:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = [
+        "https://example.com/on/the/web/remote-style.toml",
+        "./my-local-style.toml",
+    ]

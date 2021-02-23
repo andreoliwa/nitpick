@@ -8,7 +8,8 @@ from unittest.mock import PropertyMock
 import pytest
 import responses
 
-from nitpick.constants import READ_THE_DOCS_URL, TOML_EXTENSION
+from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, TOML_EXTENSION
+from nitpick.violations import Fuss
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock, assert_conditions
 
 if TYPE_CHECKING:
@@ -196,21 +197,21 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
     project = (
         ProjectMock(tmp_path)
         .named_style(
-            "{}/main".format(another_dir),
+            f"{another_dir}/main",
             """
             [nitpick.styles]
             include = "styles/pytest.toml"
             """,
         )
         .named_style(
-            "{}/styles/pytest".format(another_dir),
+            f"{another_dir}/styles/pytest",
             """
             ["pyproject.toml".tool.pytest]
             some-option = 123
             """,
         )
         .named_style(
-            "{}/styles/black".format(another_dir),
+            f"{another_dir}/styles/black",
             """
             ["pyproject.toml".tool.black]
             line-length = 99
@@ -218,7 +219,7 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
             """,
         )
         .named_style(
-            "{}/poetry".format(another_dir),
+            f"{another_dir}/poetry",
             """
             ["pyproject.toml".tool.poetry]
             version = "1.0"
@@ -235,13 +236,11 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
 
     # Use full path on initial styles
     project.pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
         style = ["{another_dir}/main", "{another_dir}/styles/black"]
         {common_pyproject}
-        """.format(
-            another_dir=another_dir, common_pyproject=common_pyproject
-        )
+        """
     ).simulate_run(offline=offline).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
@@ -252,13 +251,11 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
 
     # Reuse the first full path that appears
     project.pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
-        style = ["{}/main", "styles/black.toml"]
-        {}
-        """.format(
-            another_dir, common_pyproject
-        )
+        style = ["{another_dir}/main", "styles/black.toml"]
+        {common_pyproject}
+        """
     ).simulate_run().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
@@ -269,13 +266,11 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
 
     # Allow relative paths
     project.pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
-        style = ["{}/styles/black", "../poetry"]
-        {}
-        """.format(
-            another_dir, common_pyproject
-        )
+        style = ["{another_dir}/styles/black", "../poetry"]
+        {common_pyproject}
+        """
     ).simulate_run(offline=offline).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
@@ -346,7 +341,7 @@ def test_relative_style_on_urls(tmp_path):
             """,
     }
     for filename, body in mapping.items():
-        responses.add(responses.GET, "{}/{}.toml".format(base_url, filename), dedent(body), status=200)
+        responses.add(responses.GET, f"{base_url}/{filename}.toml", dedent(body), status=200)
 
     project = ProjectMock(tmp_path)
 
@@ -358,13 +353,11 @@ def test_relative_style_on_urls(tmp_path):
     """
     # Use full path on initial styles
     project.pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
         style = ["{base_url}/main", "{base_url}/styles/black.toml"]
         {common_pyproject}
-        """.format(
-            base_url=base_url, common_pyproject=common_pyproject
-        )
+        """
     ).simulate_run().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
@@ -375,13 +368,11 @@ def test_relative_style_on_urls(tmp_path):
 
     # Reuse the first full path that appears
     project.pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
-        style = ["{}/main.toml", "styles/black"]
-        {}
-        """.format(
-            base_url, common_pyproject
-        )
+        style = ["{base_url}/main.toml", "styles/black"]
+        {common_pyproject}
+        """
     ).simulate_run().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
@@ -392,13 +383,11 @@ def test_relative_style_on_urls(tmp_path):
 
     # Allow relative paths
     project.pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
-        style = ["{}/styles/black.toml", "../poetry"]
-        {}
-        """.format(
-            base_url, common_pyproject
-        )
+        style = ["{base_url}/styles/black.toml", "../poetry"]
+        {common_pyproject}
+        """
     ).simulate_run().assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
@@ -412,11 +401,53 @@ def test_relative_style_on_urls(tmp_path):
 
 
 @responses.activate
+@XFAIL_ON_WINDOWS
+def test_local_style_should_override_settings(tmp_path):
+    """Don't build relative URLs from local file names (starting with "./")."""
+    remote_url = "https://example.com/remote-style.toml"
+    remote_style = """
+        ["pyproject.toml".tool.black]
+        line-length = 100
+    """
+    responses.add(responses.GET, remote_url, dedent(remote_style), status=200)
+
+    local_file = "local-file.toml"
+    local_style = """
+        ["pyproject.toml".tool.black]
+        line-length = 120
+    """
+
+    ProjectMock(tmp_path).pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = [
+          "{remote_url}",
+          "{DOT_SLASH}{local_file}",
+        ]
+
+        [tool.black]
+        line-length = 80
+        """
+    ).named_style(local_file, local_style).api_check().assert_violations(
+        Fuss(
+            False,
+            PYPROJECT_TOML,
+            319,
+            " has different values. Use this:",
+            """
+            [tool.black]
+            line-length = 120
+            """,
+        )
+    )
+
+
+@responses.activate
 def test_fetch_private_github_urls(tmp_path):
     """Fetch private GitHub URLs with a token on the query string."""
     base_url = "https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style"
     query_string = "?token=xxx"
-    full_private_url = "{}{}{}".format(base_url, TOML_EXTENSION, query_string)
+    full_private_url = f"{base_url}{TOML_EXTENSION}{query_string}"
     body = """
         ["pyproject.toml".tool.black]
         missing = "thing"
@@ -424,12 +455,10 @@ def test_fetch_private_github_urls(tmp_path):
     responses.add(responses.GET, full_private_url, dedent(body), status=200)
 
     project = ProjectMock(tmp_path).pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
-        style = "{}{}"
-        """.format(
-            base_url, query_string
-        )
+        style = "{base_url}{query_string}"
+        """
     )
     project.simulate_run(offline=False).assert_single_error(
         """
@@ -519,9 +548,9 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
             "style.1: Shorter than minimum length 1.\nstyle.2: Shorter than minimum length 1.",
         ),
     ]:
-        project.pyproject_toml("[tool.nitpick]\n{}".format(style)).simulate_run(offline=offline).assert_errors_contain(
+        project.pyproject_toml(f"[tool.nitpick]\n{style}").simulate_run(offline=offline).assert_errors_contain(
             "NIP001 File pyproject.toml has an incorrect style."
-            + " Invalid data in [tool.nitpick]:\x1b[32m\n{}\x1b[0m".format(error_message),
+            + f" Invalid data in [tool.nitpick]:\x1b[32m\n{error_message}\x1b[0m",
             1,
         )
 
@@ -563,16 +592,14 @@ def test_invalid_nitpick_files(offline, tmp_path):
     ).simulate_run(
         offline=offline
     ).assert_errors_contain(
-        """
+        f"""
         NIP001 File some_style.toml has an incorrect style. Invalid config:\x1b[32m
-        xxx: Unknown file. See https://nitpick.rtfd.io/en/latest/plugins.html.\x1b[0m
+        xxx: Unknown file. See {READ_THE_DOCS_URL}plugins.html.\x1b[0m
         """
     ).assert_errors_contain(
-        """
+        f"""
         NIP001 File wrong_files.toml has an incorrect style. Invalid config:\x1b[32m
-        nitpick.files.whatever: Unknown file. See {}nitpick_section.html#nitpick-files.\x1b[0m
-        """.format(
-            READ_THE_DOCS_URL
-        ),
+        nitpick.files.whatever: Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.\x1b[0m
+        """,
         2,
     )
