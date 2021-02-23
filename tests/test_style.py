@@ -401,6 +401,7 @@ def test_relative_style_on_urls(tmp_path):
 
 
 @responses.activate
+@XFAIL_ON_WINDOWS
 def test_local_style_should_override_settings(tmp_path):
     """Don't build relative URLs from local file names (starting with "./")."""
     remote_url = "https://example.com/remote-style.toml"
