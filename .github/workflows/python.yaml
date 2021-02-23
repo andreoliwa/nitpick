@@ -65,10 +65,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-      - name: Echo
-        run: |
-          echo github.event_name=${{ github.event_name }}
-          echo github.ref=${{ github.ref }}
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -109,6 +105,7 @@ jobs:
             @semantic-release/exec@5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_TEST_PASSWORD: ${{ secrets.TWINE_TEST_PASSWORD }}
       - name: New release published
