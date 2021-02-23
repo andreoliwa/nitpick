@@ -13,7 +13,7 @@ def test_pre_commit_has_no_configuration(tmp_path):
 
     Also the file should not be deleted unless explicitly asked.
     """
-    ProjectMock(tmp_path).style("").pre_commit("").simulate_run().assert_no_errors()
+    ProjectMock(tmp_path).style("").pre_commit("").api_check_then_apply()
 
 
 def test_pre_commit_referenced_in_style(tmp_path):

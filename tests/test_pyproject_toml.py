@@ -6,7 +6,7 @@ from tests.helpers import ProjectMock
 
 def test_pyproject_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(tmp_path).style("").pyproject_toml("").simulate_run().assert_no_errors()
+    ProjectMock(tmp_path).style("").pyproject_toml("").api_check_then_apply()
 
 
 def test_suggest_initial_contents(tmp_path):

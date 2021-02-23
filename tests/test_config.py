@@ -18,26 +18,21 @@ def test_singleton():
 
 def test_no_root_dir(tmp_path):
     """No root dir."""
-    ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py").simulate_run(
-        api=False
-    ).assert_single_error("NIP101 No root dir found (is this a Python project?)")
+    ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py").flake8().assert_single_error(
+        "NIP101 No root dir found (is this a Python project?)"
+    )
 
 
 def test_multiple_root_dirs(tmp_path):
     """Multiple possible "root dirs" found (e.g.: a requirements.txt file inside a docs dir)."""
     ProjectMock(tmp_path, setup_py=False).touch_file("docs/requirements.txt").touch_file("docs/conf.py").pyproject_toml(
         ""
-    ).style("").simulate_run().assert_no_errors().cli_run()
+    ).style("").api_check_then_apply().cli_run()
 
 
 def test_no_python_file_root_dir(tmp_path):
     """No Python file on the root dir."""
-    project = (
-        ProjectMock(tmp_path, setup_py=False)
-        .pyproject_toml("")
-        .save_file("whatever.sh", "", lint=True)
-        .simulate_run(api=False)
-    )
+    project = ProjectMock(tmp_path, setup_py=False).pyproject_toml("").save_file("whatever.sh", "", lint=True).flake8()
     project.assert_single_error(
         f"NIP102 No Python file was found on the root dir and subdir of {str(project.root_dir)!r}"
     )
@@ -63,7 +58,7 @@ def test_at_least_one_python_file(python_file, error, tmp_path):
             """
         )
         .save_file(python_file, "", lint=True)
-        .simulate_run()
+        .flake8()
     )
     if error:
         project.assert_single_error(
@@ -94,4 +89,4 @@ def test_django_project_structure(tmp_path):
         ["setup.cfg".flake8]
         some = "thing"
         """
-    ).simulate_run().assert_no_errors()
+    ).api_check_then_apply()

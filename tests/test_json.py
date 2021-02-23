@@ -161,7 +161,7 @@ def test_jsonfile_deprecated(tmp_path):
             ["my.json"]
             contains_keys = ["x"]
             """
-        ).save_file("my.json", '{"x":1}').simulate_run(api=False).assert_no_errors()
+        ).save_file("my.json", '{"x":1}').flake8().assert_no_errors()
 
         assert len(captured) == 1
         assert issubclass(captured[-1].category, DeprecationWarning)

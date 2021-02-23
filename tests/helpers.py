@@ -76,6 +76,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
+    # FIXME[AA]: this method should be private, only called by flake8() and api_*() methods
     def simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, apply=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
@@ -152,7 +153,7 @@ class ProjectMock:
         :return: File contents, or ``one`` when the file doesn't exist.
         """
         path = self.root_dir / filename
-        if not path.exists():
+        if not filename or not path.exists():
             return None
         return path.read_text().strip()
 
