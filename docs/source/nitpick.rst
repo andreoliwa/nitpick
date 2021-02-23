@@ -23,6 +23,7 @@ Submodules
    nitpick.cli
    nitpick.constants
    nitpick.core
+   nitpick.enums
    nitpick.exceptions
    nitpick.fields
    nitpick.flake8

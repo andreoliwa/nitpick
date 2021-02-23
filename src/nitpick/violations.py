@@ -31,7 +31,7 @@ class Fuss:
     @property
     def colored_suggestion(self) -> str:
         """Suggestion with color."""
-        return click.style("\n{}".format(self.suggestion.rstrip()), fg="green") if self.suggestion else ""
+        return click.style(f"\n{self.suggestion.rstrip()}", fg="green") if self.suggestion else ""
 
     @property
     def pretty(self) -> str:

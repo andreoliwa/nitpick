@@ -123,9 +123,7 @@ def generate_defaults(filename: str):
 
     if missing:
         click.secho(
-            "ERROR: Add missing style files to the 'style_mapping' var in '{}', as file/header pairs. Example:".format(
-                __file__
-            ),
+            f"ERROR: Add missing style files to the 'style_mapping' var in '{__file__}', as file/header pairs. Example:",
             fg="red",
         )
         pprint(missing)

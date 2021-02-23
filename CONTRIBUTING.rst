@@ -77,6 +77,6 @@ For merging, you should:
 3. Add yourself to ``AUTHORS.rst``.
 
 .. [1] If you don't have all the necessary python versions available locally you can rely on Travis - it will
-       `run the tests <https://travis-ci.com/andreoliwa/nitpick/pull_requests>`_ for each change you add in the pull request.
+       `run the tests <https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml>`_ for each change you add in the pull request.
 
        It will be slower though ...

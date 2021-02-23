@@ -65,7 +65,7 @@ update-poetry: # Update Poetry dependencies
 	poetry update
 .PHONY: update-poetry
 
-lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry # Lint the project (tox running pre-commit, flake8)
+lint .cache/make/lint: .github/*/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry # Lint the project (tox running pre-commit, flake8)
 	tox -e lint
 	touch .cache/make/lint
 .PHONY: lint

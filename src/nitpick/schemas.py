@@ -15,11 +15,9 @@ def flatten_marshmallow_errors(errors: Dict) -> str:
     formatted = []
     for field, data in SortedDict(flatten(errors)).items():
         if isinstance(data, list):
-            messages_per_field = ["{}: {}".format(field, ", ".join(data))]  # TODO: .format() to f-strings
+            messages_per_field = [f"{field}: {', '.join(data)}"]
         elif isinstance(data, dict):
-            messages_per_field = [
-                "{}[{}]: {}".format(field, index, ", ".join(messages)) for index, messages in data.items()
-            ]
+            messages_per_field = [f"{field}[{index}]: {', '.join(messages)}" for index, messages in data.items()]
         else:
             # This should never happen; if it does, let's just convert to a string
             messages_per_field = [str(errors)]
@@ -30,7 +28,7 @@ def flatten_marshmallow_errors(errors: Dict) -> str:
 def help_message(sentence: str, help_page: str) -> str:
     """Show help with the documentation URL on validation errors."""
     clean_sentence = sentence.strip(" .")
-    return "{}. See {}{}.".format(clean_sentence, READ_THE_DOCS_URL, help_page)
+    return f"{clean_sentence}. See {READ_THE_DOCS_URL}{help_page}."
 
 
 class BaseNitpickSchema(Schema):

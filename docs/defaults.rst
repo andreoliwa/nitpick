@@ -26,7 +26,7 @@ Content of `styles/absent-files.toml <https://raw.githubusercontent.com/andreoli
     "Pipfile" = "Use pyproject.toml instead"
     "Pipfile.lock" = "Use pyproject.toml instead"
     ".venv" = ""
-    ".pyup.yml" = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
+    ".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
 .. _default-black:
 
