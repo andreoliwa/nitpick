@@ -378,7 +378,7 @@ def test_missing_different_values(tmp_path):
         """
         NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[32m
           - repo: https://github.com/pre-commit/mirrors-mypy
-            rev: v0.800
+            rev: v0.812
             hooks:
               - id: mypy\x1b[0m
         """

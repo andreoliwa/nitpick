@@ -59,7 +59,7 @@ repos:
             yesqa,
           ]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.800
+    rev: v0.812
     hooks:
       - id: mypy
   # Run pylint with tox, because local repos don't seem to work well with https://pre-commit.ci/
