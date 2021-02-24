@@ -105,9 +105,9 @@ class ProjectMock:
 
         return self
 
-    def flake8(self):
+    def flake8(self, offline=False):
         """Test only the flake8 plugin, no API."""
-        return self.simulate_run(api=False)
+        return self.simulate_run(offline=offline, api=False)
 
     def api_check(self, *partial_names: str):
         """Test only the API in check mode, no flake8 plugin."""
