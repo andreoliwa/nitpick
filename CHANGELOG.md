@@ -1,23 +1,21 @@
 # [0.24.0](https://github.com/andreoliwa/nitpick/compare/v0.23.1...v0.24.0) (2021-02-23)
 
-
 ### Bug Fixes
 
-* check a YAML file with the text plugin ([#249](https://github.com/andreoliwa/nitpick/issues/249)) ([1821962](https://github.com/andreoliwa/nitpick/commit/1821962a2a1fce898d93a9e81a8663d9ae7c2aed))
-* override a remote style with "./your-local-style.toml" ([#295](https://github.com/andreoliwa/nitpick/issues/295)) ([fe5f085](https://github.com/andreoliwa/nitpick/commit/fe5f085ef5200111ce4f4a2288a84091a96438e2))
-* toml module now accepts keys beginning with dot (fix [#183](https://github.com/andreoliwa/nitpick/issues/183)) ([b086a24](https://github.com/andreoliwa/nitpick/commit/b086a24c5503c09e26ca429455bd4fea54cf01bb))
-* validate sections in comma_separated_values (fix [#227](https://github.com/andreoliwa/nitpick/issues/227)) ([f1be98f](https://github.com/andreoliwa/nitpick/commit/f1be98f985ebcfc7e402f22271b428452a2f140b))
-
+- check a YAML file with the text plugin ([#249](https://github.com/andreoliwa/nitpick/issues/249)) ([1821962](https://github.com/andreoliwa/nitpick/commit/1821962a2a1fce898d93a9e81a8663d9ae7c2aed))
+- override a remote style with "./your-local-style.toml" ([#295](https://github.com/andreoliwa/nitpick/issues/295)) ([fe5f085](https://github.com/andreoliwa/nitpick/commit/fe5f085ef5200111ce4f4a2288a84091a96438e2))
+- toml module now accepts keys beginning with dot (fix [#183](https://github.com/andreoliwa/nitpick/issues/183)) ([b086a24](https://github.com/andreoliwa/nitpick/commit/b086a24c5503c09e26ca429455bd4fea54cf01bb))
+- validate sections in comma_separated_values (fix [#227](https://github.com/andreoliwa/nitpick/issues/227)) ([f1be98f](https://github.com/andreoliwa/nitpick/commit/f1be98f985ebcfc7e402f22271b428452a2f140b))
 
 ### Features
 
-* apply changes to pyproject.toml ([#287](https://github.com/andreoliwa/nitpick/issues/287)) ([4b79f81](https://github.com/andreoliwa/nitpick/commit/4b79f81f98430b749e7fa9ee5c192506d6ed5cf7))
-* apply changes to setup.cfg ([#288](https://github.com/andreoliwa/nitpick/issues/288)) ([f878630](https://github.com/andreoliwa/nitpick/commit/f87863066642cdab112d3145c488c9a780e7c98d))
-* **cli:** add 'ls' command to list configured files ([cfc031b](https://github.com/andreoliwa/nitpick/commit/cfc031bdf30105dec9a8952bfb9657aec939b3b6))
-* **cli:** add 'run' command to display violations ([a67bfa8](https://github.com/andreoliwa/nitpick/commit/a67bfa8bdaef2461853a237819cd35622c5935e9))
-* **cli:** filter only the desired files on ls/run commands ([#265](https://github.com/andreoliwa/nitpick/issues/265)) ([f5e4a9c](https://github.com/andreoliwa/nitpick/commit/f5e4a9c47583cd809941ca96ec2ffbdbf0c92c6f))
-* drop support for Python 3.5 ([#251](https://github.com/andreoliwa/nitpick/issues/251)) ([9f84a60](https://github.com/andreoliwa/nitpick/commit/9f84a608a4ca02e8a96ec8eaaf55e5cb207b35e3)), closes [#250](https://github.com/andreoliwa/nitpick/issues/250)
-* experimental CLI interface (alpha version) ([#255](https://github.com/andreoliwa/nitpick/issues/255)) ([c9ca5dc](https://github.com/andreoliwa/nitpick/commit/c9ca5dc3cc4586b459e2c58fb2e61d80aa3f1e5d))
+- apply changes to pyproject.toml ([#287](https://github.com/andreoliwa/nitpick/issues/287)) ([4b79f81](https://github.com/andreoliwa/nitpick/commit/4b79f81f98430b749e7fa9ee5c192506d6ed5cf7))
+- apply changes to setup.cfg ([#288](https://github.com/andreoliwa/nitpick/issues/288)) ([f878630](https://github.com/andreoliwa/nitpick/commit/f87863066642cdab112d3145c488c9a780e7c98d))
+- **cli:** add 'ls' command to list configured files ([cfc031b](https://github.com/andreoliwa/nitpick/commit/cfc031bdf30105dec9a8952bfb9657aec939b3b6))
+- **cli:** add 'run' command to display violations ([a67bfa8](https://github.com/andreoliwa/nitpick/commit/a67bfa8bdaef2461853a237819cd35622c5935e9))
+- **cli:** filter only the desired files on ls/run commands ([#265](https://github.com/andreoliwa/nitpick/issues/265)) ([f5e4a9c](https://github.com/andreoliwa/nitpick/commit/f5e4a9c47583cd809941ca96ec2ffbdbf0c92c6f))
+- drop support for Python 3.5 ([#251](https://github.com/andreoliwa/nitpick/issues/251)) ([9f84a60](https://github.com/andreoliwa/nitpick/commit/9f84a608a4ca02e8a96ec8eaaf55e5cb207b35e3)), closes [#250](https://github.com/andreoliwa/nitpick/issues/250)
+- experimental CLI interface (alpha version) ([#255](https://github.com/andreoliwa/nitpick/issues/255)) ([c9ca5dc](https://github.com/andreoliwa/nitpick/commit/c9ca5dc3cc4586b459e2c58fb2e61d80aa3f1e5d))
 
 ## [0.23.1](https://github.com/andreoliwa/nitpick/compare/v0.23.0...v0.23.1) (2020-11-02)
 
