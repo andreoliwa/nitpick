@@ -16,7 +16,7 @@ def test_suggest_initial_contents(tmp_path):
         [nitpick.files.present]
         "pyproject.toml" = "Do something"
         """
-    ).simulate_run().assert_errors_contain(f"NIP103 File {PYPROJECT_TOML} should exist: Do something").cli_run(
+    ).api_check_then_apply(Fuss(False, PYPROJECT_TOML, 103, " should exist: Do something")).cli_run(
         f"{PYPROJECT_TOML}:1: NIP103  should exist: Do something", violations=1
     )
 

@@ -1,4 +1,5 @@
 """Text file tests."""
+from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
 
@@ -13,12 +14,17 @@ def test_suggest_initial_contents(tmp_path):
         [["requirements.txt".contains]]
         line = "some-package==1.0.0"
         """
-    ).simulate_run().assert_errors_contain(
-        """
-        NIP351 File requirements.txt was not found. Create it with this content:\x1b[32m
-        sphinx>=1.3.0
-        some-package==1.0.0\x1b[0m
-        """
+    ).api_check_then_apply(
+        Fuss(
+            False,
+            "requirements.txt",
+            351,
+            " was not found. Create it with this content:",
+            """
+            sphinx>=1.3.0
+            some-package==1.0.0
+            """,
+        )
     )
 
 
@@ -37,7 +43,7 @@ def test_text_configuration(tmp_path):
         ["ghi.txt".whatever]
         wrong = "everything"
         """
-    ).simulate_run(api=False).assert_errors_contain(
+    ).flake8().assert_errors_contain(
         """
         NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
         "abc.txt".contains.0.invalid: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.
@@ -60,12 +66,17 @@ def test_text_file_contains_line(tmp_path):
         [["my.txt".contains]]
         line = "www"
         """
-    ).save_file("my.txt", "def\nghi\nwww").simulate_run().assert_errors_contain(
-        """
-        NIP352 File my.txt has missing lines:\x1b[32m
-        abc
-        qqq\x1b[0m
-        """
+    ).save_file("my.txt", "def\nghi\nwww").api_check_then_apply(
+        Fuss(
+            False,
+            "my.txt",
+            352,
+            " has missing lines:",
+            """
+            abc
+            qqq
+            """,
+        )
     )
 
 
@@ -82,3 +93,7 @@ def test_yaml_file_as_text(tmp_path):
             - mypy -p ims --junit-xml report-mypy.xml\x1b[0m
         """
     )
+    # FIXME[AA]: how to keep whitespace at the beginning?
+    # ).save_file(".gitlab-ci.yml", "def\nghi\nwww").api_check_then_apply(
+    #     Fuss(False, ".gitlab-ci.yml", 352, " has missing lines:", "    - mypy -p ims --junit-xml report-mypy.xml")
+    # )
