@@ -69,8 +69,8 @@ class Violations(ViolationEnum):
     REPO_DOES_NOT_EXIST = (333, ": repo {repo!r} does not exist under {key!r}")
     MISSING_KEY_IN_REPO = (334, ": missing {key!r} in repo {repo!r}")
     STYLE_FILE_MISSING_NAME = (335, ": style file is missing {key!r} in repo {repo!r}")
-    MISSING_KEY_IN_HOOK = (336, ": style file is missing {key!r} in hook:\n{yaml}")
-    MISSING_HOOK_WITH_ID = (337, ": missing hook with id {id!r}:\n{yaml}")
+    MISSING_KEY_IN_HOOK = (336, ": style file is missing {key!r} in hook:")
+    MISSING_HOOK_WITH_ID = (337, ": missing hook with id {id!r}:")
 
 
 class PreCommitPlugin(NitpickPlugin):
@@ -187,12 +187,12 @@ class PreCommitPlugin(NitpickPlugin):
             hook_id = expected_dict.get(KEY_ID)
             expected_yaml = self.format_hook(expected_dict).rstrip()
             if not hook_id:
-                yield self.reporter.make_fuss(Violations.MISSING_KEY_IN_HOOK, key=KEY_ID, yaml=expected_yaml)
+                yield self.reporter.make_fuss(Violations.MISSING_KEY_IN_HOOK, expected_yaml, key=KEY_ID)
                 continue
 
             actual_dict = find_object_by_key(actual_hooks, KEY_ID, hook_id)
             if not actual_dict:
-                yield self.reporter.make_fuss(Violations.MISSING_HOOK_WITH_ID, id=hook_id, yaml=expected_yaml)
+                yield self.reporter.make_fuss(Violations.MISSING_HOOK_WITH_ID, expected_yaml, id=hook_id)
                 continue
 
     @staticmethod

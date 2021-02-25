@@ -241,7 +241,7 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
         style = ["{another_dir}/main", "{another_dir}/styles/black"]
         {common_pyproject}
         """
-    ).simulate_run(offline=offline).assert_single_error(
+    ).flake8(offline=offline).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
@@ -271,7 +271,7 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
         style = ["{another_dir}/styles/black", "../poetry"]
         {common_pyproject}
         """
-    ).simulate_run(offline=offline).assert_single_error(
+    ).flake8(offline=offline).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
@@ -460,14 +460,14 @@ def test_fetch_private_github_urls(tmp_path):
         style = "{base_url}{query_string}"
         """
     )
-    project.simulate_run(offline=False).assert_single_error(
+    project.flake8(offline=False).assert_single_error(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
         [tool.black]
         missing = "thing"\x1b[0m
-    """
+        """
     )
-    project.simulate_run(offline=True).assert_no_errors()
+    project.flake8(offline=True).assert_no_errors()
 
 
 @pytest.mark.parametrize("offline", [False, True])
@@ -548,7 +548,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
             "style.1: Shorter than minimum length 1.\nstyle.2: Shorter than minimum length 1.",
         ),
     ]:
-        project.pyproject_toml(f"[tool.nitpick]\n{style}").simulate_run(offline=offline).assert_errors_contain(
+        project.pyproject_toml(f"[tool.nitpick]\n{style}").flake8(offline=offline).assert_errors_contain(
             "NIP001 File pyproject.toml has an incorrect style."
             + f" Invalid data in [tool.nitpick]:\x1b[32m\n{error_message}\x1b[0m",
             1,

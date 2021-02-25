@@ -31,6 +31,9 @@ from nitpick.violations import Fuss, Reporter
 FIXTURES_DIR: Path = Path(__file__).parent / "fixtures"
 STYLES_DIR: Path = Path(__file__).parent.parent / "styles"
 
+# Non-breaking space
+NBSP = "\xc2\xa0"
+
 # TODO: fix Windows tests
 XFAIL_ON_WINDOWS = pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 
@@ -255,24 +258,6 @@ class ProjectMock:
         self._assert_error_count(expected_error, expected_count)
         return self
 
-    def assert_errors_contain_unordered(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
-        """Assert the lines of the error is in the error set, in any order.
-
-        I couldn't find a quick way to guarantee the order of the output with ``ruamel.yaml``.
-        """
-        # TODO Once there is a way to force some sorting on the YAML output, this method can be removed,
-        #  and ``assert_errors_contain()`` can be used again.
-        original_expected_error = dedent(raw_error).strip()
-        expected_error = original_expected_error.replace("\x1b[0m", "")
-        expected_error_lines = set(expected_error.split("\n"))
-        for actual_error in self._flake8_errors_as_string:
-            if set(actual_error.replace("\x1b[0m", "").split("\n")) == expected_error_lines:
-                self._assert_error_count(raw_error, expected_count)
-                return self
-
-        self.raise_assertion_error(original_expected_error)
-        return self
-
     def assert_single_error(self, raw_error: str) -> "ProjectMock":
         """Assert there is only one error."""
         return self.assert_errors_contain(raw_error, 1)
@@ -303,7 +288,10 @@ class ProjectMock:
                 fixed += 1
             else:
                 manual += 1
-            stripped.add(Fuss(orig.fixed, orig.filename, orig.code, orig.message, dedent(orig.suggestion).strip()))
+
+            # Keep non-breaking space needed by some tests (e.g. YAML)
+            clean_suggestion = dedent(orig.suggestion).strip().replace(NBSP, " ")
+            stripped.add(Fuss(orig.fixed, orig.filename, orig.code, orig.message, clean_suggestion))
         dict_difference = compare(
             expected=[obj.__dict__ for obj in stripped],
             actual=[obj.__dict__ for obj in self._actual_violations],

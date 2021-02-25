@@ -1,6 +1,6 @@
 """Text file tests."""
 from nitpick.violations import Fuss
-from tests.helpers import ProjectMock
+from tests.helpers import NBSP, ProjectMock
 
 
 def test_suggest_initial_contents(tmp_path):
@@ -87,13 +87,8 @@ def test_yaml_file_as_text(tmp_path):
         [[".gitlab-ci.yml".contains]]
         line = "    - mypy -p ims --junit-xml report-mypy.xml"
         """
-    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").simulate_run().assert_errors_contain(
-        """
-        NIP352 File .gitlab-ci.yml has missing lines:\x1b[32m
-            - mypy -p ims --junit-xml report-mypy.xml\x1b[0m
-        """
+    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").api_check_then_apply(
+        Fuss(
+            False, ".gitlab-ci.yml", 352, " has missing lines:", f"{NBSP * 4}- mypy -p ims --junit-xml report-mypy.xml"
+        )
     )
-    # FIXME[AA]: how to keep whitespace at the beginning?
-    # ).save_file(".gitlab-ci.yml", "def\nghi\nwww").api_check_then_apply(
-    #     Fuss(False, ".gitlab-ci.yml", 352, " has missing lines:", "    - mypy -p ims --junit-xml report-mypy.xml")
-    # )
