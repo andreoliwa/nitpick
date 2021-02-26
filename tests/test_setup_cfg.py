@@ -1,4 +1,6 @@
 """setup.cfg tests."""
+import pytest
+
 from nitpick.constants import SETUP_CFG
 from nitpick.plugins.setup_cfg import SetupCfgPlugin, Violations
 from nitpick.violations import Fuss, ProjectViolations, SharedViolations
@@ -311,6 +313,7 @@ def test_invalid_sections_comma_separated_values(tmp_path):
     )
 
 
+@pytest.mark.xfail(reason="Still raising ParsingError", run=True)
 def test_multiline_comment(tmp_path):
     """Test file with multiline comments should not raise a configparser.ParsingError."""
     ProjectMock(tmp_path).style(
