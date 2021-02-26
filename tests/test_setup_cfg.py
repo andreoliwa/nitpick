@@ -313,14 +313,7 @@ def test_invalid_sections_comma_separated_values(tmp_path):
 
 def test_multiline_comment(tmp_path):
     """Test file with multiline comments should not raise a configparser.ParsingError."""
-    ProjectMock(tmp_path).style(
-        """
-        ["setup.cfg".flake8]
-        new = "value"
-        """
-    ).setup_cfg(
-        """
-
+    original_file = """
         [flake8]
         exclude =
           # Trash and cache:
@@ -333,7 +326,12 @@ def test_multiline_comment(tmp_path):
           # Bad code that I write to test things:
           ex.py
         """
-    ).api_apply().assert_violations(
+    ProjectMock(tmp_path).style(
+        """
+        ["setup.cfg".flake8]
+        new = "value"
+        """
+    ).setup_cfg(original_file).api_apply().assert_violations(
         Fuss(
             True,
             SETUP_CFG,
@@ -343,21 +341,20 @@ def test_multiline_comment(tmp_path):
             [flake8]
             new = value
             """,
-        )
+        ),
+        Fuss(
+            False,
+            SETUP_CFG,
+            326,
+            ": parsing error: Source contains parsing errors: '<string>'"
+            "\n\t[line  4]: '  .git\\n'"
+            "\n\t[line  5]: '  __pycache__\\n'"
+            "\n\t[line  6]: '  .venv\\n'"
+            "\n\t[line  7]: '  .eggs\\n'"
+            "\n\t[line  8]: '  *.egg\\n'"
+            "\n\t[line  9]: '  temp\\n'"
+            "\n\t[line 11]: '  ex.py\\n'",
+        ),
     ).assert_file_contents(
-        SETUP_CFG,
-        """
-        [flake8]
-        exclude =
-          # Trash and cache:
-          .git
-          __pycache__
-          .venv
-          .eggs
-          *.egg
-          temp
-          # Bad code that I write to test things:
-          ex.py
-        new = value
-        """,
+        SETUP_CFG, original_file
     )

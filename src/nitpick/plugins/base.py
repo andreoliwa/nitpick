@@ -85,7 +85,9 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             yield from self.enforce_rules()
 
         if should_write and self.apply:
-            self.write_file(file_exists)
+            fuss = self.write_file(file_exists)
+            if fuss:
+                yield fuss
 
     def init(self):
         """Hook for plugin initialization after the instance was created."""
@@ -101,8 +103,9 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         else:
             yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
-    def write_file(self, file_exists: bool) -> None:
+    def write_file(self, file_exists: bool) -> Optional[Fuss]:  # pylint: disable=unused-argument,no-self-use
         """Hook to write the new file when apply mode is on. Should be used by inherited classes."""
+        return None
 
     @abc.abstractmethod
     def enforce_rules(self) -> Iterator[Fuss]:

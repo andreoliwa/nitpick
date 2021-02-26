@@ -1,5 +1,5 @@
 """Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`."""
-from configparser import ConfigParser
+from configparser import ConfigParser, ParsingError
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
@@ -24,6 +24,7 @@ class Violations(ViolationEnum):
     KEY_HAS_DIFFERENT_VALUE = (323, ": [{section}]{key} is {actual} but it should be like this:")
     MISSING_KEY_VALUE_PAIRS = (324, ": section [{section}] has some missing key/value pairs. Use this:")
     INVALID_COMMA_SEPARATED_VALUES_SECTION = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
+    PARSING_ERROR = (326, ": parsing error: {err}")
 
 
 class SetupCfgPlugin(NitpickPlugin):
@@ -64,12 +65,16 @@ class SetupCfgPlugin(NitpickPlugin):
         """Missing sections."""
         return self.expected_sections - self.current_sections
 
-    def write_file(self, file_exists: bool) -> None:
+    def write_file(self, file_exists: bool) -> Optional[Fuss]:
         """Write the new file."""
-        if file_exists:
-            self.updater.update_file()
-        else:
-            self.updater.write(self.file_path.open("w"))
+        try:
+            if file_exists:
+                self.updater.update_file()
+            else:
+                self.updater.write(self.file_path.open("w"))
+        except ParsingError as err:
+            return self.reporter.make_fuss(Violations.PARSING_ERROR, err=str(err))
+        return None
 
     def get_missing_output(self) -> str:
         """Get a missing output string example from the missing sections in setup.cfg."""
