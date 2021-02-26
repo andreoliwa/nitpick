@@ -69,7 +69,7 @@ def doc(c):
 
 
 @task
-def ci(c, full=False, recreate=False):
+def ci_build(c, full=False, recreate=False):
     """Simulate a CI build."""
     tox_cmd = "tox -r" if recreate else "tox"
     if full:
@@ -79,6 +79,6 @@ def ci(c, full=False, recreate=False):
         c.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
 
 
-namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci)
+namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci_build)
 # Echo all commands in all tasks by default (like 'make' does)
 namespace.configure({"run": {"echo": True}})
