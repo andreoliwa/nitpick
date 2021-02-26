@@ -1,6 +1,6 @@
 {
   "name": "nitpick",
-  "version": "0.23.1",
+  "version": "0.24.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/andreoliwa/nitpick.git"
@@ -33,7 +33,8 @@
             "package.json",
             "docs/conf.py",
             "docs/targets.rst",
-            "docs/installation_guide.rst",
+            "docs/quickstart.rst",
+            "docs/tool_nitpick_section.rst",
             "nitpick-style.toml",
             "README.md",
             "CHANGELOG.md"

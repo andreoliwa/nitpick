@@ -7,7 +7,7 @@ from marshmallow.orderedset import OrderedSet
 from nitpick import fields
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.schemas import help_message
 from nitpick.violations import Fuss, ViolationEnum
 
@@ -31,7 +31,7 @@ class TextSchema(Schema):
 class Violations(ViolationEnum):
     """Violations for this plugin."""
 
-    MissingLines = (352, " has missing lines:")
+    MISSING_LINES = (352, " has missing lines:")
 
 
 class TextPlugin(NitpickPlugin):
@@ -58,9 +58,10 @@ class TextPlugin(NitpickPlugin):
     violation_base_code = 350
 
     def _expected_lines(self):
-        return [obj.get("line") for obj in self.file_dict.get("contains", {})]
+        return [obj.get("line") for obj in self.expected_config.get("contains", {})]
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         return "\n".join(self._expected_lines())
 
@@ -70,7 +71,7 @@ class TextPlugin(NitpickPlugin):
         actual = OrderedSet(self.file_path.read_text().split("\n"))
         missing = expected - actual
         if missing:
-            yield self.reporter.make_fuss(Violations.MissingLines, "\n".join(sorted(missing)))
+            yield self.reporter.make_fuss(Violations.MISSING_LINES, "\n".join(sorted(missing)))
 
 
 @hookimpl
@@ -80,8 +81,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle text files."""
-    if TextPlugin.identify_tags & data.tags:
-        return TextPlugin(data)
+    if TextPlugin.identify_tags & info.tags:
+        return TextPlugin
     return None

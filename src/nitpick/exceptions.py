@@ -30,8 +30,7 @@ class Deprecation:
 
         if path_from_root == PreCommitPlugin.filename[1:]:
             warnings.warn(
-                'The section name for dotfiles should start with a dot: [".{}"]'.format(path_from_root),
-                DeprecationWarning,
+                f'The section name for dotfiles should start with a dot: [".{path_from_root}"]', DeprecationWarning
             )
             return True
 

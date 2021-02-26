@@ -7,7 +7,7 @@ line-length = 120
 
 [tool.poetry]
 name = "nitpick"
-version = "0.23.1"
+version = "0.24.0"
 description = "Enforce the same configuration across multiple projects"
 authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"
@@ -60,7 +60,7 @@ click = "*"
 marshmallow = {version = ">=3.0.0b10"}
 # Pin to avoid error on "flake8 ." when there is an invalid TOML style:
 # TypeError: _deserialize() got an unexpected keyword argument 'partial'
-marshmallow-polyfield = "^5.7"
+marshmallow-polyfield = "^5.10"
 identify = "*"
 "more-itertools" = "*"
 pluggy = "*"
@@ -73,6 +73,7 @@ sphinx_rtd_theme = {version = "*", optional = true}
 pydantic = "*"
 autorepr = "*"
 loguru = "*"
+ConfigUpdater = "*"
 
 [tool.poetry.extras]
 lint = ["pylint"]

@@ -18,6 +18,7 @@ from toml import TomlDecodeError
 from nitpick import __version__, fields
 from nitpick.constants import (
     CACHE_DIR_NAME,
+    DOT_SLASH,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
@@ -26,11 +27,12 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
+from nitpick.enums import OptionEnum
 from nitpick.exceptions import Deprecation, QuitComplainingError, pretty_exception
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.project import Project, climb_directory_tree
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema, flatten_marshmallow_errors
 from nitpick.typedefs import JsonDict, StrOrList, mypy_property
@@ -117,8 +119,8 @@ class Style:
             except TomlDecodeError as err:
                 # If the TOML itself could not be parsed, we can't go on
                 raise QuitComplainingError(
-                    Reporter(FileData(self.project, style_path.name)).make_fuss(
-                        StyleViolations.InvalidTOML, exception=pretty_exception(err)
+                    Reporter(FileInfo(self.project, style_path.name)).make_fuss(
+                        StyleViolations.INVALID_TOML, exception=pretty_exception(err)
                     )
                 ) from err
 
@@ -130,8 +132,8 @@ class Style:
             toml_dict, validation_errors = self._validate_config(read_toml_dict)
 
             if validation_errors:
-                yield Reporter(FileData(self.project, display_name)).make_fuss(
-                    StyleViolations.InvalidConfig, flatten_marshmallow_errors(validation_errors)
+                yield Reporter(FileInfo(self.project, display_name)).make_fuss(
+                    StyleViolations.INVALID_CONFIG, flatten_marshmallow_errors(validation_errors)
                 )
 
             self._all_styles.add(toml_dict)
@@ -144,14 +146,14 @@ class Style:
         validation_errors = {}
         toml_dict = OrderedDict()
         for key, value_dict in config_dict.items():
-            data = FileData.create(self.project, key)
-            toml_dict[data.path_from_root] = value_dict
+            info = FileInfo.create(self.project, key)
+            toml_dict[info.path_from_root] = value_dict
             if key == PROJECT_NAME:
                 schemas = [NitpickSectionSchema]
             else:
                 schemas = [
-                    plugin.validation_schema
-                    for plugin in self.plugin_manager.hook.can_handle(data=data)  # pylint: disable=no-member
+                    plugin_class.validation_schema
+                    for plugin_class in self.plugin_manager.hook.can_handle(info=info)  # pylint: disable=no-member
                 ]
                 if not schemas:
                     validation_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
@@ -159,7 +161,7 @@ class Style:
             all_errors = {}
             valid_schema = False
             for schema in schemas:
-                errors = self.validate_schema(schema, data.path_from_root, value_dict)
+                errors = self.validate_schema(schema, info.path_from_root, value_dict)
                 if not errors:
                     # When multiple schemas match a file type, exit when a valid schema is found
                     valid_schema = True
@@ -175,12 +177,19 @@ class Style:
         """Get the style path from the URI. Add the .toml extension if it's missing."""
         clean_style_uri = style_uri.strip()
 
-        style_path = None
-        if is_url(clean_style_uri) or is_url(self._first_full_path):
-            style_path = self.fetch_style_from_url(clean_style_uri)
+        remote = None
+        if clean_style_uri.startswith(DOT_SLASH):
+            remote = False
+        elif is_url(clean_style_uri) or is_url(self._first_full_path):
+            remote = True
         elif clean_style_uri:
-            style_path = self.fetch_style_from_local_path(clean_style_uri)
-        return style_path
+            remote = False
+
+        if remote is True:
+            return self.fetch_style_from_url(clean_style_uri)
+        if remote is False:
+            return self.fetch_style_from_local_path(clean_style_uri)
+        return None
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
@@ -209,18 +218,15 @@ class Style:
         try:
             response = requests.get(new_url)
         except requests.ConnectionError:
-            from nitpick.cli import NitpickFlag  # pylint: disable=import-outside-toplevel
-
             click.secho(
-                "Your network is unreachable. Fix your connection or use {} / {}=1".format(
-                    NitpickFlag.OFFLINE.as_flake8_flag(), NitpickFlag.OFFLINE.as_envvar()
-                ),
+                "Your network is unreachable. Fix your connection or use"
+                f" {OptionEnum.OFFLINE.as_flake8_flag()} / {OptionEnum.OFFLINE.as_envvar()}=1",
                 fg="red",
                 err=True,
             )
             return None
         if not response.ok:
-            raise FileNotFoundError("Error {} fetching style URL {}".format(response, new_url))
+            raise FileNotFoundError(f"Error {response} fetching style URL {new_url}")
 
         # Save the first full path to be used by the next files without parent.
         if not self._first_full_path:
@@ -242,7 +248,7 @@ class Style:
             partial_filename += TOML_EXTENSION
         expanded_path = Path(partial_filename).expanduser()
 
-        if not str(expanded_path).startswith("/") and self._first_full_path:
+        if self._first_full_path and not (str(expanded_path).startswith("/") or partial_filename.startswith(DOT_SLASH)):
             # Prepend the previous path to the partial file name.
             style_path = Path(self._first_full_path) / expanded_path
         else:

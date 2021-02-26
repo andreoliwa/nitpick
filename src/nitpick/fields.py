@@ -57,14 +57,14 @@ def validate_section_dot_field(section_field: str) -> bool:
     """Validate if the combination section/field has a dot separating them."""
     common = "Use <section_name>.<field_name>"
     if "." not in section_field:
-        raise ValidationError("Dot is missing. {}".format(common))
+        raise ValidationError(f"Dot is missing. {common}")
     parts = section_field.split(".")
     if len(parts) > 2:
-        raise ValidationError("There's more than one dot. {}".format(common))
+        raise ValidationError(f"There's more than one dot. {common}")
     if not parts[0].strip():
-        raise ValidationError("Empty section name. {}".format(common))
+        raise ValidationError(f"Empty section name. {common}")
     if not parts[1].strip():
-        raise ValidationError("Empty field name. {}".format(common))
+        raise ValidationError(f"Empty field name. {common}")
     return True
 
 

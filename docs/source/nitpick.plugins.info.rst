@@ -1,7 +1,7 @@
-nitpick.plugins.data module
+nitpick.plugins.info module
 ===========================
 
-.. automodule:: nitpick.plugins.data
+.. automodule:: nitpick.plugins.info
    :members:
    :undoc-members:
    :show-inheritance:

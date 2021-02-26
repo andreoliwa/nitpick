@@ -39,7 +39,7 @@ def test_no_python_file_root_dir(tmp_path):
         .simulate_run(api=False)
     )
     project.assert_single_error(
-        "NIP102 No Python file was found on the root dir and subdir of {!r}".format(str(project.root_dir))
+        f"NIP102 No Python file was found on the root dir and subdir of {str(project.root_dir)!r}"
     )
 
 

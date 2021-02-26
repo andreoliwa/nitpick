@@ -1,12 +1,12 @@
 .. include:: targets.rst
 
-.. _installation_guide:
+.. _quickstart:
 
-Installation guide
-==================
+Quickstart
+==========
 
-Quick setup
------------
+Install / Basic usage
+---------------------
 
 To try the package, simply install it (in a virtualenv or globally) and run flake8_ on a project with at least one Python (``.py``) file:
 
@@ -35,7 +35,7 @@ If you use pre-commit_ on your project (you should), add this to the ``.pre-comm
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.23.1
+        rev: v0.24.0
         hooks:
           - id: nitpick
 
@@ -51,3 +51,14 @@ To start checking all your code against the default rules:
 .. code-block:: shell
 
     pre-commit run --all-files
+
+Apply changes to files
+----------------------
+
+Nitpick_ includes a CLI to apply your style on the configuration files:
+
+.. code-block:: shell
+
+    nitpick run
+
+Read more details here: :ref:`cli`.

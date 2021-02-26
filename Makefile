@@ -15,7 +15,7 @@ help:
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
 
-quick: pytest nitpick pre-commit pylint # Run pytest and pre-commit fast, without tox
+quick: pytest nitpick pylint pre-commit # Run pytest and pre-commit fast, without tox
 .PHONY: quick
 
 full-build: .remove-old-cache .cache/make/long-pre-commit .cache/make/long-poetry .cache/make/lint .cache/make/test .cache/make/doc # Build the project fully, like in CI
@@ -37,7 +37,8 @@ clean-test: # Clean test output
 .PHONY: .remove-old-cache
 
 # Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy
-install-poetry .cache/make/long-poetry src/nitpick.egg-info/entry_points.txt: pyproject.toml # Install Poetry dependencies
+install-poetry .cache/make/long-poetry: pyproject.toml # Install Poetry dependencies
+	poetry env use python3.6
 	poetry install -E test -E lint
 	touch .cache/make/long-poetry
 .PHONY: install-poetry
@@ -49,7 +50,7 @@ install-pre-commit .cache/make/long-pre-commit: .pre-commit-config.yaml .pre-com
 	touch .cache/make/long-pre-commit
 .PHONY: install-pre-commit
 
-lint .cache/make/lint: .github/*/* .travis/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry # Lint the project (tox running pre-commit, flake8)
+lint .cache/make/lint: .github/*/* docs/*.py src/*/* styles/*/* tests/*/* nitpick-style.toml .cache/make/long-poetry # Lint the project (tox running pre-commit, flake8)
 	tox -e lint
 	touch .cache/make/lint
 .PHONY: lint
@@ -67,11 +68,11 @@ endif
 .PHONY: test
 
 test-one .cache/make/test-one: .cache/make/long-poetry src/*/* styles/*/* tests/*/* # Run tests on a single Python version
-	tox -e py36
+	tox -e clean,py38,report
 	touch .cache/make/test-one
 .PHONY: test
 
-pytest: src/nitpick.egg-info/entry_points.txt # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
+pytest: # Run pytest on the poetry venv (to quickly run tests locally without waiting for tox)
 	poetry run python -m pytest --doctest-modules
 .PHONY: pytest
 

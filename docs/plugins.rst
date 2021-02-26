@@ -4,6 +4,11 @@
 Plugins
 =======
 
+Nitpick uses plugins to handle configuration files.
+
+There are plans to add plugins that handle certain file types, specific files, and user plugins.
+Check `the roadmap <https://github.com/andreoliwa/nitpick/projects/1>`_.
+
 Below are the currently included plugins.
 
 .. auto-generated-from-here

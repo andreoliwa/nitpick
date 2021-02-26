@@ -1,44 +1,101 @@
 """setup.cfg tests."""
-from tests.helpers import ProjectMock
+from nitpick.constants import SETUP_CFG
+from nitpick.plugins.setup_cfg import SetupCfgPlugin, Violations
+from nitpick.violations import Fuss, ProjectViolations, SharedViolations
+from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 
 def test_setup_cfg_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(tmp_path).style("").setup_cfg("").simulate_run().assert_no_errors()
+    ProjectMock(tmp_path).style("").setup_cfg("").api_apply().assert_violations()
+
+
+@XFAIL_ON_WINDOWS
+def test_default_style_is_applied(project_with_default_style):
+    """Test if the default style is applied on an empty project."""
+    expected_content = """
+        [flake8]
+        exclude = .tox,build
+        ignore = D107,D202,D203,D401,E203,E402,E501,W503
+        inline-quotes = double
+        max-line-length = 120
+
+        [isort]
+        combine_as_imports = True
+        force_grid_wrap = 0
+        include_trailing_comma = True
+        known_first_party = tests
+        line_length = 120
+        multi_line_output = 3
+        skip = .tox,build
+
+        [mypy]
+        follow_imports = skip
+        ignore_missing_imports = True
+        strict_optional = True
+        warn_no_return = True
+        warn_redundant_casts = True
+        warn_unused_ignores = True
+    """
+    project_with_default_style.api_apply(SETUP_CFG).assert_violations(
+        Fuss(
+            fixed=True,
+            filename="setup.cfg",
+            code=321,
+            message=" was not found. Create it with this content:",
+            suggestion=expected_content,
+            lineno=1,
+        )
+    ).assert_file_contents(SETUP_CFG, expected_content)
 
 
 def test_comma_separated_keys_on_style_file(tmp_path):
     """Comma separated keys on the style file."""
-    project = (
-        ProjectMock(tmp_path)
-        .style(
-            """
-            [nitpick.files."setup.cfg"]
-            comma_separated_values = ["food.eat"]
+    ProjectMock(tmp_path).style(
+        """
+        [nitpick.files."setup.cfg"]
+        comma_separated_values = ["food.eat"]
 
-            ["setup.cfg".food]
-            eat = "salt,ham,eggs"
-            """
-        )
-        .setup_cfg(
+        ["setup.cfg".food]
+        eat = "salt,ham,eggs"
+        """
+    ).setup_cfg(
+        """
+        [food]
+        eat = spam,eggs,cheese
+        """
+    ).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            Violations.MISSING_VALUES_IN_LIST.code,
+            " has missing values in the 'eat' key. Include those values:",
             """
             [food]
-            eat = spam,eggs,cheese
-            """
+            eat = (...),ham,salt
+            """,
         )
-        .simulate_run()
-    )
-    project.assert_single_error(
+    ).assert_file_contents(
+        SETUP_CFG,
         """
-        NIP322 File setup.cfg has missing values in the 'eat' key. Include those values:\x1b[32m
         [food]
-        eat = (...),ham,salt\x1b[0m
-        """
+        eat = spam,eggs,cheese,ham,salt
+        """,
     )
 
 
 def test_suggest_initial_contents(tmp_path):
     """Suggest contents when setup.cfg does not exist."""
+    expected_content = """
+        [flake8]
+        max-line-length = 120
+
+        [isort]
+        line_length = 120
+
+        [mypy]
+        ignore_missing_imports = True
+    """
     ProjectMock(tmp_path).style(
         """
         [nitpick.files.present]
@@ -53,21 +110,17 @@ def test_suggest_initial_contents(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).simulate_run().assert_errors_contain(
-        """
-        NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
-        [flake8]
-        max-line-length = 120
-
-        [isort]
-        line_length = 120
-
-        [mypy]
-        ignore_missing_imports = True\x1b[0m
-        """,
-        2,
-    ).assert_errors_contain(
-        "NIP103 File setup.cfg should exist: Do something here"
+    ).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + SetupCfgPlugin.violation_base_code,
+            " was not found. Create it with this content:",
+            expected_content,
+        ),
+        Fuss(False, SETUP_CFG, ProjectViolations.MISSING_FILE.code, " should exist: Do something here"),
+    ).assert_file_contents(
+        SETUP_CFG, expected_content
     )
 
 
@@ -89,27 +142,47 @@ def test_missing_sections(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 120
         """
-    ).simulate_run().assert_single_error(
+    ).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            Violations.MISSING_SECTIONS.code,
+            " has some missing sections. Use this:",
+            """
+            [flake8]
+            max-line-length = 120
+
+            [isort]
+            line_length = 120
+            """,
+        )
+    ).assert_file_contents(
+        SETUP_CFG,
         """
-        NIP321 File setup.cfg has some missing sections. Use this:\x1b[32m
+        [mypy]
+        ignore_missing_imports = true
+
         [flake8]
         max-line-length = 120
 
         [isort]
-        line_length = 120\x1b[0m
-        """
+        line_length = 120
+        """,
     )
 
 
-def test_different_missing_keys(tmp_path):
-    """Test different and missing keys."""
+def test_missing_different_values(tmp_path):
+    """Test different and missing keys/values."""
     ProjectMock(tmp_path).setup_cfg(
         """
         [mypy]
+        # Line comment with hash (inline comments are not supported)
         ignore_missing_imports = true
+
         [isort]
         line_length = 30
         [flake8]
+        ; Line comment with semicolon
         xxx = "aaa"
         """
     ).style(
@@ -123,18 +196,41 @@ def test_different_missing_keys(tmp_path):
         ["setup.cfg".flake8]
         max-line-length = 112
         """
-    ).simulate_run().assert_errors_contain(
+    ).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            ": [isort]line_length is 30 but it should be like this:",
+            """
+            [isort]
+            line_length = 110
+            """,
+        ),
+        Fuss(
+            True,
+            SETUP_CFG,
+            Violations.MISSING_KEY_VALUE_PAIRS.code,
+            ": section [flake8] has some missing key/value pairs. Use this:",
+            """
+            [flake8]
+            max-line-length = 112
+            """,
+        ),
+    ).assert_file_contents(
+        SETUP_CFG,
         """
-        NIP323 File setup.cfg: [isort]line_length is 30 but it should be like this:\x1b[32m
+        [mypy]
+        # Line comment with hash (inline comments are not supported)
+        ignore_missing_imports = true
+
         [isort]
-        line_length = 110\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP324 File setup.cfg: section [flake8] has some missing key/value pairs. Use this:\x1b[32m
+        line_length = 110
         [flake8]
-        max-line-length = 112\x1b[0m
-        """
+        ; Line comment with semicolon
+        xxx = "aaa"
+        max-line-length = 112
+        """,
     )
 
 
@@ -151,15 +247,20 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
         [nitpick.files."setup.cfg"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude"]
         """
-    ).simulate_run().assert_errors_contain(
-        """
-        NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
-        [flake8]
-        ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503
-        max-complexity = 12
-        max-line-length = 85
-        select = E241,C,E,F,W,B,B9\x1b[0m
-        """
+    ).api_check().assert_violations(
+        Fuss(
+            False,
+            SETUP_CFG,
+            321,
+            " was not found. Create it with this content:",
+            """
+            [flake8]
+            ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503
+            max-complexity = 12
+            max-line-length = 85
+            select = E241,C,E,F,W,B,B9
+            """,
+        )
     )
 
 
@@ -170,14 +271,19 @@ def test_invalid_section_dot_fields(tmp_path):
         [nitpick.files."setup.cfg"]
         comma_separated_values = ["no_dot", "multiple.dots.here", ".filed_only", "section_only."]
         """
-    ).setup_cfg("").simulate_run().assert_errors_contain(
-        """
-        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
-        nitpick.files."setup.cfg".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
-        nitpick.files."setup.cfg".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
-        nitpick.files."setup.cfg".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
-        nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>\x1b[0m
-        """
+    ).setup_cfg("").api_check().assert_violations(
+        Fuss(
+            False,
+            "nitpick-style.toml",
+            1,
+            " has an incorrect style. Invalid config:",
+            """
+            nitpick.files."setup.cfg".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
+            nitpick.files."setup.cfg".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
+            nitpick.files."setup.cfg".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
+            nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>
+            """,
+        )
     )
 
 
@@ -200,6 +306,6 @@ def test_invalid_sections_comma_separated_values(tmp_path):
         ignore = W503,E203,FI12,FI15,FI16,FI17,FI18,FI50,FI51,FI53,FI54,FI55,FI58,PT003,C408
         per-file-ignores = tests/**.py:FI18,setup.py:FI18,tests/**.py:BZ01
         """
-    ).simulate_run().assert_single_error(
-        "NIP325 File setup.cfg: invalid sections on comma_separated_values:\x1b[32m\naaa, falek8\x1b[0m"
+    ).api_apply().assert_violations(
+        Fuss(False, SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
     )

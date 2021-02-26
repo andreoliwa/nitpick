@@ -26,7 +26,7 @@ Content of `styles/absent-files.toml <https://raw.githubusercontent.com/andreoli
     "Pipfile" = "Use pyproject.toml instead"
     "Pipfile.lock" = "Use pyproject.toml instead"
     ".venv" = ""
-    ".pyup.yml" = "Configure .travis.yml with safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
+    ".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
 .. _default-black:
 
@@ -178,7 +178,7 @@ Content of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpi
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.800
+        rev: v0.812
         hooks:
           - id: mypy
     """

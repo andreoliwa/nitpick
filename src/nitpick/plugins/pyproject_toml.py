@@ -11,7 +11,7 @@ from nitpick.core import Nitpick
 from nitpick.formats import BaseFormat
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 
@@ -38,6 +38,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
     filename = PYPROJECT_TOML
     violation_base_code = 310
+    can_apply = True
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing key/value pairs in pyproject.toml."""
@@ -45,14 +46,14 @@ class PyProjectTomlPlugin(NitpickPlugin):
         if not file:
             return
 
-        comparison = file.compare_with_flatten(self.file_dict)
+        comparison = file.compare_with_flatten(self.expected_config)
         if not comparison.has_changes:
             return
 
         document = parse(file.as_string) if self.apply else None
         yield from chain(
-            self.report(SharedViolations.DifferentValues, document, comparison.diff),
-            self.report(SharedViolations.MissingValues, document, comparison.missing),
+            self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
+            self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),
         )
         if self.apply:
             self.file_path.write_text(dumps(document))
@@ -63,9 +64,10 @@ class PyProjectTomlPlugin(NitpickPlugin):
             return
         if document:
             change_toml(document, change_dict.as_data)
-        yield self.reporter.make_fuss(violation, change_dict.reformatted, prefix="", fixed=self.apply)
+        yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.apply)
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         return ""
 
@@ -77,8 +79,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle pyproject.toml file."""
-    if data.path_from_root == PYPROJECT_TOML:
-        return PyProjectTomlPlugin(data)
+    if info.path_from_root == PYPROJECT_TOML:
+        return PyProjectTomlPlugin
     return None

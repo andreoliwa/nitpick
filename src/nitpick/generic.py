@@ -13,7 +13,7 @@ from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, U
 import jmespath
 from jmespath.parser import ParsedResult
 
-from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
+from nitpick.constants import DOUBLE_QUOTE, PROJECT_NAME, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
 from nitpick.typedefs import JsonDict, PathOrStr
 
 
@@ -45,7 +45,7 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
 
     items = []  # type: List[Tuple[str, Any]]
     for key, value in dict_.items():
-        quoted_key = "{quote}{key}{quote}".format(quote=DOUBLE_QUOTE, key=key) if separator in str(key) else key
+        quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if separator in str(key) else key
         new_key = str(parent_key) + separator + str(quoted_key) if parent_key else quoted_key
         if isinstance(value, dict):
             items.extend(flatten(value, new_key, separator, current_lists).items())
@@ -83,7 +83,7 @@ def quoted_split(string_: str, separator=".") -> List[str]:
         return string_.split(separator)
 
     quoted_regex = re.compile(
-        "([{single}{double}][^{single}{double}]+[{single}{double}])".format(single=SINGLE_QUOTE, double=DOUBLE_QUOTE)
+        f"([{SINGLE_QUOTE}{DOUBLE_QUOTE}][^{SINGLE_QUOTE}{DOUBLE_QUOTE}]+[{SINGLE_QUOTE}{DOUBLE_QUOTE}])"
     )
 
     def remove_quotes(match):
@@ -241,3 +241,36 @@ def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:
         return str(path.relative_to(Path.cwd())).lstrip(".")
 
     return str(path.absolute())
+
+
+def filter_names(iterable: Iterable, *partial_names: str) -> List[str]:
+    """Filter names and keep only the desired partial names.
+
+    Exclude the project name automatically.
+
+    >>> file_list = ['requirements.txt', 'tox.ini', 'setup.py', 'nitpick']
+    >>> filter_names(file_list)
+    ['requirements.txt', 'tox.ini', 'setup.py']
+    >>> filter_names(file_list, 'ini', '.py')
+    ['tox.ini', 'setup.py']
+
+    >>> mapping = {'requirements.txt': None, 'tox.ini': 1, 'setup.py': 2, 'nitpick': 3}
+    >>> filter_names(mapping)
+    ['requirements.txt', 'tox.ini', 'setup.py']
+    >>> filter_names(file_list, 'x')
+    ['requirements.txt', 'tox.ini']
+    """
+    rv = []
+    for name in iterable:
+        if name == PROJECT_NAME:
+            continue
+
+        include = bool(not partial_names)
+        for partial_name in partial_names:
+            if partial_name in name:
+                include = True
+                break
+
+        if include:
+            rv.append(name)
+    return rv

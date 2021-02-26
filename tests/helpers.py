@@ -1,10 +1,12 @@
 """Test helpers."""
 import os
+import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
 from typing import List, Set
 
+import pytest
 from click.testing import CliRunner
 from more_itertools.more import always_iterable
 from testfixtures import compare
@@ -25,6 +27,9 @@ from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
+
+# TODO: fix Windows tests
+XFAIL_ON_WINDOWS = pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 
 
 def assert_conditions(*args):
@@ -64,13 +69,13 @@ class ProjectMock:
         path = self.root_dir / link_name  # type: Path
         full_source_path = Path(target_dir or self.fixtures_dir) / (target_file or link_name)
         if not full_source_path.exists():
-            raise RuntimeError("Source file does not exist: {}".format(full_source_path))
+            raise RuntimeError(f"Source file does not exist: {full_source_path}")
         path.symlink_to(full_source_path)
         if path.suffix == ".py":
             self.files_to_lint.append(path)
         return self
 
-    def simulate_run(self, offline=False, api=True, flake8=True, check=True) -> "ProjectMock":
+    def simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, apply=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -83,7 +88,7 @@ class ProjectMock:
         nit = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_violations = set(nit.run(check=check))
+            self._actual_violations = set(nit.run(*partial_names, apply=apply))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -104,14 +109,14 @@ class ProjectMock:
 
     def api_check(self):
         """Test only the API in check mode, no flake8 plugin."""
-        return self.simulate_run(flake8=False, check=True)
+        return self.simulate_run(flake8=False, apply=False)
 
-    def api_apply(self):
+    def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""
-        return self.simulate_run(flake8=False, check=False)
+        return self.simulate_run(*partial_names, flake8=False, apply=True)
 
     def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
-        """Save a file in the root dir with the desired contents.
+        """Save a file in the root dir with the desired contents and a new line at the end.
 
         Create the parent dirs if the file name contains a slash.
 
@@ -127,7 +132,8 @@ class ProjectMock:
         path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
-        path.write_text(dedent(file_contents).strip())
+        clean = dedent(file_contents).strip()
+        path.write_text(f"{clean}\n")
         return self
 
     def touch_file(self, filename: PathOrStr) -> "ProjectMock":
@@ -156,7 +162,7 @@ class ProjectMock:
     @staticmethod
     def ensure_toml_extension(filename: PathOrStr) -> PathOrStr:
         """Ensure a file name has the .toml extension."""
-        return filename if str(filename).endswith(".toml") else "{}.toml".format(filename)
+        return filename if str(filename).endswith(".toml") else f"{filename}.toml"
 
     def setup_cfg(self, file_contents: str) -> "ProjectMock":
         """Save setup.cfg."""
@@ -192,7 +198,7 @@ class ProjectMock:
         if expected_count is not None:
             actual = len(self._flake8_errors_as_string)
             if expected_count != actual:
-                self.raise_assertion_error(expected_error, "Expected {} errors, got {}".format(expected_count, actual))
+                self.raise_assertion_error(expected_error, f"Expected {expected_count} errors, got {actual}")
         return self
 
     def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
@@ -240,19 +246,30 @@ class ProjectMock:
         compare(expected.as_data, actual.as_data)
         return self
 
-    def assert_violations(self, *expected_violations: Fuss, manual: int = None, fixed: int = None) -> "ProjectMock":
+    def assert_violations(self, *expected_violations: Fuss) -> "ProjectMock":
         """Assert the exact set of violations."""
-        clean_violations = {
-            Fuss(orig.filename, orig.code, orig.message, dedent(orig.suggestion).lstrip().rstrip(" "))
-            for orig in expected_violations
-        }
-        compare(expected=clean_violations, actual=self._actual_violations)
+        manual: int = 0
+        fixed: int = 0
 
-        if fixed is not None:
-            compare(expected=fixed, actual=Reporter.fixed)
-        if manual is not None:
-            compare(expected=manual, actual=Reporter.manual)
-
+        stripped: Set[Fuss] = set()
+        for orig in expected_violations:
+            if orig.fixed:
+                fixed += 1
+            else:
+                manual += 1
+            stripped.add(Fuss(orig.fixed, orig.filename, orig.code, orig.message, dedent(orig.suggestion).strip()))
+        dict_difference = compare(
+            expected=[obj.__dict__ for obj in stripped],
+            actual=[obj.__dict__ for obj in self._actual_violations],
+            raises=False,
+        )
+        compare(
+            expected=stripped,
+            actual=self._actual_violations,
+            suffix=f"Comparing Fuss objects as dictionaries: {dict_difference}",
+        )
+        compare(expected=fixed, actual=Reporter.fixed)
+        compare(expected=manual, actual=Reporter.manual)
         return self
 
     def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str):
@@ -265,9 +282,10 @@ class ProjectMock:
             expected = list(always_iterable(str_or_lines))
         return result, actual, expected
 
-    def cli_run(self, str_or_lines: StrOrList = None, violations=0) -> "ProjectMock":
+    def cli_run(self, str_or_lines: StrOrList = None, apply=False, violations=0) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
-        result, actual, expected = self._simulate_cli("run", str_or_lines, "--check")
+        cli_args = [] if apply else ["--check"]
+        result, actual, expected = self._simulate_cli("run", str_or_lines, *cli_args)
         if violations:
             expected.append(f"Violations: ❌ {violations} to change manually.")
         elif str_or_lines:

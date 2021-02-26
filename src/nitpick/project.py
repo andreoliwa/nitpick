@@ -90,7 +90,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
 
     if not root_dirs:
         logger.error(f"No files found while climbing directory tree from {starting_file}")
-        raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NoRootDir))
+        raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NO_ROOT_DIR))
 
     # If multiple roots are found, get the top one (grandparent dir)
     top_dir = sorted(root_dirs)[0]
@@ -139,7 +139,7 @@ class Project:
             # 1.
             [self.root / root_file for root_file in ROOT_PYTHON_FILES],
             # 2.
-            self.root.glob("*/{}".format(MANAGE_PY)),
+            self.root.glob(f"*/{MANAGE_PY}"),
             # 3.
             self.root.glob("*.py"),
             self.root.glob("*/*.py"),
@@ -148,7 +148,7 @@ class Project:
                 logger.info("Found the file {}", the_file)
                 return Path(the_file)
 
-        raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NoPythonFile, root=str(self.root)))
+        raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NO_PYTHON_FILE, root=str(self.root)))
 
     @mypy_property
     @lru_cache()
@@ -172,11 +172,11 @@ class Project:
         if not pyproject_errors:
             return
 
-        from nitpick.plugins.data import FileData
+        from nitpick.plugins.info import FileInfo
 
         raise QuitComplainingError(
-            Reporter(FileData(self, PYPROJECT_TOML)).make_fuss(
-                StyleViolations.InvalidDataToolNitpick,
+            Reporter(FileInfo(self, PYPROJECT_TOML)).make_fuss(
+                StyleViolations.INVALID_DATA_TOOL_NITPICK,
                 flatten_marshmallow_errors(pyproject_errors),
                 section=TOOL_NITPICK,
             )
@@ -203,7 +203,7 @@ class Project:
         logger.info(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
             yield Reporter().make_fuss(
-                ProjectViolations.MinimumVersion,
+                ProjectViolations.MINIMUM_VERSION,
                 project=PROJECT_NAME,
                 expected=minimum_version,
                 actual=NitpickFlake8Extension.version,

@@ -6,9 +6,9 @@ Nitpick
 .. image:: https://img.shields.io/pypi/v/nitpick.svg
     :target: https://pypi.org/project/nitpick/
     :alt: PyPI
-.. image:: https://api.travis-ci.com/andreoliwa/nitpick.svg
-    :target: https://travis-ci.com/andreoliwa/nitpick
-    :alt: Travis CI
+.. image:: https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml/badge.svg
+    :target: https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml
+    :alt: GitHub Workflow
 .. image:: https://readthedocs.org/projects/nitpick/badge/?version=latest
     :target: https://nitpick.rtfd.io/en/latest/?badge=latest
     :alt: Documentation Status
@@ -52,11 +52,12 @@ Useful if you maintain multiple projects and want to use the same configs in all
 .. toctree::
    :caption: Contents:
 
-   installation_guide
+   quickstart
    styles
    auto_detection
    tool_nitpick_section
    nitpick_section
+   cli
    plugins
    defaults
    troubleshooting
@@ -65,7 +66,7 @@ Useful if you maintain multiple projects and want to use the same configs in all
 
 .. toctree::
    :maxdepth: 1
-   :caption: API:
+   :caption: API Reference:
 
    source/modules
 

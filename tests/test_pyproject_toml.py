@@ -40,25 +40,25 @@ def test_missing_different_values(tmp_path):
         """
     ).api_apply().assert_violations(
         Fuss(
-            filename=PYPROJECT_TOML,
-            code=319,
-            message=" has different values. Use this:",
-            suggestion="""
+            True,
+            PYPROJECT_TOML,
+            319,
+            " has different values. Use this:",
+            """
             [something]
             yada = "after"
             """,
         ),
         Fuss(
-            filename=PYPROJECT_TOML,
-            code=318,
-            message=" has missing values:",
-            suggestion="""
+            True,
+            PYPROJECT_TOML,
+            318,
+            " has missing values:",
+            """
             [tool]
             missing = "value"
             """,
         ),
-        manual=0,
-        fixed=2,
     ).assert_file_contents(
         PYPROJECT_TOML,
         """
@@ -66,6 +66,7 @@ def test_missing_different_values(tmp_path):
         x = 1  # comment for x
         yada = "after"  # comment for yada yada
         abc = "123" # comment for abc
+
         [tool]
         missing = "value"
         """,

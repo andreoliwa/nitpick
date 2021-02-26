@@ -9,7 +9,7 @@ from nitpick.formats import YAMLFormat
 from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.data import FileData
+from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, YamlData
 from nitpick.violations import Fuss, ViolationEnum
 
@@ -31,7 +31,7 @@ class PreCommitHook:
     @property
     def unique_key(self) -> str:
         """Unique key of this hook, to be used in a dict."""
-        return "{}_{}".format(self.repo, self.hook_id)
+        return f"{self.repo}_{self.hook_id}"
 
     @property
     def key_value_pair(self) -> Tuple[str, "PreCommitHook"]:
@@ -52,7 +52,7 @@ class PreCommitHook:
             for index, hook in enumerate(repo.get(KEY_HOOKS, [])):
                 repo_data_only = repo.copy()
                 repo_data_only.pop(KEY_HOOKS)
-                hook_data_only = search_dict("{}[{}]".format(KEY_HOOKS, index), repo, {})
+                hook_data_only = search_dict(f"{KEY_HOOKS}[{index}]", repo, {})
                 repo_data_only.update({KEY_HOOKS: [hook_data_only]})
                 hooks.append(
                     PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YAMLFormat(data=[repo_data_only])).key_value_pair
@@ -63,14 +63,14 @@ class PreCommitHook:
 class Violations(ViolationEnum):
     """Violations for this plugin."""
 
-    NoRootKey = (331, f" doesn't have the {KEY_REPOS!r} root key")
-    HookNotFound = (332, ": hook {id!r} not found. Use this:")
-    StyleMissingIndex = (332, ": style file is missing {key!r} key in repo #{index}")
-    RepoDoesNotExist = (333, ": repo {repo!r} does not exist under {key!r}")
-    MissingKeyInRepo = (334, ": missing {key!r} in repo {repo!r}")
-    StyleFileMissingName = (335, ": style file is missing {key!r} in repo {repo!r}")
-    MissingKeyInHook = (336, ": style file is missing {key!r} in hook:\n{yaml}")
-    MissingHookWithID = (337, ": missing hook with id {id!r}:\n{yaml}")
+    NO_ROOT_KEY = (331, f" doesn't have the {KEY_REPOS!r} root key")
+    HOOK_NOT_FOUND = (332, ": hook {id!r} not found. Use this:")
+    STYLE_MISSING_INDEX = (332, ": style file is missing {key!r} key in repo #{index}")
+    REPO_DOES_NOT_EXIST = (333, ": repo {repo!r} does not exist under {key!r}")
+    MISSING_KEY_IN_REPO = (334, ": missing {key!r} in repo {repo!r}")
+    STYLE_FILE_MISSING_NAME = (335, ": style file is missing {key!r} in repo {repo!r}")
+    MISSING_KEY_IN_HOOK = (336, ": style file is missing {key!r} in hook:\n{yaml}")
+    MISSING_HOOK_WITH_ID = (337, ": missing hook with id {id!r}:\n{yaml}")
 
 
 class PreCommitPlugin(NitpickPlugin):
@@ -87,9 +87,10 @@ class PreCommitPlugin(NitpickPlugin):
     actual_hooks_by_key: Dict[str, int] = {}
     actual_hooks_by_index: List[str] = []
 
-    def suggest_initial_contents(self) -> str:
+    @property
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        original = dict(self.file_dict).copy()
+        original = dict(self.expected_config).copy()
         original_repos = original.pop(KEY_REPOS, [])
         suggested: Dict[str, Any] = {KEY_REPOS: []} if original_repos else {}
         for repo in original_repos:
@@ -111,12 +112,14 @@ class PreCommitPlugin(NitpickPlugin):
         if KEY_REPOS not in self.actual_yaml.as_data:
             # TODO: if the 'repos' key doesn't exist, assume repos are in the root of the .yml file
             #  Having the 'repos' key is not actually a requirement. 'pre-commit-validate-config' works without it.
-            yield self.reporter.make_fuss(Violations.NoRootKey)
+            yield self.reporter.make_fuss(Violations.NO_ROOT_KEY)
             return
 
         # Check the root values in the configuration file
         yield from self.warn_missing_different(
-            YAMLFormat(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(self.file_dict)
+            YAMLFormat(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(
+                self.expected_config
+            )
         )
 
         yield from self.enforce_hooks()
@@ -127,7 +130,7 @@ class PreCommitPlugin(NitpickPlugin):
         self.actual_hooks_by_key = {name: index for index, name in enumerate(self.actual_hooks)}
         self.actual_hooks_by_index = list(self.actual_hooks)
 
-        all_expected_blocks: List[OrderedDict] = self.file_dict.get(KEY_REPOS, [])
+        all_expected_blocks: List[OrderedDict] = self.expected_config.get(KEY_REPOS, [])
         for index, data in enumerate(all_expected_blocks):
             if KEY_YAML in data:
                 yield from self.enforce_repo_block(data)
@@ -141,7 +144,7 @@ class PreCommitPlugin(NitpickPlugin):
         for unique_key, hook in expected_hooks.items():
             if unique_key not in self.actual_hooks:
                 yield self.reporter.make_fuss(
-                    Violations.HookNotFound, YAMLFormat(data=hook.yaml.as_data).reformatted, id=hook.hook_id
+                    Violations.HOOK_NOT_FOUND, YAMLFormat(data=hook.yaml.as_data).reformatted, id=hook.hook_id
                 )
                 continue
 
@@ -151,7 +154,7 @@ class PreCommitPlugin(NitpickPlugin):
 
             # Display the current revision of the hook
             current_revision = comparison.flat_actual.get("rev", None)
-            revision_message = " (rev: {})".format(current_revision) if current_revision else ""
+            revision_message = f" (rev: {current_revision})" if current_revision else ""
             yield from self.warn_missing_different(comparison, f": hook {hook.hook_id!r}{revision_message}")
 
     def enforce_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[Fuss]:
@@ -161,22 +164,22 @@ class PreCommitPlugin(NitpickPlugin):
         repo_name = repo_data.get(KEY_REPO)
 
         if not repo_name:
-            yield self.reporter.make_fuss(Violations.StyleMissingIndex, key=KEY_REPO, index=index)
+            yield self.reporter.make_fuss(Violations.STYLE_MISSING_INDEX, key=KEY_REPO, index=index)
             return
 
         actual_repo_dict = find_object_by_key(actual, KEY_REPO, repo_name)
         if not actual_repo_dict:
-            yield self.reporter.make_fuss(Violations.RepoDoesNotExist, repo=repo_name, key=KEY_REPOS)
+            yield self.reporter.make_fuss(Violations.REPO_DOES_NOT_EXIST, repo=repo_name, key=KEY_REPOS)
             return
 
         if KEY_HOOKS not in actual_repo_dict:
-            yield self.reporter.make_fuss(Violations.MissingKeyInRepo, key=KEY_HOOKS, repo=repo_name)
+            yield self.reporter.make_fuss(Violations.MISSING_KEY_IN_REPO, key=KEY_HOOKS, repo=repo_name)
             return
 
         actual_hooks = actual_repo_dict.get(KEY_HOOKS) or []
         yaml_expected_hooks = repo_data.get(KEY_HOOKS)
         if not yaml_expected_hooks:
-            yield self.reporter.make_fuss(Violations.StyleFileMissingName, key=KEY_HOOKS, repo=repo_name)
+            yield self.reporter.make_fuss(Violations.STYLE_FILE_MISSING_NAME, key=KEY_HOOKS, repo=repo_name)
             return
 
         expected_hooks = YAMLFormat(string=yaml_expected_hooks).as_data
@@ -184,12 +187,12 @@ class PreCommitPlugin(NitpickPlugin):
             hook_id = expected_dict.get(KEY_ID)
             expected_yaml = self.format_hook(expected_dict).rstrip()
             if not hook_id:
-                yield self.reporter.make_fuss(Violations.MissingKeyInHook, key=KEY_ID, yaml=expected_yaml)
+                yield self.reporter.make_fuss(Violations.MISSING_KEY_IN_HOOK, key=KEY_ID, yaml=expected_yaml)
                 continue
 
             actual_dict = find_object_by_key(actual_hooks, KEY_ID, hook_id)
             if not actual_dict:
-                yield self.reporter.make_fuss(Violations.MissingHookWithID, id=hook_id, yaml=expected_yaml)
+                yield self.reporter.make_fuss(Violations.MISSING_HOOK_WITH_ID, id=hook_id, yaml=expected_yaml)
                 continue
 
     @staticmethod
@@ -199,9 +202,9 @@ class PreCommitPlugin(NitpickPlugin):
         output: List[str] = []
         for line in lines.split("\n"):
             if line.startswith("id:"):
-                output.insert(0, "  - {}".format(line))
+                output.insert(0, f"  - {line}")
             else:
-                output.append("    {}".format(line))
+                output.append(f"    {line}")
         return "\n".join(output)
 
 
@@ -212,8 +215,8 @@ def plugin_class() -> Type["NitpickPlugin"]:
 
 
 @hookimpl
-def can_handle(data: FileData) -> Optional["NitpickPlugin"]:
+def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle pre-commit config file."""
-    if data.path_from_root == PRE_COMMIT_CONFIG_YAML:
-        return PreCommitPlugin(data)
+    if info.path_from_root == PRE_COMMIT_CONFIG_YAML:
+        return PreCommitPlugin
     return None
