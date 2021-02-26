@@ -309,3 +309,55 @@ def test_invalid_sections_comma_separated_values(tmp_path):
     ).api_apply().assert_violations(
         Fuss(False, SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
     )
+
+
+def test_multiline_comment(tmp_path):
+    """Test file with multiline comments should not raise a configparser.ParsingError."""
+    ProjectMock(tmp_path).style(
+        """
+        ["setup.cfg".flake8]
+        new = "value"
+        """
+    ).setup_cfg(
+        """
+
+        [flake8]
+        exclude =
+          # Trash and cache:
+          .git
+          __pycache__
+          .venv
+          .eggs
+          *.egg
+          temp
+          # Bad code that I write to test things:
+          ex.py
+        """
+    ).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            324,
+            ": section [flake8] has some missing key/value pairs. Use this:",
+            """
+            [flake8]
+            new = value
+            """,
+        )
+    ).assert_file_contents(
+        SETUP_CFG,
+        """
+        [flake8]
+        exclude =
+          # Trash and cache:
+          .git
+          __pycache__
+          .venv
+          .eggs
+          *.egg
+          temp
+          # Bad code that I write to test things:
+          ex.py
+        new = value
+        """,
+    )

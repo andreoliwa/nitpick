@@ -73,7 +73,7 @@ sphinx_rtd_theme = {version = "*", optional = true}
 pydantic = "*"
 autorepr = "*"
 loguru = "*"
-ConfigUpdater = "*"
+ConfigUpdater = { git = "https://github.com/pyscaffold/configupdater.git", branch = "multiline-comment" }
 
 [tool.poetry.extras]
 lint = ["pylint"]

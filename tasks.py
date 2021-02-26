@@ -23,7 +23,7 @@ def install(c, deps=True, hooks=False):
 
 
 @task(help={"poetry": "Update Poetry dependencies", "pre_commit": "Update pre-commit hooks"})
-def update(c, poetry=False, pre_commit=False):
+def update(c, poetry=True, pre_commit=False):
     """Update pre-commit hooks and Poetry dependencies."""
     if pre_commit:
         # Uncomment the line below to auto update all repos except a few filtered out with egrep
