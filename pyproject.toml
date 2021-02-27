@@ -66,6 +66,7 @@ identify = "*"
 pluggy = "*"
 pylint = {version = "*", optional = true}
 pytest = {version = "*", optional = true}
+pytest-cov = {version = "*", optional = true}
 testfixtures = {version = "*", optional = true}
 responses = {version = "*", optional = true}
 sphinx = {version = "*", optional = true}
@@ -79,7 +80,7 @@ ConfigUpdater = { git = "https://github.com/pyscaffold/configupdater.git", branc
 
 [tool.poetry.extras]
 lint = ["pylint"]
-test = ["pytest", "testfixtures", "responses"]
+test = ["pytest", "pytest-cov", "testfixtures", "responses"]
 doc = ["sphinx", "sphinx_rtd_theme"]
 
 [tool.poetry.dev-dependencies]

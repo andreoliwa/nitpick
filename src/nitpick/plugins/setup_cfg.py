@@ -24,7 +24,7 @@ class Violations(ViolationEnum):
     KEY_HAS_DIFFERENT_VALUE = (323, ": [{section}]{key} is {actual} but it should be like this:")
     MISSING_KEY_VALUE_PAIRS = (324, ": section [{section}] has some missing key/value pairs. Use this:")
     INVALID_COMMA_SEPARATED_VALUES_SECTION = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
-    PARSING_ERROR = (326, ": parsing error: {err}")
+    PARSING_ERROR = (326, ": parsing error ({cls}): {msg}")
 
 
 class SetupCfgPlugin(NitpickPlugin):
@@ -73,7 +73,7 @@ class SetupCfgPlugin(NitpickPlugin):
             else:
                 self.updater.write(self.file_path.open("w"))
         except ParsingError as err:
-            return self.reporter.make_fuss(Violations.PARSING_ERROR, err=str(err))
+            return self.reporter.make_fuss(Violations.PARSING_ERROR, cls=err.__class__.__name__, msg=err)
         return None
 
     def get_missing_output(self) -> str:
@@ -101,7 +101,7 @@ class SetupCfgPlugin(NitpickPlugin):
         except DuplicateOptionError as err:
             # Don't change the file if there was a parsing error
             self.apply = False
-            yield self.reporter.make_fuss(Violations.PARSING_ERROR, err=str(err))
+            yield self.reporter.make_fuss(Violations.PARSING_ERROR, cls=err.__class__.__name__, msg=err)
             return
 
         yield from self.enforce_missing_sections()

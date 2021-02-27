@@ -1,4 +1,9 @@
 """setup.cfg tests."""
+from configparser import ParsingError
+from unittest import mock
+
+from configupdater import ConfigUpdater
+
 from nitpick.constants import SETUP_CFG
 from nitpick.plugins.setup_cfg import SetupCfgPlugin, Violations
 from nitpick.violations import Fuss, ProjectViolations, SharedViolations
@@ -345,7 +350,7 @@ def test_multiline_comment(tmp_path):
             [flake8]
             new = value
             """,
-        ),
+        )
     ).assert_file_contents(
         SETUP_CFG,
         f"""
@@ -373,8 +378,44 @@ def test_duplicated_option(tmp_path):
             False,
             SETUP_CFG,
             Violations.PARSING_ERROR.code,
-            f": parsing error: While reading from {str(full_path)!r} "
+            f": parsing error (DuplicateOptionError): While reading from {str(full_path)!r} "
             f"[line  3]: option 'easy' in section 'abc' already exists",
+        )
+    ).assert_file_contents(
+        SETUP_CFG, original_file
+    )
+
+
+@mock.patch.object(ConfigUpdater, "update_file")
+def test_simulate_parsing_error_when_saving(update_file, tmp_path):
+    """Simulate a parsing error when saving setup.cfg."""
+    update_file.side_effect = ParsingError(source="simulating a captured error")
+
+    original_file = """
+        [flake8]
+        existing = value
+        """
+    ProjectMock(tmp_path).style(
+        """
+        ["setup.cfg".flake8]
+        new = "value"
+        """
+    ).setup_cfg(original_file).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            324,
+            ": section [flake8] has some missing key/value pairs. Use this:",
+            """
+            [flake8]
+            new = value
+            """,
+        ),
+        Fuss(
+            False,
+            SETUP_CFG,
+            Violations.PARSING_ERROR.code,
+            ": parsing error (ParsingError): Source contains parsing errors: 'simulating a captured error'",
         ),
     ).assert_file_contents(
         SETUP_CFG, original_file

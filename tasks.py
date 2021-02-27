@@ -40,7 +40,9 @@ def update(c, poetry=True, pre_commit=False):
 def test(c):
     """Run tests with pytest."""
     # https://docs.pytest.org/en/stable/skipping.html
-    c.run("poetry run python -m pytest --doctest-modules -s -rxXs", pty=True)
+    # TODO: read command from tox config
+    test_cmd = "python -m pytest --cov-config=setup.cfg --cov --cov-append --cov-report=term-missing --doctest-modules -s -rxXs -vv"
+    c.run(f"poetry run {test_cmd}", pty=True)
 
 
 @task
