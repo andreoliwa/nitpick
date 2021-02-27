@@ -362,6 +362,7 @@ def test_duplicated_option(tmp_path):
         easy = as sunday morning
         """
     project = ProjectMock(tmp_path)
+    full_path = project.root_dir / SETUP_CFG
     project.style(
         """
         ["setup.cfg".abc]
@@ -372,7 +373,7 @@ def test_duplicated_option(tmp_path):
             False,
             SETUP_CFG,
             Violations.PARSING_ERROR.code,
-            f": parsing error: While reading from '{project.root_dir}/{SETUP_CFG}' "
+            f": parsing error: While reading from {str(full_path)!r} "
             f"[line  3]: option 'easy' in section 'abc' already exists",
         ),
     ).assert_file_contents(
