@@ -352,3 +352,37 @@ def test_multiline_comment(tmp_path):
         {original_file}new = value
         """,
     )
+
+
+def test_duplicated_option(tmp_path):
+    """Test a violation is raised if a file has a duplicated option."""
+    original_file = """
+        [abc]
+        easy = 123
+        easy = as sunday morning
+        """
+    ProjectMock(tmp_path).style(
+        """
+        ["setup.cfg".abc]
+        hard = "as a rock"
+        """
+    ).setup_cfg(original_file).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            Violations.MISSING_KEY_VALUE_PAIRS.code,
+            ": section [abc] has some missing key/value pairs. Use this:",
+            """
+            [abc]
+            hard = as a rock
+            """,
+        ),
+        Fuss(
+            False,
+            SETUP_CFG,
+            Violations.PARSING_ERROR.code,
+            ": parsing error: ",
+        ),
+    ).assert_file_contents(
+        SETUP_CFG, original_file
+    )

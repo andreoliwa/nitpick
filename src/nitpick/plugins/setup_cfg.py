@@ -1,5 +1,5 @@
 """Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`."""
-from configparser import ConfigParser, ParsingError
+from configparser import ConfigParser, DuplicateOptionError, ParsingError
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
@@ -38,11 +38,13 @@ class SetupCfgPlugin(NitpickPlugin):
     can_apply = True
 
     updater: ConfigUpdater
+    file_was_read: bool
     comma_separated_values: Set[str]
 
     def init(self):
         """Post initialization after the instance was created."""
         self.updater = ConfigUpdater()
+        self.file_was_read = False
         self.comma_separated_values = set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
 
     @property
@@ -67,6 +69,8 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def write_file(self, file_exists: bool) -> Optional[Fuss]:
         """Write the new file."""
+        if not self.file_was_read:
+            return None
         try:
             if file_exists:
                 self.updater.update_file()
@@ -96,7 +100,13 @@ class SetupCfgPlugin(NitpickPlugin):
     # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
-        self.updater.read(str(self.file_path))
+        try:
+            self.updater.read(str(self.file_path))
+            self.file_was_read = True
+        except DuplicateOptionError as err:
+            yield self.reporter.make_fuss(Violations.PARSING_ERROR, err=str(err))
+            return
+
         yield from self.enforce_missing_sections()
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
