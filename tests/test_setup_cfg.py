@@ -325,6 +325,10 @@ def test_multiline_comment(tmp_path):
           temp
           # Bad code that I write to test things:
           ex.py
+        another =
+            A valid line
+            ; Now a comment with semicolon
+            Another valid line
         """
     ProjectMock(tmp_path).style(
         """
@@ -342,19 +346,9 @@ def test_multiline_comment(tmp_path):
             new = value
             """,
         ),
-        Fuss(
-            False,
-            SETUP_CFG,
-            326,
-            ": parsing error: Source contains parsing errors: '<string>'"
-            "\n\t[line  4]: '  .git\\n'"
-            "\n\t[line  5]: '  __pycache__\\n'"
-            "\n\t[line  6]: '  .venv\\n'"
-            "\n\t[line  7]: '  .eggs\\n'"
-            "\n\t[line  8]: '  *.egg\\n'"
-            "\n\t[line  9]: '  temp\\n'"
-            "\n\t[line 11]: '  ex.py\\n'",
-        ),
     ).assert_file_contents(
-        SETUP_CFG, original_file
+        SETUP_CFG,
+        f"""
+        {original_file}new = value
+        """,
     )

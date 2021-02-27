@@ -15,7 +15,7 @@ def install(c, deps=True, hooks=False):
     """
     if deps:
         c.run("poetry env use python3.6")
-        c.run("poetry install -E test -E lint")
+        c.run("poetry install -E test -E lint", pty=True)
     if hooks:
         c.run("pre-commit install --install-hooks")
         c.run("pre-commit install --hook-type commit-msg")
@@ -39,7 +39,7 @@ def update(c, poetry=True, pre_commit=False):
 @task
 def test(c):
     """Run tests with pytest."""
-    c.run("poetry run python -m pytest --doctest-modules")
+    c.run("poetry run python -m pytest --doctest-modules", pty=True)
 
 
 @task
@@ -51,13 +51,13 @@ def nitpick(c):
 @task
 def pylint(c):
     """Run pylint for all files."""
-    c.run("poetry run pylint src/")
+    c.run("poetry run pylint src/", pty=True)
 
 
 @task
 def pre_commit(c):
     """Run pre-commit for all files."""
-    c.run("pre-commit run --all-files")
+    c.run("pre-commit run --all-files", pty=True)
 
 
 @task

@@ -1,11 +1,11 @@
 .DEFAULT_GOAL := build
 .PHONY: Makefile
 
-SRC := src/*/*.py *.py docs/*.py
+SRC := $(shell find -f docs src -type f -iname '*.py')
 DOCS := docs/*.rst *.rst *.md
-STYLES := styles/*/*
-TESTS := tests/*/*
-GITHUB = .github/*/*
+STYLES := $(shell find styles -type f)
+TESTS := $(shell find tests -type f -iname '*.py')
+GITHUB = $(shell find .github -type f)
 ANY := $(SRC) $(DOCS) $(STYLES) $(TESTS) $(GITHUB)
 
 # Create the cache dir if it doesn't exist

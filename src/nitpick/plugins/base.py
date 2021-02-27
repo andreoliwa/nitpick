@@ -85,7 +85,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             yield from self.enforce_rules()
 
         if should_write and self.apply:
-            fuss = self.write_file(file_exists)
+            fuss = self.write_file(file_exists)  # pylint: disable=assignment-from-none
             if fuss:
                 yield fuss
 
