@@ -38,13 +38,11 @@ class SetupCfgPlugin(NitpickPlugin):
     can_apply = True
 
     updater: ConfigUpdater
-    file_was_read: bool
     comma_separated_values: Set[str]
 
     def init(self):
         """Post initialization after the instance was created."""
         self.updater = ConfigUpdater()
-        self.file_was_read = False
         self.comma_separated_values = set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
 
     @property
@@ -69,8 +67,6 @@ class SetupCfgPlugin(NitpickPlugin):
 
     def write_file(self, file_exists: bool) -> Optional[Fuss]:
         """Write the new file."""
-        if not self.file_was_read:
-            return None
         try:
             if file_exists:
                 self.updater.update_file()
@@ -102,8 +98,9 @@ class SetupCfgPlugin(NitpickPlugin):
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
         try:
             self.updater.read(str(self.file_path))
-            self.file_was_read = True
         except DuplicateOptionError as err:
+            # Don't change the file if there was a parsing error
+            self.apply = False
             yield self.reporter.make_fuss(Violations.PARSING_ERROR, err=str(err))
             return
 

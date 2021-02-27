@@ -361,27 +361,19 @@ def test_duplicated_option(tmp_path):
         easy = 123
         easy = as sunday morning
         """
-    ProjectMock(tmp_path).style(
+    project = ProjectMock(tmp_path)
+    project.style(
         """
         ["setup.cfg".abc]
         hard = "as a rock"
         """
     ).setup_cfg(original_file).api_apply().assert_violations(
         Fuss(
-            True,
-            SETUP_CFG,
-            Violations.MISSING_KEY_VALUE_PAIRS.code,
-            ": section [abc] has some missing key/value pairs. Use this:",
-            """
-            [abc]
-            hard = as a rock
-            """,
-        ),
-        Fuss(
             False,
             SETUP_CFG,
             Violations.PARSING_ERROR.code,
-            ": parsing error: ",
+            f": parsing error: While reading from '{project.root_dir}/{SETUP_CFG}' "
+            f"[line  3]: option 'easy' in section 'abc' already exists",
         ),
     ).assert_file_contents(
         SETUP_CFG, original_file
