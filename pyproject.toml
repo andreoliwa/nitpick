@@ -74,8 +74,8 @@ pydantic = "*"
 autorepr = "*"
 loguru = "*"
 # TODO: remove when this is fixed: https://github.com/pyscaffold/configupdater/issues/14
-# ConfigUpdater = { git = "https://github.com/pyscaffold/configupdater.git", branch = "multiline-comment" }
-ConfigUpdater = "*"
+ConfigUpdater = { git = "https://github.com/pyscaffold/configupdater.git", branch = "multiline-comment" }
+#ConfigUpdater = "*"
 
 [tool.poetry.extras]
 lint = ["pylint"]

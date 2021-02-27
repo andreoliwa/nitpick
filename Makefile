@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := dev
+.DEFAULT_GOAL := build
 .PHONY: Makefile
 
 SRC := src/*/*.py *.py docs/*.py
@@ -18,8 +18,8 @@ help:
 	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
 .PHONY: help
 
-dev: .cache/make/pytest .cache/make/nitpick .cache/make/pylint .cache/make/pre-commit # Quick build for local development
-.PHONY: dev
+build: .cache/make/pytest .cache/make/nitpick .cache/make/pylint .cache/make/pre-commit # Quick build for local development
+.PHONY: build
 
 .cache/make/pytest: $(SRC) $(TESTS)
 	invoke test
