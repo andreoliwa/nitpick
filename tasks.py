@@ -39,7 +39,8 @@ def update(c, poetry=True, pre_commit=False):
 @task
 def test(c):
     """Run tests with pytest."""
-    c.run("poetry run python -m pytest --doctest-modules", pty=True)
+    # https://docs.pytest.org/en/stable/skipping.html
+    c.run("poetry run python -m pytest --doctest-modules -s -rxXs", pty=True)
 
 
 @task
