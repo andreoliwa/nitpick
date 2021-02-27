@@ -15,7 +15,7 @@ def install(c, deps=True, hooks=False):
     """
     if deps:
         c.run("poetry env use python3.6")
-        c.run("poetry install -E test -E lint", pty=True)
+        c.run("poetry install -E test -E lint --remove-untracked", pty=True)
     if hooks:
         c.run("pre-commit install --install-hooks")
         c.run("pre-commit install --hook-type commit-msg")

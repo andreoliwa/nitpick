@@ -42,5 +42,8 @@ build: .cache/make/pytest .cache/make/nitpick .cache/make/pylint .cache/make/pre
 	touch .cache/make/doc
 
 clean: # Clean build output
-	rm -rf .cache .mypy_cache docs/_build src/*.egg-info .pytest_cache .coverage htmlcov/
+	find . -type f -name '*.py[co]' -print -delete
+	find . -type d -name '__pycache__' -print -delete
+	find . -type d \( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \) -print0 | xargs -0 rm -rvf
+	rm -rvf .cache .mypy_cache docs/_build src/*.egg-info .pytest_cache .coverage htmlcov/ .tox/
 .PHONY: clean
