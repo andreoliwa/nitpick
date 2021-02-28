@@ -12,10 +12,11 @@ ANY := $(SRC) $(DOCS) $(STYLES) $(TESTS) $(GITHUB)
 $(shell mkdir -p .cache/make)
 
 help:
-	@echo 'Choose one of the following targets:'
+	@echo "Make targets (run 'make -B' or 'make --always-make' to force):"
 	@cat Makefile | egrep '^[a-z0-9 ./-]*:.*#' | sed -E -e 's/:.+# */@ /g' -e 's/ .+@/@/g' | sort | awk -F@ '{printf "  \033[1;34m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo
-	@echo 'Run 'make -B' or 'make --always-make' to force a rebuild of all targets'
+	@echo 'Use invoke to run other tasks that were previously make targets:'
+	invoke --list
 .PHONY: help
 
 build: .cache/make/pytest .cache/make/nitpick .cache/make/pylint .cache/make/pre-commit # Quick build for local development
@@ -40,10 +41,3 @@ build: .cache/make/pytest .cache/make/nitpick .cache/make/pylint .cache/make/pre
 .cache/make/doc: $(DOCS) $(STYLES)
 	invoke doc
 	touch .cache/make/doc
-
-clean: # Clean build output
-	find . -type f -name '*.py[co]' -print -delete
-	find . -type d -name '__pycache__' -print -delete
-	find . -type d \( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \) -print0 | xargs -0 rm -rvf
-	rm -rvf .cache .mypy_cache docs/_build src/*.egg-info .pytest_cache .coverage htmlcov/ .tox/
-.PHONY: clean

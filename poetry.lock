@@ -1018,7 +1018,7 @@ test = ["pytest", "pytest-cov", "testfixtures", "responses"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "f428c49f4e83893f21ee0ae3baa8b06d16edb8d0a184fdfdae3d5e3fdc2620a6"
+content-hash = "21b29e70a5d4b3159ec5ae1d8b8a0ed8fa59ddb10bbb22fc10d2734c2012c44e"
 
 [metadata.files]
 aiocontextvars = [
