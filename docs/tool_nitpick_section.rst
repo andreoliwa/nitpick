@@ -22,7 +22,7 @@ Use the URL of the remote file. If it's hosted on GitHub, use the raw GitHub URL
 .. code-block:: toml
 
     [tool.nitpick]
-    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/v0.24.0/nitpick-style.toml"
+    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/v0.24.1/nitpick-style.toml"
 
 You can also use the raw URL of a `GitHub Gist <https://gist.github.com>`_:
 

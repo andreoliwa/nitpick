@@ -1,3 +1,10 @@
+## [0.24.1](https://github.com/andreoliwa/nitpick/compare/v0.24.0...v0.24.1) (2021-02-28)
+
+
+### Bug Fixes
+
+* display parsing errors as violations ([#299](https://github.com/andreoliwa/nitpick/issues/299)) ([4e189eb](https://github.com/andreoliwa/nitpick/commit/4e189eb1113cca3a33f9821eb7aa3f45aace8b07))
+
 # [0.24.0](https://github.com/andreoliwa/nitpick/compare/v0.23.1...v0.24.0) (2021-02-23)
 
 ### Bug Fixes
