@@ -55,8 +55,8 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         [tool.black]
         something = 22
         """
-    ).simulate_run(
-        offline=offline, apply=False
+    ).flake8(
+        offline=offline
     ).assert_errors_contain(
         """
         NIP318 File pyproject.toml has missing values:\x1b[32m
@@ -133,7 +133,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         [tool.nitpick]
         style = "isort1"
         """
-    ).simulate_run(
+    ).flake8(
         offline=offline
     ).assert_errors_contain(
         """
@@ -182,7 +182,7 @@ def test_minimum_version(mocked_version, offline, tmp_path):
         [tool.black]
         line-length = 100
         """
-    ).simulate_run(
+    ).flake8(
         offline=offline
     ).assert_single_error(
         "NIP203 The style file you're using requires nitpick>=1.0 (you have 0.5.3). Please upgrade"
@@ -256,12 +256,17 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
         style = ["{another_dir}/main", "styles/black.toml"]
         {common_pyproject}
         """
-    ).simulate_run().assert_single_error(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
-        [tool.black]
-        missing = "value"\x1b[0m
-        """
+    ).api_check().assert_violations(
+        Fuss(
+            False,
+            PYPROJECT_TOML,
+            318,
+            " has missing values:",
+            """
+            [tool.black]
+            missing = "value"
+            """,
+        )
     )
 
     # Allow relative paths
@@ -306,7 +311,7 @@ def test_symlink_subdir(offline, tmp_path):
         [tool.nitpick]
         style = "symlinked-style"
         """
-    ).simulate_run(
+    ).flake8(
         offline=offline
     ).assert_single_error(
         """
@@ -358,12 +363,17 @@ def test_relative_style_on_urls(tmp_path):
         style = ["{base_url}/main", "{base_url}/styles/black.toml"]
         {common_pyproject}
         """
-    ).simulate_run().assert_single_error(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
-        [tool.black]
-        missing = "value"\x1b[0m
-        """
+    ).api_check().assert_violations(
+        Fuss(
+            False,
+            PYPROJECT_TOML,
+            318,
+            " has missing values:",
+            """
+            [tool.black]
+            missing = "value"
+            """,
+        )
     )
 
     # Reuse the first full path that appears
@@ -373,12 +383,17 @@ def test_relative_style_on_urls(tmp_path):
         style = ["{base_url}/main.toml", "styles/black"]
         {common_pyproject}
         """
-    ).simulate_run().assert_single_error(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
-        [tool.black]
-        missing = "value"\x1b[0m
-        """
+    ).api_check().assert_violations(
+        Fuss(
+            False,
+            PYPROJECT_TOML,
+            318,
+            " has missing values:",
+            """
+            [tool.black]
+            missing = "value"
+            """,
+        )
     )
 
     # Allow relative paths
@@ -388,15 +403,20 @@ def test_relative_style_on_urls(tmp_path):
         style = ["{base_url}/styles/black.toml", "../poetry"]
         {common_pyproject}
         """
-    ).simulate_run().assert_single_error(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
-        [tool.black]
-        missing = "value"
+    ).api_check().assert_violations(
+        Fuss(
+            False,
+            PYPROJECT_TOML,
+            318,
+            " has missing values:",
+            """
+            [tool.black]
+            missing = "value"
 
-        [tool.poetry]
-        version = "1.0"\x1b[0m
-        """
+            [tool.poetry]
+            version = "1.0"
+            """,
+        )
     )
 
 
@@ -485,7 +505,7 @@ def test_merge_styles_into_single_file(offline, tmp_path):
         [tool.nitpick]
         style = ["black", "isort", "isort_overrides"]
         """
-    ).simulate_run(
+    ).flake8(
         offline=offline
     ).assert_merged_style(
         '''
@@ -562,10 +582,14 @@ def test_invalid_toml(tmp_path):
         ["setup.cfg".flake8]
         ignore = D100,D104,D202,E203,W503
         """
-    ).simulate_run().assert_errors_contain(
-        "NIP001 File nitpick-style.toml has an incorrect style. Invalid TOML"
-        + " (toml.decoder.TomlDecodeError: This float doesn't have a leading digit (line 2 column 1 char 21))",
-        1,
+    ).api_check_then_apply(
+        Fuss(
+            False,
+            "nitpick-style.toml",
+            1,
+            " has an incorrect style. Invalid TOML"
+            " (toml.decoder.TomlDecodeError: This float doesn't have a leading digit (line 2 column 1 char 21))",
+        )
     )
 
 
@@ -589,7 +613,7 @@ def test_invalid_nitpick_files(offline, tmp_path):
         [tool.nitpick]
         style = ["some_style", "wrong_files"]
         """
-    ).simulate_run(
+    ).flake8(
         offline=offline
     ).assert_errors_contain(
         f"""
