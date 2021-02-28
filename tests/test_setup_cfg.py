@@ -1,4 +1,9 @@
 """setup.cfg tests."""
+from configparser import ParsingError
+from unittest import mock
+
+from configupdater import ConfigUpdater
+
 from nitpick.constants import SETUP_CFG
 from nitpick.plugins.setup_cfg import SetupCfgPlugin, Violations
 from nitpick.violations import Fuss, ProjectViolations, SharedViolations
@@ -308,4 +313,110 @@ def test_invalid_sections_comma_separated_values(tmp_path):
         """
     ).api_apply().assert_violations(
         Fuss(False, SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
+    )
+
+
+def test_multiline_comment(tmp_path):
+    """Test file with multiline comments should not raise a configparser.ParsingError."""
+    original_file = """
+        [flake8]
+        exclude =
+          # Trash and cache:
+          .git
+          __pycache__
+          .venv
+          .eggs
+          *.egg
+          temp
+          # Bad code that I write to test things:
+          ex.py
+        another =
+            A valid line
+            ; Now a comment with semicolon
+            Another valid line
+        """
+    ProjectMock(tmp_path).style(
+        """
+        ["setup.cfg".flake8]
+        new = "value"
+        """
+    ).setup_cfg(original_file).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            324,
+            ": section [flake8] has some missing key/value pairs. Use this:",
+            """
+            [flake8]
+            new = value
+            """,
+        )
+    ).assert_file_contents(
+        SETUP_CFG,
+        f"""
+        {original_file}new = value
+        """,
+    )
+
+
+def test_duplicated_option(tmp_path):
+    """Test a violation is raised if a file has a duplicated option."""
+    original_file = """
+        [abc]
+        easy = 123
+        easy = as sunday morning
+        """
+    project = ProjectMock(tmp_path)
+    full_path = project.root_dir / SETUP_CFG
+    project.style(
+        """
+        ["setup.cfg".abc]
+        hard = "as a rock"
+        """
+    ).setup_cfg(original_file).api_apply().assert_violations(
+        Fuss(
+            False,
+            SETUP_CFG,
+            Violations.PARSING_ERROR.code,
+            f": parsing error (DuplicateOptionError): While reading from {str(full_path)!r} "
+            f"[line  3]: option 'easy' in section 'abc' already exists",
+        )
+    ).assert_file_contents(
+        SETUP_CFG, original_file
+    )
+
+
+@mock.patch.object(ConfigUpdater, "update_file")
+def test_simulate_parsing_error_when_saving(update_file, tmp_path):
+    """Simulate a parsing error when saving setup.cfg."""
+    update_file.side_effect = ParsingError(source="simulating a captured error")
+
+    original_file = """
+        [flake8]
+        existing = value
+        """
+    ProjectMock(tmp_path).style(
+        """
+        ["setup.cfg".flake8]
+        new = "value"
+        """
+    ).setup_cfg(original_file).api_apply().assert_violations(
+        Fuss(
+            True,
+            SETUP_CFG,
+            324,
+            ": section [flake8] has some missing key/value pairs. Use this:",
+            """
+            [flake8]
+            new = value
+            """,
+        ),
+        Fuss(
+            False,
+            SETUP_CFG,
+            Violations.PARSING_ERROR.code,
+            ": parsing error (ParsingError): Source contains parsing errors: 'simulating a captured error'",
+        ),
+    ).assert_file_contents(
+        SETUP_CFG, original_file
     )

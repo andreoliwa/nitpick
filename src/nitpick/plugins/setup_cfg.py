@@ -1,5 +1,5 @@
 """Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`."""
-from configparser import ConfigParser
+from configparser import ConfigParser, DuplicateOptionError, ParsingError
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
@@ -24,6 +24,7 @@ class Violations(ViolationEnum):
     KEY_HAS_DIFFERENT_VALUE = (323, ": [{section}]{key} is {actual} but it should be like this:")
     MISSING_KEY_VALUE_PAIRS = (324, ": section [{section}] has some missing key/value pairs. Use this:")
     INVALID_COMMA_SEPARATED_VALUES_SECTION = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
+    PARSING_ERROR = (326, ": parsing error ({cls}): {msg}")
 
 
 class SetupCfgPlugin(NitpickPlugin):
@@ -64,12 +65,16 @@ class SetupCfgPlugin(NitpickPlugin):
         """Missing sections."""
         return self.expected_sections - self.current_sections
 
-    def write_file(self, file_exists: bool) -> None:
+    def write_file(self, file_exists: bool) -> Optional[Fuss]:
         """Write the new file."""
-        if file_exists:
-            self.updater.update_file()
-        else:
-            self.updater.write(self.file_path.open("w"))
+        try:
+            if file_exists:
+                self.updater.update_file()
+            else:
+                self.updater.write(self.file_path.open("w"))
+        except ParsingError as err:
+            return self.reporter.make_fuss(Violations.PARSING_ERROR, cls=err.__class__.__name__, msg=err)
+        return None
 
     def get_missing_output(self) -> str:
         """Get a missing output string example from the missing sections in setup.cfg."""
@@ -81,8 +86,8 @@ class SetupCfgPlugin(NitpickPlugin):
         for section in sorted(missing):
             expected_config: Dict = self.expected_config[section]
             if self.apply:
-                if self.updater.last_item:
-                    self.updater.last_item.add_after.space(1)
+                if self.updater.last_block:
+                    self.updater.last_block.add_after.space(1)
                 self.updater.add_section(section)
                 self.updater[section].update(expected_config)
             parser[section] = expected_config
@@ -91,7 +96,14 @@ class SetupCfgPlugin(NitpickPlugin):
     # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
-        self.updater.read(str(self.file_path))
+        try:
+            self.updater.read(str(self.file_path))
+        except DuplicateOptionError as err:
+            # Don't change the file if there was a parsing error
+            self.apply = False
+            yield self.reporter.make_fuss(Violations.PARSING_ERROR, cls=err.__class__.__name__, msg=err)
+            return
+
         yield from self.enforce_missing_sections()
 
         csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
