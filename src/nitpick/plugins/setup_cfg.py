@@ -86,8 +86,8 @@ class SetupCfgPlugin(NitpickPlugin):
         for section in sorted(missing):
             expected_config: Dict = self.expected_config[section]
             if self.apply:
-                if self.updater.last_item:
-                    self.updater.last_item.add_after.space(1)
+                if self.updater.last_block:
+                    self.updater.last_block.add_after.space(1)
                 self.updater.add_section(section)
                 self.updater[section].update(expected_config)
             parser[section] = expected_config

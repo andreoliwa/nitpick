@@ -135,7 +135,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "ConfigUpdater"
-version = "1.1.3.post25+g5f164b7"
+version = "1.1.3.post30+ge338491"
 description = "Parser like ConfigParser but for updating configuration files"
 category = "main"
 optional = false
@@ -152,7 +152,7 @@ testing = ["sphinx", "flake8", "pytest", "pytest-cov", "pytest-virtualenv", "pyt
 type = "git"
 url = "https://github.com/pyscaffold/configupdater.git"
 reference = "multiline-comment"
-resolved_reference = "5f164b70e0ac7adbaf29b8f0471fbd52d762b297"
+resolved_reference = "e338491e2618ca91a87c786607ea05bf22de00f0"
 
 [[package]]
 name = "contextvars"
@@ -1018,7 +1018,7 @@ test = ["pytest", "pytest-cov", "testfixtures", "responses"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "21b29e70a5d4b3159ec5ae1d8b8a0ed8fa59ddb10bbb22fc10d2734c2012c44e"
+content-hash = "f428c49f4e83893f21ee0ae3baa8b06d16edb8d0a184fdfdae3d5e3fdc2620a6"
 
 [metadata.files]
 aiocontextvars = [
