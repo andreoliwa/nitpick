@@ -4,6 +4,8 @@ Helpful docs:
 - http://www.pyinvoke.org/
 - http://docs.pyinvoke.org/en/stable/api/runners.html#invoke.runners.Runner.run
 """
+from configparser import ConfigParser
+
 from invoke import Collection, task
 
 
@@ -15,31 +17,41 @@ def install(c, deps=True, hooks=False):
     """
     if deps:
         c.run("poetry env use python3.6")
-        c.run("poetry install -E test -E lint")
+        c.run("poetry install -E test -E lint --remove-untracked", pty=True)
     if hooks:
         c.run("pre-commit install --install-hooks")
         c.run("pre-commit install --hook-type commit-msg")
         c.run("pre-commit gc")
 
 
-@task(help={"poetry": "Update Poetry dependencies", "pre_commit": "Update pre-commit hooks"})
-def update(c, poetry=False, pre_commit=False):
+@task(help={"deps": "Update Poetry dependencies", "hooks": "Update pre-commit hooks"})
+def update(c, deps=True, hooks=False):
     """Update pre-commit hooks and Poetry dependencies."""
-    if pre_commit:
+    if hooks:
         # Uncomment the line below to auto update all repos except a few filtered out with egrep
         c.run(
             "yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e commitlint"
             " | sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate"
         )
 
-    if poetry:
+    if deps:
         c.run("poetry update")
+
+    # Also install what was updated
+    install(c, deps, hooks)
 
 
 @task
 def test(c):
-    """Run tests with pytest."""
-    c.run("poetry run python -m pytest --doctest-modules")
+    """Run tests with pytest; use the command from tox config."""
+    parser = ConfigParser()
+    parser.read("setup.cfg")
+    pytest_cmd = (
+        [line for line in parser["testenv"]["commands"].splitlines() if "pytest" in line][0]
+        .replace("{posargs:", "")
+        .replace("}", "")
+    )
+    c.run(f"poetry run {pytest_cmd}", pty=True)
 
 
 @task
@@ -51,13 +63,13 @@ def nitpick(c):
 @task
 def pylint(c):
     """Run pylint for all files."""
-    c.run("poetry run pylint src/")
+    c.run("poetry run pylint src/", pty=True)
 
 
 @task
 def pre_commit(c):
     """Run pre-commit for all files."""
-    c.run("pre-commit run --all-files")
+    c.run("pre-commit run --all-files", pty=True)
 
 
 @task
@@ -79,6 +91,18 @@ def ci_build(c, full=False, recreate=False):
         c.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
 
 
-namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci_build)
+@task
+def clean(c):
+    """Clean build output and temp files."""
+    c.run("find . -type f -name '*.py[co]' -print -delete")
+    c.run("find . -type d -name '__pycache__' -print -delete")
+    c.run(
+        "find . -type d \\( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \\) -print0 | "
+        "xargs -0 rm -rvf"
+    )
+    c.run("rm -rvf .cache .mypy_cache docs/_build src/*.egg-info .pytest_cache .coverage htmlcov .tox")
+
+
+namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci_build, clean)
 # Echo all commands in all tasks by default (like 'make' does)
 namespace.configure({"run": {"echo": True}})
