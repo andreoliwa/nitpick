@@ -80,7 +80,7 @@ def doc(c):
     c.run("tox -e docs")
 
 
-@task
+@task(help={"full": "Full build using tox", "recreate": "Recreate tox environment"})
 def ci_build(c, full=False, recreate=False):
     """Simulate a CI build."""
     tox_cmd = "tox -r" if recreate else "tox"
