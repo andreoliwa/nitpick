@@ -68,24 +68,31 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         """Entry point of the Nitpick plugin."""
         self.init()
 
-        has_config_dict = bool(self.expected_config or self.nitpick_file_dict)
         should_exist: bool = bool(self.info.project.nitpick_files_section.get(self.filename, True))
-        file_exists = self.file_path.exists()
-        should_write = True
-
-        if has_config_dict and not file_exists:
-            yield from self._suggest_when_file_not_found()
-        elif not should_exist and file_exists:
+        if self.file_path.exists() and not should_exist:
             logger.info(f"{self}: File {self.filename} exists when it should not")
             # Only display this message if the style is valid.
             yield self.reporter.make_fuss(SharedViolations.DELETE_FILE)
-            should_write = False
-        elif file_exists and has_config_dict:
+            return
+
+        has_config_dict = bool(self.expected_config or self.nitpick_file_dict)
+        if not has_config_dict:
+            return
+
+        yield from self._enforce_file_configuration()
+
+    def _enforce_file_configuration(self):
+        file_exists = self.file_path.exists()
+        if file_exists:
             logger.info(f"{self}: Enforcing rules")
             yield from self.enforce_rules()
+        else:
+            yield from self._suggest_when_file_not_found()
 
-        if should_write and self.apply:
-            self.write_file(file_exists)
+        if self.apply:
+            fuss = self.write_file(file_exists)  # pylint: disable=assignment-from-none
+            if fuss:
+                yield fuss
 
     def init(self):
         """Hook for plugin initialization after the instance was created."""
@@ -101,8 +108,9 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         else:
             yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
-    def write_file(self, file_exists: bool) -> None:
+    def write_file(self, file_exists: bool) -> Optional[Fuss]:  # pylint: disable=unused-argument,no-self-use
         """Hook to write the new file when apply mode is on. Should be used by inherited classes."""
+        return None
 
     @abc.abstractmethod
     def enforce_rules(self) -> Iterator[Fuss]:

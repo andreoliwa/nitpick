@@ -10,7 +10,7 @@ problems: the code will get executed twice:
 - When you import __main__ it will get executed again (as a module) because
     there's no ``nitpick.__main__`` in ``sys.modules``.
 
-Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
+Also see (1) from https://click.palletsprojects.com/en/5.x/setuptools/#setuptools-integration
 """
 from pathlib import Path
 from typing import Optional
