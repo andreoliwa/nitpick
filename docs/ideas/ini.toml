@@ -1,0 +1,41 @@
+# Keys should be present
+["setup.cfg".flake8]
+ignore__present = "str"
+max-line-length__present = "int"
+exclude__present = "str"
+max-complexity__present = "int"
+inline-quotes__present = "str"
+
+# Keys should be absent
+["setup.cfg".some-section]
+ignore__present = true
+max-line-length__present = true
+exclude__present = true
+max-complexity__present = true
+inline-quotes__present = true
+
+# Section should be absent
+["setup.cfg".darglint]
+blabla = "{{ nit.section_absent() }}"
+["setup.cfg".darglint]
+__present = false
+
+# Section should be absent
+["setup.cfg"."tox:tox"]
+__present = false
+["setup.cfg"."gh-actions"]
+__present = false
+
+# Section should be present
+["tox.ini"."tox"]
+__present = true
+["tox.ini".gh-actions]
+__present = true
+
+# Keys should be present using Jinja
+["setup.cfg".flake8]
+ignore = "{{ nit.present(str, validators=[comma_separated_str]) }}"
+max-line-length = "{{ nit.present(int, validators=[range(80, 120)]) }}"
+exclude = "{{ nit.present(str, validators=[comma_separated_str]) }}"
+max-complexity = "{{ nit.present(int) }}"
+inline-quotes = "{{ nit.present(str, choices=['double', 'single']) }}"
