@@ -177,19 +177,15 @@ class Style:
         """Get the style path from the URI. Add the .toml extension if it's missing."""
         clean_style_uri = style_uri.strip()
 
-        remote = None
+        remote = False
         if clean_style_uri.startswith(DOT_SLASH):
             remote = False
         elif is_url(clean_style_uri) or is_url(self._first_full_path):
             remote = True
-        elif clean_style_uri:
-            remote = False
 
         if remote is True:
             return self.fetch_style_from_url(clean_style_uri)
-        if remote is False:
-            return self.fetch_style_from_local_path(clean_style_uri)
-        return None
+        return self.fetch_style_from_local_path(clean_style_uri)
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""

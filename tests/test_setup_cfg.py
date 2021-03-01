@@ -60,15 +60,17 @@ def test_comma_separated_keys_on_style_file(tmp_path):
     ProjectMock(tmp_path).style(
         """
         [nitpick.files."setup.cfg"]
-        comma_separated_values = ["food.eat"]
+        comma_separated_values = ["food.eat", "food.drink"]
 
         ["setup.cfg".food]
         eat = "salt,ham,eggs"
+        drink = "water,bier,wine"
         """
     ).setup_cfg(
         """
         [food]
         eat = spam,eggs,cheese
+        drink =   wine , bier , water
         """
     ).api_check_then_apply(
         Fuss(
@@ -86,6 +88,7 @@ def test_comma_separated_keys_on_style_file(tmp_path):
         """
         [food]
         eat = spam,eggs,cheese,ham,salt
+        drink =   wine , bier , water
         """,
     )
 
@@ -187,6 +190,7 @@ def test_missing_different_values(tmp_path):
 
         [isort]
         line_length = 30
+        name = John
         [flake8]
         ; Line comment with semicolon
         xxx = "aaa"
@@ -198,6 +202,7 @@ def test_missing_different_values(tmp_path):
 
         ["setup.cfg".isort]
         line_length = 110
+        name = "Mary"
 
         ["setup.cfg".flake8]
         max-line-length = 112
@@ -223,6 +228,16 @@ def test_missing_different_values(tmp_path):
             max-line-length = 112
             """,
         ),
+        Fuss(
+            True,
+            SETUP_CFG,
+            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            ": [isort]name is John but it should be like this:",
+            """
+            [isort]
+            name = Mary
+            """,
+        ),
     ).assert_file_contents(
         SETUP_CFG,
         """
@@ -232,6 +247,7 @@ def test_missing_different_values(tmp_path):
 
         [isort]
         line_length = 110
+        name = Mary
         [flake8]
         ; Line comment with semicolon
         xxx = "aaa"
