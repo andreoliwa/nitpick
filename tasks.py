@@ -16,6 +16,7 @@ def install(c, deps=True, hooks=False):
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
+        print("Nitpick runs in Python 3.6 and later, but development is done in 3.6")
         c.run("poetry env use python3.6")
         c.run("poetry install -E test -E lint --remove-untracked", pty=True)
     if hooks:
