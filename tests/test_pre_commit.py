@@ -37,25 +37,31 @@ def test_suggest_initial_contents(tmp_path):
         [tool.nitpick]
         style = ["isort", "black"]
         """
-    ).simulate_run().assert_errors_contain(
-        """
-        NIP331 File .pre-commit-config.yaml was not found. Create it with this content:\x1b[32m
-        repos:
-          - repo: https://github.com/PyCQA/isort
-            rev: 5.7.0
-            hooks:
-              - id: isort
-          - repo: https://github.com/psf/black
-            rev: 20.8b1
-            hooks:
-              - id: black
-                args: [--safe, --quiet]
-          - repo: https://github.com/asottile/blacken-docs
-            rev: v1.9.2
-            hooks:
-              - id: blacken-docs
-                additional_dependencies: [black==20.8b1]\x1b[0m
-        """
+    ).api_check_then_apply(
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            331,
+            " was not found. Create it with this content:",
+            """
+            repos:
+              - repo: https://github.com/PyCQA/isort
+                rev: 5.7.0
+                hooks:
+                  - id: isort
+              - repo: https://github.com/psf/black
+                rev: 20.8b1
+                hooks:
+                  - id: black
+                    args: [--safe, --quiet]
+              - repo: https://github.com/asottile/blacken-docs
+                rev: v1.9.2
+                hooks:
+                  - id: blacken-docs
+                    additional_dependencies: [black==20.8b1]
+            """,
+        ),
+        partial_names=[PRE_COMMIT_CONFIG_YAML],
     )
 
 
@@ -138,8 +144,8 @@ def test_missing_repos(tmp_path):
         - hooks:
           - id: whatever
         """
-    ).simulate_run().assert_errors_contain(
-        "NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key"
+    ).api_check_then_apply(
+        Fuss(False, PRE_COMMIT_CONFIG_YAML, 331, " doesn't have the 'repos' root key")
     )
 
 
@@ -400,55 +406,77 @@ def test_missing_different_values(tmp_path):
               - id: my-hook
                 args: [--different, args, --should, throw, errors]
         """
-    ).simulate_run().assert_errors_contain(
-        """
-        NIP332 File .pre-commit-config.yaml: hook 'mypy' not found. Use this:\x1b[32m
-          - repo: https://github.com/pre-commit/mirrors-mypy
-            rev: v0.812
-            hooks:
-              - id: mypy\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP332 File .pre-commit-config.yaml: hook 'python-check-mock-methods' not found. Use this:\x1b[32m
-          - repo: https://github.com/pre-commit/pygrep-hooks
-            rev: v1.7.1
-            hooks:
-              - id: python-check-mock-methods\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP339 File .pre-commit-config.yaml: hook 'bashate' (rev: 0.5.0) has different values. Use this:\x1b[32m
-        rev: 2.0.0\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP339 File .pre-commit-config.yaml: hook 'python-check-blanket-noqa' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.7.1\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP339 File .pre-commit-config.yaml: hook 'python-no-eval' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.7.1\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP339 File .pre-commit-config.yaml: hook 'python-no-log-warn' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.7.1\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP339 File .pre-commit-config.yaml: hook 'my-hook' (rev: 1.2.3) has different values. Use this:\x1b[32m
-        args:
-          - --expected
-          - arguments\x1b[0m
-        """
-    ).assert_errors_contain(
-        """
-        NIP339 File .pre-commit-config.yaml: hook 'rst-backticks' (rev: v1.1.0) has different values. Use this:\x1b[32m
-        rev: v1.7.1\x1b[0m
-        """,
-        8,
+    ).api_check_then_apply(
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            332,
+            ": hook 'mypy' not found. Use this:",
+            f"""
+            {NBSP * 2}- repo: https://github.com/pre-commit/mirrors-mypy
+                rev: v0.812
+                hooks:
+                  - id: mypy
+            """,
+        ),
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            332,
+            ": hook 'python-check-mock-methods' not found. Use this:",
+            f"""
+            {NBSP * 2}- repo: https://github.com/pre-commit/pygrep-hooks
+                rev: v1.7.1
+                hooks:
+                  - id: python-check-mock-methods
+            """,
+        ),
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            339,
+            ": hook 'bashate' (rev: 0.5.0) has different values. Use this:",
+            "rev: 2.0.0",
+        ),
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            339,
+            ": hook 'python-check-blanket-noqa' (rev: v1.1.0) has different values. Use this:",
+            "rev: v1.7.1",
+        ),
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            339,
+            ": hook 'python-no-eval' (rev: v1.1.0) has different values. Use this:",
+            "rev: v1.7.1",
+        ),
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            339,
+            ": hook 'python-no-log-warn' (rev: v1.1.0) has different values. Use this:",
+            "rev: v1.7.1",
+        ),
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            339,
+            ": hook 'my-hook' (rev: 1.2.3) has different values. Use this:",
+            """
+            args:
+              - --expected
+              - arguments
+            """,
+        ),
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            339,
+            ": hook 'rst-backticks' (rev: v1.1.0) has different values. Use this:",
+            "rev: v1.7.1",
+        ),
     )
 
 

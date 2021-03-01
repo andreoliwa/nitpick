@@ -79,8 +79,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    # FIXME[AA]: this method should be private, only called by flake8() and api_*() methods
-    def simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, apply=False) -> "ProjectMock":
+    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, apply=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -110,15 +109,15 @@ class ProjectMock:
 
     def flake8(self, offline=False):
         """Test only the flake8 plugin, no API."""
-        return self.simulate_run(offline=offline, api=False)
+        return self._simulate_run(offline=offline, api=False)
 
     def api_check(self, *partial_names: str):
         """Test only the API in check mode, no flake8 plugin."""
-        return self.simulate_run(*partial_names, flake8=False, apply=False)
+        return self._simulate_run(*partial_names, flake8=False, apply=False)
 
     def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""
-        return self.simulate_run(*partial_names, flake8=False, apply=True)
+        return self._simulate_run(*partial_names, flake8=False, apply=True)
 
     def api_check_then_apply(
         self, *expected_violations_when_applying: Fuss, partial_names: Optional[Iterable[str]] = None
