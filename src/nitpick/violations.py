@@ -41,6 +41,16 @@ class Fuss:
             f" {self.message.rstrip()}{self.colored_suggestion}"
         )
 
+    def __lt__(self, other: "Fuss") -> bool:
+        """Sort Fuss instances."""
+        return (
+            self.filename < other.filename
+            and self.code < other.code
+            and self.message < other.message
+            and self.suggestion < other.suggestion
+            and self.lineno < other.lineno
+        )
+
 
 class ViolationEnum(Enum):
     """Base enum with violation codes and messages."""

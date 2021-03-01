@@ -451,7 +451,7 @@ def test_missing_different_values(tmp_path):
             ": hook 'python-check-mock-methods' not found. Use this:",
             f"""
             {NBSP * 2}- repo: https://github.com/pre-commit/pygrep-hooks
-                rev: v1.7.1
+                rev: v1.8.0
                 hooks:
                   - id: python-check-mock-methods
             """,
@@ -468,21 +468,21 @@ def test_missing_different_values(tmp_path):
             PRE_COMMIT_CONFIG_YAML,
             339,
             ": hook 'python-check-blanket-noqa' (rev: v1.1.0) has different values. Use this:",
-            "rev: v1.7.1",
+            "rev: v1.8.0",
         ),
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
             339,
             ": hook 'python-no-eval' (rev: v1.1.0) has different values. Use this:",
-            "rev: v1.7.1",
+            "rev: v1.8.0",
         ),
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
             339,
             ": hook 'python-no-log-warn' (rev: v1.1.0) has different values. Use this:",
-            "rev: v1.7.1",
+            "rev: v1.8.0",
         ),
         Fuss(
             False,
@@ -500,7 +500,7 @@ def test_missing_different_values(tmp_path):
             PRE_COMMIT_CONFIG_YAML,
             339,
             ": hook 'rst-backticks' (rev: v1.1.0) has different values. Use this:",
-            "rev: v1.7.1",
+            "rev: v1.8.0",
         ),
     )
 
