@@ -153,7 +153,7 @@ htmlhelp_basename = "nitpickdoc"
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements = {
+latex_elements: Dict[str, str] = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
@@ -166,7 +166,7 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
-}  # type: Dict[str, str]
+}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,

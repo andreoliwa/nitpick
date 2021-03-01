@@ -51,8 +51,6 @@ def assert_conditions(*args):
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
-    # TODO: use Python 3.6 type annotations
-
     def __init__(self, tmp_path: Path, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         self._actual_violations: Set[Fuss] = set()
@@ -73,7 +71,7 @@ class ProjectMock:
         :param target_dir: Target directory (default: fixture directory).
         :param target_file: Target file name (default: source file name).
         """
-        path = self.root_dir / link_name  # type: Path
+        path: Path = self.root_dir / link_name
         full_source_path = Path(target_dir or FIXTURES_DIR) / (target_file or link_name)
         if not full_source_path.exists():
             raise RuntimeError(f"Source file does not exist: {full_source_path}")

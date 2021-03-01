@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Iterator, List, Type
 import click
 from loguru import logger
 
-from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import filter_names, relative_to_current_dir
 from nitpick.plugins.info import FileInfo
@@ -99,9 +98,8 @@ class Nitpick:
     def enforce_style(self, *partial_names: str, apply=True) -> Iterator[Fuss]:
         """Read the merged style and enforce the rules in it.
 
-        1. Get all root keys from the merged style
-        2. All except "nitpick" are file names.
-        3. For each file name, find the plugin(s) that can handle the file.
+        1. Get all root keys from the merged style (every key is a filename, except "nitpick").
+        2. For each file name, find the plugin(s) that can handle the file.
 
         :param partial_names: Names of the files to enforce configs for.
         :param apply: Flag to apply changes, if the plugin supports it (default: True).
@@ -114,10 +112,6 @@ class Nitpick:
             logger.info(f"{config_key}: Finding plugins to enforce style")
 
             # 2.
-            if config_key == PROJECT_NAME:
-                continue
-
-            # 3.
             info = FileInfo.create(self.project, config_key)
             # pylint: disable=no-member
             for plugin_class in self.project.plugin_manager.hook.can_handle(info=info):  # type: Type[NitpickPlugin]

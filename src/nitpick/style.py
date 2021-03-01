@@ -138,7 +138,7 @@ class Style:
 
             self._all_styles.add(toml_dict)
 
-            sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
+            sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
             if sub_styles:
                 yield from self.include_multiple_styles(sub_styles)
 
@@ -271,7 +271,7 @@ class Style:
             return {}
         merged_dict = self._all_styles.merge()
         # TODO: check if the merged style file is still needed
-        merged_style_path = self.cache_dir / MERGED_STYLE_TOML  # type: Path
+        merged_style_path: Path = self.cache_dir / MERGED_STYLE_TOML
         toml = TOMLFormat(data=merged_dict)
 
         attempt = 1
