@@ -10,7 +10,7 @@ import responses
 
 from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, TOML_EXTENSION
 from nitpick.violations import Fuss
-from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock, assert_conditions
+from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, XFAIL_ON_WINDOWS, ProjectMock, assert_conditions
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -58,20 +58,20 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
     ).flake8(
         offline=offline
     ).assert_errors_contain(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
+        f"""
+        NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
-        line-length = 100\x1b[0m
+        line-length = 100{SUGGESTION_END}
         """
     ).assert_errors_contain(
-        """
-        NIP319 File pyproject.toml has different values. Use this:\x1b[32m
+        f"""
+        NIP319 File pyproject.toml has different values. Use this:{SUGGESTION_BEGIN}
         [tool.black]
-        something = 11\x1b[0m
+        something = 11{SUGGESTION_END}
         """
     ).assert_errors_contain(
-        """
-        NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
+        f"""
+        NIP321 File setup.cfg was not found. Create it with this content:{SUGGESTION_BEGIN}
         [flake8]
         inline-quotes = double
         something = 123
@@ -79,7 +79,7 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         [isort]
         known_first_party = tests
         line_length = 120
-        xxx = yyy\x1b[0m
+        xxx = yyy{SUGGESTION_END}
         """
     ).cli_ls(
         """
@@ -136,14 +136,14 @@ def test_include_styles_overriding_values(offline, tmp_path):
     ).flake8(
         offline=offline
     ).assert_errors_contain(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
+        f"""
+        NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
-        line-length = 100\x1b[0m
+        line-length = 100{SUGGESTION_END}
         """
     ).assert_errors_contain(
-        """
-        NIP321 File setup.cfg was not found. Create it with this content:\x1b[32m
+        f"""
+        NIP321 File setup.cfg was not found. Create it with this content:{SUGGESTION_BEGIN}
         [flake8]
         inline-quotes = double
         something = 123
@@ -151,7 +151,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         [isort]
         known_first_party = tests
         line_length = 120
-        xxx = yyy\x1b[0m
+        xxx = yyy{SUGGESTION_END}
         """
     )
 
@@ -242,10 +242,10 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
         {common_pyproject}
         """
     ).flake8(offline=offline).assert_single_error(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
+        f"""
+        NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
-        missing = "value"\x1b[0m
+        missing = "value"{SUGGESTION_END}
         """
     )
 
@@ -277,13 +277,13 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
         {common_pyproject}
         """
     ).flake8(offline=offline).assert_single_error(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
+        f"""
+        NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
         missing = "value"
 
         [tool.poetry]
-        version = "1.0"\x1b[0m
+        version = "1.0"{SUGGESTION_END}
         """
     )
 
@@ -314,10 +314,10 @@ def test_symlink_subdir(offline, tmp_path):
     ).flake8(
         offline=offline
     ).assert_single_error(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
+        f"""
+        NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
-        line-length = 86\x1b[0m
+        line-length = 86{SUGGESTION_END}
         """
     )
 
@@ -481,10 +481,10 @@ def test_fetch_private_github_urls(tmp_path):
         """
     )
     project.flake8(offline=False).assert_single_error(
-        """
-        NIP318 File pyproject.toml has missing values:\x1b[32m
+        f"""
+        NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
-        missing = "thing"\x1b[0m
+        missing = "thing"{SUGGESTION_END}
         """
     )
     project.flake8(offline=True).assert_no_errors()
@@ -558,7 +558,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
     for style, error_message in [
         (
             'style = [""]\nextra_values = "also raise warnings"',
-            "extra_values: Unknown configuration. See https://nitpick.rtfd.io/en/latest/tool_nitpick_section.html."
+            f"extra_values: Unknown configuration. See {READ_THE_DOCS_URL}tool_nitpick_section.html."
             + "\nstyle.0: Shorter than minimum length 1.",
         ),
         ('style = ""', "style: Shorter than minimum length 1."),
@@ -570,7 +570,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
     ]:
         project.pyproject_toml(f"[tool.nitpick]\n{style}").flake8(offline=offline).assert_errors_contain(
             "NIP001 File pyproject.toml has an incorrect style."
-            + f" Invalid data in [tool.nitpick]:\x1b[32m\n{error_message}\x1b[0m",
+            + f" Invalid data in [tool.nitpick]:{SUGGESTION_BEGIN}\n{error_message}{SUGGESTION_END}",
             1,
         )
 
@@ -617,13 +617,13 @@ def test_invalid_nitpick_files(offline, tmp_path):
         offline=offline
     ).assert_errors_contain(
         f"""
-        NIP001 File some_style.toml has an incorrect style. Invalid config:\x1b[32m
-        xxx: Unknown file. See {READ_THE_DOCS_URL}plugins.html.\x1b[0m
+        NIP001 File some_style.toml has an incorrect style. Invalid config:{SUGGESTION_BEGIN}
+        xxx: Unknown file. See {READ_THE_DOCS_URL}plugins.html.{SUGGESTION_END}
         """
     ).assert_errors_contain(
         f"""
-        NIP001 File wrong_files.toml has an incorrect style. Invalid config:\x1b[32m
-        nitpick.files.whatever: Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.\x1b[0m
+        NIP001 File wrong_files.toml has an incorrect style. Invalid config:{SUGGESTION_BEGIN}
+        nitpick.files.whatever: Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.{SUGGESTION_END}
         """,
         2,
     )

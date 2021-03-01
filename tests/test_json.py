@@ -1,6 +1,7 @@
 """JSON tests."""
 import warnings
 
+from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
@@ -156,9 +157,9 @@ def test_invalid_json(tmp_path):
             "nitpick-style.toml",
             1,
             " has an incorrect style. Invalid config:",
-            """
+            f"""
             "another.json".contains_json.some_field.value: Invalid JSON (json.decoder.JSONDecodeError: Invalid control character at: line 1 column 37 (char 36))
-            "another.json".with: Unknown configuration. See https://nitpick.rtfd.io/en/latest/nitpick_section.html.
+            "another.json".with: Unknown configuration. See {READ_THE_DOCS_URL}nitpick_section.html.
             """,
         )
     )
@@ -180,9 +181,9 @@ def test_json_configuration(tmp_path):
             "nitpick-style.toml",
             1,
             " has an incorrect style. Invalid config:",
-            """
-            "their.json".x: Unknown configuration. See https://nitpick.rtfd.io/en/latest/nitpick_section.html.
-            "your.json".has: Unknown configuration. See https://nitpick.rtfd.io/en/latest/nitpick_section.html.
+            f"""
+            "their.json".x: Unknown configuration. See {READ_THE_DOCS_URL}nitpick_section.html.
+            "your.json".has: Unknown configuration. See {READ_THE_DOCS_URL}nitpick_section.html.
             """,
         )
     )

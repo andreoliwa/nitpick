@@ -1,6 +1,7 @@
 """Text file tests."""
+from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.violations import Fuss
-from tests.helpers import NBSP, ProjectMock
+from tests.helpers import NBSP, SUGGESTION_BEGIN, SUGGESTION_END, ProjectMock
 
 
 def test_suggest_initial_contents(tmp_path):
@@ -44,12 +45,12 @@ def test_text_configuration(tmp_path):
         wrong = "everything"
         """
     ).flake8().assert_errors_contain(
-        """
-        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
-        "abc.txt".contains.0.invalid: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.
+        f"""
+        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:{SUGGESTION_BEGIN}
+        "abc.txt".contains.0.invalid: Unknown configuration. See {READ_THE_DOCS_URL}plugins.html#text-files.
         "abc.txt".contains.0.line: Not a valid string.
         "def.txt".contains: Not a valid list.
-        "ghi.txt".whatever: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.\x1b[0m
+        "ghi.txt".whatever: Unknown configuration. See {READ_THE_DOCS_URL}plugins.html#text-files.{SUGGESTION_END}
         """,
         1,
     )
