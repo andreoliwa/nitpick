@@ -19,9 +19,9 @@
 - apply changes to setup.cfg ([#288](https://github.com/andreoliwa/nitpick/issues/288)) ([f878630](https://github.com/andreoliwa/nitpick/commit/f87863066642cdab112d3145c488c9a780e7c98d))
 - **cli:** add 'ls' command to list configured files ([cfc031b](https://github.com/andreoliwa/nitpick/commit/cfc031bdf30105dec9a8952bfb9657aec939b3b6))
 - **cli:** add 'run' command to display violations ([a67bfa8](https://github.com/andreoliwa/nitpick/commit/a67bfa8bdaef2461853a237819cd35622c5935e9))
+- **cli:** experimental CLI interface (alpha version) ([#255](https://github.com/andreoliwa/nitpick/issues/255)) ([c9ca5dc](https://github.com/andreoliwa/nitpick/commit/c9ca5dc3cc4586b459e2c58fb2e61d80aa3f1e5d))
 - **cli:** filter only the desired files on ls/run commands ([#265](https://github.com/andreoliwa/nitpick/issues/265)) ([f5e4a9c](https://github.com/andreoliwa/nitpick/commit/f5e4a9c47583cd809941ca96ec2ffbdbf0c92c6f))
 - drop support for Python 3.5 ([#251](https://github.com/andreoliwa/nitpick/issues/251)) ([9f84a60](https://github.com/andreoliwa/nitpick/commit/9f84a608a4ca02e8a96ec8eaaf55e5cb207b35e3)), closes [#250](https://github.com/andreoliwa/nitpick/issues/250)
-- experimental CLI interface (alpha version) ([#255](https://github.com/andreoliwa/nitpick/issues/255)) ([c9ca5dc](https://github.com/andreoliwa/nitpick/commit/c9ca5dc3cc4586b459e2c58fb2e61d80aa3f1e5d))
 
 ## [0.23.1](https://github.com/andreoliwa/nitpick/compare/v0.23.0...v0.23.1) (2020-11-02)
 

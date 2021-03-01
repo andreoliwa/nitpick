@@ -31,11 +31,11 @@ class Comparison:
 
         self.format_class = format_class
 
-        self.missing = None  # type: Optional[BaseFormat]
-        self.missing_dict = {}  # type: Union[JsonDict, YamlData]
+        self.missing: Optional[BaseFormat] = None
+        self.missing_dict: Union[JsonDict, YamlData] = {}
 
-        self.diff = None  # type: Optional[BaseFormat]
-        self.diff_dict = {}  # type: Union[JsonDict, YamlData]
+        self.diff: Optional[BaseFormat] = None
+        self.diff_dict: Union[JsonDict, YamlData] = {}
 
     @property
     def has_changes(self) -> bool:
@@ -45,7 +45,7 @@ class Comparison:
     @staticmethod
     def _normalize_value(value: Union[JsonDict, YamlData, "BaseFormat"]) -> JsonDict:
         if isinstance(value, BaseFormat):
-            dict_value = value.as_data  # type: JsonDict
+            dict_value: JsonDict = value.as_data
         else:
             dict_value = value
         return flatten(dict_value)
@@ -110,7 +110,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
             raise RuntimeError("Inform at least one argument: path, string or data")
 
         self._ignore_keys = ignore_keys or []
-        self._reformatted = None  # type: Optional[str]
+        self._reformatted: Optional[str] = None
         self._loaded = False
 
     @abc.abstractmethod
@@ -147,10 +147,10 @@ class BaseFormat(metaclass=abc.ABCMeta):
         if not self._ignore_keys:
             return Comparison(self.as_data or {}, expected or {}, self.__class__)
 
-        actual_original = self.as_data or {}  # type: Union[JsonDict, YamlData]
+        actual_original: Union[JsonDict, YamlData] = self.as_data or {}
         actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
 
-        expected_original = expected or {}  # type: Union[JsonDict, YamlData, "BaseFormat"]
+        expected_original: Union[JsonDict, YamlData, "BaseFormat"] = expected or {}
         if isinstance(expected_original, dict):
             expected_copy = expected_original.copy()
         elif isinstance(expected_original, BaseFormat):

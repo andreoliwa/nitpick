@@ -103,7 +103,10 @@ class Reporter:  # pylint: disable=too-few-public-methods
             formatted = violation.message
         base = self.violation_base_code if violation.add_code else 0
         Reporter.increment(fixed)
-        return Fuss(fixed, self.info.path_from_root if self.info else "", base + violation.code, formatted, suggestion)
+        # Remove right whitespace from suggestion (new lines, spaces, etc.)
+        return Fuss(
+            fixed, self.info.path_from_root if self.info else "", base + violation.code, formatted, suggestion.rstrip()
+        )
 
     @classmethod
     def reset(cls):

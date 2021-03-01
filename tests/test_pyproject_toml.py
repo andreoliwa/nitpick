@@ -6,7 +6,7 @@ from tests.helpers import ProjectMock
 
 def test_pyproject_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(tmp_path).style("").pyproject_toml("").simulate_run().assert_no_errors()
+    ProjectMock(tmp_path).style("").pyproject_toml("").api_check_then_apply()
 
 
 def test_suggest_initial_contents(tmp_path):
@@ -16,7 +16,7 @@ def test_suggest_initial_contents(tmp_path):
         [nitpick.files.present]
         "pyproject.toml" = "Do something"
         """
-    ).simulate_run().assert_errors_contain(f"NIP103 File {PYPROJECT_TOML} should exist: Do something").cli_run(
+    ).api_check_then_apply(Fuss(False, PYPROJECT_TOML, 103, " should exist: Do something")).cli_run(
         f"{PYPROJECT_TOML}:1: NIP103  should exist: Do something", violations=1
     )
 
@@ -38,7 +38,7 @@ def test_missing_different_values(tmp_path):
         yada = "before"  # comment for yada yada
         abc = "123" # comment for abc
         """
-    ).api_apply().assert_violations(
+    ).api_check_then_apply(
         Fuss(
             True,
             PYPROJECT_TOML,

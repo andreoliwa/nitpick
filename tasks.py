@@ -16,8 +16,9 @@ def install(c, deps=True, hooks=False):
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
+        print("Nitpick runs in Python 3.6 and later, but development is done in 3.6")
         c.run("poetry env use python3.6")
-        c.run("poetry install -E test -E lint --remove-untracked", pty=True)
+        c.run("poetry install -E test -E lint --remove-untracked")
     if hooks:
         c.run("pre-commit install --install-hooks")
         c.run("pre-commit install --hook-type commit-msg")
@@ -41,9 +42,9 @@ def update(c, deps=True, hooks=False):
     install(c, deps, hooks)
 
 
-@task
-def test(c):
-    """Run tests with pytest; use the command from tox config."""
+@task(help={"coverage": "Run and display the coverage HTML report", "open": "Open the HTML index"})
+def test(c, coverage=False, open=False):
+    """Run tests and coverage using the commands from tox config."""
     parser = ConfigParser()
     parser.read("setup.cfg")
     pytest_cmd = (
@@ -51,7 +52,16 @@ def test(c):
         .replace("{posargs:", "")
         .replace("}", "")
     )
-    c.run(f"poetry run {pytest_cmd}", pty=True)
+    c.run(f"poetry run {pytest_cmd}")
+
+    if coverage:
+        for line in parser["testenv:report"]["commands"].splitlines():
+            if not line:
+                continue
+            c.run(f"poetry run {line}")
+
+    if open:
+        c.run("open htmlcov/index.html")
 
 
 @task
@@ -63,21 +73,24 @@ def nitpick(c):
 @task
 def pylint(c):
     """Run pylint for all files."""
-    c.run("poetry run pylint src/", pty=True)
+    c.run("poetry run pylint src/")
 
 
 @task
 def pre_commit(c):
     """Run pre-commit for all files."""
-    c.run("pre-commit run --all-files", pty=True)
+    c.run("pre-commit run --all-files")
 
 
-@task
-def doc(c):
+@task(help={"open": "Open the HTML index"})
+def doc(c, open=False):
     """Build documentation."""
     c.run("mkdir -p docs/_static")
     c.run("rm -rf docs/source")
     c.run("tox -e docs")
+
+    if open:
+        c.run("open .tox/docs_out/index.html")
 
 
 @task(help={"full": "Full build using tox", "recreate": "Recreate tox environment"})
@@ -104,5 +117,13 @@ def clean(c):
 
 
 namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci_build, clean)
-# Echo all commands in all tasks by default (like 'make' does)
-namespace.configure({"run": {"echo": True}})
+namespace.configure(
+    {
+        "run": {
+            # Echo all commands in all tasks by default (like 'make' does)
+            "echo": True,
+            # Use a pseudo-terminal to display colorful output
+            "pty": True,
+        }
+    }
+)

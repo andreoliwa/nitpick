@@ -138,7 +138,7 @@ class Style:
 
             self._all_styles.add(toml_dict)
 
-            sub_styles = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])  # type: StrOrList
+            sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
             if sub_styles:
                 yield from self.include_multiple_styles(sub_styles)
 
@@ -169,7 +169,7 @@ class Style:
                 all_errors.update(errors)
 
             if not valid_schema:
-                Deprecation.jsonfile_section(all_errors, False)
+                Deprecation.jsonfile_section(all_errors)
                 validation_errors.update(all_errors)
         return toml_dict, validation_errors
 
@@ -177,19 +177,15 @@ class Style:
         """Get the style path from the URI. Add the .toml extension if it's missing."""
         clean_style_uri = style_uri.strip()
 
-        remote = None
+        remote = False
         if clean_style_uri.startswith(DOT_SLASH):
             remote = False
         elif is_url(clean_style_uri) or is_url(self._first_full_path):
             remote = True
-        elif clean_style_uri:
-            remote = False
 
         if remote is True:
             return self.fetch_style_from_url(clean_style_uri)
-        if remote is False:
-            return self.fetch_style_from_local_path(clean_style_uri)
-        return None
+        return self.fetch_style_from_local_path(clean_style_uri)
 
     def fetch_style_from_url(self, url: str) -> Optional[Path]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
@@ -275,7 +271,7 @@ class Style:
             return {}
         merged_dict = self._all_styles.merge()
         # TODO: check if the merged style file is still needed
-        merged_style_path = self.cache_dir / MERGED_STYLE_TOML  # type: Path
+        merged_style_path: Path = self.cache_dir / MERGED_STYLE_TOML
         toml = TOMLFormat(data=merged_dict)
 
         attempt = 1

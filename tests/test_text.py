@@ -1,5 +1,7 @@
 """Text file tests."""
-from tests.helpers import ProjectMock
+from nitpick.constants import READ_THE_DOCS_URL
+from nitpick.violations import Fuss
+from tests.helpers import NBSP, SUGGESTION_BEGIN, SUGGESTION_END, ProjectMock
 
 
 def test_suggest_initial_contents(tmp_path):
@@ -13,12 +15,17 @@ def test_suggest_initial_contents(tmp_path):
         [["requirements.txt".contains]]
         line = "some-package==1.0.0"
         """
-    ).simulate_run().assert_errors_contain(
-        """
-        NIP351 File requirements.txt was not found. Create it with this content:\x1b[32m
-        sphinx>=1.3.0
-        some-package==1.0.0\x1b[0m
-        """
+    ).api_check_then_apply(
+        Fuss(
+            False,
+            "requirements.txt",
+            351,
+            " was not found. Create it with this content:",
+            """
+            sphinx>=1.3.0
+            some-package==1.0.0
+            """,
+        )
     )
 
 
@@ -37,13 +44,13 @@ def test_text_configuration(tmp_path):
         ["ghi.txt".whatever]
         wrong = "everything"
         """
-    ).simulate_run(api=False).assert_errors_contain(
-        """
-        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
-        "abc.txt".contains.0.invalid: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.
+    ).flake8().assert_errors_contain(
+        f"""
+        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:{SUGGESTION_BEGIN}
+        "abc.txt".contains.0.invalid: Unknown configuration. See {READ_THE_DOCS_URL}plugins.html#text-files.
         "abc.txt".contains.0.line: Not a valid string.
         "def.txt".contains: Not a valid list.
-        "ghi.txt".whatever: Unknown configuration. See https://nitpick.rtfd.io/en/latest/plugins.html#text-files.\x1b[0m
+        "ghi.txt".whatever: Unknown configuration. See {READ_THE_DOCS_URL}plugins.html#text-files.{SUGGESTION_END}
         """,
         1,
     )
@@ -60,12 +67,17 @@ def test_text_file_contains_line(tmp_path):
         [["my.txt".contains]]
         line = "www"
         """
-    ).save_file("my.txt", "def\nghi\nwww").simulate_run().assert_errors_contain(
-        """
-        NIP352 File my.txt has missing lines:\x1b[32m
-        abc
-        qqq\x1b[0m
-        """
+    ).save_file("my.txt", "def\nghi\nwww").api_check_then_apply(
+        Fuss(
+            False,
+            "my.txt",
+            352,
+            " has missing lines:",
+            """
+            abc
+            qqq
+            """,
+        )
     )
 
 
@@ -76,9 +88,8 @@ def test_yaml_file_as_text(tmp_path):
         [[".gitlab-ci.yml".contains]]
         line = "    - mypy -p ims --junit-xml report-mypy.xml"
         """
-    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").simulate_run().assert_errors_contain(
-        """
-        NIP352 File .gitlab-ci.yml has missing lines:\x1b[32m
-            - mypy -p ims --junit-xml report-mypy.xml\x1b[0m
-        """
+    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").api_check_then_apply(
+        Fuss(
+            False, ".gitlab-ci.yml", 352, " has missing lines:", f"{NBSP * 4}- mypy -p ims --junit-xml report-mypy.xml"
+        )
     )

@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import List, Set
+from typing import Dict, Iterable, List, Optional, Set
 
 import pytest
 from click.testing import CliRunner
@@ -28,6 +28,15 @@ from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
 
+FIXTURES_DIR: Path = Path(__file__).parent / "fixtures"
+STYLES_DIR: Path = Path(__file__).parent.parent / "styles"
+
+# Non-breaking space
+NBSP = "\xc2\xa0"
+
+SUGGESTION_BEGIN = "\x1b[32m"
+SUGGESTION_END = "\x1b[0m"
+
 # TODO: fix Windows tests
 XFAIL_ON_WINDOWS = pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 
@@ -41,10 +50,6 @@ def assert_conditions(*args):
 
 class ProjectMock:
     """A mocked Python project to help on tests."""
-
-    # TODO: use Python 3.6 type annotations
-    fixtures_dir: Path = Path(__file__).parent / "fixtures"
-    styles_dir: Path = Path(__file__).parent.parent / "styles"
 
     def __init__(self, tmp_path: Path, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
@@ -66,8 +71,8 @@ class ProjectMock:
         :param target_dir: Target directory (default: fixture directory).
         :param target_file: Target file name (default: source file name).
         """
-        path = self.root_dir / link_name  # type: Path
-        full_source_path = Path(target_dir or self.fixtures_dir) / (target_file or link_name)
+        path: Path = self.root_dir / link_name
+        full_source_path = Path(target_dir or FIXTURES_DIR) / (target_file or link_name)
         if not full_source_path.exists():
             raise RuntimeError(f"Source file does not exist: {full_source_path}")
         path.symlink_to(full_source_path)
@@ -75,7 +80,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, apply=False) -> "ProjectMock":
+    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, apply=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -103,17 +108,61 @@ class ProjectMock:
 
         return self
 
-    def flake8(self):
+    def flake8(self, offline=False):
         """Test only the flake8 plugin, no API."""
-        return self.simulate_run(api=False)
+        return self._simulate_run(offline=offline, api=False)
 
-    def api_check(self):
+    def api_check(self, *partial_names: str):
         """Test only the API in check mode, no flake8 plugin."""
-        return self.simulate_run(flake8=False, apply=False)
+        return self._simulate_run(*partial_names, flake8=False, apply=False)
 
     def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""
-        return self.simulate_run(*partial_names, flake8=False, apply=True)
+        return self._simulate_run(*partial_names, flake8=False, apply=True)
+
+    def api_check_then_apply(
+        self, *expected_violations_when_applying: Fuss, partial_names: Optional[Iterable[str]] = None
+    ) -> "ProjectMock":
+        """Assert that check mode does not change files, and that apply mode changes them.
+
+        Perform a series of calls and assertions:
+        1. Call the API in check mode, assert violations, assert files contents were not modified.
+        2. Call the API in apply mode and assert violations again.
+
+        :param expected_violations_when_applying: Expected violations when "apply mode" is on.
+        :param partial_names: Names of the files to enforce configs for.
+        :return: ``self`` for method chaining (fluent interface)
+        """
+        partial_names = partial_names or []
+        expected_filenames = set()
+        expected_violations_when_checking = []
+        for orig in expected_violations_when_applying:
+            expected_filenames.add(orig.filename)
+            expected_violations_when_checking.append(
+                Fuss(False, orig.filename, orig.code, orig.message, orig.suggestion)
+            )
+
+        contents_before_check = self.read_multiple_files(expected_filenames)
+        self.api_check(*partial_names).assert_violations(*expected_violations_when_checking)
+        contents_after_check = self.read_multiple_files(expected_filenames)
+        compare(expected=contents_before_check, actual=contents_after_check)
+
+        return self.api_apply(*partial_names).assert_violations(*expected_violations_when_applying)
+
+    def read_file(self, filename: PathOrStr) -> Optional[str]:
+        """Read file contents.
+
+        :param filename: Filename from project root.
+        :return: File contents, or ``one`` when the file doesn't exist.
+        """
+        path = self.root_dir / filename
+        if not filename or not path.exists():
+            return None
+        return path.read_text().strip()
+
+    def read_multiple_files(self, filenames: Iterable[PathOrStr]) -> Dict[PathOrStr, Optional[str]]:
+        """Read multiple files and return a hash with filename (key) and contents (value)."""
+        return {filename: self.read_file(filename) for filename in filenames}
 
     def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents and a new line at the end.
@@ -151,7 +200,7 @@ class ProjectMock:
         This is a good way to test the style files indirectly.
         """
         for filename in args:
-            style_path = Path(self.styles_dir) / self.ensure_toml_extension(filename)
+            style_path = Path(STYLES_DIR) / self.ensure_toml_extension(filename)
             self.named_style(filename, style_path.read_text())
         return self
 
@@ -209,24 +258,6 @@ class ProjectMock:
         self._assert_error_count(expected_error, expected_count)
         return self
 
-    def assert_errors_contain_unordered(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
-        """Assert the lines of the error is in the error set, in any order.
-
-        I couldn't find a quick way to guarantee the order of the output with ``ruamel.yaml``.
-        """
-        # TODO Once there is a way to force some sorting on the YAML output, this method can be removed,
-        #  and ``assert_errors_contain()`` can be used again.
-        original_expected_error = dedent(raw_error).strip()
-        expected_error = original_expected_error.replace("\x1b[0m", "")
-        expected_error_lines = set(expected_error.split("\n"))
-        for actual_error in self._flake8_errors_as_string:
-            if set(actual_error.replace("\x1b[0m", "").split("\n")) == expected_error_lines:
-                self._assert_error_count(raw_error, expected_count)
-                return self
-
-        self.raise_assertion_error(original_expected_error)
-        return self
-
     def assert_single_error(self, raw_error: str) -> "ProjectMock":
         """Assert there is only one error."""
         return self.assert_errors_contain(raw_error, 1)
@@ -257,7 +288,10 @@ class ProjectMock:
                 fixed += 1
             else:
                 manual += 1
-            stripped.add(Fuss(orig.fixed, orig.filename, orig.code, orig.message, dedent(orig.suggestion).strip()))
+
+            # Keep non-breaking space needed by some tests (e.g. YAML)
+            clean_suggestion = dedent(orig.suggestion).strip().replace(NBSP, " ")
+            stripped.add(Fuss(orig.fixed, orig.filename, orig.code, orig.message, clean_suggestion))
         dict_difference = compare(
             expected=[obj.__dict__ for obj in stripped],
             actual=[obj.__dict__ for obj in self._actual_violations],
@@ -307,7 +341,6 @@ class ProjectMock:
 
     def assert_file_contents(self, filename: PathOrStr, file_contents: str):
         """Assert the file has the expected contents."""
-        path = self.root_dir / filename
-        actual = path.read_text().strip()
+        actual = self.read_file(filename)
         expected = dedent(file_contents).strip()
         compare(actual=actual, expected=expected)

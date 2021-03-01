@@ -34,11 +34,7 @@ def test_absent_files(tmp_path):
         xxx = "Remove this"
         yyy = "Remove that"
         """
-    ).touch_file("xxx").touch_file("yyy").simulate_run().assert_errors_contain(
-        "NIP104 File xxx should be deleted: Remove this"
-    ).assert_errors_contain(
-        "NIP104 File yyy should be deleted: Remove that"
-    ).assert_violations(
+    ).touch_file("xxx").touch_file("yyy").api_check_then_apply(
         Fuss(False, "xxx", 104, " should be deleted: Remove this"),
         Fuss(False, "yyy", 104, " should be deleted: Remove that"),
     )
@@ -46,22 +42,12 @@ def test_absent_files(tmp_path):
 
 def test_missing_message(tmp_path):
     """Test if the breaking style change "missing_message" key points to the correct help page."""
-    project = (
-        ProjectMock(tmp_path)
-        .style(
-            """
+    ProjectMock(tmp_path).style(
+        """
         [nitpick.files."pyproject.toml"]
         missing_message = "Install poetry and run 'poetry init' to create it"
         """
-        )
-        .simulate_run()
-    )
-    project.assert_errors_contain(
-        f"""
-        NIP001 File nitpick-style.toml has an incorrect style. Invalid config:\x1b[32m
-        nitpick.files."pyproject.toml": Unknown file. See {READ_THE_DOCS_URL}nitpick_section.html#nitpick-files.\x1b[0m
-        """
-    ).assert_violations(
+    ).api_check_then_apply(
         # pylint: disable=line-too-long
         Fuss(
             False,
@@ -82,7 +68,7 @@ def test_present_files(tmp_path):
         ".env" = ""
         "another-file.txt" = ""
         """
-    ).api_apply().assert_violations(
+    ).api_check_then_apply(
         Fuss(False, ".editorconfig", 103, " should exist: Create this file"),
         Fuss(False, ".env", 103, " should exist"),
         Fuss(False, "another-file.txt", 103, " should exist"),
@@ -123,14 +109,14 @@ def test_offline_flag_env_variable(tmpdir):
 def test_offline_doesnt_raise_connection_error(mocked_get, tmp_path):
     """On offline mode, no requests are made, so no connection errors should be raised."""
     mocked_get.side_effect = requests.ConnectionError("A forced error")
-    ProjectMock(tmp_path).simulate_run(offline=True)
+    ProjectMock(tmp_path).flake8(offline=True)
 
 
 @mock.patch("requests.get")
 def test_offline_recommend_using_flag(mocked_get, tmp_path, capsys):
     """Recommend using the flag on a connection error."""
     mocked_get.side_effect = requests.ConnectionError("error message from connection here")
-    ProjectMock(tmp_path).simulate_run(api=False)
+    ProjectMock(tmp_path).flake8()
     out, err = capsys.readouterr()
     assert out == ""
     assert err == "Your network is unreachable. Fix your connection or use --nitpick-offline / NITPICK_OFFLINE=1\n"
