@@ -34,6 +34,9 @@ STYLES_DIR: Path = Path(__file__).parent.parent / "styles"
 # Non-breaking space
 NBSP = "\xc2\xa0"
 
+SUGGESTION_BEGIN = "\x1b[32m"
+SUGGESTION_END = "\x1b[0m"
+
 # TODO: fix Windows tests
 XFAIL_ON_WINDOWS = pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 

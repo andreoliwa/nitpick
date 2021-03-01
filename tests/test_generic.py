@@ -4,7 +4,9 @@ import sys
 from pathlib import Path
 from unittest import mock
 
-from nitpick.generic import MergeDict, get_subclasses, relative_to_current_dir
+from testfixtures import compare
+
+from nitpick.generic import MergeDict, flatten, get_subclasses, relative_to_current_dir
 from tests.helpers import assert_conditions
 
 
@@ -25,6 +27,37 @@ def test_get_subclasses():
         pass
 
     assert_conditions(get_subclasses(Vehicle) == [Car, Audi, Bicycle])
+
+
+def test_flatten():
+    """Test the flatten function with variations."""
+    examples = [
+        (
+            {"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False},
+            {"root.sub1": 1, "root.sub2.deep": 3, "sibling": False},
+            ".",
+        ),
+        (
+            {"parent": {"with.dot": {"again": True}, "my.my": 1, 123: "numeric-key"}},
+            {'parent."with.dot".again': True, 'parent."my.my"': 1, "parent.123": "numeric-key"},
+            ".",
+        ),
+        (
+            {
+                "parent": {
+                    "my#my": ("inner", "tuple", "turns", "to", "list"),
+                    "with#hash": {"inner_list": ["x", "y", "z"]},
+                }
+            },
+            {
+                'parent#"my#my"': ["inner", "tuple", "turns", "to", "list"],
+                'parent#"with#hash"#inner_list': ["x", "y", "z"],
+            },
+            "#",
+        ),
+    ]
+    for original, expected, separator in examples:
+        compare(actual=flatten(original, separator=separator), expected=expected)
 
 
 def test_merge_dicts_extending_lists():

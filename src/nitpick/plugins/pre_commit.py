@@ -94,15 +94,10 @@ class PreCommitPlugin(NitpickPlugin):
         original_repos = original.pop(KEY_REPOS, [])
         suggested: Dict[str, Any] = {KEY_REPOS: []} if original_repos else {}
         for repo in original_repos:
-            new_repo = dict(repo)
-            hooks_or_yaml = repo.get(KEY_HOOKS, repo.get(KEY_YAML, {}))
-            if KEY_YAML in repo:
-                repo_list = YAMLFormat(string=hooks_or_yaml).as_list
-                suggested[KEY_REPOS].extend(repo_list)
-            else:
-                # TODO: show a deprecation warning for this case
-                new_repo[KEY_HOOKS] = YAMLFormat(string=hooks_or_yaml).as_data
-                suggested[KEY_REPOS].append(new_repo)
+            if KEY_YAML not in repo:
+                continue
+            repo_list = YAMLFormat(string=repo[KEY_YAML]).as_list
+            suggested[KEY_REPOS].extend(repo_list)
         suggested.update(original)
         return YAMLFormat(data=suggested).reformatted
 
@@ -176,7 +171,6 @@ class PreCommitPlugin(NitpickPlugin):
             yield self.reporter.make_fuss(Violations.MISSING_KEY_IN_REPO, key=KEY_HOOKS, repo=repo_name)
             return
 
-        actual_hooks = actual_repo_dict.get(KEY_HOOKS) or []
         yaml_expected_hooks = repo_data.get(KEY_HOOKS)
         if not yaml_expected_hooks:
             yield self.reporter.make_fuss(Violations.STYLE_FILE_MISSING_NAME, key=KEY_HOOKS, repo=repo_name)
@@ -190,10 +184,7 @@ class PreCommitPlugin(NitpickPlugin):
                 yield self.reporter.make_fuss(Violations.MISSING_KEY_IN_HOOK, expected_yaml, key=KEY_ID)
                 continue
 
-            actual_dict = find_object_by_key(actual_hooks, KEY_ID, hook_id)
-            if not actual_dict:
-                yield self.reporter.make_fuss(Violations.MISSING_HOOK_WITH_ID, expected_yaml, id=hook_id)
-                continue
+            yield self.reporter.make_fuss(Violations.MISSING_HOOK_WITH_ID, expected_yaml, id=hook_id)
 
     @staticmethod
     def format_hook(expected_dict) -> str:

@@ -65,6 +65,31 @@ def test_suggest_initial_contents(tmp_path):
     )
 
 
+def test_no_yaml_key(tmp_path):
+    """Test an invalid repo config."""
+    ProjectMock(tmp_path).style(
+        '''
+        [[".pre-commit-config.yaml".repos]]
+        missing_yaml_key = """
+          - repo: https://github.com/PyCQA/isort
+            rev: 5.7.0
+            hooks:
+              - id: isort
+        """
+        '''
+    ).api_check_then_apply(
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            331,
+            " was not found. Create it with this content:",
+            """
+            repos: []
+            """,
+        )
+    )
+
+
 def test_root_values_on_missing_file(tmp_path):
     """Test values on the root of the config file when it's missing."""
     ProjectMock(tmp_path).style(

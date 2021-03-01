@@ -32,13 +32,6 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
     Use :py:meth:`unflatten()` to revert.
 
     Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
-
-    >>> expected = {'root.sub1': 1, 'root.sub2.deep': 3, 'sibling': False}
-    >>> flatten({"root": {"sub1": 1, "sub2": {"deep": 3}}, "sibling": False}) == expected
-    True
-    >>> expected = {'parent."with.dot".again': True, 'parent."my.my"': 1, "parent.123": "numeric-key"}
-    >>> flatten({"parent": {"with.dot": {"again": True}, "my.my": 1, 123: "numeric-key"}}) == expected
-    True
     """
     if current_lists is None:
         current_lists = {}

@@ -37,18 +37,16 @@ class Deprecation:
         return False
 
     @staticmethod
-    def jsonfile_section(style_errors: Dict[str, Any], is_merged_style: bool) -> bool:
+    def jsonfile_section(style_errors: Dict[str, Any]) -> bool:
         """The [nitpick.JSONFile] is not needed anymore; JSON files are now detected by the extension."""
         has_nitpick_jsonfile_section = style_errors.get(PROJECT_NAME, {}).pop("JSONFile", None)
         if has_nitpick_jsonfile_section:
-            if not style_errors[PROJECT_NAME]:
-                style_errors.pop(PROJECT_NAME)
-            if not is_merged_style:
-                warnings.warn(
-                    "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly",
-                    DeprecationWarning,
-                )
-                return True
+            style_errors.pop(PROJECT_NAME)
+            warnings.warn(
+                "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly",
+                DeprecationWarning,
+            )
+            return True
         return False
 
 

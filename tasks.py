@@ -41,9 +41,9 @@ def update(c, deps=True, hooks=False):
     install(c, deps, hooks)
 
 
-@task
-def test(c):
-    """Run tests with pytest; use the command from tox config."""
+@task(help={"coverage": "Run and display the coverage HTML report"})
+def test(c, coverage=False):
+    """Run tests and coverage using the commands from tox config."""
     parser = ConfigParser()
     parser.read("setup.cfg")
     pytest_cmd = (
@@ -52,6 +52,13 @@ def test(c):
         .replace("}", "")
     )
     c.run(f"poetry run {pytest_cmd}", pty=True)
+
+    if coverage:
+        for line in parser["testenv:report"]["commands"].splitlines():
+            if not line:
+                continue
+            c.run(f"poetry run {line}", pty=True)
+        c.run("open htmlcov/index.html")
 
 
 @task

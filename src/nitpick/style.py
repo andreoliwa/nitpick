@@ -169,7 +169,7 @@ class Style:
                 all_errors.update(errors)
 
             if not valid_schema:
-                Deprecation.jsonfile_section(all_errors, False)
+                Deprecation.jsonfile_section(all_errors)
                 validation_errors.update(all_errors)
         return toml_dict, validation_errors
 
