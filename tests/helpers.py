@@ -293,8 +293,8 @@ class ProjectMock:
             clean_suggestion = dedent(orig.suggestion).strip().replace(NBSP, " ")
             stripped.add(Fuss(orig.fixed, orig.filename, orig.code, orig.message, clean_suggestion))
         dict_difference = compare(
-            expected=[obj.__dict__ for obj in stripped],
-            actual=[obj.__dict__ for obj in self._actual_violations],
+            expected=[obj.__dict__ for obj in sorted(stripped)],
+            actual=[obj.__dict__ for obj in sorted(self._actual_violations)],
             raises=False,
         )
         compare(
