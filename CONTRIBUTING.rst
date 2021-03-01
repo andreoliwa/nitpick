@@ -1,5 +1,3 @@
-.. include:: targets.rst
-
 ============
 Contributing
 ============
@@ -39,9 +37,9 @@ To set up Nitpick_ for local development:
 
 4. Install Invoke_. You can use pipx_ to install it globally: ``pipx install invoke``.
 
-5. Install packages::
+5. Install dependencies and pre-commit_ hooks::
 
-    invoke install
+    invoke install --hooks
 
 6. Create a branch for local development::
 
