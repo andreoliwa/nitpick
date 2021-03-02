@@ -6,7 +6,6 @@ from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 import dictdiffer
 from configupdater import ConfigUpdater
 
-from nitpick.constants import SETUP_CFG
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -38,8 +37,9 @@ class IniPlugin(NitpickPlugin):
     Example of Nitpick styles enforcing values on INI files: :ref:`flake8 configuration <default-flake8>`.
     """
 
-    violation_base_code = 320
     can_apply = True
+    identify_tags = {"ini"}
+    violation_base_code = 320
 
     updater: ConfigUpdater
     comma_separated_values: Set[str]
@@ -211,6 +211,6 @@ def plugin_class() -> Type["NitpickPlugin"]:
 @hookimpl
 def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle the setup.cfg file."""
-    if info.path_from_root == SETUP_CFG:  # FIXME[AA]:
+    if IniPlugin.identify_tags & info.tags:
         return IniPlugin
     return None

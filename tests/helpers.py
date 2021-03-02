@@ -4,11 +4,11 @@ import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import Dict, Iterable, List, Optional, Set
+from typing import Dict, Iterable, List, Optional, Set, Union
 
 import pytest
 from click.testing import CliRunner
-from more_itertools.more import always_iterable
+from more_itertools.more import always_iterable, windowed
 from testfixtures import compare
 
 from nitpick.cli import nitpick_cli
@@ -339,8 +339,10 @@ class ProjectMock:
         _, actual, expected = self._simulate_cli("ls", str_or_lines)
         compare(actual=actual, expected=expected)
 
-    def assert_file_contents(self, filename: PathOrStr, file_contents: str):
+    def assert_file_contents(self, *name_contents: Union[PathOrStr, str]):
         """Assert the file has the expected contents."""
-        actual = self.read_file(filename)
-        expected = dedent(file_contents).strip()
-        compare(actual=actual, expected=expected)
+        assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
+        for filename, file_contents in windowed(name_contents, 2, step=2):
+            actual = self.read_file(filename)
+            expected = dedent(file_contents).strip()
+            compare(actual=actual, expected=expected)

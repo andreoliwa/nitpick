@@ -105,6 +105,11 @@ def test_suggest_initial_contents(tmp_path):
         [mypy]
         ignore_missing_imports = True
     """
+    expected_generic_ini = """
+        [your-section]
+        your_number = 123
+        your_string = value
+    """
     ProjectMock(tmp_path).style(
         """
         ["setup.cfg".mypy]
@@ -115,6 +120,10 @@ def test_suggest_initial_contents(tmp_path):
 
         ["setup.cfg".flake8]
         max-line-length = 120
+
+        ["generic.ini".your-section]
+        your_string = "value"
+        your_number = 123
         """
     ).api_check_then_apply(
         Fuss(
@@ -123,9 +132,16 @@ def test_suggest_initial_contents(tmp_path):
             SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + IniPlugin.violation_base_code,
             " was not found. Create it with this content:",
             expected_setup_cfg,
-        )
+        ),
+        Fuss(
+            True,
+            "generic.ini",
+            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + IniPlugin.violation_base_code,
+            " was not found. Create it with this content:",
+            expected_generic_ini,
+        ),
     ).assert_file_contents(
-        SETUP_CFG, expected_setup_cfg
+        SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini
     )
 
 
