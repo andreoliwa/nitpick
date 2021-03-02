@@ -38,7 +38,7 @@ class IniPlugin(NitpickPlugin):
     """
 
     can_apply = True
-    identify_tags = {"ini"}
+    identify_tags = {"ini", "editorconfig"}
     violation_base_code = 320
 
     updater: ConfigUpdater

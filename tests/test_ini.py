@@ -110,6 +110,11 @@ def test_suggest_initial_contents(tmp_path):
         your_number = 123
         your_string = value
     """
+    expected_editor_config = """
+        [*]
+        end_of_line = lf
+        insert_final_newline = True
+    """
     ProjectMock(tmp_path).style(
         """
         ["setup.cfg".mypy]
@@ -124,6 +129,10 @@ def test_suggest_initial_contents(tmp_path):
         ["generic.ini".your-section]
         your_string = "value"
         your_number = 123
+
+        [".editorconfig"."*"]
+        end_of_line = "lf"
+        insert_final_newline = true
         """
     ).api_check_then_apply(
         Fuss(
@@ -140,8 +149,15 @@ def test_suggest_initial_contents(tmp_path):
             " was not found. Create it with this content:",
             expected_generic_ini,
         ),
+        Fuss(
+            True,
+            ".editorconfig",
+            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + IniPlugin.violation_base_code,
+            " was not found. Create it with this content:",
+            expected_editor_config,
+        ),
     ).assert_file_contents(
-        SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini
+        SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini, ".editorconfig", expected_editor_config
     )
 
 
