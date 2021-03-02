@@ -1,4 +1,4 @@
-"""Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`."""
+"""INI files."""
 from configparser import ConfigParser, DuplicateOptionError, ParsingError
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
@@ -27,13 +27,17 @@ class Violations(ViolationEnum):
     PARSING_ERROR = (326, ": parsing error ({cls}): {msg}")
 
 
-class SetupCfgPlugin(NitpickPlugin):
-    """Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_.
+class IniPlugin(NitpickPlugin):
+    """Enforce config on INI files.
 
-    Example: :ref:`flake8 configuration <default-flake8>`.
+    Examples of ``.ini`` files handled by this plugin:
+
+    - `setup.cfg <setup-cfg>`_
+    - `.editorconfig <EditorConfig>`_
+
+    Example of Nitpick styles enforcing values on INI files: :ref:`flake8 configuration <default-flake8>`.
     """
 
-    filename = SETUP_CFG
     violation_base_code = 320
     can_apply = True
 
@@ -201,12 +205,12 @@ class SetupCfgPlugin(NitpickPlugin):
 @hookimpl
 def plugin_class() -> Type["NitpickPlugin"]:
     """You should return your plugin class here."""
-    return SetupCfgPlugin
+    return IniPlugin
 
 
 @hookimpl
 def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle the setup.cfg file."""
-    if info.path_from_root == SETUP_CFG:
-        return SetupCfgPlugin
+    if info.path_from_root == SETUP_CFG:  # FIXME[AA]:
+        return IniPlugin
     return None

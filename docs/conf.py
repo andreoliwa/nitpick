@@ -224,9 +224,10 @@ epub_exclude_files = ["search.html"]
 # http://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
 
 # Example configuration for intersphinx: refer to the Python standard library.
+# The inventory should be present for each of these URLs in the "objects.inv" file
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "marshmallow": ("https://marshmallow.readthedocs.io/en/stable", None),
+    "marshmallow": ("https://marshmallow.readthedocs.io/en/latest", None),
     "ruamel.yaml": ("https://yaml.readthedocs.io/en/latest", None),
     "jmespath": ("https://jmespath.readthedocs.io/en/latest", None),
 }

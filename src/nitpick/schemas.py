@@ -43,7 +43,7 @@ class NitpickStylesSectionSchema(BaseNitpickSchema):
     include = PolyField(deserialization_schema_selector=fields.string_or_list_field)
 
 
-class SetupCfgSchema(BaseNitpickSchema):
+class IniSchema(BaseNitpickSchema):
     """Validation schema for setup.cfg."""
 
     error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#comma-separated-values")}
@@ -59,7 +59,7 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
     absent = fields.Dict(fields.NonEmptyString, fields.String())
     present = fields.Dict(fields.NonEmptyString, fields.String())
     # TODO: load this schema dynamically, then add this next field setup_cfg
-    setup_cfg = fields.Nested(SetupCfgSchema, data_key="setup.cfg")
+    setup_cfg = fields.Nested(IniSchema, data_key="setup.cfg")
 
 
 class NitpickSectionSchema(BaseNitpickSchema):

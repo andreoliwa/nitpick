@@ -13,7 +13,7 @@ Nitpick_ has a CLI to apply changes to files automatically.
 
 1. It doesn't work for all the plugins yet. Currently, it works for:
 
-  - :ref:`setupcfgplugin`
+  - :ref:`iniplugin`
   - :ref:`pyprojecttomlplugin`
 
 2. It tries to preserve the comments and the formatting of the original file.
@@ -31,7 +31,7 @@ Main options
 ------------
 
 
-.. code-block:: shell
+.. code-block::
 
     Usage: nitpick [OPTIONS] COMMAND [ARGS]...
 
@@ -57,7 +57,7 @@ At the end of execution, this command displays:
 - the number of violations that have to be changed manually.
 
 
-.. code-block:: shell
+.. code-block::
 
     Usage: nitpick run [OPTIONS] [FILES]...
 
@@ -77,7 +77,7 @@ At the end of execution, this command displays:
 -----------------------------
 
 
-.. code-block:: shell
+.. code-block::
 
     Usage: nitpick ls [OPTIONS] [FILES]...
 

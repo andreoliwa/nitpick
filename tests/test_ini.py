@@ -5,8 +5,8 @@ from unittest import mock
 from configupdater import ConfigUpdater
 
 from nitpick.constants import SETUP_CFG
-from nitpick.plugins.setup_cfg import SetupCfgPlugin, Violations
-from nitpick.violations import Fuss, ProjectViolations, SharedViolations
+from nitpick.plugins.ini import IniPlugin, Violations
+from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 
@@ -94,8 +94,8 @@ def test_comma_separated_keys_on_style_file(tmp_path):
 
 
 def test_suggest_initial_contents(tmp_path):
-    """Suggest contents when setup.cfg does not exist."""
-    expected_content = """
+    """Suggest contents when INI files do not exist."""
+    expected_setup_cfg = """
         [flake8]
         max-line-length = 120
 
@@ -107,9 +107,6 @@ def test_suggest_initial_contents(tmp_path):
     """
     ProjectMock(tmp_path).style(
         """
-        [nitpick.files.present]
-        "setup.cfg" = "Do something here"
-
         ["setup.cfg".mypy]
         ignore_missing_imports = true
 
@@ -123,13 +120,12 @@ def test_suggest_initial_contents(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + SetupCfgPlugin.violation_base_code,
+            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + IniPlugin.violation_base_code,
             " was not found. Create it with this content:",
-            expected_content,
-        ),
-        Fuss(False, SETUP_CFG, ProjectViolations.MISSING_FILE.code, " should exist: Do something here"),
+            expected_setup_cfg,
+        )
     ).assert_file_contents(
-        SETUP_CFG, expected_content
+        SETUP_CFG, expected_setup_cfg
     )
 
 
