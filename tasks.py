@@ -136,34 +136,30 @@ def pre_commit(c):
     help={
         "full": "Run all steps",
         "recreate": "Delete and recreate RST for source files",
-        "generate": "Generate RST",
-        "api": "Generate API docs",
         "links": "Check links",
-        "html": "Generate HTML docs",
         "open": "Open the HTML index",
         "debug": "Debug HTML generation to fix warnings",
     }
 )
-def doc(c, full=False, recreate=False, generate=True, api=True, links=False, html=True, open=False, debug=False):
+def doc(c, full=False, recreate=False, links=False, open=False, debug=False):
     """Build documentation."""
     tox = ToxCommands()
 
     if full:
-        recreate = generate = api = links = html = True
+        recreate = links = True
     if recreate:
         c.run("mkdir -p docs/_static")
         c.run("rm -rf docs/source")
-    if generate:
-        c.run(f"poetry run {tox.generate_rst}")
-    if api:
-        c.run(f"poetry run {tox.api}")
-        if debug:
-            c.run("poetry run sphinx-apidoc --help")
+
+    c.run(f"poetry run {tox.generate_rst}")
+    c.run(f"poetry run {tox.api}")
+    if debug:
+        c.run("poetry run sphinx-apidoc --help")
     if links:
         c.run(f"poetry run {tox.check_links}")
-    if html:
-        debug_options = "-nWT --keep-going -vvv" if debug else ""
-        c.run(f"poetry run {tox.html_docs} {debug_options}")
+
+    debug_options = "-nWT --keep-going -vvv" if debug else ""
+    c.run(f"poetry run {tox.html_docs} {debug_options}")
 
     if open:
         c.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
