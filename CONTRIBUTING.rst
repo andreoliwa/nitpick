@@ -20,6 +20,8 @@ Nitpick_ could always use more documentation, whether as part of the
 official docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
+.. _development:
+
 Development
 ===========
 

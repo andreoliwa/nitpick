@@ -28,11 +28,12 @@ def change_toml(document: TOMLDocument, dictionary):
 
 
 class PyProjectTomlPlugin(NitpickPlugin):
-    """Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
+    """Enforce config on `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-format>`_.
 
-    See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
+    See also `the [tool.poetry] section of the pyproject.toml file
+    <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
-    Example: :ref:`the Python 3.7 default <default-python-3-7>`.
+    Example: :ref:`the Python 3.8 default <default-python-3-8>`.
     There are many other examples in :ref:`defaults`.
     """
 

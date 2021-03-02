@@ -39,7 +39,7 @@ NIP = "nitpick.flake8:NitpickFlake8Extension"
 text = "nitpick.plugins.text"
 json = "nitpick.plugins.json"
 pre_commit = "nitpick.plugins.pre_commit"
-setup_cfg = "nitpick.plugins.setup_cfg"
+ini = "nitpick.plugins.ini"
 pyproject_toml = "nitpick.plugins.pyproject_toml"
 
 [tool.poetry.dependencies]

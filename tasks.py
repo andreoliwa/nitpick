@@ -8,6 +8,9 @@ from configparser import ConfigParser
 
 from invoke import Collection, task
 
+COLOR_GREEN = "\x1b[32m"
+COLOR_NONE = "\x1b[0m"
+
 
 @task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})
 def install(c, deps=True, hooks=False):
@@ -16,7 +19,7 @@ def install(c, deps=True, hooks=False):
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
-        print("Nitpick runs in Python 3.6 and later, but development is done in 3.6")
+        print(f"{COLOR_GREEN}Nitpick runs in Python 3.6 and later, but development is done in 3.6{COLOR_NONE}")
         c.run("poetry env use python3.6")
         c.run("poetry install -E test -E lint --remove-untracked")
     if hooks:
@@ -82,12 +85,15 @@ def pre_commit(c):
     c.run("pre-commit run --all-files")
 
 
-@task(help={"open": "Open the HTML index"})
-def doc(c, open=False):
+@task(help={"open": "Open the HTML index", "generate": "Run RST generation only"})
+def doc(c, open=False, generate=False):
     """Build documentation."""
-    c.run("mkdir -p docs/_static")
-    c.run("rm -rf docs/source")
-    c.run("tox -e docs")
+    if generate:
+        c.run("poetry run python3 docs/generate_rst.py")
+    else:
+        c.run("mkdir -p docs/_static")
+        c.run("rm -rf docs/source")
+        c.run("tox -e docs")
 
     if open:
         c.run("open .tox/docs_out/index.html")
@@ -104,8 +110,8 @@ def ci_build(c, full=False, recreate=False):
         c.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
 
 
-@task
-def clean(c):
+@task(help={"venv": "Remove the Poetry virtualenv"})
+def clean(c, venv=False):
     """Clean build output and temp files."""
     c.run("find . -type f -name '*.py[co]' -print -delete")
     c.run("find . -type d -name '__pycache__' -print -delete")
@@ -114,6 +120,8 @@ def clean(c):
         "xargs -0 rm -rvf"
     )
     c.run("rm -rvf .cache .mypy_cache docs/_build src/*.egg-info .pytest_cache .coverage htmlcov .tox")
+    if venv:
+        c.run("poetry env remove python3.6", warn=True)
 
 
 namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci_build, clean)

@@ -84,7 +84,7 @@ def generate_defaults(filename: str):
         {header}
         {dashes}
 
-        Content of `{toml_file} <{base_url}/develop/{toml_file}>`_:
+        Contents of `{toml_file} <{base_url}/develop/{toml_file}>`_:
 
         .. code-block:: toml
 
@@ -173,7 +173,7 @@ def generate_cli(filename: str) -> None:
         {dashes}
         {long}
 
-        .. code-block:: shell
+        .. code-block::
 
         {help}
     """

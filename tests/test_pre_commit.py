@@ -397,16 +397,6 @@ def test_missing_different_values(tmp_path):
         [tool.nitpick]
         style = ["root", "mypy", "pre-commit/python", "pre-commit/bash"]
         """
-    ).setup_cfg(
-        """
-        [mypy]
-        follow_imports = skip
-        ignore_missing_imports = True
-        strict_optional = True
-        warn_no_return = True
-        warn_redundant_casts = True
-        warn_unused_ignores = True
-        """
     ).pre_commit(
         """
         repos:
@@ -502,6 +492,7 @@ def test_missing_different_values(tmp_path):
             ": hook 'rst-backticks' (rev: v1.1.0) has different values. Use this:",
             "rev: v1.8.0",
         ),
+        partial_names=[PRE_COMMIT_CONFIG_YAML],
     )
 
 

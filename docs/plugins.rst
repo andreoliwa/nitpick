@@ -13,25 +13,17 @@ Below are the currently included plugins.
 
 .. auto-generated-from-here
 
-.. _setupcfgplugin:
-
-setup.cfg
----------
-
-Enforce config on `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_.
-
-Example: :ref:`flake8 configuration <default-flake8>`.
-
 .. _pyprojecttomlplugin:
 
 pyproject.toml
 --------------
 
-Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
+Enforce config on `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-format>`_.
 
-See also `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_.
+See also `the [tool.poetry] section of the pyproject.toml file
+<https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
-Example: :ref:`the Python 3.7 default <default-python-3-7>`.
+Example: :ref:`the Python 3.8 default <default-python-3-8>`.
 There are many other examples in :ref:`defaults`.
 
 .. _precommitplugin:
@@ -42,6 +34,20 @@ There are many other examples in :ref:`defaults`.
 Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
 
 Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
+
+.. _iniplugin:
+
+INI files
+---------
+
+Enforce config on INI files.
+
+Examples of ``.ini`` files handled by this plugin:
+
+- `setup.cfg <setup-cfg>`_
+- `.editorconfig <EditorConfig>`_
+
+Example of Nitpick styles enforcing values on INI files: :ref:`flake8 configuration <default-flake8>`.
 
 .. _jsonplugin:
 
