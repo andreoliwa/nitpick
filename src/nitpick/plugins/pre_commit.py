@@ -76,7 +76,7 @@ class Violations(ViolationEnum):
 class PreCommitPlugin(NitpickPlugin):
     """Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
 
-    Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
+    Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
     """
 
     filename = PRE_COMMIT_CONFIG_YAML
@@ -201,7 +201,7 @@ class PreCommitPlugin(NitpickPlugin):
 
 @hookimpl
 def plugin_class() -> Type["NitpickPlugin"]:
-    """You should return your plugin class here."""
+    """Handle pre-commit config file."""
     return PreCommitPlugin
 
 

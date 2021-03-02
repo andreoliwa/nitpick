@@ -37,6 +37,9 @@ extensions = [
     "sphinx.ext.autodoc",
     # http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html
     "sphinx.ext.autosummary",
+    # https://docs.readthedocs.io/en/stable/guides/cross-referencing-with-sphinx.html#automatically-label-sections
+    # https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html
+    "sphinx.ext.autosectionlabel",
     # http://www.sphinx-doc.org/en/master/usage/extensions/coverage.html
     "sphinx.ext.coverage",
     # http://www.sphinx-doc.org/en/master/usage/extensions/doctest.html
@@ -50,10 +53,7 @@ extensions = [
     # http://www.sphinx-doc.org/en/master/usage/extensions/to do.html
     "sphinx.ext.todo",
     # http://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
-    # TODO: Disabling because it's failing with an error:
-    #  Extension error (sphinx.ext.viewcode): Handler <function env_purge_doc at 0x111c79670> for event 'env-purge-doc'
-    #  threw an exception (exception: cannot unpack non-iterable bool object)
-    # "sphinx.ext.viewcode",
+    "sphinx.ext.viewcode",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -227,18 +227,15 @@ epub_exclude_files = ["search.html"]
 # The inventory should be present for each of these URLs in the "objects.inv" file
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "marshmallow": ("https://marshmallow.readthedocs.io/en/latest", None),
+    "marshmallow": ("https://marshmallow.readthedocs.io/en/stable", None),
     "ruamel.yaml": ("https://yaml.readthedocs.io/en/latest", None),
     "jmespath": ("https://jmespath.readthedocs.io/en/latest", None),
+    "configupdater": ("https://configupdater.readthedocs.io/en/latest/", None),
 }
-
-# -- Options for to do extension ----------------------------------------------
 
 # http://www.sphinx-doc.org/en/master/usage/extensions/to do.html#confval-todo_include_todos
 # If true, `to do` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
-
-# -- Options for autodoc extension ---------------------------------------
 
 # http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autoclass_content
 autoclass_content = "both"
@@ -246,12 +243,11 @@ autoclass_content = "both"
 # http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_default_options
 autodoc_default_options = {"members": True, "inherited-members": True, "show-inheritance": True}
 
-# -- Options for autosummary extension ---------------------------------------
-
 # http://www.sphinx-doc.org/en/master/usage/extensions/autosummary.html#confval-autosummary_generate
 autosummary_generate = True
 
-# -- Options for extlinks extension ---------------------------------------
-
 # http://www.sphinx-doc.org/en/master/usage/extensions/extlinks.html#confval-extlinks
 extlinks = {"issue": ("https://github.com/andreoliwa/nitpick/issues/%s", "issue ")}
+
+# https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html#confval-autosectionlabel_prefix_document
+autosectionlabel_prefix_document = True

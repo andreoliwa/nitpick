@@ -1,5 +1,4 @@
 .. include:: targets.rst
-.. _plugins:
 
 Plugins
 =======
@@ -23,8 +22,8 @@ Enforce config on `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep
 See also `the [tool.poetry] section of the pyproject.toml file
 <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
-Example: :ref:`the Python 3.8 default <default-python-3-8>`.
-There are many other examples in :ref:`defaults`.
+Style example: :ref:`Python 3.8 version constraint <example-python-3-8>`.
+There are :ref:`many other examples here <examples>`.
 
 .. _precommitplugin:
 
@@ -33,7 +32,7 @@ There are many other examples in :ref:`defaults`.
 
 Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
 
-Example: :ref:`the default pre-commit hooks <default-pre-commit-hooks>`.
+Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
 
 .. _iniplugin:
 
@@ -44,10 +43,10 @@ Enforce config on INI files.
 
 Examples of ``.ini`` files handled by this plugin:
 
-- `setup.cfg <setup-cfg>`_
-- `.editorconfig <EditorConfig>`_
+- `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_
+- `.editorconfig <https://editorconfig.org/>`_
 
-Example of Nitpick styles enforcing values on INI files: :ref:`flake8 configuration <default-flake8>`.
+Style examples enforcing values on INI files: :ref:`flake8 configuration <example-flake8>`.
 
 .. _jsonplugin:
 
@@ -57,7 +56,7 @@ JSON files
 Enforce configurations for any JSON file.
 
 Add the configurations for the file name you wish to check.
-Example: :ref:`the default config for package.json <default-package-json>`.
+Style example: :ref:`the default config for package.json <example-package-json>`.
 
 .. _textplugin:
 

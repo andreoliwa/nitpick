@@ -1,4 +1,4 @@
-"""Enforce config on `pyproject.toml <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_."""
+"""Enforce config on pyproject.toml."""
 from collections import OrderedDict
 from itertools import chain
 from typing import Iterator, Optional, Type
@@ -33,8 +33,8 @@ class PyProjectTomlPlugin(NitpickPlugin):
     See also `the [tool.poetry] section of the pyproject.toml file
     <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
 
-    Example: :ref:`the Python 3.8 default <default-python-3-8>`.
-    There are many other examples in :ref:`defaults`.
+    Style example: :ref:`Python 3.8 version constraint <example-python-3-8>`.
+    There are :ref:`many other examples here <examples>`.
     """
 
     filename = PYPROJECT_TOML
@@ -75,13 +75,13 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
 @hookimpl
 def plugin_class() -> Type["NitpickPlugin"]:
-    """You should return your plugin class here."""
+    """Handle the pyproject.toml file."""
     return PyProjectTomlPlugin
 
 
 @hookimpl
 def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
-    """Handle pyproject.toml file."""
+    """Handle the pyproject.toml file."""
     if info.path_from_root == PYPROJECT_TOML:
         return PyProjectTomlPlugin
     return None

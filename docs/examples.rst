@@ -1,22 +1,24 @@
 .. include:: targets.rst
 
-.. _defaults:
+.. _examples:
 
-Defaults
+Examples
 ========
 
 If you don't :ref:`configure your own style <configure-your-own-style>`, those are some of the defaults that will be applied.
 
 All TOML_ configs below are taken from the `default style file`_.
 
+You can use these examples directly with their URL (see :ref:`multiple_styles`), or copy/paste the TOML into your own style file.
+
 .. auto-generated-from-here
 
-.. _default-absent-files:
+.. _example-absent-files:
 
 Absent files
 ------------
 
-Contents of `styles/absent-files.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/absent-files.toml>`_:
+Contents of `styles/absent-files.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/absent-files.toml>`_:
 
 .. code-block:: toml
 
@@ -28,12 +30,12 @@ Contents of `styles/absent-files.toml <https://raw.githubusercontent.com/andreol
     ".venv" = ""
     ".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
-.. _default-black:
+.. _example-black:
 
 black_
 ------
 
-Contents of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/black.toml>`_:
+Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/black.toml>`_:
 
 .. code-block:: toml
 
@@ -62,12 +64,12 @@ Contents of `styles/black.toml <https://raw.githubusercontent.com/andreoliwa/nit
     #<YAML goes here>
     #"""]
 
-.. _default-flake8:
+.. _example-flake8:
 
 flake8_
 -------
 
-Contents of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/flake8.toml>`_:
+Contents of `styles/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/flake8.toml>`_:
 
 .. code-block:: toml
 
@@ -106,12 +108,12 @@ Contents of `styles/flake8.toml <https://raw.githubusercontent.com/andreoliwa/ni
     """
     # TODO suggest nitpick for external repos
 
-.. _default-ipython:
+.. _example-ipython:
 
 IPython_
 --------
 
-Contents of `styles/ipython.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/ipython.toml>`_:
+Contents of `styles/ipython.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/ipython.toml>`_:
 
 .. code-block:: toml
 
@@ -119,12 +121,12 @@ Contents of `styles/ipython.toml <https://raw.githubusercontent.com/andreoliwa/n
     ipython = "*"
     ipdb = "*"
 
-.. _default-isort:
+.. _example-isort:
 
 isort_
 ------
 
-Contents of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/isort.toml>`_:
+Contents of `styles/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/isort.toml>`_:
 
 .. code-block:: toml
 
@@ -149,12 +151,12 @@ Contents of `styles/isort.toml <https://raw.githubusercontent.com/andreoliwa/nit
           - id: isort
     """
 
-.. _default-mypy:
+.. _example-mypy:
 
 mypy_
 -----
 
-Contents of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/mypy.toml>`_:
+Contents of `styles/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/mypy.toml>`_:
 
 .. code-block:: toml
 
@@ -183,14 +185,14 @@ Contents of `styles/mypy.toml <https://raw.githubusercontent.com/andreoliwa/nitp
           - id: mypy
     """
 
-.. _default-package-json:
+.. _example-package-json:
 
 package.json_
 -------------
 
-Contents of `styles/package-json.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/package-json.toml>`_:
+Contents of `styles/package-json.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/package-json.toml>`_:
 
-.. code-block:: toml
+.. code-block::
 
     ["package.json"]
     contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
@@ -204,24 +206,24 @@ Contents of `styles/package-json.toml <https://raw.githubusercontent.com/andreol
       }
     """
 
-.. _default-poetry:
+.. _example-poetry:
 
 Poetry_
 -------
 
-Contents of `styles/poetry.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/poetry.toml>`_:
+Contents of `styles/poetry.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/poetry.toml>`_:
 
 .. code-block:: toml
 
     [nitpick.files.present]
     "pyproject.toml" = "Install poetry and run 'poetry init' to create it"
 
-.. _default-bash:
+.. _example-bash:
 
 Bash_
 -----
 
-Contents of `styles/pre-commit/bash.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/pre-commit/bash.toml>`_:
+Contents of `styles/pre-commit/bash.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/pre-commit/bash.toml>`_:
 
 .. code-block:: toml
 
@@ -233,12 +235,12 @@ Contents of `styles/pre-commit/bash.toml <https://raw.githubusercontent.com/andr
           - id: bashate
     """
 
-.. _default-commitlint:
+.. _example-commitlint:
 
 commitlint_
 -----------
 
-Contents of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/pre-commit/commitlint.toml>`_:
+Contents of `styles/pre-commit/commitlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/pre-commit/commitlint.toml>`_:
 
 .. code-block:: toml
 
@@ -252,12 +254,12 @@ Contents of `styles/pre-commit/commitlint.toml <https://raw.githubusercontent.co
             additional_dependencies: ['@commitlint/config-conventional']
     """
 
-.. _default-pre-commit-hooks:
+.. _example-pre-commit-hooks:
 
 pre-commit_ (hooks)
 -------------------
 
-Contents of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/pre-commit/general.toml>`_:
+Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/pre-commit/general.toml>`_:
 
 .. code-block:: toml
 
@@ -275,12 +277,12 @@ Contents of `styles/pre-commit/general.toml <https://raw.githubusercontent.com/a
           - id: pyupgrade
     """
 
-.. _default-pre-commit-main:
+.. _example-pre-commit-main:
 
 pre-commit_ (main)
 ------------------
 
-Contents of `styles/pre-commit/main.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/pre-commit/main.toml>`_:
+Contents of `styles/pre-commit/main.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/pre-commit/main.toml>`_:
 
 .. code-block:: toml
 
@@ -290,12 +292,12 @@ Contents of `styles/pre-commit/main.toml <https://raw.githubusercontent.com/andr
     [nitpick.files.present]
     ".pre-commit-config.yaml" = "Create the file with the contents below, then run 'pre-commit install'"
 
-.. _default-pre-commit-python-hooks:
+.. _example-pre-commit-python-hooks:
 
 pre-commit_ (Python hooks)
 --------------------------
 
-Contents of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/pre-commit/python.toml>`_:
+Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/pre-commit/python.toml>`_:
 
 .. code-block:: toml
 
@@ -311,60 +313,60 @@ Contents of `styles/pre-commit/python.toml <https://raw.githubusercontent.com/an
           - id: rst-backticks
     """
 
-.. _default-pylint:
+.. _example-pylint:
 
 Pylint_
 -------
 
-Contents of `styles/pylint.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/pylint.toml>`_:
+Contents of `styles/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/pylint.toml>`_:
 
 .. code-block:: toml
 
     ["pyproject.toml".tool.poetry.dev-dependencies]
     pylint = "*"
 
-.. _default-python-3-6:
+.. _example-python-3-6:
 
 Python 3.6
 ----------
 
-Contents of `styles/python36.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python36.toml>`_:
+Contents of `styles/python36.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/python36.toml>`_:
 
 .. code-block:: toml
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.6"
 
-.. _default-python-3-7:
+.. _example-python-3-7:
 
 Python 3.7
 ----------
 
-Contents of `styles/python37.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python37.toml>`_:
+Contents of `styles/python37.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/python37.toml>`_:
 
 .. code-block:: toml
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.7"
 
-.. _default-python-3-8:
+.. _example-python-3-8:
 
 Python 3.8
 ----------
 
-Contents of `styles/python38.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python38.toml>`_:
+Contents of `styles/python38.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/python38.toml>`_:
 
 .. code-block:: toml
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.8"
 
-.. _default-python-3-9:
+.. _example-python-3-9:
 
 Python 3.9
 ----------
 
-Contents of `styles/python39.toml <https://raw.githubusercontent.com/andreoliwa/nitpick/develop/styles/python39.toml>`_:
+Contents of `styles/python39.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/python39.toml>`_:
 
 .. code-block:: toml
 

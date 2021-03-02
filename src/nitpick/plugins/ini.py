@@ -31,10 +31,10 @@ class IniPlugin(NitpickPlugin):
 
     Examples of ``.ini`` files handled by this plugin:
 
-    - `setup.cfg <setup-cfg>`_
-    - `.editorconfig <EditorConfig>`_
+    - `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_
+    - `.editorconfig <https://editorconfig.org/>`_
 
-    Example of Nitpick styles enforcing values on INI files: :ref:`flake8 configuration <default-flake8>`.
+    Style examples enforcing values on INI files: :ref:`flake8 configuration <example-flake8>`.
     """
 
     can_apply = True
@@ -204,13 +204,13 @@ class IniPlugin(NitpickPlugin):
 
 @hookimpl
 def plugin_class() -> Type["NitpickPlugin"]:
-    """You should return your plugin class here."""
+    """Handle INI files."""
     return IniPlugin
 
 
 @hookimpl
 def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
-    """Handle the setup.cfg file."""
+    """Handle INI files."""
     if IniPlugin.identify_tags & info.tags:
         return IniPlugin
     return None

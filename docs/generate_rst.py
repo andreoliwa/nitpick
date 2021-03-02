@@ -16,7 +16,8 @@ import click
 from slugify import slugify
 from sortedcontainers import SortedDict
 
-from nitpick.constants import RAW_GITHUB_CONTENT_BASE_URL
+from nitpick import __version__
+from nitpick.constants import GITHUB_BASE_URL
 from nitpick.core import Nitpick
 
 DIVIDER = ".. auto-generated-from-here"
@@ -76,17 +77,17 @@ def write_rst(filename: str, blocks: List[str]):
     click.secho(f"{rst_file} generated", fg="green")
 
 
-def generate_defaults(filename: str):
-    """Generate defaults.rst with hardcoded TOML content."""
+def generate_examples(filename: str):
+    """Generate examples with hardcoded TOML content."""
     template = """
-        .. _default-{link}:
+        .. _example-{link}:
 
         {header}
         {dashes}
 
-        Contents of `{toml_file} <{base_url}/develop/{toml_file}>`_:
+        Contents of `{toml_file} <{base_url}v{version}/{toml_file}>`_:
 
-        .. code-block:: toml
+        .. code-block:: {language}
 
         {toml_content}
     """
@@ -108,7 +109,11 @@ def generate_defaults(filename: str):
                 header=header,
                 dashes="-" * len(header),
                 toml_file=base_name,
-                base_url=RAW_GITHUB_CONTENT_BASE_URL,
+                base_url=GITHUB_BASE_URL,
+                version=__version__,
+                # Skip TOML with JSON inside, to avoid this error message:
+                # nitpick/docs/examples.rst:193: WARNING: Could not lex literal_block as "toml". Highlighting skipped.
+                language="" if "contains_json" in toml_content else "toml",
                 toml_content="\n".join(indented_lines),
             )
         )
@@ -199,6 +204,6 @@ def generate_cli(filename: str) -> None:
 
 
 if __name__ == "__main__":
-    generate_defaults("defaults.rst")
+    generate_examples("examples.rst")
     generate_plugins("plugins.rst")
     generate_cli("cli.rst")

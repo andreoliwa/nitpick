@@ -36,7 +36,7 @@ class JSONPlugin(NitpickPlugin):
     """Enforce configurations for any JSON file.
 
     Add the configurations for the file name you wish to check.
-    Example: :ref:`the default config for package.json <default-package-json>`.
+    Style example: :ref:`the default config for package.json <example-package-json>`.
     """
 
     validation_schema = JSONFileSchema
@@ -94,7 +94,7 @@ class JSONPlugin(NitpickPlugin):
 
 @hookimpl
 def plugin_class() -> Type["NitpickPlugin"]:
-    """You should return your plugin class here."""
+    """Handle JSON files."""
     return JSONPlugin
 
 
