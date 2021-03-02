@@ -31,6 +31,6 @@ line-length__present = "int"
 line-length = "{{ nit.present(int) }}" # Jinja
 
 # Section exists with anything inside
-["pyproject.toml".tool.black]
+["pyproject.toml".tool.black2]
 __present = true
 blabla = "{{ nit.section_present() }}" # Jinja

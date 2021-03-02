@@ -16,9 +16,8 @@ inline-quotes__present = true
 
 # Section should be absent
 ["setup.cfg".darglint]
-blabla = "{{ nit.section_absent() }}"
-["setup.cfg".darglint]
 __present = false
+blabla = "{{ nit.section_absent() }}"
 
 # Section should be absent
 ["setup.cfg"."tox:tox"]
@@ -33,7 +32,7 @@ __present = true
 __present = true
 
 # Keys should be present using Jinja
-["setup.cfg".flake8]
+["setup.cfg".flake82]
 ignore = "{{ nit.present(str, validators=[comma_separated_str]) }}"
 max-line-length = "{{ nit.present(int, validators=[range(80, 120)]) }}"
 exclude = "{{ nit.present(str, validators=[comma_separated_str]) }}"
