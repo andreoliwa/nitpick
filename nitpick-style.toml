@@ -20,6 +20,7 @@ include = [
     "styles/mypy",
     "styles/pytest",
     "styles/package-json",
+    "styles/editorconfig",
 ]
 
 [nitpick.files."setup.cfg"]
