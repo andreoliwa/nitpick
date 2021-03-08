@@ -5,7 +5,7 @@ from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
 import dictdiffer
-from configupdater import ConfigUpdater
+from configupdater import ConfigUpdater, Space
 
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
@@ -22,11 +22,12 @@ class Violations(ViolationEnum):
 
     MISSING_SECTIONS = (321, " has some missing sections. Use this:")
     MISSING_VALUES_IN_LIST = (322, " has missing values in the {key!r} key. Include those values:")
-    KEY_HAS_DIFFERENT_VALUE = (323, ": [{section}]{key} is {actual} but it should be like this:")
-    MISSING_KEY_VALUE_PAIRS = (324, ": section [{section}] has some missing key/value pairs. Use this:")
+    OPTION_HAS_DIFFERENT_VALUE = (323, ": [{section}]{key} is {actual} but it should be like this:")
+    MISSING_OPTION = (324, ": section [{section}] has some missing key/value pairs. Use this:")
     INVALID_COMMA_SEPARATED_VALUES_SECTION = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
     PARSING_ERROR = (326, ": parsing error ({cls}): {msg}")
     TOP_SECTION_HAS_DIFFERENT_VALUE = (327, ": {key} is {actual} but it should be:")
+    TOP_SECTION_MISSING_OPTION = (328, ": top section has missing options. Use this:")
 
 
 class IniPlugin(NitpickPlugin):
@@ -94,10 +95,7 @@ class IniPlugin(NitpickPlugin):
         """Write the new file."""
         try:
             if self.needs_top_section:
-                contents_without_top_section = "\n".join(
-                    line for line in str(self.updater).splitlines() if TOP_SECTION not in line
-                )
-                self.file_path.write_text(contents_without_top_section)
+                self.file_path.write_text(self.remove_top_section(str(self.updater)))
                 return None
 
             if file_exists:
@@ -107,6 +105,11 @@ class IniPlugin(NitpickPlugin):
         except ParsingError as err:
             return self.reporter.make_fuss(Violations.PARSING_ERROR, cls=err.__class__.__name__, msg=err)
         return None
+
+    @staticmethod
+    def remove_top_section(multiline_text: str) -> str:
+        """Remove the temporary top section from multiline text."""
+        return "\n".join(line for line in multiline_text.splitlines() if TOP_SECTION not in line)
 
     def get_missing_output(self) -> str:
         """Get a missing output string example from the missing sections in setup.cfg."""
@@ -189,7 +192,7 @@ class IniPlugin(NitpickPlugin):
                 else:
                     yield from self.compare_different_keys(section, key, values[0], values[1])
             elif diff_type == dictdiffer.ADD:
-                yield from self.show_missing_keys(section, key, values)
+                yield from self.show_missing_keys(section, values)
 
     def enforce_comma_separated_values(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
         """Enforce sections and keys with comma-separated values. The values might contain spaces."""
@@ -236,7 +239,7 @@ class IniPlugin(NitpickPlugin):
             )
         else:
             yield self.reporter.make_fuss(
-                Violations.KEY_HAS_DIFFERENT_VALUE,
+                Violations.OPTION_HAS_DIFFERENT_VALUE,
                 f"[{section}]\n{key} = {raw_expected}",
                 section=section,
                 key=key,
@@ -244,18 +247,35 @@ class IniPlugin(NitpickPlugin):
                 fixed=self.apply,
             )
 
-    def show_missing_keys(  # pylint: disable=unused-argument
-        self, section, key, values: List[Tuple[str, Any]]
-    ) -> Iterator[Fuss]:
+    def show_missing_keys(self, section: str, values: List[Tuple[str, Any]]) -> Iterator[Fuss]:
         """Show the keys that are not present in a section."""
         parser = ConfigParser()
-        missing_dict = dict(values)
+        missing_dict = OrderedDict(values)
         parser[section] = missing_dict
         output = self.get_example_cfg(parser)
-        if self.apply:
-            self.updater[section].update(missing_dict)
-        # FIXME[AA]: top section
-        yield self.reporter.make_fuss(Violations.MISSING_KEY_VALUE_PAIRS, output, self.apply, section=section)
+        self.add_options_before_space(section, missing_dict)
+
+        if section == TOP_SECTION:
+            yield self.reporter.make_fuss(
+                Violations.TOP_SECTION_MISSING_OPTION, self.remove_top_section(output), self.apply
+            )
+        else:
+            yield self.reporter.make_fuss(Violations.MISSING_OPTION, output, self.apply, section=section)
+
+    def add_options_before_space(self, section: str, options: OrderedDict) -> None:
+        """Add new options before a blank line in the end of the section."""
+        if not self.apply:
+            return
+
+        space_removed = False
+        while isinstance(self.updater[section].last_block, Space):
+            space_removed = True
+            self.updater[section].last_block.remove()
+
+        self.updater[section].update(options)
+
+        if space_removed:
+            self.updater[section].last_block.add_after.space(1)
 
     @staticmethod
     def get_example_cfg(parser: ConfigParser) -> str:

@@ -232,7 +232,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [isort]line_length is 30 but it should be like this:",
             """
             [isort]
@@ -242,7 +242,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.MISSING_KEY_VALUE_PAIRS.code,
+            Violations.MISSING_OPTION.code,
             ": section [flake8] has some missing key/value pairs. Use this:",
             """
             [flake8]
@@ -252,7 +252,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [isort]name is John but it should be like this:",
             """
             [isort]
@@ -301,6 +301,8 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         f"""
         ["{EDITOR_CONFIG}"]
         root = true
+        missing = "value"
+        another_missing = 100
 
         ["{EDITOR_CONFIG}"."*"]
         end_of_line = "lf"
@@ -316,7 +318,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         Fuss(
             True,
             EDITOR_CONFIG,
-            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [*]end_of_line is cr but it should be like this:",
             """
             [*]
@@ -326,7 +328,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         Fuss(
             True,
             EDITOR_CONFIG,
-            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [*]insert_final_newline is false but it should be like this:",
             """
             [*]
@@ -336,7 +338,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         Fuss(
             True,
             EDITOR_CONFIG,
-            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [*]tab_width is 2 but it should be like this:",
             """
             [*]
@@ -346,30 +348,31 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         Fuss(
             True,
             EDITOR_CONFIG,
-            Violations.MISSING_KEY_VALUE_PAIRS.code,
+            Violations.MISSING_OPTION.code,
             ": section [*.{js,json}] has some missing key/value pairs. Use this:",
             """
             [*.{js,json}]
             indent_size = 2
             """,
         ),
-        # FIXME[AA]: oh_yeah = 123
-        # Fuss(
-        #     True,
-        #     EDITOR_CONFIG,
-        #     Violations.MISSING_KEY_VALUE_PAIRS.code,
-        #     ": section [*.{js,json}] has some missing key/value pairs. Use this:",
-        #     """
-        #     [*.{js,json}]
-        #     indent_size = 2
-        #     """,
-        # ),
+        Fuss(
+            True,
+            EDITOR_CONFIG,
+            Violations.TOP_SECTION_MISSING_OPTION.code,
+            ": top section has missing options. Use this:",
+            """
+            another_missing = 100
+            missing = value
+            """,
+        ),
     ).assert_file_contents(
         EDITOR_CONFIG,
         """
         # Comments should be kept
         root = true
         some_other = "value without a section"
+        another_missing = 100
+        missing = value
 
         [*]
         ; Another comment that should be kept
