@@ -100,7 +100,7 @@ def update(c, deps=True, hooks=False):
     install(c, deps, hooks)
 
 
-@task(help={"coverage": "Run and display the coverage HTML report", "open": "Open the HTML index"})
+@task(help={"coverage": "Run the HTML coverage report", "open": "Open the HTML coverage report"})
 def test(c, coverage=False, open=False):
     """Run tests and coverage using the commands from tox config."""
     tox = ToxCommands()

@@ -316,7 +316,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         Fuss(
             True,
             EDITOR_CONFIG,
-            323,
+            Violations.KEY_HAS_DIFFERENT_VALUE.code,
             ": [*]end_of_line is cr but it should be like this:",
             """
             [*]
@@ -326,7 +326,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         Fuss(
             True,
             EDITOR_CONFIG,
-            323,
+            Violations.KEY_HAS_DIFFERENT_VALUE.code,
             ": [*]insert_final_newline is false but it should be like this:",
             """
             [*]
@@ -336,7 +336,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         Fuss(
             True,
             EDITOR_CONFIG,
-            323,
+            Violations.KEY_HAS_DIFFERENT_VALUE.code,
             ": [*]tab_width is 2 but it should be like this:",
             """
             [*]
@@ -346,13 +346,24 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         Fuss(
             True,
             EDITOR_CONFIG,
-            324,
+            Violations.MISSING_KEY_VALUE_PAIRS.code,
             ": section [*.{js,json}] has some missing key/value pairs. Use this:",
             """
             [*.{js,json}]
             indent_size = 2
             """,
         ),
+        # FIXME[AA]: oh_yeah = 123
+        # Fuss(
+        #     True,
+        #     EDITOR_CONFIG,
+        #     Violations.MISSING_KEY_VALUE_PAIRS.code,
+        #     ": section [*.{js,json}] has some missing key/value pairs. Use this:",
+        #     """
+        #     [*.{js,json}]
+        #     indent_size = 2
+        #     """,
+        # ),
     ).assert_file_contents(
         EDITOR_CONFIG,
         """
@@ -503,7 +514,6 @@ def test_duplicated_option(tmp_path):
         easy = as sunday morning
         """
     project = ProjectMock(tmp_path)
-    full_path = project.root_dir / SETUP_CFG
     project.style(
         """
         ["setup.cfg".abc]
@@ -514,7 +524,7 @@ def test_duplicated_option(tmp_path):
             False,
             SETUP_CFG,
             Violations.PARSING_ERROR.code,
-            f": parsing error (DuplicateOptionError): While reading from {str(full_path)!r} "
+            f": parsing error (DuplicateOptionError): While reading from {project.path_for(SETUP_CFG)!r} "
             f"[line  3]: option 'easy' in section 'abc' already exists",
         )
     ).assert_file_contents(
@@ -555,4 +565,35 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
         ),
     ).assert_file_contents(
         SETUP_CFG, original_file
+    )
+
+
+def test_generic_ini_with_missing_header(tmp_path):
+    """A generic .ini with a missing header should raise a violation."""
+    expected_generic_ini = """
+        this_key_is_invalid = for a generic .ini (it should always have a section)
+
+        [your-section]
+        your_number = 200
+        your_string = value
+    """
+    project = ProjectMock(tmp_path)
+    project.save_file("generic.ini", expected_generic_ini).style(
+        """
+        ["generic.ini".your-section]
+        your_string = "value"
+        your_number = 100
+        """
+    ).api_check_then_apply(
+        Fuss(
+            False,
+            "generic.ini",
+            Violations.PARSING_ERROR.code,
+            ": parsing error (MissingSectionHeaderError): File contains no section headers.\n"
+            f"file: {project.path_for('generic.ini')!r}, line: 1\n"
+            "'this_key_is_invalid = for a generic .ini (it should always have a section)\\n'",
+        ),
+    ).assert_file_contents(
+        "generic.ini",
+        expected_generic_ini,
     )

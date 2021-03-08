@@ -14,7 +14,7 @@ from nitpick.violations import Fuss, ViolationEnum
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"
 SECTION_SEPARATOR = "."
-TOP_SECTION = "__TEMPORARY_TOP_SECTION_PLEASE_REMOVE_THIS_LINE__"
+TOP_SECTION = "__TEMPORARY_TOP_SECTION__"
 
 
 class Violations(ViolationEnum):
@@ -94,8 +94,10 @@ class IniPlugin(NitpickPlugin):
         """Write the new file."""
         try:
             if self.needs_top_section:
-                contents_without_top_line = "\n".join(str(self.updater).splitlines()[1:])
-                self.file_path.write_text(contents_without_top_line)
+                contents_without_top_section = "\n".join(
+                    line for line in str(self.updater).splitlines() if TOP_SECTION not in line
+                )
+                self.file_path.write_text(contents_without_top_section)
                 return None
 
             if file_exists:
@@ -128,7 +130,7 @@ class IniPlugin(NitpickPlugin):
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
         try:
             yield from self._read_file()
-        except StopIteration:
+        except Error:
             return
 
         yield from self.enforce_missing_sections()
@@ -167,7 +169,7 @@ class IniPlugin(NitpickPlugin):
         # Don't change the file if there was a parsing error
         self.apply = False
         yield self.reporter.make_fuss(Violations.PARSING_ERROR, cls=parsing_err.__class__.__name__, msg=parsing_err)
-        raise StopIteration
+        raise Error
 
     def enforce_missing_sections(self) -> Iterator[Fuss]:
         """Enforce missing sections."""
