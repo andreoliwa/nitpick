@@ -4,7 +4,7 @@ from unittest import mock
 
 from configupdater import ConfigUpdater
 
-from nitpick.constants import SETUP_CFG
+from nitpick.constants import EDITOR_CONFIG, SETUP_CFG
 from nitpick.plugins.ini import IniPlugin, Violations
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
@@ -116,21 +116,21 @@ def test_suggest_initial_contents(tmp_path):
         insert_final_newline = True
     """
     ProjectMock(tmp_path).style(
-        """
-        ["setup.cfg".mypy]
+        f"""
+        ["{SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 120
 
-        ["setup.cfg".flake8]
+        ["{SETUP_CFG}".flake8]
         max-line-length = 120
 
         ["generic.ini".your-section]
         your_string = "value"
         your_number = 123
 
-        [".editorconfig"."*"]
+        ["{EDITOR_CONFIG}"."*"]
         end_of_line = "lf"
         insert_final_newline = true
         """
@@ -151,13 +151,13 @@ def test_suggest_initial_contents(tmp_path):
         ),
         Fuss(
             True,
-            ".editorconfig",
+            EDITOR_CONFIG,
             SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + IniPlugin.violation_base_code,
             " was not found. Create it with this content:",
             expected_editor_config,
         ),
     ).assert_file_contents(
-        SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini, ".editorconfig", expected_editor_config
+        SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini, EDITOR_CONFIG, expected_editor_config
     )
 
 
@@ -169,14 +169,14 @@ def test_missing_sections(tmp_path):
         ignore_missing_imports = true
         """
     ).style(
-        """
-        ["setup.cfg".mypy]
+        f"""
+        ["{SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 120
 
-        ["setup.cfg".flake8]
+        ["{SETUP_CFG}".flake8]
         max-line-length = 120
         """
     ).api_check_then_apply(
@@ -224,15 +224,15 @@ def test_missing_different_values(tmp_path):
         xxx = "aaa"
         """
     ).style(
-        """
-        ["setup.cfg".mypy]
+        f"""
+        ["{SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 110
         name = "Mary"
 
-        ["setup.cfg".flake8]
+        ["{SETUP_CFG}".flake8]
         max-line-length = 112
         """
     ).api_check_then_apply(
@@ -280,6 +280,65 @@ def test_missing_different_values(tmp_path):
         ; Line comment with semicolon
         xxx = "aaa"
         max-line-length = 112
+        """,
+    )
+
+
+def test_missing_different_values_editorconfig_with_root(tmp_path):
+    """Test different and missing keys/values for .editorconfig with root values."""
+    ProjectMock(tmp_path).save_file(
+        EDITOR_CONFIG,
+        """
+        root = false
+
+        [*]
+        end_of_line = cr
+        insert_final_newline = false
+        indent_style = space
+        tab_width = 2
+        indent_size = tab
+
+        [*.{js,json}]
+        charset = utf-8
+        """,
+    ).style(
+        f"""
+        ["{EDITOR_CONFIG}"]
+        root = true
+
+        ["{EDITOR_CONFIG}"."*"]
+        end_of_line = "lf"
+        insert_final_newline = true
+        tab_width = 4
+
+        ["{EDITOR_CONFIG}"."*.{{js,json}}"]
+        charset = "utf-8"
+        indent_size = 2
+        """
+    ).api_check_then_apply(
+        Fuss(
+            True,
+            SETUP_CFG,
+            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            ": [isort]line_length is 30 but it should be like this:",
+            """
+            [isort]
+            line_length = 110
+            """,
+        )
+    ).assert_file_contents(
+        EDITOR_CONFIG,
+        """
+        root = true
+
+        [*]
+        end_of_line = lf
+        insert_final_newline = true
+        tab_width = 4
+
+        [*.{js,json}]
+        charset = utf-8
+        indent_size = 2
         """,
     )
 

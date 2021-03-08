@@ -20,6 +20,7 @@ ROOT_PYTHON_FILES = ("setup.py", "app.py", "wsgi.py", "autoapp.py")
 ROOT_FILES = (PYPROJECT_TOML, SETUP_CFG, "requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 MANAGE_PY = "manage.py"
 PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
+EDITOR_CONFIG = ".editorconfig"
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
