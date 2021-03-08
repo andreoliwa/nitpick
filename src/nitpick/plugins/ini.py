@@ -1,5 +1,6 @@
 """INI files."""
-from configparser import ConfigParser, DuplicateOptionError, ParsingError
+from collections import OrderedDict, defaultdict
+from configparser import ConfigParser, DuplicateOptionError, MissingSectionHeaderError, ParsingError
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
@@ -13,6 +14,7 @@ from nitpick.violations import Fuss, ViolationEnum
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"
 SECTION_SEPARATOR = "."
+TOP_SECTION = "__TEMPORARY_TOP_SECTION_PLEASE_REMOVE_THIS_LINE__"
 
 
 class Violations(ViolationEnum):
@@ -48,6 +50,24 @@ class IniPlugin(NitpickPlugin):
         """Post initialization after the instance was created."""
         self.updater = ConfigUpdater()
         self.comma_separated_values = set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))
+
+        if not self.needs_top_section:
+            return
+        if all(isinstance(v, dict) for v in self.expected_config.values()):
+            return
+
+        new_config = OrderedDict({TOP_SECTION: OrderedDict()})
+        for key, value in self.expected_config.items():
+            if isinstance(value, dict):
+                new_config[key] = value
+                continue
+            new_config[TOP_SECTION][key] = value
+        self.expected_config = new_config
+
+    @property
+    def needs_top_section(self) -> bool:
+        """Return True if this .ini file needs a top section (e.g.: .editorconfig)."""
+        return "editorconfig" in self.info.tags
 
     @property
     def current_sections(self) -> Set[str]:
@@ -101,11 +121,8 @@ class IniPlugin(NitpickPlugin):
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
         try:
-            self.updater.read(str(self.file_path))
-        except DuplicateOptionError as err:
-            # Don't change the file if there was a parsing error
-            self.apply = False
-            yield self.reporter.make_fuss(Violations.PARSING_ERROR, cls=err.__class__.__name__, msg=err)
+            yield from self._read_file()
+        except StopIteration:
             return
 
         yield from self.enforce_missing_sections()
@@ -121,6 +138,30 @@ class IniPlugin(NitpickPlugin):
 
         for section in self.expected_sections.intersection(self.current_sections) - self.missing_sections:
             yield from self.enforce_section(section)
+
+    def _read_file(self) -> Iterator[Fuss]:
+        """Read the .ini file or special files like .editorconfig."""
+        parsing_err = None
+        try:
+            self.updater.read(str(self.file_path))
+        except MissingSectionHeaderError as err:
+            if self.needs_top_section:
+                original_contents = self.file_path.read_text()
+                self.updater.read_string(f"[{TOP_SECTION}]\n{original_contents}")
+                return
+
+            # If this is not an .editorconfig file, report this as a regular parsing error
+            parsing_err = err
+        except DuplicateOptionError as err:
+            parsing_err = err
+
+        if not parsing_err:
+            return
+
+        # Don't change the file if there was a parsing error
+        self.apply = False
+        yield self.reporter.make_fuss(Violations.PARSING_ERROR, cls=parsing_err.__class__.__name__, msg=parsing_err)
+        raise StopIteration
 
     def enforce_missing_sections(self) -> Iterator[Fuss]:
         """Enforce missing sections."""

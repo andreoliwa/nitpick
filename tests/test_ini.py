@@ -44,12 +44,11 @@ def test_default_style_is_applied(project_with_default_style):
     """
     project_with_default_style.api_check_then_apply(
         Fuss(
-            fixed=True,
-            filename="setup.cfg",
-            code=321,
-            message=" was not found. Create it with this content:",
-            suggestion=expected_content,
-            lineno=1,
+            True,
+            SETUP_CFG,
+            321,
+            " was not found. Create it with this content:",
+            expected_content,
         ),
         partial_names=[SETUP_CFG],
     ).assert_file_contents(SETUP_CFG, expected_content)
@@ -289,9 +288,12 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
     ProjectMock(tmp_path).save_file(
         EDITOR_CONFIG,
         """
+        # Comments should be kept
         root = false
+        some_other = "value without a section"
 
         [*]
+        ; Another comment that should be kept
         end_of_line = cr
         insert_final_newline = false
         indent_style = space
@@ -317,21 +319,54 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         """
     ).api_check_then_apply(
         Fuss(
-            True,
-            SETUP_CFG,
-            Violations.KEY_HAS_DIFFERENT_VALUE.code,
-            ": [isort]line_length is 30 but it should be like this:",
+            False,
+            EDITOR_CONFIG,
+            323,
+            ": [*]end_of_line is cr but it should be like this:",
             """
-            [isort]
-            line_length = 110
+            [*]
+            end_of_line = lf
             """,
-        )
+        ),
+        Fuss(
+            False,
+            EDITOR_CONFIG,
+            323,
+            ": [*]insert_final_newline is false but it should be like this:",
+            """
+            [*]
+            insert_final_newline = True
+            """,
+        ),
+        Fuss(
+            False,
+            EDITOR_CONFIG,
+            323,
+            ": [*]tab_width is 2 but it should be like this:",
+            """
+            [*]
+            tab_width = 4
+            """,
+        ),
+        Fuss(
+            False,
+            EDITOR_CONFIG,
+            324,
+            ": section [*.{js,json}] has some missing key/value pairs. Use this:",
+            """
+            [*.{js,json}]
+            indent_size = 2
+            """,
+        ),
     ).assert_file_contents(
         EDITOR_CONFIG,
         """
+        # Comments should be kept
         root = true
+        some_other = "value without a section"
 
         [*]
+        ; Another comment that should be kept
         end_of_line = lf
         insert_final_newline = true
         tab_width = 4
