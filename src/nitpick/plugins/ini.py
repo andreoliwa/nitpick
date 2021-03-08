@@ -1,6 +1,6 @@
 """INI files."""
-from collections import OrderedDict, defaultdict
-from configparser import ConfigParser, DuplicateOptionError, MissingSectionHeaderError, ParsingError
+from collections import OrderedDict
+from configparser import ConfigParser, DuplicateOptionError, Error, MissingSectionHeaderError, ParsingError
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
 
@@ -26,6 +26,7 @@ class Violations(ViolationEnum):
     MISSING_KEY_VALUE_PAIRS = (324, ": section [{section}] has some missing key/value pairs. Use this:")
     INVALID_COMMA_SEPARATED_VALUES_SECTION = (325, f": invalid sections on {COMMA_SEPARATED_VALUES}:")
     PARSING_ERROR = (326, ": parsing error ({cls}): {msg}")
+    TOP_SECTION_HAS_DIFFERENT_VALUE = (327, ": {key} is {actual} but it should be:")
 
 
 class IniPlugin(NitpickPlugin):
@@ -71,7 +72,7 @@ class IniPlugin(NitpickPlugin):
 
     @property
     def current_sections(self) -> Set[str]:
-        """Current sections of the .ini file, inclusing updated sections."""
+        """Current sections of the .ini file, including updated sections."""
         return set(self.updater.sections())
 
     @property
@@ -92,6 +93,11 @@ class IniPlugin(NitpickPlugin):
     def write_file(self, file_exists: bool) -> Optional[Fuss]:
         """Write the new file."""
         try:
+            if self.needs_top_section:
+                contents_without_top_line = "\n".join(str(self.updater).splitlines()[1:])
+                self.file_path.write_text(contents_without_top_line)
+                return None
+
             if file_exists:
                 self.updater.update_file()
             else:
@@ -141,7 +147,7 @@ class IniPlugin(NitpickPlugin):
 
     def _read_file(self) -> Iterator[Fuss]:
         """Read the .ini file or special files like .editorconfig."""
-        parsing_err = None
+        parsing_err: Optional[Error] = None
         try:
             self.updater.read(str(self.file_path))
         except MissingSectionHeaderError as err:
@@ -195,8 +201,13 @@ class IniPlugin(NitpickPlugin):
         value_to_append = f",{joined_values}"
         if self.apply:
             self.updater[section][key].value += value_to_append
+        section_header = "" if section == TOP_SECTION else f"[{section}]\n"
+        # FIXME[AA]: add test for top section with comma separated values
         yield self.reporter.make_fuss(
-            Violations.MISSING_VALUES_IN_LIST, f"[{section}]\n{key} = (...){value_to_append}", key=key, fixed=self.apply
+            Violations.MISSING_VALUES_IN_LIST,
+            f"{section_header}{key} = (...){value_to_append}",
+            key=key,
+            fixed=self.apply,
         )
 
     def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
@@ -213,14 +224,23 @@ class IniPlugin(NitpickPlugin):
 
         if self.apply:
             self.updater[section][key].value = expected
-        yield self.reporter.make_fuss(
-            Violations.KEY_HAS_DIFFERENT_VALUE,
-            f"[{section}]\n{key} = {raw_expected}",
-            section=section,
-            key=key,
-            actual=raw_actual,
-            fixed=self.apply,
-        )
+        if section == TOP_SECTION:
+            yield self.reporter.make_fuss(
+                Violations.TOP_SECTION_HAS_DIFFERENT_VALUE,
+                f"{key} = {raw_expected}",
+                key=key,
+                actual=raw_actual,
+                fixed=self.apply,
+            )
+        else:
+            yield self.reporter.make_fuss(
+                Violations.KEY_HAS_DIFFERENT_VALUE,
+                f"[{section}]\n{key} = {raw_expected}",
+                section=section,
+                key=key,
+                actual=raw_actual,
+                fixed=self.apply,
+            )
 
     def show_missing_keys(  # pylint: disable=unused-argument
         self, section, key, values: List[Tuple[str, Any]]
@@ -232,6 +252,7 @@ class IniPlugin(NitpickPlugin):
         output = self.get_example_cfg(parser)
         if self.apply:
             self.updater[section].update(missing_dict)
+        # FIXME[AA]: top section
         yield self.reporter.make_fuss(Violations.MISSING_KEY_VALUE_PAIRS, output, self.apply, section=section)
 
     @staticmethod

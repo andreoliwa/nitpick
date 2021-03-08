@@ -43,13 +43,7 @@ def test_default_style_is_applied(project_with_default_style):
         warn_unused_ignores = True
     """
     project_with_default_style.api_check_then_apply(
-        Fuss(
-            True,
-            SETUP_CFG,
-            321,
-            " was not found. Create it with this content:",
-            expected_content,
-        ),
+        Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_content),
         partial_names=[SETUP_CFG],
     ).assert_file_contents(SETUP_CFG, expected_content)
 
@@ -318,8 +312,9 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         indent_size = 2
         """
     ).api_check_then_apply(
+        Fuss(True, EDITOR_CONFIG, 327, ": root is false but it should be:", "root = True"),
         Fuss(
-            False,
+            True,
             EDITOR_CONFIG,
             323,
             ": [*]end_of_line is cr but it should be like this:",
@@ -329,7 +324,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
             """,
         ),
         Fuss(
-            False,
+            True,
             EDITOR_CONFIG,
             323,
             ": [*]insert_final_newline is false but it should be like this:",
@@ -339,7 +334,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
             """,
         ),
         Fuss(
-            False,
+            True,
             EDITOR_CONFIG,
             323,
             ": [*]tab_width is 2 but it should be like this:",
@@ -349,7 +344,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
             """,
         ),
         Fuss(
-            False,
+            True,
             EDITOR_CONFIG,
             324,
             ": section [*.{js,json}] has some missing key/value pairs. Use this:",
@@ -369,7 +364,9 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         ; Another comment that should be kept
         end_of_line = lf
         insert_final_newline = true
+        indent_style = space
         tab_width = 4
+        indent_size = tab
 
         [*.{js,json}]
         charset = utf-8
