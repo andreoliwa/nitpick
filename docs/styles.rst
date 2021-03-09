@@ -1,7 +1,5 @@
 .. include:: targets.rst
 
-.. _styles:
-
 Styles
 ======
 
@@ -47,7 +45,7 @@ Configure your own style
 
 After creating your own TOML_ file with your style, add it to your ``pyproject.toml`` file. See :ref:`the [tool.nitpick] section <tool_nitpick>` for details.
 
-You can also check the :ref:`pre-configured defaults <defaults>`, and copy/paste/change configuration from them.
+You can also check :ref:`some pre-configured examples <examples>`, and copy/paste/change configuration from them.
 
 Default search order for a style
 --------------------------------

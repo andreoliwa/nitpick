@@ -76,7 +76,7 @@ class TextPlugin(NitpickPlugin):
 
 @hookimpl
 def plugin_class() -> Type["NitpickPlugin"]:
-    """You should return your plugin class here."""
+    """Handle text files."""
     return TextPlugin
 
 

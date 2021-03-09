@@ -54,12 +54,12 @@ Useful if you maintain multiple projects and want to use the same configs in all
 
    quickstart
    styles
+   examples
    auto_detection
    tool_nitpick_section
    nitpick_section
    cli
    plugins
-   defaults
    troubleshooting
    contributing
    authors

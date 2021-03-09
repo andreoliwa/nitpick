@@ -6,6 +6,10 @@ exclude__present = "str"
 max-complexity__present = "int"
 inline-quotes__present = "str"
 
+# https://github.com/andreoliwa/nitpick/issues/271
+ignore__separators = ","
+exclude__separators = ","
+
 # Keys should be absent
 ["setup.cfg".some-section]
 ignore__present = true
@@ -32,9 +36,20 @@ __present = true
 __present = true
 
 # Keys should be present using Jinja
-["setup.cfg".flake82]
+["setup.cfg".flake8-jinja]
 ignore = "{{ nit.present(str, validators=[comma_separated_str]) }}"
 max-line-length = "{{ nit.present(int, validators=[range(80, 120)]) }}"
 exclude = "{{ nit.present(str, validators=[comma_separated_str]) }}"
 max-complexity = "{{ nit.present(int) }}"
 inline-quotes = "{{ nit.present(str, choices=['double', 'single']) }}"
+
+["setup.cfg".isort]
+# https://github.com/andreoliwa/nitpick/issues/271
+skip__separators = ","
+known_first_party__separators = ","
+
+["setup.cfg"."tool:pytest"]
+# https://github.com/andreoliwa/nitpick/issues/271
+addopts__separators = " "
+norecursedirs__separators = " "
+testpaths__separators = " \n"

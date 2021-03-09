@@ -41,6 +41,8 @@ Using a file in your home directory:
     [tool.nitpick]
     style = "~/some/path/to/another-style.toml"
 
+.. _multiple_styles:
+
 Multiple styles
 ---------------
 

@@ -18,7 +18,8 @@ if TYPE_CHECKING:
 class Fuss:
     """Nitpick makes a fuss when configuration doesn't match.
 
-    Fields inspired on :py:class:`SyntaxError` and :py:class:`pyflakes.messages.Message`.
+    Fields inspired on :py:class:`SyntaxError` and `pyflakes.messages.Message
+    <https://github.com/PyCQA/pyflakes/blob/master/pyflakes/messages.py#L6>`_.
     """
 
     fixed: bool
