@@ -6,7 +6,6 @@
 """
 import re
 from collections import OrderedDict
-from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, Union
 
@@ -223,7 +222,6 @@ def is_url(url: str) -> bool:
     return url.startswith("http")
 
 
-@lru_cache()
 def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:
     """Return a relative path to the current dir or an absolute path."""
     if not path_or_str:
@@ -231,7 +229,8 @@ def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:
 
     path = Path(path_or_str)
     if str(path).startswith(str(Path.cwd())):
-        return str(path.relative_to(Path.cwd())).lstrip(".")
+        rv = str(path.relative_to(Path.cwd()))
+        return "" if rv == "." else rv
 
     return str(path.absolute())
 
