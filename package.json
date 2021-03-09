@@ -18,7 +18,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "bumpversion --allow-dirty --no-commit --no-tag --new-version ${nextRelease.version} patch && pre-commit run --all-files end-of-file-fixer || true && rm -rf dist/ && poetry build && twine upload --verbose --disable-progress-bar --skip-existing --password $TWINE_TEST_PASSWORD -r testpypi dist/*",
+          "prepareCmd": "bumpversion --allow-dirty --no-commit --no-tag --new-version ${nextRelease.version} patch && pre-commit run --all-files || true && rm -rf dist/ && poetry build && twine upload --verbose --disable-progress-bar --skip-existing --password $TWINE_TEST_PASSWORD -r testpypi dist/*",
           "publishCmd": "twine upload --verbose --disable-progress-bar --skip-existing dist/*"
         }
       ],
@@ -27,7 +27,7 @@
         "@semantic-release/git",
         {
           "assets": [
-            "setup.cfg",
+            ".bumpversion.cfg",
             "src/nitpick/__init__.py",
             "pyproject.toml",
             "package.json",
@@ -55,9 +55,9 @@
           "cli",
           "flake8",
           "style",
-          "pre-commit",
-          "pyproject.toml",
-          "setup.cfg",
+          "yaml",
+          "toml",
+          "ini",
           "json",
           "deps",
           "deps-dev",
