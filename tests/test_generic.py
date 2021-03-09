@@ -6,6 +6,7 @@ from unittest import mock
 
 from testfixtures import compare
 
+from nitpick.constants import TOX_INI
 from nitpick.generic import MergeDict, flatten, get_subclasses, relative_to_current_dir
 from tests.helpers import assert_conditions
 
@@ -93,7 +94,7 @@ def test_relative_to_current_dir(home, cwd):
         Path(project_dir): "",
         f"{home_dir}{sep}another": f"{home_dir}{sep}another",
         Path(f"{home_dir}{sep}bla{sep}bla"): f"{home_dir}{sep}bla{sep}bla",
-        f"{project_dir}{sep}tox.ini": "tox.ini",
+        f"{project_dir}{sep}{TOX_INI}": TOX_INI,
         Path(f"{project_dir}{sep}apps{sep}manage.py"): f"apps{sep}manage.py",
         f"{home_dir}{sep}another{sep}one{sep}bites.py": f"{home_dir}{sep}another{sep}one{sep}bites.py",
         Path(f"{home_dir}{sep}bla{sep}bla.txt"): f"{home_dir}{sep}bla{sep}bla.txt",

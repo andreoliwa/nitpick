@@ -19,6 +19,7 @@ include = [
     "styles/isort",
     "styles/mypy",
     "styles/pytest",
+    "styles/tox",
     "styles/package-json",
     "styles/editorconfig",
 ]

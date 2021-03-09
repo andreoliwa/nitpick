@@ -1,10 +1,10 @@
-"""setup.cfg tests."""
+"""Test INI files."""
 from configparser import ParsingError
 from unittest import mock
 
 from configupdater import ConfigUpdater
 
-from nitpick.constants import EDITOR_CONFIG, SETUP_CFG
+from nitpick.constants import EDITOR_CONFIG, SETUP_CFG, TOX_INI
 from nitpick.plugins.ini import IniPlugin, Violations
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
@@ -65,21 +65,45 @@ def test_default_style_is_applied(project_with_default_style):
         [Makefile]
         indent_style = tab
     """
+    expected_tox_ini = """
+        [coverage:report]
+        precision = 2
+        show_missing = True
+        skip_covered = True
+        skip_empty = True
+        sort = Cover
+
+        [coverage:run]
+        branch = True
+        parallel = True
+        relative_files = True
+        source = src/
+
+        [testenv]
+        description = Run tests with pytest and coverage
+        extras = test
+
+        [tox]
+        isolated_build = True
+    """
     project_with_default_style.api_check_then_apply(
         Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
         Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
-        partial_names=[SETUP_CFG, EDITOR_CONFIG],
-    ).assert_file_contents(SETUP_CFG, expected_setup_cfg)
+        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),
+        partial_names=[SETUP_CFG, EDITOR_CONFIG, TOX_INI],
+    ).assert_file_contents(
+        SETUP_CFG, expected_setup_cfg, EDITOR_CONFIG, expected_editor_config, TOX_INI, expected_tox_ini
+    )
 
 
 def test_comma_separated_keys_on_style_file(tmp_path):
     """Comma separated keys on the style file."""
     ProjectMock(tmp_path).style(
-        """
-        [nitpick.files."setup.cfg"]
+        f"""
+        [nitpick.files."{SETUP_CFG}"]
         comma_separated_values = ["food.eat", "food.drink"]
 
-        ["setup.cfg".food]
+        ["{SETUP_CFG}".food]
         eat = "salt,ham,eggs"
         drink = "water,bier,wine"
         """
@@ -416,14 +440,14 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
 def test_invalid_configuration_comma_separated_values(tmp_path):
     """Test an invalid configuration for comma_separated_values."""
     ProjectMock(tmp_path).style(
-        """
-        ["setup.cfg".flake8]
+        f"""
+        ["{SETUP_CFG}".flake8]
         max-line-length = 85
         max-complexity = 12
         ignore = "D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503"
         select = "E241,C,E,F,W,B,B9"
 
-        [nitpick.files."setup.cfg"]
+        [nitpick.files."{SETUP_CFG}"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude"]
         """
     ).api_check().assert_violations(
@@ -446,8 +470,8 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
 def test_invalid_section_dot_fields(tmp_path):
     """Test invalid section/field pairs."""
     ProjectMock(tmp_path).style(
-        """
-        [nitpick.files."setup.cfg"]
+        f"""
+        [nitpick.files."{SETUP_CFG}"]
         comma_separated_values = ["no_dot", "multiple.dots.here", ".filed_only", "section_only."]
         """
     ).setup_cfg("").api_check().assert_violations(
@@ -456,11 +480,11 @@ def test_invalid_section_dot_fields(tmp_path):
             "nitpick-style.toml",
             1,
             " has an incorrect style. Invalid config:",
-            """
-            nitpick.files."setup.cfg".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
-            nitpick.files."setup.cfg".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
-            nitpick.files."setup.cfg".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
-            nitpick.files."setup.cfg".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>
+            f"""
+            nitpick.files."{SETUP_CFG}".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
+            nitpick.files."{SETUP_CFG}".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
+            nitpick.files."{SETUP_CFG}".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
+            nitpick.files."{SETUP_CFG}".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>
             """,
         )
     )
@@ -469,13 +493,13 @@ def test_invalid_section_dot_fields(tmp_path):
 def test_invalid_sections_comma_separated_values(tmp_path):
     """Test invalid sections on comma_separated_values."""
     ProjectMock(tmp_path).style(
-        """
-        ["setup.cfg".flake8]
+        f"""
+        ["{SETUP_CFG}".flake8]
         ignore = "W503,E203,FI58,PT003,C408"
         exclude = "venv*,**/migrations/"
         per-file-ignores = "tests/**.py:FI18,setup.py:FI18"
 
-        [nitpick.files."setup.cfg"]
+        [nitpick.files."{SETUP_CFG}"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude", "falek8.per-file-ignores", "aaa.invalid-section"]
         """
     ).setup_cfg(
@@ -510,8 +534,8 @@ def test_multiline_comment(tmp_path):
             Another valid line
         """
     ProjectMock(tmp_path).style(
-        """
-        ["setup.cfg".flake8]
+        f"""
+        ["{SETUP_CFG}".flake8]
         new = "value"
         """
     ).setup_cfg(original_file).api_apply().assert_violations(
@@ -542,8 +566,8 @@ def test_duplicated_option(tmp_path):
         """
     project = ProjectMock(tmp_path)
     project.style(
-        """
-        ["setup.cfg".abc]
+        f"""
+        ["{SETUP_CFG}".abc]
         hard = "as a rock"
         """
     ).setup_cfg(original_file).api_apply().assert_violations(
@@ -561,7 +585,7 @@ def test_duplicated_option(tmp_path):
 
 @mock.patch.object(ConfigUpdater, "update_file")
 def test_simulate_parsing_error_when_saving(update_file, tmp_path):
-    """Simulate a parsing error when saving setup.cfg."""
+    """Simulate a parsing error when saving an INI file."""
     update_file.side_effect = ParsingError(source="simulating a captured error")
 
     original_file = """
@@ -569,8 +593,8 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
         existing = value
         """
     ProjectMock(tmp_path).style(
-        """
-        ["setup.cfg".flake8]
+        f"""
+        ["{SETUP_CFG}".flake8]
         new = "value"
         """
     ).setup_cfg(original_file).api_apply().assert_violations(
@@ -619,8 +643,7 @@ def test_generic_ini_with_missing_header(tmp_path):
             ": parsing error (MissingSectionHeaderError): File contains no section headers.\n"
             f"file: {project.path_for('generic.ini')!r}, line: 1\n"
             "'this_key_is_invalid = for a generic .ini (it should always have a section)\\n'",
-        ),
+        )
     ).assert_file_contents(
-        "generic.ini",
-        expected_generic_ini,
+        "generic.ini", expected_generic_ini
     )

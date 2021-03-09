@@ -294,7 +294,7 @@ class Style:
         if base_file_class.validation_schema:
             field = fields.Nested(base_file_class.validation_schema, **kwargs)
         else:
-            # For default files (pyproject.toml, setup.cfg...), there is no strict schema;
+            # For some files (e.g.: pyproject.toml, INI files), there is no strict schema;
             # it can be anything they allow.
             # It's out of Nitpick's scope to validate those files.
             field = fields.Dict(fields.String, **kwargs)
@@ -321,7 +321,7 @@ class Style:
         if data is None:
             # Data is empty; so this is the first time the dynamic class is being rebuilt.
             # Loop on classes with predetermined names, and add fields for them on the dynamic validation schema.
-            # E.g.: setup.cfg, pre-commit, pyproject.toml: files whose names we already know at this point.
+            # E.g.: pre-commit, pyproject.toml: files whose names we already know at this point.
             for subclass in fixed_name_classes:
                 new_files_found.update(self.file_field_pair(subclass.filename, subclass))
         else:

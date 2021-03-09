@@ -37,6 +37,7 @@ class IniPlugin(NitpickPlugin):
 
     - `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_
     - `.editorconfig <https://editorconfig.org/>`_
+    - `tox.ini <https://github.com/tox-dev/tox>`_
 
     Style examples enforcing values on INI files: :ref:`flake8 configuration <example-flake8>`.
     """
@@ -112,7 +113,7 @@ class IniPlugin(NitpickPlugin):
         return "\n".join(line for line in multiline_text.splitlines() if TOP_SECTION not in line)
 
     def get_missing_output(self) -> str:
-        """Get a missing output string example from the missing sections in setup.cfg."""
+        """Get a missing output string example from the missing sections in an INI file."""
         missing = self.missing_sections
         if not missing:
             return ""
@@ -130,7 +131,7 @@ class IniPlugin(NitpickPlugin):
 
     # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
     def enforce_rules(self) -> Iterator[Fuss]:
-        """Enforce rules on missing sections and missing key/value pairs in setup.cfg."""
+        """Enforce rules on missing sections and missing key/value pairs in an INI file."""
         try:
             yield from self._read_file()
         except Error:
@@ -218,7 +219,7 @@ class IniPlugin(NitpickPlugin):
     def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
         """Compare different keys, with special treatment when they are lists or numeric."""
         if isinstance(raw_actual, (int, float, bool)) or isinstance(raw_expected, (int, float, bool)):
-            # A boolean "True" or "true" has the same effect on setup.cfg.
+            # A boolean "True" or "true" has the same effect on ConfigParser files.
             actual = str(raw_actual).lower()
             expected = str(raw_expected).lower()
         else:

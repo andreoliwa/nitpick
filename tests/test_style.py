@@ -8,7 +8,7 @@ from unittest.mock import PropertyMock
 import pytest
 import responses
 
-from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, TOML_EXTENSION
+from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, SETUP_CFG, TOML_EXTENSION
 from nitpick.violations import Fuss
 from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, XFAIL_ON_WINDOWS, ProjectMock, assert_conditions
 
@@ -21,23 +21,23 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
     """Test multiple style files with precedence (the latest ones overrides the previous ones)."""
     ProjectMock(tmp_path).named_style(
         "isort1",
-        """
-        ["setup.cfg".isort]
+        f"""
+        ["{SETUP_CFG}".isort]
         line_length = 80
         known_first_party = "tests"
         xxx = "aaa"
         """,
     ).named_style(
         "styles/isort2",
-        """
-        ["setup.cfg".isort]
+        f"""
+        ["{SETUP_CFG}".isort]
         line_length = 120
         xxx = "yyy"
         """,
     ).named_style(
         "flake8",
-        """
-        ["setup.cfg".flake8]
+        f"""
+        ["{SETUP_CFG}".flake8]
         inline-quotes = "double"
         something = 123
         """,
@@ -71,7 +71,7 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         """
     ).assert_errors_contain(
         f"""
-        NIP321 File setup.cfg was not found. Create it with this content:{SUGGESTION_BEGIN}
+        NIP321 File {SETUP_CFG} was not found. Create it with this content:{SUGGESTION_BEGIN}
         [flake8]
         inline-quotes = double
         something = 123
@@ -82,9 +82,9 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         xxx = yyy{SUGGESTION_END}
         """
     ).cli_ls(
-        """
-        pyproject.toml
-        setup.cfg
+        f"""
+        {PYPROJECT_TOML}
+        {SETUP_CFG}
         """
     )
 
@@ -94,29 +94,29 @@ def test_include_styles_overriding_values(offline, tmp_path):
     """One style file can include another (also recursively). Ignore styles that were already included."""
     ProjectMock(tmp_path).named_style(
         "isort1",
-        """
+        f"""
         [nitpick.styles]
         include = "styles/isort2.toml"
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 80
         known_first_party = "tests"
         xxx = "aaa"
         """,
     ).named_style(
         "styles/isort2",
-        """
+        f"""
         [nitpick.styles]
         include = ["styles/isort2.toml", "flake8.toml"]
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 120
         xxx = "yyy"
         """,
     ).named_style(
         "flake8",
-        """
+        f"""
         [nitpick.styles]
         include = ["black.toml"]
-        ["setup.cfg".flake8]
+        ["{SETUP_CFG}".flake8]
         inline-quotes = "double"
         something = 123
         """,
@@ -143,7 +143,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         """
     ).assert_errors_contain(
         f"""
-        NIP321 File setup.cfg was not found. Create it with this content:{SUGGESTION_BEGIN}
+        NIP321 File {SETUP_CFG} was not found. Create it with this content:{SUGGESTION_BEGIN}
         [flake8]
         inline-quotes = double
         something = 123
@@ -495,8 +495,8 @@ def test_merge_styles_into_single_file(offline, tmp_path):
     """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit repos)."""
     ProjectMock(tmp_path).load_styles("black", "isort").named_style(
         "isort_overrides",
-        """
-        ["setup.cfg".isort]
+        f"""
+        ["{SETUP_CFG}".isort]
         another_key = "some value"
         multi_line_output = 6
         """,
@@ -508,11 +508,11 @@ def test_merge_styles_into_single_file(offline, tmp_path):
     ).flake8(
         offline=offline
     ).assert_merged_style(
-        '''
+        f'''
         ["pyproject.toml".tool.black]
         line-length = 120
 
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 120
         skip = ".tox,build"
         known_first_party = "tests"
@@ -578,8 +578,8 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
 def test_invalid_toml(tmp_path):
     """Invalid TOML should emit a NIP warning, not raise TomlDecodeError."""
     ProjectMock(tmp_path).style(
-        """
-        ["setup.cfg".flake8]
+        f"""
+        ["{SETUP_CFG}".flake8]
         ignore = D100,D104,D202,E203,W503
         """
     ).api_check_then_apply(

@@ -412,3 +412,41 @@ Contents of `styles/python39.toml <https://github.com/andreoliwa/nitpick/blob/v0
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.9"
+
+.. _example-tox:
+
+tox_
+----
+
+Contents of `styles/tox.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/tox.toml>`_:
+
+.. code-block:: toml
+
+    ["tox.ini".tox]
+    # https://tox.readthedocs.io/en/latest/config.html
+    isolated_build = true
+
+    ["tox.ini".testenv]
+    description = "Run tests with pytest and coverage"
+    extras = "test"
+
+    ["tox.ini"."coverage:run"]
+    # https://coverage.readthedocs.io/en/latest/config.html#run
+    branch = true
+    parallel = true
+    source = "src/"
+    # TODO: deal with multiline INI values in https://github.com/andreoliwa/nitpick/issues/271
+    #omit = """tests/*
+    #.tox/*
+    #*/pypoetry/virtualenvs/*
+    #"""
+    # This config is needed by https://github.com/marketplace/actions/coveralls-python#usage
+    relative_files = true
+
+    ["tox.ini"."coverage:report"]
+    # https://coverage.readthedocs.io/en/latest/config.html#report
+    show_missing = true
+    precision = 2
+    skip_covered = true
+    skip_empty = true
+    sort = "Cover"

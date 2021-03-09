@@ -19,7 +19,7 @@ class ToxCommands:
 
     def __init__(self) -> None:
         self._parser = ConfigParser()
-        self._parser.read("setup.cfg")
+        self._parser.read("tox.ini")
 
     def list_commands(self, section: str) -> Iterator[str]:
         """List all commands in a section."""
@@ -155,11 +155,12 @@ def doc(c, full=False, recreate=False, links=False, open=False, debug=False):
     c.run(f"poetry run {tox.api}")
     if debug:
         c.run("poetry run sphinx-apidoc --help")
-    if links:
-        c.run(f"poetry run {tox.check_links}", warn=True)
 
     debug_options = "-nWT --keep-going -vvv" if debug else ""
     c.run(f"poetry run {tox.html_docs} {debug_options}")
+
+    if links:
+        c.run(f"poetry run {tox.check_links}", warn=True)
 
     if open:
         c.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
