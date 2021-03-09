@@ -1,3 +1,12 @@
+# [0.25.0](https://github.com/andreoliwa/nitpick/compare/v0.24.1...v0.25.0) (2021-03-09)
+
+### Features
+
+- enforce configs for any INI file ([#304](https://github.com/andreoliwa/nitpick/issues/304)) ([80c840b](https://github.com/andreoliwa/nitpick/commit/80c840bc2d51cd25d82bcc4a59717c99f44c65ff))
+- enforce settings on .editorconfig ([#305](https://github.com/andreoliwa/nitpick/issues/305)) ([e8b43d9](https://github.com/andreoliwa/nitpick/commit/e8b43d92edd97b8853acded9412cce526c54b953))
+- enforce settings on .pylintrc ([#310](https://github.com/andreoliwa/nitpick/issues/310)) ([6aee663](https://github.com/andreoliwa/nitpick/commit/6aee6635030ff20d63706e1cc33e85f0da00c598))
+- enforce settings on tox.ini ([#309](https://github.com/andreoliwa/nitpick/issues/309)) ([44d6cf4](https://github.com/andreoliwa/nitpick/commit/44d6cf4274ab007b0f499ee43062186fedfc45e8))
+
 ## [0.24.1](https://github.com/andreoliwa/nitpick/compare/v0.24.0...v0.24.1) (2021-02-28)
 
 ### Bug Fixes

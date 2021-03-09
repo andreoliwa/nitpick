@@ -1,7 +1,7 @@
 .. Different anchors pointing to the same URL:
 
 .. _nitpick-style.toml:
-.. _default style file: https://github.com/andreoliwa/nitpick/blob/v0.24.1/nitpick-style.toml
+.. _default style file: https://github.com/andreoliwa/nitpick/blob/v0.25.0/nitpick-style.toml
 
 .. Sort alphabetically from here:
 
