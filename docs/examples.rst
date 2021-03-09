@@ -64,6 +64,41 @@ Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.24
     #<YAML goes here>
     #"""]
 
+.. _example-editorconfig:
+
+EditorConfig_
+-------------
+
+Contents of `styles/editorconfig.toml <https://github.com/andreoliwa/nitpick/blob/v0.24.1/styles/editorconfig.toml>`_:
+
+.. code-block:: toml
+
+    # Unix-style newlines with a newline ending every file
+    [".editorconfig"."*"]
+    end_of_line = "lf"
+    insert_final_newline = true
+    indent_style = "space"
+    tab_width = 4
+    indent_size = "tab"
+
+    # Whitespace at the end of lines
+    trim_trailing_whitespace = true
+
+    # Matches multiple files with brace expansion notation
+    # Set default charset
+    [".editorconfig"."*.{js,json}"]
+    charset = "utf-8"
+    indent_size = 2
+
+    [".editorconfig"."*.py"]
+    charset = "utf-8"
+
+    [".editorconfig"."*.{yml,yaml,md}"]
+    indent_size = 2
+
+    [".editorconfig".Makefile]
+    indent_style = "tab"
+
 .. _example-flake8:
 
 flake8_

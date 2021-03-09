@@ -1,5 +1,11 @@
-# Unix-style newlines with a newline ending every file
+# http://editorconfig.org/
+
+[".editorconfig"]
+# top-most EditorConfig file
+root = true
+
 [".editorconfig"."*"]
+# Unix-style newlines with a newline ending every file
 end_of_line = "lf"
 insert_final_newline = true
 indent_style = "space"

@@ -9,6 +9,7 @@
 .. _black: https://github.com/psf/black
 .. _commitlint: https://commitlint.js.org/
 .. _Django: https://www.djangoproject.com
+.. _EditorConfig: https://editorconfig.org
 .. _flake8: https://gitlab.com/pycqa/flake8/
 .. _Flask CLI: https://flask.palletsprojects.com/en/1.1.x/cli/
 .. _Invoke: https://github.com/pyinvoke/invoke

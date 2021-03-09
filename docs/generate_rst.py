@@ -26,12 +26,13 @@ STYLES_DIR: Path = DOCS_DIR.parent / "styles"
 
 STYLE_MAPPING = SortedDict(
     {
+        "absent-files.toml": "Absent files",
         "black.toml": "black_",
+        "editorconfig.toml": "EditorConfig_",
         "flake8.toml": "flake8_",
+        "ipython.toml": "IPython_",
         "isort.toml": "isort_",
         "mypy.toml": "mypy_",
-        "absent-files.toml": "Absent files",
-        "ipython.toml": "IPython_",
         "package-json.toml": "package.json_",
         "poetry.toml": "Poetry_",
         "pre-commit/bash.toml": "Bash_",
