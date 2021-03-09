@@ -50,7 +50,7 @@ Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.24
           - id: black
             args: [--safe, --quiet]
       - repo: https://github.com/asottile/blacken-docs
-        rev: v1.9.2
+        rev: v1.10.0
         hooks:
           - id: blacken-docs
             additional_dependencies: [black==20.8b1]

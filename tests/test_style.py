@@ -534,7 +534,7 @@ def test_merge_styles_into_single_file(offline, tmp_path):
               - id: black
                 args: [--safe, --quiet]
           - repo: https://github.com/asottile/blacken-docs
-            rev: v1.9.2
+            rev: v1.10.0
             hooks:
               - id: blacken-docs
                 additional_dependencies: [black==20.8b1]
