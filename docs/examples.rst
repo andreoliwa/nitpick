@@ -362,8 +362,60 @@ Contents of `styles/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
 
 .. code-block:: toml
 
-    ["pyproject.toml".tool.poetry.dev-dependencies]
-    pylint = "*"
+    ["pyproject.toml".tool.poetry.dependencies]
+    pylint = {version = "*", optional = true}
+
+    ["pyproject.toml".tool.poetry.extras]
+    lint = ["pylint"]
+
+    [".pylintrc".MASTER]
+    # Use multiple processes to speed up Pylint.
+    jobs = 1
+
+    [".pylintrc".REPORTS]
+    # Set the output format. Available formats are text, parseable, colorized, msvs (visual studio) and html.
+    # You can also give a reporter class, eg mypackage.mymodule.MyReporterClass.
+    output-format = "colorized"
+
+    [".pylintrc"."MESSAGES CONTROL"]
+    # TODO: deal with character separated INI options in https://github.com/andreoliwa/nitpick/issues/271
+    #  The "nitpick.files" section doesn't work out of the box for .pylintrc:
+    #  [nitpick.files.".pylintrc"]
+    #  comma_separated_values = ["MESSAGES CONTROL.disable"]
+    #  This syntax will be deprecated anyway, so I won't make it work now
+    # Configurations for the black formatter
+    #disable = "bad-continuation,bad-whitespace,fixme,cyclic-import"
+
+    [".pylintrc".BASIC]
+    # List of builtins function names that should not be used, separated by a comma
+    bad-functions = "map,filter"
+    # Good variable names which should always be accepted, separated by a comma
+    good-names = "i,j,k,e,ex,Run,_,id,rv"
+
+    [".pylintrc".FORMAT]
+    # Maximum number of characters on a single line.
+    max-line-length = 120
+    # Maximum number of lines in a module
+    max-module-lines = 1000
+    # TODO: deal with empty options (strings with spaces and quotes); maybe it's a ConfigParser/ConfigUpdater thing
+    # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1 tab).
+    #indent-string = "    "
+    # Number of spaces of indent required inside a hanging or continued line.
+    indent-after-paren = 4
+
+    [".pylintrc".SIMILARITIES]
+    # Minimum lines number of a similarity.
+    min-similarity-lines = 4
+    # Ignore comments when computing similarities.
+    ignore-comments = "yes"
+    # Ignore docstrings when computing similarities.
+    ignore-docstrings = "yes"
+    # Ignore imports when computing similarities.
+    ignore-imports = "no"
+
+    [".pylintrc".VARIABLES]
+    # A regular expression matching the name of dummy variables (i.e. expectedly not used).
+    dummy-variables-rgx = "_$|dummy"
 
 .. _example-python-3-6:
 
