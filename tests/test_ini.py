@@ -4,7 +4,7 @@ from unittest import mock
 
 from configupdater import ConfigUpdater
 
-from nitpick.constants import EDITOR_CONFIG, SETUP_CFG
+from nitpick.constants import EDITOR_CONFIG, SETUP_CFG, TOX_INI
 from nitpick.plugins.ini import IniPlugin, Violations
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
@@ -65,11 +65,35 @@ def test_default_style_is_applied(project_with_default_style):
         [Makefile]
         indent_style = tab
     """
+    expected_tox_ini = """
+        [coverage:report]
+        precision = 2
+        show_missing = True
+        skip_covered = True
+        skip_empty = True
+        sort = Cover
+
+        [coverage:run]
+        branch = True
+        parallel = True
+        relative_files = True
+        source = src/
+
+        [testenv]
+        description = Run tests with pytest and coverage
+        extras = test
+
+        [tox]
+        isolated_build = True
+    """
     project_with_default_style.api_check_then_apply(
         Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
         Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
-        partial_names=[SETUP_CFG, EDITOR_CONFIG],
-    ).assert_file_contents(SETUP_CFG, expected_setup_cfg)
+        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),
+        partial_names=[SETUP_CFG, EDITOR_CONFIG, TOX_INI],
+    ).assert_file_contents(
+        SETUP_CFG, expected_setup_cfg, EDITOR_CONFIG, expected_editor_config, TOX_INI, expected_tox_ini
+    )
 
 
 def test_comma_separated_keys_on_style_file(tmp_path):
