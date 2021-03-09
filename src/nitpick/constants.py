@@ -22,6 +22,7 @@ MANAGE_PY = "manage.py"
 PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
 EDITOR_CONFIG = ".editorconfig"
 TOX_INI = "tox.ini"
+PYLINTRC = ".pylintrc"
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'

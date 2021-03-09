@@ -4,7 +4,7 @@ from unittest import mock
 
 from configupdater import ConfigUpdater
 
-from nitpick.constants import EDITOR_CONFIG, SETUP_CFG, TOX_INI
+from nitpick.constants import EDITOR_CONFIG, PYLINTRC, SETUP_CFG, TOX_INI
 from nitpick.plugins.ini import IniPlugin, Violations
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
@@ -86,13 +86,46 @@ def test_default_style_is_applied(project_with_default_style):
         [tox]
         isolated_build = True
     """
+    expected_pylintrc = """
+        [BASIC]
+        bad-functions = map,filter
+        good-names = i,j,k,e,ex,Run,_,id,rv
+
+        [FORMAT]
+        indent-after-paren = 4
+        max-line-length = 120
+        max-module-lines = 1000
+
+        [MASTER]
+        jobs = 1
+
+        [REPORTS]
+        output-format = colorized
+
+        [SIMILARITIES]
+        ignore-comments = yes
+        ignore-docstrings = yes
+        ignore-imports = no
+        min-similarity-lines = 4
+
+        [VARIABLES]
+        dummy-variables-rgx = _$|dummy
+    """
     project_with_default_style.api_check_then_apply(
         Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
         Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
         Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),
-        partial_names=[SETUP_CFG, EDITOR_CONFIG, TOX_INI],
+        Fuss(True, PYLINTRC, 321, " was not found. Create it with this content:", expected_pylintrc),
+        partial_names=[SETUP_CFG, EDITOR_CONFIG, TOX_INI, PYLINTRC],
     ).assert_file_contents(
-        SETUP_CFG, expected_setup_cfg, EDITOR_CONFIG, expected_editor_config, TOX_INI, expected_tox_ini
+        SETUP_CFG,
+        expected_setup_cfg,
+        EDITOR_CONFIG,
+        expected_editor_config,
+        TOX_INI,
+        expected_tox_ini,
+        PYLINTRC,
+        expected_pylintrc,
     )
 
 
