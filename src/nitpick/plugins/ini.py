@@ -207,7 +207,7 @@ class IniPlugin(NitpickPlugin):
         if self.apply:
             self.updater[section][key].value += value_to_append
         section_header = "" if section == TOP_SECTION else f"[{section}]\n"
-        # FIXME[AA]: add test for top section with comma separated values
+        # TODO: proper testing of top section with separated values in https://github.com/andreoliwa/nitpick/issues/271
         yield self.reporter.make_fuss(
             Violations.MISSING_VALUES_IN_LIST,
             f"{section_header}{key} = (...){value_to_append}",
