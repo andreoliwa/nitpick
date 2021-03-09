@@ -1,7 +1,5 @@
 .. include:: targets.rst
 
-.. _quickstart:
-
 Quickstart
 ==========
 

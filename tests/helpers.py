@@ -149,6 +149,10 @@ class ProjectMock:
 
         return self.api_apply(*partial_names).assert_violations(*expected_violations_when_applying)
 
+    def path_for(self, filename: PathOrStr) -> str:
+        """Return the full path for a file, based on the root dir."""
+        return str(self.root_dir / filename)
+
     def read_file(self, filename: PathOrStr) -> Optional[str]:
         """Read file contents.
 
@@ -345,4 +349,4 @@ class ProjectMock:
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)
             expected = dedent(file_contents).strip()
-            compare(actual=actual, expected=expected)
+            compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")

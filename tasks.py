@@ -5,11 +5,66 @@ Helpful docs:
 - http://docs.pyinvoke.org/en/stable/api/runners.html#invoke.runners.Runner.run
 """
 from configparser import ConfigParser
+from typing import Iterator
 
 from invoke import Collection, task
 
 COLOR_GREEN = "\x1b[32m"
 COLOR_NONE = "\x1b[0m"
+DOCS_BUILD_PATH = "docs/_build"
+
+
+class ToxCommands:
+    """Tox commands read from the config file."""
+
+    def __init__(self) -> None:
+        self._parser = ConfigParser()
+        self._parser.read("setup.cfg")
+
+    def list_commands(self, section: str) -> Iterator[str]:
+        """List all commands in a section."""
+        for line in self._parser[section]["commands"].splitlines():
+            if not line:
+                continue
+            yield line
+
+    def find_command(self, section: str, search: str) -> str:
+        """Find a command on a section."""
+        for line in self.list_commands(section):
+            if search in line:
+                return line
+        return ""
+
+    @property
+    def pytest_command(self):
+        """Pytest."""
+        return self.find_command("testenv", "pytest").replace("{posargs:", "").replace("}", "")
+
+    def coverage_commands(self) -> Iterator[str]:
+        """All coverage commands."""
+        yield from self.list_commands("testenv:report")
+
+    @property
+    def generate_rst(self):
+        """Generate RST."""
+        return self.find_command("testenv:docs", "generate")
+
+    @property
+    def api(self):
+        """Generate API docs."""
+        return self.find_command("testenv:docs", "apidoc")
+
+    @property
+    def check_links(self):
+        """Generate API docs."""
+        return self.find_command("testenv:docs", "linkcheck").replace("{toxworkdir}", DOCS_BUILD_PATH)
+
+    @property
+    def html_docs(self):
+        """Generate HTML docs."""
+        return (
+            self.find_command("testenv:docs", "html").replace("{posargs}", "").replace("{toxworkdir}", DOCS_BUILD_PATH)
+        )
 
 
 @task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})
@@ -21,7 +76,7 @@ def install(c, deps=True, hooks=False):
     if deps:
         print(f"{COLOR_GREEN}Nitpick runs in Python 3.6 and later, but development is done in 3.6{COLOR_NONE}")
         c.run("poetry env use python3.6")
-        c.run("poetry install -E test -E lint --remove-untracked")
+        c.run("poetry install -E test -E lint -E doc --remove-untracked")
     if hooks:
         c.run("pre-commit install --install-hooks")
         c.run("pre-commit install --hook-type commit-msg")
@@ -45,23 +100,15 @@ def update(c, deps=True, hooks=False):
     install(c, deps, hooks)
 
 
-@task(help={"coverage": "Run and display the coverage HTML report", "open": "Open the HTML index"})
+@task(help={"coverage": "Run the HTML coverage report", "open": "Open the HTML coverage report"})
 def test(c, coverage=False, open=False):
     """Run tests and coverage using the commands from tox config."""
-    parser = ConfigParser()
-    parser.read("setup.cfg")
-    pytest_cmd = (
-        [line for line in parser["testenv"]["commands"].splitlines() if "pytest" in line][0]
-        .replace("{posargs:", "")
-        .replace("}", "")
-    )
-    c.run(f"poetry run {pytest_cmd}")
+    tox = ToxCommands()
+    c.run(f"poetry run {tox.pytest_command}")
 
     if coverage:
-        for line in parser["testenv:report"]["commands"].splitlines():
-            if not line:
-                continue
-            c.run(f"poetry run {line}")
+        for cmd in tox.coverage_commands():
+            c.run(f"poetry run {cmd}")
 
     if open:
         c.run("open htmlcov/index.html")
@@ -85,18 +132,37 @@ def pre_commit(c):
     c.run("pre-commit run --all-files")
 
 
-@task(help={"open": "Open the HTML index", "generate": "Run RST generation only"})
-def doc(c, open=False, generate=False):
+@task(
+    help={
+        "full": "Run all steps",
+        "recreate": "Delete and recreate RST for source files",
+        "links": "Check links",
+        "open": "Open the HTML index",
+        "debug": "Debug HTML generation to fix warnings",
+    }
+)
+def doc(c, full=False, recreate=False, links=False, open=False, debug=False):
     """Build documentation."""
-    if generate:
-        c.run("poetry run python3 docs/generate_rst.py")
-    else:
+    tox = ToxCommands()
+
+    if full:
+        recreate = links = True
+    if recreate:
         c.run("mkdir -p docs/_static")
         c.run("rm -rf docs/source")
-        c.run("tox -e docs")
+
+    c.run(f"poetry run {tox.generate_rst}")
+    c.run(f"poetry run {tox.api}")
+    if debug:
+        c.run("poetry run sphinx-apidoc --help")
+    if links:
+        c.run(f"poetry run {tox.check_links}")
+
+    debug_options = "-nWT --keep-going -vvv" if debug else ""
+    c.run(f"poetry run {tox.html_docs} {debug_options}")
 
     if open:
-        c.run("open .tox/docs_out/index.html")
+        c.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
 
 
 @task(help={"full": "Full build using tox", "recreate": "Recreate tox environment"})
@@ -104,7 +170,7 @@ def ci_build(c, full=False, recreate=False):
     """Simulate a CI build."""
     tox_cmd = "tox -r" if recreate else "tox"
     if full:
-        c.run("rm -rf docs/_build docs/source")
+        c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
         c.run(tox_cmd)
     else:
         c.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
@@ -119,7 +185,7 @@ def clean(c, venv=False):
         "find . -type d \\( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \\) -print0 | "
         "xargs -0 rm -rvf"
     )
-    c.run("rm -rvf .cache .mypy_cache docs/_build src/*.egg-info .pytest_cache .coverage htmlcov .tox")
+    c.run(f"rm -rvf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .tox")
     if venv:
         c.run("poetry env remove python3.6", warn=True)
 

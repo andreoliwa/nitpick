@@ -20,8 +20,6 @@ Nitpick_ could always use more documentation, whether as part of the
 official docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
-.. _development:
-
 Development
 ===========
 
@@ -35,7 +33,7 @@ To set up Nitpick_ for local development:
     git clone git@github.com:your_name_here/nitpick.git
     cd nitpick
 
-3. Install Poetry_ globally using `the recommended way <https://github.com/python-poetry/poetry/#installation>`_.
+3. Install Poetry_ globally using `the recommended way <https://python-poetry.org/docs/#installation>`_.
 
 4. Install Invoke_. You can use pipx_ to install it globally: ``pipx install invoke``.
 

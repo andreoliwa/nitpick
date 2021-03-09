@@ -4,7 +4,7 @@ from unittest import mock
 
 from configupdater import ConfigUpdater
 
-from nitpick.constants import SETUP_CFG
+from nitpick.constants import EDITOR_CONFIG, SETUP_CFG
 from nitpick.plugins.ini import IniPlugin, Violations
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
@@ -18,7 +18,7 @@ def test_setup_cfg_has_no_configuration(tmp_path):
 @XFAIL_ON_WINDOWS
 def test_default_style_is_applied(project_with_default_style):
     """Test if the default style is applied on an empty project."""
-    expected_content = """
+    expected_setup_cfg = """
         [flake8]
         exclude = .tox,build
         ignore = D107,D202,D203,D401,E203,E402,E501,W503
@@ -42,17 +42,34 @@ def test_default_style_is_applied(project_with_default_style):
         warn_redundant_casts = True
         warn_unused_ignores = True
     """
+    expected_editor_config = """
+        root = True
+
+        [*]
+        end_of_line = lf
+        indent_size = 4
+        indent_style = space
+        insert_final_newline = True
+        trim_trailing_whitespace = True
+
+        [*.py]
+        charset = utf-8
+
+        [*.{js,json}]
+        charset = utf-8
+        indent_size = 2
+
+        [*.{yml,yaml,md}]
+        indent_size = 2
+
+        [Makefile]
+        indent_style = tab
+    """
     project_with_default_style.api_check_then_apply(
-        Fuss(
-            fixed=True,
-            filename="setup.cfg",
-            code=321,
-            message=" was not found. Create it with this content:",
-            suggestion=expected_content,
-            lineno=1,
-        ),
-        partial_names=[SETUP_CFG],
-    ).assert_file_contents(SETUP_CFG, expected_content)
+        Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
+        Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
+        partial_names=[SETUP_CFG, EDITOR_CONFIG],
+    ).assert_file_contents(SETUP_CFG, expected_setup_cfg)
 
 
 def test_comma_separated_keys_on_style_file(tmp_path):
@@ -110,20 +127,29 @@ def test_suggest_initial_contents(tmp_path):
         your_number = 123
         your_string = value
     """
+    expected_editor_config = """
+        [*]
+        end_of_line = lf
+        insert_final_newline = True
+    """
     ProjectMock(tmp_path).style(
-        """
-        ["setup.cfg".mypy]
+        f"""
+        ["{SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 120
 
-        ["setup.cfg".flake8]
+        ["{SETUP_CFG}".flake8]
         max-line-length = 120
 
         ["generic.ini".your-section]
         your_string = "value"
         your_number = 123
+
+        ["{EDITOR_CONFIG}"."*"]
+        end_of_line = "lf"
+        insert_final_newline = true
         """
     ).api_check_then_apply(
         Fuss(
@@ -140,8 +166,15 @@ def test_suggest_initial_contents(tmp_path):
             " was not found. Create it with this content:",
             expected_generic_ini,
         ),
+        Fuss(
+            True,
+            EDITOR_CONFIG,
+            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + IniPlugin.violation_base_code,
+            " was not found. Create it with this content:",
+            expected_editor_config,
+        ),
     ).assert_file_contents(
-        SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini
+        SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini, EDITOR_CONFIG, expected_editor_config
     )
 
 
@@ -153,14 +186,14 @@ def test_missing_sections(tmp_path):
         ignore_missing_imports = true
         """
     ).style(
-        """
-        ["setup.cfg".mypy]
+        f"""
+        ["{SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 120
 
-        ["setup.cfg".flake8]
+        ["{SETUP_CFG}".flake8]
         max-line-length = 120
         """
     ).api_check_then_apply(
@@ -208,22 +241,22 @@ def test_missing_different_values(tmp_path):
         xxx = "aaa"
         """
     ).style(
-        """
-        ["setup.cfg".mypy]
+        f"""
+        ["{SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["setup.cfg".isort]
+        ["{SETUP_CFG}".isort]
         line_length = 110
         name = "Mary"
 
-        ["setup.cfg".flake8]
+        ["{SETUP_CFG}".flake8]
         max-line-length = 112
         """
     ).api_check_then_apply(
         Fuss(
             True,
             SETUP_CFG,
-            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [isort]line_length is 30 but it should be like this:",
             """
             [isort]
@@ -233,7 +266,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.MISSING_KEY_VALUE_PAIRS.code,
+            Violations.MISSING_OPTION.code,
             ": section [flake8] has some missing key/value pairs. Use this:",
             """
             [flake8]
@@ -243,7 +276,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             SETUP_CFG,
-            Violations.KEY_HAS_DIFFERENT_VALUE.code,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [isort]name is John but it should be like this:",
             """
             [isort]
@@ -264,6 +297,118 @@ def test_missing_different_values(tmp_path):
         ; Line comment with semicolon
         xxx = "aaa"
         max-line-length = 112
+        """,
+    )
+
+
+def test_missing_different_values_editorconfig_with_root(tmp_path):
+    """Test different and missing keys/values for .editorconfig with root values."""
+    ProjectMock(tmp_path).save_file(
+        EDITOR_CONFIG,
+        """
+        # Comments should be kept
+        root = false
+        some_other = "value without a section"
+
+        [*]
+        ; Another comment that should be kept
+        end_of_line = cr
+        insert_final_newline = false
+        indent_style = space
+        tab_width = 2
+        indent_size = tab
+
+        [*.{js,json}]
+        charset = utf-8
+        """,
+    ).style(
+        f"""
+        ["{EDITOR_CONFIG}"]
+        root = true
+        missing = "value"
+        another_missing = 100
+
+        ["{EDITOR_CONFIG}"."*"]
+        end_of_line = "lf"
+        insert_final_newline = true
+        tab_width = 4
+
+        ["{EDITOR_CONFIG}"."*.{{js,json}}"]
+        charset = "utf-8"
+        indent_size = 2
+        """
+    ).api_check_then_apply(
+        Fuss(True, EDITOR_CONFIG, 327, ": root is false but it should be:", "root = True"),
+        Fuss(
+            True,
+            EDITOR_CONFIG,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
+            ": [*]end_of_line is cr but it should be like this:",
+            """
+            [*]
+            end_of_line = lf
+            """,
+        ),
+        Fuss(
+            True,
+            EDITOR_CONFIG,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
+            ": [*]insert_final_newline is false but it should be like this:",
+            """
+            [*]
+            insert_final_newline = True
+            """,
+        ),
+        Fuss(
+            True,
+            EDITOR_CONFIG,
+            Violations.OPTION_HAS_DIFFERENT_VALUE.code,
+            ": [*]tab_width is 2 but it should be like this:",
+            """
+            [*]
+            tab_width = 4
+            """,
+        ),
+        Fuss(
+            True,
+            EDITOR_CONFIG,
+            Violations.MISSING_OPTION.code,
+            ": section [*.{js,json}] has some missing key/value pairs. Use this:",
+            """
+            [*.{js,json}]
+            indent_size = 2
+            """,
+        ),
+        Fuss(
+            True,
+            EDITOR_CONFIG,
+            Violations.TOP_SECTION_MISSING_OPTION.code,
+            ": top section has missing options. Use this:",
+            """
+            another_missing = 100
+            missing = value
+            """,
+        ),
+    ).assert_file_contents(
+        EDITOR_CONFIG,
+        """
+        # Comments should be kept
+        root = true
+        some_other = "value without a section"
+        another_missing = 100
+        missing = value
+
+        [*]
+        ; Another comment that should be kept
+        end_of_line = lf
+        insert_final_newline = true
+        indent_style = space
+        tab_width = 4
+        indent_size = tab
+
+        [*.{js,json}]
+        charset = utf-8
+        indent_size = 2
         """,
     )
 
@@ -396,7 +541,6 @@ def test_duplicated_option(tmp_path):
         easy = as sunday morning
         """
     project = ProjectMock(tmp_path)
-    full_path = project.root_dir / SETUP_CFG
     project.style(
         """
         ["setup.cfg".abc]
@@ -407,7 +551,7 @@ def test_duplicated_option(tmp_path):
             False,
             SETUP_CFG,
             Violations.PARSING_ERROR.code,
-            f": parsing error (DuplicateOptionError): While reading from {str(full_path)!r} "
+            f": parsing error (DuplicateOptionError): While reading from {project.path_for(SETUP_CFG)!r} "
             f"[line  3]: option 'easy' in section 'abc' already exists",
         )
     ).assert_file_contents(
@@ -448,4 +592,35 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
         ),
     ).assert_file_contents(
         SETUP_CFG, original_file
+    )
+
+
+def test_generic_ini_with_missing_header(tmp_path):
+    """A generic .ini with a missing header should raise a violation."""
+    expected_generic_ini = """
+        this_key_is_invalid = for a generic .ini (it should always have a section)
+
+        [your-section]
+        your_number = 200
+        your_string = value
+    """
+    project = ProjectMock(tmp_path)
+    project.save_file("generic.ini", expected_generic_ini).style(
+        """
+        ["generic.ini".your-section]
+        your_string = "value"
+        your_number = 100
+        """
+    ).api_check_then_apply(
+        Fuss(
+            False,
+            "generic.ini",
+            Violations.PARSING_ERROR.code,
+            ": parsing error (MissingSectionHeaderError): File contains no section headers.\n"
+            f"file: {project.path_for('generic.ini')!r}, line: 1\n"
+            "'this_key_is_invalid = for a generic .ini (it should always have a section)\\n'",
+        ),
+    ).assert_file_contents(
+        "generic.ini",
+        expected_generic_ini,
     )

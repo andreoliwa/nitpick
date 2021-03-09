@@ -71,6 +71,7 @@ testfixtures = {version = "*", optional = true}
 responses = {version = "*", optional = true}
 sphinx = {version = "*", optional = true}
 sphinx_rtd_theme = {version = "*", optional = true}
+sphobjinv = {version = "*", optional = true}
 pydantic = "*"
 autorepr = "*"
 loguru = "*"
@@ -79,7 +80,7 @@ ConfigUpdater = "*"
 [tool.poetry.extras]
 lint = ["pylint"]
 test = ["pytest", "pytest-cov", "testfixtures", "responses"]
-doc = ["sphinx", "sphinx_rtd_theme"]
+doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv"]
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
