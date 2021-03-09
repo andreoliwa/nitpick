@@ -32,7 +32,7 @@ class ToxCommands:
         """Find a command on a section."""
         for line in self.list_commands(section):
             if search in line:
-                return line
+                return line.lstrip("- ")
         return ""
 
     @property
@@ -156,7 +156,7 @@ def doc(c, full=False, recreate=False, links=False, open=False, debug=False):
     if debug:
         c.run("poetry run sphinx-apidoc --help")
     if links:
-        c.run(f"poetry run {tox.check_links}")
+        c.run(f"poetry run {tox.check_links}", warn=True)
 
     debug_options = "-nWT --keep-going -vvv" if debug else ""
     c.run(f"poetry run {tox.html_docs} {debug_options}")
