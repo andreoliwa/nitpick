@@ -37,7 +37,7 @@ class IniPlugin(NitpickPlugin):
 
     - `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_
     - `.editorconfig <https://editorconfig.org/>`_
-    - `tox.ini <https://tox.readthedocs.io/en/latest/>`_
+    - `tox.ini <https://github.com/tox-dev/tox>`_
 
     Style examples enforcing values on INI files: :ref:`flake8 configuration <example-flake8>`.
     """
