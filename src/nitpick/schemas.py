@@ -6,7 +6,7 @@ from marshmallow_polyfield import PolyField
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.constants import READ_THE_DOCS_URL
+from nitpick.constants import READ_THE_DOCS_URL, SETUP_CFG
 from nitpick.generic import flatten
 
 
@@ -44,7 +44,7 @@ class NitpickStylesSectionSchema(BaseNitpickSchema):
 
 
 class IniSchema(BaseNitpickSchema):
-    """Validation schema for setup.cfg."""
+    """Validation schema for INI files."""
 
     error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#comma-separated-values")}
 
@@ -59,7 +59,7 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
     absent = fields.Dict(fields.NonEmptyString, fields.String())
     present = fields.Dict(fields.NonEmptyString, fields.String())
     # TODO: load this schema dynamically, then add this next field setup_cfg
-    setup_cfg = fields.Nested(IniSchema, data_key="setup.cfg")
+    setup_cfg = fields.Nested(IniSchema, data_key=SETUP_CFG)
 
 
 class NitpickSectionSchema(BaseNitpickSchema):

@@ -4,7 +4,7 @@ from textwrap import dedent
 import pytest
 from testfixtures import compare
 
-from nitpick.constants import PRE_COMMIT_CONFIG_YAML
+from nitpick.constants import PRE_COMMIT_CONFIG_YAML, SETUP_CFG
 from nitpick.plugins.pre_commit import PreCommitHook
 from nitpick.violations import Fuss
 from tests.helpers import NBSP, ProjectMock
@@ -249,12 +249,12 @@ def test_style_missing_hooks_in_repo(tmp_path):
 def test_style_missing_id_in_hook(tmp_path):
     """Test style file is missing id in hook."""
     ProjectMock(tmp_path).style(
-        '''
+        f'''
         [[".pre-commit-config.yaml".repos]]
         repo = "another"
         hooks = """
         - name: isort
-          entry: isort -sp setup.cfg
+          entry: isort -sp {SETUP_CFG}
         """
         '''
     ).pre_commit(
@@ -272,7 +272,7 @@ def test_style_missing_id_in_hook(tmp_path):
             ": style file is missing 'id' in hook:",
             f"""
             {NBSP*4}name: isort
-            {NBSP*4}entry: isort -sp setup.cfg
+            {NBSP*4}entry: isort -sp {SETUP_CFG}
             """,
         )
     )

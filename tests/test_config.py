@@ -1,6 +1,7 @@
 """Config tests."""
 import pytest
 
+from nitpick.constants import PYPROJECT_TOML, SETUP_CFG
 from nitpick.core import Nitpick
 from tests.helpers import ProjectMock
 
@@ -83,10 +84,10 @@ def test_django_project_structure(tmp_path):
     ).touch_file(
         "my_django_project/manage.py"
     ).style(
-        """
-        ["pyproject.toml".tool.black]
+        f"""
+        ["{PYPROJECT_TOML}".tool.black]
         lines = 100
-        ["setup.cfg".flake8]
+        ["{SETUP_CFG}".flake8]
         some = "thing"
         """
     ).api_check_then_apply()

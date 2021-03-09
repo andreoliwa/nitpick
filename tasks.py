@@ -19,7 +19,7 @@ class ToxCommands:
 
     def __init__(self) -> None:
         self._parser = ConfigParser()
-        self._parser.read("setup.cfg")
+        self._parser.read("tox.ini")
 
     def list_commands(self, section: str) -> Iterator[str]:
         """List all commands in a section."""

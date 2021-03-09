@@ -48,7 +48,7 @@ inline-quotes = "{{ nit.present(str, choices=['double', 'single']) }}"
 skip__separators = ","
 known_first_party__separators = ","
 
-["setup.cfg"."tool:pytest"]
+["tox.ini".pytest]
 # https://github.com/andreoliwa/nitpick/issues/271
 addopts__separators = " "
 norecursedirs__separators = " "
