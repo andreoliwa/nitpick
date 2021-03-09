@@ -18,7 +18,7 @@ def test_setup_cfg_has_no_configuration(tmp_path):
 @XFAIL_ON_WINDOWS
 def test_default_style_is_applied(project_with_default_style):
     """Test if the default style is applied on an empty project."""
-    expected_content = """
+    expected_setup_cfg = """
         [flake8]
         exclude = .tox,build
         ignore = D107,D202,D203,D401,E203,E402,E501,W503
@@ -42,10 +42,34 @@ def test_default_style_is_applied(project_with_default_style):
         warn_redundant_casts = True
         warn_unused_ignores = True
     """
+    expected_editor_config = """
+        root = True
+
+        [*]
+        end_of_line = lf
+        indent_size = 4
+        indent_style = space
+        insert_final_newline = True
+        trim_trailing_whitespace = True
+
+        [*.py]
+        charset = utf-8
+
+        [*.{js,json}]
+        charset = utf-8
+        indent_size = 2
+
+        [*.{yml,yaml,md}]
+        indent_size = 2
+
+        [Makefile]
+        indent_style = tab
+    """
     project_with_default_style.api_check_then_apply(
-        Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_content),
-        partial_names=[SETUP_CFG],
-    ).assert_file_contents(SETUP_CFG, expected_content)
+        Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
+        Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
+        partial_names=[SETUP_CFG, EDITOR_CONFIG],
+    ).assert_file_contents(SETUP_CFG, expected_setup_cfg)
 
 
 def test_comma_separated_keys_on_style_file(tmp_path):

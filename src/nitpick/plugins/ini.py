@@ -118,7 +118,7 @@ class IniPlugin(NitpickPlugin):
             return ""
 
         parser = ConfigParser()
-        for section in sorted(missing):
+        for section in sorted(missing, key=lambda s: "0" if s == TOP_SECTION else f"1{s}"):
             expected_config: Dict = self.expected_config[section]
             if self.apply:
                 if self.updater.last_block:
@@ -126,7 +126,7 @@ class IniPlugin(NitpickPlugin):
                 self.updater.add_section(section)
                 self.updater[section].update(expected_config)
             parser[section] = expected_config
-        return self.get_example_cfg(parser)
+        return self.remove_top_section(self.get_example_cfg(parser))
 
     # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
     def enforce_rules(self) -> Iterator[Fuss]:

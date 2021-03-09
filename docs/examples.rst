@@ -73,13 +73,18 @@ Contents of `styles/editorconfig.toml <https://github.com/andreoliwa/nitpick/blo
 
 .. code-block:: toml
 
-    # Unix-style newlines with a newline ending every file
+    # http://editorconfig.org/
+
+    [".editorconfig"]
+    # top-most EditorConfig file
+    root = true
+
     [".editorconfig"."*"]
+    # Unix-style newlines with a newline ending every file
     end_of_line = "lf"
     insert_final_newline = true
     indent_style = "space"
-    tab_width = 4
-    indent_size = "tab"
+    indent_size = 4
 
     # Whitespace at the end of lines
     trim_trailing_whitespace = true

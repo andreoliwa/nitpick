@@ -88,7 +88,7 @@ def generate_examples(filename: str):
 
         Contents of `{toml_file} <{base_url}v{version}/{toml_file}>`_:
 
-        .. code-block:: {language}
+        .. code-block::{language}
 
         {toml_content}
     """
@@ -114,7 +114,7 @@ def generate_examples(filename: str):
                 version=__version__,
                 # Skip TOML with JSON inside, to avoid this error message:
                 # nitpick/docs/examples.rst:193: WARNING: Could not lex literal_block as "toml". Highlighting skipped.
-                language="" if "contains_json" in toml_content else "toml",
+                language="" if "contains_json" in toml_content else " toml",
                 toml_content="\n".join(indented_lines),
             )
         )
