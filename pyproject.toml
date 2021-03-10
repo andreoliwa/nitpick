@@ -76,6 +76,7 @@ pydantic = "*"
 autorepr = "*"
 loguru = "*"
 ConfigUpdater = "*"
+cachy = "*"
 
 [tool.poetry.extras]
 lint = ["pylint"]

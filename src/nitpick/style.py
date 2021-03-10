@@ -8,6 +8,7 @@ from urllib.parse import urlparse, urlunparse
 
 import click
 import requests
+from cachy import CacheManager, Repository
 from identify import identify
 from loguru import logger
 from marshmallow import Schema
@@ -69,6 +70,14 @@ class Style:
     def cache_dir(self) -> Path:
         """Clear the cache directory (on the project root or on the current directory)."""
         return clear_cache_dir(self.project.root)
+
+    @property
+    def cache(self) -> Repository:
+        """Return a cache manager for the cache directory.
+
+        `File store <https://cachy.readthedocs.io/en/latest/configuration.html#file>`_.
+        """
+        return CacheManager({"stores": {"file": {"driver": "file", "path": self.cache_dir}}}).store()
 
     @staticmethod
     def get_default_style_url():
@@ -229,6 +238,8 @@ class Style:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
         contents = response.text
+        # FIXME[AA]: use cache
+        self.cache.forever(new_url, contents)
         style_path = self.cache_dir / f"{slugify(new_url)}.toml"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         style_path.write_text(contents)
