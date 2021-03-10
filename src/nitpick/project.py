@@ -1,5 +1,6 @@
 """A project to be nitpicked."""
 import itertools
+from datetime import timedelta
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterable, Iterator, Optional, Set
@@ -183,7 +184,7 @@ class Project:
             )
         )
 
-    def merge_styles(self, offline: bool, caching: CachingEnum) -> Iterator[Fuss]:
+    def merge_styles(self, offline: bool, caching: CachingEnum, caching_delta: timedelta = None) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
         self.validate_pyproject_tool_nitpick()
 
@@ -191,7 +192,7 @@ class Project:
         from nitpick.style import Style
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
-        style = Style(self, self.plugin_manager, offline, caching)
+        style = Style(self, offline, caching, caching_delta)
         style_errors = list(style.find_initial_styles(configured_styles))
         if style_errors:
             raise QuitComplainingError(style_errors)

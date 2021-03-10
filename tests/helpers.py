@@ -1,6 +1,7 @@
 """Test helpers."""
 import os
 import sys
+from datetime import timedelta
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
@@ -62,6 +63,7 @@ class ProjectMock:
         self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
         self._caching = CachingEnum.NEVER
+        self._caching_delta: Optional[timedelta] = None
         self._mocked_response: Optional[RequestsMock] = None
         self._remote_url: Optional[str] = None
         self.files_to_lint: List[Path] = []
@@ -95,7 +97,7 @@ class ProjectMock:
         """
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
-        nit = Nitpick.singleton().init(offline=offline, caching=self._caching)
+        nit = Nitpick.singleton().init(offline=offline, caching=self._caching, caching_delta=self._caching_delta)
 
         if api:
             self._actual_violations = set(nit.run(*partial_names, apply=apply))
@@ -356,9 +358,11 @@ class ProjectMock:
             expected = dedent(file_contents).strip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
 
-    def cache(self, caching: CachingEnum) -> "ProjectMock":
+    # FIXME[AA]: move methods to CacheMock class, use composition (ProjectMock.cache: Optional[CacheMock] = None)
+    def cache(self, caching: CachingEnum, caching_delta: timedelta = None) -> "ProjectMock":
         """Set the caching mode."""
         self._caching = caching
+        self._caching_delta = caching_delta
         return self
 
     def remote(self, mocked_response: RequestsMock, remote_url: str) -> "ProjectMock":

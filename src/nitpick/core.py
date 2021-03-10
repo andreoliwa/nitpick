@@ -1,5 +1,6 @@
 """The Nitpick application."""
 import os
+from datetime import timedelta
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
@@ -33,6 +34,7 @@ class Nitpick:
 
         self.offline: bool = False
         self.caching: CachingEnum = CachingEnum.NEVER
+        self.caching_delta: timedelta = timedelta()
 
     @classmethod
     @lru_cache()
@@ -43,7 +45,13 @@ class Nitpick:
         Nitpick._allow_init = False
         return instance
 
-    def init(self, project_root: PathOrStr = None, offline: bool = None, caching: CachingEnum = None) -> "Nitpick":
+    def init(
+        self,
+        project_root: PathOrStr = None,
+        offline: bool = None,
+        caching: CachingEnum = None,
+        caching_delta: timedelta = None,
+    ) -> "Nitpick":
         """Initialize attributes of the singleton."""
         self.project = Project(project_root)
 
@@ -51,6 +59,8 @@ class Nitpick:
             self.offline = offline
         if caching is not None:
             self.caching = caching
+        if caching_delta is not None:
+            self.caching_delta = caching_delta
 
         return self
 
@@ -65,7 +75,7 @@ class Nitpick:
 
         try:
             yield from chain(
-                self.project.merge_styles(self.offline, self.caching),
+                self.project.merge_styles(self.offline, self.caching, self.caching_delta),
                 self.enforce_present_absent(*partial_names),
                 self.enforce_style(*partial_names, apply=apply),
             )

@@ -1,5 +1,6 @@
 """Style files."""
 from collections import OrderedDict
+from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional, Set, Tuple, Type
@@ -11,7 +12,6 @@ from cachy import CacheManager, Repository
 from identify import identify
 from loguru import logger
 from marshmallow import Schema
-from pluggy import PluginManager
 from slugify import slugify
 from toml import TomlDecodeError
 
@@ -44,11 +44,11 @@ Plugins = Set[Type[NitpickPlugin]]
 class Style:  # pylint: disable=too-many-instance-attributes
     """Include styles recursively from one another."""
 
-    def __init__(self, project: Project, plugin_manager: PluginManager, offline: bool, caching: CachingEnum) -> None:
+    def __init__(self, project: Project, offline: bool, caching: CachingEnum, caching_delta: timedelta = None) -> None:
         self.project: Project = project
-        self.plugin_manager: PluginManager = plugin_manager
         self.offline = offline
         self.caching = caching
+        self.caching_delta: timedelta = caching_delta or timedelta()
 
         self._all_styles = MergeDict()
         self._already_included: Set[str] = set()
@@ -159,7 +159,9 @@ class Style:  # pylint: disable=too-many-instance-attributes
             else:
                 schemas = [
                     plugin_class.validation_schema
-                    for plugin_class in self.plugin_manager.hook.can_handle(info=info)  # pylint: disable=no-member
+                    for plugin_class in self.project.plugin_manager.hook.can_handle(
+                        info=info
+                    )  # pylint: disable=no-member
                 ]
                 if not schemas:
                     validation_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
@@ -252,6 +254,8 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         if self.caching == CachingEnum.FOREVER:
             self.cache_manager.forever(new_url, contents)
+        elif self.caching == CachingEnum.EXPIRES:
+            self.cache_manager.put(new_url, contents, datetime.now() + self.caching_delta)
 
         return contents
 
@@ -319,7 +323,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
         """Separate classes with fixed file names from classes with dynamic files names."""
         fixed_name_classes: Plugins = set()
         dynamic_name_classes: Plugins = set()
-        for plugin_class in self.plugin_manager.hook.plugin_class():  # pylint: disable=no-member
+        for plugin_class in self.project.plugin_manager.hook.plugin_class():  # pylint: disable=no-member
             if plugin_class.filename:
                 fixed_name_classes.add(plugin_class)
             else:
