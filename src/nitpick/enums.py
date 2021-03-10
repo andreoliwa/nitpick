@@ -1,6 +1,6 @@
 """Enums."""
 import os
-from enum import Enum
+from enum import Enum, IntEnum, auto
 
 from nitpick import PROJECT_NAME
 
@@ -28,3 +28,11 @@ class OptionEnum(_OptionMixin, Enum):
     """Options to be used with the CLI."""
 
     OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
+
+
+class CachingEnum(IntEnum):
+    """Cache modes."""
+
+    NEVER = auto()
+    FOREVER = auto()
+    EXPIRES = auto()

@@ -1,8 +1,9 @@
-"""Test caching styles."""
+"""Test cache."""
 from textwrap import dedent
 
 import responses
 
+from nitpick.enums import CachingEnum
 from tests.helpers import ProjectMock
 
 
@@ -16,7 +17,7 @@ def test_forever(tmp_path):
     """
     responses.add(responses.GET, remote_url, dedent(remote_style), status=200)
 
-    project = ProjectMock(tmp_path).pyproject_toml(
+    project = ProjectMock(tmp_path, caching=CachingEnum.FOREVER).pyproject_toml(
         f"""
         [tool.nitpick]
         style = "{remote_url}"

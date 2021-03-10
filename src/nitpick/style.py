@@ -27,7 +27,7 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.enums import OptionEnum
+from nitpick.enums import CachingEnum, OptionEnum
 from nitpick.exceptions import Deprecation, QuitComplainingError, pretty_exception
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
@@ -41,13 +41,14 @@ from nitpick.violations import Fuss, Reporter, StyleViolations
 Plugins = Set[Type[NitpickPlugin]]
 
 
-class Style:
+class Style:  # pylint: disable=too-many-instance-attributes
     """Include styles recursively from one another."""
 
-    def __init__(self, project: Project, plugin_manager: PluginManager, offline: bool) -> None:
+    def __init__(self, project: Project, plugin_manager: PluginManager, offline: bool, caching: CachingEnum) -> None:
         self.project: Project = project
         self.plugin_manager: PluginManager = plugin_manager
         self.offline = offline
+        self.caching = caching
 
         self._all_styles = MergeDict()
         self._already_included: Set[str] = set()
@@ -61,11 +62,14 @@ class Style:
     def cache_dir(self) -> Path:
         """Clear the cache directory (on the project root or on the current directory)."""
         path: Path = self.project.root / CACHE_DIR_NAME / PROJECT_NAME
+
+        # TODO: check if the merged style file is still needed; if not, this line can be removed
         path.mkdir(parents=True, exist_ok=True)
+
         return path
 
     @property
-    def cache(self) -> Repository:
+    def cache_manager(self) -> Repository:
         """Return a cache manager for the cache directory.
 
         `File store <https://cachy.readthedocs.io/en/latest/configuration.html#file>`_.
@@ -90,7 +94,7 @@ class Style:
             else:
                 chosen_styles = self.get_default_style_url()
                 log_message = "Loading default Nitpick style"
-        logger.info(log_message + ": {}", chosen_styles)
+        logger.info(f"{log_message}: {chosen_styles}")
 
         yield from self.include_multiple_styles(chosen_styles)
 
@@ -233,10 +237,11 @@ class Style:
 
         `Storing Items In The Cache <https://cachy.readthedocs.io/en/latest/usage.html#storing-items-in-the-cache>`_.
         """
-        cached_value = self.cache.get(new_url)
-        if cached_value is not None:
-            logger.debug(f"Using cached value for URL {new_url}")
-            return cached_value
+        if self.caching != CachingEnum.NEVER:
+            cached_value = self.cache_manager.get(new_url)
+            if cached_value is not None:
+                logger.debug(f"Using cached value for URL {new_url}")
+                return cached_value
 
         response = requests.get(new_url)
         logger.debug(f"Requesting style from URL {new_url}")
@@ -244,7 +249,10 @@ class Style:
             raise FileNotFoundError(f"Error {response} fetching style URL {new_url}")
 
         contents = response.text
-        self.cache.forever(new_url, contents)
+
+        if self.caching == CachingEnum.FOREVER:
+            self.cache_manager.forever(new_url, contents)
+
         return contents
 
     def fetch_style_from_local_path(self, partial_filename: str) -> Tuple[Optional[Path], str]:

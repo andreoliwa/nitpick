@@ -21,6 +21,7 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
+from nitpick.enums import CachingEnum
 from nitpick.exceptions import QuitComplainingError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
@@ -182,7 +183,7 @@ class Project:
             )
         )
 
-    def merge_styles(self, offline: bool) -> Iterator[Fuss]:
+    def merge_styles(self, offline: bool, caching: CachingEnum) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
         self.validate_pyproject_tool_nitpick()
 
@@ -190,7 +191,7 @@ class Project:
         from nitpick.style import Style
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
-        style = Style(self, self.plugin_manager, offline)
+        style = Style(self, self.plugin_manager, offline, caching)
         style_errors = list(style.find_initial_styles(configured_styles))
         if style_errors:
             raise QuitComplainingError(style_errors)

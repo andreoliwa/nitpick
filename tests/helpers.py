@@ -22,6 +22,7 @@ from nitpick.constants import (
     SETUP_CFG,
 )
 from nitpick.core import Nitpick
+from nitpick.enums import CachingEnum
 from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
@@ -51,7 +52,7 @@ def assert_conditions(*args):
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
-    def __init__(self, tmp_path: Path, **kwargs) -> None:
+    def __init__(self, tmp_path: Path, caching: CachingEnum = CachingEnum.NEVER, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         self._actual_violations: Set[Fuss] = set()
         self._flake8_errors: List[Flake8Error] = []
@@ -59,6 +60,7 @@ class ProjectMock:
 
         self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
+        self.caching = caching
         self.files_to_lint: List[Path] = []
 
         if kwargs.get("setup_py", True):
@@ -90,7 +92,7 @@ class ProjectMock:
         """
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
-        nit = Nitpick.singleton().init(offline=offline)
+        nit = Nitpick.singleton().init(offline=offline, caching=self.caching)
 
         if api:
             self._actual_violations = set(nit.run(*partial_names, apply=apply))
@@ -114,11 +116,11 @@ class ProjectMock:
 
     def api_check(self, *partial_names: str):
         """Test only the API in check mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, flake8=False, apply=False)
+        return self._simulate_run(*partial_names, api=True, flake8=False, apply=False)
 
     def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, flake8=False, apply=True)
+        return self._simulate_run(*partial_names, api=True, flake8=False, apply=True)
 
     def api_check_then_apply(
         self, *expected_violations_when_applying: Fuss, partial_names: Optional[Iterable[str]] = None
@@ -340,8 +342,8 @@ class ProjectMock:
 
     def cli_ls(self, str_or_lines: StrOrList):
         """Run the ls command and assert the output."""
-        _, actual, expected = self._simulate_cli("ls", str_or_lines)
-        compare(actual=actual, expected=expected)
+        result, actual, expected = self._simulate_cli("ls", str_or_lines)
+        compare(actual=actual, expected=expected, prefix=f"Result: {result}")
 
     def assert_file_contents(self, *name_contents: Union[PathOrStr, str]):
         """Assert the file has the expected contents."""
