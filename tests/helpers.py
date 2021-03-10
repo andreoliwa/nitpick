@@ -9,6 +9,7 @@ from typing import Dict, Iterable, List, Optional, Set, Union
 import pytest
 from click.testing import CliRunner
 from more_itertools.more import always_iterable, windowed
+from responses import RequestsMock
 from testfixtures import compare
 
 from nitpick.cli import nitpick_cli
@@ -60,16 +61,13 @@ class ProjectMock:
 
         self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
-        self.caching = CachingEnum.NEVER
+        self._caching = CachingEnum.NEVER
+        self._mocked_response: Optional[RequestsMock] = None
+        self._remote_url: Optional[str] = None
         self.files_to_lint: List[Path] = []
 
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
-
-    def cache(self, caching: CachingEnum) -> "ProjectMock":
-        """Set the caching mode."""
-        self.caching = caching
-        return self
 
     def create_symlink(self, link_name: str, target_dir: Path = None, target_file: str = None) -> "ProjectMock":
         """Create a symlink to a target file.
@@ -97,7 +95,7 @@ class ProjectMock:
         """
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
-        nit = Nitpick.singleton().init(offline=offline, caching=self.caching)
+        nit = Nitpick.singleton().init(offline=offline, caching=self._caching)
 
         if api:
             self._actual_violations = set(nit.run(*partial_names, apply=apply))
@@ -357,3 +355,19 @@ class ProjectMock:
             actual = self.read_file(filename)
             expected = dedent(file_contents).strip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
+
+    def cache(self, caching: CachingEnum) -> "ProjectMock":
+        """Set the caching mode."""
+        self._caching = caching
+        return self
+
+    def remote(self, mocked_response: RequestsMock, remote_url: str) -> "ProjectMock":
+        """Set the mocked response and the remote URL."""
+        self._mocked_response = mocked_response
+        self._remote_url = remote_url
+        return self
+
+    def assert_call_count(self, expected_count: int) -> "ProjectMock":
+        """Assert the expected request count on the mocked response object."""
+        assert self._mocked_response and self._mocked_response.assert_call_count(self._remote_url, expected_count)
+        return self

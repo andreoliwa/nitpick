@@ -1,11 +1,13 @@
 """Pytest fixtures."""
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
+from responses import RequestsMock
 
 
 @pytest.fixture()
-def project_with_default_style(tmp_path):
+def project_default(tmp_path):
     """Project with the default Nitpick style.
 
     These imports below have to be here within the fixture, otherwise they raise an error on tox:
@@ -26,3 +28,29 @@ def project_with_default_style(tmp_path):
         style = "{nitpick_style}"
         """
     )
+
+
+@pytest.fixture()
+def project_remote(tmp_path):
+    """Project with a remote style (loaded from a URL)."""
+    from tests.helpers import ProjectMock
+
+    remote_url = "https://example.com/remote-style.toml"
+    remote_style = """
+        ["pyproject.toml".tool.black]
+        line-length = 100
+    """
+    with RequestsMock() as mocked_response:
+        mocked_response.add(mocked_response.GET, remote_url, dedent(remote_style), status=200)
+
+        project = ProjectMock(tmp_path)
+        project.pyproject_toml(
+            f"""
+            [tool.nitpick]
+            style = "{remote_url}"
+
+            [tool.black]
+            line-length = 100
+            """
+        ).remote(mocked_response, remote_url)
+        yield project

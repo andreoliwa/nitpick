@@ -68,6 +68,7 @@ pylint = {version = "*", optional = true}
 pytest = {version = "*", optional = true}
 pytest-cov = {version = "*", optional = true}
 testfixtures = {version = "*", optional = true}
+freezegun = {version = "*", optional = true}
 responses = {version = "*", optional = true}
 sphinx = {version = "*", optional = true}
 sphinx_rtd_theme = {version = "*", optional = true}
@@ -80,7 +81,7 @@ cachy = "*"
 
 [tool.poetry.extras]
 lint = ["pylint"]
-test = ["pytest", "pytest-cov", "testfixtures", "responses"]
+test = ["pytest", "pytest-cov", "testfixtures", "responses", "freezegun"]
 doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv"]
 
 [tool.poetry.dev-dependencies]
