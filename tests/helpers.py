@@ -60,11 +60,16 @@ class ProjectMock:
 
         self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
-        self.caching = caching
+        self.caching = CachingEnum.NEVER
         self.files_to_lint: List[Path] = []
 
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
+
+    def cache(self, caching: CachingEnum) -> "ProjectMock":
+        """Set the caching mode."""
+        self.caching = caching
+        return self
 
     def create_symlink(self, link_name: str, target_dir: Path = None, target_file: str = None) -> "ProjectMock":
         """Create a symlink to a target file.
