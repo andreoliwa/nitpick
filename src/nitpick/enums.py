@@ -31,8 +31,13 @@ class OptionEnum(_OptionMixin, Enum):
 
 
 class CachingEnum(IntEnum):
-    """Cache modes."""
+    """Caching modes for styles."""
 
+    #: Never cache, the style file(s) are always looked-up.
     NEVER = auto()
+
+    #: Once the style(s) are cached, they never expire.
     FOREVER = auto()
+
+    #: The cache expires after the configured amount of time (minutes/hours/days).
     EXPIRES = auto()
