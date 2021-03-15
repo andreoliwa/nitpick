@@ -28,16 +28,17 @@
         {
           "assets": [
             ".bumpversion.cfg",
-            "src/nitpick/__init__.py",
-            "pyproject.toml",
-            "package.json",
+            "CHANGELOG.md",
+            "README.md",
             "docs/conf.py",
-            "docs/targets.rst",
+            "docs/examples.rst",
             "docs/quickstart.rst",
+            "docs/targets.rst",
             "docs/tool_nitpick_section.rst",
             "nitpick-style.toml",
-            "README.md",
-            "CHANGELOG.md"
+            "package.json",
+            "pyproject.toml",
+            "src/nitpick/__init__.py"
           ]
         }
       ]
