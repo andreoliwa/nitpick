@@ -41,7 +41,7 @@ repos:
         stages: [commit]
   # Run nitpick with tox, because local repos don't seem to work well with https://pre-commit.ci/
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+    rev: 3.9.0
     hooks:
       - id: flake8
         additional_dependencies:
