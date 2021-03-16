@@ -1,3 +1,9 @@
+# [0.26.0](https://github.com/andreoliwa/nitpick/compare/v0.25.0...v0.26.0) (2021-03-16)
+
+### Features
+
+- cache remote styles to avoid HTTP requests ([#312](https://github.com/andreoliwa/nitpick/issues/312)) ([08104d8](https://github.com/andreoliwa/nitpick/commit/08104d83d753a32d1438b79d7a100e10895ab79c))
+
 # [0.25.0](https://github.com/andreoliwa/nitpick/compare/v0.24.1...v0.25.0) (2021-03-09)
 
 ### Features

@@ -18,7 +18,7 @@ You can use these examples directly with their URL (see :ref:`multiple_styles`),
 Absent files
 ------------
 
-Contents of `styles/absent-files.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/absent-files.toml>`_:
+Contents of `styles/absent-files.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/absent-files.toml>`_:
 
 .. code-block:: toml
 
@@ -35,7 +35,7 @@ Contents of `styles/absent-files.toml <https://github.com/andreoliwa/nitpick/blo
 black_
 ------
 
-Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/black.toml>`_:
+Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/black.toml>`_:
 
 .. code-block:: toml
 
@@ -69,7 +69,7 @@ Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.25
 EditorConfig_
 -------------
 
-Contents of `styles/editorconfig.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/editorconfig.toml>`_:
+Contents of `styles/editorconfig.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/editorconfig.toml>`_:
 
 .. code-block:: toml
 
@@ -109,7 +109,7 @@ Contents of `styles/editorconfig.toml <https://github.com/andreoliwa/nitpick/blo
 flake8_
 -------
 
-Contents of `styles/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/flake8.toml>`_:
+Contents of `styles/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/flake8.toml>`_:
 
 .. code-block:: toml
 
@@ -153,7 +153,7 @@ Contents of `styles/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
 IPython_
 --------
 
-Contents of `styles/ipython.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/ipython.toml>`_:
+Contents of `styles/ipython.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/ipython.toml>`_:
 
 .. code-block:: toml
 
@@ -166,7 +166,7 @@ Contents of `styles/ipython.toml <https://github.com/andreoliwa/nitpick/blob/v0.
 isort_
 ------
 
-Contents of `styles/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/isort.toml>`_:
+Contents of `styles/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/isort.toml>`_:
 
 .. code-block:: toml
 
@@ -196,7 +196,7 @@ Contents of `styles/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.25
 mypy_
 -----
 
-Contents of `styles/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/mypy.toml>`_:
+Contents of `styles/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/mypy.toml>`_:
 
 .. code-block:: toml
 
@@ -230,7 +230,7 @@ Contents of `styles/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.
 package.json_
 -------------
 
-Contents of `styles/package-json.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/package-json.toml>`_:
+Contents of `styles/package-json.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/package-json.toml>`_:
 
 .. code-block::
 
@@ -251,7 +251,7 @@ Contents of `styles/package-json.toml <https://github.com/andreoliwa/nitpick/blo
 Poetry_
 -------
 
-Contents of `styles/poetry.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/poetry.toml>`_:
+Contents of `styles/poetry.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/poetry.toml>`_:
 
 .. code-block:: toml
 
@@ -263,7 +263,7 @@ Contents of `styles/poetry.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
 Bash_
 -----
 
-Contents of `styles/pre-commit/bash.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/pre-commit/bash.toml>`_:
+Contents of `styles/pre-commit/bash.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/pre-commit/bash.toml>`_:
 
 .. code-block:: toml
 
@@ -280,7 +280,7 @@ Contents of `styles/pre-commit/bash.toml <https://github.com/andreoliwa/nitpick/
 commitlint_
 -----------
 
-Contents of `styles/pre-commit/commitlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/pre-commit/commitlint.toml>`_:
+Contents of `styles/pre-commit/commitlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/pre-commit/commitlint.toml>`_:
 
 .. code-block:: toml
 
@@ -299,7 +299,7 @@ Contents of `styles/pre-commit/commitlint.toml <https://github.com/andreoliwa/ni
 pre-commit_ (hooks)
 -------------------
 
-Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/pre-commit/general.toml>`_:
+Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/pre-commit/general.toml>`_:
 
 .. code-block:: toml
 
@@ -322,7 +322,7 @@ Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpi
 pre-commit_ (main)
 ------------------
 
-Contents of `styles/pre-commit/main.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/pre-commit/main.toml>`_:
+Contents of `styles/pre-commit/main.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/pre-commit/main.toml>`_:
 
 .. code-block:: toml
 
@@ -337,7 +337,7 @@ Contents of `styles/pre-commit/main.toml <https://github.com/andreoliwa/nitpick/
 pre-commit_ (Python hooks)
 --------------------------
 
-Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/pre-commit/python.toml>`_:
+Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/pre-commit/python.toml>`_:
 
 .. code-block:: toml
 
@@ -358,7 +358,7 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
 Pylint_
 -------
 
-Contents of `styles/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/pylint.toml>`_:
+Contents of `styles/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/pylint.toml>`_:
 
 .. code-block:: toml
 
@@ -422,7 +422,7 @@ Contents of `styles/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
 Python 3.6
 ----------
 
-Contents of `styles/python36.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/python36.toml>`_:
+Contents of `styles/python36.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/python36.toml>`_:
 
 .. code-block:: toml
 
@@ -434,7 +434,7 @@ Contents of `styles/python36.toml <https://github.com/andreoliwa/nitpick/blob/v0
 Python 3.7
 ----------
 
-Contents of `styles/python37.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/python37.toml>`_:
+Contents of `styles/python37.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/python37.toml>`_:
 
 .. code-block:: toml
 
@@ -446,7 +446,7 @@ Contents of `styles/python37.toml <https://github.com/andreoliwa/nitpick/blob/v0
 Python 3.8
 ----------
 
-Contents of `styles/python38.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/python38.toml>`_:
+Contents of `styles/python38.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/python38.toml>`_:
 
 .. code-block:: toml
 
@@ -458,7 +458,7 @@ Contents of `styles/python38.toml <https://github.com/andreoliwa/nitpick/blob/v0
 Python 3.9
 ----------
 
-Contents of `styles/python39.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/python39.toml>`_:
+Contents of `styles/python39.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/python39.toml>`_:
 
 .. code-block:: toml
 
@@ -470,7 +470,7 @@ Contents of `styles/python39.toml <https://github.com/andreoliwa/nitpick/blob/v0
 tox_
 ----
 
-Contents of `styles/tox.toml <https://github.com/andreoliwa/nitpick/blob/v0.25.0/styles/tox.toml>`_:
+Contents of `styles/tox.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.0/styles/tox.toml>`_:
 
 .. code-block:: toml
 
