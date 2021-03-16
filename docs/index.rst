@@ -37,9 +37,14 @@ Nitpick
     :target: https://github.com/semantic-release/semantic-release
     :alt: semantic-release
 
-Flake8 plugin to enforce the same tool configuration (flake8_, isort_, mypy_, Pylint_...) across multiple Python projects.
+Command-line tool and flake8_ plugin to enforce the same settings across multiple language-independent projects.
 
-Useful if you maintain multiple projects and want to use the same configs in all of them.
+Useful if you maintain multiple projects and are tired of copying/pasting the same INI/TOML/YAML/JSON keys and values over and over, in all of them.
+
+The tool now has an "apply" feature that modifies configuration files directly (pretty much like black_ and isort_ do with Python files).
+See :ref:`cli` for more info.
+
+Many more features are planned for the future, check `the roadmap <https://github.com/andreoliwa/nitpick/projects/1>`_.
 
 .. note::
 

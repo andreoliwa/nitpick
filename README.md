@@ -13,9 +13,14 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/develop.svg)](https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/develop)
 
-Flake8 plugin to enforce the same tool configuration ([flake8](https://gitlab.com/pycqa/flake8), [isort](https://github.com/PyCQA/isort), [mypy](http://mypy-lang.org/), [Pylint](https://www.pylint.org)...) across multiple language independent projects.
+Command-line tool and `flake8` plugin to enforce the same settings across multiple language-independent projects.
 
-Useful if you maintain multiple projects and want to use the same configs in all of them.
+Useful if you maintain multiple projects and are tired of copying/pasting the same INI/TOML/YAML/JSON keys and values over and over, in all of them.
+
+The tool now has an "apply" feature that modifies configuration files directly (pretty much like `black` and `isort` do with Python files).
+See the [CLI docs for more info](https://nitpick.readthedocs.io/en/latest/cli.html).
+
+Many more features are planned for the future, check [the roadmap](https://github.com/andreoliwa/nitpick/projects/1).
 
 ## Style file
 
