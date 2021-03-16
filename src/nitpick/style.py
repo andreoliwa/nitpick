@@ -47,10 +47,6 @@ REGEX_CACHE_UNIT = re.compile(r"(?P<number>\d+)\s+(?P<unit>(minute|hour|day|week
 def parse_cache_option(cache_option: str) -> Tuple[CachingEnum, timedelta]:
     r"""Parse the cache option on pyproject.toml.
 
-    >>> parse_cache_option("")
-    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
-    >>> parse_cache_option("   ")
-    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
     >>> parse_cache_option("never")
     (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
     >>> parse_cache_option(" NEVER\n ")
@@ -83,32 +79,34 @@ def parse_cache_option(cache_option: str) -> Tuple[CachingEnum, timedelta]:
     >>> parse_cache_option(" 2 weeks ")
     (<CachingEnum.EXPIRES: 3>, datetime.timedelta(14))
 
+    >>> parse_cache_option("")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 3600))
+    >>> parse_cache_option("   ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 3600))
     >>> parse_cache_option(" 1 second ")
-    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 3600))
     >>> parse_cache_option(" 2 bananas ")
-    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 3600))
     """
     clean_cache_option = cache_option.strip().lower() if cache_option else ""
-
-    mapping = {
-        "": CachingEnum.NEVER,
-        CachingEnum.NEVER.name.lower(): CachingEnum.NEVER,
-        CachingEnum.FOREVER.name.lower(): CachingEnum.FOREVER,
-    }
+    mapping = {CachingEnum.NEVER.name.lower(): CachingEnum.NEVER, CachingEnum.FOREVER.name.lower(): CachingEnum.FOREVER}
     simple_cache = mapping.get(clean_cache_option)
-    delta = timedelta()
     if simple_cache:
-        logger.info(f"Cache option: {simple_cache.name}")
-        return simple_cache, delta
+        logger.info(f"Simple cache option: {simple_cache.name}")
+        return simple_cache, timedelta()
+
+    default = CachingEnum.EXPIRES, timedelta(hours=1)
+    if not clean_cache_option:
+        return default
 
     for match in REGEX_CACHE_UNIT.finditer(clean_cache_option):
         plural_unit = match.group("unit") + "s"
         number = int(match.group("number"))
-        logger.info(f"Cache option: {number} {plural_unit}")
+        logger.info(f"Cache option with unit: {number} {plural_unit}")
         return CachingEnum.EXPIRES, timedelta(**{plural_unit: number})
 
-    logger.warning(f"Cache option is invalid: {clean_cache_option}. Defaulting to NEVER")
-    return CachingEnum.NEVER, delta
+    logger.warning(f"Invalid cache option: {clean_cache_option}. Defaulting to 1 hour")
+    return default
 
 
 class Style:  # pylint: disable=too-many-instance-attributes
