@@ -1,6 +1,5 @@
 """A project to be nitpicked."""
 import itertools
-from datetime import timedelta
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterable, Iterator, Optional, Set
@@ -22,7 +21,6 @@ from nitpick.constants import (
     TOOL_NITPICK,
     TOOL_NITPICK_JMEX,
 )
-from nitpick.enums import CachingEnum
 from nitpick.exceptions import QuitComplainingError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
@@ -106,6 +104,7 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
     error_messages = {"unknown": help_message("Unknown configuration", "tool_nitpick_section.html")}
 
     style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
+    cache = fields.NonEmptyString()
 
 
 class Project:
@@ -184,7 +183,7 @@ class Project:
             )
         )
 
-    def merge_styles(self, offline: bool, caching: CachingEnum, caching_delta: timedelta = None) -> Iterator[Fuss]:
+    def merge_styles(self, offline: bool) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
         self.validate_pyproject_tool_nitpick()
 
@@ -192,7 +191,8 @@ class Project:
         from nitpick.style import Style
 
         configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
-        style = Style(self, offline, caching, caching_delta)
+        cache_option = self.tool_nitpick_dict.get("cache", "")
+        style = Style(self, offline, cache_option)
         style_errors = list(style.find_initial_styles(configured_styles))
         if style_errors:
             raise QuitComplainingError(style_errors)

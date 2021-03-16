@@ -31,7 +31,7 @@ def project_default(tmp_path):
 
 
 @pytest.fixture()
-def project_remote(tmp_path):
+def project_remote(request, tmp_path):
     """Project with a remote style (loaded from a URL)."""
     from tests.helpers import ProjectMock
 
@@ -40,6 +40,10 @@ def project_remote(tmp_path):
         ["pyproject.toml".tool.black]
         line-length = 100
     """
+    # https://docs.pytest.org/en/stable/fixture.html#using-markers-to-pass-data-to-fixtures
+    marker = request.node.get_closest_marker("tool_nitpick")
+    tool_nitpick = marker.args[0] if marker else ""
+
     with RequestsMock() as mocked_response:
         mocked_response.add(mocked_response.GET, remote_url, dedent(remote_style), status=200)
 
@@ -48,6 +52,7 @@ def project_remote(tmp_path):
             f"""
             [tool.nitpick]
             style = "{remote_url}"
+            {tool_nitpick}
 
             [tool.black]
             line-length = 100

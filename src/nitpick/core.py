@@ -1,6 +1,5 @@
 """The Nitpick application."""
 import os
-from datetime import timedelta
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
@@ -9,7 +8,6 @@ from typing import TYPE_CHECKING, Iterator, List, Type
 import click
 from loguru import logger
 
-from nitpick.enums import CachingEnum
 from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import filter_names, relative_to_current_dir
 from nitpick.plugins.info import FileInfo
@@ -33,8 +31,6 @@ class Nitpick:
             raise TypeError("This class cannot be instantiated directly. Use Nitpick.singleton().init(...) instead")
 
         self.offline: bool = False
-        self.caching: CachingEnum = CachingEnum.NEVER
-        self.caching_delta: timedelta = timedelta()
 
     @classmethod
     @lru_cache()
@@ -45,22 +41,12 @@ class Nitpick:
         Nitpick._allow_init = False
         return instance
 
-    def init(
-        self,
-        project_root: PathOrStr = None,
-        offline: bool = None,
-        caching: CachingEnum = None,
-        caching_delta: timedelta = None,
-    ) -> "Nitpick":
+    def init(self, project_root: PathOrStr = None, offline: bool = None) -> "Nitpick":
         """Initialize attributes of the singleton."""
         self.project = Project(project_root)
 
         if offline is not None:
             self.offline = offline
-        if caching is not None:
-            self.caching = caching
-        if caching_delta is not None:
-            self.caching_delta = caching_delta
 
         return self
 
@@ -75,7 +61,7 @@ class Nitpick:
 
         try:
             yield from chain(
-                self.project.merge_styles(self.offline, self.caching, self.caching_delta),
+                self.project.merge_styles(self.offline),
                 self.enforce_present_absent(*partial_names),
                 self.enforce_style(*partial_names, apply=apply),
             )

@@ -1,4 +1,5 @@
 """Style files."""
+import re
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from functools import lru_cache
@@ -40,15 +41,83 @@ from nitpick.violations import Fuss, Reporter, StyleViolations
 
 Plugins = Set[Type[NitpickPlugin]]
 
+REGEX_CACHE_UNIT = re.compile(r"(?P<number>\d+)\s+(?P<unit>(minute|hour|day|week))", re.IGNORECASE)
+
+
+def parse_cache_option(cache_option: str) -> Tuple[CachingEnum, timedelta]:
+    r"""Parse the cache option on pyproject.toml.
+
+    >>> parse_cache_option("")
+    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
+    >>> parse_cache_option("   ")
+    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
+    >>> parse_cache_option("never")
+    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
+    >>> parse_cache_option(" NEVER\n ")
+    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
+
+    >>> parse_cache_option("forever")
+    (<CachingEnum.FOREVER: 2>, datetime.timedelta(0))
+    >>> parse_cache_option("\t  Forever \n")
+    (<CachingEnum.FOREVER: 2>, datetime.timedelta(0))
+
+    >>> parse_cache_option(" 15 minutes garbage")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 900))
+    >>> parse_cache_option(" 20 minute ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 1200))
+
+    >>> parse_cache_option(" 3 hours ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 10800))
+    >>> parse_cache_option(" 2 hour ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 7200))
+    >>> parse_cache_option(" 4 hourly whatever ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 14400))
+
+    >>> parse_cache_option(" 2 days ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(2))
+    >>> parse_cache_option(" 3 dayly bread ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(3))
+
+    >>> parse_cache_option(" 1 week ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(7))
+    >>> parse_cache_option(" 2 weeks ")
+    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(14))
+
+    >>> parse_cache_option(" 1 second ")
+    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
+    >>> parse_cache_option(" 2 bananas ")
+    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
+    """
+    clean_cache_option = cache_option.strip().lower() if cache_option else ""
+
+    mapping = {
+        "": CachingEnum.NEVER,
+        CachingEnum.NEVER.name.lower(): CachingEnum.NEVER,
+        CachingEnum.FOREVER.name.lower(): CachingEnum.FOREVER,
+    }
+    simple_cache = mapping.get(clean_cache_option)
+    delta = timedelta()
+    if simple_cache:
+        logger.info(f"Cache option: {simple_cache.name}")
+        return simple_cache, delta
+
+    for match in REGEX_CACHE_UNIT.finditer(clean_cache_option):
+        plural_unit = match.group("unit") + "s"
+        number = int(match.group("number"))
+        logger.info(f"Cache option: {number} {plural_unit}")
+        return CachingEnum.EXPIRES, timedelta(**{plural_unit: number})
+
+    logger.warning(f"Cache option is invalid: {clean_cache_option}. Defaulting to NEVER")
+    return CachingEnum.NEVER, delta
+
 
 class Style:  # pylint: disable=too-many-instance-attributes
     """Include styles recursively from one another."""
 
-    def __init__(self, project: Project, offline: bool, caching: CachingEnum, caching_delta: timedelta = None) -> None:
+    def __init__(self, project: Project, offline: bool, cache_option: str) -> None:
         self.project: Project = project
         self.offline = offline
-        self.caching = caching
-        self.caching_delta: timedelta = caching_delta or timedelta()
+        self.cache_option = cache_option
 
         self._all_styles = MergeDict()
         self._already_included: Set[str] = set()
@@ -239,7 +308,8 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         `Storing Items In The Cache <https://cachy.readthedocs.io/en/latest/usage.html#storing-items-in-the-cache>`_.
         """
-        if self.caching != CachingEnum.NEVER:
+        caching, caching_delta = parse_cache_option(self.cache_option)
+        if caching != CachingEnum.NEVER:
             cached_value = self.cache_manager.get(new_url)
             if cached_value is not None:
                 logger.debug(f"Using cached value for URL {new_url}")
@@ -252,10 +322,13 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         contents = response.text
 
-        if self.caching == CachingEnum.FOREVER:
+        if caching == CachingEnum.FOREVER:
+            logger.debug(f"Caching forever the contents of {new_url}")
             self.cache_manager.forever(new_url, contents)
-        elif self.caching == CachingEnum.EXPIRES:
-            self.cache_manager.put(new_url, contents, datetime.now() + self.caching_delta)
+        elif caching == CachingEnum.EXPIRES:
+            future = datetime.now() + caching_delta
+            logger.debug(f"Caching forever the contents of {new_url} to expire in {future}")
+            self.cache_manager.put(new_url, contents, future)
 
         return contents
 

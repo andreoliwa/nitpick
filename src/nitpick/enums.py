@@ -2,7 +2,7 @@
 import os
 from enum import Enum, IntEnum, auto
 
-from nitpick import PROJECT_NAME
+from nitpick.constants import PROJECT_NAME
 
 
 class _OptionMixin:

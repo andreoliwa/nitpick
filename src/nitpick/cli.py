@@ -94,7 +94,7 @@ def ls(context, files):  # pylint: disable=invalid-name
     You can use partial and multiple file names in the FILES argument.
     """
     nit = get_nitpick(context)
-    violations = list(nit.project.merge_styles(nit.offline, nit.caching))
+    violations = list(nit.project.merge_styles(nit.offline))
     if violations:
         for fuss in violations:
             click.echo(fuss.pretty)

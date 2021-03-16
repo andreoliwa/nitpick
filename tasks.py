@@ -126,10 +126,10 @@ def pylint(c):
     c.run("poetry run pylint src/")
 
 
-@task
-def pre_commit(c):
+@task(help={"hook": "Specific hook to run"})
+def pre_commit(c, hook=""):
     """Run pre-commit for all files."""
-    c.run("pre-commit run --all-files")
+    c.run(f"pre-commit run --all-files {hook}")
 
 
 @task(
