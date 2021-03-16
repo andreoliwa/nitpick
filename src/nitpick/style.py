@@ -45,7 +45,10 @@ REGEX_CACHE_UNIT = re.compile(r"(?P<number>\d+)\s+(?P<unit>(minute|hour|day|week
 
 
 def parse_cache_option(cache_option: str) -> Tuple[CachingEnum, timedelta]:
-    """Parse the cache option provided on pyproject.toml."""
+    """Parse the cache option provided on pyproject.toml.
+
+    If no cache if provided or is invalid, the default is *one hour*.
+    """
     clean_cache_option = cache_option.strip().lower() if cache_option else ""
     mapping = {CachingEnum.NEVER.name.lower(): CachingEnum.NEVER, CachingEnum.FOREVER.name.lower(): CachingEnum.FOREVER}
     simple_cache = mapping.get(clean_cache_option)
@@ -283,7 +286,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
             self.cache_manager.forever(new_url, contents)
         elif caching == CachingEnum.EXPIRES:
             future = datetime.now() + caching_delta
-            logger.debug(f"Caching forever the contents of {new_url} to expire in {future}")
+            logger.debug(f"Caching the contents of {new_url} to expire in {future}")
             self.cache_manager.put(new_url, contents, future)
 
         return contents

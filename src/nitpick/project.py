@@ -101,7 +101,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
 class ToolNitpickSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
 
-    error_messages = {"unknown": help_message("Unknown configuration", "tool_nitpick_section.html")}
+    error_messages = {"unknown": help_message("Unknown configuration", "configuration.html")}
 
     style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
     cache = fields.NonEmptyString()
@@ -160,7 +160,7 @@ class Project:
         plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
         return plugin_manager
 
-    def validate_pyproject_tool_nitpick(self) -> None:
+    def validate_configuration(self) -> None:
         """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
         # pylint: disable=import-outside-toplevel
         pyproject_path: Path = self.root / PYPROJECT_TOML
@@ -185,7 +185,7 @@ class Project:
 
     def merge_styles(self, offline: bool) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
-        self.validate_pyproject_tool_nitpick()
+        self.validate_configuration()
 
         # pylint: disable=import-outside-toplevel
         from nitpick.style import Style
