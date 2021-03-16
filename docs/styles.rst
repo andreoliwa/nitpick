@@ -43,14 +43,14 @@ This example style will assert that:
 Configure your own style
 ------------------------
 
-After creating your own TOML_ file with your style, add it to your ``pyproject.toml`` file. See :ref:`the [tool.nitpick] section <tool_nitpick>` for details.
+After creating your own TOML_ file with your style, add it to your ``pyproject.toml`` file. See :ref:`configuration` for details.
 
 You can also check :ref:`some pre-configured examples <examples>`, and copy/paste/change configuration from them.
 
 Default search order for a style
 --------------------------------
 
-1. A file or URL configured in the ``pyproject.toml`` file, ``[tool.nitpick]`` section, ``style`` key, as described in :ref:`tool_nitpick`.
+1. A file or URL configured in the ``pyproject.toml`` file, ``[tool.nitpick]`` section, ``style`` key, as described in :ref:`configuration`.
 
 2. Any `nitpick-style.toml`_ file found in the current directory (the one in which flake8_ runs from) or above.
 

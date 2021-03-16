@@ -16,7 +16,7 @@ def test_setup_cfg_has_no_configuration(tmp_path):
 
 
 @XFAIL_ON_WINDOWS
-def test_default_style_is_applied(project_with_default_style):
+def test_default_style_is_applied(project_default):
     """Test if the default style is applied on an empty project."""
     expected_setup_cfg = """
         [flake8]
@@ -111,7 +111,7 @@ def test_default_style_is_applied(project_with_default_style):
         [VARIABLES]
         dummy-variables-rgx = _$|dummy
     """
-    project_with_default_style.api_check_then_apply(
+    project_default.api_check_then_apply(
         Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
         Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
         Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),

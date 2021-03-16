@@ -1,8 +1,8 @@
 """Enums."""
 import os
-from enum import Enum
+from enum import Enum, IntEnum, auto
 
-from nitpick import PROJECT_NAME
+from nitpick.constants import PROJECT_NAME
 
 
 class _OptionMixin:
@@ -28,3 +28,16 @@ class OptionEnum(_OptionMixin, Enum):
     """Options to be used with the CLI."""
 
     OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
+
+
+class CachingEnum(IntEnum):
+    """Caching modes for styles."""
+
+    #: Never cache, the style file(s) are always looked-up.
+    NEVER = auto()
+
+    #: Once the style(s) are cached, they never expire.
+    FOREVER = auto()
+
+    #: The cache expires after the configured amount of time (minutes/hours/days).
+    EXPIRES = auto()

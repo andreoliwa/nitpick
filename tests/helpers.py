@@ -9,6 +9,7 @@ from typing import Dict, Iterable, List, Optional, Set, Union
 import pytest
 from click.testing import CliRunner
 from more_itertools.more import always_iterable, windowed
+from responses import RequestsMock
 from testfixtures import compare
 
 from nitpick.cli import nitpick_cli
@@ -59,6 +60,8 @@ class ProjectMock:
 
         self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
+        self._mocked_response: Optional[RequestsMock] = None
+        self._remote_url: Optional[str] = None
         self.files_to_lint: List[Path] = []
 
         if kwargs.get("setup_py", True):
@@ -114,11 +117,11 @@ class ProjectMock:
 
     def api_check(self, *partial_names: str):
         """Test only the API in check mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, flake8=False, apply=False)
+        return self._simulate_run(*partial_names, api=True, flake8=False, apply=False)
 
     def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, flake8=False, apply=True)
+        return self._simulate_run(*partial_names, api=True, flake8=False, apply=True)
 
     def api_check_then_apply(
         self, *expected_violations_when_applying: Fuss, partial_names: Optional[Iterable[str]] = None
@@ -340,8 +343,8 @@ class ProjectMock:
 
     def cli_ls(self, str_or_lines: StrOrList):
         """Run the ls command and assert the output."""
-        _, actual, expected = self._simulate_cli("ls", str_or_lines)
-        compare(actual=actual, expected=expected)
+        result, actual, expected = self._simulate_cli("ls", str_or_lines)
+        compare(actual=actual, expected=expected, prefix=f"Result: {result}")
 
     def assert_file_contents(self, *name_contents: Union[PathOrStr, str]):
         """Assert the file has the expected contents."""
@@ -350,3 +353,14 @@ class ProjectMock:
             actual = self.read_file(filename)
             expected = dedent(file_contents).strip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
+
+    def remote(self, mocked_response: RequestsMock, remote_url: str) -> "ProjectMock":
+        """Set the mocked response and the remote URL."""
+        self._mocked_response = mocked_response
+        self._remote_url = remote_url
+        return self
+
+    def assert_call_count(self, expected_count: int) -> "ProjectMock":
+        """Assert the expected request count on the mocked response object."""
+        assert self._mocked_response and self._mocked_response.assert_call_count(self._remote_url, expected_count)
+        return self

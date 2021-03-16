@@ -126,10 +126,10 @@ def pylint(c):
     c.run("poetry run pylint src/")
 
 
-@task
-def pre_commit(c):
+@task(help={"hook": "Specific hook to run"})
+def pre_commit(c, hook=""):
     """Run pre-commit for all files."""
-    c.run("pre-commit run --all-files")
+    c.run(f"pre-commit run --all-files {hook}")
 
 
 @task(
@@ -149,7 +149,7 @@ def doc(c, full=False, recreate=False, links=False, open=False, debug=False):
         recreate = links = True
     if recreate:
         c.run("mkdir -p docs/_static")
-        c.run("rm -rf docs/source")
+        c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
 
     c.run(f"poetry run {tox.generate_rst}")
     c.run(f"poetry run {tox.api}")

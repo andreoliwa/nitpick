@@ -1,17 +1,18 @@
 """Style files."""
+import re
 from collections import OrderedDict
+from datetime import datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from shutil import rmtree
 from typing import Dict, Iterator, List, Optional, Set, Tuple, Type
 from urllib.parse import urlparse, urlunparse
 
 import click
 import requests
+from cachy import CacheManager, Repository
 from identify import identify
 from loguru import logger
 from marshmallow import Schema
-from pluggy import PluginManager
 from slugify import slugify
 from toml import TomlDecodeError
 
@@ -27,7 +28,7 @@ from nitpick.constants import (
     RAW_GITHUB_CONTENT_BASE_URL,
     TOML_EXTENSION,
 )
-from nitpick.enums import OptionEnum
+from nitpick.enums import CachingEnum, OptionEnum
 from nitpick.exceptions import Deprecation, QuitComplainingError, pretty_exception
 from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
@@ -40,22 +41,42 @@ from nitpick.violations import Fuss, Reporter, StyleViolations
 
 Plugins = Set[Type[NitpickPlugin]]
 
-
-def clear_cache_dir(project_root: Path) -> Path:  # TODO: add unit tests
-    """Clear the cache directory (on the project root or on the current directory)."""
-    cache_root: Path = project_root / CACHE_DIR_NAME
-    project_cache_dir = cache_root / PROJECT_NAME
-    rmtree(str(project_cache_dir), ignore_errors=True)
-    return project_cache_dir
+REGEX_CACHE_UNIT = re.compile(r"(?P<number>\d+)\s+(?P<unit>(minute|hour|day|week))", re.IGNORECASE)
 
 
-class Style:
+def parse_cache_option(cache_option: str) -> Tuple[CachingEnum, timedelta]:
+    """Parse the cache option provided on pyproject.toml.
+
+    If no cache if provided or is invalid, the default is *one hour*.
+    """
+    clean_cache_option = cache_option.strip().lower() if cache_option else ""
+    mapping = {CachingEnum.NEVER.name.lower(): CachingEnum.NEVER, CachingEnum.FOREVER.name.lower(): CachingEnum.FOREVER}
+    simple_cache = mapping.get(clean_cache_option)
+    if simple_cache:
+        logger.info(f"Simple cache option: {simple_cache.name}")
+        return simple_cache, timedelta()
+
+    default = CachingEnum.EXPIRES, timedelta(hours=1)
+    if not clean_cache_option:
+        return default
+
+    for match in REGEX_CACHE_UNIT.finditer(clean_cache_option):
+        plural_unit = match.group("unit") + "s"
+        number = int(match.group("number"))
+        logger.info(f"Cache option with unit: {number} {plural_unit}")
+        return CachingEnum.EXPIRES, timedelta(**{plural_unit: number})
+
+    logger.warning(f"Invalid cache option: {clean_cache_option}. Defaulting to 1 hour")
+    return default
+
+
+class Style:  # pylint: disable=too-many-instance-attributes
     """Include styles recursively from one another."""
 
-    def __init__(self, project: Project, plugin_manager: PluginManager, offline: bool) -> None:
+    def __init__(self, project: Project, offline: bool, cache_option: str) -> None:
         self.project: Project = project
-        self.plugin_manager: PluginManager = plugin_manager
         self.offline = offline
+        self.cache_option = cache_option
 
         self._all_styles = MergeDict()
         self._already_included: Set[str] = set()
@@ -68,7 +89,20 @@ class Style:
     @lru_cache()
     def cache_dir(self) -> Path:
         """Clear the cache directory (on the project root or on the current directory)."""
-        return clear_cache_dir(self.project.root)
+        path: Path = self.project.root / CACHE_DIR_NAME / PROJECT_NAME
+
+        # TODO: check if the merged style file is still needed; if not, this line can be removed
+        path.mkdir(parents=True, exist_ok=True)
+
+        return path
+
+    @property
+    def cache_manager(self) -> Repository:
+        """Return a cache manager for the cache directory.
+
+        `File store <https://cachy.readthedocs.io/en/latest/configuration.html#file>`_.
+        """
+        return CacheManager({"stores": {"file": {"driver": "file", "path": self.cache_dir}}}).store()
 
     @staticmethod
     def get_default_style_url():
@@ -88,7 +122,7 @@ class Style:
             else:
                 chosen_styles = self.get_default_style_url()
                 log_message = "Loading default Nitpick style"
-        logger.info(log_message + ": {}", chosen_styles)
+        logger.info(f"{log_message}: {chosen_styles}")
 
         yield from self.include_multiple_styles(chosen_styles)
 
@@ -109,11 +143,11 @@ class Style:
         """Include a list of styles (or just one) into this style tree."""
         style_uris: List[str] = [chosen_styles] if isinstance(chosen_styles, str) else chosen_styles
         for style_uri in style_uris:
-            style_path: Optional[Path] = self.get_style_path(style_uri)
+            style_path, file_contents = self.get_style_path(style_uri)
             if not style_path:
                 continue
 
-            toml = TOMLFormat(path=style_path)
+            toml = TOMLFormat(string=file_contents)
             try:
                 read_toml_dict = toml.as_data
             except TomlDecodeError as err:
@@ -153,7 +187,9 @@ class Style:
             else:
                 schemas = [
                     plugin_class.validation_schema
-                    for plugin_class in self.plugin_manager.hook.can_handle(info=info)  # pylint: disable=no-member
+                    for plugin_class in self.project.plugin_manager.hook.can_handle(
+                        info=info
+                    )  # pylint: disable=no-member
                 ]
                 if not schemas:
                     validation_errors[key] = [BaseStyleSchema.error_messages["unknown"]]
@@ -173,7 +209,7 @@ class Style:
                 validation_errors.update(all_errors)
         return toml_dict, validation_errors
 
-    def get_style_path(self, style_uri: str) -> Optional[Path]:
+    def get_style_path(self, style_uri: str) -> Tuple[Optional[Path], str]:
         """Get the style path from the URI. Add the .toml extension if it's missing."""
         clean_style_uri = style_uri.strip()
 
@@ -187,11 +223,11 @@ class Style:
             return self.fetch_style_from_url(clean_style_uri)
         return self.fetch_style_from_local_path(clean_style_uri)
 
-    def fetch_style_from_url(self, url: str) -> Optional[Path]:
+    def fetch_style_from_url(self, url: str) -> Tuple[Optional[Path], str]:
         """Fetch a style file from a URL, saving the contents in the cache dir."""
         if self.offline:
             # No style will be fetched in offline mode
-            return None
+            return None, ""
 
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
@@ -206,13 +242,10 @@ class Style:
         new_url = urlunparse(parsed_url)
 
         if new_url in self._already_included:
-            return None
-
-        if not self.cache_dir:
-            raise FileNotFoundError("Cache dir does not exist")
+            return None, ""
 
         try:
-            response = requests.get(new_url)
+            contents = self.fetch_from_url_or_cache(new_url)
         except requests.ConnectionError:
             click.secho(
                 "Your network is unreachable. Fix your connection or use"
@@ -220,25 +253,45 @@ class Style:
                 fg="red",
                 err=True,
             )
-            return None
-        if not response.ok:
-            raise FileNotFoundError(f"Error {response} fetching style URL {new_url}")
+            return None, ""
 
         # Save the first full path to be used by the next files without parent.
         if not self._first_full_path:
             self._first_full_path = new_url.rsplit("/", 1)[0]
 
-        contents = response.text
-        style_path = self.cache_dir / f"{slugify(new_url)}.toml"
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        style_path.write_text(contents)
-
-        logger.debug("Loading style from URL {} into {}", new_url, style_path)
         self._already_included.add(new_url)
+        return Path(f"{slugify(new_url)}.toml"), contents
 
-        return style_path
+    def fetch_from_url_or_cache(self, new_url: str) -> str:
+        """Fetch data from a remote URL, or read from the local cache.
 
-    def fetch_style_from_local_path(self, partial_filename: str) -> Optional[Path]:
+        `Storing Items In The Cache <https://cachy.readthedocs.io/en/latest/usage.html#storing-items-in-the-cache>`_.
+        """
+        caching, caching_delta = parse_cache_option(self.cache_option)
+        if caching != CachingEnum.NEVER:
+            cached_value = self.cache_manager.get(new_url)
+            if cached_value is not None:
+                logger.debug(f"Using cached value for URL {new_url}")
+                return cached_value
+
+        response = requests.get(new_url)
+        logger.debug(f"Requesting style from URL {new_url}")
+        if not response.ok:
+            raise FileNotFoundError(f"Error {response} fetching style URL {new_url}")
+
+        contents = response.text
+
+        if caching == CachingEnum.FOREVER:
+            logger.debug(f"Caching forever the contents of {new_url}")
+            self.cache_manager.forever(new_url, contents)
+        elif caching == CachingEnum.EXPIRES:
+            future = datetime.now() + caching_delta
+            logger.debug(f"Caching the contents of {new_url} to expire in {future}")
+            self.cache_manager.put(new_url, contents, future)
+
+        return contents
+
+    def fetch_style_from_local_path(self, partial_filename: str) -> Tuple[Optional[Path], str]:
         """Fetch a style file from a local path."""
         if partial_filename and not partial_filename.endswith(TOML_EXTENSION):
             partial_filename += TOML_EXTENSION
@@ -256,19 +309,17 @@ class Style:
             self._first_full_path = str(style_path.resolve().parent)
 
         if str(style_path) in self._already_included:
-            return None
+            return None, ""
 
         if not style_path.exists():
             raise FileNotFoundError(f"Local style file does not exist: {style_path}")
 
         logger.debug(f"Loading style from {style_path}")
         self._already_included.add(str(style_path))
-        return style_path
+        return style_path, style_path.read_text()
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        if not self.cache_dir:
-            return {}
         merged_dict = self._all_styles.merge()
         # TODO: check if the merged style file is still needed
         merged_style_path: Path = self.cache_dir / MERGED_STYLE_TOML
@@ -277,7 +328,6 @@ class Style:
         attempt = 1
         while attempt < 5:
             try:
-                self.cache_dir.mkdir(parents=True, exist_ok=True)
                 merged_style_path.write_text(toml.reformatted)
                 break
             except OSError:
@@ -305,7 +355,7 @@ class Style:
         """Separate classes with fixed file names from classes with dynamic files names."""
         fixed_name_classes: Plugins = set()
         dynamic_name_classes: Plugins = set()
-        for plugin_class in self.plugin_manager.hook.plugin_class():  # pylint: disable=no-member
+        for plugin_class in self.project.plugin_manager.hook.plugin_class():  # pylint: disable=no-member
             if plugin_class.filename:
                 fixed_name_classes.add(plugin_class)
             else:

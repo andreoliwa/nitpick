@@ -558,7 +558,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
     for style, error_message in [
         (
             'style = [""]\nextra_values = "also raise warnings"',
-            f"extra_values: Unknown configuration. See {READ_THE_DOCS_URL}tool_nitpick_section.html."
+            f"extra_values: Unknown configuration. See {READ_THE_DOCS_URL}configuration.html."
             + "\nstyle.0: Shorter than minimum length 1.",
         ),
         ('style = ""', "style: Shorter than minimum length 1."),
