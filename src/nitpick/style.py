@@ -45,49 +45,7 @@ REGEX_CACHE_UNIT = re.compile(r"(?P<number>\d+)\s+(?P<unit>(minute|hour|day|week
 
 
 def parse_cache_option(cache_option: str) -> Tuple[CachingEnum, timedelta]:
-    r"""Parse the cache option on pyproject.toml.
-
-    >>> parse_cache_option("never")
-    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
-    >>> parse_cache_option(" NEVER\n ")
-    (<CachingEnum.NEVER: 1>, datetime.timedelta(0))
-
-    >>> parse_cache_option("forever")
-    (<CachingEnum.FOREVER: 2>, datetime.timedelta(0))
-    >>> parse_cache_option("\t  Forever \n")
-    (<CachingEnum.FOREVER: 2>, datetime.timedelta(0))
-
-    >>> parse_cache_option(" 15 minutes garbage")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 900))
-    >>> parse_cache_option(" 20 minute ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 1200))
-
-    >>> parse_cache_option(" 3 hours ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 10800))
-    >>> parse_cache_option(" 2 hour ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 7200))
-    >>> parse_cache_option(" 4 hourly whatever ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 14400))
-
-    >>> parse_cache_option(" 2 days ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(2))
-    >>> parse_cache_option(" 3 dayly bread ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(3))
-
-    >>> parse_cache_option(" 1 week ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(7))
-    >>> parse_cache_option(" 2 weeks ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(14))
-
-    >>> parse_cache_option("")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 3600))
-    >>> parse_cache_option("   ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 3600))
-    >>> parse_cache_option(" 1 second ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 3600))
-    >>> parse_cache_option(" 2 bananas ")
-    (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 3600))
-    """
+    """Parse the cache option provided on pyproject.toml."""
     clean_cache_option = cache_option.strip().lower() if cache_option else ""
     mapping = {CachingEnum.NEVER.name.lower(): CachingEnum.NEVER, CachingEnum.FOREVER.name.lower(): CachingEnum.FOREVER}
     simple_cache = mapping.get(clean_cache_option)

@@ -1,6 +1,11 @@
 """Test cache."""
+from datetime import timedelta
+
 import pytest
 from freezegun import freeze_time
+
+from nitpick.enums import CachingEnum
+from nitpick.style import parse_cache_option
 
 
 @pytest.mark.tool_nitpick("cache = 'forever'")
@@ -19,6 +24,44 @@ def test_never(project_remote):
     for _ in range(3):
         project_remote.api_check().assert_violations()
     project_remote.assert_call_count(3)
+
+
+@pytest.mark.parametrize(
+    "cache_option,expected_enum,expected_timedelta",
+    [
+        ("never", CachingEnum.NEVER, timedelta()),
+        (" NEVER\n ", CachingEnum.NEVER, timedelta()),
+        ("forever", CachingEnum.FOREVER, timedelta(0)),
+        ("\t  Forever \n", CachingEnum.FOREVER, timedelta(0)),
+        (" 15 minutes garbage", CachingEnum.EXPIRES, timedelta(0, 900)),
+        (" 20 minute ", CachingEnum.EXPIRES, timedelta(0, 1200)),
+        (" 3 hours ", CachingEnum.EXPIRES, timedelta(0, 10800)),
+        (" 2 hour ", CachingEnum.EXPIRES, timedelta(0, 7200)),
+        (" 4 hourly whatever ", CachingEnum.EXPIRES, timedelta(0, 14400)),
+        (" 2 days ", CachingEnum.EXPIRES, timedelta(2)),
+        (" 3 dayly bread ", CachingEnum.EXPIRES, timedelta(3)),
+        (" 1 week ", CachingEnum.EXPIRES, timedelta(7)),
+        (" 2 weeks ", CachingEnum.EXPIRES, timedelta(14)),
+        ("", CachingEnum.EXPIRES, timedelta(0, 3600)),
+        ("   ", CachingEnum.EXPIRES, timedelta(0, 3600)),
+        (" 1 second ", CachingEnum.EXPIRES, timedelta(0, 3600)),
+        (" 2 bananas ", CachingEnum.EXPIRES, timedelta(0, 3600)),
+    ],
+)
+def test_parse_cache_option(cache_option, expected_enum, expected_timedelta):
+    """Test the cache option provided on pyproject.toml.
+
+    doctest-style failed on the GitHub Workflow because the timedelta output is different on Python 3.6 and 3.7:
+
+    064     >>> parse_cache_option(" 15 minutes garbage")
+    Expected:
+      (<CachingEnum.EXPIRES: 3>, datetime.timedelta(0, 900))
+    Got:
+      (<CachingEnum.EXPIRES: 3>, datetime.timedelta(seconds=900))
+
+    /home/runner/work/nitpick/nitpick/src/nitpick/style.py:64: DocTestFailure
+    """
+    assert parse_cache_option(cache_option) == (expected_enum, expected_timedelta)
 
 
 @pytest.mark.tool_nitpick("cache = '15 minutes'")
