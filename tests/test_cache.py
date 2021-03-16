@@ -16,6 +16,20 @@ def test_forever(project_remote):
         project_remote.api_check().assert_violations()
     project_remote.assert_call_count(1)
 
+    with freeze_time("2021-03-15 10:00") as frozen_datetime:
+        project_remote.api_check().assert_violations().assert_call_count(1)
+
+        # Next year, still cached
+        frozen_datetime.move_to("2022-01-20 22:13")
+        project_remote.api_check().assert_violations().assert_call_count(1)
+
+        # Flake8
+        project_remote.flake8(offline=False).assert_no_errors().assert_call_count(1)
+        project_remote.flake8(offline=True).assert_no_errors().assert_call_count(1)
+
+        # CLI
+        project_remote.cli_run().assert_call_count(1)
+
 
 @pytest.mark.tool_nitpick("cache = 'never'")
 def test_never(project_remote):
@@ -24,6 +38,15 @@ def test_never(project_remote):
     for _ in range(3):
         project_remote.api_check().assert_violations()
     project_remote.assert_call_count(3)
+
+    # Flake8 online
+    project_remote.flake8(offline=False).assert_no_errors().assert_call_count(4)
+
+    # Flake8 offline (number of requests unchanged)
+    project_remote.flake8(offline=True).assert_no_errors().assert_call_count(4)
+
+    # CLI
+    project_remote.cli_run().assert_call_count(5)
 
 
 @pytest.mark.parametrize(
@@ -77,9 +100,23 @@ def test_expiration(project_remote):
         frozen_datetime.move_to("2021-03-10 22:13")
         project_remote.api_check().assert_violations().assert_call_count(1)
 
+        # Flake8 online
+        project_remote.flake8(offline=False).assert_no_errors().assert_call_count(1)
+        # Flake8 offline (number of requests unchanged)
+        project_remote.flake8(offline=True).assert_no_errors().assert_call_count(1)
+        # CLI
+        project_remote.cli_run().assert_call_count(1)
+
         # Time's up: another HTTP request
         frozen_datetime.move_to("2021-03-10 22:16")
         project_remote.api_check().assert_violations().assert_call_count(2)
+
+        # Flake8 online
+        project_remote.flake8(offline=False).assert_no_errors().assert_call_count(2)
+        # Flake8 offline (number of requests unchanged)
+        project_remote.flake8(offline=True).assert_no_errors().assert_call_count(2)
+        # CLI
+        project_remote.cli_run().assert_call_count(2)
 
 
 def test_default_cache_when_nothing_provided(project_remote):
