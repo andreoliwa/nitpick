@@ -352,29 +352,6 @@ python-versions = ">=2.7"
 ipython = {version = ">=5.1.0", markers = "python_version >= \"3.4\""}
 
 [[package]]
-name = "ipdb"
-version = "0.13.5"
-description = "IPython-enabled pdb"
-category = "dev"
-optional = false
-python-versions = ">=2.7"
-
-[package.dependencies]
-ipython = {version = ">=7.10.0,<7.17.0", markers = "python_version == \"3.6\""}
-
-[[package]]
-name = "ipdb"
-version = "0.13.6"
-description = "IPython-enabled pdb"
-category = "dev"
-optional = false
-python-versions = ">=2.7"
-
-[package.dependencies]
-ipython = {version = ">=7.10.0,<7.17.0", markers = "python_version == \"3.6\""}
-toml = {version = ">=0.10.2", markers = "python_version == \"3.6\" or python_version > \"3.6\""}
-
-[[package]]
 name = "ipython"
 version = "7.16.1"
 description = "IPython: Productive Interactive Computing"
@@ -800,7 +777,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 
 [[package]]
 name = "responses"
-version = "0.12.1"
+version = "0.13.0"
 description = "A utility library for mocking out the `requests` Python library."
 category = "main"
 optional = true
@@ -812,7 +789,7 @@ six = "*"
 urllib3 = ">=1.25.10"
 
 [package.extras]
-tests = ["coverage (>=3.7.1,<6.0.0)", "pytest-cov", "pytest-localserver", "flake8", "pytest (>=4.6,<5.0)", "pytest (>=4.6)"]
+tests = ["coverage (>=3.7.1,<6.0.0)", "pytest-cov", "pytest-localserver", "flake8", "pytest (>=4.6,<5.0)", "pytest (>=4.6)", "mypy"]
 
 [[package]]
 name = "ruamel.yaml"
@@ -1320,8 +1297,6 @@ iniconfig = [
 ]
 ipdb = [
     {file = "ipdb-0.13.4.tar.gz", hash = "sha256:c85398b5fb82f82399fc38c44fe3532c0dde1754abee727d8f5cfcc74547b334"},
-    {file = "ipdb-0.13.5.tar.gz", hash = "sha256:521e55ade3d3f5e459df6474cfb1d1ef6d44ab4155f829695c7c3dc2a8ce5b2b"},
-    {file = "ipdb-0.13.6.tar.gz", hash = "sha256:1aa37e19e5b3b96c930fe7fe97193a54202c23a8d1b1c7763f76553f5b275731"},
 ]
 ipython = [
     {file = "ipython-7.16.1-py3-none-any.whl", hash = "sha256:2dbcc8c27ca7d3cfe4fcdff7f45b27f9a8d3edfa70ff8024a71c7a8eb5f09d64"},
@@ -1554,8 +1529,8 @@ requests = [
     {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
 ]
 responses = [
-    {file = "responses-0.12.1-py2.py3-none-any.whl", hash = "sha256:ef265bd3200bdef5ec17912fc64a23570ba23597fd54ca75c18650fa1699213d"},
-    {file = "responses-0.12.1.tar.gz", hash = "sha256:2e5764325c6b624e42b428688f2111fea166af46623cb0127c05f6afb14d3457"},
+    {file = "responses-0.13.0-py2.py3-none-any.whl", hash = "sha256:a4a90c8244006c01f4246aecf532fbb5429c4031df4adcc7638061f0f3ce4ceb"},
+    {file = "responses-0.13.0.tar.gz", hash = "sha256:27d8822d65dc8875a039301831de8ac17db2473ae2a8fabd4e6599b25ce2f353"},
 ]
 "ruamel.yaml" = [
     {file = "ruamel.yaml-0.16.13-py2.py3-none-any.whl", hash = "sha256:64b06e7873eb8e1125525ecef7345447d786368cadca92a7cd9b59eae62e95a3"},
