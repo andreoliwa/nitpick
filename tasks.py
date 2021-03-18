@@ -191,7 +191,31 @@ def clean(c, venv=False):
         c.run("poetry env remove python3.6", warn=True)
 
 
-namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci_build, clean)
+@task
+def reactions(c):
+    """List issues with reactions.
+
+    https://github.blog/2021-03-11-scripting-with-github-cli/
+    https://docs.github.com/en/rest/reference/issues#get-an-issue
+    https://developer.github.com/changes/2016-05-12-reactions-api-preview/
+    """
+    result = c.run("gh api -X GET 'repos/andreoliwa/nitpick/issues' | jq -r '.[].number'", pty=False)
+    for issue in result.stdout.splitlines():
+        result_users = c.run(
+            f"gh api -X GET 'repos/andreoliwa/nitpick/issues/{int(issue)}/reactions'"
+            " -H 'Accept: application/vnd.github.squirrel-girl-preview'"
+            " | jq -r '.[].user.html_url'"
+        )
+        users = result_users.stdout.splitlines()
+        if users:
+            print(COLOR_GREEN)
+            print(f">>> https://github.com/andreoliwa/nitpick/issues/{issue}")
+            for index, user in enumerate(users):
+                print(f"    {index + 1}. {user}")
+            print(COLOR_NONE)
+
+
+namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci_build, clean, reactions)
 namespace.configure(
     {
         "run": {
