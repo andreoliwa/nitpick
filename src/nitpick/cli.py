@@ -40,7 +40,7 @@ from nitpick.violations import Reporter
     help=OptionEnum.OFFLINE.value,
 )
 def nitpick_cli(project: Path = None, offline=False):  # pylint: disable=unused-argument
-    """Enforce the same configuration across multiple projects."""
+    """Enforce the same settings across multiple language-independent projects."""
 
 
 def get_nitpick(context: click.Context) -> Nitpick:

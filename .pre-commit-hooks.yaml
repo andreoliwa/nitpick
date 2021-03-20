@@ -1,7 +1,15 @@
+# https://pre-commit.com/#creating-new-hooks
 - id: nitpick
-  name: Nitpick
-  description: Enforce the same configuration (flake8, isort, mypy, pylint) across multiple Python projects
+  name: Nitpick (Flake8)
+  description: Enforce the same settings across multiple language-independent projects (flake8 plugin)
   entry: flake8 --select=NIP
   language: python
   types: [python]
   always_run: true
+- id: nitpick-run
+  name: Nitpick (CLI)
+  description: Enforce the same settings across multiple language-independent projects (command-line tool)
+  entry: nitpick run
+  language: python
+  always_run: true
+  pass_filenames: false
