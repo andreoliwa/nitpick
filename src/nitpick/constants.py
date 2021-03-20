@@ -17,12 +17,12 @@ READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 PYPROJECT_TOML = "pyproject.toml"
 SETUP_CFG = "setup.cfg"
 ROOT_PYTHON_FILES = ("setup.py", "app.py", "wsgi.py", "autoapp.py")
-ROOT_FILES = (PYPROJECT_TOML, SETUP_CFG, "requirements*.txt", "Pipfile") + ROOT_PYTHON_FILES
 MANAGE_PY = "manage.py"
 PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
 EDITOR_CONFIG = ".editorconfig"
 TOX_INI = "tox.ini"
 PYLINTRC = ".pylintrc"
+ROOT_FILES = (PYPROJECT_TOML, SETUP_CFG, "requirements*.txt", "Pipfile", PRE_COMMIT_CONFIG_YAML) + ROOT_PYTHON_FILES
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
