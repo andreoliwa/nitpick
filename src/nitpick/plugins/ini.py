@@ -126,6 +126,7 @@ class IniPlugin(NitpickPlugin):
                     self.updater.last_block.add_after.space(1)
                 self.updater.add_section(section)
                 self.updater[section].update(expected_config)
+                self.dirty = True
             parser[section] = expected_config
         return self.remove_top_section(self.get_example_cfg(parser))
 
@@ -207,6 +208,7 @@ class IniPlugin(NitpickPlugin):
         value_to_append = f",{joined_values}"
         if self.apply:
             self.updater[section][key].value += value_to_append
+            self.dirty = True
         section_header = "" if section == TOP_SECTION else f"[{section}]\n"
         # TODO: proper testing of top section with separated values in https://github.com/andreoliwa/nitpick/issues/271
         yield self.reporter.make_fuss(
@@ -230,6 +232,7 @@ class IniPlugin(NitpickPlugin):
 
         if self.apply:
             self.updater[section][key].value = expected
+            self.dirty = True
         if section == TOP_SECTION:
             yield self.reporter.make_fuss(
                 Violations.TOP_SECTION_HAS_DIFFERENT_VALUE,
@@ -274,6 +277,7 @@ class IniPlugin(NitpickPlugin):
             self.updater[section].last_block.remove()
 
         self.updater[section].update(options)
+        self.dirty = True
 
         if space_removed:
             self.updater[section].last_block.add_after.space(1)

@@ -29,7 +29,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     filename = ""  # TODO: remove filename attribute after fixing dynamic/fixed schema loading
     violation_base_code: int = 0
 
-    #: Indicate if this plugin can apply changes to files
+    #: Can this plugin apply changes to files?
     can_apply: bool = False
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
@@ -52,6 +52,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         self.expected_config: JsonDict = expected_config or {}
 
         self.apply = self.can_apply and apply
+        # Dirty flag to avoid changing files without need
+        self.dirty: bool = False
 
     @mypy_property
     @lru_cache()
@@ -89,7 +91,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         else:
             yield from self._suggest_when_file_not_found()
 
-        if self.apply:
+        if self.apply and self.dirty:
             fuss = self.write_file(file_exists)  # pylint: disable=assignment-from-none
             if fuss:
                 yield fuss

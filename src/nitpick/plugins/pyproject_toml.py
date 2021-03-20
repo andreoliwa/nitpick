@@ -56,7 +56,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
             self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
             self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),
         )
-        if self.apply:
+        if self.apply and self.dirty:
             self.file_path.write_text(dumps(document))
 
     def report(self, violation: ViolationEnum, document: Optional[TOMLDocument], change_dict: Optional[BaseFormat]):
@@ -65,6 +65,7 @@ class PyProjectTomlPlugin(NitpickPlugin):
             return
         if document:
             change_toml(document, change_dict.as_data)
+            self.dirty = True
         yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.apply)
 
     @property
