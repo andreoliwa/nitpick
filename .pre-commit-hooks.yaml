@@ -1,14 +1,14 @@
 # https://pre-commit.com/#creating-new-hooks
 - id: nitpick
-  name: Nitpick (Flake8)
-  description: Enforce the same settings across multiple language-independent projects (flake8 plugin)
+  name: "Nitpick (Flake8 plugin, check only)"
+  description: "Enforce the same settings across multiple language-independent projects (Flake8 plugin, check only)"
   entry: flake8 --select=NIP
   language: python
   types: [python]
   always_run: true
 - id: nitpick-run
-  name: Nitpick (CLI)
-  description: Enforce the same settings across multiple language-independent projects (command-line tool)
+  name: "Nitpick (CLI, apply changes)"
+  description: "Enforce the same settings across multiple language-independent projects (command-line tool, apply changes)"
   entry: nitpick run
   language: python
   always_run: true
