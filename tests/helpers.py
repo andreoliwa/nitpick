@@ -323,10 +323,14 @@ class ProjectMock:
             expected = list(always_iterable(str_or_lines))
         return result, actual, expected
 
-    def cli_run(self, str_or_lines: StrOrList = None, apply=False, violations=0) -> "ProjectMock":
+    def cli_run(self, str_or_lines: StrOrList = None, apply=False, violations=0, exception_class=None) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
         cli_args = [] if apply else ["--check"]
         result, actual, expected = self._simulate_cli("run", str_or_lines, *cli_args)
+        if exception_class:
+            assert isinstance(result.exception, exception_class)
+            return self
+
         if violations:
             expected.append(f"Violations: ❌ {violations} to change manually.")
         elif str_or_lines:

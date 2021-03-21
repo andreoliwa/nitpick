@@ -10,15 +10,20 @@ Root dir of the project
 
 Nitpick_ tries to find the root dir of the project using some hardcoded assumptions.
 
-#. Starting from the current working directory, it will search for files that are usually in the root of a Python project:
+#. Starting from the current working directory, it will search for files that are usually in the root of a project:
 
-    - ``pyproject.toml``
-    - ``setup.py``
-    - ``setup.cfg``
-    - ``requirements*.txt``
-    - ``Pipfile`` (Pipenv_)
-    - ``app.py`` and ``wsgi.py`` (`Flask CLI`_)
-    - ``autoapp.py``
+  - ``.pre-commit-config.yaml`` (pre-commit_)
+  - ``pyproject.toml``
+  - ``setup.py``
+  - ``setup.cfg``
+  - ``requirements*.txt``
+  - ``Pipfile`` (Pipenv_)
+  - ``tox.ini`` (tox_)
+  - ``package.json`` (JavaScript, NodeJS)
+  - ``Cargo.*`` (Rust)
+  - ``go.mod``, ``go.sum`` (Golang)
+  - ``app.py`` and ``wsgi.py`` (`Flask CLI`_)
+  - ``autoapp.py`` (Flask_)
 
 #. If none of these root files were found, search for ``manage.py``.
    On Django_ projects, it can be in another dir inside the root dir (:issue:`21`).
