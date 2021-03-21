@@ -35,7 +35,7 @@ Main options
 
     Usage: nitpick [OPTIONS] COMMAND [ARGS]...
 
-      Enforce the same configuration across multiple projects.
+      Enforce the same settings across multiple language-independent projects.
 
     Options:
       -p, --project DIRECTORY  Path to project root

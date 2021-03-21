@@ -232,11 +232,13 @@ class Style:  # pylint: disable=too-many-instance-attributes
         if self._first_full_path and not is_url(url):
             prefix, rest = self._first_full_path.split(":/")
             domain_plus_url = str(rest).strip("/").rstrip("/") + "/" + url
-            new_url = f"{prefix}://{domain_plus_url}"
+            raw_url = f"{prefix}://{domain_plus_url}"
+            logger.debug(f"URL: relative built from prefix {prefix!r} and domain-plus-url {domain_plus_url!r}")
         else:
-            new_url = url
+            raw_url = url
+            logger.debug(f"URL: raw {raw_url}")
 
-        parsed_url = list(urlparse(new_url))
+        parsed_url = list(urlparse(raw_url))
         if not parsed_url[2].endswith(TOML_EXTENSION):
             parsed_url[2] += TOML_EXTENSION
         new_url = urlunparse(parsed_url)
@@ -246,7 +248,8 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         try:
             contents = self.fetch_from_url_or_cache(new_url)
-        except requests.ConnectionError:
+        except requests.ConnectionError as err:
+            logger.exception(f"Request failed with {err}")
             click.secho(
                 "Your network is unreachable. Fix your connection or use"
                 f" {OptionEnum.OFFLINE.as_flake8_flag()} / {OptionEnum.OFFLINE.as_envvar()}=1",
@@ -274,8 +277,8 @@ class Style:  # pylint: disable=too-many-instance-attributes
                 logger.debug(f"Using cached value for URL {new_url}")
                 return cached_value
 
-        response = requests.get(new_url)
         logger.debug(f"Requesting style from URL {new_url}")
+        response = requests.get(new_url)
         if not response.ok:
             raise FileNotFoundError(f"Error {response} fetching style URL {new_url}")
 
@@ -314,7 +317,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
         if not style_path.exists():
             raise FileNotFoundError(f"Local style file does not exist: {style_path}")
 
-        logger.debug(f"Loading style from {style_path}")
+        logger.debug(f"Loading style from local path {style_path}")
         self._already_included.add(str(style_path))
         return style_path, style_path.read_text()
 

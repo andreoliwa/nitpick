@@ -96,7 +96,7 @@ class IniPlugin(NitpickPlugin):
         """Write the new file."""
         try:
             if self.needs_top_section:
-                self.file_path.write_text(self.remove_top_section(str(self.updater)))
+                self.file_path.write_text(self.contents_without_top_section(str(self.updater)))
                 return None
 
             if file_exists:
@@ -108,9 +108,9 @@ class IniPlugin(NitpickPlugin):
         return None
 
     @staticmethod
-    def remove_top_section(multiline_text: str) -> str:
-        """Remove the temporary top section from multiline text."""
-        return "\n".join(line for line in multiline_text.splitlines() if TOP_SECTION not in line)
+    def contents_without_top_section(multiline_text: str) -> str:
+        """Remove the temporary top section from multiline text, and keep the newline at the end of the file."""
+        return "\n".join(line for line in multiline_text.splitlines() if TOP_SECTION not in line) + "\n"
 
     def get_missing_output(self) -> str:
         """Get a missing output string example from the missing sections in an INI file."""
@@ -126,8 +126,9 @@ class IniPlugin(NitpickPlugin):
                     self.updater.last_block.add_after.space(1)
                 self.updater.add_section(section)
                 self.updater[section].update(expected_config)
+                self.dirty = True
             parser[section] = expected_config
-        return self.remove_top_section(self.get_example_cfg(parser))
+        return self.contents_without_top_section(self.get_example_cfg(parser))
 
     # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
     def enforce_rules(self) -> Iterator[Fuss]:
@@ -207,6 +208,7 @@ class IniPlugin(NitpickPlugin):
         value_to_append = f",{joined_values}"
         if self.apply:
             self.updater[section][key].value += value_to_append
+            self.dirty = True
         section_header = "" if section == TOP_SECTION else f"[{section}]\n"
         # TODO: proper testing of top section with separated values in https://github.com/andreoliwa/nitpick/issues/271
         yield self.reporter.make_fuss(
@@ -230,6 +232,7 @@ class IniPlugin(NitpickPlugin):
 
         if self.apply:
             self.updater[section][key].value = expected
+            self.dirty = True
         if section == TOP_SECTION:
             yield self.reporter.make_fuss(
                 Violations.TOP_SECTION_HAS_DIFFERENT_VALUE,
@@ -258,7 +261,7 @@ class IniPlugin(NitpickPlugin):
 
         if section == TOP_SECTION:
             yield self.reporter.make_fuss(
-                Violations.TOP_SECTION_MISSING_OPTION, self.remove_top_section(output), self.apply
+                Violations.TOP_SECTION_MISSING_OPTION, self.contents_without_top_section(output), self.apply
             )
         else:
             yield self.reporter.make_fuss(Violations.MISSING_OPTION, output, self.apply, section=section)
@@ -274,6 +277,7 @@ class IniPlugin(NitpickPlugin):
             self.updater[section].last_block.remove()
 
         self.updater[section].update(options)
+        self.dirty = True
 
         if space_removed:
             self.updater[section].last_block.add_after.space(1)

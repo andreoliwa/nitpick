@@ -222,8 +222,7 @@ texinfo_documents = [
         "nitpick Documentation",
         author,
         "nitpick",
-        "Flake8 plugin to enforce the same lint configuration (flake8, isort, mypy, pylint)"
-        + " across multiple Python projects",
+        "Enforce the same settings across multiple language-independent projects",
         "Miscellaneous",
     )
 ]

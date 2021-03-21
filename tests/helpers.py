@@ -165,7 +165,7 @@ class ProjectMock:
         path = self.root_dir / filename
         if not filename or not path.exists():
             return None
-        return path.read_text().strip()
+        return path.read_text()
 
     def read_multiple_files(self, filenames: Iterable[PathOrStr]) -> Dict[PathOrStr, Optional[str]]:
         """Read multiple files and return a hash with filename (key) and contents (value)."""
@@ -355,7 +355,7 @@ class ProjectMock:
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)
-            expected = dedent(file_contents).strip()
+            expected = dedent(file_contents).lstrip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
 
     def remote(self, mocked_response: RequestsMock, remote_url: str) -> "ProjectMock":
