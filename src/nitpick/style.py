@@ -248,7 +248,8 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         try:
             contents = self.fetch_from_url_or_cache(new_url)
-        except requests.ConnectionError:
+        except requests.ConnectionError as err:
+            logger.exception(f"Request failed with {err}")
             click.secho(
                 "Your network is unreachable. Fix your connection or use"
                 f" {OptionEnum.OFFLINE.as_flake8_flag()} / {OptionEnum.OFFLINE.as_envvar()}=1",
