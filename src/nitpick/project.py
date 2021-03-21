@@ -57,7 +57,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
         current_dir = Path.cwd()
     logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
     all_files = list(Path(current_dir).glob("*"))
-    logger.debug(f"All files in the current dir: {[str(file) for file in all_files]}")
+    logger.debug("All files in the current dir: %s", "\n".join(str(file) for file in all_files))
 
     # Don't fail if the current dir is empty
     starting_file = str(all_files[0]) if all_files else ""
