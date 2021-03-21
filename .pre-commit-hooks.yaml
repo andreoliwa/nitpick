@@ -13,3 +13,4 @@
   language: python
   always_run: true
   pass_filenames: false
+  verbose: true
