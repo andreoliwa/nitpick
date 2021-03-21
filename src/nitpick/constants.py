@@ -14,15 +14,40 @@ GITHUB_BASE_URL = f"https://github.com/andreoliwa/{PROJECT_NAME}/blob/"
 READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 
 # Special files
+# Python
 PYPROJECT_TOML = "pyproject.toml"
+SETUP_PY = "setup.py"
 SETUP_CFG = "setup.cfg"
-ROOT_PYTHON_FILES = ("setup.py", "app.py", "wsgi.py", "autoapp.py")
+REQUIREMENTS_STAR_TXT = "requirements*.txt"
+PIPFILE_STAR = "Pipfile.*"
+ROOT_PYTHON_FILES = ("app.py", "wsgi.py", "autoapp.py")
 MANAGE_PY = "manage.py"
-PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
-EDITOR_CONFIG = ".editorconfig"
 TOX_INI = "tox.ini"
 PYLINTRC = ".pylintrc"
-ROOT_FILES = (PYPROJECT_TOML, SETUP_CFG, "requirements*.txt", "Pipfile", PRE_COMMIT_CONFIG_YAML) + ROOT_PYTHON_FILES
+# Tools
+PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
+EDITOR_CONFIG = ".editorconfig"
+# JavaScript
+PACKAGE_JSON = "package.json"
+# Rust
+CARGO_STAR = "Cargo.*"
+# Golang
+GO_MOD = "go.mod"
+GO_SUM = "go.sum"
+# All root files
+ROOT_FILES = (
+    PRE_COMMIT_CONFIG_YAML,
+    PYPROJECT_TOML,
+    SETUP_PY,
+    SETUP_CFG,
+    REQUIREMENTS_STAR_TXT,
+    PIPFILE_STAR,
+    TOX_INI,
+    PACKAGE_JSON,
+    CARGO_STAR,
+    GO_MOD,
+    GO_SUM,
+) + ROOT_PYTHON_FILES
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
