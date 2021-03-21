@@ -56,11 +56,11 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
     if not current_dir:
         current_dir = Path.cwd()
     logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
-    all_files = list(Path(current_dir).glob("*"))
-    logger.debug("All files in the current dir: %s", "\n".join(str(file) for file in all_files))
+    all_files_dirs = list(Path(current_dir).glob("*"))
+    logger.debug("All files/dirs in the current dir:\n{}", "\n".join(str(file) for file in all_files_dirs))
 
     # Don't fail if the current dir is empty
-    starting_file = str(all_files[0]) if all_files else ""
+    starting_file = str(all_files_dirs[0]) if all_files_dirs else ""
     starting_dir = Path(starting_file).parent.absolute()
     while True:
         logger.debug(f"Climbing dir: {starting_dir}")
