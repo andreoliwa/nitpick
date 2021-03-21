@@ -6,6 +6,7 @@
   language: python
   types: [python]
   always_run: true
+  stages: [commit]
 - id: nitpick-run
   name: "Nitpick (CLI, apply changes)"
   description: "Enforce the same settings across multiple language-independent projects (command-line tool, apply changes)"
@@ -14,3 +15,4 @@
   always_run: true
   pass_filenames: false
   verbose: true
+  stages: [commit]

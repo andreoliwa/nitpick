@@ -55,8 +55,9 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
 
     if not current_dir:
         current_dir = Path.cwd()
-    logger.debug(f"Searching root from current dir: {current_dir!r}")
+    logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
     all_files = list(Path(current_dir).glob("*"))
+    logger.debug(f"All files in the current dir: {all_files}")
 
     # Don't fail if the current dir is empty
     starting_file = str(all_files[0]) if all_files else ""
@@ -67,7 +68,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
         if project_files and project_files & seen:
             break
         seen.update(project_files)
-        logger.debug(f"Project files seen: {project_files}")
+        logger.debug(f"Project files seen: {str(project_files)}")
 
         if not project_files:
             # If none of the root files were found, try again with manage.py.
@@ -81,7 +82,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
         for found in project_files:
             root_dirs.add(found.parent)
         if project_files:
-            logger.debug(f"Root dirs: {root_dirs}")
+            logger.debug(f"Root dirs: {str(root_dirs)}")
 
         # Climb up one directory to search for more project files
         starting_dir = starting_dir.parent
