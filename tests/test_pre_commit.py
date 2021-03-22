@@ -46,7 +46,7 @@ def test_suggest_initial_contents(tmp_path):
             """
             repos:
               - repo: https://github.com/PyCQA/isort
-                rev: 5.7.0
+                rev: 5.8.0
                 hooks:
                   - id: isort
               - repo: https://github.com/psf/black
@@ -72,7 +72,7 @@ def test_no_yaml_key(tmp_path):
         [[".pre-commit-config.yaml".repos]]
         missing_yaml_key = """
           - repo: https://github.com/PyCQA/isort
-            rev: 5.7.0
+            rev: 5.8.0
             hooks:
               - id: isort
         """

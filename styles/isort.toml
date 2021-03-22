@@ -14,7 +14,7 @@ combine_as_imports = true
 [[".pre-commit-config.yaml".repos]]
 yaml = """
   - repo: https://github.com/PyCQA/isort
-    rev: 5.7.0
+    rev: 5.8.0
     hooks:
       - id: isort
 """
