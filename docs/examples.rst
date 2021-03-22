@@ -186,7 +186,7 @@ Contents of `styles/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.26
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/PyCQA/isort
-        rev: 5.7.0
+        rev: 5.8.0
         hooks:
           - id: isort
     """
@@ -312,7 +312,7 @@ Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpi
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.10.0
+        rev: v2.11.0
         hooks:
           - id: pyupgrade
     """

@@ -543,7 +543,7 @@ def test_merge_styles_into_single_file(offline, tmp_path):
         [[".pre-commit-config.yaml".repos]]
         yaml = """
           - repo: https://github.com/PyCQA/isort
-            rev: 5.7.0
+            rev: 5.8.0
             hooks:
               - id: isort
         """
