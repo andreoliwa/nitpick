@@ -6,7 +6,6 @@
   language: python
   types: [python]
   always_run: true
-  verbose: true
   stages: [commit]
 - id: nitpick-run
   name: "Nitpick (CLI, apply changes)"
@@ -14,6 +13,5 @@
   entry: nitpick run
   language: python
   always_run: true
-  verbose: true
   pass_filenames: false
   stages: [commit]
