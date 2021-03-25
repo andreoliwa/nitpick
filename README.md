@@ -58,13 +58,20 @@ This style will assert that:
 
 To try the package, simply install it (in a virtualenv or globally) and run `flake8` on a project with at least one Python (`.py`) file:
 
-    # Install using pip:
-    $ pip install -U nitpick
+    # Install with pip:
+    pip install -U nitpick
 
-    # Or using Poetry:
-    $ poetry add --dev nitpick
+    # Add to your project with Poetry:
+    poetry add --dev nitpick
 
-    $ flake8 .
+    # On macOS, install with Homebrew:
+    brew install andreoliwa/formulae/nitpick
+
+    # Run nitpick directly to modify your files
+    nitpick run
+
+    # Or run with flake8 to only check for errors
+    flake8 .
 
 Nitpick will download and use the opinionated [default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/v0.26.0/nitpick-style.toml).
 

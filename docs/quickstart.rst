@@ -10,15 +10,20 @@ To try the package, simply install it (in a virtualenv or globally) and run flak
 
 .. code-block:: shell
 
-    $ cd /path/to/my/python/project
+    # Install with pip:
+    pip install -U nitpick
 
-    # Install using pip:
-    $ pip install -U nitpick
+    # Add to your project with Poetry:
+    poetry add --dev nitpick
 
-    # Or using Poetry:
-    $ poetry add --dev nitpick
+    # On macOS, install with Homebrew:
+    brew install andreoliwa/formulae/nitpick
 
-    $ flake8 .
+    # Run nitpick directly to modify your files
+    nitpick run
+
+    # Or run with flake8 to only check for errors
+    flake8 .
 
 Nitpick_ will download and use the opinionated `default style file`_.
 
