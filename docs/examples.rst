@@ -98,7 +98,7 @@ Contents of `styles/editorconfig.toml <https://github.com/andreoliwa/nitpick/blo
     [".editorconfig"."*.py"]
     charset = "utf-8"
 
-    [".editorconfig"."*.{yml,yaml,md}"]
+    [".editorconfig"."*.{yml,yaml,md,rb}"]
     indent_size = 2
 
     [".editorconfig".Makefile]

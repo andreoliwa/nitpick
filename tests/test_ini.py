@@ -59,7 +59,7 @@ def test_default_style_is_applied(project_default):
         charset = utf-8
         indent_size = 2
 
-        [*.{yml,yaml,md}]
+        [*.{yml,yaml,md,rb}]
         indent_size = 2
 
         [Makefile]
