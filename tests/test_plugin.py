@@ -1,10 +1,9 @@
 """Plugin tests."""
 import os
 from enum import Enum
-from unittest import mock
 
 import pytest
-import requests
+import responses
 from flake8.main import cli
 
 from nitpick.constants import READ_THE_DOCS_URL
@@ -105,17 +104,15 @@ def test_offline_flag_env_variable(tmpdir):
         assert Nitpick.singleton().offline is True
 
 
-@mock.patch("requests.get")
-def test_offline_doesnt_raise_connection_error(mocked_get, tmp_path):
+@responses.activate
+def test_offline_doesnt_raise_connection_error(tmp_path):
     """On offline mode, no requests are made, so no connection errors should be raised."""
-    mocked_get.side_effect = requests.ConnectionError("A forced error")
     ProjectMock(tmp_path).flake8(offline=True)
 
 
-@mock.patch("requests.get")
-def test_offline_recommend_using_flag(mocked_get, tmp_path, capsys):
+@responses.activate
+def test_offline_recommend_using_flag(tmp_path, capsys):
     """Recommend using the flag on a connection error."""
-    mocked_get.side_effect = requests.ConnectionError("error message from connection here")
     ProjectMock(tmp_path).flake8()
     out, err = capsys.readouterr()
     assert out == ""
