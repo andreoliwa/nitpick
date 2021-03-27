@@ -67,19 +67,21 @@ To set up Nitpick_ for local development:
 
 9. Submit a pull request through the GitHub website.
 
-10. If your pull request is accepted, all your commits will be squashed into one, and the `Conventional Commits Format <https://www.conventionalcommits.org/>`_ will be used on the commit message.
+Commit convention
+-----------------
+
+Nitpick_ follows `Conventional Commits <https://www.conventionalcommits.org/>`_
+
+No need to rebase the commits in your branch.
+If your pull request is accepted, all your commits will be squashed into a single one, and the commit message will be adjusted to follow the current standard.
 
 Pull Request Guidelines
 -----------------------
 
-If you need some code review or feedback while you're developing the code just make the pull request.
+If you need some code review or feedback while you're developing the code, just make a draft pull request.
 
-For merging, you should:
+For merging, follow the checklist on the pull request template itself.
 
-1. Include passing tests (run ``invoke test``) [1]_.
-2. Update documentation when there's new API, functionality etc.
-3. Add yourself to ``AUTHORS.rst``.
-
-.. [1] If you don't have all the necessary python versions available locally you can rely on GitHub Workflows: `tests will run <https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml>`_ for each change you add in the pull request.
-
-       It will be slower though ...
+When running ``invoke test``: if you don't have all the necessary Python versions available locally (needed by tox_), you can rely on GitHub Workflows.
+`Tests will run <https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml>`_ for each change you add in the pull request.
+It will be slower though...
