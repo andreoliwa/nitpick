@@ -67,7 +67,7 @@ CLI_MAPPING = [
 nit = Nitpick.singleton().init()
 
 
-def write_rst(filename: str, blocks: List[str]):
+def write_rst(filename: str, blocks: List[str]) -> int:
     """Write content to the .rst file."""
     rst_file: Path = DOCS_DIR / filename
 
@@ -75,11 +75,17 @@ def write_rst(filename: str, blocks: List[str]):
     cut_position = old_content.index(DIVIDER)
     new_content = old_content[: cut_position + len(DIVIDER) + 1]
     new_content += "\n".join(blocks)
-    rst_file.write_text(new_content.strip() + "\n")
-    click.secho(f"{rst_file} generated", fg="green")
+    new_content = new_content.strip() + "\n"
+    if old_content != new_content:
+        rst_file.write_text(new_content)
+        click.secho(f"{rst_file} generated", fg="yellow")
+        return 1
+    else:
+        click.secho(f"{rst_file} hasn't changed", fg="green")
+    return 0
 
 
-def generate_examples(filename: str):
+def generate_examples(filename: str) -> int:
     """Generate examples with hardcoded TOML content."""
     template = """
         .. _example-{link}:
@@ -120,7 +126,7 @@ def generate_examples(filename: str):
             )
         )
 
-    write_rst(filename, blocks)
+    rv = write_rst(filename, blocks)
 
     missing = SortedDict()
     for existing_toml_path in sorted(STYLES_DIR.glob("**/*.toml")):
@@ -135,9 +141,10 @@ def generate_examples(filename: str):
         )
         pprint(missing)
         sys.exit(1)
+    return rv
 
 
-def generate_plugins(filename: str) -> None:
+def generate_plugins(filename: str) -> int:
     """Generate plugins.rst with the docstrings from :py:class:`nitpick.plugins.base.NitpickPlugin` classes."""
     template = """
         .. _{link}:
@@ -170,10 +177,10 @@ def generate_plugins(filename: str) -> None:
                 description=dedent(f"    {plugin_class.__doc__}").strip(),
             )
         )
-    write_rst(filename, blocks)
+    return write_rst(filename, blocks)
 
 
-def generate_cli(filename: str) -> None:
+def generate_cli(filename: str) -> int:
     """Generate CLI docs."""
     template = """
         {header}
@@ -202,10 +209,8 @@ def generate_cli(filename: str) -> None:
             )
         )
 
-    write_rst(filename, blocks)
+    return write_rst(filename, blocks)
 
 
 if __name__ == "__main__":
-    generate_examples("examples.rst")
-    generate_plugins("plugins.rst")
-    generate_cli("cli.rst")
+    sys.exit(generate_examples("examples.rst") + generate_plugins("plugins.rst") + generate_cli("cli.rst"))
