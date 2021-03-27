@@ -67,6 +67,9 @@ To try the package, simply install it (in a virtualenv or globally) and run `fla
     # On macOS, install with Homebrew:
     brew install andreoliwa/formulae/nitpick
 
+    # On archlinux, install with yay:
+    yay -Syu nitpick
+
     # Run nitpick directly to modify your files
     nitpick run
 
