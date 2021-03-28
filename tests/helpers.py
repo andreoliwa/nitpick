@@ -323,7 +323,9 @@ class ProjectMock:
             expected = list(always_iterable(str_or_lines))
         return result, actual, expected
 
-    def cli_run(self, str_or_lines: StrOrList = None, apply=False, violations=0, exception_class=None) -> "ProjectMock":
+    def cli_run(
+        self, str_or_lines: StrOrList = None, apply=False, violations=0, exception_class=None, exit_code=None
+    ) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
         cli_args = [] if apply else ["--check"]
         result, actual, expected = self._simulate_cli("run", str_or_lines, *cli_args)
@@ -339,10 +341,13 @@ class ProjectMock:
             # This is useful when checking only if the error is contained in a list of errors,
             # regardless of the violation count.
             assert actual
-            del actual[-1]
+            if actual[-1].startswith("Violations"):
+                del actual[-1]
 
         compare(actual=actual, expected=expected)
-        compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
+
+        expected_exit_code = exit_code or 1 if str_or_lines else 0
+        compare(actual=result.exit_code, expected=expected_exit_code)
         return self
 
     def cli_ls(self, str_or_lines: StrOrList):

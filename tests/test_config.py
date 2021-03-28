@@ -3,7 +3,7 @@ import pytest
 
 from nitpick.constants import PYPROJECT_TOML, SETUP_CFG
 from nitpick.core import Nitpick
-from nitpick.exceptions import QuitComplainingError
+from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
 
 
@@ -20,13 +20,9 @@ def test_singleton():
 
 def test_no_root_dir(tmp_path):
     """No root dir."""
-    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False)
-    project.create_symlink("hello.py").flake8().assert_single_error(
-        "NIP101 No root dir found (is this a Python project?)"
-    )
-
-    # TODO: don't abort with QuitComplainingError when root files are missing
-    project.cli_run(exception_class=QuitComplainingError)
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py")
+    project.flake8().assert_single_error(f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}")
+    project.cli_run(ProjectViolations.NO_ROOT_DIR.message, exit_code=2)
 
 
 def test_multiple_root_dirs(tmp_path):

@@ -22,6 +22,7 @@ from loguru import logger
 from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
+from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import relative_to_current_dir
 from nitpick.violations import Reporter
 
@@ -76,8 +77,13 @@ def run(context, check_only, verbose, files):
         logger.enable(PROJECT_NAME)
 
     nit = get_nitpick(context)
-    for fuss in nit.run(*files, apply=not check_only):
-        nit.echo(fuss.pretty)
+    try:
+        for fuss in nit.run(*files, apply=not check_only):
+            nit.echo(fuss.pretty)
+    except QuitComplainingError as err:
+        for fuss in err.violations:
+            click.secho(fuss.message, fg="red")
+        raise Exit(2) from err
 
     if Reporter.manual or Reporter.fixed:
         click.secho(Reporter.get_counts())
@@ -94,7 +100,10 @@ def ls(context, files):  # pylint: disable=invalid-name
     You can use partial and multiple file names in the FILES argument.
     """
     nit = get_nitpick(context)
-    violations = list(nit.project.merge_styles(nit.offline))
+    try:
+        violations = list(nit.project.merge_styles(nit.offline))
+    except QuitComplainingError as err:
+        violations = err.violations
     if violations:
         for fuss in violations:
             click.echo(fuss.pretty)

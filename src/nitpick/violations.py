@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional
 
 import click
 
-from nitpick.constants import FLAKE8_PREFIX
+from nitpick.constants import FLAKE8_PREFIX, READ_THE_DOCS_URL
 
 if TYPE_CHECKING:
     from nitpick.plugins.info import FileInfo
@@ -73,7 +73,12 @@ class StyleViolations(ViolationEnum):
 class ProjectViolations(ViolationEnum):
     """Project initialization violations."""
 
-    NO_ROOT_DIR = (101, "No root dir found (is this a Python project?)")
+    NO_ROOT_DIR = (
+        101,
+        "No root directory found for this project!"
+        " Create a configuration file on the root (.nitpick.toml or pyproject.toml)."
+        f" See {READ_THE_DOCS_URL}configuration.html",
+    )
     NO_PYTHON_FILE = (102, "No Python file was found on the root dir and subdir of {root!r}")
     MISSING_FILE = (103, " should exist{extra}")
     FILE_SHOULD_BE_DELETED = (104, " should be deleted{extra}")
