@@ -3,7 +3,18 @@
 Configuration
 =============
 
-:ref:`the-style-file` for your project should be configured in the ``[tool.nitpick]`` section of your ``pyproject.toml`` file.
+:ref:`the-style-file` for your project should be configured in the ``[tool.nitpick]`` section of the configuration file.
+
+Possible configuration files (in order of precedence):
+
+.. auto-generated-start-config-file
+
+1. ``.nitpick.toml``
+2. ``pyproject.toml``
+
+.. auto-generated-end-config-file
+
+The first file found will be used; the other files will be ignored.
 
 You can configure your own style like this:
 
