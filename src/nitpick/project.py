@@ -1,8 +1,9 @@
 """A project to be nitpicked."""
 import itertools
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, Iterator, Optional, Set
+from typing import Iterable, Iterator, List, Optional, Set
 
 import pluggy
 from autorepr import autorepr
@@ -12,6 +13,7 @@ from pluggy import PluginManager
 
 from nitpick import fields, plugins
 from nitpick.constants import (
+    CONFIG_FILES,
     MANAGE_PY,
     NITPICK_MINIMUM_VERSION_JMEX,
     PROJECT_NAME,
@@ -25,7 +27,7 @@ from nitpick.exceptions import QuitComplainingError
 from nitpick.formats import TOMLFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
-from nitpick.typedefs import JsonDict, PathOrStr, StrOrList, mypy_property
+from nitpick.typedefs import JsonDict, PathOrStr, mypy_property
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
 
 
@@ -108,6 +110,15 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
     cache = fields.NonEmptyString()
 
 
+@dataclass
+class Configuration:
+    """Configuration read from one of the ``CONFIG_FILES``."""
+
+    file: Optional[Path]
+    styles: List[str]
+    cache: str
+
+
 class Project:
     """A project to be nitpicked."""
 
@@ -116,7 +127,6 @@ class Project:
     def __init__(self, root: PathOrStr = None) -> None:
         self._chosen_root = root
 
-        self.tool_nitpick_dict: JsonDict = {}
         self.style_dict: JsonDict = {}
         self.nitpick_section: JsonDict = {}
         self.nitpick_files_section: JsonDict = {}
@@ -160,40 +170,49 @@ class Project:
         plugin_manager.load_setuptools_entrypoints(PROJECT_NAME)
         return plugin_manager
 
-    def validate_configuration(self) -> None:
-        """Validate the ``pyroject.toml``'s ``[tool.nitpick]`` section against a Marshmallow schema."""
+    def read_configuration(self) -> Configuration:
+        """Search for a configuration file and validate it against a Marshmallow schema."""
+        config_file: Optional[Path] = None
+        for possible_file in CONFIG_FILES:
+            path: Path = self.root / possible_file
+            if not path.exists():
+                continue
+
+            if not config_file:
+                logger.info(f"Reading configuration from {path}")
+                config_file = path
+            else:
+                logger.warning(f"Ignoring configuration from existing {path} (reading from {config_file} instead)")
+
+        if not config_file:
+            return Configuration(None, [], "")
+
+        toml_format = TOMLFormat(path=config_file)
+        config_dict = search_dict(TOOL_NITPICK_JMEX, toml_format.as_data, {})
+        validation_errors = ToolNitpickSectionSchema().validate(config_dict)
+        if not validation_errors:
+            return Configuration(config_file, config_dict.get("style", ""), config_dict.get("cache", ""))
+
         # pylint: disable=import-outside-toplevel
-        pyproject_path: Path = self.root / PYPROJECT_TOML
-        if not pyproject_path.exists():
-            return
-
-        pyproject_toml = TOMLFormat(path=pyproject_path)
-        self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, pyproject_toml.as_data, {})
-        pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
-        if not pyproject_errors:
-            return
-
         from nitpick.plugins.info import FileInfo
 
         raise QuitComplainingError(
             Reporter(FileInfo(self, PYPROJECT_TOML)).make_fuss(
                 StyleViolations.INVALID_DATA_TOOL_NITPICK,
-                flatten_marshmallow_errors(pyproject_errors),
+                flatten_marshmallow_errors(validation_errors),
                 section=TOOL_NITPICK,
             )
         )
 
     def merge_styles(self, offline: bool) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
-        self.validate_configuration()
+        config = self.read_configuration()
 
         # pylint: disable=import-outside-toplevel
         from nitpick.style import Style
 
-        configured_styles: StrOrList = self.tool_nitpick_dict.get("style", "")
-        cache_option = self.tool_nitpick_dict.get("cache", "")
-        style = Style(self, offline, cache_option)
-        style_errors = list(style.find_initial_styles(configured_styles))
+        style = Style(self, offline, config.cache)
+        style_errors = list(style.find_initial_styles(config.styles))
         if style_errors:
             raise QuitComplainingError(style_errors)
 
