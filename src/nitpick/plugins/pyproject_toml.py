@@ -1,14 +1,14 @@
 """Enforce config on pyproject.toml."""
 from collections import OrderedDict
 from itertools import chain
+from pathlib import Path
 from typing import Iterator, Optional, Type
 
 from tomlkit import dumps, parse
 from tomlkit.toml_document import TOMLDocument
 
 from nitpick.constants import PYPROJECT_TOML
-from nitpick.core import Nitpick
-from nitpick.formats import BaseFormat
+from nitpick.formats import BaseFormat, TOMLFormat
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -43,15 +43,13 @@ class PyProjectTomlPlugin(NitpickPlugin):
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing key/value pairs in pyproject.toml."""
-        file = Nitpick.singleton().project.pyproject_toml
-        if not file:
-            return
-
-        comparison = file.compare_with_flatten(self.expected_config)
+        file: Path = self.info.project.root / PYPROJECT_TOML
+        toml_format = TOMLFormat(path=file)
+        comparison = toml_format.compare_with_flatten(self.expected_config)
         if not comparison.has_changes:
             return
 
-        document = parse(file.as_string) if self.apply else None
+        document = parse(toml_format.as_string) if self.apply else None
         yield from chain(
             self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
             self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),

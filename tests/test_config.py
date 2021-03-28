@@ -1,9 +1,10 @@
 """Config tests."""
 import pytest
 
-from nitpick.constants import PYPROJECT_TOML, SETUP_CFG
+from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML, SETUP_CFG
 from nitpick.core import Nitpick
-from nitpick.exceptions import QuitComplainingError
+from nitpick.project import Configuration
+from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
 
 
@@ -20,13 +21,9 @@ def test_singleton():
 
 def test_no_root_dir(tmp_path):
     """No root dir."""
-    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False)
-    project.create_symlink("hello.py").flake8().assert_single_error(
-        "NIP101 No root dir found (is this a Python project?)"
-    )
-
-    # TODO: don't abort with QuitComplainingError when root files are missing
-    project.cli_run(exception_class=QuitComplainingError)
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py")
+    error = f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}"
+    project.flake8().assert_single_error(error).cli_run(error, exit_code=2).cli_ls(error, exit_code=2)
 
 
 def test_multiple_root_dirs(tmp_path):
@@ -96,3 +93,54 @@ def test_django_project_structure(tmp_path):
         some = "thing"
         """
     ).api_check_then_apply()
+
+
+def test_no_config_file(tmp_path, caplog):
+    """There is a root dir (setup.py), but no config file."""
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).api_check(offline=True)
+    assert project.nitpick_instance.project.read_configuration() == Configuration(None, [], "")
+    assert "Config file: none found" in caplog.text
+
+
+@pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYPROJECT_TOML])
+def test_has_one_config_file(tmp_path, config_file, caplog):
+    """There is a root dir (setup.py) and a single config file."""
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
+    project.save_file("local.toml", "").save_file(
+        config_file,
+        """
+        [tool.nitpick]
+        style = ["local.toml"]
+        cache = "forever"
+        """,
+    ).api_check(offline=True)
+    path = project.root_dir / config_file
+    assert project.nitpick_instance.project.read_configuration() == Configuration(path, ["local.toml"], "forever")
+    assert f"Config file: reading from {path}" in caplog.text
+
+
+def test_has_multiple_config_files(tmp_path, caplog):
+    """There is a root dir (setup.py) and multiple config files."""
+    project = ProjectMock(tmp_path, pyproject_toml=True, setup_py=True)
+    project.save_file("local_nit.toml", "").save_file("local_pyproj.toml", "").save_file(
+        DOT_NITPICK_TOML,
+        """
+        [tool.nitpick]
+        style = ["local_nit.toml"]
+        cache = "never"
+        """,
+    ).save_file(
+        PYPROJECT_TOML,
+        """
+        [tool.nitpick]
+        style = ["local_pyproj.toml"]
+        cache = "forever"
+        """,
+    ).api_check(
+        offline=True
+    )
+    assert project.nitpick_instance.project.read_configuration() == Configuration(
+        project.root_dir / DOT_NITPICK_TOML, ["local_nit.toml"], "never"
+    )
+    assert f"Config file: reading from {project.root_dir / DOT_NITPICK_TOML}" in caplog.text
+    assert f"Config file: ignoring existing {project.root_dir / PYPROJECT_TOML}" in caplog.text

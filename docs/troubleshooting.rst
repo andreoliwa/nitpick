@@ -40,3 +40,11 @@ During development, you can run ``invoke clean --venv install --dry``.
 It will display the commands that would be executed; remove ``--dry`` to actually run them.
 
 :ref:`Read this page on how to install Invoke <development>`.
+
+Executable ``.tox/lint/bin/pylint`` not found
+---------------------------------------------
+
+You might get this error while running ``make`` locally.
+
+1. Run ``invoke lint`` (or ``tox -e lint`` directly) to create this tox_ environment.
+2. Run ``make`` again.

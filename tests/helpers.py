@@ -58,6 +58,7 @@ class ProjectMock:
         self._flake8_errors: List[Flake8Error] = []
         self._flake8_errors_as_string: Set[str] = set()
 
+        self.nitpick_instance: Optional[Nitpick] = None
         self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
         self._mocked_response: Optional[RequestsMock] = None
@@ -93,10 +94,10 @@ class ProjectMock:
         """
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
-        nit = Nitpick.singleton().init(offline=offline)
+        self.nitpick_instance = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_violations = set(nit.run(*partial_names, apply=apply))
+            self._actual_violations = set(self.nitpick_instance.run(*partial_names, apply=apply))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -115,9 +116,9 @@ class ProjectMock:
         """Test only the flake8 plugin, no API."""
         return self._simulate_run(offline=offline, api=False)
 
-    def api_check(self, *partial_names: str):
+    def api_check(self, *partial_names: str, offline=False):
         """Test only the API in check mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, api=True, flake8=False, apply=False)
+        return self._simulate_run(*partial_names, offline=offline, api=True, flake8=False, apply=False)
 
     def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""
@@ -313,7 +314,7 @@ class ProjectMock:
         compare(expected=manual, actual=Reporter.manual)
         return self
 
-    def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str):
+    def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str, exit_code: int = None):
         result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *args])
         actual: List[str] = result.output.splitlines()
 
@@ -321,12 +322,19 @@ class ProjectMock:
             expected = dedent(str_or_lines).strip().splitlines()
         else:
             expected = list(always_iterable(str_or_lines))
+
+        compare(actual=result.exit_code, expected=exit_code or 0)
+
         return result, actual, expected
 
-    def cli_run(self, str_or_lines: StrOrList = None, apply=False, violations=0, exception_class=None) -> "ProjectMock":
+    def cli_run(
+        self, str_or_lines: StrOrList = None, apply=False, violations=0, exception_class=None, exit_code: int = None
+    ) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
         cli_args = [] if apply else ["--check"]
-        result, actual, expected = self._simulate_cli("run", str_or_lines, *cli_args)
+        result, actual, expected = self._simulate_cli(
+            "run", str_or_lines, *cli_args, exit_code=exit_code or 1 if str_or_lines else 0
+        )
         if exception_class:
             assert isinstance(result.exception, exception_class)
             return self
@@ -339,15 +347,15 @@ class ProjectMock:
             # This is useful when checking only if the error is contained in a list of errors,
             # regardless of the violation count.
             assert actual
-            del actual[-1]
+            if actual[-1].startswith("Violations"):
+                del actual[-1]
 
         compare(actual=actual, expected=expected)
-        compare(actual=result.exit_code, expected=(1 if str_or_lines else 0))
         return self
 
-    def cli_ls(self, str_or_lines: StrOrList):
+    def cli_ls(self, str_or_lines: StrOrList, exit_code: int = None):
         """Run the ls command and assert the output."""
-        result, actual, expected = self._simulate_cli("ls", str_or_lines)
+        result, actual, expected = self._simulate_cli("ls", str_or_lines, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
 
     def assert_file_contents(self, *name_contents: Union[PathOrStr, str]):

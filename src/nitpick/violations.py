@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional
 
 import click
 
-from nitpick.constants import FLAKE8_PREFIX
+from nitpick.constants import CONFIG_FILES, FLAKE8_PREFIX, READ_THE_DOCS_URL
 
 if TYPE_CHECKING:
     from nitpick.plugins.info import FileInfo
@@ -37,10 +37,8 @@ class Fuss:
     @property
     def pretty(self) -> str:
         """Message to be used on the CLI."""
-        return (
-            f"{self.filename}:{self.lineno}: {FLAKE8_PREFIX}{self.code:03}"
-            f" {self.message.rstrip()}{self.colored_suggestion}"
-        )
+        filename_plus_line = f"{self.filename}:{self.lineno}: " if self.filename.strip() else ""
+        return f"{filename_plus_line}{FLAKE8_PREFIX}{self.code:03}" f" {self.message.rstrip()}{self.colored_suggestion}"
 
     def __lt__(self, other: "Fuss") -> bool:
         """Sort Fuss instances."""
@@ -73,7 +71,12 @@ class StyleViolations(ViolationEnum):
 class ProjectViolations(ViolationEnum):
     """Project initialization violations."""
 
-    NO_ROOT_DIR = (101, "No root dir found (is this a Python project?)")
+    NO_ROOT_DIR = (
+        101,
+        "No root directory found for this project!"
+        f" Create a configuration file on the root ({', '.join(CONFIG_FILES)})."
+        f" See {READ_THE_DOCS_URL}configuration.html",
+    )
     NO_PYTHON_FILE = (102, "No Python file was found on the root dir and subdir of {root!r}")
     MISSING_FILE = (103, " should exist{extra}")
     FILE_SHOULD_BE_DELETED = (104, " should be deleted{extra}")

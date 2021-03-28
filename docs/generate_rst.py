@@ -17,10 +17,12 @@ from slugify import slugify
 from sortedcontainers import SortedDict
 
 from nitpick import __version__
-from nitpick.constants import GITHUB_BASE_URL
+from nitpick.constants import GITHUB_BASE_URL, CONFIG_FILES
 from nitpick.core import Nitpick
 
-DIVIDER = ".. auto-generated-from-here"
+DIVIDER_FROM_HERE = ".. auto-generated-from-here"
+DIVIDER_START = ".. auto-generated-start-{}"
+DIVIDER_END = ".. auto-generated-end-{}"
 DOCS_DIR: Path = Path(__file__).parent.absolute()
 STYLES_DIR: Path = DOCS_DIR.parent / "styles"
 
@@ -67,15 +69,26 @@ CLI_MAPPING = [
 nit = Nitpick.singleton().init()
 
 
-def write_rst(filename: str, blocks: List[str]) -> int:
+def write_rst(filename: str, blocks: List[str], divider_id: str = None) -> int:
     """Write content to the .rst file."""
     rst_file: Path = DOCS_DIR / filename
 
     old_content = rst_file.read_text()
-    cut_position = old_content.index(DIVIDER)
-    new_content = old_content[: cut_position + len(DIVIDER) + 1]
+    if divider_id:
+        start_marker = DIVIDER_START.format(divider_id)
+        end_marker = DIVIDER_END.format(divider_id)
+        start_position = old_content.index(start_marker) + len(start_marker) + 1
+        end_position = old_content.index(end_marker) - 1
+    else:
+        start_position = old_content.index(DIVIDER_FROM_HERE) + len(DIVIDER_FROM_HERE) + 1
+        end_position = 0
+
+    new_content = old_content[:start_position]
     new_content += "\n".join(blocks)
+    if end_position:
+        new_content += old_content[end_position:]
     new_content = new_content.strip() + "\n"
+
     if old_content != new_content:
         rst_file.write_text(new_content)
         click.secho(f"{rst_file} generated", fg="yellow")
@@ -213,5 +226,18 @@ def generate_cli(filename: str) -> int:
     return write_rst(filename, blocks)
 
 
+def generate_config(filename: str) -> int:
+    """Generate config file names."""
+    blocks = [f"{index + 1}. ``{config_file}``" for index, config_file in enumerate(CONFIG_FILES)]
+    blocks.insert(0, "")
+    blocks.append("")
+    return write_rst(filename, blocks, divider_id="config-file")
+
+
 if __name__ == "__main__":
-    sys.exit(generate_examples("examples.rst") + generate_plugins("plugins.rst") + generate_cli("cli.rst"))
+    sys.exit(
+        generate_config("configuration.rst")
+        + generate_examples("examples.rst")
+        + generate_cli("cli.rst")
+        + generate_plugins("plugins.rst")
+    )

@@ -20,6 +20,7 @@ def test_fuss_pretty(fixed):
             Fuss(fixed, "abc.txt", 1, "message", "\tsuggestion\n\t   "),
             f"abc.txt:1: NIP001 message{SUGGESTION_BEGIN}\n\tsuggestion{SUGGESTION_END}",
         ),
+        (Fuss(fixed, "  ", 3, "no filename"), "NIP003 no filename"),
     ]
     for fuss, expected in examples:
         compare(actual=fuss.pretty, expected=dedent(expected))

@@ -1,23 +1,26 @@
-"""Pytest fixtures."""
+"""Pytest fixtures.
+
+Imports from ``nitpick`` have to be here within the fixtures, otherwise they raise an error on tox:
+
+    $ tox -e clean,py38,report
+    (...)
+    Coverage.py warning: No data was collected. (no-data-collected)
+    .tox/py38/lib/python3.8/site-packages/pytest_cov/plugin.py:271:
+     PytestWarning: Failed to generate report: No data to report.
+"""
+import logging
 from pathlib import Path
 from textwrap import dedent
 
 import pytest
+from _pytest.logging import caplog as _caplog  # noqa: F401
+from loguru import logger
 from responses import RequestsMock
 
 
 @pytest.fixture()
 def project_default(tmp_path):
-    """Project with the default Nitpick style.
-
-    These imports below have to be here within the fixture, otherwise they raise an error on tox:
-
-        $ tox -e clean,py38,report
-        (...)
-        Coverage.py warning: No data was collected. (no-data-collected)
-        .tox/py38/lib/python3.8/site-packages/pytest_cov/plugin.py:271:
-         PytestWarning: Failed to generate report: No data to report.
-    """
+    """Project with the default Nitpick style."""
     from nitpick.constants import NITPICK_STYLE_TOML
     from tests.helpers import ProjectMock
 
@@ -59,3 +62,24 @@ def project_remote(request, tmp_path):
             """
         ).remote(mocked_response, remote_url)
         yield project
+
+
+@pytest.fixture
+def caplog(_caplog):  # noqa: F811
+    """Override the caplog fixture to make pytest work with loguru.
+
+    More info:
+    https://loguru.readthedocs.io/en/stable/resources/migration.html#making-things-work-with-pytest-and-caplog
+    """
+
+    class PropogateHandler(logging.Handler):
+        def emit(self, record):
+            logging.getLogger(record.name).handle(record)
+
+    handler_id = logger.add(PropogateHandler(), format="{message} {extra}")
+    from nitpick import PROJECT_NAME
+
+    logger.enable(PROJECT_NAME)
+    yield _caplog
+    logger.remove(handler_id)
+    logger.disable(PROJECT_NAME)
