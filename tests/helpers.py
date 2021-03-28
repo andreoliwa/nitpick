@@ -58,6 +58,7 @@ class ProjectMock:
         self._flake8_errors: List[Flake8Error] = []
         self._flake8_errors_as_string: Set[str] = set()
 
+        self.nitpick_instance: Optional[Nitpick] = None
         self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
         self._mocked_response: Optional[RequestsMock] = None
@@ -93,10 +94,10 @@ class ProjectMock:
         """
         Nitpick.singleton.cache_clear()
         os.chdir(str(self.root_dir))
-        nit = Nitpick.singleton().init(offline=offline)
+        self.nitpick_instance = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_violations = set(nit.run(*partial_names, apply=apply))
+            self._actual_violations = set(self.nitpick_instance.run(*partial_names, apply=apply))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -115,9 +116,9 @@ class ProjectMock:
         """Test only the flake8 plugin, no API."""
         return self._simulate_run(offline=offline, api=False)
 
-    def api_check(self, *partial_names: str):
+    def api_check(self, *partial_names: str, offline=False):
         """Test only the API in check mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, api=True, flake8=False, apply=False)
+        return self._simulate_run(*partial_names, offline=offline, api=True, flake8=False, apply=False)
 
     def api_apply(self, *partial_names: str):
         """Test only the API in apply mode, no flake8 plugin."""

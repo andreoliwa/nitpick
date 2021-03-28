@@ -1,8 +1,9 @@
 """Config tests."""
 import pytest
 
-from nitpick.constants import PYPROJECT_TOML, SETUP_CFG
+from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML, SETUP_CFG
 from nitpick.core import Nitpick
+from nitpick.project import Configuration
 from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
 
@@ -92,3 +93,26 @@ def test_django_project_structure(tmp_path):
         some = "thing"
         """
     ).api_check_then_apply()
+
+
+def test_no_config_file(tmp_path):
+    """There is a root dir (setup.py), but no config file."""
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).api_check(offline=True)
+    assert project.nitpick_instance.project.read_configuration() == Configuration(None, [], "")
+
+
+@pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYPROJECT_TOML])
+def test_has_config_file(tmp_path, config_file):
+    """There is a root dir (setup.py) and a config file."""
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
+    project.save_file("local.toml", "").save_file(
+        config_file,
+        """
+        [tool.nitpick]
+        style = ["local.toml"]
+        cache = "forever"
+        """,
+    ).api_check(offline=True)
+    assert project.nitpick_instance.project.read_configuration() == Configuration(
+        project.root_dir / config_file, ["local.toml"], "forever"
+    )
