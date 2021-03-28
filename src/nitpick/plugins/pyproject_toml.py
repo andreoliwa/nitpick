@@ -45,9 +45,6 @@ class PyProjectTomlPlugin(NitpickPlugin):
         """Enforce rules for missing key/value pairs in pyproject.toml."""
         file: Path = self.info.project.root / PYPROJECT_TOML
         toml_format = TOMLFormat(path=file)
-        if not toml_format:
-            return
-
         comparison = toml_format.compare_with_flatten(self.expected_config)
         if not comparison.has_changes:
             return
