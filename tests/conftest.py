@@ -1,9 +1,14 @@
 """Pytest fixtures."""
+import logging
 from pathlib import Path
 from textwrap import dedent
 
 import pytest
+from _pytest.logging import caplog as _caplog  # noqa: F401
+from loguru import logger
 from responses import RequestsMock
+
+from nitpick import PROJECT_NAME
 
 
 @pytest.fixture()
@@ -59,3 +64,22 @@ def project_remote(request, tmp_path):
             """
         ).remote(mocked_response, remote_url)
         yield project
+
+
+@pytest.fixture
+def caplog(_caplog):  # noqa: F811
+    """Override the caplog fixture to make pytest work with loguru.
+
+    More info:
+    https://loguru.readthedocs.io/en/stable/resources/migration.html#making-things-work-with-pytest-and-caplog
+    """
+
+    class PropogateHandler(logging.Handler):
+        def emit(self, record):
+            logging.getLogger(record.name).handle(record)
+
+    handler_id = logger.add(PropogateHandler(), format="{message} {extra}")
+    logger.enable(PROJECT_NAME)
+    yield _caplog
+    logger.remove(handler_id)
+    logger.disable(PROJECT_NAME)

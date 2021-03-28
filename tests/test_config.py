@@ -95,15 +95,16 @@ def test_django_project_structure(tmp_path):
     ).api_check_then_apply()
 
 
-def test_no_config_file(tmp_path):
+def test_no_config_file(tmp_path, caplog):
     """There is a root dir (setup.py), but no config file."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).api_check(offline=True)
     assert project.nitpick_instance.project.read_configuration() == Configuration(None, [], "")
+    assert "Config file: none found" in caplog.text
 
 
 @pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYPROJECT_TOML])
-def test_has_config_file(tmp_path, config_file):
-    """There is a root dir (setup.py) and a config file."""
+def test_has_one_config_file(tmp_path, config_file, caplog):
+    """There is a root dir (setup.py) and a single config file."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
     project.save_file("local.toml", "").save_file(
         config_file,
@@ -113,6 +114,33 @@ def test_has_config_file(tmp_path, config_file):
         cache = "forever"
         """,
     ).api_check(offline=True)
-    assert project.nitpick_instance.project.read_configuration() == Configuration(
-        project.root_dir / config_file, ["local.toml"], "forever"
+    path = project.root_dir / config_file
+    assert project.nitpick_instance.project.read_configuration() == Configuration(path, ["local.toml"], "forever")
+    assert f"Config file: reading from {path}" in caplog.text
+
+
+def test_has_multiple_config_files(tmp_path, caplog):
+    """There is a root dir (setup.py) and multiple config files."""
+    project = ProjectMock(tmp_path, pyproject_toml=True, setup_py=True)
+    project.save_file("local_nit.toml", "").save_file("local_pyproj.toml", "").save_file(
+        DOT_NITPICK_TOML,
+        """
+        [tool.nitpick]
+        style = ["local_nit.toml"]
+        cache = "never"
+        """,
+    ).save_file(
+        PYPROJECT_TOML,
+        """
+        [tool.nitpick]
+        style = ["local_pyproj.toml"]
+        cache = "forever"
+        """,
+    ).api_check(
+        offline=True
     )
+    assert project.nitpick_instance.project.read_configuration() == Configuration(
+        project.root_dir / DOT_NITPICK_TOML, ["local_nit.toml"], "never"
+    )
+    assert f"Config file: reading from {project.root_dir / DOT_NITPICK_TOML}" in caplog.text
+    assert f"Config file: ignoring existing {project.root_dir / PYPROJECT_TOML}" in caplog.text

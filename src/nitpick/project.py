@@ -179,12 +179,13 @@ class Project:
                 continue
 
             if not config_file:
-                logger.info(f"Reading configuration from {path}")
+                logger.info(f"Config file: reading from {path}")
                 config_file = path
             else:
-                logger.warning(f"Ignoring configuration from existing {path} (reading from {config_file} instead)")
+                logger.warning(f"Config file: ignoring existing {path}")
 
         if not config_file:
+            logger.warning("Config file: none found")
             return Configuration(None, [], "")
 
         toml_format = TOMLFormat(path=config_file)
