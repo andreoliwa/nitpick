@@ -116,7 +116,6 @@ class Project:
     def __init__(self, root: PathOrStr = None) -> None:
         self._chosen_root = root
 
-        self.pyproject_toml: Optional[TOMLFormat] = None
         self.tool_nitpick_dict: JsonDict = {}
         self.style_dict: JsonDict = {}
         self.nitpick_section: JsonDict = {}
@@ -168,8 +167,8 @@ class Project:
         if not pyproject_path.exists():
             return
 
-        self.pyproject_toml = TOMLFormat(path=pyproject_path)
-        self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, self.pyproject_toml.as_data, {})
+        pyproject_toml = TOMLFormat(path=pyproject_path)
+        self.tool_nitpick_dict = search_dict(TOOL_NITPICK_JMEX, pyproject_toml.as_data, {})
         pyproject_errors = ToolNitpickSectionSchema().validate(self.tool_nitpick_dict)
         if not pyproject_errors:
             return
