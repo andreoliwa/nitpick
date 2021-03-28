@@ -7,7 +7,7 @@ Helpful docs:
 from configparser import ConfigParser
 from typing import Iterator
 
-from invoke import Collection, task
+from invoke import Collection, task  # pylint: disable=import-error
 
 COLOR_GREEN = "\x1b[32m"
 COLOR_NONE = "\x1b[0m"
@@ -68,68 +68,56 @@ class ToxCommands:
 
 
 @task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})
-def install(c, deps=True, hooks=False):
+def install(ctx, deps=True, hooks=False):
     """Install dependencies and pre-commit hooks.
 
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
         print(f"{COLOR_GREEN}Nitpick runs in Python 3.6 and later, but development is done in 3.6{COLOR_NONE}")
-        c.run("poetry env use python3.6")
-        c.run("poetry install -E test -E lint -E doc --remove-untracked")
+        ctx.run("poetry env use python3.6")
+        ctx.run("poetry install -E test -E lint -E doc --remove-untracked")
     if hooks:
-        c.run("pre-commit install --install-hooks")
-        c.run("pre-commit install --hook-type commit-msg")
-        c.run("pre-commit gc")
+        ctx.run("pre-commit install --install-hooks")
+        ctx.run("pre-commit install --hook-type commit-msg")
+        ctx.run("pre-commit gc")
 
 
 @task(help={"deps": "Update Poetry dependencies", "hooks": "Update pre-commit hooks"})
-def update(c, deps=True, hooks=False):
+def update(ctx, deps=True, hooks=False):
     """Update pre-commit hooks and Poetry dependencies."""
     if hooks:
         # Uncomment the line below to auto update all repos except a few filtered out with egrep
-        c.run(
+        ctx.run(
             "yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e commitlint"
             " | sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate"
         )
 
     if deps:
-        c.run("poetry update")
+        ctx.run("poetry update")
 
     # Also install what was updated
-    install(c, deps, hooks)
+    install(ctx, deps, hooks)
 
 
-@task(help={"coverage": "Run the HTML coverage report", "open": "Open the HTML coverage report"})
-def test(c, coverage=False, open=False):
+@task(help={"coverage": "Run the HTML coverage report", "browse": "Browse the HTML coverage report"})
+def test(ctx, coverage=False, browse=False):
     """Run tests and coverage using the commands from tox config."""
     tox = ToxCommands()
-    c.run(f"poetry run {tox.pytest_command}")
+    ctx.run(f"poetry run {tox.pytest_command}")
 
     if coverage:
         for cmd in tox.coverage_commands():
-            c.run(f"poetry run {cmd}")
+            ctx.run(f"poetry run {cmd}")
 
-    if open:
-        c.run("open htmlcov/index.html")
-
-
-@task
-def nitpick(c):
-    """Run Nitpick locally on itself (with flake8)."""
-    c.run("poetry run flake8 --select=NIP")
-
-
-@task
-def pylint(c):
-    """Run pylint for all files."""
-    c.run("poetry run pylint src/")
+    if browse:
+        ctx.run("open htmlcov/index.html")
 
 
 @task(help={"hook": "Specific hook to run"})
-def pre_commit(c, hook=""):
+def pre_commit(ctx, hook=""):
     """Run pre-commit for all files."""
-    c.run(f"pre-commit run --all-files {hook}")
+    ctx.run(f"pre-commit run --all-files {hook}")
 
 
 @task(
@@ -137,71 +125,78 @@ def pre_commit(c, hook=""):
         "full": "Run all steps",
         "recreate": "Delete and recreate RST for source files",
         "links": "Check links",
-        "open": "Open the HTML index",
+        "browse": "Browse the HTML index",
         "debug": "Debug HTML generation to fix warnings",
-    }
+    }  # pylint: disable=too-many-arguments
 )
-def doc(c, full=False, recreate=False, links=False, open=False, debug=False):
+def doc(ctx, full=False, recreate=False, links=False, browse=False, debug=False):
     """Build documentation."""
     tox = ToxCommands()
 
     if full:
         recreate = links = True
     if recreate:
-        c.run("mkdir -p docs/_static")
-        c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
+        ctx.run("mkdir -p docs/_static")
+        ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
 
-    c.run(f"poetry run {tox.generate_rst}")
-    c.run(f"poetry run {tox.api}")
+    ctx.run(f"poetry run {tox.generate_rst}")
+    ctx.run(f"poetry run {tox.api}")
     if debug:
-        c.run("poetry run sphinx-apidoc --help")
+        ctx.run("poetry run sphinx-apidoc --help")
 
     debug_options = "-nWT --keep-going -vvv" if debug else ""
-    c.run(f"poetry run {tox.html_docs} {debug_options}")
+    ctx.run(f"poetry run {tox.html_docs} {debug_options}")
 
     if links:
-        c.run(f"poetry run {tox.check_links}", warn=True)
+        ctx.run(f"poetry run {tox.check_links}", warn=True)
 
-    if open:
-        c.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
+    if browse:
+        ctx.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
 
 
 @task(help={"full": "Full build using tox", "recreate": "Recreate tox environment"})
-def ci_build(c, full=False, recreate=False):
+def ci_build(ctx, full=False, recreate=False):
     """Simulate a CI build."""
     tox_cmd = "tox -r" if recreate else "tox"
     if full:
-        c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
-        c.run(tox_cmd)
+        ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
+        ctx.run(tox_cmd)
     else:
-        c.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
+        ctx.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
+
+
+@task(help={"recreate": "Recreate tox environment"})
+def lint(ctx, recreate=False):
+    """Lint using tox."""
+    tox_cmd = "tox -r" if recreate else "tox"
+    ctx.run(f"{tox_cmd} -e lint")
 
 
 @task(help={"venv": "Remove the Poetry virtualenv"})
-def clean(c, venv=False):
+def clean(ctx, venv=False):
     """Clean build output and temp files."""
-    c.run("find . -type f -name '*.py[co]' -print -delete")
-    c.run("find . -type d -name '__pycache__' -print -delete")
-    c.run(
+    ctx.run("find . -type f -name '*.py[co]' -print -delete")
+    ctx.run("find . -type d -name '__pycache__' -print -delete")
+    ctx.run(
         "find . -type d \\( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \\) -print0 | "
         "xargs -0 rm -rvf"
     )
-    c.run(f"rm -rvf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .tox")
+    ctx.run(f"rm -rvf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .tox")
     if venv:
-        c.run("poetry env remove python3.6", warn=True)
+        ctx.run("poetry env remove python3.6", warn=True)
 
 
 @task
-def reactions(c):
+def reactions(ctx):
     """List issues with reactions.
 
     https://github.blog/2021-03-11-scripting-with-github-cli/
     https://docs.github.com/en/rest/reference/issues#get-an-issue
     https://developer.github.com/changes/2016-05-12-reactions-api-preview/
     """
-    result = c.run("gh api -X GET 'repos/andreoliwa/nitpick/issues' | jq -r '.[].number'", pty=False)
+    result = ctx.run("gh api -X GET 'repos/andreoliwa/nitpick/issues' | jq -r '.[].number'", pty=False)
     for issue in result.stdout.splitlines():
-        result_users = c.run(
+        result_users = ctx.run(
             f"gh api -X GET 'repos/andreoliwa/nitpick/issues/{int(issue)}/reactions'"
             " -H 'Accept: application/vnd.github.squirrel-girl-preview'"
             " | jq -r '.[].user.html_url'"
@@ -215,12 +210,10 @@ def reactions(c):
             print(COLOR_NONE)
 
 
-namespace = Collection(install, update, test, nitpick, pylint, pre_commit, doc, ci_build, clean, reactions)
+namespace = Collection(install, update, test, pre_commit, doc, ci_build, lint, clean, reactions)
 namespace.configure(
     {
         "run": {
-            # Echo all commands in all tasks by default (like 'make' does)
-            "echo": True,
             # Use a pseudo-terminal to display colorful output
             "pty": True,
         }

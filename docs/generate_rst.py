@@ -80,8 +80,8 @@ def write_rst(filename: str, blocks: List[str]) -> int:
         rst_file.write_text(new_content)
         click.secho(f"{rst_file} generated", fg="yellow")
         return 1
-    else:
-        click.secho(f"{rst_file} hasn't changed", fg="green")
+
+    click.secho(f"{rst_file} hasn't changed", fg="green")
     return 0
 
 
@@ -136,7 +136,8 @@ def generate_examples(filename: str) -> int:
 
     if missing:
         click.secho(
-            f"ERROR: Add missing style files to the 'style_mapping' var in '{__file__}', as file/header pairs. Example:",
+            f"ERROR: Add missing style files to the 'style_mapping' var in '{__file__}',"
+            f" as file/header pairs. Example:",
             fg="red",
         )
         pprint(missing)

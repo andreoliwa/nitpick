@@ -5,12 +5,20 @@
 
 # https://pre-commit.ci/#configuration
 ci:
-  skip: [generate_rst]
+  skip: [local-nitpick, generate-docs, pylint]
 
 repos:
   - repo: local
     hooks:
-      - id: generate_rst
+      # Run nitpick also with tox, because local repos don't seem to work well with https://pre-commit.ci/
+      - id: local-nitpick
+        name: nitpick run
+        entry: poetry run nitpick run
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [commit]
+      - id: generate-docs
         name: Generate ReST documentation from docstrings and TOML
         entry: poetry run python3 docs/generate_rst.py
         language: system
@@ -55,7 +63,6 @@ repos:
     hooks:
       - id: prettier
         stages: [commit]
-  # Run nitpick with tox, because local repos don't seem to work well with https://pre-commit.ci/
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.0
     hooks:
@@ -78,10 +85,18 @@ repos:
     rev: v0.812
     hooks:
       - id: mypy
-  # Run pylint with tox, because local repos don't seem to work well with https://pre-commit.ci/
+  # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
   # Note for future attempts with pylint as a pre-commit hook:
   # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.
   # This solution helped: https://github.com/pre-commit/pre-commit/issues/1309
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: .tox/lint/bin/pylint
+        language: system
+        types: [python]
+        exclude: tests/
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.0
     hooks:

@@ -19,20 +19,12 @@ help:
 	invoke --list
 .PHONY: help
 
-build: .cache/make/pytest .cache/make/nitpick .cache/make/pylint .cache/make/pre-commit # Quick build for local development
+build: .cache/make/pytest .cache/make/pre-commit # Quick build for local development
 .PHONY: build
 
 .cache/make/pytest: $(SRC) $(TESTS)
 	invoke test
 	touch .cache/make/pytest
-
-.cache/make/nitpick: $(ANY)
-	invoke nitpick
-	touch .cache/make/nitpick
-
-.cache/make/pylint: $(SRC) $(TESTS)
-	invoke pylint
-	touch .cache/make/pylint
 
 .cache/make/pre-commit: $(ANY)
 	invoke pre-commit
