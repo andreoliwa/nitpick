@@ -313,7 +313,7 @@ class ProjectMock:
         compare(expected=manual, actual=Reporter.manual)
         return self
 
-    def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str):
+    def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str, exit_code: int = None):
         result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *args])
         actual: List[str] = result.output.splitlines()
 
@@ -321,14 +321,19 @@ class ProjectMock:
             expected = dedent(str_or_lines).strip().splitlines()
         else:
             expected = list(always_iterable(str_or_lines))
+
+        compare(actual=result.exit_code, expected=exit_code or 0)
+
         return result, actual, expected
 
     def cli_run(
-        self, str_or_lines: StrOrList = None, apply=False, violations=0, exception_class=None, exit_code=None
+        self, str_or_lines: StrOrList = None, apply=False, violations=0, exception_class=None, exit_code: int = None
     ) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
         cli_args = [] if apply else ["--check"]
-        result, actual, expected = self._simulate_cli("run", str_or_lines, *cli_args)
+        result, actual, expected = self._simulate_cli(
+            "run", str_or_lines, *cli_args, exit_code=exit_code or 1 if str_or_lines else 0
+        )
         if exception_class:
             assert isinstance(result.exception, exception_class)
             return self
@@ -345,14 +350,11 @@ class ProjectMock:
                 del actual[-1]
 
         compare(actual=actual, expected=expected)
-
-        expected_exit_code = exit_code or 1 if str_or_lines else 0
-        compare(actual=result.exit_code, expected=expected_exit_code)
         return self
 
-    def cli_ls(self, str_or_lines: StrOrList):
+    def cli_ls(self, str_or_lines: StrOrList, exit_code: int = None):
         """Run the ls command and assert the output."""
-        result, actual, expected = self._simulate_cli("ls", str_or_lines)
+        result, actual, expected = self._simulate_cli("ls", str_or_lines, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
 
     def assert_file_contents(self, *name_contents: Union[PathOrStr, str]):

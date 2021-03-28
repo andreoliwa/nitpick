@@ -21,8 +21,8 @@ def test_singleton():
 def test_no_root_dir(tmp_path):
     """No root dir."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py")
-    project.flake8().assert_single_error(f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}")
-    project.cli_run(ProjectViolations.NO_ROOT_DIR.message, exit_code=2)
+    error = f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}"
+    project.flake8().assert_single_error(error).cli_run(error, exit_code=2).cli_ls(error, exit_code=2)
 
 
 def test_multiple_root_dirs(tmp_path):

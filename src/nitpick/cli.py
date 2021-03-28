@@ -82,7 +82,7 @@ def run(context, check_only, verbose, files):
             nit.echo(fuss.pretty)
     except QuitComplainingError as err:
         for fuss in err.violations:
-            click.secho(fuss.message, fg="red")
+            click.echo(fuss.pretty)
         raise Exit(2) from err
 
     if Reporter.manual or Reporter.fixed:
@@ -102,12 +102,14 @@ def ls(context, files):  # pylint: disable=invalid-name
     nit = get_nitpick(context)
     try:
         violations = list(nit.project.merge_styles(nit.offline))
+        error_exit_code = 1
     except QuitComplainingError as err:
         violations = err.violations
+        error_exit_code = 2
     if violations:
         for fuss in violations:
             click.echo(fuss.pretty)
-        raise Exit(1)  # TODO: test ls with invalid style
+        raise Exit(error_exit_code)  # TODO: test ls with invalid style
 
     # TODO: test API .configured_files
     for file in nit.configured_files(*files):
