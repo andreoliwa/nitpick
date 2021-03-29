@@ -353,10 +353,17 @@ class ProjectMock:
         compare(actual=actual, expected=expected)
         return self
 
-    def cli_ls(self, str_or_lines: StrOrList, exit_code: int = None):
+    def cli_ls(self, str_or_lines: StrOrList, *, exit_code: int = None) -> "ProjectMock":
         """Run the ls command and assert the output."""
         result, actual, expected = self._simulate_cli("ls", str_or_lines, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
+        return self
+
+    def cli_init(self, str_or_lines: StrOrList, *, exit_code: int = None) -> "ProjectMock":
+        """Run the init command and assert the output."""
+        result, actual, expected = self._simulate_cli("init", str_or_lines, exit_code=exit_code)
+        compare(actual=actual, expected=expected, prefix=f"Result: {result}")
+        return self
 
     def assert_file_contents(self, *name_contents: Union[PathOrStr, str]):
         """Assert the file has the expected contents."""

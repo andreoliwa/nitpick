@@ -114,3 +114,11 @@ def ls(context, files):  # pylint: disable=invalid-name
     # TODO: test API .configured_files
     for file in nit.configured_files(*files):
         click.secho(relative_to_current_dir(file), fg="green" if file.exists() else "red")
+
+
+@nitpick_cli.command()
+@click.pass_context
+def ls(context):
+    """Initialise Nitpick configuration."""
+    nit = get_nitpick(context)
+    nit.project.read_configuration()

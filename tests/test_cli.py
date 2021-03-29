@@ -1,4 +1,7 @@
 """CLI tests."""
+import pytest
+
+from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 
@@ -28,3 +31,16 @@ def test_simple_error(tmp_path):
         line-length = 100
         """
     )
+
+
+@pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYPROJECT_TOML])
+def test_config_file_already_exists(tmp_path, config_file):
+    """Test if .nitpick.toml already exists."""
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).save_file(config_file, "")
+    project.cli_init(f"A config file already exists: {config_file}")
+
+
+# def test_create_basic_dot_nitpick_toml(tmp_path):
+#     """If no config file is found, create a basic .nitpick.toml."""
+#     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
+#     project.cli_init()
