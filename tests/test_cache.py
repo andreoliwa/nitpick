@@ -5,7 +5,7 @@ import pytest
 from freezegun import freeze_time
 
 from nitpick.enums import CachingEnum
-from nitpick.style import parse_cache_option
+from nitpick.style.cache import parse_cache_option
 
 
 @pytest.mark.tool_nitpick("cache = 'forever'")

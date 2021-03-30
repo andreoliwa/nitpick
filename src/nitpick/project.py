@@ -212,7 +212,7 @@ class Project:
         config = self.read_configuration()
 
         # pylint: disable=import-outside-toplevel
-        from nitpick.style import Style
+        from nitpick.style.style import Style
 
         style = Style(self, offline, config.cache)
         style_errors = list(style.find_initial_styles(peekable(always_iterable(config.styles))))
