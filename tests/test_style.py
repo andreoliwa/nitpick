@@ -659,3 +659,49 @@ def test_invalid_nitpick_files(offline, tmp_path):
         """,
         2,
     )
+
+
+@responses.activate
+def test_github_fetch(tmp_path):
+    """Test that gh:// and github:// URLs can be fetched."""
+    raw_url = "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/nitpick"
+    data = [
+        (
+            f"{raw_url}/initial.toml",
+            """
+    [nitpick.styles]
+    include = "black.toml"
+    """,
+        ),
+        (
+            f"{raw_url}/black.toml",
+            """
+        ["pyproject.toml".tool.black]
+        line-length = 120
+    """,
+        ),
+    ]
+    for url, style in data:
+        responses.add(responses.GET, url, dedent(style), status=200)
+
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", """{"default_branch": "develop"}""")
+
+    ProjectMock(tmp_path).pyproject_toml(
+        """
+        [tool.nitpick]
+        style = [
+          "github://andreoliwa/nitpick/initial.toml",
+        ]
+        """
+    ).api_check().assert_violations(
+        Fuss(
+            False,
+            PYPROJECT_TOML,
+            318,
+            " has missing values:",
+            """
+            [tool.black]
+            line-length = 120
+            """,
+        )
+    )
