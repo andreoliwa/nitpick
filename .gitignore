@@ -108,3 +108,9 @@ ENV/
 # Editors
 .idea/
 .vscode/
+
+# direnv
+.envrc
+
+# macOS
+.DS_Store
