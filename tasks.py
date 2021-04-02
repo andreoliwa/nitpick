@@ -11,7 +11,7 @@ from invoke import Collection, task  # pylint: disable=import-error
 
 COLOR_NONE = "\x1b[0m"
 COLOR_GREEN = "\x1b[32m"
-COLOR_BOLD_RED = "\033[1;31m"
+COLOR_BOLD_RED = "\x1b[1;31m"
 DOCS_BUILD_PATH = "docs/_build"
 
 
