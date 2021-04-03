@@ -5,7 +5,6 @@ max-line-length__present = "int"
 exclude__present = "str"
 max-complexity__present = "int"
 inline-quotes__present = "str"
-
 # https://github.com/andreoliwa/nitpick/issues/271
 ignore__separators = ","
 exclude__separators = ","
@@ -26,12 +25,14 @@ blabla = "{{ nit.section_absent() }}"
 # Section should be absent
 ["setup.cfg"."tox:tox"]
 __present = false
+
 ["setup.cfg"."gh-actions"]
 __present = false
 
 # Section should be present
 ["tox.ini"."tox"]
 __present = true
+
 ["tox.ini".gh-actions]
 __present = true
 

@@ -62,6 +62,7 @@ repos:
     rev: v2.2.1
     hooks:
       - id: prettier
+        additional_dependencies: [prettier-plugin-toml]
         stages: [commit]
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.0

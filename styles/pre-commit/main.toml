@@ -1,5 +1,4 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
-
 [nitpick.files.present]
 ".pre-commit-config.yaml" = "Create the file with the contents below, then run 'pre-commit install'"

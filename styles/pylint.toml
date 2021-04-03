@@ -1,5 +1,5 @@
 ["pyproject.toml".tool.poetry.dependencies]
-pylint = {version = "*", optional = true}
+pylint = { version = "*", optional = true }
 
 ["pyproject.toml".tool.poetry.extras]
 lint = ["pylint"]
@@ -14,6 +14,7 @@ jobs = 1
 output-format = "colorized"
 
 [".pylintrc"."MESSAGES CONTROL"]
+
 # TODO: deal with character separated INI options in https://github.com/andreoliwa/nitpick/issues/271
 #  The "nitpick.files" section doesn't work out of the box for .pylintrc:
 #  [nitpick.files.".pylintrc"]
@@ -21,7 +22,6 @@ output-format = "colorized"
 #  This syntax will be deprecated anyway, so I won't make it work now
 # Configurations for the black formatter
 #disable = "bad-continuation,bad-whitespace,fixme,cyclic-import"
-
 [".pylintrc".BASIC]
 # List of builtins function names that should not be used, separated by a comma
 bad-functions = "map,filter"

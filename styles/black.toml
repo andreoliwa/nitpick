@@ -18,7 +18,3 @@ yaml = """
 #  https://github.com/uiri/toml/issues/123
 #  https://github.com/uiri/toml/issues/230
 #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
-#[".pre-commit-config.yaml"]
-#repos = ["""
-#<YAML goes here>
-#"""]

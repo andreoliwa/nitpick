@@ -1,28 +1,27 @@
 # Default style file for nitpick
 # https://raw.githubusercontent.com/andreoliwa/nitpick/v0.26.0/nitpick-style.toml
-
 [nitpick]
 minimum_version = "0.10.0"
 
 [nitpick.styles]
 include = [
-    "styles/python37",
-    "styles/poetry",
-    "styles/absent-files",
-    "styles/pre-commit/main",
-    "styles/pre-commit/general",
-    "styles/pre-commit/python",
-    "styles/pre-commit/bash",
-    "styles/pre-commit/commitlint",
-    "styles/black",
-    "styles/flake8",
-    "styles/isort",
-    "styles/mypy",
-    "styles/pylint",
-    "styles/pytest",
-    "styles/tox",
-    "styles/package-json",
-    "styles/editorconfig",
+  "styles/python37",
+  "styles/poetry",
+  "styles/absent-files",
+  "styles/pre-commit/main",
+  "styles/pre-commit/general",
+  "styles/pre-commit/python",
+  "styles/pre-commit/bash",
+  "styles/pre-commit/commitlint",
+  "styles/black",
+  "styles/flake8",
+  "styles/isort",
+  "styles/mypy",
+  "styles/pylint",
+  "styles/pytest",
+  "styles/tox",
+  "styles/package-json",
+  "styles/editorconfig",
 ]
 
 [nitpick.files."setup.cfg"]

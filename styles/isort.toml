@@ -2,7 +2,6 @@
 line_length = 120
 skip = ".tox,build"
 known_first_party = "tests"
-
 # The configuration below is needed for compatibility with black.
 # https://github.com/python/black#how-black-wraps-lines
 # https://github.com/PyCQA/isort#multi-line-output-modes

@@ -17,7 +17,6 @@ pycodestyle = "{{ nit.absent() }}" # Jinja
 pur = "{{ nit.absent() }}" # Jinja
 
 # TODO: pre-processing with Jinja to generate multiple sections with the same config? ["pyproject.toml".tool.poetry.{{ ['dependencies', 'dev-dependencies'] }}]
-
 # Keys are present, with the expected types
 ["pyproject.toml".build-system]
 requires__present = "List[str]"

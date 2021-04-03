@@ -1,10 +1,8 @@
 # (from https://gist.github.com/andreoliwa/c72e811cf051485fa9152d62541a87f6,
 # mentioned in https://github.com/andreoliwa/nitpick/issues/233)
-
 # This Nitpick TOML style below contains examples and ideas for the text plugin.
 # It's not a defined API spec (yet), it's just a brainstorming to see what's useful, feasible and extensible.
 # Ideas below might be implemented on demand.
-
 [["requirements.txt".contains]]
 # File contains these lines anywhere, in any order
 lines = """
