@@ -10,7 +10,7 @@
 .. _commitlint: https://commitlint.js.org/
 .. _Django: https://github.com/django/django
 .. _EditorConfig: https://editorconfig.org
-.. _flake8: https://gitlab.com/pycqa/flake8
+.. _flake8: https://github.com/PyCQA/flake8
 .. _Flask: https://github.com/pallets/flask/
 .. _Flask CLI: https://flask.palletsprojects.com/en/1.1.x/cli/
 .. _Invoke: https://github.com/pyinvoke/invoke

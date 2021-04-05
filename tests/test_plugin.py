@@ -19,7 +19,7 @@ def _call_main(argv, retv=0):
 
     This is how flake8 itself runs CLI tests.
     Copied from:
-    https://gitlab.com/pycqa/flake8/-/blob/master/tests/integration/test_main.py#L12-15
+    https://github.com/PyCQA/flake8/blob/master/tests/integration/test_main.py#L12-15
     """
     with pytest.raises(SystemExit) as excinfo:
         cli.main(argv)
