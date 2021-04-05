@@ -1,4 +1,5 @@
 {
   "extends": ["config:base"],
-  "automerge": true
+  "automerge": true,
+  "ignoreDeps": ["jedi"]
 }
