@@ -127,7 +127,7 @@ Contents of `styles/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
     # without being asked.
     [[".pre-commit-config.yaml".repos]]
     yaml = """
-      - repo: https://gitlab.com/pycqa/flake8
+      - repo: https://github.com/PyCQA/flake8
         rev: 3.9.0
         hooks:
           - id: flake8
