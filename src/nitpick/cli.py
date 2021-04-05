@@ -118,7 +118,10 @@ def ls(context, files):  # pylint: disable=invalid-name
 
 @nitpick_cli.command()
 @click.pass_context
-def ls(context):
+def init(context):
     """Initialise Nitpick configuration."""
     nit = get_nitpick(context)
-    nit.project.read_configuration()
+    config = nit.project.read_configuration()
+    if config.file:
+        click.secho(f"A config file already exists: {config.file.name}", fg="yellow")
+        raise Exit(1)

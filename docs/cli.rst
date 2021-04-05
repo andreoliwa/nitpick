@@ -45,8 +45,9 @@ Main options
       --help                   Show this message and exit.
 
     Commands:
-      ls   List of files configured in the Nitpick style.
-      run  Apply suggestions to configuration files.
+      init  Initialise Nitpick configuration.
+      ls    List of files configured in the Nitpick style.
+      run   Apply suggestions to configuration files.
 
 ``run``: Apply style to files
 -----------------------------
@@ -85,6 +86,19 @@ At the end of execution, this command displays:
 
       Display existing files in green and absent files in red. You can use
       partial and multiple file names in the FILES argument.
+
+    Options:
+      --help  Show this message and exit.
+
+``init``: Initialise a configuration file
+-----------------------------------------
+
+
+.. code-block::
+
+    Usage: nitpick init [OPTIONS]
+
+      Initialise Nitpick configuration.
 
     Options:
       --help  Show this message and exit.

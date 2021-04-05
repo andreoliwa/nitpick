@@ -64,6 +64,7 @@ CLI_MAPPING = [
         """,
     ),
     ("ls", "List configures files", ""),
+    ("init", "Initialise a configuration file", ""),
 ]
 
 nit = Nitpick.singleton().init()

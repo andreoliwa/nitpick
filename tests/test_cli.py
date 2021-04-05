@@ -37,9 +37,10 @@ def test_simple_error(tmp_path):
 def test_config_file_already_exists(tmp_path, config_file):
     """Test if .nitpick.toml already exists."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).save_file(config_file, "")
-    project.cli_init(f"A config file already exists: {config_file}")
+    project.cli_init(f"A config file already exists: {config_file}", exit_code=1)
 
 
+# FIXME[AA]:
 # def test_create_basic_dot_nitpick_toml(tmp_path):
 #     """If no config file is found, create a basic .nitpick.toml."""
 #     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
