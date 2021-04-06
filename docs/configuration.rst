@@ -16,7 +16,9 @@ Possible configuration files (in order of precedence):
 
 The first file found will be used; the other files will be ignored.
 
-You can configure your own style like this:
+Run the ``nipick init`` CLI command to create a config file (:ref:`cli_cmd_init`).
+
+To configure your own style:
 
 .. code-block:: toml
 

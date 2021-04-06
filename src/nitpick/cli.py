@@ -119,7 +119,7 @@ def ls(context, files):  # pylint: disable=invalid-name
 @nitpick_cli.command()
 @click.pass_context
 def init(context):
-    """Initialise Nitpick configuration."""
+    """Create a configuration file if it doesn't exist already."""
     nit = get_nitpick(context)
     config = nit.project.read_configuration()
     if config.file:

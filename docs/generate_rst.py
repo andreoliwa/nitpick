@@ -198,6 +198,8 @@ def generate_plugins(filename: str) -> int:
 def generate_cli(filename: str) -> int:
     """Generate CLI docs."""
     template = """
+        .. _cli_cmd{anchor}:
+
         {header}
         {dashes}
         {long}
@@ -210,6 +212,7 @@ def generate_cli(filename: str) -> int:
     blocks = []
 
     for command, short, long in CLI_MAPPING:
+        anchor = f"_{command}" if command else ""
         header = f"``{command}``: {short}" if command else short
         blocks.append("")
         parts = ["nitpick"]
@@ -220,7 +223,7 @@ def generate_cli(filename: str) -> int:
         output = check_output(parts).decode().strip()  # nosec
         blocks.append(
             clean_template.format(
-                header=header, dashes="-" * len(header), long=dedent(long), help=indent(output, "    ")
+                anchor=anchor, header=header, dashes="-" * len(header), long=dedent(long), help=indent(output, "    ")
             )
         )
 
