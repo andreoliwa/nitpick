@@ -19,7 +19,7 @@ import click
 from click.exceptions import Exit
 from loguru import logger
 
-from nitpick.constants import PROJECT_NAME
+from nitpick.constants import DOT_NITPICK_TOML, PROJECT_NAME
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
@@ -125,3 +125,6 @@ def init(context):
     if config.file:
         click.secho(f"A config file already exists: {config.file.name}", fg="yellow")
         raise Exit(1)
+
+    nit.project.create_configuration()
+    click.secho(f"Config file created: {DOT_NITPICK_TOML}", fg="green")
