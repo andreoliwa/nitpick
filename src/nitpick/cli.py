@@ -19,7 +19,7 @@ import click
 from click.exceptions import Exit
 from loguru import logger
 
-from nitpick.constants import PROJECT_NAME
+from nitpick.constants import DOT_NITPICK_TOML, PROJECT_NAME
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
@@ -114,3 +114,17 @@ def ls(context, files):  # pylint: disable=invalid-name
     # TODO: test API .configured_files
     for file in nit.configured_files(*files):
         click.secho(relative_to_current_dir(file), fg="green" if file.exists() else "red")
+
+
+@nitpick_cli.command()
+@click.pass_context
+def init(context):
+    """Create a configuration file if it doesn't exist already."""
+    nit = get_nitpick(context)
+    config = nit.project.read_configuration()
+    if config.file:
+        click.secho(f"A config file already exists: {config.file.name}", fg="yellow")
+        raise Exit(1)
+
+    nit.project.create_configuration()
+    click.secho(f"Config file created: {DOT_NITPICK_TOML}", fg="green")
