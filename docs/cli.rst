@@ -27,6 +27,8 @@ The available commands are described below.
 
 .. auto-generated-from-here
 
+.. _cli_cmd:
+
 Main options
 ------------
 
@@ -45,8 +47,11 @@ Main options
       --help                   Show this message and exit.
 
     Commands:
-      ls   List of files configured in the Nitpick style.
-      run  Apply suggestions to configuration files.
+      init  Create a configuration file if it doesn't exist already.
+      ls    List of files configured in the Nitpick style.
+      run   Apply suggestions to configuration files.
+
+.. _cli_cmd_run:
 
 ``run``: Apply style to files
 -----------------------------
@@ -73,6 +78,8 @@ At the end of execution, this command displays:
       -v, --verbose  Verbose logging
       --help         Show this message and exit.
 
+.. _cli_cmd_ls:
+
 ``ls``: List configures files
 -----------------------------
 
@@ -85,6 +92,21 @@ At the end of execution, this command displays:
 
       Display existing files in green and absent files in red. You can use
       partial and multiple file names in the FILES argument.
+
+    Options:
+      --help  Show this message and exit.
+
+.. _cli_cmd_init:
+
+``init``: Initialise a configuration file
+-----------------------------------------
+
+
+.. code-block::
+
+    Usage: nitpick init [OPTIONS]
+
+      Create a configuration file if it doesn't exist already.
 
     Options:
       --help  Show this message and exit.
