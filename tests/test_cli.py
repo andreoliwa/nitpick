@@ -36,7 +36,7 @@ def test_simple_error(tmp_path):
 
 @pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYPROJECT_TOML])
 def test_config_file_already_exists(tmp_path, config_file):
-    """Test if .nitpick.toml already exists."""
+    """Test if both config files already exist."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).save_file(config_file, "")
     project.cli_init(f"A config file already exists: {config_file}", exit_code=1)
 
