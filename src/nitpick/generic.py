@@ -15,6 +15,8 @@ from jmespath.parser import ParsedResult
 from nitpick.constants import DOUBLE_QUOTE, PROJECT_NAME, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
 from nitpick.typedefs import JsonDict, PathOrStr
 
+URL_RE = re.compile(r"[a-z]+://\w+")
+
 
 def get_subclasses(cls):
     """Recursively get subclasses of a parent class."""
@@ -218,8 +220,10 @@ def is_url(url: str) -> bool:
     False
     >>> is_url("http://example.com")
     True
+    >>> is_url("github://andreoliwa/nitpick/styles/black")
+    True
     """
-    return url.startswith("http")
+    return bool(URL_RE.match(url))
 
 
 def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:

@@ -3,12 +3,14 @@ import itertools
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Set
+from typing import Iterable, Iterator, List, Optional, Set, Union
 
 import pluggy
 from autorepr import autorepr
 from loguru import logger
 from marshmallow_polyfield import PolyField
+from more_itertools import peekable
+from more_itertools.more import always_iterable
 from pluggy import PluginManager
 from tomlkit import comment, document, dumps, table
 from tomlkit.items import Key, KeyType
@@ -119,7 +121,7 @@ class Configuration:
     """Configuration read from one of the ``CONFIG_FILES``."""
 
     file: Optional[Path]
-    styles: List[str]
+    styles: Union[str, List[str]]
     cache: str
 
 
@@ -196,7 +198,7 @@ class Project:
         config_dict = search_dict(TOOL_NITPICK_JMEX, toml_format.as_data, {})
         validation_errors = ToolNitpickSectionSchema().validate(config_dict)
         if not validation_errors:
-            return Configuration(config_file, config_dict.get("style", ""), config_dict.get("cache", ""))
+            return Configuration(config_file, config_dict.get("style", []), config_dict.get("cache", ""))
 
         # pylint: disable=import-outside-toplevel
         from nitpick.plugins.info import FileInfo
@@ -217,7 +219,7 @@ class Project:
         from nitpick.style import Style
 
         style = Style(self, offline, config.cache)
-        style_errors = list(style.find_initial_styles(config.styles))
+        style_errors = list(style.find_initial_styles(peekable(always_iterable(config.styles))))
         if style_errors:
             raise QuitComplainingError(style_errors)
 
