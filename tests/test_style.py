@@ -106,7 +106,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         "styles/isort2",
         f"""
         [nitpick.styles]
-        include = ["flake8.toml"]
+        include = ["styles/isort2.toml", "flake8.toml"]
         ["{SETUP_CFG}".isort]
         line_length = 120
         xxx = "yyy"
@@ -124,6 +124,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         "black",
         """
         [nitpick.styles]
+        include = ["styles/isort2.toml", "isort1.toml"]
         ["pyproject.toml".tool.black]
         line-length = 100
         """,

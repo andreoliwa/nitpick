@@ -102,8 +102,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
     def include_multiple_styles(self, chosen_styles: StrOrIterable) -> Iterator[Fuss]:
         """Include a list of styles (or just one) into this style tree."""
-        style_uris = always_iterable(chosen_styles)
-        for style_uri in style_uris:
+        for style_uri in always_iterable(chosen_styles):
             yield from self._include_style(style_uri)
 
     def _include_style(self, style_uri):
@@ -111,6 +110,11 @@ class Style:  # pylint: disable=too-many-instance-attributes
         style_path, file_contents = self.get_style_path(style_uri)
         if not style_path:
             return
+
+        resolved_path = style_path.resolve()
+        if resolved_path in self._already_included:
+            return
+        self._already_included.add(resolved_path)
 
         read_toml_dict = self._read_toml(file_contents, style_path)
 
