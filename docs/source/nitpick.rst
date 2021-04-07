@@ -13,6 +13,7 @@ Subpackages
    :maxdepth: 4
 
    nitpick.plugins
+   nitpick.style
 
 Submodules
 ----------
@@ -31,6 +32,5 @@ Submodules
    nitpick.generic
    nitpick.project
    nitpick.schemas
-   nitpick.style
    nitpick.typedefs
    nitpick.violations
