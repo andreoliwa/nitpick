@@ -111,7 +111,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
         if not style_path:
             return
 
-        resolved_path = style_path.resolve()
+        resolved_path = str(style_path.resolve())
         if resolved_path in self._already_included:
             return
         self._already_included.add(resolved_path)

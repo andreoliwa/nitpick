@@ -2,7 +2,7 @@
 import pytest
 
 from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML, READ_THE_DOCS_URL, TOOL_NITPICK
-from nitpick.style.style import Style
+from nitpick.style.core import Style
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 
