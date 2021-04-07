@@ -14,5 +14,5 @@ Submodules
 
    nitpick.style.cache
    nitpick.style.config
+   nitpick.style.core
    nitpick.style.fetchers
-   nitpick.style.style
