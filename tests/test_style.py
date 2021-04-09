@@ -490,6 +490,36 @@ def test_fetch_private_github_urls(tmp_path):
     project.flake8(offline=True).assert_no_errors()
 
 
+@responses.activate
+def test_fetch_remote_from_style(tmp_path):
+    """Fetch private GitHub URLs with a token on the query string."""
+    base_url = "https://raw.githubusercontent.com/user/repo/branch/path/to/nitpick-style"
+    full_private_url = f"{base_url}{TOML_EXTENSION}"
+    body = """
+        ["pyproject.toml".tool.black]
+        missing = "thing"
+        """
+    responses.add(responses.GET, full_private_url, dedent(body), status=200)
+
+    project = ProjectMock(tmp_path).style(
+        f"""
+        [nitpick.styles]
+        include = [
+            "{base_url}"
+        ]
+        """
+    )
+    project.api_check_then_apply(
+        Fuss(
+            False,
+            PYPROJECT_TOML,
+            311,
+            " was not found",
+            "",
+        )
+    )
+
+
 @pytest.mark.parametrize("offline", [False, True])
 def test_merge_styles_into_single_file(offline, tmp_path):
     """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit repos)."""

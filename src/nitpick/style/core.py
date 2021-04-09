@@ -134,8 +134,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
         if sub_styles:
-            normalized_styles = self._normalize_sub_styles(sub_styles, style_uri)
-            yield from self.include_multiple_styles(normalized_styles)
+            yield from self.include_multiple_styles(sub_styles)
 
     def _read_toml(self, file_contents, style_path):
         toml = TOMLFormat(string=file_contents)
@@ -152,7 +151,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
     def _normalize_style_uri(self, uri):
         is_current_uri_url = is_url(uri)
-        if is_current_uri_url and not self._first_full_path:
+        if is_current_uri_url:
             self._first_full_path = uri
             return self._append_toml_extension_url(uri)
 
@@ -180,19 +179,6 @@ class Style:  # pylint: disable=too-many-instance-attributes
         if path.endswith(TOML_EXTENSION):
             return path
         return f"{path}{TOML_EXTENSION}"
-
-    def _normalize_sub_styles(self, sub_styles: StrOrList, parent):
-        sub_styles = always_iterable(sub_styles)
-        is_parent_url = is_url(parent)
-        if not is_parent_url:
-            parent_file = Path(parent)
-            if parent_file.is_symlink():
-                parent = parent_file.resolve().parent
-            else:
-                parent = Path(self._first_full_path) if self._first_full_path else parent_file.parent
-        for style in sub_styles:
-            new_path = urljoin(parent, style) if is_parent_url else str(parent / style)
-            yield new_path
 
     def get_style_path(self, style_uri: str) -> Tuple[Optional[Path], str]:
         """Get the style path from the URI. Add the .toml extension if it's missing."""

@@ -172,6 +172,7 @@ class HttpFetcher(StyleFetcher):
     @staticmethod
     def _download(url) -> str:
         response = _requests_session().get(url)
+        response.raise_for_status()
         return response.text
 
 
