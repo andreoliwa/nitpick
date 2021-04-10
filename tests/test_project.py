@@ -17,7 +17,7 @@ from nitpick.constants import (
     TOX_INI,
 )
 from nitpick.core import Nitpick
-from nitpick.project import Configuration, find_root
+from nitpick.project import Configuration, find_main_python_file, find_root
 from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
 
@@ -209,3 +209,7 @@ def test_find_root_django(tmp_path):
     (apps_dir / MANAGE_PY).write_text("")
 
     assert find_root(apps_dir) == apps_dir
+
+    # Search 2 levels of directories
+    assert find_main_python_file(tmp_path) == apps_dir / MANAGE_PY
+    assert find_main_python_file(apps_dir) == apps_dir / MANAGE_PY
