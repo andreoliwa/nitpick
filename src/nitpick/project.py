@@ -52,6 +52,20 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
     return set()
 
 
+def find_starting_dir(current_dir: PathOrStr):
+    """Find the starting dir from the current dir."""
+    logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
+    all_files_dirs = list(Path(current_dir).glob("*"))
+    logger.debug("All files/dirs in the current dir:\n{}", "\n".join(str(file) for file in all_files_dirs))
+
+    # Don't fail if the current dir is empty
+    starting_file = str(all_files_dirs[0]) if all_files_dirs else ""
+    if starting_file:
+        return Path(starting_file).parent.absolute()
+
+    return Path(current_dir).absolute()
+
+
 # TODO: add unit tests with tmp_path https://docs.pytest.org/en/stable/tmpdir.html
 def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
     """Find the root dir of the Python project (the one that has one of the ``ROOT_FILES``).
@@ -61,15 +75,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
     root_dirs: Set[Path] = set()
     seen: Set[Path] = set()
 
-    if not current_dir:
-        current_dir = Path.cwd()
-    logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
-    all_files_dirs = list(Path(current_dir).glob("*"))
-    logger.debug("All files/dirs in the current dir:\n{}", "\n".join(str(file) for file in all_files_dirs))
-
-    # Don't fail if the current dir is empty
-    starting_file = str(all_files_dirs[0]) if all_files_dirs else ""
-    starting_dir = Path(starting_file).parent.absolute()
+    starting_dir = find_starting_dir(current_dir or Path.cwd())
     while True:
         logger.debug(f"Climbing dir: {starting_dir}")
         project_files = climb_directory_tree(starting_dir, ROOT_FILES)
@@ -81,7 +87,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
         if not project_files:
             # If none of the root files were found, try again with manage.py.
             # On Django projects, it can be in another dir inside the root dir.
-            project_files = climb_directory_tree(starting_file, [MANAGE_PY])
+            project_files = climb_directory_tree(starting_dir, [MANAGE_PY])
             if not project_files or project_files & seen:
                 break
             seen.update(project_files)
@@ -98,7 +104,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
             break
 
     if not root_dirs:
-        logger.error(f"No files found while climbing directory tree from {starting_file}")
+        logger.error(f"No files found while climbing directory tree from {starting_dir}")
         raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NO_ROOT_DIR))
 
     # If multiple roots are found, get the top one (grandparent dir)
