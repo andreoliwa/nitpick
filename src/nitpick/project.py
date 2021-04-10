@@ -52,7 +52,7 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
     return set()
 
 
-def find_starting_dir(current_dir: PathOrStr):
+def find_starting_dir(current_dir: PathOrStr) -> Path:
     """Find the starting dir from the current dir."""
     logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
     all_files_dirs = list(Path(current_dir).glob("*"))
@@ -76,7 +76,7 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
     seen: Set[Path] = set()
 
     starting_dir = find_starting_dir(current_dir or Path.cwd())
-    while True:
+    while starting_dir:  # pragma: no cover # starting_dir will always have a value on the first run
         logger.debug(f"Climbing dir: {starting_dir}")
         project_files = climb_directory_tree(starting_dir, ROOT_FILES)
         if project_files and project_files & seen:
@@ -91,17 +91,14 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
             if not project_files or project_files & seen:
                 break
             seen.update(project_files)
-            logger.debug(f"Project files seen: {project_files}")
+            logger.debug(f"Django project files seen: {project_files}")
 
         for found in project_files:
             root_dirs.add(found.parent)
-        if project_files:
-            logger.debug(f"Root dirs: {str(root_dirs)}")
+        logger.debug(f"Root dirs: {str(root_dirs)}")
 
         # Climb up one directory to search for more project files
         starting_dir = starting_dir.parent
-        if not starting_dir:
-            break
 
     if not root_dirs:
         logger.error(f"No files found while climbing directory tree from {starting_dir}")
