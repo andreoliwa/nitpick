@@ -40,9 +40,6 @@ from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolation
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Set[Path]:  # TODO: add unit test
     """Climb the directory tree looking for file patterns."""
     current_dir: Path = Path(starting_path).absolute()
-    if current_dir.is_file():
-        current_dir = current_dir.parent
-
     while current_dir.anchor != str(current_dir):
         for root_file in file_patterns:
             found_files = list(current_dir.glob(root_file))
