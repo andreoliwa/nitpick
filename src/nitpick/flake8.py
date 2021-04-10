@@ -13,6 +13,7 @@ from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
+from nitpick.project import find_main_python_file
 from nitpick.typedefs import Flake8Error
 from nitpick.violations import Fuss
 
@@ -49,7 +50,7 @@ class NitpickFlake8Extension:
         nit = Nitpick.singleton()
 
         current_python_file = Path(self.filename)
-        main_python_file: Path = nit.project.find_main_python_file()
+        main_python_file: Path = find_main_python_file(nit.project.root)
         if current_python_file.absolute() != main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
             logger.debug("Ignoring other Python file: {}", self.filename)

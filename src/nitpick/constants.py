@@ -20,7 +20,7 @@ PYPROJECT_TOML = "pyproject.toml"
 SETUP_PY = "setup.py"
 SETUP_CFG = "setup.cfg"
 REQUIREMENTS_STAR_TXT = "requirements*.txt"
-PIPFILE_STAR = "Pipfile.*"
+PIPFILE_STAR = "Pipfile*"
 ROOT_PYTHON_FILES = ("app.py", "wsgi.py", "autoapp.py")
 MANAGE_PY = "manage.py"
 TOX_INI = "tox.ini"
@@ -38,6 +38,7 @@ GO_SUM = "go.sum"
 # All root files
 ROOT_FILES = (
     DOT_NITPICK_TOML,
+    NITPICK_STYLE_TOML,
     PRE_COMMIT_CONFIG_YAML,
     PYPROJECT_TOML,
     SETUP_PY,
