@@ -332,9 +332,9 @@ class ProjectMock:
     ) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
         cli_args = [] if apply else ["--check"]
-        result, actual, expected = self._simulate_cli(
-            "run", str_or_lines, *cli_args, exit_code=exit_code or 1 if str_or_lines else 0
-        )
+        if exit_code is None:
+            exit_code = 1 if str_or_lines else 0
+        result, actual, expected = self._simulate_cli("run", str_or_lines, *cli_args, exit_code=exit_code)
         if exception_class:
             assert isinstance(result.exception, exception_class)
             return self

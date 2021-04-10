@@ -73,8 +73,8 @@ class ProjectViolations(ViolationEnum):
 
     NO_ROOT_DIR = (
         101,
-        "No root directory found for this project!"
-        f" Create a configuration file on the root ({', '.join(CONFIG_FILES)})."
+        "No root directory detected."
+        f" Create a configuration file ({', '.join(CONFIG_FILES)}) manually, or run 'nitpick init'."
         f" See {READ_THE_DOCS_URL}configuration.html",
     )
     NO_PYTHON_FILE = (102, "No Python file was found on the root dir and subdir of {root!r}")

@@ -312,7 +312,7 @@ Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpi
           - id: end-of-file-fixer
           - id: trailing-whitespace
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.11.0
+        rev: v2.12.0
         hooks:
           - id: pyupgrade
     """

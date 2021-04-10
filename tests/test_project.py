@@ -1,9 +1,23 @@
 """Config tests."""
+import os
+
 import pytest
 
-from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML, SETUP_CFG
+from nitpick.constants import (
+    DOT_NITPICK_TOML,
+    GO_MOD,
+    GO_SUM,
+    MANAGE_PY,
+    NITPICK_STYLE_TOML,
+    PACKAGE_JSON,
+    PRE_COMMIT_CONFIG_YAML,
+    PYPROJECT_TOML,
+    SETUP_CFG,
+    SETUP_PY,
+    TOX_INI,
+)
 from nitpick.core import Nitpick
-from nitpick.project import Configuration
+from nitpick.project import Configuration, find_main_python_file, find_root
 from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
 
@@ -19,11 +33,18 @@ def test_singleton():
     assert "This class cannot be instantiated directly" in str(err)
 
 
-def test_no_root_dir(tmp_path):
-    """No root dir."""
+def test_no_root_dir_with_python_file(tmp_path):
+    """No root dir with Python file."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py")
     error = f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}"
     project.flake8().assert_single_error(error).cli_run(error, exit_code=2).cli_ls(error, exit_code=2)
+
+
+def test_no_root_dir_no_python_file(tmp_path):
+    """No root dir, no Python file."""
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False)
+    error = f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}"
+    project.cli_run(error, exit_code=2).cli_ls(error, exit_code=2)
 
 
 def test_multiple_root_dirs(tmp_path):
@@ -144,3 +165,51 @@ def test_has_multiple_config_files(tmp_path, caplog):
     )
     assert f"Config file: reading from {project.root_dir / DOT_NITPICK_TOML}" in caplog.text
     assert f"Config file: ignoring existing {project.root_dir / PYPROJECT_TOML}" in caplog.text
+
+
+@pytest.mark.parametrize(
+    "root_file",
+    [
+        DOT_NITPICK_TOML,
+        PRE_COMMIT_CONFIG_YAML,
+        PYPROJECT_TOML,
+        SETUP_PY,
+        SETUP_CFG,
+        "requirements.txt",
+        "requirements_dev.txt",
+        "Pipfile",
+        "Pipfile.lock",
+        TOX_INI,
+        PACKAGE_JSON,
+        "Cargo.toml",
+        "Cargo.lock",
+        GO_MOD,
+        GO_SUM,
+        NITPICK_STYLE_TOML,
+    ],
+)
+def test_find_root_from_sub_dir(tmp_path, root_file):
+    """Find the root dir from a subdir."""
+    root = tmp_path / "deep" / "root"
+    root.mkdir(parents=True)
+    (root / root_file).write_text("")
+
+    curdir = root / "going" / "down" / "the" / "rabbit" / "hole"
+    curdir.mkdir(parents=True)
+    os.chdir(str(curdir))
+
+    assert find_root(curdir) == root, root_file
+    assert find_root(str(curdir)) == root, root_file
+
+
+def test_find_root_django(tmp_path):
+    """Find Django root with manage.py only: the root is where manage.py is."""
+    apps_dir = tmp_path / "apps"
+    apps_dir.mkdir(parents=True)
+    (apps_dir / MANAGE_PY).write_text("")
+
+    assert find_root(apps_dir) == apps_dir
+
+    # Search 2 levels of directories
+    assert find_main_python_file(tmp_path) == apps_dir / MANAGE_PY
+    assert find_main_python_file(apps_dir) == apps_dir / MANAGE_PY

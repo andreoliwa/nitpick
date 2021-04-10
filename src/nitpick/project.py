@@ -40,9 +40,6 @@ from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolation
 def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Set[Path]:  # TODO: add unit test
     """Climb the directory tree looking for file patterns."""
     current_dir: Path = Path(starting_path).absolute()
-    if current_dir.is_file():
-        current_dir = current_dir.parent
-
     while current_dir.anchor != str(current_dir):
         for root_file in file_patterns:
             found_files = list(current_dir.glob(root_file))
@@ -52,7 +49,20 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
     return set()
 
 
-# TODO: add unit tests with tmp_path https://docs.pytest.org/en/stable/tmpdir.html
+def find_starting_dir(current_dir: PathOrStr) -> Path:
+    """Find the starting dir from the current dir."""
+    logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
+    all_files_dirs = list(Path(current_dir).glob("*"))
+    logger.debug("All files/dirs in the current dir:\n{}", "\n".join(str(file) for file in all_files_dirs))
+
+    # Don't fail if the current dir is empty
+    starting_file = str(all_files_dirs[0]) if all_files_dirs else ""
+    if starting_file:
+        return Path(starting_file).parent.absolute()
+
+    return Path(current_dir).absolute()
+
+
 def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
     """Find the root dir of the Python project (the one that has one of the ``ROOT_FILES``).
 
@@ -61,16 +71,8 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
     root_dirs: Set[Path] = set()
     seen: Set[Path] = set()
 
-    if not current_dir:
-        current_dir = Path.cwd()
-    logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
-    all_files_dirs = list(Path(current_dir).glob("*"))
-    logger.debug("All files/dirs in the current dir:\n{}", "\n".join(str(file) for file in all_files_dirs))
-
-    # Don't fail if the current dir is empty
-    starting_file = str(all_files_dirs[0]) if all_files_dirs else ""
-    starting_dir = Path(starting_file).parent.absolute()
-    while True:
+    starting_dir = find_starting_dir(current_dir or Path.cwd())
+    while starting_dir:  # pragma: no cover # starting_dir will always have a value on the first run
         logger.debug(f"Climbing dir: {starting_dir}")
         project_files = climb_directory_tree(starting_dir, ROOT_FILES)
         if project_files and project_files & seen:
@@ -81,30 +83,52 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
         if not project_files:
             # If none of the root files were found, try again with manage.py.
             # On Django projects, it can be in another dir inside the root dir.
-            project_files = climb_directory_tree(starting_file, [MANAGE_PY])
+            project_files = climb_directory_tree(starting_dir, [MANAGE_PY])
             if not project_files or project_files & seen:
                 break
             seen.update(project_files)
-            logger.debug(f"Project files seen: {project_files}")
+            logger.debug(f"Django project files seen: {project_files}")
 
         for found in project_files:
             root_dirs.add(found.parent)
-        if project_files:
-            logger.debug(f"Root dirs: {str(root_dirs)}")
+        logger.debug(f"Root dirs: {str(root_dirs)}")
 
         # Climb up one directory to search for more project files
         starting_dir = starting_dir.parent
-        if not starting_dir:
-            break
 
     if not root_dirs:
-        logger.error(f"No files found while climbing directory tree from {starting_file}")
+        logger.error(f"No files found while climbing directory tree from {starting_dir}")
         raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NO_ROOT_DIR))
 
     # If multiple roots are found, get the top one (grandparent dir)
     top_dir = sorted(root_dirs)[0]
     logger.debug(f"Top root dir found: {top_dir}")
     return top_dir
+
+
+def find_main_python_file(root_dir: Path) -> Path:
+    """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.
+
+    The search order is:
+    1. Python files that belong to the root dir of the project (e.g.: ``setup.py``, ``autoapp.py``).
+    2. ``manage.py``: they can be on the root or on a subdir (Django projects).
+    3. Any other ``*.py`` Python file on the root dir and subdir.
+    This avoid long recursions when there is a ``node_modules`` subdir for instance.
+    """
+    for the_file in itertools.chain(
+        # 1.
+        [root_dir / root_file for root_file in ROOT_PYTHON_FILES],
+        # 2.
+        root_dir.glob(f"*/{MANAGE_PY}"),
+        # 3.
+        root_dir.glob("*.py"),
+        root_dir.glob("*/*.py"),
+    ):
+        if the_file.exists():
+            logger.info(f"Found the file {the_file}")
+            return Path(the_file)
+
+    raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NO_PYTHON_FILE, root=str(root_dir)))
 
 
 class ToolNitpickSectionSchema(BaseNitpickSchema):
@@ -142,30 +166,6 @@ class Project:
     def root(self) -> Path:
         """Root dir of the project."""
         return find_root(self._chosen_root)
-
-    def find_main_python_file(self) -> Path:  # TODO: add unit tests
-        """Find the main Python file in the root dir, the one that will be used to report Flake8 warnings.
-
-        The search order is:
-        1. Python files that belong to the root dir of the project (e.g.: ``setup.py``, ``autoapp.py``).
-        2. ``manage.py``: they can be on the root or on a subdir (Django projects).
-        3. Any other ``*.py`` Python file on the root dir and subdir.
-        This avoid long recursions when there is a ``node_modules`` subdir for instance.
-        """
-        for the_file in itertools.chain(
-            # 1.
-            [self.root / root_file for root_file in ROOT_PYTHON_FILES],
-            # 2.
-            self.root.glob(f"*/{MANAGE_PY}"),
-            # 3.
-            self.root.glob("*.py"),
-            self.root.glob("*/*.py"),
-        ):
-            if the_file.exists():
-                logger.info("Found the file {}", the_file)
-                return Path(the_file)
-
-        raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NO_PYTHON_FILE, root=str(self.root)))
 
     @mypy_property
     @lru_cache()
