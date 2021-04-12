@@ -46,6 +46,7 @@ Examples of ``.ini`` files handled by this plugin:
 - `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_
 - `.editorconfig <https://editorconfig.org/>`_
 - `tox.ini <https://github.com/tox-dev/tox>`_
+- `.pylintrc <https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options>`_
 
 Style examples enforcing values on INI files: :ref:`flake8 configuration <example-flake8>`.
 

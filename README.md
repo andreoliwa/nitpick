@@ -13,12 +13,12 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/develop.svg)](https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/develop)
 
-Command-line tool and `flake8` plugin to enforce the same settings across multiple language-independent projects.
+Command-line tool and [flake8](https://github.com/PyCQA/flake8) plugin to enforce the same settings across multiple language-independent projects.
 
 Useful if you maintain multiple projects and are tired of copying/pasting the same INI/TOML/YAML/JSON keys and values over and over, in all of them.
 
-The tool now has an "apply" feature that modifies configuration files directly (pretty much like `black` and `isort` do with Python files).
-See the [CLI docs for more info](https://nitpick.readthedocs.io/en/latest/cli.html).
+The tool now has an "apply" feature that modifies configuration files directly (pretty much like [black](https://github.com/psf/black) and [isort](https://github.com/PyCQA/isort) do with Python files).
+See the [CLI docs for more info](https://nitpick.rtfd.io/en/latest/cli.html).
 
 Many more features are planned for the future, check [the roadmap](https://github.com/andreoliwa/nitpick/projects/1).
 
@@ -54,26 +54,83 @@ This style will assert that:
 - ... [flake8](https://github.com/PyCQA/flake8) and [isort](https://github.com/PyCQA/isort) are configured as above in `setup.cfg`;
 - ... [Pylint](https://www.pylint.org) is present as a [Poetry](https://github.com/python-poetry/poetry) dev dependency in `pyproject.toml`).
 
+## Supported file types
+
+These are the file types currently handled by Nitpick.
+
+- Some files are only being checked and have to be modified manually;
+- Some files can already be fixed automatically (with the [`nitpick run`](#run) command);
+- Others are still under construction; the ticket numbers are shown in the table (upvote the ticket with 👍🏻 if you would like to prioritise development).
+
+### Implemented
+
+| File type                                                                                          | Check | Fix ([`nitpick run`](#run)) |
+| -------------------------------------------------------------------------------------------------- | ----- | --------------------------- |
+| [Any `.ini` file](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                        | ✅    | ✅                          |
+| [Any `.json` file](https://nitpick.rtfd.io/en/latest/plugins.html#json-files)                      | ✅    | ❌                          |
+| [Any text file](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                         | ✅    | ❌                          |
+| [`.editorconfig`](https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig)            | ✅    | ✅                          |
+| [`.pre-commit-config.yaml`](https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml) | ✅    | 🚧 #282                     |
+| [`.pylintrc`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅    | ✅                          |
+| [`package.json`](https://nitpick.rtfd.io/en/latest/examples.html#example-package-json)             | ✅    | ❌                          |
+| [`pyproject.toml`](https://nitpick.rtfd.io/en/latest/plugins.html#pyproject-toml)                  | ✅    | ✅                          |
+| [`requirements.txt`](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                    | ✅    | ❌                          |
+| [`setup.cfg`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅    | ✅                          |
+
+### Planned
+
+| File type                  | Check   | Fix ([`nitpick run`](#run)) |
+| -------------------------- | ------- | --------------------------- |
+| Any `.md` (Markdown) file  | 🚧 #280 | ❓                          |
+| Any `.tf` (Terraform) file | 🚧 #318 | ❓                          |
+| Any `.toml` file           | 🚧 #320 | 🚧 #320                     |
+| `.dockerignore`            | 🚧 #8   | 🚧 #8                       |
+| `.gitignore`               | 🚧 #8   | 🚧 #8                       |
+| `.travis.yml`              | 🚧 #15  | 🚧 #15                      |
+| `Dockerfile`               | 🚧 #272 | 🚧 #272                     |
+| `Jenkinsfile`              | 🚧 #278 | ❓                          |
+| `Makefile`                 | 🚧 #277 | ❓                          |
+
 ## Quick setup
+
+### Install
 
 To try the package, simply install it (in a virtualenv or globally) and run `flake8` on a project with at least one Python (`.py`) file:
 
-    # Install with pip:
-    pip install -U nitpick
+On macOS, install with Homebrew:
 
-    # Add to your project with Poetry:
-    poetry add --dev nitpick
-
-    # On macOS, install with Homebrew:
     brew install andreoliwa/formulae/nitpick
 
-    # On archlinux, install with yay:
+On archlinux, install with yay:
+
     yay -Syu nitpick
 
-    # Run nitpick directly to modify your files
+Add to your project with Poetry:
+
+    poetry add --dev nitpick
+
+Or install with pip:
+
+    pip install -U nitpick
+
+### Configure
+
+To create a `.nitpick.toml` on your root dir:
+
+    nitpick init
+
+### Run
+
+To fix and modify your files directly:
+
     nitpick run
 
-    # Or run with flake8 to only check for errors
+To check for errors only:
+
+    nitpick run --check
+
+Nitpick is also a flake8 plugin, so you can run:
+
     flake8 .
 
 Nitpick will download and use the opinionated [default style file](https://raw.githubusercontent.com/andreoliwa/nitpick/v0.26.0/nitpick-style.toml).
@@ -99,6 +156,6 @@ To start checking all your code against the default rules:
 
     pre-commit run --all-files
 
----
+## More information
 
 For more details on styles and which configuration files are currently supported, [see the full documentation](https://nitpick.rtfd.io/).
