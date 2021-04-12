@@ -1,13 +1,11 @@
-"""Enforce config on pyproject.toml."""
+"""TOML files."""
 from collections import OrderedDict
 from itertools import chain
-from pathlib import Path
 from typing import Iterator, Optional, Type
 
 from tomlkit import dumps, parse
 from tomlkit.toml_document import TOMLDocument
 
-from nitpick.constants import PYPROJECT_TOML
 from nitpick.formats import BaseFormat, TOMLFormat
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
@@ -27,8 +25,10 @@ def change_toml(document: TOMLDocument, dictionary):
             document[key] = value
 
 
-class PyProjectTomlPlugin(NitpickPlugin):
-    """Enforce config on `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-format>`_.
+class TomlPlugin(NitpickPlugin):
+    """Enforce config on TOML files.
+
+    E.g.: `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-format>`_.
 
     See also `the [tool.poetry] section of the pyproject.toml file
     <https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
@@ -37,14 +37,13 @@ class PyProjectTomlPlugin(NitpickPlugin):
     There are :ref:`many other examples here <examples>`.
     """
 
-    filename = PYPROJECT_TOML
+    identify_tags = {"toml"}
     violation_base_code = 310
     can_apply = True
 
     def enforce_rules(self) -> Iterator[Fuss]:
-        """Enforce rules for missing key/value pairs in pyproject.toml."""
-        file: Path = self.info.project.root / PYPROJECT_TOML
-        toml_format = TOMLFormat(path=file)
+        """Enforce rules for missing key/value pairs in the TOML file."""
+        toml_format = TOMLFormat(path=self.file_path)
         comparison = toml_format.compare_with_flatten(self.expected_config)
         if not comparison.has_changes:
             return
@@ -67,20 +66,20 @@ class PyProjectTomlPlugin(NitpickPlugin):
         yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.apply)
 
     @property
-    def initial_contents(self) -> str:
+    def initial_contents(self) -> str:  # FIXME[AA]:
         """Suggest the initial content for this missing file."""
         return ""
 
 
 @hookimpl
 def plugin_class() -> Type["NitpickPlugin"]:
-    """Handle the pyproject.toml file."""
-    return PyProjectTomlPlugin
+    """Handle TOML files."""
+    return TomlPlugin
 
 
 @hookimpl
 def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
-    """Handle the pyproject.toml file."""
-    if info.path_from_root == PYPROJECT_TOML:
-        return PyProjectTomlPlugin
+    """Handle TOML files."""
+    if TomlPlugin.identify_tags & info.tags:
+        return TomlPlugin
     return None
