@@ -95,14 +95,14 @@ These are the file types currently handled by Nitpick.
 
 ### Install
 
-On macOS, install the latest release with [Homebrew](https://github.com/Homebrew/brew):
+On macOS/Linux, install the latest release with [Homebrew](https://github.com/Homebrew/brew):
 
     brew install andreoliwa/formulae/nitpick
 
     # To install the latest version from the `develop` branch:
     brew install andreoliwa/formulae/nitpick --HEAD
 
-On archlinux, install with yay:
+On Arch Linux, install with yay:
 
     yay -Syu nitpick
 
