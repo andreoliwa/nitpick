@@ -95,29 +95,24 @@ These are the file types currently handled by Nitpick.
 
 ### Install
 
-To try the package, simply install it (in a virtualenv or globally) and run `flake8` on a project with at least one Python (`.py`) file:
-
-On macOS, install with Homebrew:
+On macOS, install the latest release with [Homebrew](https://github.com/Homebrew/brew):
 
     brew install andreoliwa/formulae/nitpick
+
+    # To install the latest version from the `develop` branch:
+    brew install andreoliwa/formulae/nitpick --HEAD
 
 On archlinux, install with yay:
 
     yay -Syu nitpick
 
-Add to your project with Poetry:
+Add to your project with [Poetry](https://github.com/python-poetry/poetry):
 
     poetry add --dev nitpick
 
-Or install with pip:
+Or install it with pip:
 
     pip install -U nitpick
-
-### Configure
-
-To create a `.nitpick.toml` on your root dir:
-
-    nitpick init
 
 ### Run
 
@@ -129,7 +124,7 @@ To check for errors only:
 
     nitpick run --check
 
-Nitpick is also a flake8 plugin, so you can run:
+Nitpick is also a `flake8` plugin, so you can run this on a project with at least one Python (`.py`) file:
 
     flake8 .
 
