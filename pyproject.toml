@@ -25,7 +25,7 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Documentation" = "https://nitpick.readthedocs.io/"
+"Documentation" = "https://nitpick.rtfd.io/"
 "Changelog" = "https://github.com/andreoliwa/nitpick/blob/develop/CHANGELOG.md"
 "Issue Tracker" = "https://github.com/andreoliwa/nitpick/issues"
 
