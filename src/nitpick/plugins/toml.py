@@ -66,9 +66,12 @@ class TomlPlugin(NitpickPlugin):
         yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.apply)
 
     @property
-    def initial_contents(self) -> str:  # FIXME[AA]:
+    def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        return ""
+        rv = TOMLFormat(data=self.expected_config).reformatted
+        if self.apply:
+            self.file_path.write_text(rv)
+        return rv
 
 
 @hookimpl

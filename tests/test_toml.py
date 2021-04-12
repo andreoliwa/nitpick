@@ -22,31 +22,31 @@ def test_pyproject_toml_file_present(tmp_path):
     )
 
 
-# def test_suggest_initial_contents(tmp_path): # FIXME[AA]:
-#     """Suggest contents when TOML files do not exist."""
-#     file = "my.toml"
-#     expected_toml = """
-#         [section]
-#         key = "value"
-#         number = 10
-#     """
-#     ProjectMock(tmp_path).style(
-#         f"""
-#         ["{file}".section]
-#         key = "value"
-#         number = 10
-#         """
-#     ).api_check_then_apply(
-#         Fuss(
-#             True,
-#             file,
-#             SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + TomlPlugin.violation_base_code,
-#             " was not found. Create it with this content:",
-#             expected_toml,
-#         )
-#     ).assert_file_contents(
-#         file, expected_toml
-#     )
+def test_suggest_initial_contents(tmp_path):
+    """Suggest contents when TOML files do not exist."""
+    filename = "my.toml"
+    expected_toml = """
+        [section]
+        key = "value"
+        number = 10
+    """
+    ProjectMock(tmp_path).style(
+        f"""
+        ["{filename}".section]
+        key = "value"
+        number = 10
+        """
+    ).api_check_then_apply(
+        Fuss(
+            True,
+            filename,
+            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + TomlPlugin.violation_base_code,
+            " was not found. Create it with this content:",
+            expected_toml,
+        )
+    ).assert_file_contents(
+        filename, expected_toml
+    )
 
 
 def test_missing_different_values_pyproject_toml(tmp_path):
