@@ -40,7 +40,7 @@ text = "nitpick.plugins.text"
 json = "nitpick.plugins.json"
 pre_commit = "nitpick.plugins.pre_commit"
 ini = "nitpick.plugins.ini"
-pyproject_toml = "nitpick.plugins.pyproject_toml"
+toml = "nitpick.plugins.toml"
 
 [tool.poetry.dependencies]
 python = "^3.6"
