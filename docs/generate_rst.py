@@ -106,7 +106,7 @@ class FileType:
     @property
     def text_with_url(self) -> str:
         """Text with URL in Markdown."""
-        return f"[{self.text}]({self.url})"
+        return f"[{self.text}]({self.url})" if self.url else self.text
 
     def _pretty(self, attribute: str) -> str:
         value = getattr(self, attribute)
@@ -114,6 +114,8 @@ class FileType:
             return "✅"
         if value is False:
             return "❌"
+        if value == 0:
+            return "❓"
         return f"🚧&nbsp;&nbsp;[#{value}](https://github.com/andreoliwa/nitpick/issues/{value})"
 
     @property
@@ -144,6 +146,16 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType(f"`{PYPROJECT_TOML}`", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType("`requirements.txt`", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType(f"`{SETUP_CFG}`", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+}
+PLANNED_FILE_TYPES: Set[FileType] = {
+    FileType("Any `.md` (Markdown) file", "", 280, 0),
+    FileType("Any `.tf` (Terraform) file", "", 318, 0),
+    FileType("`.dockerignore`", "", 8, 8),
+    FileType("`.gitignore`", "", 8, 8),
+    FileType("`.travis.yml`", "", 15, 15),
+    FileType("`Dockerfile`", "", 272, 272),
+    FileType("`Jenkinsfile`", "", 278, 0),
+    FileType("`Makefile`", "", 277, 0),
 }
 
 nit = Nitpick.singleton().init()
@@ -181,12 +193,13 @@ class DocFile:  # pylint: disable=too-few-public-methods
             new_content += old_content[end_position:]
         new_content = new_content.strip() + "\n"
 
+        divider_message = f" (divider: {divider_id})" if divider_id else ""
         if old_content != new_content:
             self.file.write_text(new_content)
-            click.secho(f"{self.file} generated", fg="yellow")
+            click.secho(f"File {self.file}{divider_message} generated", fg="yellow")
             return 1
 
-        click.secho(f"{self.file} hasn't changed", fg="green")
+        click.secho(f"File {self.file}{divider_message} hasn't changed", fg="green")
         return 0
 
 
@@ -329,11 +342,14 @@ def write_config() -> int:
     return DocFile("configuration.rst").write(blocks, divider_id="config-file")
 
 
-def write_readme() -> int:
-    """Write README.md."""
+def write_readme(file_types: Set[FileType], divider: str) -> int:
+    """Write README.md.
+
+    prettier will try to reformat the tables; to avoid that, README.md was added to .prettierignore.
+    """
     rows: List[Tuple[str, ...]] = [("File type", "Check", "Fix ([`nitpick run`](#run))")]
     max_length = [len(h) for h in rows[0]]
-    for file_type in sorted(IMPLEMENTED_FILE_TYPES):
+    for file_type in sorted(file_types):
         if max_length[0] < len(file_type.text_with_url):
             max_length[0] = len(file_type.text_with_url)
         if max_length[1] < len(file_type.check_str):
@@ -345,27 +361,26 @@ def write_readme() -> int:
 
     rows.insert(1, tuple("-" * max_length[i] for i in range(3)))
 
+    # Empty line after the opening comment (prettier does that)
     blocks = [""]
-    for row_index, row in enumerate(rows):
-        cells = []
-        for col_index in range(3):
-            cell_length = max_length[col_index]
-            value = row[col_index]
 
-            # Hacky adjustments to match what prettier does to the Markdown table ¯\_(ツ)_/¯
-            if row_index >= 2 and col_index == 1:
-                cell_length -= 1
-            if row_index == 0 and col_index == 2:
-                cell_length += 1
-            if row_index == 1 and col_index == 2:
-                value += "-"
-            cells.append(value.ljust(cell_length))
-
+    for row in rows:
+        cells = [row[i].ljust(max_length[i]) for i in range(3)]
         middle = " | ".join(cells)
         blocks.append(f"| {middle} |")
+
+    # Empty line before the closing comment (prettier does that)
     blocks.append("")
-    return DocFile("../README.md").write(blocks, divider_id="implemented")
+
+    return DocFile("../README.md").write(blocks, divider_id=divider)
 
 
 if __name__ == "__main__":
-    sys.exit(write_readme() + write_config() + write_examples() + write_plugins() + write_cli())
+    sys.exit(
+        write_readme(IMPLEMENTED_FILE_TYPES, "implemented")
+        + write_readme(PLANNED_FILE_TYPES, "planned")
+        + write_config()
+        + write_examples()
+        + write_plugins()
+        + write_cli()
+    )

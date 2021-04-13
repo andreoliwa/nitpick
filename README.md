@@ -66,26 +66,28 @@ These are the file types currently handled by Nitpick.
 
 <!-- auto-generated-start-implemented -->
 
-| File type                                                                                          | Check | Fix ([`nitpick run`](#run))                                            |
-| -------------------------------------------------------------------------------------------------- | ----- | ---------------------------------------------------------------------- |
-| [Any `.ini` file](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                        | ✅    | ✅                                                                     |
-| [Any `.json` file](https://nitpick.rtfd.io/en/latest/plugins.html#json-files)                      | ✅    | ❌                                                                     |
-| [Any `.toml` file](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅    | ✅                                                                     |
-| [Any text file](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                         | ✅    | ❌                                                                     |
-| [`.editorconfig`](https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig)            | ✅    | ✅                                                                     |
-| [`.pre-commit-config.yaml`](https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml) | ✅    | 🚧&nbsp;&nbsp;[#282](https://github.com/andreoliwa/nitpick/issues/282) |
-| [`.pylintrc`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅    | ✅                                                                     |
-| [`package.json`](https://nitpick.rtfd.io/en/latest/examples.html#example-package-json)             | ✅    | ❌                                                                     |
-| [`pyproject.toml`](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅    | ✅                                                                     |
-| [`requirements.txt`](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                    | ✅    | ❌                                                                     |
-| [`setup.cfg`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅    | ✅                                                                     |
+| File type                                                                                          | Check | Fix ([`nitpick run`](#run))                                           |
+| -------------------------------------------------------------------------------------------------- | ----- | --------------------------------------------------------------------- |
+| [Any `.ini` file](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                        | ✅     | ✅                                                                     |
+| [Any `.json` file](https://nitpick.rtfd.io/en/latest/plugins.html#json-files)                      | ✅     | ❌                                                                     |
+| [Any `.toml` file](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅     | ✅                                                                     |
+| [Any text file](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                         | ✅     | ❌                                                                     |
+| [`.editorconfig`](https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig)            | ✅     | ✅                                                                     |
+| [`.pre-commit-config.yaml`](https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml) | ✅     | 🚧&nbsp;&nbsp;[#282](https://github.com/andreoliwa/nitpick/issues/282) |
+| [`.pylintrc`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅     | ✅                                                                     |
+| [`package.json`](https://nitpick.rtfd.io/en/latest/examples.html#example-package-json)             | ✅     | ❌                                                                     |
+| [`pyproject.toml`](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅     | ✅                                                                     |
+| [`requirements.txt`](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                    | ✅     | ❌                                                                     |
+| [`setup.cfg`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅     | ✅                                                                     |
 
 <!-- auto-generated-end-implemented -->
 
 ### Planned
 
-| File type                  | Check                                                                  | Fix ([`nitpick run`](#run))                                            |
-| -------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+<!-- auto-generated-start-planned -->
+
+| File type                  | Check                                                                 | Fix ([`nitpick run`](#run))                                           |
+| -------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Any `.md` (Markdown) file  | 🚧&nbsp;&nbsp;[#280](https://github.com/andreoliwa/nitpick/issues/280) | ❓                                                                     |
 | Any `.tf` (Terraform) file | 🚧&nbsp;&nbsp;[#318](https://github.com/andreoliwa/nitpick/issues/318) | ❓                                                                     |
 | `.dockerignore`            | 🚧&nbsp;&nbsp;[#8](https://github.com/andreoliwa/nitpick/issues/8)     | 🚧&nbsp;&nbsp;[#8](https://github.com/andreoliwa/nitpick/issues/8)     |
@@ -94,6 +96,8 @@ These are the file types currently handled by Nitpick.
 | `Dockerfile`               | 🚧&nbsp;&nbsp;[#272](https://github.com/andreoliwa/nitpick/issues/272) | 🚧&nbsp;&nbsp;[#272](https://github.com/andreoliwa/nitpick/issues/272) |
 | `Jenkinsfile`              | 🚧&nbsp;&nbsp;[#278](https://github.com/andreoliwa/nitpick/issues/278) | ❓                                                                     |
 | `Makefile`                 | 🚧&nbsp;&nbsp;[#277](https://github.com/andreoliwa/nitpick/issues/277) | ❓                                                                     |
+
+<!-- auto-generated-end-planned -->
 
 ## Quick setup
 
