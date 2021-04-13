@@ -69,6 +69,7 @@ These are the file types currently handled by Nitpick.
 | [Any `.ini` file](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                        | ✅    | ✅                                                                     |
 | [Any `.json` file](https://nitpick.rtfd.io/en/latest/plugins.html#json-files)                      | ✅    | ❌                                                                     |
 | [Any text file](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                         | ✅    | ❌                                                                     |
+| [Any `.toml` file](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅    | ❌                                                                     |
 | [`.editorconfig`](https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig)            | ✅    | ✅                                                                     |
 | [`.pre-commit-config.yaml`](https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml) | ✅    | 🚧&nbsp;&nbsp;[#282](https://github.com/andreoliwa/nitpick/issues/282) |
 | [`.pylintrc`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅    | ✅                                                                     |
@@ -83,7 +84,6 @@ These are the file types currently handled by Nitpick.
 | -------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | Any `.md` (Markdown) file  | 🚧&nbsp;&nbsp;[#280](https://github.com/andreoliwa/nitpick/issues/280) | ❓                                                                     |
 | Any `.tf` (Terraform) file | 🚧&nbsp;&nbsp;[#318](https://github.com/andreoliwa/nitpick/issues/318) | ❓                                                                     |
-| Any `.toml` file           | 🚧&nbsp;&nbsp;[#320](https://github.com/andreoliwa/nitpick/issues/320) | 🚧&nbsp;&nbsp;[#320](https://github.com/andreoliwa/nitpick/issues/320) |
 | `.dockerignore`            | 🚧&nbsp;&nbsp;[#8](https://github.com/andreoliwa/nitpick/issues/8)     | 🚧&nbsp;&nbsp;[#8](https://github.com/andreoliwa/nitpick/issues/8)     |
 | `.gitignore`               | 🚧&nbsp;&nbsp;[#8](https://github.com/andreoliwa/nitpick/issues/8)     | 🚧&nbsp;&nbsp;[#8](https://github.com/andreoliwa/nitpick/issues/8)     |
 | `.travis.yml`              | 🚧&nbsp;&nbsp;[#15](https://github.com/andreoliwa/nitpick/issues/15)   | 🚧&nbsp;&nbsp;[#15](https://github.com/andreoliwa/nitpick/issues/15)   |
