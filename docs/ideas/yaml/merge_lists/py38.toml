@@ -1,0 +1,2 @@
+[".github/workflows/python.yaml".jobs.build.strategy.matrix]
+"python-version" = ["3.8"]

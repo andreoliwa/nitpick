@@ -1,0 +1,89 @@
+# The values below were taken from .github/workflows/python.yaml in this repo
+
+# 1. JMESPath as part of the section name, after the file name.
+# Everything after the file name is considered a JMESPath https://jmespath.org/
+# Format: ["path/to/file.ext".jmes.path.expression]
+#
+# 2. "jobs.build.strategy.matrix" should have "os" and "python-version"
+# 3. Both are lists, and they have to be exactly as described here.
+[".github/workflows/python.yaml".jobs.build.strategy.matrix]
+os = ["ubuntu-latest", "macos-latest", "windows-latest"]
+"python-version" = ["3.6", "3.7", "3.8", "3.9"]
+
+# 4. "jobs.build" should have "runs-on" with value "${{ matrix.os }}"
+[".github/workflows/python.yaml".jobs.build]
+"runs-on" = "${{ matrix.os }}"
+
+# 5. "{{" and "}}" will conflict with Jinja https://github.com/andreoliwa/nitpick/issues/283
+# So we need a way to turn on/off Jinja templating.
+# Probably "false" will be the default, to keep compatibility.
+# Whoever wants to use Jinja will need to set "true" either here or as a global config on .nitpick.toml
+__jinja = false
+
+# 6. Another way to turn off Jinja for a specific key only, not the whole dict
+# (using the "__" syntax from Django filters, SQLAlchemy, factoryboy...)
+"runs-on__no_jinja" = "${{ matrix.os }}"
+
+# 7. Same effect as items 1, 2 and 3, but with a different syntax.
+# 8. Everything that is not a dunder key ("__") will be a dict to be enforced.
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.strategy.matrix"
+os = ["ubuntu-latest", "macos-latest", "windows-latest"]
+"python-version" = ["3.6", "3.7", "3.8", "3.9"]
+
+# 9. Same as item 4, but with a different syntax.
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build"
+"runs-on" = "${{ matrix.os }}"
+
+# 10. "jobs.build.steps" can have multiple dicts; each one is a "contains" table
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+uses = "actions/checkout@v2"
+
+# 11. The "problem" with the "contains" table is that "__jmespath" will be repeated many times
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+name = "Set up Python ${{ matrix.python-version }}"
+uses = "actions/setup-python@v2"
+with = {"python-version" = "${{ matrix.python-version }}"}
+
+# 12. Alternative to 11. with a multiline YAML string
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+__yaml = """
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+"""
+
+# 13. Alternative to 12, YAML without the whitespace.
+# Check if this is possible.
+# It would be best to ignored the initial whitespace and add the parsed data
+# directly under the "__jmespath"
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+__yaml = """
+- name: Set up Python ${{ matrix.python-version }}
+  uses: actions/setup-python@v2
+  with:
+    python-version: ${{ matrix.python-version }}
+"""
+
+# 14. Alternative to 10, but with formatted YAML in a single line string.
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+__yaml = "- uses: actions/checkout@v2"
+
+# 15. Same as items 7, 8 and 9, but asserting that they are ordered
+# in the sequence they appear here on the TOML file.
+# "contains_sorted" is an idea for a distant future, taken from text.toml, still not implemented
+[[".github/workflows/python.yaml".contains_sorted]]
+__jmespath = "jobs.build.strategy.matrix"
+os = ["ubuntu-latest", "macos-latest", "windows-latest"]
+"python-version" = ["3.6", "3.7", "3.8", "3.9"]
+
+[[".github/workflows/python.yaml".contains_sorted]]
+__jmespath = "jobs.build"
+"runs-on" = "${{ matrix.os }}"
