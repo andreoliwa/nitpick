@@ -165,9 +165,15 @@ class Style:  # pylint: disable=too-many-instance-attributes
             if os.path.isabs(uri):
                 return uri
 
-            return urljoin(self._first_full_path, uri)
+            return self._join_uri(uri)
 
         return uri
+
+    def _join_uri(self, uri):
+        if is_url(self._first_full_path):
+            return urljoin(self._first_full_path, uri)
+
+        return str(Path(self._first_full_path).joinpath(uri))
 
     def _append_toml_extension_url(self, url):
         scheme, netloc, path, query, fragment = urlsplit(url)
