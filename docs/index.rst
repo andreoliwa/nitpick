@@ -61,9 +61,9 @@ Many more features are planned for the future, check `the roadmap <https://githu
    styles
    configuration
    examples
-   auto_detection
    nitpick_section
    cli
+   flake8_plugin
    plugins
    troubleshooting
    contributing
