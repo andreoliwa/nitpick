@@ -1,17 +1,23 @@
 # https://pre-commit.com/#creating-new-hooks
 - id: nitpick
-  name: "Nitpick (Flake8 plugin, check only)"
-  description: "Enforce the same settings across multiple language-independent projects (Flake8 plugin, check only)"
+  name: "Nitpick Flake8 plugin (check only)"
+  description: "Run as a flake8 plugin and only check configuration files, according to the Nitpick style"
   entry: flake8 --select=NIP
   language: python
   types: [python]
   always_run: true
   stages: [commit]
-- id: nitpick-run
-  name: "Nitpick (CLI, apply changes)"
-  description: "Enforce the same settings across multiple language-independent projects (command-line tool, apply changes)"
+
+- id: nitpick-fix
+  name: "Nitpick CLI (fix files)"
+  description: "Fix configuration files automatically, according to the Nitpick style"
   entry: nitpick run
   language: python
-  always_run: true
-  pass_filenames: false
+  stages: [commit]
+
+- id: nitpick-check
+  name: "Nitpick CLI (check files only)"
+  description: "Only check configuration files, according to the Nitpick style"
+  entry: nitpick run --check
+  language: python
   stages: [commit]
