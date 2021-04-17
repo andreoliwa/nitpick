@@ -366,13 +366,14 @@ class ProjectMock:
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def assert_file_contents(self, *name_contents: Union[PathOrStr, str]):
-        """Assert the file has the expected contents."""
+    def assert_file_contents(self, *name_contents: Union[PathOrStr, Optional[str]]) -> "ProjectMock":
+        """Assert the file has the expected contents. Use `None` to indicate that the file doesn't exist."""
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)
-            expected = dedent(file_contents).lstrip()
+            expected = None if file_contents is None else dedent(file_contents).lstrip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
+        return self
 
     def remote(self, mocked_response: RequestsMock, remote_url: str) -> "ProjectMock":
         """Set the mocked response and the remote URL."""
