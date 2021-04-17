@@ -147,11 +147,11 @@ class ProjectMock:
             )
 
         contents_before_check = self.read_multiple_files(expected_filenames)
-        self.api_check(*partial_names).assert_violations(*expected_violations_when_checking)
+        self.api_check(*partial_names).assert_violations(*expected_violations_when_checking, disclaimer="Check")
         contents_after_check = self.read_multiple_files(expected_filenames)
         compare(expected=contents_before_check, actual=contents_after_check)
 
-        return self.api_apply(*partial_names).assert_violations(*expected_violations_when_applying)
+        return self.api_apply(*partial_names).assert_violations(*expected_violations_when_applying, disclaimer="Apply")
 
     def path_for(self, filename: PathOrStr) -> str:
         """Return the full path for a file, based on the root dir."""
@@ -285,7 +285,7 @@ class ProjectMock:
         compare(expected.as_data, actual.as_data)
         return self
 
-    def assert_violations(self, *expected_violations: Fuss) -> "ProjectMock":
+    def assert_violations(self, *expected_violations: Fuss, disclaimer="") -> "ProjectMock":
         """Assert the exact set of violations."""
         manual: int = 0
         fixed: int = 0
@@ -305,10 +305,11 @@ class ProjectMock:
             actual=[obj.__dict__ for obj in sorted(self._actual_violations)],
             raises=False,
         )
+        preffix = f"[{disclaimer}] " if disclaimer else ""
         compare(
             expected=stripped,
             actual=self._actual_violations,
-            suffix=f"Comparing Fuss objects as dictionaries: {dict_difference}",
+            suffix=f"{preffix}Comparing Fuss objects as dictionaries: {dict_difference}",
         )
         compare(expected=fixed, actual=Reporter.fixed)
         compare(expected=manual, actual=Reporter.manual)

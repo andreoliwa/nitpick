@@ -14,7 +14,7 @@ Nitpick_ has a CLI to apply changes to files automatically.
 1. It doesn't work for all the plugins yet. Currently, it works for:
 
   - :ref:`iniplugin` (like ``setup.cfg``, ``tox.ini``, ``.editorconfig``, ``.pylintrc``, and any other ``.ini``)
-  - :ref:`pyprojecttomlplugin`
+  - :ref:`tomlplugin`
 
 2. It tries to preserve the comments and the formatting of the original file.
 3. Some changes still have to be done manually; Nitpick_ cannot guess how to make certain changes automatically.

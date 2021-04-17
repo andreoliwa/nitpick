@@ -4,10 +4,11 @@ Helpful docs:
 - http://www.pyinvoke.org/
 - http://docs.pyinvoke.org/en/stable/api/runners.html#invoke.runners.Runner.run
 """
+import sys
 from configparser import ConfigParser
 from typing import Iterator
 
-from invoke import Collection, task  # pylint: disable=import-error
+from invoke import Collection, Exit, task  # pylint: disable=import-error
 
 COLOR_NONE = "\x1b[0m"
 COLOR_GREEN = "\x1b[32m"
@@ -66,6 +67,19 @@ class ToxCommands:
         return (
             self.find_command("testenv:docs", "html").replace("{posargs}", "").replace("{toxworkdir}", DOCS_BUILD_PATH)
         )
+
+    @staticmethod
+    def enable_macos(ctx):
+        """Enable macOS on tox.ini."""
+        if sys.platform == "darwin":
+            # Hack to be able to run `invoke lint` on a macOS machine during development.
+            ctx.run("sed -i '' 's/platform = linux/platform = darwin/g' tox.ini")
+
+    @staticmethod
+    def disable_macos(ctx):
+        """Disable macOS on tox.ini."""
+        if sys.platform == "darwin":
+            ctx.run("sed -i '' 's/platform = darwin/platform = linux/g' tox.ini")
 
 
 @task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})
@@ -169,8 +183,17 @@ def ci_build(ctx, full=False, recreate=False):
 @task(help={"recreate": "Recreate tox environment"})
 def lint(ctx, recreate=False):
     """Lint using tox."""
+    tox = ToxCommands()
+    tox.enable_macos(ctx)
+
     tox_cmd = "tox -r" if recreate else "tox"
-    ctx.run(f"{tox_cmd} -e lint")
+    result = ctx.run(f"{tox_cmd} -e lint", warn=True)
+
+    tox.disable_macos(ctx)
+
+    # Exit only after restoring tox.ini
+    if result.exited > 0:
+        raise Exit("pylint failed", 1)
 
 
 @task(help={"venv": "Remove the Poetry virtualenv"})
@@ -216,7 +239,7 @@ namespace.configure(
     {
         "run": {
             # Use a pseudo-terminal to display colorful output
-            "pty": True,
+            "pty": True
         }
     }
 )

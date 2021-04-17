@@ -1,28 +1,45 @@
-"""Generate .rst files content from Python classes. Run on the dev machine with "make doc", and commit on GitHub.
+"""Write documentation files content from Python classes.
+
+Run on the dev machine with "invoke doc", and commit on GitHub.
 
 The ``include`` directive is not working on Read the Docs.
 It doesn't recognise the "styles" dir anywhere (on the root, under "docs", under "_static"...).
 Not even changing ``html_static_path`` on ``conf.py`` worked.
 """
 import sys
+from dataclasses import dataclass
 from importlib import import_module
 from pathlib import Path
 from pprint import pprint
 from subprocess import check_output  # nosec
 from textwrap import dedent, indent
-from typing import List
+from typing import List, Set, Tuple, Union
 
 import click
 from slugify import slugify
 from sortedcontainers import SortedDict
 
 from nitpick import __version__
-from nitpick.constants import GITHUB_BASE_URL, CONFIG_FILES
+from nitpick.constants import (
+    CONFIG_FILES,
+    EDITOR_CONFIG,
+    GITHUB_BASE_URL,
+    PACKAGE_JSON,
+    PRE_COMMIT_CONFIG_YAML,
+    PYLINTRC,
+    PYPROJECT_TOML,
+    READ_THE_DOCS_URL,
+    SETUP_CFG,
+)
 from nitpick.core import Nitpick
 
-DIVIDER_FROM_HERE = ".. auto-generated-from-here"
-DIVIDER_START = ".. auto-generated-start-{}"
-DIVIDER_END = ".. auto-generated-end-{}"
+RST_DIVIDER_FROM_HERE = ".. auto-generated-from-here"
+RST_DIVIDER_START = ".. auto-generated-start-{}"
+RST_DIVIDER_END = ".. auto-generated-end-{}"
+
+MD_DIVIDER_START = "<!-- auto-generated-start-{} -->"
+MD_DIVIDER_END = "<!-- auto-generated-end-{} -->"
+
 DOCS_DIR: Path = Path(__file__).parent.absolute()
 STYLES_DIR: Path = DOCS_DIR.parent / "styles"
 
@@ -67,40 +84,127 @@ CLI_MAPPING = [
     ("init", "Initialise a configuration file", ""),
 ]
 
+
+@dataclass(frozen=True)
+class FileType:
+    """A file type handled by Nitpick."""
+
+    text: str
+    url: str
+    check: Union[bool, int]
+    fix: Union[bool, int]
+
+    def __lt__(self, other: "FileType") -> bool:
+        """Sort instances.
+
+        From the `docs <https://docs.python.org/3/howto/sorting.html#odd-and-ends>`_:
+
+        > It is easy to add a standard sort order to a class by defining an __lt__() method
+        """
+        return self.text < other.text
+
+    @property
+    def text_with_url(self) -> str:
+        """Text with URL in Markdown."""
+        return f"[{self.text}]({self.url})" if self.url else self.text
+
+    def _pretty(self, attribute: str) -> str:
+        value = getattr(self, attribute)
+        if value is True:
+            return "✅"
+        if value is False:
+            return "❌"
+        if value == 0:
+            return "❓"
+        return f"🚧&nbsp;&nbsp;[#{value}](https://github.com/andreoliwa/nitpick/issues/{value})"
+
+    @property
+    def check_str(self) -> str:
+        """The check flag, as a string."""
+        return self._pretty("check")
+
+    @property
+    def fix_str(self) -> str:
+        """The fix flag, as a string."""
+        return self._pretty("fix")
+
+    @property
+    def row(self) -> Tuple[str, str, str]:
+        """Tuple for a Markdown table row."""
+        return self.text_with_url, self.check_str, self.fix_str
+
+
+IMPLEMENTED_FILE_TYPES: Set[FileType] = {
+    FileType("Any `.ini` file", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+    FileType("Any `.json` file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, False),
+    FileType("Any text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
+    FileType("Any `.toml` file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
+    FileType(f"`{EDITOR_CONFIG}`", f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
+    FileType(f"`{PRE_COMMIT_CONFIG_YAML}`", f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
+    FileType(f"`{PYLINTRC}`", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+    FileType(f"`{PACKAGE_JSON}`", f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, False),
+    FileType(f"`{PYPROJECT_TOML}`", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
+    FileType("`requirements.txt`", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
+    FileType(f"`{SETUP_CFG}`", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+}
+PLANNED_FILE_TYPES: Set[FileType] = {
+    FileType("Any `.md` (Markdown) file", "", 280, 0),
+    FileType("Any `.tf` (Terraform) file", "", 318, 0),
+    FileType("`.dockerignore`", "", 8, 8),
+    FileType("`.gitignore`", "", 8, 8),
+    FileType("`.travis.yml`", "", 15, 15),
+    FileType("`Dockerfile`", "", 272, 272),
+    FileType("`Jenkinsfile`", "", 278, 0),
+    FileType("`Makefile`", "", 277, 0),
+}
+
 nit = Nitpick.singleton().init()
 
 
-def write_rst(filename: str, blocks: List[str], divider_id: str = None) -> int:
-    """Write content to the .rst file."""
-    rst_file: Path = DOCS_DIR / filename
+class DocFile:  # pylint: disable=too-few-public-methods
+    """A document file (REST or Markdown)."""
 
-    old_content = rst_file.read_text()
-    if divider_id:
-        start_marker = DIVIDER_START.format(divider_id)
-        end_marker = DIVIDER_END.format(divider_id)
-        start_position = old_content.index(start_marker) + len(start_marker) + 1
-        end_position = old_content.index(end_marker) - 1
-    else:
-        start_position = old_content.index(DIVIDER_FROM_HERE) + len(DIVIDER_FROM_HERE) + 1
-        end_position = 0
+    def __init__(self, filename: str) -> None:
+        self.file: Path = (DOCS_DIR / filename).resolve(True)
+        if self.file.suffix == ".md":
+            self.divider_start = MD_DIVIDER_START
+            self.divider_end = MD_DIVIDER_END
+            self.divider_from_here = MD_DIVIDER_START
+        else:
+            self.divider_start = RST_DIVIDER_START
+            self.divider_end = RST_DIVIDER_END
+            self.divider_from_here = RST_DIVIDER_FROM_HERE
 
-    new_content = old_content[:start_position]
-    new_content += "\n".join(blocks)
-    if end_position:
-        new_content += old_content[end_position:]
-    new_content = new_content.strip() + "\n"
+    def write(self, blocks: List[str], divider_id: str = None) -> int:
+        """Write content to the file."""
+        old_content = self.file.read_text()
+        if divider_id:
+            start_marker = self.divider_start.format(divider_id)
+            end_marker = self.divider_end.format(divider_id)
+            start_position = old_content.index(start_marker) + len(start_marker) + 1
+            end_position = old_content.index(end_marker) - 1
+        else:
+            start_position = old_content.index(self.divider_from_here) + len(self.divider_from_here) + 1
+            end_position = 0
 
-    if old_content != new_content:
-        rst_file.write_text(new_content)
-        click.secho(f"{rst_file} generated", fg="yellow")
-        return 1
+        new_content = old_content[:start_position]
+        new_content += "\n".join(blocks)
+        if end_position:
+            new_content += old_content[end_position:]
+        new_content = new_content.strip() + "\n"
 
-    click.secho(f"{rst_file} hasn't changed", fg="green")
-    return 0
+        divider_message = f" (divider: {divider_id})" if divider_id else ""
+        if old_content != new_content:
+            self.file.write_text(new_content)
+            click.secho(f"File {self.file}{divider_message} generated", fg="yellow")
+            return 1
+
+        click.secho(f"File {self.file}{divider_message} hasn't changed", fg="green")
+        return 0
 
 
-def generate_examples(filename: str) -> int:
-    """Generate examples with hardcoded TOML content."""
+def write_examples() -> int:
+    """Write examples with hardcoded TOML content."""
     template = """
         .. _example-{link}:
 
@@ -140,7 +244,7 @@ def generate_examples(filename: str) -> int:
             )
         )
 
-    rv = write_rst(filename, blocks)
+    rv = DocFile("examples.rst").write(blocks)
 
     missing = SortedDict()
     for existing_toml_path in sorted(STYLES_DIR.glob("**/*.toml")):
@@ -159,8 +263,8 @@ def generate_examples(filename: str) -> int:
     return rv
 
 
-def generate_plugins(filename: str) -> int:
-    """Generate plugins.rst with the docstrings from :py:class:`nitpick.plugins.base.NitpickPlugin` classes."""
+def write_plugins() -> int:
+    """Write plugins.rst with the docstrings from :py:class:`nitpick.plugins.base.NitpickPlugin` classes."""
     template = """
         .. _{link}:
 
@@ -192,11 +296,11 @@ def generate_plugins(filename: str) -> int:
                 description=dedent(f"    {plugin_class.__doc__}").strip(),
             )
         )
-    return write_rst(filename, blocks)
+    return DocFile("plugins.rst").write(blocks)
 
 
-def generate_cli(filename: str) -> int:
-    """Generate CLI docs."""
+def write_cli() -> int:
+    """Write CLI docs."""
     template = """
         .. _cli_cmd{anchor}:
 
@@ -227,21 +331,56 @@ def generate_cli(filename: str) -> int:
             )
         )
 
-    return write_rst(filename, blocks)
+    return DocFile("cli.rst").write(blocks)
 
 
-def generate_config(filename: str) -> int:
-    """Generate config file names."""
+def write_config() -> int:
+    """Write config file names."""
     blocks = [f"{index + 1}. ``{config_file}``" for index, config_file in enumerate(CONFIG_FILES)]
     blocks.insert(0, "")
     blocks.append("")
-    return write_rst(filename, blocks, divider_id="config-file")
+    return DocFile("configuration.rst").write(blocks, divider_id="config-file")
+
+
+def write_readme(file_types: Set[FileType], divider: str) -> int:
+    """Write README.md.
+
+    prettier will try to reformat the tables; to avoid that, README.md was added to .prettierignore.
+    """
+    rows: List[Tuple[str, ...]] = [("File type", "Check", "Fix ([`nitpick run`](#run))")]
+    max_length = [len(h) for h in rows[0]]
+    for file_type in sorted(file_types):
+        if max_length[0] < len(file_type.text_with_url):
+            max_length[0] = len(file_type.text_with_url)
+        if max_length[1] < len(file_type.check_str):
+            max_length[1] = len(file_type.check_str)
+        if max_length[2] < len(file_type.fix_str):
+            max_length[2] = len(file_type.fix_str)
+
+        rows.append(file_type.row)
+
+    rows.insert(1, tuple("-" * max_length[i] for i in range(3)))
+
+    # Empty line after the opening comment (prettier does that)
+    blocks = [""]
+
+    for row in rows:
+        cells = [row[i].ljust(max_length[i]) for i in range(3)]
+        middle = " | ".join(cells)
+        blocks.append(f"| {middle} |")
+
+    # Empty line before the closing comment (prettier does that)
+    blocks.append("")
+
+    return DocFile("../README.md").write(blocks, divider_id=divider)
 
 
 if __name__ == "__main__":
     sys.exit(
-        generate_config("configuration.rst")
-        + generate_examples("examples.rst")
-        + generate_cli("cli.rst")
-        + generate_plugins("plugins.rst")
+        write_readme(IMPLEMENTED_FILE_TYPES, "implemented")
+        + write_readme(PLANNED_FILE_TYPES, "planned")
+        + write_config()
+        + write_examples()
+        + write_plugins()
+        + write_cli()
     )

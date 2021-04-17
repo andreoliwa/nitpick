@@ -215,11 +215,17 @@ class TOMLFormat(BaseFormat):
         if self.path is not None:
             self._string = Path(self.path).read_text()
         if self._string is not None:
+            # TODO: I tried to replace toml by tomlkit, but lots of tests break.
+            #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
+            # self._data = OrderedDict(tomlkit.loads(self._string))
             self._data = toml.loads(self._string, _dict=OrderedDict)
         if self._data is not None:
             if isinstance(self._data, BaseFormat):
                 self._reformatted = self._data.reformatted
             else:
+                # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
+                #  but comments are being lost when the TOML plugin does dict comparisons.
+                # self._reformatted = tomlkit.dumps(OrderedDict(self._data), sort_keys=True)
                 self._reformatted = toml.dumps(self._data)
         self._loaded = True
         return True
