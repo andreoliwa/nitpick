@@ -87,3 +87,37 @@ os = ["ubuntu-latest", "macos-latest", "windows-latest"]
 [[".github/workflows/python.yaml".contains_sorted]]
 __jmespath = "jobs.build"
 "runs-on" = "${{ matrix.os }}"
+
+# 16. Simplified API, having JMESPath as direct keys
+# Read the discussion: https://github.com/andreoliwa/nitpick/pull/353/files#r613816390
+[".github/workflows/python-simple-api.yaml"]
+"jobs.build.strategy.matrix.os" = "foo"
+"jobs.build.steps" = ["bar"]
+"jobs.build.steps.regex" = "baz d+"
+"jobs.build.steps.contains" = "baz"
+
+# 17. Clean approach with JMESPath in tables and no reserved keys (`jmespath` or `__jmespath`)
+# https://github.com/andreoliwa/nitpick/pull/353/files#r614633283
+[[".github/workflows/python-neat.yaml".jobs.build.steps]]
+uses = "actions/checkout@v2"
+
+[[".github/workflows/python-neat.yaml".jobs.build.steps]]
+name = "Set up Python ${{ matrix.python-version }}"
+uses = "actions/setup-python@v2"
+with = {"python-version" = "${{ matrix.python-version }}"}
+
+# 18. Complex JMESPath expressions should be quoted
+# (I still don't know how to deal with JMESPath that matches multiple items)
+[[".github/workflows/python-neat.yaml"."jobs.build.steps[].{name: name, uses: uses}"]]
+uses = "actions/checkout@v2"
+
+# 19. JMESPath expression that has double quotes, wrapped in single quotes for TOML
+[[".github/workflows/python-neat.yaml".'jobs.build.strategy.matrix."python-version"']]
+name = "Set up Python ${{ matrix.python-version }}"
+uses = "actions/setup-python@v2"
+with = {"python-version" = "${{ matrix.python-version }}"}
+
+# 20. And it allows Jinja tuning in https://github.com/andreoliwa/nitpick/issues/283
+name__jinja = "Set up Python ${{ matrix.python-version }}"
+name__no_jinja = "Set up Python ${{ matrix.python-version }}"
+name__jinja_off = "Set up Python ${{ matrix.python-version }}"
