@@ -496,11 +496,9 @@ def test_include_remote_style_from_local_style(tmp_path):
     remote_style = "https://raw.githubusercontent.com/user/repo/branch/path/to/nitpick-style"
     url_with_extension = f"{remote_style}{TOML_EXTENSION}"
     body = """
-        ["pyproject.toml".tool.black]
-        missing = "thing"
         ["tox.ini".section]
         key = "value"
-        """
+    """
     responses.add(responses.GET, url_with_extension, dedent(body), status=200)
 
     project = ProjectMock(tmp_path).style(
@@ -511,22 +509,16 @@ def test_include_remote_style_from_local_style(tmp_path):
         ]
         """
     )
-    project.assert_file_contents(PYPROJECT_TOML, None, TOX_INI, None).api_check_then_apply(
-        Fuss(
-            True, PYPROJECT_TOML, 311, " was not found. Create it with this content:", '[tool.black]\nmissing = "thing"'
-        ),
-        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", "[section]\nkey = value"),
+    project.assert_file_contents(TOX_INI, None).api_check_then_apply(
+        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", "[section]\nkey = value")
     ).assert_file_contents(
-        PYPROJECT_TOML,
-        """
-        [tool.black]
-        missing = "thing"
-        """,
         TOX_INI,
         """
         [section]
         key = value
         """,
+        PYPROJECT_TOML,
+        None,
     )
 
 
