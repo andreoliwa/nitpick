@@ -8,7 +8,7 @@ from unittest.mock import PropertyMock
 import pytest
 import responses
 
-from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, SETUP_CFG, TOML_EXTENSION
+from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, SETUP_CFG, TOML_EXTENSION, TOX_INI
 from nitpick.violations import Fuss
 from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, XFAIL_ON_WINDOWS, ProjectMock, assert_conditions
 
@@ -491,32 +491,42 @@ def test_fetch_private_github_urls(tmp_path):
 
 
 @responses.activate
-def test_fetch_remote_from_style(tmp_path):
-    """Fetch private GitHub URLs with a token on the query string."""
-    base_url = "https://raw.githubusercontent.com/user/repo/branch/path/to/nitpick-style"
-    full_private_url = f"{base_url}{TOML_EXTENSION}"
+def test_include_remote_style_from_local_style(tmp_path):
+    """Test include of remote style when there is only a local style."""
+    remote_style = "https://raw.githubusercontent.com/user/repo/branch/path/to/nitpick-style"
+    url_with_extension = f"{remote_style}{TOML_EXTENSION}"
     body = """
         ["pyproject.toml".tool.black]
         missing = "thing"
+        ["tox.ini".section]
+        key = "value"
         """
-    responses.add(responses.GET, full_private_url, dedent(body), status=200)
+    responses.add(responses.GET, url_with_extension, dedent(body), status=200)
 
     project = ProjectMock(tmp_path).style(
         f"""
         [nitpick.styles]
         include = [
-            "{base_url}"
+            "{remote_style}"
         ]
         """
     )
-    project.api_check_then_apply(
+    project.assert_file_contents(PYPROJECT_TOML, None, TOX_INI, None).api_check_then_apply(
         Fuss(
-            False,
-            PYPROJECT_TOML,
-            311,
-            " was not found",
-            "",
-        )
+            True, PYPROJECT_TOML, 311, " was not found. Create it with this content:", '[tool.black]\nmissing = "thing"'
+        ),
+        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", "[section]\nkey = value"),
+    ).assert_file_contents(
+        PYPROJECT_TOML,
+        """
+        [tool.black]
+        missing = "thing"
+        """,
+        TOX_INI,
+        """
+        [section]
+        key = value
+        """,
     )
 
 
