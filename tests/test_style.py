@@ -664,7 +664,7 @@ def test_invalid_nitpick_files(offline, tmp_path):
 @responses.activate
 def test_github_fetch(tmp_path):
     """Test that gh:// and github:// URLs can be fetched."""
-    raw_url = "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/nitpick"
+    raw_url = "https://raw.githubusercontent.com/andreoliwa/nitpick/develop"
     data = [
         (
             f"{raw_url}/initial.toml",

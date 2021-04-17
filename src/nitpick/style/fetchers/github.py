@@ -35,7 +35,10 @@ class GithubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
         main_branch = self._get_main_branch(owner, repository)
 
         download_url = self._download_url.format(
-            owner=owner, repository=repository, git_reference=main_branch, path=parsed_url.path
+            owner=owner,
+            repository=repository,
+            git_reference=main_branch,
+            path=parsed_url.path.replace(f"/{repository}", ""),
         )
         return super()._download(download_url)
 
