@@ -1,4 +1,4 @@
-"""Support for gh and github schemes."""
+"""Support for ``gh`` and ``github`` schemes."""
 from dataclasses import dataclass
 from typing import Tuple
 from urllib.parse import urlparse, uses_netloc, uses_relative
@@ -7,8 +7,8 @@ from nitpick.style.fetchers.http import HttpFetcher
 
 
 @dataclass(repr=True, unsafe_hash=True)
-class GithubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
-    """Fetch styles from github repositories."""
+class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
+    """Fetch styles from GitHub repositories."""
 
     _api_url = "https://api.github.com/repos/{owner}/{repository}"
     _download_url = "https://raw.githubusercontent.com/{owner}/{repository}/{git_reference}{path}"

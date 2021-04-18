@@ -669,16 +669,16 @@ def test_github_fetch(tmp_path):
         (
             f"{raw_url}/initial.toml",
             """
-    [nitpick.styles]
-    include = "black.toml"
-    """,
+            [nitpick.styles]
+            include = "black.toml"
+            """,
         ),
         (
             f"{raw_url}/black.toml",
             """
-        ["pyproject.toml".tool.black]
-        line-length = 120
-    """,
+            ["pyproject.toml".tool.black]
+            line-length = 120
+            """,
         ),
     ]
     for url, style in data:

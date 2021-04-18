@@ -77,13 +77,13 @@ def _requests_session() -> Session:
 def _get_fetchers(cache_repository, cache_option) -> "FetchersType":
     # pylint: disable=import-outside-toplevel
     from nitpick.style.fetchers.file import FileFetcher
-    from nitpick.style.fetchers.github import GithubFetcher
+    from nitpick.style.fetchers.github import GitHubFetcher
     from nitpick.style.fetchers.http import HttpFetcher
 
     def _factory(klass):
         return klass(cache_repository, cache_option)
 
-    fetchers = (_factory(FileFetcher), _factory(HttpFetcher), _factory(GithubFetcher))
+    fetchers = (_factory(FileFetcher), _factory(HttpFetcher), _factory(GitHubFetcher))
     pairs = _fetchers_to_pairs(fetchers)
     return dict(pairs)
 
