@@ -13,6 +13,7 @@
 .. _flake8: https://github.com/PyCQA/flake8
 .. _Flask: https://github.com/pallets/flask/
 .. _Flask CLI: https://flask.palletsprojects.com/en/1.1.x/cli/
+.. _Homebrew: https://github.com/Homebrew/brew
 .. _Invoke: https://github.com/pyinvoke/invoke
 .. _IPython: https://github.com/ipython/ipython
 .. _isort: https://github.com/PyCQA/isort

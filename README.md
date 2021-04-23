@@ -99,15 +99,23 @@ These are the file types currently handled by Nitpick.
 
 <!-- auto-generated-end-planned -->
 
-## Quick setup
+## Quickstart
 
 ### Install
+
+Install in an isolated environment with [pipx](https://github.com/pipxproject/pipx):
+
+    # Latest PyPI release
+    pipx install nitpick
+
+    # Development branch from GitHub
+    pipx install git+https://github.com/andreoliwa/nitpick
 
 On macOS/Linux, install the latest release with [Homebrew](https://github.com/Homebrew/brew):
 
     brew install andreoliwa/formulae/nitpick
 
-    # To install the latest version from the `develop` branch:
+    # Development branch from GitHub
     brew install andreoliwa/formulae/nitpick --HEAD
 
 On Arch Linux, install with yay:
@@ -140,9 +148,9 @@ Nitpick will download and use the opinionated [default style file](https://raw.g
 
 You can use it as a template to configure your own style.
 
-### Run as a pre-commit hook (recommended)
+### Run as a pre-commit hook
 
-If you use [pre-commit](https://pre-commit.com/) on your project (you should), add this to the `.pre-commit-config.yaml` in your repository:
+If you use [pre-commit](https://pre-commit.com/) on your project, add this to the `.pre-commit-config.yaml` in your repository:
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick

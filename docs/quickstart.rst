@@ -3,39 +3,59 @@
 Quickstart
 ==========
 
-Install / Basic usage
----------------------
+Install
+-------
 
-To try the package, simply install it (in a virtualenv or globally) and run flake8_ on a project with at least one Python (``.py``) file:
+Install in an isolated environment with pipx_::
 
-.. code-block:: shell
+    # Latest PyPI release
+    pipx install nitpick
 
-    # Install with pip:
-    pip install -U nitpick
+    # Development branch from GitHub
+    pipx install git+https://github.com/andreoliwa/nitpick
 
-    # Add to your project with Poetry:
-    poetry add --dev nitpick
+On macOS/Linux, install the latest release with Homebrew_::
 
-    # On macOS, install with Homebrew:
     brew install andreoliwa/formulae/nitpick
 
-    # On archlinux, install with yay:
+    # Development branch from GitHub
+    brew install andreoliwa/formulae/nitpick --HEAD
+
+On Arch Linux, install with yay::
+
     yay -Syu nitpick
 
-    # Run nitpick directly to modify your files
+Add to your project with Poetry_::
+
+    poetry add --dev nitpick
+
+Or install it with pip::
+
+    pip install -U nitpick
+
+Run
+---
+
+To fix and modify your files directly::
+
     nitpick run
 
-    # Or run with flake8 to only check for errors
+To check for errors only::
+
+    nitpick run --check
+
+Nitpick is also a flake8_ plugin, so you can run this on a project with at least one Python (``.py``) file::
+
     flake8 .
 
 Nitpick_ will download and use the opinionated `default style file`_.
 
 You can use it as a template to :ref:`configure-your-own-style`.
 
-Run as a pre-commit hook (recommended)
---------------------------------------
+Run as a pre-commit hook
+------------------------
 
-If you use pre-commit_ on your project (you should), add this to the ``.pre-commit-config.yaml`` in your repository:
+If you use pre-commit_ on your project, add this to the ``.pre-commit-config.yaml`` in your repository:
 
 .. code-block:: yaml
 
