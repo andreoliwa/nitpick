@@ -60,7 +60,6 @@ STYLE_MAPPING = SortedDict(
         "pre-commit/main.toml": "pre-commit_ (main)",
         "pre-commit/python.toml": "pre-commit_ (Python hooks)",
         "pylint.toml": "Pylint_",
-        "pytest.toml": "pytest_",
         "python36.toml": "Python 3.6",
         "python37.toml": "Python 3.7",
         "python38.toml": "Python 3.8",
