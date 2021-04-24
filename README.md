@@ -169,4 +169,13 @@ To start checking all your code against the default rules:
 
 ## More information
 
+Nitpick is being used by projects such as:
+
+- [wemake-services/wemake-python-styleguide](https://github.com/wemake-services/wemake-python-styleguide)
+- [dry-python/returns](https://github.com/dry-python/returns)
+- [sobolevn/django-split-settings](https://github.com/sobolevn/django-split-settings)
+- [catalyst-team/catalyst](https://github.com/catalyst-team/catalyst)
+- [alan-turing-institute/AutSPACEs](https://github.com/alan-turing-institute/AutSPACEs)
+- [pytest-dev/pytest-mimesis](https://github.com/pytest-dev/pytest-mimesis)
+
 For more details on styles and which configuration files are currently supported, [see the full documentation](https://nitpick.rtfd.io/).
