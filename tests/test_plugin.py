@@ -116,4 +116,7 @@ def test_offline_recommend_using_flag(tmp_path, capsys):
     ProjectMock(tmp_path).flake8()
     out, err = capsys.readouterr()
     assert out == ""
-    assert err == "Your network is unreachable. Fix your connection or use --nitpick-offline / NITPICK_OFFLINE=1\n"
+    assert (
+        "could not be downloaded. Either your network is unreachable or the URL is broken."
+        " Check the URL, fix your connection, or use  --nitpick-offline / NITPICK_OFFLINE=1" in err
+    )

@@ -32,7 +32,7 @@ def test_reporter():
     reporter.reset()
     assert reporter.manual == 0
     assert reporter.fixed == 0
-    assert reporter.get_counts() == "🎖 No violations found."
+    assert reporter.get_counts() == "No violations found. ✨ 🍰 ✨"
 
     reporter.increment()
     assert reporter.manual == 1

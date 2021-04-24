@@ -75,7 +75,7 @@ At the end of execution, this command displays:
                      difference. Return code 0 means nothing would change. Return
                      code 1 means some files would be modified.
 
-      -v, --verbose  Verbose logging
+      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
       --help         Show this message and exit.
 
 .. _cli_cmd_ls:

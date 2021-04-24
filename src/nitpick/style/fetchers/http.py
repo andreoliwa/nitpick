@@ -35,7 +35,8 @@ class HttpFetcher(StyleFetcher):
         except requests.ConnectionError as err:
             logger.exception(f"Request failed with {err}")
             click.secho(
-                "Your network is unreachable. Fix your connection or use"
+                f"The URL {url} could not be downloaded. Either your network is unreachable or the URL is broken."
+                f" Check the URL, fix your connection, or use "
                 f" {OptionEnum.OFFLINE.as_flake8_flag()} / {OptionEnum.OFFLINE.as_envvar()}=1",
                 fg="red",
                 err=True,
@@ -44,6 +45,7 @@ class HttpFetcher(StyleFetcher):
         return contents
 
     def _download(self, url) -> str:
+        logger.info(f"Downloading style from {url}")
         response = self._session.get(url)
         response.raise_for_status()
         return response.text

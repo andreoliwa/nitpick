@@ -86,16 +86,16 @@ class Style:  # pylint: disable=too-many-instance-attributes
     def find_initial_styles(self, configured_styles: StrOrIterable) -> Iterator[Fuss]:
         """Find the initial style(s) and include them."""
         if configured_styles:
-            chosen_styles = configured_styles
-            log_message = f"Styles configured in {PYPROJECT_TOML}"
+            chosen_styles: StrOrIterable = list(configured_styles)
+            log_message = f"Using styles configured in {PYPROJECT_TOML}"
         else:
             paths = climb_directory_tree(self.project.root, [NITPICK_STYLE_TOML])
             if paths:
                 chosen_styles = str(sorted(paths)[0])
-                log_message = "Found style climbing the directory tree"
+                log_message = "Using local style found climbing the directory tree"
             else:
                 chosen_styles = self.get_default_style_url()
-                log_message = "Loading default Nitpick style"
+                log_message = "Using default remote Nitpick style"
         logger.info(f"{log_message}: {chosen_styles}")
 
         yield from self.include_multiple_styles(chosen_styles)

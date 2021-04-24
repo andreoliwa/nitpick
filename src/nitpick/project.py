@@ -228,7 +228,7 @@ class Project:
         from nitpick.flake8 import NitpickFlake8Extension
 
         minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
-        logger.info(f"Minimum version: {minimum_version}")
+        logger.debug(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
             yield Reporter().make_fuss(
                 ProjectViolations.MINIMUM_VERSION,
