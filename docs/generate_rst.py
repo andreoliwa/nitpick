@@ -135,7 +135,7 @@ class FileType:
 
 IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any `.ini` file", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
-    FileType("Any `.json` file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, False),
+    FileType("Any `.json` file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, 358),
     FileType("Any text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any `.toml` file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType(f"`{EDITOR_CONFIG}`", f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),

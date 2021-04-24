@@ -69,7 +69,7 @@ These are the file types currently handled by Nitpick.
 | File type                                                                                          | Check | Fix ([`nitpick run`](#run))                                           |
 | -------------------------------------------------------------------------------------------------- | ----- | --------------------------------------------------------------------- |
 | [Any `.ini` file](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                        | ✅     | ✅                                                                     |
-| [Any `.json` file](https://nitpick.rtfd.io/en/latest/plugins.html#json-files)                      | ✅     | ❌                                                                     |
+| [Any `.json` file](https://nitpick.rtfd.io/en/latest/plugins.html#json-files)                      | ✅     | 🚧&nbsp;&nbsp;[#358](https://github.com/andreoliwa/nitpick/issues/358) |
 | [Any `.toml` file](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅     | ✅                                                                     |
 | [Any text file](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                         | ✅     | ❌                                                                     |
 | [`.editorconfig`](https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig)            | ✅     | ✅                                                                     |
