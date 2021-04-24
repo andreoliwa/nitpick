@@ -141,7 +141,7 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType(f"`{EDITOR_CONFIG}`", f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
     FileType(f"`{PRE_COMMIT_CONFIG_YAML}`", f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
     FileType(f"`{PYLINTRC}`", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
-    FileType(f"`{PACKAGE_JSON}`", f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, False),
+    FileType(f"`{PACKAGE_JSON}`", f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, 358),
     FileType(f"`{PYPROJECT_TOML}`", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType("`requirements.txt`", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType(f"`{SETUP_CFG}`", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),

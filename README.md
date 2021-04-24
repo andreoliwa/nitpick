@@ -75,7 +75,7 @@ These are the file types currently handled by Nitpick.
 | [`.editorconfig`](https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig)            | ✅     | ✅                                                                     |
 | [`.pre-commit-config.yaml`](https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml) | ✅     | 🚧&nbsp;&nbsp;[#282](https://github.com/andreoliwa/nitpick/issues/282) |
 | [`.pylintrc`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅     | ✅                                                                     |
-| [`package.json`](https://nitpick.rtfd.io/en/latest/examples.html#example-package-json)             | ✅     | ❌                                                                     |
+| [`package.json`](https://nitpick.rtfd.io/en/latest/examples.html#example-package-json)             | ✅     | 🚧&nbsp;&nbsp;[#358](https://github.com/andreoliwa/nitpick/issues/358) |
 | [`pyproject.toml`](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅     | ✅                                                                     |
 | [`requirements.txt`](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                    | ✅     | ❌                                                                     |
 | [`setup.cfg`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅     | ✅                                                                     |
