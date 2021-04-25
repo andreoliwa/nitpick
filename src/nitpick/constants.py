@@ -11,7 +11,6 @@ TOML_EXTENSION = ".toml"
 DOT_NITPICK_TOML = f".nitpick{TOML_EXTENSION}"
 NITPICK_STYLE_TOML = f"nitpick-style{TOML_EXTENSION}"
 MERGED_STYLE_TOML = f"merged-style{TOML_EXTENSION}"
-GITHUB_BASE_URL = f"https://github.com/andreoliwa/{PROJECT_NAME}/blob/"
 READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 
 # Special files

@@ -28,6 +28,11 @@ class GitHubURL:
         self.path = self.path.lstrip("/")
 
     @property
+    def url(self) -> str:
+        """Default URL built from attributes."""
+        return f"https://github.com/{self.owner}/{self.repository}/blob/{self.git_reference}/{self.path}"
+
+    @property
     def raw_content_url(self) -> str:
         """Raw content URL for this path."""
         return f"https://raw.githubusercontent.com/{self.owner}/{self.repository}/{self.git_reference}/{self.path}"
