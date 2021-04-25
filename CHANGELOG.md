@@ -30,8 +30,8 @@
 
 ### Features
 
-- apply changes to pyproject.toml ([#287](https://github.com/andreoliwa/nitpick/issues/287)) ([4b79f81](https://github.com/andreoliwa/nitpick/commit/4b79f81f98430b749e7fa9ee5c192506d6ed5cf7))
-- apply changes to setup.cfg ([#288](https://github.com/andreoliwa/nitpick/issues/288)) ([f878630](https://github.com/andreoliwa/nitpick/commit/f87863066642cdab112d3145c488c9a780e7c98d))
+- fix pyproject.toml directly ([#287](https://github.com/andreoliwa/nitpick/issues/287)) ([4b79f81](https://github.com/andreoliwa/nitpick/commit/4b79f81f98430b749e7fa9ee5c192506d6ed5cf7))
+- fix setup.cfg directly ([#288](https://github.com/andreoliwa/nitpick/issues/288)) ([f878630](https://github.com/andreoliwa/nitpick/commit/f87863066642cdab112d3145c488c9a780e7c98d))
 - **cli:** add 'ls' command to list configured files ([cfc031b](https://github.com/andreoliwa/nitpick/commit/cfc031bdf30105dec9a8952bfb9657aec939b3b6))
 - **cli:** add 'run' command to display violations ([a67bfa8](https://github.com/andreoliwa/nitpick/commit/a67bfa8bdaef2461853a237819cd35622c5935e9))
 - **cli:** experimental CLI interface (alpha version) ([#255](https://github.com/andreoliwa/nitpick/issues/255)) ([c9ca5dc](https://github.com/andreoliwa/nitpick/commit/c9ca5dc3cc4586b459e2c58fb2e61d80aa3f1e5d))

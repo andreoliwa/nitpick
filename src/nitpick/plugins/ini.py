@@ -43,7 +43,7 @@ class IniPlugin(NitpickPlugin):
     Style examples enforcing values on INI files: :ref:`flake8 configuration <example-flake8>`.
     """
 
-    can_apply = True
+    can_fix = True
     identify_tags = {"ini", "editorconfig"}
     violation_base_code = 320
 
@@ -122,7 +122,7 @@ class IniPlugin(NitpickPlugin):
         parser = ConfigParser()
         for section in sorted(missing, key=lambda s: "0" if s == TOP_SECTION else f"1{s}"):
             expected_config: Dict = self.expected_config[section]
-            if self.apply:
+            if self.fix:
                 if self.updater.last_block:
                     self.updater.last_block.add_after.space(1)
                 self.updater.add_section(section)
@@ -173,7 +173,7 @@ class IniPlugin(NitpickPlugin):
             return
 
         # Don't change the file if there was a parsing error
-        self.apply = False
+        self.fix = False
         yield self.reporter.make_fuss(Violations.PARSING_ERROR, cls=parsing_err.__class__.__name__, msg=parsing_err)
         raise Error
 
@@ -181,7 +181,7 @@ class IniPlugin(NitpickPlugin):
         """Enforce missing sections."""
         missing = self.get_missing_output()
         if missing:
-            yield self.reporter.make_fuss(Violations.MISSING_SECTIONS, missing, self.apply)
+            yield self.reporter.make_fuss(Violations.MISSING_SECTIONS, missing, self.fix)
 
     def enforce_section(self, section: str) -> Iterator[Fuss]:
         """Enforce rules for a section."""
@@ -207,7 +207,7 @@ class IniPlugin(NitpickPlugin):
 
         joined_values = ",".join(sorted(missing))
         value_to_append = f",{joined_values}"
-        if self.apply:
+        if self.fix:
             self.updater[section][key].value += value_to_append
             self.dirty = True
         section_header = "" if section == TOP_SECTION else f"[{section}]\n"
@@ -216,7 +216,7 @@ class IniPlugin(NitpickPlugin):
             Violations.MISSING_VALUES_IN_LIST,
             f"{section_header}{key} = (...){value_to_append}",
             key=key,
-            fixed=self.apply,
+            fixed=self.fix,
         )
 
     def compare_different_keys(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
@@ -231,7 +231,7 @@ class IniPlugin(NitpickPlugin):
         if actual == expected:
             return
 
-        if self.apply:
+        if self.fix:
             self.updater[section][key].value = expected
             self.dirty = True
         if section == TOP_SECTION:
@@ -240,7 +240,7 @@ class IniPlugin(NitpickPlugin):
                 f"{key} = {raw_expected}",
                 key=key,
                 actual=raw_actual,
-                fixed=self.apply,
+                fixed=self.fix,
             )
         else:
             yield self.reporter.make_fuss(
@@ -249,7 +249,7 @@ class IniPlugin(NitpickPlugin):
                 section=section,
                 key=key,
                 actual=raw_actual,
-                fixed=self.apply,
+                fixed=self.fix,
             )
 
     def show_missing_keys(self, section: str, values: List[Tuple[str, Any]]) -> Iterator[Fuss]:
@@ -262,14 +262,14 @@ class IniPlugin(NitpickPlugin):
 
         if section == TOP_SECTION:
             yield self.reporter.make_fuss(
-                Violations.TOP_SECTION_MISSING_OPTION, self.contents_without_top_section(output), self.apply
+                Violations.TOP_SECTION_MISSING_OPTION, self.contents_without_top_section(output), self.fix
             )
         else:
-            yield self.reporter.make_fuss(Violations.MISSING_OPTION, output, self.apply, section=section)
+            yield self.reporter.make_fuss(Violations.MISSING_OPTION, output, self.fix, section=section)
 
     def add_options_before_space(self, section: str, options: OrderedDict) -> None:
         """Add new options before a blank line in the end of the section."""
-        if not self.apply:
+        if not self.fix:
             return
 
         space_removed = False

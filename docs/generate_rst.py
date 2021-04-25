@@ -347,7 +347,7 @@ def write_readme(file_types: Set[FileType], divider: str) -> int:
 
     prettier will try to reformat the tables; to avoid that, README.md was added to .prettierignore.
     """
-    rows: List[Tuple[str, ...]] = [("File type", "Check", "Fix ([`nitpick run`](#run))")]
+    rows: List[Tuple[str, ...]] = [("File type", "[`nitpick check`](#run)", "[`nitpick fix`](#run)")]
     max_length = [len(h) for h in rows[0]]
     for file_type in sorted(file_types):
         if max_length[0] < len(file_type.text_with_url):

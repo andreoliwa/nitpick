@@ -509,7 +509,7 @@ def test_include_remote_style_from_local_style(tmp_path):
         ]
         """
     )
-    project.assert_file_contents(TOX_INI, None).api_check_then_apply(
+    project.assert_file_contents(TOX_INI, None).api_check_then_fix(
         Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", "[section]\nkey = value")
     ).assert_file_contents(
         TOX_INI,
@@ -614,7 +614,7 @@ def test_invalid_toml(tmp_path):
         ["{SETUP_CFG}".flake8]
         ignore = D100,D104,D202,E203,W503
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             "nitpick-style.toml",

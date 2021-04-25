@@ -21,7 +21,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     :param data: File information (project, path, tags).
     :param expected_config: Expected configuration for the file
-    :param apply: Flag to apply changes, if the plugin supports it (default: True).
+    :param fix: Flag to modify files, if the plugin supports it (default: True).
     """
 
     __str__, __unicode__ = autotext("{self.info.path_from_root} ({self.__class__.__name__})")
@@ -29,8 +29,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     filename = ""  # TODO: remove filename attribute after fixing dynamic/fixed schema loading
     violation_base_code: int = 0
 
-    #: Can this plugin apply changes to files?
-    can_apply: bool = False
+    #: Can this plugin modify files directly?
+    can_fix: bool = False
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
@@ -41,7 +41,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     skip_empty_suggestion = False
 
-    def __init__(self, info: FileInfo, expected_config: JsonDict, apply=False) -> None:
+    def __init__(self, info: FileInfo, expected_config: JsonDict, fix=False) -> None:
         self.info = info
         self.filename = info.path_from_root
         self.reporter = Reporter(info, self.violation_base_code)
@@ -51,7 +51,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         # Configuration for this file as a TOML dict, taken from the style file.
         self.expected_config: JsonDict = expected_config or {}
 
-        self.apply = self.can_apply and apply
+        self.fix = self.can_fix and fix
         # Dirty flag to avoid changing files without need
         self.dirty: bool = False
 
@@ -91,7 +91,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         else:
             yield from self._suggest_when_file_not_found()
 
-        if self.apply and self.dirty:
+        if self.fix and self.dirty:
             fuss = self.write_file(file_exists)  # pylint: disable=assignment-from-none
             if fuss:
                 yield fuss
@@ -106,12 +106,12 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         logger.info(f"{self}: Suggest initial contents for {self.filename}")
 
         if suggestion:
-            yield self.reporter.make_fuss(SharedViolations.CREATE_FILE_WITH_SUGGESTION, suggestion, fixed=self.apply)
+            yield self.reporter.make_fuss(SharedViolations.CREATE_FILE_WITH_SUGGESTION, suggestion, fixed=self.fix)
         else:
             yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
     def write_file(self, file_exists: bool) -> Optional[Fuss]:  # pylint: disable=unused-argument,no-self-use
-        """Hook to write the new file when apply mode is on. Should be used by inherited classes."""
+        """Hook to write the new file when fix mode is on. Should be used by inherited classes."""
         return None
 
     @abc.abstractmethod

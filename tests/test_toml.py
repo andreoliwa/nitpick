@@ -7,7 +7,7 @@ from tests.helpers import ProjectMock
 
 def test_pyproject_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(tmp_path).style("").pyproject_toml("").api_check_then_apply()
+    ProjectMock(tmp_path).style("").pyproject_toml("").api_check_then_fix()
 
 
 def test_pyproject_toml_file_present(tmp_path):
@@ -17,7 +17,7 @@ def test_pyproject_toml_file_present(tmp_path):
         [nitpick.files.present]
         "pyproject.toml" = "Do something"
         """
-    ).api_check_then_apply(Fuss(False, PYPROJECT_TOML, 103, " should exist: Do something")).cli_run(
+    ).api_check_then_fix(Fuss(False, PYPROJECT_TOML, 103, " should exist: Do something")).cli_run(
         f"{PYPROJECT_TOML}:1: NIP103  should exist: Do something", violations=1
     )
 
@@ -36,7 +36,7 @@ def test_suggest_initial_contents(tmp_path):
         key = "value"
         number = 10
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             True,
             filename,
@@ -66,7 +66,7 @@ def test_missing_different_values_pyproject_toml(tmp_path):
         yada = "before"  # comment for yada yada
         abc = "123" # comment for abc
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             True,
             PYPROJECT_TOML,
@@ -117,7 +117,7 @@ def test_missing_different_values_any_toml(tmp_path):
         key = "new value"
         number = 5
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             True,
             filename,

@@ -9,7 +9,7 @@ Command-line interface
 
     The CLI is experimental, still under active development.
 
-Nitpick_ has a CLI to apply changes to files automatically.
+Nitpick_ has a CLI command to fix files automatically.
 
 1. It doesn't work for all the plugins yet. Currently, it works for:
 
@@ -18,8 +18,8 @@ Nitpick_ has a CLI to apply changes to files automatically.
 
 2. It tries to preserve the comments and the formatting of the original file.
 3. Some changes still have to be done manually; Nitpick_ cannot guess how to make certain changes automatically.
-4. On the CLI, the "apply mode" is the default: changes to files will be made automatically, when possible.
-5. The flake8_ plugin only checks the files and doesn't make changes. This is the default for now; once the CLI becomes more stable, the "apply mode" will become the default.
+4. Run ``nitpick fix`` to modify files directly, or ``nitpick check`` to only display the violations.
+5. The flake8_ plugin only checks the files and doesn't make changes. This is the default for now; once the CLI becomes more stable, the "fix mode" will become the default.
 6. The output format aims to follow `pycodestyle (pep8) default output format <https://github.com/PyCQA/pycodestyle/blob/master/pycodestyle.py#L108>`_.
 
 If you use Git, you can review the files before committing.

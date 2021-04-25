@@ -13,7 +13,7 @@ def test_suggest_initial_contents(tmp_path):
         [tool.nitpick]
         style = ["package-json"]
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             "package.json",
@@ -43,7 +43,7 @@ def test_json_file_contains_keys(tmp_path):
         [tool.nitpick]
         style = ["package-json"]
         """
-    ).save_file("package.json", '{"name": "myproject", "version": "0.0.1"}').api_check_then_apply(
+    ).save_file("package.json", '{"name": "myproject", "version": "0.0.1"}').api_check_then_fix(
         Fuss(
             False,
             "package.json",
@@ -90,7 +90,7 @@ def test_missing_different_values(tmp_path):
         """
         formatting = """ {"doesnt":"matter","here":true,"on.the": "config file"} """
         '''
-    ).save_file("my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}').api_check_then_apply(
+    ).save_file("my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}').api_check_then_fix(
         Fuss(
             False,
             "my.json",
@@ -151,7 +151,7 @@ def test_invalid_json(tmp_path):
         ["another.json".with]
         extra = "key"
         '''
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             "nitpick-style.toml",
@@ -175,7 +175,7 @@ def test_json_configuration(tmp_path):
         ["their.json"]
         x = 1
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             "nitpick-style.toml",

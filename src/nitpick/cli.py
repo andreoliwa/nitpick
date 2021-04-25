@@ -76,7 +76,7 @@ def common_fix_or_check(context, verbose: int, files, check_only: bool) -> None:
 
     nit = get_nitpick(context)
     try:
-        for fuss in nit.run(*files, apply=not check_only):
+        for fuss in nit.run(*files, fix=not check_only):
             nit.echo(fuss.pretty)
     except QuitComplainingError as err:
         for fuss in err.violations:
