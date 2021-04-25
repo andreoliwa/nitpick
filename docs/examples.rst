@@ -308,7 +308,6 @@ Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpi
       - repo: https://github.com/pre-commit/pre-commit-hooks
         rev: v3.4.0
         hooks:
-          - id: debug-statements
           - id: end-of-file-fixer
           - id: trailing-whitespace
     """
@@ -347,6 +346,10 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
           - id: python-no-eval
           - id: python-no-log-warn
           - id: rst-backticks
+      - repo: https://github.com/pre-commit/pre-commit-hooks
+        rev: v3.4.0
+        hooks:
+          - id: debug-statements
       - repo: https://github.com/asottile/pyupgrade
         rev: v2.13.0
         hooks:

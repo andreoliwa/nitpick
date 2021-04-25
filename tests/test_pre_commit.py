@@ -406,6 +406,10 @@ def test_missing_different_values(tmp_path):
               - id: python-no-eval
               - id: python-no-log-warn
               - id: rst-backticks
+          - repo: https://github.com/pre-commit/pre-commit-hooks
+            rev: v3.4.0
+            hooks:
+              - id: debug-statements
           - repo: https://github.com/asottile/pyupgrade
             rev: v2.13.0
             hooks:
