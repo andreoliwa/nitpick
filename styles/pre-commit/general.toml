@@ -3,11 +3,6 @@ yaml = """
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
     hooks:
-      - id: debug-statements
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v2.13.0
-    hooks:
-      - id: pyupgrade
 """
