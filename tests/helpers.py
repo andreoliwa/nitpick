@@ -84,7 +84,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, apply=False) -> "ProjectMock":
+    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, fix=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -97,7 +97,7 @@ class ProjectMock:
         self.nitpick_instance = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_violations = set(self.nitpick_instance.run(*partial_names, apply=apply))
+            self._actual_violations = set(self.nitpick_instance.run(*partial_names, fix=fix))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -118,29 +118,29 @@ class ProjectMock:
 
     def api_check(self, *partial_names: str, offline=False):
         """Test only the API in check mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, offline=offline, api=True, flake8=False, apply=False)
+        return self._simulate_run(*partial_names, offline=offline, api=True, flake8=False, fix=False)
 
-    def api_apply(self, *partial_names: str):
-        """Test only the API in apply mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, api=True, flake8=False, apply=True)
+    def api_fix(self, *partial_names: str):
+        """Test only the API in fix mode, no flake8 plugin."""
+        return self._simulate_run(*partial_names, api=True, flake8=False, fix=True)
 
-    def api_check_then_apply(
-        self, *expected_violations_when_applying: Fuss, partial_names: Optional[Iterable[str]] = None
+    def api_check_then_fix(
+        self, *expected_violations_when_fixing: Fuss, partial_names: Optional[Iterable[str]] = None
     ) -> "ProjectMock":
-        """Assert that check mode does not change files, and that apply mode changes them.
+        """Assert that check mode does not change files, and that fix mode changes them.
 
         Perform a series of calls and assertions:
         1. Call the API in check mode, assert violations, assert files contents were not modified.
-        2. Call the API in apply mode and assert violations again.
+        2. Call the API in fix mode and assert violations again.
 
-        :param expected_violations_when_applying: Expected violations when "apply mode" is on.
+        :param expected_violations_when_fixing: Expected violations when "fix mode" is on.
         :param partial_names: Names of the files to enforce configs for.
         :return: ``self`` for method chaining (fluent interface)
         """
         partial_names = partial_names or []
         expected_filenames = set()
         expected_violations_when_checking = []
-        for orig in expected_violations_when_applying:
+        for orig in expected_violations_when_fixing:
             expected_filenames.add(orig.filename)
             expected_violations_when_checking.append(
                 Fuss(False, orig.filename, orig.code, orig.message, orig.suggestion)
@@ -151,7 +151,7 @@ class ProjectMock:
         contents_after_check = self.read_multiple_files(expected_filenames)
         compare(expected=contents_before_check, actual=contents_after_check)
 
-        return self.api_apply(*partial_names).assert_violations(*expected_violations_when_applying, disclaimer="Apply")
+        return self.api_fix(*partial_names).assert_violations(*expected_violations_when_fixing, disclaimer="Fix")
 
     def path_for(self, filename: PathOrStr) -> str:
         """Return the full path for a file, based on the root dir."""
@@ -331,16 +331,17 @@ class ProjectMock:
     def cli_run(
         self,
         expected_str_or_lines: StrOrList = None,
-        apply=False,
+        fix=False,
         violations=0,
         exception_class=None,
         exit_code: int = None,
     ) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
-        cli_args = [] if apply else ["--check"]
         if exit_code is None:
             exit_code = 1 if expected_str_or_lines else 0
-        result, actual, expected = self._simulate_cli("run", expected_str_or_lines, *cli_args, exit_code=exit_code)
+        result, actual, expected = self._simulate_cli(
+            "fix" if fix else "check", expected_str_or_lines, exit_code=exit_code
+        )
         if exception_class:
             assert isinstance(result.exception, exception_class)
             return self

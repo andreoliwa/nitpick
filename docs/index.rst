@@ -41,7 +41,7 @@ Command-line tool and flake8_ plugin to enforce the same settings across multipl
 
 Useful if you maintain multiple projects and are tired of copying/pasting the same INI/TOML/YAML/JSON keys and values over and over, in all of them.
 
-The tool now has an "apply" feature that modifies configuration files directly (pretty much like black_ and isort_ do with Python files).
+The CLI now has a ``nitpick fix`` command that modifies configuration files directly (pretty much like black_ and isort_ do with Python files).
 See :ref:`cli` for more info.
 
 Many more features are planned for the future, check `the roadmap <https://github.com/andreoliwa/nitpick/projects/1>`_.

@@ -1,7 +1,7 @@
 # https://pre-commit.com/#creating-new-hooks
 - id: nitpick
-  name: "Nitpick Flake8 plugin (check only)"
-  description: "Run as a flake8 plugin and only check configuration files, according to the Nitpick style"
+  name: "nitpick flake8 plugin (check files only)"
+  description: "Run as a flake8 plugin and only check configuration files (TOML/INI/JSON/etc.), according to the Nitpick style"
   entry: flake8 --select=NIP
   language: python
   types: [python]
@@ -9,15 +9,15 @@
   stages: [commit]
 
 - id: nitpick-fix
-  name: "Nitpick CLI (fix files)"
-  description: "Fix configuration files automatically, according to the Nitpick style"
-  entry: nitpick run
+  name: "nitpick fix (modify files directly)"
+  description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style"
+  entry: nitpick fix
   language: python
   stages: [commit]
 
 - id: nitpick-check
-  name: "Nitpick CLI (check files only)"
-  description: "Only check configuration files, according to the Nitpick style"
-  entry: nitpick run --check
+  name: "nitpick check (check files only)"
+  description: "Only check configuration files (TOML/INI/JSON/etc.) and print the violations, according to the Nitpick style"
+  entry: nitpick check
   language: python
   stages: [commit]

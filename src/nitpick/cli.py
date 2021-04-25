@@ -28,6 +28,11 @@ from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import relative_to_current_dir
 from nitpick.violations import Reporter
 
+VERBOSE_OPTION = click.option(
+    "--verbose", "-v", count=True, default=False, help="Increase logging verbosity (-v = INFO, -vv = DEBUG)"
+)
+FILES_ARGUMENT = click.argument("files", nargs=-1)
+
 
 @click.group()
 @click.option(
@@ -57,24 +62,8 @@ def get_nitpick(context: click.Context) -> Nitpick:
     return Nitpick.singleton().init(project_root, offline)
 
 
-@nitpick_cli.command()
-@click.option(
-    "--check",
-    "-c",
-    "check_only",
-    is_flag=True,
-    default=False,
-    help="Don't modify the configuration files, just print the difference."
-    " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
-)
-@click.option("--verbose", "-v", count=True, default=False, help="Increase logging verbosity (-v = INFO, -vv = DEBUG)")
-@click.pass_context
-@click.argument("files", nargs=-1)
-def run(context, check_only, verbose, files):
-    """Apply suggestions to configuration files.
-
-    You can use partial and multiple file names in the FILES argument.
-    """
+def common_fix_or_check(context, verbose: int, files, check_only: bool) -> None:
+    """Common CLI code for both fix and check commands."""
     if verbose:
         level = logging.INFO if verbose == 1 else logging.DEBUG
 
@@ -87,7 +76,7 @@ def run(context, check_only, verbose, files):
 
     nit = get_nitpick(context)
     try:
-        for fuss in nit.run(*files, apply=not check_only):
+        for fuss in nit.run(*files, fix=not check_only):
             nit.echo(fuss.pretty)
     except QuitComplainingError as err:
         for fuss in err.violations:
@@ -101,7 +90,32 @@ def run(context, check_only, verbose, files):
 
 @nitpick_cli.command()
 @click.pass_context
-@click.argument("files", nargs=-1)
+@VERBOSE_OPTION
+@FILES_ARGUMENT
+def fix(context, verbose, files):
+    """Fix files, modifying them directly.
+
+    You can use partial and multiple file names in the FILES argument.
+    """
+    common_fix_or_check(context, verbose, files, False)
+
+
+@nitpick_cli.command()
+@click.pass_context
+@VERBOSE_OPTION
+@FILES_ARGUMENT
+def check(context, verbose, files):
+    """Don't modify files, just print the differences.
+
+    Return code 0 means nothing would change. Return code 1 means some files would be modified.
+    You can use partial and multiple file names in the FILES argument.
+    """
+    common_fix_or_check(context, verbose, files, True)
+
+
+@nitpick_cli.command()
+@click.pass_context
+@FILES_ARGUMENT
 def ls(context, files):  # pylint: disable=invalid-name
     """List of files configured in the Nitpick style.
 

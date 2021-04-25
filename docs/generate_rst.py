@@ -70,8 +70,8 @@ STYLE_MAPPING = SortedDict(
 CLI_MAPPING = [
     ("", "Main options", ""),
     (
-        "run",
-        "Apply style to files",
+        "fix",
+        "Modify files directly",
         """
         At the end of execution, this command displays:
 
@@ -79,6 +79,7 @@ CLI_MAPPING = [
         - the number of violations that have to be changed manually.
         """,
     ),
+    ("check", "Don't modify, just print the differences", ""),
     ("ls", "List configures files", ""),
     ("init", "Initialise a configuration file", ""),
 ]
@@ -346,7 +347,7 @@ def write_readme(file_types: Set[FileType], divider: str) -> int:
 
     prettier will try to reformat the tables; to avoid that, README.md was added to .prettierignore.
     """
-    rows: List[Tuple[str, ...]] = [("File type", "Check", "Fix ([`nitpick run`](#run))")]
+    rows: List[Tuple[str, ...]] = [("File type", "[`nitpick check`](#run)", "[`nitpick fix`](#run)")]
     max_length = [len(h) for h in rows[0]]
     for file_type in sorted(file_types):
         if max_length[0] < len(file_type.text_with_url):

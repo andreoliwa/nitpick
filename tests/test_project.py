@@ -51,7 +51,7 @@ def test_multiple_root_dirs(tmp_path):
     """Multiple possible "root dirs" found (e.g.: a requirements.txt file inside a docs dir)."""
     ProjectMock(tmp_path, setup_py=False).touch_file("docs/requirements.txt").touch_file("docs/conf.py").pyproject_toml(
         ""
-    ).style("").api_check_then_apply().cli_run()
+    ).style("").api_check_then_fix().cli_run()
 
 
 def test_no_python_file_root_dir(tmp_path):
@@ -113,7 +113,7 @@ def test_django_project_structure(tmp_path):
         ["{SETUP_CFG}".flake8]
         some = "thing"
         """
-    ).api_check_then_apply()
+    ).api_check_then_fix()
 
 
 def test_no_config_file(tmp_path, caplog):

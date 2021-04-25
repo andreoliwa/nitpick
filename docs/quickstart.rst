@@ -38,11 +38,11 @@ Run
 
 To fix and modify your files directly::
 
-    nitpick run
+    nitpick fix
 
 To check for errors only::
 
-    nitpick run --check
+    nitpick check
 
 Nitpick is also a flake8_ plugin, so you can run this on a project with at least one Python (``.py``) file::
 
@@ -78,13 +78,13 @@ To start checking all your code against the default rules:
 
     pre-commit run --all-files
 
-Apply changes to files
-----------------------
+Modify files directly
+---------------------
 
-Nitpick_ includes a CLI to apply your style on the configuration files:
+Nitpick_ includes a CLI to apply your style and modify the configuration files directly:
 
 .. code-block:: shell
 
-    nitpick run
+    nitpick fix
 
 Read more details here: :ref:`cli`.

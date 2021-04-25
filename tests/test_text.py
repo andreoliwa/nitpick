@@ -15,7 +15,7 @@ def test_suggest_initial_contents(tmp_path):
         [["requirements.txt".contains]]
         line = "some-package==1.0.0"
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             "requirements.txt",
@@ -67,7 +67,7 @@ def test_text_file_contains_line(tmp_path):
         [["my.txt".contains]]
         line = "www"
         """
-    ).save_file("my.txt", "def\nghi\nwww").api_check_then_apply(
+    ).save_file("my.txt", "def\nghi\nwww").api_check_then_fix(
         Fuss(
             False,
             "my.txt",
@@ -88,7 +88,7 @@ def test_yaml_file_as_text(tmp_path):
         [[".gitlab-ci.yml".contains]]
         line = "    - mypy -p ims --junit-xml report-mypy.xml"
         """
-    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").api_check_then_apply(
+    ).save_file(".gitlab-ci.yml", "def\nghi\nwww").api_check_then_fix(
         Fuss(
             False, ".gitlab-ci.yml", 352, " has missing lines:", f"{NBSP * 4}- mypy -p ims --junit-xml report-mypy.xml"
         )

@@ -50,11 +50,11 @@ class Nitpick:
 
         return self
 
-    def run(self, *partial_names: str, apply=False) -> Iterator[Fuss]:
+    def run(self, *partial_names: str, fix=False) -> Iterator[Fuss]:
         """Run Nitpick.
 
         :param partial_names: Names of the files to enforce configs for.
-        :param apply: Flag to apply changes, if the plugin supports it (default: True).
+        :param fix: Flag to modify files, if the plugin supports it (default: True).
         :return: Fuss generator.
         """
         Reporter.reset()
@@ -63,7 +63,7 @@ class Nitpick:
             yield from chain(
                 self.project.merge_styles(self.offline),
                 self.enforce_present_absent(*partial_names),
-                self.enforce_style(*partial_names, apply=apply),
+                self.enforce_style(*partial_names, fix=fix),
             )
         except QuitComplainingError as err:
             yield from err.violations
@@ -95,14 +95,14 @@ class Nitpick:
                 violation = ProjectViolations.MISSING_FILE if present else ProjectViolations.FILE_SHOULD_BE_DELETED
                 yield reporter.make_fuss(violation, extra=extra)
 
-    def enforce_style(self, *partial_names: str, apply=True) -> Iterator[Fuss]:
+    def enforce_style(self, *partial_names: str, fix=True) -> Iterator[Fuss]:
         """Read the merged style and enforce the rules in it.
 
         1. Get all root keys from the merged style (every key is a filename, except "nitpick").
         2. For each file name, find the plugin(s) that can handle the file.
 
         :param partial_names: Names of the files to enforce configs for.
-        :param apply: Flag to apply changes, if the plugin supports it (default: True).
+        :param fix: Flag to modify files, if the plugin supports it (default: True).
         :return: Fuss generator.
         """
 
@@ -115,7 +115,7 @@ class Nitpick:
             info = FileInfo.create(self.project, config_key)
             # pylint: disable=no-member
             for plugin_class in self.project.plugin_manager.hook.can_handle(info=info):  # type: Type[NitpickPlugin]
-                yield from plugin_class(info, config_dict, apply).entry_point()
+                yield from plugin_class(info, config_dict, fix).entry_point()
 
     def configured_files(self, *partial_names: str) -> List[Path]:
         """List of files configured in the Nitpick style. Filter only the selected partial names."""

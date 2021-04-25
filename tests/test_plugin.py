@@ -33,7 +33,7 @@ def test_absent_files(tmp_path):
         xxx = "Remove this"
         yyy = "Remove that"
         """
-    ).touch_file("xxx").touch_file("yyy").api_check_then_apply(
+    ).touch_file("xxx").touch_file("yyy").api_check_then_fix(
         Fuss(False, "xxx", 104, " should be deleted: Remove this"),
         Fuss(False, "yyy", 104, " should be deleted: Remove that"),
     )
@@ -46,7 +46,7 @@ def test_missing_message(tmp_path):
         [nitpick.files."pyproject.toml"]
         missing_message = "Install poetry and run 'poetry init' to create it"
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         # pylint: disable=line-too-long
         Fuss(
             False,
@@ -67,7 +67,7 @@ def test_present_files(tmp_path):
         ".env" = ""
         "another-file.txt" = ""
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(False, ".editorconfig", 103, " should exist: Create this file"),
         Fuss(False, ".env", 103, " should exist"),
         Fuss(False, "another-file.txt", 103, " should exist"),

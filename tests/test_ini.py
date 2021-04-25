@@ -12,7 +12,7 @@ from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 def test_setup_cfg_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
-    ProjectMock(tmp_path).style("").setup_cfg("").api_check_then_apply()
+    ProjectMock(tmp_path).style("").setup_cfg("").api_check_then_fix()
 
 
 @XFAIL_ON_WINDOWS
@@ -111,7 +111,7 @@ def test_default_style_is_applied(project_default):
         [VARIABLES]
         dummy-variables-rgx = _$|dummy
     """
-    project_default.api_check_then_apply(
+    project_default.api_check_then_fix(
         Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
         Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
         Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),
@@ -146,7 +146,7 @@ def test_comma_separated_keys_on_style_file(tmp_path):
         eat = spam,eggs,cheese
         drink =   wine , bier , water
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             True,
             SETUP_CFG,
@@ -208,7 +208,7 @@ def test_suggest_initial_contents(tmp_path):
         end_of_line = "lf"
         insert_final_newline = true
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             True,
             SETUP_CFG,
@@ -253,7 +253,7 @@ def test_missing_sections(tmp_path):
         ["{SETUP_CFG}".flake8]
         max-line-length = 120
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             True,
             SETUP_CFG,
@@ -309,7 +309,7 @@ def test_missing_different_values(tmp_path):
         ["{SETUP_CFG}".flake8]
         max-line-length = 112
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             True,
             SETUP_CFG,
@@ -394,7 +394,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
         charset = "utf-8"
         indent_size = 2
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(True, EDITOR_CONFIG, 327, ": root is false but it should be:", "root = True"),
         Fuss(
             True,
@@ -542,7 +542,7 @@ def test_invalid_sections_comma_separated_values(tmp_path):
         ignore = W503,E203,FI12,FI15,FI16,FI17,FI18,FI50,FI51,FI53,FI54,FI55,FI58,PT003,C408
         per-file-ignores = tests/**.py:FI18,setup.py:FI18,tests/**.py:BZ01
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(False, SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
     )
 
@@ -571,7 +571,7 @@ def test_multiline_comment(tmp_path):
         ["{SETUP_CFG}".flake8]
         new = "value"
         """
-    ).setup_cfg(original_file).api_apply().assert_violations(
+    ).setup_cfg(original_file).api_fix().assert_violations(
         Fuss(
             True,
             SETUP_CFG,
@@ -603,7 +603,7 @@ def test_duplicated_option(tmp_path):
         ["{SETUP_CFG}".abc]
         hard = "as a rock"
         """
-    ).setup_cfg(original_file).api_apply().assert_violations(
+    ).setup_cfg(original_file).api_fix().assert_violations(
         Fuss(
             False,
             SETUP_CFG,
@@ -630,7 +630,7 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
         ["{SETUP_CFG}".flake8]
         new = "value"
         """
-    ).setup_cfg(original_file).api_apply().assert_violations(
+    ).setup_cfg(original_file).api_fix().assert_violations(
         Fuss(
             True,
             SETUP_CFG,
@@ -668,7 +668,7 @@ def test_generic_ini_with_missing_header(tmp_path):
         your_string = "value"
         your_number = 100
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             "generic.ini",

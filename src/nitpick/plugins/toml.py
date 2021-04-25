@@ -39,7 +39,7 @@ class TomlPlugin(NitpickPlugin):
 
     identify_tags = {"toml"}
     violation_base_code = 310
-    can_apply = True
+    can_fix = True
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing key/value pairs in the TOML file."""
@@ -48,28 +48,28 @@ class TomlPlugin(NitpickPlugin):
         if not comparison.has_changes:
             return
 
-        document = parse(toml_format.as_string) if self.apply else None
+        document = parse(toml_format.as_string) if self.fix else None
         yield from chain(
             self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
             self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),
         )
-        if self.apply and self.dirty:
+        if self.fix and self.dirty:
             self.file_path.write_text(dumps(document))
 
     def report(self, violation: ViolationEnum, document: Optional[TOMLDocument], change_dict: Optional[BaseFormat]):
-        """Report a violation while optionally applying it to the TOML document."""
+        """Report a violation while optionally modifying the TOML document."""
         if not change_dict:
             return
         if document:
             change_toml(document, change_dict.as_data)
             self.dirty = True
-        yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.apply)
+        yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.fix)
 
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         rv = TOMLFormat(data=self.expected_config).reformatted
-        if self.apply:
+        if self.fix:
             self.file_path.write_text(rv)
         return rv
 

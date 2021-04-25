@@ -9,7 +9,7 @@ Command-line interface
 
     The CLI is experimental, still under active development.
 
-Nitpick_ has a CLI to apply changes to files automatically.
+Nitpick_ has a CLI command to fix files automatically.
 
 1. It doesn't work for all the plugins yet. Currently, it works for:
 
@@ -18,8 +18,8 @@ Nitpick_ has a CLI to apply changes to files automatically.
 
 2. It tries to preserve the comments and the formatting of the original file.
 3. Some changes still have to be done manually; Nitpick_ cannot guess how to make certain changes automatically.
-4. On the CLI, the "apply mode" is the default: changes to files will be made automatically, when possible.
-5. The flake8_ plugin only checks the files and doesn't make changes. This is the default for now; once the CLI becomes more stable, the "apply mode" will become the default.
+4. Run ``nitpick fix`` to modify files directly, or ``nitpick check`` to only display the violations.
+5. The flake8_ plugin only checks the files and doesn't make changes. This is the default for now; once the CLI becomes more stable, the "fix mode" will become the default.
 6. The output format aims to follow `pycodestyle (pep8) default output format <https://github.com/PyCQA/pycodestyle/blob/master/pycodestyle.py#L108>`_.
 
 If you use Git, you can review the files before committing.
@@ -48,14 +48,15 @@ Main options
       --help                   Show this message and exit.
 
     Commands:
-      init  Create a configuration file if it doesn't exist already.
-      ls    List of files configured in the Nitpick style.
-      run   Apply suggestions to configuration files.
+      check  Don't modify files, just print the differences.
+      fix    Fix files, modifying them directly.
+      init   Create a configuration file if it doesn't exist already.
+      ls     List of files configured in the Nitpick style.
 
-.. _cli_cmd_run:
+.. _cli_cmd_fix:
 
-``run``: Apply style to files
------------------------------
+``fix``: Modify files directly
+------------------------------
 
 At the end of execution, this command displays:
 
@@ -65,17 +66,33 @@ At the end of execution, this command displays:
 
 .. code-block::
 
-    Usage: nitpick run [OPTIONS] [FILES]...
+    Usage: nitpick fix [OPTIONS] [FILES]...
 
-      Apply suggestions to configuration files.
+      Fix files, modifying them directly.
 
       You can use partial and multiple file names in the FILES argument.
 
     Options:
-      -c, --check    Don't modify the configuration files, just print the
-                     difference. Return code 0 means nothing would change. Return
-                     code 1 means some files would be modified.
+      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
+      --help         Show this message and exit.
 
+.. _cli_cmd_check:
+
+``check``: Don't modify, just print the differences
+---------------------------------------------------
+
+
+.. code-block::
+
+    Usage: nitpick check [OPTIONS] [FILES]...
+
+      Don't modify files, just print the differences.
+
+      Return code 0 means nothing would change. Return code 1 means some files
+      would be modified. You can use partial and multiple file names in the
+      FILES argument.
+
+    Options:
       -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
       --help         Show this message and exit.
 

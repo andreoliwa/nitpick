@@ -15,7 +15,7 @@ def test_pre_commit_has_no_configuration(tmp_path):
 
     Also the file should not be deleted unless explicitly asked.
     """
-    ProjectMock(tmp_path).style("").pre_commit("").api_check_then_apply()
+    ProjectMock(tmp_path).style("").pre_commit("").api_check_then_fix()
 
 
 def test_pre_commit_referenced_in_style(tmp_path):
@@ -25,9 +25,7 @@ def test_pre_commit_referenced_in_style(tmp_path):
         [".pre-commit-config.yaml"]
         fail_fast = true
         """
-    ).pre_commit("").api_check_then_apply(
-        Fuss(False, PRE_COMMIT_CONFIG_YAML, 331, " doesn't have the 'repos' root key")
-    )
+    ).pre_commit("").api_check_then_fix(Fuss(False, PRE_COMMIT_CONFIG_YAML, 331, " doesn't have the 'repos' root key"))
 
 
 def test_suggest_initial_contents(tmp_path):
@@ -37,7 +35,7 @@ def test_suggest_initial_contents(tmp_path):
         [tool.nitpick]
         style = ["isort", "black"]
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
@@ -77,7 +75,7 @@ def test_no_yaml_key(tmp_path):
               - id: isort
         """
         '''
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
@@ -99,7 +97,7 @@ def test_root_values_on_missing_file(tmp_path):
         fail_fast = true
         whatever = "1"
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
@@ -132,7 +130,7 @@ def test_root_values_on_existing_file(tmp_path):
         something: false
         another_thing: "nope"
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
@@ -169,7 +167,7 @@ def test_missing_repos(tmp_path):
         - hooks:
           - id: whatever
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(False, PRE_COMMIT_CONFIG_YAML, 331, " doesn't have the 'repos' root key")
     )
 
@@ -187,7 +185,7 @@ def test_missing_repo_key(tmp_path):
         - hooks:
           - id: whatever
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(False, PRE_COMMIT_CONFIG_YAML, 332, ": style file is missing 'repo' key in repo #0")
     )
 
@@ -205,7 +203,7 @@ def test_repo_does_not_exist(tmp_path):
         - hooks:
           - id: whatever
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(False, PRE_COMMIT_CONFIG_YAML, 333, ": repo 'local' does not exist under 'repos'")
     )
 
@@ -222,7 +220,7 @@ def test_missing_hooks_in_repo(tmp_path):
         repos:
         - repo: whatever
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(False, PRE_COMMIT_CONFIG_YAML, 334, ": missing 'hooks' in repo 'whatever'")
     )
 
@@ -241,7 +239,7 @@ def test_style_missing_hooks_in_repo(tmp_path):
           hooks:
           - id: isort
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(False, PRE_COMMIT_CONFIG_YAML, 335, ": style file is missing 'hooks' in repo 'another'")
     )
 
@@ -264,7 +262,7 @@ def test_style_missing_id_in_hook(tmp_path):
           hooks:
           - id: isort
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
@@ -297,7 +295,7 @@ def test_missing_hook_with_id(tmp_path):
           hooks:
           - id: isort
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
@@ -421,7 +419,7 @@ def test_missing_different_values(tmp_path):
               - id: my-hook
                 args: [--different, args, --should, throw, errors]
         """
-    ).api_check_then_apply(
+    ).api_check_then_fix(
         Fuss(
             False,
             PRE_COMMIT_CONFIG_YAML,
