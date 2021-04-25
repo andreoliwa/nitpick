@@ -70,8 +70,8 @@ STYLE_MAPPING = SortedDict(
 CLI_MAPPING = [
     ("", "Main options", ""),
     (
-        "run",
-        "Apply style to files",
+        "fix",
+        "Modify files directly",
         """
         At the end of execution, this command displays:
 
@@ -79,6 +79,7 @@ CLI_MAPPING = [
         - the number of violations that have to be changed manually.
         """,
     ),
+    ("check", "Don't modify, just print the differences", ""),
     ("ls", "List configures files", ""),
     ("init", "Initialise a configuration file", ""),
 ]

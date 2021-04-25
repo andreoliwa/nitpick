@@ -48,14 +48,15 @@ Main options
       --help                   Show this message and exit.
 
     Commands:
-      init  Create a configuration file if it doesn't exist already.
-      ls    List of files configured in the Nitpick style.
-      run   Apply suggestions to configuration files.
+      check  Don't modify files, just print the differences.
+      fix    Fix files, modifying them directly.
+      init   Create a configuration file if it doesn't exist already.
+      ls     List of files configured in the Nitpick style.
 
-.. _cli_cmd_run:
+.. _cli_cmd_fix:
 
-``run``: Apply style to files
------------------------------
+``fix``: Modify files directly
+------------------------------
 
 At the end of execution, this command displays:
 
@@ -65,17 +66,33 @@ At the end of execution, this command displays:
 
 .. code-block::
 
-    Usage: nitpick run [OPTIONS] [FILES]...
+    Usage: nitpick fix [OPTIONS] [FILES]...
 
-      Apply suggestions to configuration files.
+      Fix files, modifying them directly.
 
       You can use partial and multiple file names in the FILES argument.
 
     Options:
-      -c, --check    Don't modify the configuration files, just print the
-                     difference. Return code 0 means nothing would change. Return
-                     code 1 means some files would be modified.
+      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
+      --help         Show this message and exit.
 
+.. _cli_cmd_check:
+
+``check``: Don't modify, just print the differences
+---------------------------------------------------
+
+
+.. code-block::
+
+    Usage: nitpick check [OPTIONS] [FILES]...
+
+      Don't modify files, just print the differences.
+
+      Return code 0 means nothing would change. Return code 1 means some files
+      would be modified. You can use partial and multiple file names in the
+      FILES argument.
+
+    Options:
       -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
       --help         Show this message and exit.
 

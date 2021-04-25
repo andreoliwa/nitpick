@@ -12,8 +12,8 @@ repos:
     hooks:
       # Run nitpick also with tox, because local repos don't seem to work well with https://pre-commit.ci/
       - id: local-nitpick
-        name: nitpick run
-        entry: poetry run nitpick run
+        name: "nitpick fix (modify files directly, local hook)"
+        entry: poetry run nitpick fix
         language: system
         always_run: true
         pass_filenames: false
