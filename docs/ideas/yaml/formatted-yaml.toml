@@ -1,0 +1,20 @@
+# Multiline YAML string
+[".github/workflows/python.yaml".jobs.build.steps]
+__yaml = """
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+"""
+
+# Alternative to the above YAML without the whitespace.
+# Check if this is possible.
+# It would be best to ignored the initial whitespace and add the parsed data
+# directly under the "__jmespath"
+[".github/workflows/python.yaml".jobs.build.steps.alternative]
+__yaml = """
+- name: Set up Python ${{ matrix.python-version }}
+  uses: actions/setup-python@v2
+  with:
+    python-version: ${{ matrix.python-version }}
+"""

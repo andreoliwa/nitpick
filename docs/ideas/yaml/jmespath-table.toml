@@ -1,0 +1,25 @@
+# 1. Clean approach with JMESPath in tables and no reserved keys (`jmespath` or `__jmespath`)
+# https://github.com/andreoliwa/nitpick/pull/353/files#r614633283
+[[".github/workflows/python.yaml".jobs.build.steps]]
+uses = "actions/checkout@v2"
+
+[[".github/workflows/python.yaml".jobs.build.steps]]
+name = "Set up Python ${{ matrix.python-version }}"
+uses = "actions/setup-python@v2"
+with = {"python-version" = "${{ matrix.python-version }}"}
+
+# 2. Complex JMESPath expressions should be quoted
+# (I still don't know how to deal with JMESPath that matches multiple items)
+[[".github/workflows/python.yaml"."jobs.build.steps[].{name: name, uses: uses}"]]
+uses = "actions/checkout@v2"
+
+# 3. JMESPath expression that has double quotes, wrapped in single quotes for TOML
+[[".github/workflows/python.yaml".'jobs.build.strategy.matrix."python-version"']]
+name = "Set up Python ${{ matrix.python-version }}"
+uses = "actions/setup-python@v2"
+with = {"python-version" = "${{ matrix.python-version }}"}
+
+# 4. And it allows Jinja tuning in https://github.com/andreoliwa/nitpick/issues/283
+name__jinja = "Set up Python ${{ matrix.python-version }}"
+name__no_jinja = "Set up Python ${{ matrix.python-version }}"
+name__jinja_off = "Set up Python ${{ matrix.python-version }}"
