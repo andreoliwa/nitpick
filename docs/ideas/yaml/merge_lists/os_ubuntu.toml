@@ -1,0 +1,2 @@
+[".github/workflows/python.yaml".jobs.build.strategy.matrix]
+os = ["ubuntu-latest"]

@@ -1,0 +1,63 @@
+# 1. Same effect as items 1, 2 and 3 on "jmespath-on-section.toml", but with a different syntax.
+# 2. Everything that is not a dunder key ("__") will be a dict to be enforced.
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.strategy.matrix"
+os = ["ubuntu-latest", "macos-latest", "windows-latest"]
+"python-version" = ["3.6", "3.7", "3.8", "3.9"]
+
+# 3. Same as item 4 on "jmespath-on-section.toml", but with a different syntax.
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build"
+"runs-on" = "${{ matrix.os }}"
+
+# 4. "jobs.build.steps" can have multiple dicts; each one is a "contains" table
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+uses = "actions/checkout@v2"
+
+# 5. The "problem" with the "contains" table is that "__jmespath" will be repeated many times
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+name = "Set up Python ${{ matrix.python-version }}"
+uses = "actions/setup-python@v2"
+with = {"python-version" = "${{ matrix.python-version }}"}
+
+# 6. Alternative to 5 with a multiline YAML string
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+__yaml = """
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+"""
+
+# 7. Alternative to 6, YAML without the whitespace.
+# Check if this is possible.
+# It would be best to ignored the initial whitespace and add the parsed data
+# directly under the "__jmespath"
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+__yaml = """
+- name: Set up Python ${{ matrix.python-version }}
+  uses: actions/setup-python@v2
+  with:
+    python-version: ${{ matrix.python-version }}
+"""
+
+# 8. Alternative to 4, but with formatted YAML in a single line string.
+[[".github/workflows/python.yaml".contains]]
+__jmespath = "jobs.build.steps"
+__yaml = "- uses: actions/checkout@v2"
+
+# 9. Same as items 1, 2 and 3, but asserting that they are ordered
+# in the sequence they appear here on the TOML file.
+# "contains_sorted" is an idea for a distant future, taken from text.toml, still not implemented
+[[".github/workflows/python.yaml".contains_sorted]]
+__jmespath = "jobs.build.strategy.matrix"
+os = ["ubuntu-latest", "macos-latest", "windows-latest"]
+"python-version" = ["3.6", "3.7", "3.8", "3.9"]
+
+[[".github/workflows/python.yaml".contains_sorted]]
+__jmespath = "jobs.build"
+"runs-on" = "${{ matrix.os }}"

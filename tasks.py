@@ -234,7 +234,13 @@ def reactions(ctx):
             print(COLOR_NONE)
 
 
-namespace = Collection(install, update, test, pre_commit, doc, ci_build, lint, clean, reactions)
+@task
+def lab(ctx):
+    """Laboratory of ideas."""
+    ctx.run("poetry run python docs/ideas/lab.py")
+
+
+namespace = Collection(install, update, test, pre_commit, doc, ci_build, lint, clean, reactions, lab)
 namespace.configure(
     {
         "run": {
