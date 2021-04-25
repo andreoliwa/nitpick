@@ -311,10 +311,6 @@ Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpi
           - id: debug-statements
           - id: end-of-file-fixer
           - id: trailing-whitespace
-      - repo: https://github.com/asottile/pyupgrade
-        rev: v2.13.0
-        hooks:
-          - id: pyupgrade
     """
 
 .. _example-pre-commit-main:
@@ -351,6 +347,10 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
           - id: python-no-eval
           - id: python-no-log-warn
           - id: rst-backticks
+      - repo: https://github.com/asottile/pyupgrade
+        rev: v2.13.0
+        hooks:
+          - id: pyupgrade
     """
 
 .. _example-pylint:

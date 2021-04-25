@@ -8,4 +8,8 @@ yaml = """
       - id: python-no-eval
       - id: python-no-log-warn
       - id: rst-backticks
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.13.0
+    hooks:
+      - id: pyupgrade
 """
