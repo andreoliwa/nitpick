@@ -79,7 +79,7 @@ class Nitpick:
 
         for present in (True, False):
             key = "present" if present else "absent"
-            logger.info(f"Enforce {key} files")
+            logger.debug(f"Enforce {key} files")
             absent = not present
             file_mapping = self.project.nitpick_files_section.get(key, {})
             for filename in filter_names(file_mapping, *partial_names):
@@ -109,7 +109,7 @@ class Nitpick:
         # 1.
         for config_key in filter_names(self.project.style_dict, *partial_names):
             config_dict = self.project.style_dict[config_key]
-            logger.info(f"{config_key}: Finding plugins to enforce style")
+            logger.debug(f"{config_key}: Finding plugins to enforce style")
 
             # 2.
             info = FileInfo.create(self.project, config_key)

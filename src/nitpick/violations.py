@@ -144,5 +144,5 @@ class Reporter:  # pylint: disable=too-few-public-methods
         if cls.manual:
             parts.append(f"❌ {cls.manual} to change manually")
         if not parts:
-            return "🎖 No violations found."
+            return "No violations found. ✨ 🍰 ✨"
         return f"Violations: {', '.join(parts)}."

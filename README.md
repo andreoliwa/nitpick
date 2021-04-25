@@ -69,13 +69,13 @@ These are the file types currently handled by Nitpick.
 | File type                                                                                          | Check | Fix ([`nitpick run`](#run))                                           |
 | -------------------------------------------------------------------------------------------------- | ----- | --------------------------------------------------------------------- |
 | [Any `.ini` file](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                        | ✅     | ✅                                                                     |
-| [Any `.json` file](https://nitpick.rtfd.io/en/latest/plugins.html#json-files)                      | ✅     | ❌                                                                     |
+| [Any `.json` file](https://nitpick.rtfd.io/en/latest/plugins.html#json-files)                      | ✅     | 🚧&nbsp;&nbsp;[#358](https://github.com/andreoliwa/nitpick/issues/358) |
 | [Any `.toml` file](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅     | ✅                                                                     |
 | [Any text file](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                         | ✅     | ❌                                                                     |
 | [`.editorconfig`](https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig)            | ✅     | ✅                                                                     |
 | [`.pre-commit-config.yaml`](https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml) | ✅     | 🚧&nbsp;&nbsp;[#282](https://github.com/andreoliwa/nitpick/issues/282) |
 | [`.pylintrc`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅     | ✅                                                                     |
-| [`package.json`](https://nitpick.rtfd.io/en/latest/examples.html#example-package-json)             | ✅     | ❌                                                                     |
+| [`package.json`](https://nitpick.rtfd.io/en/latest/examples.html#example-package-json)             | ✅     | 🚧&nbsp;&nbsp;[#358](https://github.com/andreoliwa/nitpick/issues/358) |
 | [`pyproject.toml`](https://nitpick.rtfd.io/en/latest/plugins.html#toml-files)                      | ✅     | ✅                                                                     |
 | [`requirements.txt`](https://nitpick.rtfd.io/en/latest/plugins.html#text-files)                    | ✅     | ❌                                                                     |
 | [`setup.cfg`](https://nitpick.rtfd.io/en/latest/plugins.html#ini-files)                            | ✅     | ✅                                                                     |
@@ -99,15 +99,23 @@ These are the file types currently handled by Nitpick.
 
 <!-- auto-generated-end-planned -->
 
-## Quick setup
+## Quickstart
 
 ### Install
+
+Install in an isolated environment with [pipx](https://github.com/pipxproject/pipx):
+
+    # Latest PyPI release
+    pipx install nitpick
+
+    # Development branch from GitHub
+    pipx install git+https://github.com/andreoliwa/nitpick
 
 On macOS/Linux, install the latest release with [Homebrew](https://github.com/Homebrew/brew):
 
     brew install andreoliwa/formulae/nitpick
 
-    # To install the latest version from the `develop` branch:
+    # Development branch from GitHub
     brew install andreoliwa/formulae/nitpick --HEAD
 
 On Arch Linux, install with yay:
@@ -140,9 +148,9 @@ Nitpick will download and use the opinionated [default style file](https://raw.g
 
 You can use it as a template to configure your own style.
 
-### Run as a pre-commit hook (recommended)
+### Run as a pre-commit hook
 
-If you use [pre-commit](https://pre-commit.com/) on your project (you should), add this to the `.pre-commit-config.yaml` in your repository:
+If you use [pre-commit](https://pre-commit.com/) on your project, add this to the `.pre-commit-config.yaml` in your repository:
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
@@ -160,5 +168,14 @@ To start checking all your code against the default rules:
     pre-commit run --all-files
 
 ## More information
+
+Nitpick is being used by projects such as:
+
+- [wemake-services/wemake-python-styleguide](https://github.com/wemake-services/wemake-python-styleguide)
+- [dry-python/returns](https://github.com/dry-python/returns)
+- [sobolevn/django-split-settings](https://github.com/sobolevn/django-split-settings)
+- [catalyst-team/catalyst](https://github.com/catalyst-team/catalyst)
+- [alan-turing-institute/AutSPACEs](https://github.com/alan-turing-institute/AutSPACEs)
+- [pytest-dev/pytest-mimesis](https://github.com/pytest-dev/pytest-mimesis)
 
 For more details on styles and which configuration files are currently supported, [see the full documentation](https://nitpick.rtfd.io/).

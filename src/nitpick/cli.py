@@ -12,6 +12,8 @@ problems: the code will get executed twice:
 
 Also see (1) from https://click.palletsprojects.com/en/5.x/setuptools/#setuptools-integration
 """
+import logging
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -65,7 +67,7 @@ def get_nitpick(context: click.Context) -> Nitpick:
     help="Don't modify the configuration files, just print the difference."
     " Return code 0 means nothing would change. Return code 1 means some files would be modified.",
 )
-@click.option("--verbose", "-v", is_flag=True, default=False, help="Verbose logging")
+@click.option("--verbose", "-v", count=True, default=False, help="Increase logging verbosity (-v = INFO, -vv = DEBUG)")
 @click.pass_context
 @click.argument("files", nargs=-1)
 def run(context, check_only, verbose, files):
@@ -74,6 +76,13 @@ def run(context, check_only, verbose, files):
     You can use partial and multiple file names in the FILES argument.
     """
     if verbose:
+        level = logging.INFO if verbose == 1 else logging.DEBUG
+
+        # https://loguru.readthedocs.io/en/stable/resources/recipes.html#changing-the-level-of-an-existing-handler
+        # https://github.com/Delgan/loguru/issues/138#issuecomment-525594566
+        logger.remove()
+        logger.add(sys.stderr, level=logging.getLevelName(level))
+
         logger.enable(PROJECT_NAME)
 
     nit = get_nitpick(context)
@@ -85,8 +94,8 @@ def run(context, check_only, verbose, files):
             click.echo(fuss.pretty)
         raise Exit(2) from err
 
+    click.secho(Reporter.get_counts())
     if Reporter.manual or Reporter.fixed:
-        click.secho(Reporter.get_counts())
         raise Exit(1)
 
 

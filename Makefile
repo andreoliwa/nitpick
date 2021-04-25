@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := build
 .PHONY: Makefile
 
-SRC := $(shell find -f docs src -type f -iname '*.py')
+SRC := $(shell find docs src -type f -a -iname '*.py')
 DOCS := docs/*.rst *.rst *.md
 STYLES := $(shell find styles -type f)
 TESTS := $(shell find tests -type f -iname '*.py')

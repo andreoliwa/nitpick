@@ -315,40 +315,50 @@ class ProjectMock:
         compare(expected=manual, actual=Reporter.manual)
         return self
 
-    def _simulate_cli(self, command: str, str_or_lines: StrOrList = None, *args: str, exit_code: int = None):
+    def _simulate_cli(self, command: str, expected_str_or_lines: StrOrList = None, *args: str, exit_code: int = None):
         result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *args])
         actual: List[str] = result.output.splitlines()
 
-        if isinstance(str_or_lines, str):
-            expected = dedent(str_or_lines).strip().splitlines()
+        if isinstance(expected_str_or_lines, str):
+            expected = dedent(expected_str_or_lines).strip().splitlines()
         else:
-            expected = list(always_iterable(str_or_lines))
+            expected = list(always_iterable(expected_str_or_lines))
 
         compare(actual=result.exit_code, expected=exit_code or 0)
 
         return result, actual, expected
 
     def cli_run(
-        self, str_or_lines: StrOrList = None, apply=False, violations=0, exception_class=None, exit_code: int = None
+        self,
+        expected_str_or_lines: StrOrList = None,
+        apply=False,
+        violations=0,
+        exception_class=None,
+        exit_code: int = None,
     ) -> "ProjectMock":
         """Assert the expected CLI output for the chosen command."""
         cli_args = [] if apply else ["--check"]
         if exit_code is None:
-            exit_code = 1 if str_or_lines else 0
-        result, actual, expected = self._simulate_cli("run", str_or_lines, *cli_args, exit_code=exit_code)
+            exit_code = 1 if expected_str_or_lines else 0
+        result, actual, expected = self._simulate_cli("run", expected_str_or_lines, *cli_args, exit_code=exit_code)
         if exception_class:
             assert isinstance(result.exception, exception_class)
             return self
 
         if violations:
             expected.append(f"Violations: ❌ {violations} to change manually.")
-        elif str_or_lines:
+        elif expected_str_or_lines:
             # If the number of violations was not passed but a list of errors was,
             # remove the violation count from the actual results.
             # This is useful when checking only if the error is contained in a list of errors,
             # regardless of the violation count.
             assert actual
             if actual[-1].startswith("Violations"):
+                del actual[-1]
+
+        if not violations and not expected_str_or_lines:
+            # Remove the "no violations" message
+            if actual[-1].startswith("No violations"):
                 del actual[-1]
 
         compare(actual=actual, expected=expected)
@@ -366,13 +376,14 @@ class ProjectMock:
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def assert_file_contents(self, *name_contents: Union[PathOrStr, str]):
-        """Assert the file has the expected contents."""
+    def assert_file_contents(self, *name_contents: Union[PathOrStr, Optional[str]]) -> "ProjectMock":
+        """Assert the file has the expected contents. Use `None` to indicate that the file doesn't exist."""
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)
-            expected = dedent(file_contents).lstrip()
+            expected = None if file_contents is None else dedent(file_contents).lstrip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
+        return self
 
     def remote(self, mocked_response: RequestsMock, remote_url: str) -> "ProjectMock":
         """Set the mocked response and the remote URL."""

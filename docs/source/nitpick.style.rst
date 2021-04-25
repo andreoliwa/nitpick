@@ -6,6 +6,14 @@ nitpick.style package
    :undoc-members:
    :show-inheritance:
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   nitpick.style.fetchers
+
 Submodules
 ----------
 
@@ -15,4 +23,3 @@ Submodules
    nitpick.style.cache
    nitpick.style.config
    nitpick.style.core
-   nitpick.style.fetchers
