@@ -561,7 +561,7 @@ def test_merge_styles_into_single_file(offline, tmp_path):
         [[".pre-commit-config.yaml".repos]]
         yaml = """
           - repo: https://github.com/psf/black
-            rev: 20.8b1
+            rev: 21.4b0
             hooks:
               - id: black
                 args: [--safe, --quiet]
@@ -569,7 +569,7 @@ def test_merge_styles_into_single_file(offline, tmp_path):
             rev: v1.10.0
             hooks:
               - id: blacken-docs
-                additional_dependencies: [black==20.8b1]
+                additional_dependencies: [black==21.4b0]
         """
 
         [[".pre-commit-config.yaml".repos]]
