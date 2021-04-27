@@ -114,3 +114,6 @@ ENV/
 
 # macOS
 .DS_Store
+
+# pytest-testmon
+.testmondata

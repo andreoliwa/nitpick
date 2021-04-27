@@ -1,8 +1,8 @@
 """Invoke targets.
 
 Helpful docs:
-- http://www.pyinvoke.org/
-- http://docs.pyinvoke.org/en/stable/api/runners.html#invoke.runners.Runner.run
+- https://www.pyinvoke.org/
+- https://docs.pyinvoke.org/en/stable/api/runners.html#invoke.runners.Runner.run
 """
 import sys
 from configparser import ConfigParser
@@ -115,10 +115,20 @@ def update(ctx, deps=True, hooks=False):
     install(ctx, deps, hooks)
 
 
-@task(help={"coverage": "Run the HTML coverage report", "browse": "Browse the HTML coverage report"})
-def test(ctx, coverage=False, browse=False):
+@task(
+    help={
+        "coverage": "Run the HTML coverage report",
+        "browse": "Browse the HTML coverage report",
+        "watch": "Watch modified files and run tests with testmon",
+    }
+)
+def test(ctx, coverage=False, browse=False, watch=False):
     """Run tests and coverage using the commands from tox config."""
     tox = ToxCommands()
+    if watch:
+        ctx.run('poetry run ptw --runner "pytest --testmon"')
+        return
+
     ctx.run(f"poetry run {tox.pytest_command}")
 
     if coverage:
@@ -196,17 +206,15 @@ def lint(ctx, recreate=False):
         raise Exit("pylint failed", 1)
 
 
-@task(help={"venv": "Remove the Poetry virtualenv"})
+@task(help={"venv": "Remove the Poetry virtualenv and the tox dir"})
 def clean(ctx, venv=False):
     """Clean build output and temp files."""
     ctx.run("find . -type f -name '*.py[co]' -print -delete")
     ctx.run("find . -type d -name '__pycache__' -print -delete")
-    ctx.run(
-        "find . -type d \\( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \\) -print0 | "
-        "xargs -0 rm -rvf"
-    )
-    ctx.run(f"rm -rvf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .tox")
+    ctx.run("find . -type d \\( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \\) -print -delete")
+    ctx.run(f"rm -rf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .testmondata")
     if venv:
+        ctx.run("rm -rf .tox")
         ctx.run("poetry env remove python3.6", warn=True)
 
 
