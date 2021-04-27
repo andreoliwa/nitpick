@@ -1,5 +1,5 @@
 """Styles parsing and merging."""
-from .cache import parse_cache_option
-from .core import Style
+from nitpick.style.cache import parse_cache_option
+from nitpick.style.core import Style
 
 __all__ = ("Style", "parse_cache_option")
