@@ -1,3 +1,5 @@
+.. include:: docs/targets.rst
+
 Nitpick
 =======
 
@@ -63,7 +65,7 @@ Example of a style:
 
 This style will assert that:
 
--  ... `black <https://github.com/psf/black>`__,
+-  ... black_,
    `isort <https://github.com/PyCQA/isort>`__ and
    `flake8 <https://github.com/PyCQA/flake8>`__ have a line length of
    120;
