@@ -126,7 +126,7 @@ class FileType:
             return "❌"
         if value == 0:
             return "❓"
-        return f"🚧 `#{value} <https://github.com/andreoliwa/nitpick/issues/{value}>`_"
+        return f"`#{value} <https://github.com/andreoliwa/nitpick/issues/{value}>`_ 🚧"
 
     @property
     def check_str(self) -> str:

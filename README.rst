@@ -72,7 +72,7 @@ This style will assert that:
    ``setup.cfg``;
 -  ... `Pylint <https://www.pylint.org>`__ is present as a
    `Poetry <https://github.com/python-poetry/poetry>`__ dev dependency
-   in ``pyproject.toml``).
+   in ``pyproject.toml``.
 
 Supported file types
 --------------------
@@ -81,7 +81,7 @@ These are the file types currently handled by Nitpick.
 
 -  Some files are only being checked and have to be modified manually;
 -  Some files can already be fixed automatically (with the
-   ```nitpick fix`` <#run>`__ command);
+   ``nitpick fix`` command);
 -  Others are still under construction; the ticket numbers are shown in
    the table (upvote the ticket with 👍🏻 if you would like to prioritise
    development).
@@ -102,7 +102,7 @@ Implemented
      - ✅
    * - `Any JSON file <https://nitpick.rtfd.io/en/latest/plugins.html#json-files>`_
      - ✅
-     - 🚧 `#358 <https://github.com/andreoliwa/nitpick/issues/358>`_
+     - `#358 <https://github.com/andreoliwa/nitpick/issues/358>`_ 🚧
    * - `Any text file <https://nitpick.rtfd.io/en/latest/plugins.html#text-files>`_
      - ✅
      - ❌
@@ -114,10 +114,10 @@ Implemented
      - ✅
    * - `package.json <https://nitpick.rtfd.io/en/latest/examples.html#example-package-json>`_
      - ✅
-     - 🚧 `#358 <https://github.com/andreoliwa/nitpick/issues/358>`_
+     - `#358 <https://github.com/andreoliwa/nitpick/issues/358>`_ 🚧
    * - `.pre-commit-config.yaml <https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml>`_
      - ✅
-     - 🚧 `#282 <https://github.com/andreoliwa/nitpick/issues/282>`_
+     - `#282 <https://github.com/andreoliwa/nitpick/issues/282>`_ 🚧
    * - `.pylintrc <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_
      - ✅
      - ✅
@@ -144,29 +144,29 @@ Planned
      - ``nitpick check``
      - ``nitpick fix``
    * - Any Markdown file
-     - 🚧 `#280 <https://github.com/andreoliwa/nitpick/issues/280>`_
+     - `#280 <https://github.com/andreoliwa/nitpick/issues/280>`_ 🚧
      - ❓
    * - Any Terraform file
-     - 🚧 `#318 <https://github.com/andreoliwa/nitpick/issues/318>`_
+     - `#318 <https://github.com/andreoliwa/nitpick/issues/318>`_ 🚧
      - ❓
    * - Dockerfile
-     - 🚧 `#272 <https://github.com/andreoliwa/nitpick/issues/272>`_
-     - 🚧 `#272 <https://github.com/andreoliwa/nitpick/issues/272>`_
+     - `#272 <https://github.com/andreoliwa/nitpick/issues/272>`_ 🚧
+     - `#272 <https://github.com/andreoliwa/nitpick/issues/272>`_ 🚧
    * - .dockerignore
-     - 🚧 `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_
-     - 🚧 `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_
+     - `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_ 🚧
+     - `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_ 🚧
    * - .gitignore
-     - 🚧 `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_
-     - 🚧 `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_
+     - `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_ 🚧
+     - `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_ 🚧
    * - Jenkinsfile
-     - 🚧 `#278 <https://github.com/andreoliwa/nitpick/issues/278>`_
+     - `#278 <https://github.com/andreoliwa/nitpick/issues/278>`_ 🚧
      - ❓
    * - Makefile
-     - 🚧 `#277 <https://github.com/andreoliwa/nitpick/issues/277>`_
+     - `#277 <https://github.com/andreoliwa/nitpick/issues/277>`_ 🚧
      - ❓
    * - .travis.yml
-     - 🚧 `#15 <https://github.com/andreoliwa/nitpick/issues/15>`_
-     - 🚧 `#15 <https://github.com/andreoliwa/nitpick/issues/15>`_
+     - `#15 <https://github.com/andreoliwa/nitpick/issues/15>`_ 🚧
+     - `#15 <https://github.com/andreoliwa/nitpick/issues/15>`_ 🚧
 .. auto-generated-end-planned
 
 Quickstart
