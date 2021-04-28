@@ -16,5 +16,5 @@ Fixes # .
   - [ ] `flake8` plugin (normal mode)
   - [ ] `flake8` plugin (offline mode)
 - [ ] Write documentation when there's new API, functionality, etc.:
-  - [ ] On `README.md`
+  - [ ] On `README.rst`
   - [ ] On `docs/*.rst` files

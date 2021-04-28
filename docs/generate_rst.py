@@ -343,10 +343,13 @@ def write_config() -> int:
 
 
 def write_readme(file_types: Set[FileType], divider: str) -> int:
-    """Write README.md.
+    """Write the README.
 
     prettier will try to reformat the tables; to avoid that, README.md was added to .prettierignore.
     """
+    if READ_THE_DOCS_URL:
+        return 0  # FIXME[AA]:
+
     rows: List[Tuple[str, ...]] = [("File type", "[`nitpick check`](#run)", "[`nitpick fix`](#run)")]
     max_length = [len(h) for h in rows[0]]
     for file_type in sorted(file_types):
@@ -372,7 +375,7 @@ def write_readme(file_types: Set[FileType], divider: str) -> int:
     # Empty line before the closing comment (prettier does that)
     blocks.append("")
 
-    return DocFile("../README.md").write(blocks, divider_id=divider)
+    return DocFile("../README.rst").write(blocks, divider_id=divider)
 
 
 if __name__ == "__main__":
