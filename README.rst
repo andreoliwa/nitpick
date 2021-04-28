@@ -1,18 +1,18 @@
 Nitpick
 =======
 
-| |PyPI|
-| |GitHub Actions Python Workflow|
-| |Documentation Status|
-| |Coveralls|
-| |Maintainability|
-| |Test Coverage|
-| |Supported Python versions|
-| |Project License|
-| |Code style: black|
-| |Renovate|
-| |semantic-release|
-| |pre-commit.ci status|
+|PyPI|
+|GitHub Actions Python Workflow|
+|Documentation Status|
+|Coveralls|
+|Maintainability|
+|Test Coverage|
+|Supported Python versions|
+|Project License|
+|Code style: black|
+|Renovate|
+|semantic-release|
+|pre-commit.ci status|
 
 Command-line tool and `flake8 <https://github.com/PyCQA/flake8>`__
 plugin to enforce the same settings across multiple language-independent
@@ -89,69 +89,85 @@ These are the file types currently handled by Nitpick.
 Implemented
 ~~~~~~~~~~~
 
+.. auto-generated-start-implemented
+
 .. list-table::
    :header-rows: 1
 
    * - File type
      - ``nitpick check``
      - ``nitpick fix``
-   * - `Any .ini file <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_
+   * - `Any INI file <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_
      - ✅
      - ✅
-   * - `Any .json file <https://nitpick.rtfd.io/en/latest/plugins.html#json-files>`_
+   * - `Any JSON file <https://nitpick.rtfd.io/en/latest/plugins.html#json-files>`_
      - ✅
      - 🚧 `#358 <https://github.com/andreoliwa/nitpick/issues/358>`_
-
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| `Any .toml file <https://nitpick.rtfd.io/en/latest/plugins.html#toml-files>`__                        | ✅                              | ✅                                                                  |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| `Any text file <https://nitpick.rtfd.io/en/latest/plugins.html#text-files>`__                             | ✅                              | ❌                                                                  |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| ```.editorconfig`` <https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig>`__              | ✅                              | ✅                                                                  |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| ```.pre-commit-config.yaml`` <https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml>`__   | ✅                              | 🚧  \ `#282 <https://github.com/andreoliwa/nitpick/issues/282>`__   |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| ```.pylintrc`` <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`__                              | ✅                              | ✅                                                                  |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| ```package.json`` <https://nitpick.rtfd.io/en/latest/examples.html#example-package-json>`__               | ✅                              | 🚧  \ `#358 <https://github.com/andreoliwa/nitpick/issues/358>`__   |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| ```pyproject.toml`` <https://nitpick.rtfd.io/en/latest/plugins.html#toml-files>`__                        | ✅                              | ✅                                                                  |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| ```requirements.txt`` <https://nitpick.rtfd.io/en/latest/plugins.html#text-files>`__                      | ✅                              | ❌                                                                  |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-| ```setup.cfg`` <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`__                              | ✅                              | ✅                                                                  |
-+-----------------------------------------------------------------------------------------------------------+--------------------------------+--------------------------------------------------------------------+
-
-.. raw:: html
-
-   <!-- auto-generated-end-implemented -->
+   * - `Any text file <https://nitpick.rtfd.io/en/latest/plugins.html#text-files>`_
+     - ✅
+     - ❌
+   * - `Any TOML file <https://nitpick.rtfd.io/en/latest/plugins.html#toml-files>`_
+     - ✅
+     - ✅
+   * - `.editorconfig <https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig>`_
+     - ✅
+     - ✅
+   * - `package.json <https://nitpick.rtfd.io/en/latest/examples.html#example-package-json>`_
+     - ✅
+     - 🚧 `#358 <https://github.com/andreoliwa/nitpick/issues/358>`_
+   * - `.pre-commit-config.yaml <https://nitpick.rtfd.io/en/latest/plugins.html#pre-commit-config-yaml>`_
+     - ✅
+     - 🚧 `#282 <https://github.com/andreoliwa/nitpick/issues/282>`_
+   * - `.pylintrc <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_
+     - ✅
+     - ✅
+   * - `pyproject.toml <https://nitpick.rtfd.io/en/latest/plugins.html#toml-files>`_
+     - ✅
+     - ✅
+   * - `requirements.txt <https://nitpick.rtfd.io/en/latest/plugins.html#text-files>`_
+     - ✅
+     - ❌
+   * - `setup.cfg <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_
+     - ✅
+     - ✅
+.. auto-generated-end-implemented
 
 Planned
 ~~~~~~~
 
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
-|                       |                                        | ` <#run>`__                                         |
-+================================+====================================================================+====================================================================+
-| Any ``.md`` (Markdown) file    | 🚧  \ `#280 <https://github.com/andreoliwa/nitpick/issues/280>`__   | ❓                                                                  |
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
-| Any ``.tf`` (Terraform) file   | 🚧  \ `#318 <https://github.com/andreoliwa/nitpick/issues/318>`__   | ❓                                                                  |
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
-| ``.dockerignore``              | 🚧  \ `#8 <https://github.com/andreoliwa/nitpick/issues/8>`__       | 🚧  \ `#8 <https://github.com/andreoliwa/nitpick/issues/8>`__       |
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
-| ``.gitignore``                 | 🚧  \ `#8 <https://github.com/andreoliwa/nitpick/issues/8>`__       | 🚧  \ `#8 <https://github.com/andreoliwa/nitpick/issues/8>`__       |
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
-| ``.travis.yml``                | 🚧  \ `#15 <https://github.com/andreoliwa/nitpick/issues/15>`__     | 🚧  \ `#15 <https://github.com/andreoliwa/nitpick/issues/15>`__     |
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
-| ``Dockerfile``                 | 🚧  \ `#272 <https://github.com/andreoliwa/nitpick/issues/272>`__   | 🚧  \ `#272 <https://github.com/andreoliwa/nitpick/issues/272>`__   |
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
-| ``Jenkinsfile``                | 🚧  \ `#278 <https://github.com/andreoliwa/nitpick/issues/278>`__   | ❓                                                                  |
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
-| ``Makefile``                   | 🚧  \ `#277 <https://github.com/andreoliwa/nitpick/issues/277>`__   | ❓                                                                  |
-+--------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------------+
+.. auto-generated-start-planned
 
-.. raw:: html
+.. list-table::
+   :header-rows: 1
 
-   <!-- auto-generated-end-planned -->
+   * - File type
+     - ``nitpick check``
+     - ``nitpick fix``
+   * - Any Markdown file
+     - 🚧 `#280 <https://github.com/andreoliwa/nitpick/issues/280>`_
+     - ❓
+   * - Any Terraform file
+     - 🚧 `#318 <https://github.com/andreoliwa/nitpick/issues/318>`_
+     - ❓
+   * - Dockerfile
+     - 🚧 `#272 <https://github.com/andreoliwa/nitpick/issues/272>`_
+     - 🚧 `#272 <https://github.com/andreoliwa/nitpick/issues/272>`_
+   * - .dockerignore
+     - 🚧 `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_
+     - 🚧 `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_
+   * - .gitignore
+     - 🚧 `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_
+     - 🚧 `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_
+   * - Jenkinsfile
+     - 🚧 `#278 <https://github.com/andreoliwa/nitpick/issues/278>`_
+     - ❓
+   * - Makefile
+     - 🚧 `#277 <https://github.com/andreoliwa/nitpick/issues/277>`_
+     - ❓
+   * - .travis.yml
+     - 🚧 `#15 <https://github.com/andreoliwa/nitpick/issues/15>`_
+     - 🚧 `#15 <https://github.com/andreoliwa/nitpick/issues/15>`_
+.. auto-generated-end-planned
 
 Quickstart
 ----------
@@ -240,18 +256,7 @@ this to the ``.pre-commit-config.yaml`` in your repository:
         hooks:
           - id: nitpick
 
-To install the ``pre-commit`` and ``commit-msg`` Git hooks:
-
-::
-
-    pre-commit install --install-hooks
-    pre-commit install -t commit-msg
-
-To start checking all your code against the default rules:
-
-::
-
-    pre-commit run --all-files
+There are 3 available hook IDs: ``nitpick``, ``nitpick-fix``, ``nitpick-check``.
 
 More information
 ----------------
