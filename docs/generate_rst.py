@@ -358,20 +358,12 @@ def write_readme(file_types: Set[FileType], divider: str) -> int:
     for file_type in sorted(file_types):
         rows.append(file_type.row)
 
-    blocks = [
-        dedent(
-            """
-            .. list-table::
-               :header-rows: 1
-            """
-        )
-    ]
-
+    blocks = [".. list-table::\n   :header-rows: 1\n"]
     for row in rows:
         template = """
-           * - {}
-             - {}
-             - {}
+            * - {}
+              - {}
+              - {}
         """
         blocks.append(indent(dedent(template).strip().format(*row), "   "))
 

@@ -90,7 +90,6 @@ Implemented
 ~~~~~~~~~~~
 
 .. auto-generated-start-implemented
-
 .. list-table::
    :header-rows: 1
 
@@ -136,7 +135,6 @@ Planned
 ~~~~~~~
 
 .. auto-generated-start-planned
-
 .. list-table::
    :header-rows: 1
 
@@ -175,10 +173,8 @@ Quickstart
 Install
 ~~~~~~~
 
-Install in an isolated environment with
-`pipx <https://github.com/pipxproject/pipx>`__:
-
-::
+Install in an isolated global environment with
+`pipx <https://github.com/pipxproject/pipx>`__::
 
     # Latest PyPI release
     pipx install nitpick
@@ -186,54 +182,41 @@ Install in an isolated environment with
     # Development branch from GitHub
     pipx install git+https://github.com/andreoliwa/nitpick
 
-On macOS/Linux, install the latest release with
-`Homebrew <https://github.com/Homebrew/brew>`__:
+On macOS/Linux, install with
+`Homebrew <https://github.com/Homebrew/brew>`__::
 
-::
-
+    # Latest PyPI release
     brew install andreoliwa/formulae/nitpick
 
     # Development branch from GitHub
     brew install andreoliwa/formulae/nitpick --HEAD
 
-On Arch Linux, install with yay:
-
-::
+On Arch Linux, install with yay::
 
     yay -Syu nitpick
 
 Add to your project with
-`Poetry <https://github.com/python-poetry/poetry>`__:
-
-::
+`Poetry <https://github.com/python-poetry/poetry>`__::
 
     poetry add --dev nitpick
 
-Or install it with pip:
-
-::
+Or install it with pip::
 
     pip install -U nitpick
 
 Run
 ~~~
 
-To fix and modify your files directly:
-
-::
+To fix and modify your files directly::
 
     nitpick fix
 
-To check for errors only:
-
-::
+To check for errors only::
 
     nitpick check
 
 Nitpick is also a ``flake8`` plugin, so you can run this on a project
-with at least one Python (``.py``) file:
-
-::
+with at least one Python (``.py``) file::
 
     flake8 .
 
@@ -246,9 +229,7 @@ Run as a pre-commit hook
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you use `pre-commit <https://pre-commit.com/>`__ on your project, add
-this to the ``.pre-commit-config.yaml`` in your repository:
-
-::
+this to the ``.pre-commit-config.yaml`` in your repository::
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
