@@ -360,12 +360,8 @@ def write_readme(file_types: Set[FileType], divider: str) -> int:
 
     blocks = [".. list-table::\n   :header-rows: 1\n"]
     for row in rows:
-        template = """
-            * - {}
-              - {}
-              - {}
-        """
-        blocks.append(indent(dedent(template).strip().format(*row), "   "))
+        template = "* - {}\n  - {}\n  - {}"
+        blocks.append(indent(template.format(*row), "   "))
 
     return DocFile("../README.rst").write(blocks, divider_id=divider)
 
