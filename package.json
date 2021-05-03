@@ -29,7 +29,7 @@
           "assets": [
             ".bumpversion.cfg",
             "CHANGELOG.md",
-            "README.md",
+            "README.rst",
             "docs/conf.py",
             "docs/configuration.rst",
             "docs/examples.rst",
