@@ -48,7 +48,7 @@ def test_suggest_initial_contents(tmp_path):
                 hooks:
                   - id: isort
               - repo: https://github.com/psf/black
-                rev: 21.4b0
+                rev: 21.4b2
                 hooks:
                   - id: black
                     args: [--safe, --quiet]
@@ -56,7 +56,7 @@ def test_suggest_initial_contents(tmp_path):
                 rev: v1.10.0
                 hooks:
                   - id: blacken-docs
-                    additional_dependencies: [black==21.4b0]
+                    additional_dependencies: [black==21.4b2]
             """,
         ),
         partial_names=[PRE_COMMIT_CONFIG_YAML],

@@ -45,7 +45,7 @@ Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.26
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/psf/black
-        rev: 21.4b0
+        rev: 21.4b2
         hooks:
           - id: black
             args: [--safe, --quiet]
@@ -53,7 +53,7 @@ Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.26
         rev: v1.10.0
         hooks:
           - id: blacken-docs
-            additional_dependencies: [black==21.4b0]
+            additional_dependencies: [black==21.4b2]
     """
     # TODO The toml library has issues loading arrays with multiline strings:
     #  https://github.com/uiri/toml/issues/123
