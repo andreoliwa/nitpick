@@ -59,7 +59,7 @@ repos:
       - id: python-no-log-warn
       - id: rst-backticks
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.2.1
+    rev: v2.3.0
     hooks:
       - id: prettier
         stages: [commit]
