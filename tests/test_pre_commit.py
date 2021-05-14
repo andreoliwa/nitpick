@@ -411,7 +411,7 @@ def test_missing_different_values(tmp_path):
             hooks:
               - id: debug-statements
           - repo: https://github.com/asottile/pyupgrade
-            rev: v2.14.0
+            rev: v2.15.0
             hooks:
               - id: pyupgrade
           - repo: https://github.com/openstack/bashate
