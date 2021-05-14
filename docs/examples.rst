@@ -128,7 +128,7 @@ Contents of `styles/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/PyCQA/flake8
-        rev: 3.9.1
+        rev: 3.9.2
         hooks:
           - id: flake8
             additional_dependencies:
@@ -351,7 +351,7 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
         hooks:
           - id: debug-statements
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.14.0
+        rev: v2.15.0
         hooks:
           - id: pyupgrade
     """
