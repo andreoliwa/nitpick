@@ -306,7 +306,7 @@ Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpi
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v3.4.0
+        rev: v4.0.0
         hooks:
           - id: end-of-file-fixer
           - id: trailing-whitespace
@@ -347,7 +347,7 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
           - id: python-no-log-warn
           - id: rst-backticks
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v3.4.0
+        rev: v4.0.0
         hooks:
           - id: debug-statements
       - repo: https://github.com/asottile/pyupgrade
