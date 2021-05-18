@@ -27,7 +27,7 @@ repos:
         types: [python, toml]
         stages: [commit]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.0
+    rev: v4.0.1
     hooks:
       - id: debug-statements
       - id: end-of-file-fixer
