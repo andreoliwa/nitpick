@@ -351,7 +351,6 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
         hooks:
           - id: debug-statements
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.16.0
         hooks:
           - id: pyupgrade
     """
