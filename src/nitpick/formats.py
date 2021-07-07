@@ -176,7 +176,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
                 {
                     k: v
                     for k, v in comparison.flat_expected.items()
-                    if k in comparison.flat_actual and comparison.flat_expected[k] != comparison.flat_actual[k]
+                    if k in comparison.flat_actual and v != comparison.flat_actual[k]
                 }
             )
         )
