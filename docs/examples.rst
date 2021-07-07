@@ -339,7 +339,6 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pygrep-hooks
-        rev: v1.8.0
         hooks:
           - id: python-check-blanket-noqa
           - id: python-check-mock-methods
@@ -347,7 +346,6 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
           - id: python-no-log-warn
           - id: rst-backticks
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v4.0.1
         hooks:
           - id: debug-statements
       - repo: https://github.com/asottile/pyupgrade
