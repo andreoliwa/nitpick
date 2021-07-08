@@ -525,7 +525,59 @@ def test_include_remote_style_from_local_style(tmp_path):
 @pytest.mark.parametrize("offline", [False, True])
 def test_merge_styles_into_single_file(offline, tmp_path):
     """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit repos)."""
-    ProjectMock(tmp_path).load_styles("black", "isort").named_style(
+    ProjectMock(tmp_path).named_style(
+        "black",
+        '''
+        ["pyproject.toml".tool.black]
+        line-length = 120
+
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/psf/black
+            rev: 21.5b2
+            hooks:
+              - id: black
+                args: [--safe, --quiet]
+          - repo: https://github.com/asottile/blacken-docs
+            rev: v1.10.0
+            hooks:
+              - id: blacken-docs
+                additional_dependencies: [black==21.5b2]
+        """
+        # TODO The toml library has issues loading arrays with multiline strings:
+        #  https://github.com/uiri/toml/issues/123
+        #  https://github.com/uiri/toml/issues/230
+        #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
+        #[".pre-commit-config.yaml"]
+        #repos = ["""
+        #<YAML goes here>
+        #"""]
+        ''',
+    ).named_style(
+        "isort",
+        '''
+        ["setup.cfg".isort]
+        line_length = 120
+        skip = ".tox,build"
+        known_first_party = "tests"
+
+        # The configuration below is needed for compatibility with black.
+        # https://github.com/python/black#how-black-wraps-lines
+        # https://github.com/PyCQA/isort#multi-line-output-modes
+        multi_line_output = 3
+        include_trailing_comma = true
+        force_grid_wrap = 0
+        combine_as_imports = true
+
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/PyCQA/isort
+            rev: 5.8.0
+            hooks:
+              - id: isort
+        """
+        ''',
+    ).named_style(
         "isort_overrides",
         f"""
         ["{SETUP_CFG}".isort]
