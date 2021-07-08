@@ -41,7 +41,12 @@ class GitHubURL:
     def parse_url(cls, url: str) -> "GitHubURL":
         """Create an instance by parsing a URL string."""
         parsed_url = urlparse(url)
-        owner, repo, _, git_reference, path = parsed_url.path.strip("/").split("/", 4)
+        if parsed_url.scheme in GitHubFetcher.protocols:
+            owner = parsed_url.netloc
+            repo, path = parsed_url.path.strip("/").split("/", 1)
+            git_reference = "develop"
+        else:
+            owner, repo, _, git_reference, path = parsed_url.path.strip("/").split("/", 4)
         return cls(owner, repo, git_reference, path)
 
     @property

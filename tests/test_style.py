@@ -756,9 +756,17 @@ def test_github_fetch(tmp_path):
     )
 
 
-def test_convert_github_url_to_raw():
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
+        "gh://andreoliwa/nitpick/src/nitpick/__init__.py",
+        "github://andreoliwa/nitpick/src/nitpick/__init__.py",
+    ],
+)
+def test_parsing_github_urls(url):
     """Test a GitHub URL and its parts, raw URL, API URL."""
-    gh = GitHubURL.parse_url("https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py")
+    gh = GitHubURL.parse_url(url)
     assert gh.owner == "andreoliwa"
     assert gh.repository == "nitpick"
     assert gh.git_reference == "develop"
