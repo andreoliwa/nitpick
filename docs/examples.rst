@@ -186,7 +186,6 @@ Contents of `styles/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.26
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/PyCQA/isort
-        rev: 5.8.0
         hooks:
           - id: isort
     """
