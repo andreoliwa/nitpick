@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Tuple
-from urllib.parse import urlparse, uses_netloc, uses_relative
+from urllib.parse import urlparse
 
 from nitpick.style.fetchers.http import HttpFetcher
 
@@ -64,21 +64,7 @@ class GitHubURL:
 class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
-    _registered = False
     protocols: Tuple[str, ...] = (GitHubProtocol.SHORT.value, GitHubProtocol.LONG.value)
-
-    def _post_hooks(self):
-        self._register_on_urllib()
-
-    @classmethod
-    def _register_on_urllib(cls):
-        if cls._registered:
-            return
-
-        # This is necessary so urljoin knows how to deal with custom protocols
-        for protocol in cls.protocols:
-            uses_relative.append(protocol)
-            uses_netloc.append(protocol)
 
     def _download(self, url) -> str:
         parsed_url = urlparse(url)

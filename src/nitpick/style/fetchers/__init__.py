@@ -1,8 +1,9 @@
 """Style fetchers with protocol support."""
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Tuple
-from urllib.parse import urlparse
+from urllib.parse import urlparse, uses_netloc, uses_relative
 
 from cachy import CacheManager, Repository
 from requests import Session
@@ -91,4 +92,18 @@ def _get_fetchers(cache_repository, cache_option) -> "FetchersType":
 def _fetchers_to_pairs(fetchers):
     for fetcher in fetchers:
         for protocol in fetcher.protocols:
+            _register_on_urllib(protocol)
             yield protocol, fetcher
+
+
+@lru_cache()
+def _register_on_urllib(protocol: str) -> None:
+    """Register custom protocols on urllib, only once, if it's not already there.
+
+    This is necessary so urljoin knows how to deal with custom protocols.
+    """
+    if protocol not in uses_relative:
+        uses_relative.append(protocol)
+
+    if protocol not in uses_netloc:
+        uses_netloc.append(protocol)

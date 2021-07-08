@@ -758,12 +758,12 @@ def test_github_fetch(tmp_path):
 
 def test_convert_github_url_to_raw():
     """Test a GitHub URL and its parts, raw URL, API URL."""
-    gh = GitHubURL.from_url("https://github.com/andreoliwa/nitpick/blob/develop/path/to/file.toml")
+    gh = GitHubURL.from_url("https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py")
     assert gh.owner == "andreoliwa"
     assert gh.repository == "nitpick"
     assert gh.git_reference == "develop"
-    assert gh.path == "path/to/file.toml"
-    assert gh.raw_content_url == "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/path/to/file.toml"
+    assert gh.path == "src/nitpick/__init__.py"
+    assert gh.raw_content_url == "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/src/nitpick/__init__.py"
     assert gh.api_url == "https://api.github.com/repos/andreoliwa/nitpick"
-    assert gh.short_protocol_url == "gh://andreoliwa/nitpick/path/to/file.toml"
-    assert gh.long_protocol_url == "github://andreoliwa/nitpick/path/to/file.toml"
+    assert gh.short_protocol_url == "gh://andreoliwa/nitpick/src/nitpick/__init__.py"
+    assert gh.long_protocol_url == "github://andreoliwa/nitpick/src/nitpick/__init__.py"
