@@ -45,12 +45,10 @@ Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.26
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/psf/black
-        rev: 21.5b2
         hooks:
           - id: black
             args: [--safe, --quiet]
       - repo: https://github.com/asottile/blacken-docs
-        rev: v1.10.0
         hooks:
           - id: blacken-docs
             additional_dependencies: [black==21.5b2]
@@ -219,7 +217,6 @@ Contents of `styles/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.812
         hooks:
           - id: mypy
     """
