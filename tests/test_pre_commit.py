@@ -376,8 +376,6 @@ def test_get_all_hooks_from():
 
 def test_missing_different_values(tmp_path):
     """Test missing and different values on the hooks."""
-    # TODO: add loaded and named styles automatically to pyproject_toml
-    # pylint: disable=line-too-long
     ProjectMock(tmp_path).named_style(
         "root",
         '''
@@ -390,7 +388,68 @@ def test_missing_different_values(tmp_path):
                 args: [--expected, arguments]
         """
         ''',
-    ).load_styles("mypy", "pre-commit/python", "pre-commit/bash").pyproject_toml(
+    ).named_style(
+        "mypy",
+        '''
+        # https://mypy.readthedocs.io/en/latest/config_file.html
+        ["setup.cfg".mypy]
+        ignore_missing_imports = true
+
+        # Do not follow imports (except for ones found in typeshed)
+        follow_imports = "skip"
+
+        # Treat Optional per PEP 484
+        strict_optional = true
+
+        # Ensure all execution paths are returning
+        warn_no_return = true
+
+        # Lint-style cleanliness for typing
+        warn_redundant_casts = true
+        warn_unused_ignores = true
+
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/pre-commit/mirrors-mypy
+            rev: v0.812
+            hooks:
+              - id: mypy
+        """
+    ''',
+    ).named_style(
+        "pre-commit/python",
+        '''
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/pre-commit/pygrep-hooks
+            rev: v1.8.0
+            hooks:
+              - id: python-check-blanket-noqa
+              - id: python-check-mock-methods
+              - id: python-no-eval
+              - id: python-no-log-warn
+              - id: rst-backticks
+          - repo: https://github.com/pre-commit/pre-commit-hooks
+            rev: v4.0.1
+            hooks:
+              - id: debug-statements
+          - repo: https://github.com/asottile/pyupgrade
+            hooks:
+              - id: pyupgrade
+        """
+        ''',
+    ).named_style(
+        "pre-commit/bash",
+        '''
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/openstack/bashate
+            rev: 2.0.0
+            hooks:
+              - id: bashate
+        """
+        ''',
+    ).pyproject_toml(
         """
         [tool.nitpick]
         style = ["root", "mypy", "pre-commit/python", "pre-commit/bash"]
