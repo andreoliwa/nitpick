@@ -38,8 +38,8 @@ class GitHubURL:
         return f"https://raw.githubusercontent.com/{self.owner}/{self.repository}/{self.git_reference}/{self.path}"
 
     @classmethod
-    def from_url(cls, url: str) -> "GitHubURL":
-        """Create an instance from a URL string."""
+    def parse_url(cls, url: str) -> "GitHubURL":
+        """Create an instance by parsing a URL string."""
         parsed_url = urlparse(url)
         owner, repo, _, git_reference, path = parsed_url.path.strip("/").split("/", 4)
         return cls(owner, repo, git_reference, path)

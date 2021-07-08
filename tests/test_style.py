@@ -758,7 +758,7 @@ def test_github_fetch(tmp_path):
 
 def test_convert_github_url_to_raw():
     """Test a GitHub URL and its parts, raw URL, API URL."""
-    gh = GitHubURL.from_url("https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py")
+    gh = GitHubURL.parse_url("https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py")
     assert gh.owner == "andreoliwa"
     assert gh.repository == "nitpick"
     assert gh.git_reference == "develop"
