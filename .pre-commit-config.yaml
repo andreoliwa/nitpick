@@ -27,17 +27,17 @@ repos:
         types: [python, toml]
         stages: [commit]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+    rev: v4.0.1
     hooks:
       - id: debug-statements
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.13.0
+    rev: v2.20.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/psf/black
-    rev: 21.4b0
+    rev: 21.6b0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -45,13 +45,13 @@ repos:
     rev: v1.10.0
     hooks:
       - id: blacken-docs
-        additional_dependencies: [black==21.4b0]
+        additional_dependencies: [black==21.5b2]
   - repo: https://github.com/PyCQA/isort
-    rev: 5.8.0
+    rev: 5.9.1
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.8.0
+    rev: v1.9.0
     hooks:
       - id: python-check-blanket-noqa
       - id: python-check-mock-methods
@@ -59,12 +59,12 @@ repos:
       - id: python-no-log-warn
       - id: rst-backticks
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.2.1
+    rev: v2.3.2
     hooks:
       - id: prettier
         stages: [commit]
   - repo: https://github.com/PyCQA/flake8
-    rev: 3.9.1
+    rev: 3.9.2
     hooks:
       - id: flake8
         additional_dependencies:
@@ -82,9 +82,14 @@ repos:
             yesqa,
           ]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.812
+    rev: v0.910
     hooks:
       - id: mypy
+        # Install additional types to fix new warnings that appeared on v0.910:
+        # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+        # "using --install-types is problematic"
+        # see https://github.com/pre-commit/mirrors-mypy#using-mypy-with-pre-commit
+        additional_dependencies: [types-freezegun, types-toml, types-attrs, types-requests, types-python-slugify]
   # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
   # Note for future attempts with pylint as a pre-commit hook:
   # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.
@@ -110,7 +115,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v4.1.0
+    rev: v5.0.0
     hooks:
       - id: commitlint
         stages: [commit-msg]

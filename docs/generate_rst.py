@@ -95,6 +95,11 @@ class FileType:
     check: Union[bool, int]
     fix: Union[bool, int]
 
+    def __post_init__(self):
+        """Warn about text that might render incorrectly."""
+        if "`" in self.text:
+            raise RuntimeError(f"Remove all backticks from the text: {self.text}")
+
     def __lt__(self, other: "FileType") -> bool:
         """Sort instances.
 
@@ -102,12 +107,17 @@ class FileType:
 
         > It is easy to add a standard sort order to a class by defining an __lt__() method
         """
-        return self.text < other.text
+        return self.sort_key < other.sort_key
+
+    @property
+    def sort_key(self) -> str:
+        """Sort key of this element."""
+        return ("0" if self.text.startswith("Any") else "1") + self.text.casefold().replace(".", "")
 
     @property
     def text_with_url(self) -> str:
-        """Text with URL in Markdown."""
-        return f"[{self.text}]({self.url})" if self.url else self.text
+        """Text with URL in reStructuredText."""
+        return f"`{self.text} <{self.url}>`_" if self.url else self.text
 
     def _pretty(self, attribute: str) -> str:
         value = getattr(self, attribute)
@@ -117,7 +127,7 @@ class FileType:
             return "❌"
         if value == 0:
             return "❓"
-        return f"🚧&nbsp;&nbsp;[#{value}](https://github.com/andreoliwa/nitpick/issues/{value})"
+        return f"`#{value} <https://github.com/andreoliwa/nitpick/issues/{value}>`_ 🚧"
 
     @property
     def check_str(self) -> str:
@@ -131,32 +141,32 @@ class FileType:
 
     @property
     def row(self) -> Tuple[str, str, str]:
-        """Tuple for a Markdown table row."""
+        """Tuple for a table row."""
         return self.text_with_url, self.check_str, self.fix_str
 
 
 IMPLEMENTED_FILE_TYPES: Set[FileType] = {
-    FileType("Any `.ini` file", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
-    FileType("Any `.json` file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, 358),
+    FileType("Any INI file", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+    FileType("Any JSON file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, 358),
     FileType("Any text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
-    FileType("Any `.toml` file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
-    FileType(f"`{EDITOR_CONFIG}`", f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
-    FileType(f"`{PRE_COMMIT_CONFIG_YAML}`", f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
-    FileType(f"`{PYLINTRC}`", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
-    FileType(f"`{PACKAGE_JSON}`", f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, 358),
-    FileType(f"`{PYPROJECT_TOML}`", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
-    FileType("`requirements.txt`", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
-    FileType(f"`{SETUP_CFG}`", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+    FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
+    FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
+    FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
+    FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+    FileType(PACKAGE_JSON, f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, 358),
+    FileType(PYPROJECT_TOML, f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
+    FileType("requirements.txt", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
+    FileType(SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
 }
 PLANNED_FILE_TYPES: Set[FileType] = {
-    FileType("Any `.md` (Markdown) file", "", 280, 0),
-    FileType("Any `.tf` (Terraform) file", "", 318, 0),
-    FileType("`.dockerignore`", "", 8, 8),
-    FileType("`.gitignore`", "", 8, 8),
-    FileType("`.travis.yml`", "", 15, 15),
-    FileType("`Dockerfile`", "", 272, 272),
-    FileType("`Jenkinsfile`", "", 278, 0),
-    FileType("`Makefile`", "", 277, 0),
+    FileType("Any Markdown file", "", 280, 0),
+    FileType("Any Terraform file", "", 318, 0),
+    FileType(".dockerignore", "", 8, 8),
+    FileType(".gitignore", "", 8, 8),
+    FileType(".travis.yml", "", 15, 15),
+    FileType("Dockerfile", "", 272, 272),
+    FileType("Jenkinsfile", "", 278, 0),
+    FileType("Makefile", "", 277, 0),
 }
 
 nit = Nitpick.singleton().init()
@@ -343,36 +353,17 @@ def write_config() -> int:
 
 
 def write_readme(file_types: Set[FileType], divider: str) -> int:
-    """Write README.md.
-
-    prettier will try to reformat the tables; to avoid that, README.md was added to .prettierignore.
-    """
-    rows: List[Tuple[str, ...]] = [("File type", "[`nitpick check`](#run)", "[`nitpick fix`](#run)")]
-    max_length = [len(h) for h in rows[0]]
+    """Write the README."""
+    rows: List[Tuple[str, ...]] = [("File type", "``nitpick check``", "``nitpick fix``")]
     for file_type in sorted(file_types):
-        if max_length[0] < len(file_type.text_with_url):
-            max_length[0] = len(file_type.text_with_url)
-        if max_length[1] < len(file_type.check_str):
-            max_length[1] = len(file_type.check_str)
-        if max_length[2] < len(file_type.fix_str):
-            max_length[2] = len(file_type.fix_str)
-
         rows.append(file_type.row)
 
-    rows.insert(1, tuple("-" * max_length[i] for i in range(3)))
-
-    # Empty line after the opening comment (prettier does that)
-    blocks = [""]
-
+    blocks = [".. list-table::\n   :header-rows: 1\n"]
     for row in rows:
-        cells = [row[i].ljust(max_length[i]) for i in range(3)]
-        middle = " | ".join(cells)
-        blocks.append(f"| {middle} |")
+        template = "* - {}\n  - {}\n  - {}"
+        blocks.append(indent(template.format(*row), "   "))
 
-    # Empty line before the closing comment (prettier does that)
-    blocks.append("")
-
-    return DocFile("../README.md").write(blocks, divider_id=divider)
+    return DocFile("../README.rst").write(blocks, divider_id=divider)
 
 
 if __name__ == "__main__":

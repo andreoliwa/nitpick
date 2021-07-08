@@ -30,7 +30,59 @@ def test_pre_commit_referenced_in_style(tmp_path):
 
 def test_suggest_initial_contents(tmp_path):
     """Suggest initial contents for missing pre-commit config file."""
-    ProjectMock(tmp_path).load_styles("isort", "black").pyproject_toml(
+    ProjectMock(tmp_path).named_style(
+        "isort",
+        '''
+        ["setup.cfg".isort]
+        line_length = 120
+        skip = ".tox,build"
+        known_first_party = "tests"
+
+        # The configuration below is needed for compatibility with black.
+        # https://github.com/python/black#how-black-wraps-lines
+        # https://github.com/PyCQA/isort#multi-line-output-modes
+        multi_line_output = 3
+        include_trailing_comma = true
+        force_grid_wrap = 0
+        combine_as_imports = true
+
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/PyCQA/isort
+            rev: 5.8.0
+            hooks:
+              - id: isort
+        """
+        ''',
+    ).named_style(
+        "black",
+        '''
+        ["pyproject.toml".tool.black]
+        line-length = 120
+
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/psf/black
+            rev: 21.5b2
+            hooks:
+              - id: black
+                args: [--safe, --quiet]
+          - repo: https://github.com/asottile/blacken-docs
+            rev: v1.10.0
+            hooks:
+              - id: blacken-docs
+                additional_dependencies: [black==21.5b2]
+        """
+        # TODO The toml library has issues loading arrays with multiline strings:
+        #  https://github.com/uiri/toml/issues/123
+        #  https://github.com/uiri/toml/issues/230
+        #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
+        #[".pre-commit-config.yaml"]
+        #repos = ["""
+        #<YAML goes here>
+        #"""]
+        ''',
+    ).pyproject_toml(
         """
         [tool.nitpick]
         style = ["isort", "black"]
@@ -48,7 +100,7 @@ def test_suggest_initial_contents(tmp_path):
                 hooks:
                   - id: isort
               - repo: https://github.com/psf/black
-                rev: 21.4b0
+                rev: 21.5b2
                 hooks:
                   - id: black
                     args: [--safe, --quiet]
@@ -56,7 +108,7 @@ def test_suggest_initial_contents(tmp_path):
                 rev: v1.10.0
                 hooks:
                   - id: blacken-docs
-                    additional_dependencies: [black==21.4b0]
+                    additional_dependencies: [black==21.5b2]
             """,
         ),
         partial_names=[PRE_COMMIT_CONFIG_YAML],
@@ -376,8 +428,6 @@ def test_get_all_hooks_from():
 
 def test_missing_different_values(tmp_path):
     """Test missing and different values on the hooks."""
-    # TODO: add loaded and named styles automatically to pyproject_toml
-    # pylint: disable=line-too-long
     ProjectMock(tmp_path).named_style(
         "root",
         '''
@@ -390,7 +440,68 @@ def test_missing_different_values(tmp_path):
                 args: [--expected, arguments]
         """
         ''',
-    ).load_styles("mypy", "pre-commit/python", "pre-commit/bash").pyproject_toml(
+    ).named_style(
+        "mypy",
+        '''
+        # https://mypy.readthedocs.io/en/latest/config_file.html
+        ["setup.cfg".mypy]
+        ignore_missing_imports = true
+
+        # Do not follow imports (except for ones found in typeshed)
+        follow_imports = "skip"
+
+        # Treat Optional per PEP 484
+        strict_optional = true
+
+        # Ensure all execution paths are returning
+        warn_no_return = true
+
+        # Lint-style cleanliness for typing
+        warn_redundant_casts = true
+        warn_unused_ignores = true
+
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/pre-commit/mirrors-mypy
+            rev: v0.812
+            hooks:
+              - id: mypy
+        """
+    ''',
+    ).named_style(
+        "pre-commit/python",
+        '''
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/pre-commit/pygrep-hooks
+            rev: v1.8.0
+            hooks:
+              - id: python-check-blanket-noqa
+              - id: python-check-mock-methods
+              - id: python-no-eval
+              - id: python-no-log-warn
+              - id: rst-backticks
+          - repo: https://github.com/pre-commit/pre-commit-hooks
+            rev: v4.0.1
+            hooks:
+              - id: debug-statements
+          - repo: https://github.com/asottile/pyupgrade
+            hooks:
+              - id: pyupgrade
+        """
+        ''',
+    ).named_style(
+        "pre-commit/bash",
+        '''
+        [[".pre-commit-config.yaml".repos]]
+        yaml = """
+          - repo: https://github.com/openstack/bashate
+            rev: 2.0.0
+            hooks:
+              - id: bashate
+        """
+        ''',
+    ).pyproject_toml(
         """
         [tool.nitpick]
         style = ["root", "mypy", "pre-commit/python", "pre-commit/bash"]
@@ -407,11 +518,11 @@ def test_missing_different_values(tmp_path):
               - id: python-no-log-warn
               - id: rst-backticks
           - repo: https://github.com/pre-commit/pre-commit-hooks
-            rev: v3.4.0
+            rev: v4.0.1
             hooks:
               - id: debug-statements
           - repo: https://github.com/asottile/pyupgrade
-            rev: v2.13.0
+            rev: v2.16.0
             hooks:
               - id: pyupgrade
           - repo: https://github.com/openstack/bashate

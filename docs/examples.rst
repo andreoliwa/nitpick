@@ -45,15 +45,13 @@ Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.26
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/psf/black
-        rev: 21.4b0
         hooks:
           - id: black
             args: [--safe, --quiet]
       - repo: https://github.com/asottile/blacken-docs
-        rev: v1.10.0
         hooks:
           - id: blacken-docs
-            additional_dependencies: [black==21.4b0]
+            additional_dependencies: [black==21.5b2]
     """
     # TODO The toml library has issues loading arrays with multiline strings:
     #  https://github.com/uiri/toml/issues/123
@@ -128,7 +126,7 @@ Contents of `styles/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/PyCQA/flake8
-        rev: 3.9.1
+        rev: 3.9.2
         hooks:
           - id: flake8
             additional_dependencies:
@@ -186,7 +184,6 @@ Contents of `styles/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.26
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/PyCQA/isort
-        rev: 5.8.0
         hooks:
           - id: isort
     """
@@ -220,7 +217,6 @@ Contents of `styles/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.26.
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.812
         hooks:
           - id: mypy
     """
@@ -287,7 +283,7 @@ Contents of `styles/pre-commit/commitlint.toml <https://github.com/andreoliwa/ni
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        rev: v4.1.0
+        rev: v5.0.0
         hooks:
           - id: commitlint
             stages: [commit-msg]
@@ -306,7 +302,7 @@ Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpi
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v3.4.0
+        rev: v4.0.1
         hooks:
           - id: end-of-file-fixer
           - id: trailing-whitespace
@@ -339,7 +335,6 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pygrep-hooks
-        rev: v1.8.0
         hooks:
           - id: python-check-blanket-noqa
           - id: python-check-mock-methods
@@ -347,11 +342,9 @@ Contents of `styles/pre-commit/python.toml <https://github.com/andreoliwa/nitpic
           - id: python-no-log-warn
           - id: rst-backticks
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v3.4.0
         hooks:
           - id: debug-statements
       - repo: https://github.com/asottile/pyupgrade
-        rev: v2.13.0
         hooks:
           - id: pyupgrade
     """
