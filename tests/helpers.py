@@ -201,6 +201,7 @@ class ProjectMock:
         """Save the default style file."""
         return self.save_file(NITPICK_STYLE_TOML, file_contents)
 
+    # TODO: remove this function, don't test real styles anymore to avoid breaking tests on Renovate updates
     def load_styles(self, *args: PathOrStr) -> "ProjectMock":
         """Load style files from the 'styles' dir, to be used on tests.
 
