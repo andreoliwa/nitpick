@@ -4,6 +4,7 @@ from enum import Enum
 from typing import Tuple
 from urllib.parse import urlparse
 
+from nitpick.constants import GIT_AT_REFERENCE
 from nitpick.style.fetchers.http import HttpFetcher
 
 
@@ -43,8 +44,12 @@ class GitHubURL:
         parsed_url = urlparse(url)
         if parsed_url.scheme in GitHubFetcher.protocols:
             owner = parsed_url.netloc
-            repo, path = parsed_url.path.strip("/").split("/", 1)
-            git_reference = "develop"
+            repo_with_git_reference, path = parsed_url.path.strip("/").split("/", 1)
+            if GIT_AT_REFERENCE in repo_with_git_reference:
+                repo, git_reference = repo_with_git_reference.split(GIT_AT_REFERENCE)
+            else:
+                repo = repo_with_git_reference
+                git_reference = "develop"
         else:
             owner, repo, _, git_reference, path = parsed_url.path.strip("/").split("/", 4)
         return cls(owner, repo, git_reference, path)
@@ -57,12 +62,15 @@ class GitHubURL:
     @property
     def short_protocol_url(self) -> str:
         """Short protocol URL (``gh``)."""
-        return f"{GitHubProtocol.SHORT.value}://{self.owner}/{self.repository}/{self.path}"
+        return self._build_url(GitHubProtocol.SHORT)
 
     @property
     def long_protocol_url(self) -> str:
         """Long protocol URL (``github``)."""
-        return f"{GitHubProtocol.LONG.value}://{self.owner}/{self.repository}/{self.path}"
+        return self._build_url(GitHubProtocol.LONG)
+
+    def _build_url(self, protocol: GitHubProtocol):
+        return f"{protocol.value}://{self.owner}/{self.repository}{GIT_AT_REFERENCE}{self.git_reference}/{self.path}"
 
 
 @dataclass(repr=True, unsafe_hash=True)

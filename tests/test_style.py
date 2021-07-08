@@ -757,21 +757,27 @@ def test_github_fetch(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "url",
+    "url,git_reference",
     [
-        "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
-        "gh://andreoliwa/nitpick/src/nitpick/__init__.py",
-        "github://andreoliwa/nitpick/src/nitpick/__init__.py",
+        ("https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py", "develop"),
+        ("gh://andreoliwa/nitpick/src/nitpick/__init__.py", "develop"),
+        ("github://andreoliwa/nitpick/src/nitpick/__init__.py", "develop"),
+        ("https://github.com/andreoliwa/nitpick/blob/v0.26.0/src/nitpick/__init__.py", "v0.26.0"),
+        ("gh://andreoliwa/nitpick@v0.23.1/src/nitpick/__init__.py", "v0.23.1"),
+        ("github://andreoliwa/nitpick@some-branch/src/nitpick/__init__.py", "some-branch"),
     ],
 )
-def test_parsing_github_urls(url):
+def test_parsing_github_urls(url, git_reference):
     """Test a GitHub URL and its parts, raw URL, API URL."""
     gh = GitHubURL.parse_url(url)
     assert gh.owner == "andreoliwa"
     assert gh.repository == "nitpick"
-    assert gh.git_reference == "develop"
+    assert gh.git_reference == git_reference
     assert gh.path == "src/nitpick/__init__.py"
-    assert gh.raw_content_url == "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/src/nitpick/__init__.py"
+    assert (
+        gh.raw_content_url
+        == f"https://raw.githubusercontent.com/andreoliwa/nitpick/{git_reference}/src/nitpick/__init__.py"
+    )
     assert gh.api_url == "https://api.github.com/repos/andreoliwa/nitpick"
-    assert gh.short_protocol_url == "gh://andreoliwa/nitpick/src/nitpick/__init__.py"
-    assert gh.long_protocol_url == "github://andreoliwa/nitpick/src/nitpick/__init__.py"
+    assert gh.short_protocol_url == f"gh://andreoliwa/nitpick@{git_reference}/src/nitpick/__init__.py"
+    assert gh.long_protocol_url == f"github://andreoliwa/nitpick@{git_reference}/src/nitpick/__init__.py"

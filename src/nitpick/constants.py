@@ -73,3 +73,5 @@ NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
 #: Dot/slash is used to indicate a local style file
 SLASH = os.path.sep
 DOT_SLASH = f".{SLASH}"
+
+GIT_AT_REFERENCE = "@"
