@@ -756,43 +756,58 @@ def test_github_fetch(tmp_path):
     )
 
 
+@responses.activate
 @pytest.mark.parametrize(
-    "original_url,git_reference,expected_url",
+    "original_url, expected_url, git_reference, raw_git_reference, at_reference",
     [
         (
             "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
-            "develop",
             "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
+            "develop",
+            "develop",
+            "",
         ),
         (
             "gh://andreoliwa/nitpick/src/nitpick/__init__.py",
-            "develop",
             "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
+            "",
+            "develop",
+            "",
         ),
         (
             "github://andreoliwa/nitpick/src/nitpick/__init__.py",
-            "develop",
             "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
+            "",
+            "develop",
+            "",
         ),
         (
             "https://github.com/andreoliwa/nitpick/blob/v0.26.0/src/nitpick/__init__.py",
-            "v0.26.0",
             "https://github.com/andreoliwa/nitpick/blob/v0.26.0/src/nitpick/__init__.py",
+            "v0.26.0",
+            "v0.26.0",
+            "@v0.26.0",
         ),
         (
             "gh://andreoliwa/nitpick@v0.23.1/src/nitpick/__init__.py",
-            "v0.23.1",
             "https://github.com/andreoliwa/nitpick/blob/v0.23.1/src/nitpick/__init__.py",
+            "v0.23.1",
+            "v0.23.1",
+            "@v0.23.1",
         ),
         (
-            "github://andreoliwa/nitpick@some-branch/src/nitpick/__init__.py",
-            "some-branch",
-            "https://github.com/andreoliwa/nitpick/blob/some-branch/src/nitpick/__init__.py",
+            "github://andreoliwa/nitpick@master/src/nitpick/__init__.py",
+            "https://github.com/andreoliwa/nitpick/blob/master/src/nitpick/__init__.py",
+            "master",
+            "master",
+            "@master",
         ),
     ],
 )
-def test_parsing_github_urls(original_url, git_reference, expected_url):
+def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_reference, at_reference):
     """Test a GitHub URL and its parts, raw URL, API URL."""
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
+
     gh = GitHubURL.parse_url(original_url)
     assert gh.owner == "andreoliwa"
     assert gh.repository == "nitpick"
@@ -800,9 +815,9 @@ def test_parsing_github_urls(original_url, git_reference, expected_url):
     assert gh.path == "src/nitpick/__init__.py"
     assert (
         gh.raw_content_url
-        == f"https://raw.githubusercontent.com/andreoliwa/nitpick/{git_reference}/src/nitpick/__init__.py"
+        == f"https://raw.githubusercontent.com/andreoliwa/nitpick/{raw_git_reference}/src/nitpick/__init__.py"
     )
     assert gh.url == expected_url
     assert gh.api_url == "https://api.github.com/repos/andreoliwa/nitpick"
-    assert gh.short_protocol_url == f"gh://andreoliwa/nitpick@{git_reference}/src/nitpick/__init__.py"
-    assert gh.long_protocol_url == f"github://andreoliwa/nitpick@{git_reference}/src/nitpick/__init__.py"
+    assert gh.short_protocol_url == f"gh://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
+    assert gh.long_protocol_url == f"github://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"

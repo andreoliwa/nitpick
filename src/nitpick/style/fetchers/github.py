@@ -4,6 +4,8 @@ from enum import Enum
 from typing import Tuple
 from urllib.parse import urlparse
 
+from requests import Session
+
 from nitpick.constants import GIT_AT_REFERENCE
 from nitpick.style.fetchers.http import HttpFetcher
 
@@ -24,19 +26,31 @@ class GitHubURL:
     git_reference: str
     path: str
 
+    _default_branch = ""
+
     def __post_init__(self):
         """Remove the initial slash from the path."""
+        self._session = Session()
         self.path = self.path.lstrip("/")
+        self._default_branch = self.get_default_branch()
+
+    @property
+    def git_reference_or_default(self) -> str:
+        """Return the Git reference if informed, or return the default branch."""
+        return self.git_reference or self._default_branch
 
     @property
     def url(self) -> str:
         """Default URL built from attributes."""
-        return f"https://github.com/{self.owner}/{self.repository}/blob/{self.git_reference}/{self.path}"
+        return f"https://github.com/{self.owner}/{self.repository}/blob/{self.git_reference_or_default}/{self.path}"
 
     @property
     def raw_content_url(self) -> str:
         """Raw content URL for this path."""
-        return f"https://raw.githubusercontent.com/{self.owner}/{self.repository}/{self.git_reference}/{self.path}"
+        return (
+            f"https://raw.githubusercontent.com/{self.owner}/{self.repository}"
+            f"/{self.git_reference_or_default}/{self.path}"
+        )
 
     @classmethod
     def parse_url(cls, url: str) -> "GitHubURL":
@@ -54,6 +68,7 @@ class GitHubURL:
         """
         # FIXME[AA]: move this to a .rst
         parsed_url = urlparse(url)
+        git_reference = ""
         if parsed_url.scheme in GitHubFetcher.protocols:
             owner = parsed_url.netloc
             repo_with_git_reference, path = parsed_url.path.strip("/").split("/", 1)
@@ -61,7 +76,6 @@ class GitHubURL:
                 repo, git_reference = repo_with_git_reference.split(GIT_AT_REFERENCE)
             else:
                 repo = repo_with_git_reference
-                git_reference = "develop"
         else:
             owner, repo, _, git_reference, path = parsed_url.path.strip("/").split("/", 4)
         return cls(owner, repo, git_reference, path)
@@ -82,7 +96,16 @@ class GitHubURL:
         return self._build_url(GitHubProtocol.LONG)
 
     def _build_url(self, protocol: GitHubProtocol):
-        return f"{protocol.value}://{self.owner}/{self.repository}{GIT_AT_REFERENCE}{self.git_reference}/{self.path}"
+        if self.git_reference and self.git_reference != self._default_branch:
+            at_reference = f"{GIT_AT_REFERENCE}{self.git_reference}"
+        else:
+            at_reference = ""
+        return f"{protocol.value}://{self.owner}/{self.repository}{at_reference}/{self.path}"
+
+    def get_default_branch(self) -> str:
+        """Get the default branch from the GitHub repo using the API."""
+        response = self._session.get(self.api_url).json()
+        return response["default_branch"]
 
 
 @dataclass(repr=True, unsafe_hash=True)
@@ -96,12 +119,5 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
         owner = parsed_url.netloc
         repository = str(parsed_url.path.split("/")[1])
 
-        github_url = GitHubURL(owner, repository, "develop", parsed_url.path.replace(f"/{repository}", ""))
-        github_url.git_reference = self.get_default_branch(github_url)
-
+        github_url = GitHubURL(owner, repository, "", parsed_url.path.replace(f"/{repository}", ""))
         return super()._download(github_url.raw_content_url)
-
-    def get_default_branch(self, github_url: GitHubURL) -> str:
-        """Get the default branch from the GitHub repo using the API."""
-        response = self._session.get(github_url.api_url).json()
-        return response["default_branch"]
