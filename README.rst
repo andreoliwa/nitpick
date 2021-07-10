@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick?ref=badge_shield)
+
 Nitpick
 =======
 
@@ -277,3 +279,7 @@ supported, `see the full documentation <https://nitpick.rtfd.io/>`__.
    :target: https://github.com/semantic-release/semantic-release
 .. |pre-commit.ci status| image:: https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/develop.svg
    :target: https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/develop
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick?ref=badge_large)
