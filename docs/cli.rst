@@ -44,7 +44,6 @@ Main options
       -p, --project DIRECTORY  Path to project root
       --offline                Offline mode: no style will be downloaded (no HTTP
                                requests at all)
-
       --help                   Show this message and exit.
 
     Commands:
@@ -73,7 +72,7 @@ At the end of execution, this command displays:
       You can use partial and multiple file names in the FILES argument.
 
     Options:
-      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
+      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)  [x>=0]
       --help         Show this message and exit.
 
 .. _cli_cmd_check:
@@ -89,11 +88,11 @@ At the end of execution, this command displays:
       Don't modify files, just print the differences.
 
       Return code 0 means nothing would change. Return code 1 means some files
-      would be modified. You can use partial and multiple file names in the
-      FILES argument.
+      would be modified. You can use partial and multiple file names in the FILES
+      argument.
 
     Options:
-      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
+      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)  [x>=0]
       --help         Show this message and exit.
 
 .. _cli_cmd_ls:
@@ -108,8 +107,8 @@ At the end of execution, this command displays:
 
       List of files configured in the Nitpick style.
 
-      Display existing files in green and absent files in red. You can use
-      partial and multiple file names in the FILES argument.
+      Display existing files in green and absent files in red. You can use partial
+      and multiple file names in the FILES argument.
 
     Options:
       --help  Show this message and exit.

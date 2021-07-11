@@ -1,5 +1,6 @@
 """CLI tests."""
 import pytest
+import responses
 
 from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML, READ_THE_DOCS_URL, TOOL_NITPICK
 from nitpick.style import Style
@@ -41,8 +42,11 @@ def test_config_file_already_exists(tmp_path, config_file):
     project.cli_init(f"A config file already exists: {config_file}", exit_code=1)
 
 
+@responses.activate
 def test_create_basic_dot_nitpick_toml(tmp_path):
-    """If no config file is found, create a basic .nitpick.toml."""
+    """If no config file is found, create a basic .nitpick.toml x."""
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
+
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
     project.cli_init(f"Config file created: {DOT_NITPICK_TOML}").assert_file_contents(
         DOT_NITPICK_TOML,

@@ -1,10 +1,11 @@
 """Support for ``gh`` and ``github`` schemes."""
 from dataclasses import dataclass
 from enum import Enum
+from functools import lru_cache
 from typing import Tuple
 from urllib.parse import urlparse
 
-from requests import Session
+from requests import Session, get as requests_get
 
 from nitpick.constants import GIT_AT_REFERENCE
 from nitpick.style.fetchers.http import HttpFetcher
@@ -32,7 +33,7 @@ class GitHubURL:
         """Remove the initial slash from the path."""
         self._session = Session()
         self.path = self.path.lstrip("/")
-        self._default_branch = self.get_default_branch()
+        self._default_branch = get_default_branch(self.api_url)
 
     @property
     def git_reference_or_default(self) -> str:
@@ -62,7 +63,7 @@ class GitHubURL:
         It is similar to the syntax used by ``pip`` and ``pipx``:
 
         - `pip install - VCS Support - Git <https://pip.pypa.io/en/stable/cli/pip_install/?highlight=git#git>`_;
-        - `pypa/pipx: Installing from source control <https://github.com/pypa/pipx#installing-from-source-control>`_.
+        - `pypa/pipx: Installing from Source Control <https://pypa.github.io/pipx/#installing-from-source-control>`_.
 
         See the code for ``test_parsing_github_urls()`` for more examples.
         """
@@ -102,10 +103,23 @@ class GitHubURL:
             at_reference = ""
         return f"{protocol.value}://{self.owner}/{self.repository}{at_reference}/{self.path}"
 
-    def get_default_branch(self) -> str:
-        """Get the default branch from the GitHub repo using the API."""
-        response = self._session.get(self.api_url).json()
-        return response["default_branch"]
+
+@lru_cache()
+def get_default_branch(api_url: str) -> str:
+    """Get the default branch from the GitHub repo using the API.
+
+    For now, the request is not authenticated on GitHub, so it might hit a rate limit with:
+    ``requests.exceptions.HTTPError: 403 Client Error: rate limit exceeded for url``
+
+    This function is using ``lru_cache()`` as a simple memoizer, trying to avoid this rate limit error.
+
+    Another option for the future: perform an authenticated request to GitHub.
+    That would require a ``requests.Session`` and some user credentials.
+    """
+    response = requests_get(api_url)
+    response.raise_for_status()
+
+    return response.json()["default_branch"]
 
 
 @dataclass(repr=True, unsafe_hash=True)

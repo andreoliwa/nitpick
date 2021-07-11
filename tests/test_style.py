@@ -733,7 +733,7 @@ def test_github_fetch(tmp_path):
     for url, style in data:
         responses.add(responses.GET, url, dedent(style), status=200)
 
-    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", """{"default_branch": "develop"}""")
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
 
     ProjectMock(tmp_path).pyproject_toml(
         """

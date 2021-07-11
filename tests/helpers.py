@@ -317,7 +317,17 @@ class ProjectMock:
         return self
 
     def _simulate_cli(self, command: str, expected_str_or_lines: StrOrList = None, *args: str, exit_code: int = None):
+        """Simulate the CLI by invoking a click command.
+
+        1. If the command raised an exception that was not a common "system exit",
+            this method will re-raise it, so the test can be fixed.
+        """
         result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *args])
+
+        # 1.
+        if result.exception and not isinstance(result.exception, SystemExit):
+            raise result.exception
+
         actual: List[str] = result.output.splitlines()
 
         if isinstance(expected_str_or_lines, str):

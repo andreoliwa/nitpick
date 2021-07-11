@@ -8,7 +8,6 @@ from loguru import logger
 from requests.sessions import Session
 
 from nitpick.enums import OptionEnum
-from nitpick.style.fetchers import _requests_session
 from nitpick.style.fetchers.base import StyleFetcher
 
 
@@ -23,7 +22,7 @@ class HttpFetcher(StyleFetcher):
 
     def __post_init__(self):
         """Sessions should be per class as children can have custom headers or authentication."""
-        self._session = _requests_session()
+        self._session = Session()
         self._post_hooks()
 
     def _post_hooks(self):

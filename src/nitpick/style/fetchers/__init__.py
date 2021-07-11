@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Optional, Tuple
 from urllib.parse import urlparse, uses_netloc, uses_relative
 
 from cachy import CacheManager, Repository
-from requests import Session
 
 from nitpick.generic import is_url
 
@@ -14,9 +13,6 @@ if TYPE_CHECKING:
     from nitpick.style.fetchers.base import FetchersType
 
 StyleInfo = Tuple[Optional[Path], str]
-
-
-# pylint: disable=too-few-public-methods
 
 
 @dataclass(repr=True)
@@ -68,11 +64,6 @@ class StyleFetcherManager:
             return parsed_url.scheme
 
         return "file"
-
-
-def _requests_session() -> Session:
-    session = Session()
-    return session
 
 
 def _get_fetchers(cache_repository, cache_option) -> "FetchersType":
