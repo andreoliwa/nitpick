@@ -30,7 +30,47 @@ You can set ``style`` with any local file or URL.
 Remote style
 ------------
 
-Use the URL of the remote file. If it's hosted on GitHub, use the raw GitHub URL:
+Use the URL of the remote file.
+
+If it's hosted on GitHub, use any of the following formats:
+
+GitHub URL scheme (``github://`` or ``gh://``) pinned to a specific version:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "github://andreoliwa/nitpick@v0.26.0/nitpick-style.toml"
+    # or
+    style = "gh://andreoliwa/nitpick@v0.26.0/nitpick-style.toml"
+
+The ``@`` syntax is used to get a Git reference (commit, tag, branch).
+It is similar to the syntax used by ``pip`` and ``pipx``:
+
+- `pip install - VCS Support - Git <https://pip.pypa.io/en/stable/cli/pip_install/?highlight=git#git>`_;
+- `pypa/pipx: Installing from Source Control <https://pypa.github.io/pipx/#installing-from-source-control>`_.
+
+If no Git reference is provided, the default GitHub branch will be used (for Nitpick, it's ``develop``):
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "github://andreoliwa/nitpick/nitpick-style.toml"
+    # or
+    style = "gh://andreoliwa/nitpick/nitpick-style.toml"
+
+    # It has the same effect as providing the default branch explicitly:
+    style = "github://andreoliwa/nitpick@develop/nitpick-style.toml"
+    # or
+    style = "gh://andreoliwa/nitpick@develop/nitpick-style.toml"
+
+A regular GitHub URL also works. The corresponding raw URL will be used.
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "https://github.com/andreoliwa/nitpick/blob/v0.26.0/nitpick-style.toml"
+
+Or use the raw GitHub URL directly:
 
 .. code-block:: toml
 

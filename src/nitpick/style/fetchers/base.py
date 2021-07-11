@@ -23,6 +23,7 @@ class StyleFetcher:
 
     requires_connection = False
     protocols: Tuple[str, ...] = ()
+    domains: Tuple[str, ...] = ()
 
     def fetch(self, url) -> StyleInfo:
         """Fetch a style form cache or from a specific fetcher."""

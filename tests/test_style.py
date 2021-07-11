@@ -1,7 +1,6 @@
 """Style tests."""
-# pylint: disable=no-member
+from pathlib import Path
 from textwrap import dedent
-from typing import TYPE_CHECKING
 from unittest import mock
 from unittest.mock import PropertyMock
 
@@ -9,11 +8,9 @@ import pytest
 import responses
 
 from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, SETUP_CFG, TOML_EXTENSION, TOX_INI
+from nitpick.style.fetchers.github import GitHubURL
 from nitpick.violations import Fuss
 from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, XFAIL_ON_WINDOWS, ProjectMock, assert_conditions
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 @pytest.mark.parametrize("offline", [False, True])
@@ -714,8 +711,23 @@ def test_invalid_nitpick_files(offline, tmp_path):
 
 
 @responses.activate
-def test_github_fetch(tmp_path):
-    """Test that gh:// and github:// URLs can be fetched."""
+@pytest.mark.parametrize(
+    "style_url",
+    [
+        # Without commit reference (uses default branch)
+        "github://andreoliwa/nitpick/initial.toml",
+        "gh://andreoliwa/nitpick/initial.toml",
+        # Explicit commit reference
+        "github://andreoliwa/nitpick@develop/initial.toml",
+        "gh://andreoliwa/nitpick@develop/initial.toml",
+        # Regular GitHub URL
+        "https://github.com/andreoliwa/nitpick/blob/develop/initial.toml",
+        # Raw URL directly
+        "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
+    ],
+)
+def test_always_fetch_github_raw_url(style_url, tmp_path):
+    """Test that gh://, github:// and normal github URLs can be fetched always by their corresponding raw URL."""
     raw_url = "https://raw.githubusercontent.com/andreoliwa/nitpick/develop"
     data = [
         (
@@ -736,14 +748,12 @@ def test_github_fetch(tmp_path):
     for url, style in data:
         responses.add(responses.GET, url, dedent(style), status=200)
 
-    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", """{"default_branch": "develop"}""")
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
 
     ProjectMock(tmp_path).pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
-        style = [
-          "github://andreoliwa/nitpick/initial.toml",
-        ]
+        style = ["{style_url}"]
         """
     ).api_check().assert_violations(
         Fuss(
@@ -757,3 +767,83 @@ def test_github_fetch(tmp_path):
             """,
         )
     )
+
+
+@responses.activate
+@pytest.mark.parametrize(
+    "original_url, expected_url, git_reference, raw_git_reference, at_reference",
+    [
+        (
+            "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
+            "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
+            "develop",
+            "develop",
+            "",
+        ),
+        (
+            "gh://andreoliwa/nitpick/src/nitpick/__init__.py",
+            "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
+            "",
+            "develop",
+            "",
+        ),
+        (
+            "github://andreoliwa/nitpick/src/nitpick/__init__.py",
+            "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
+            "",
+            "develop",
+            "",
+        ),
+        (
+            "https://github.com/andreoliwa/nitpick/blob/v0.26.0/src/nitpick/__init__.py",
+            "https://github.com/andreoliwa/nitpick/blob/v0.26.0/src/nitpick/__init__.py",
+            "v0.26.0",
+            "v0.26.0",
+            "@v0.26.0",
+        ),
+        (
+            "gh://andreoliwa/nitpick@v0.23.1/src/nitpick/__init__.py",
+            "https://github.com/andreoliwa/nitpick/blob/v0.23.1/src/nitpick/__init__.py",
+            "v0.23.1",
+            "v0.23.1",
+            "@v0.23.1",
+        ),
+        (
+            "github://andreoliwa/nitpick@master/src/nitpick/__init__.py",
+            "https://github.com/andreoliwa/nitpick/blob/master/src/nitpick/__init__.py",
+            "master",
+            "master",
+            "@master",
+        ),
+    ],
+)
+def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_reference, at_reference):
+    """Test a GitHub URL and its parts, raw URL, API URL."""
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
+
+    gh = GitHubURL.parse_url(original_url)
+    assert gh.owner == "andreoliwa"
+    assert gh.repository == "nitpick"
+    assert gh.git_reference == git_reference
+    assert gh.path == "src/nitpick/__init__.py"
+    assert (
+        gh.raw_content_url
+        == f"https://raw.githubusercontent.com/andreoliwa/nitpick/{raw_git_reference}/src/nitpick/__init__.py"
+    )
+    assert gh.url == expected_url
+    assert gh.api_url == "https://api.github.com/repos/andreoliwa/nitpick"
+    assert gh.short_protocol_url == f"gh://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
+    assert gh.long_protocol_url == f"github://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
+
+
+def test_protocol_not_supported(tmp_path):
+    """Test unsupported protocols."""
+    project = ProjectMock(tmp_path).pyproject_toml(
+        """
+        [tool.nitpick]
+        style = ["abc://www.example.com/style.toml"]
+        """
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        project.api_check()
+    assert str(exc_info.value) == "URI protocol 'abc' is not supported"

@@ -74,7 +74,7 @@ Enforce config on TOML files.
 E.g.: `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-format>`_.
 
 See also `the [tool.poetry] section of the pyproject.toml file
-<https://github.com/python-poetry/poetry/blob/master/docs/docs/pyproject.md>`_.
+<https://github.com/python-poetry/poetry/blob/master/docs/pyproject.md>`_.
 
 Style example: :ref:`Python 3.8 version constraint <example-python-3-8>`.
 There are :ref:`many other examples here <examples>`.

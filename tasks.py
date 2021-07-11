@@ -69,16 +69,15 @@ class ToxCommands:
         )
 
     @staticmethod
-    def enable_macos(ctx):
-        """Enable macOS on tox.ini."""
-        if sys.platform == "darwin":
+    def macos(ctx, enable: bool):
+        """Enable/disable macOS on tox.ini."""
+        if sys.platform != "darwin":
+            return
+
+        if enable:
             # Hack to be able to run `invoke lint` on a macOS machine during development.
             ctx.run("sed -i '' 's/platform = linux/platform = darwin/g' tox.ini")
-
-    @staticmethod
-    def disable_macos(ctx):
-        """Disable macOS on tox.ini."""
-        if sys.platform == "darwin":
+        else:
             ctx.run("sed -i '' 's/platform = darwin/platform = linux/g' tox.ini")
 
 
@@ -182,6 +181,9 @@ def doc(ctx, full=False, recreate=False, links=False, browse=False, debug=False)
 @task(help={"full": "Full build using tox", "recreate": "Recreate tox environment"})
 def ci_build(ctx, full=False, recreate=False):
     """Simulate a CI build."""
+    tox = ToxCommands()
+    tox.macos(ctx, True)
+
     tox_cmd = "tox -r" if recreate else "tox"
     if full:
         ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
@@ -189,17 +191,19 @@ def ci_build(ctx, full=False, recreate=False):
     else:
         ctx.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
 
+    tox.macos(ctx, False)
+
 
 @task(help={"recreate": "Recreate tox environment"})
 def lint(ctx, recreate=False):
     """Lint using tox."""
     tox = ToxCommands()
-    tox.enable_macos(ctx)
+    tox.macos(ctx, True)
 
     tox_cmd = "tox -r" if recreate else "tox"
     result = ctx.run(f"{tox_cmd} -e lint", warn=True)
 
-    tox.disable_macos(ctx)
+    tox.macos(ctx, False)
 
     # Exit only after restoring tox.ini
     if result.exited > 0:
