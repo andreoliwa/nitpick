@@ -62,19 +62,10 @@ class GitHubURL:
 
     @classmethod
     def parse_url(cls, url: str) -> "GitHubURL":
-        """Create an instance by parsing a URL string.
-
-        Accept URLs with this format: ``gh://andreoliwa/nitpick@v0.23.1/src/nitpick/__init__.py``
-
-        The ``@`` syntax is used to get a Git reference (commit, tag, branch).
-        It is similar to the syntax used by ``pip`` and ``pipx``:
-
-        - `pip install - VCS Support - Git <https://pip.pypa.io/en/stable/cli/pip_install/?highlight=git#git>`_;
-        - `pypa/pipx: Installing from Source Control <https://pypa.github.io/pipx/#installing-from-source-control>`_.
+        """Create an instance by parsing a URL string in any accepted format.
 
         See the code for ``test_parsing_github_urls()`` for more examples.
         """
-        # FIXME[AA]: move this to a .rst
         parsed_url = urlparse(url)
         git_reference = ""
         if parsed_url.scheme in GitHubFetcher.protocols:

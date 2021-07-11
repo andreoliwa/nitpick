@@ -722,6 +722,8 @@ def test_invalid_nitpick_files(offline, tmp_path):
         "gh://andreoliwa/nitpick@develop/initial.toml",
         # Regular GitHub URL
         "https://github.com/andreoliwa/nitpick/blob/develop/initial.toml",
+        # Raw URL directly
+        "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
     ],
 )
 def test_always_fetch_github_raw_url(style_url, tmp_path):
