@@ -834,3 +834,16 @@ def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_
     assert gh.api_url == "https://api.github.com/repos/andreoliwa/nitpick"
     assert gh.short_protocol_url == f"gh://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
     assert gh.long_protocol_url == f"github://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
+
+
+def test_protocol_not_supported(tmp_path):
+    """Test unsupported protocols."""
+    project = ProjectMock(tmp_path).pyproject_toml(
+        """
+        [tool.nitpick]
+        style = ["abc://www.example.com/style.toml"]
+        """
+    )
+    with pytest.raises(RuntimeError) as exc_info:
+        project.api_check()
+    assert str(exc_info.value) == "URI protocol 'abc' is not supported"

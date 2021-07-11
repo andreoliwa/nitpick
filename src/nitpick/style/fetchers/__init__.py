@@ -43,7 +43,7 @@ class StyleFetcherManager:
         if not fetcher:
             fetcher = self.fetchers.get(scheme)
         if not fetcher:
-            raise RuntimeError(f"Protocol {scheme} and/or domain {domain} not supported")
+            raise RuntimeError(f"URI protocol {scheme!r} is not supported")
 
         if self.offline and fetcher.requires_connection:
             return None, ""
