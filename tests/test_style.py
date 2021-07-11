@@ -711,8 +711,21 @@ def test_invalid_nitpick_files(offline, tmp_path):
 
 
 @responses.activate
-def test_github_fetch(tmp_path):
-    """Test that gh:// and github:// URLs can be fetched."""
+@pytest.mark.parametrize(
+    "style_url",
+    [
+        # Without commit reference (uses default branch)
+        "github://andreoliwa/nitpick/initial.toml",
+        "gh://andreoliwa/nitpick/initial.toml",
+        # Explicit commit reference
+        "github://andreoliwa/nitpick@develop/initial.toml",
+        "gh://andreoliwa/nitpick@develop/initial.toml",
+        # Regular GitHub URL
+        "https://github.com/andreoliwa/nitpick/blob/develop/initial.toml",
+    ],
+)
+def test_always_fetch_github_raw_url(style_url, tmp_path):
+    """Test that gh://, github:// and normal github URLs can be fetched always by their corresponding raw URL."""
     raw_url = "https://raw.githubusercontent.com/andreoliwa/nitpick/develop"
     data = [
         (
@@ -736,11 +749,9 @@ def test_github_fetch(tmp_path):
     responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
 
     ProjectMock(tmp_path).pyproject_toml(
-        """
+        f"""
         [tool.nitpick]
-        style = [
-          "github://andreoliwa/nitpick/initial.toml",
-        ]
+        style = ["{style_url}"]
         """
     ).api_check().assert_violations(
         Fuss(

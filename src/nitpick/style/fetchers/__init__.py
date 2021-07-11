@@ -32,12 +32,18 @@ class StyleFetcherManager:
         self.fetchers = _get_fetchers(self.cache_repository, self.cache_option)
 
     def fetch(self, url) -> StyleInfo:
-        """Determine which fetcher to be used and fetch from it."""
-        scheme = self._get_scheme(url)
-        try:
-            fetcher = self.fetchers[scheme]
-        except KeyError as exc:
-            raise RuntimeError(f"protocol {scheme} not supported") from exc
+        """Determine which fetcher to be used and fetch from it.
+
+        Try a fetcher by domain first, then by protocol scheme.
+        """
+        domain, scheme = self._get_domain_scheme(url)
+        fetcher = None
+        if domain:
+            fetcher = self.fetchers.get(domain)
+        if not fetcher:
+            fetcher = self.fetchers.get(scheme)
+        if not fetcher:
+            raise RuntimeError(f"Protocol {scheme} and/or domain {domain} not supported")
 
         if self.offline and fetcher.requires_connection:
             return None, ""
@@ -45,25 +51,24 @@ class StyleFetcherManager:
         return fetcher.fetch(url)
 
     @staticmethod
-    def _get_scheme(url: str) -> str:
-        r"""Get a scheme from an URL or a file.
+    def _get_domain_scheme(url: str) -> Tuple[str, str]:
+        r"""Get domain and scheme from an URL or a file.
 
-        >>> StyleFetcherManager._get_scheme("/abc")
-        'file'
-        >>> StyleFetcherManager._get_scheme("file:///abc")
-        'file'
-        >>> StyleFetcherManager._get_scheme(r"c:\abc")
-        'file'
-        >>> StyleFetcherManager._get_scheme("c:/abc")
-        'file'
-        >>> StyleFetcherManager._get_scheme("http://server.com/abc")
-        'http'
+        >>> StyleFetcherManager._get_domain_scheme("/abc")
+        ('', 'file')
+        >>> StyleFetcherManager._get_domain_scheme("file:///abc")
+        ('', 'file')
+        >>> StyleFetcherManager._get_domain_scheme(r"c:\abc")
+        ('', 'file')
+        >>> StyleFetcherManager._get_domain_scheme("c:/abc")
+        ('', 'file')
+        >>> StyleFetcherManager._get_domain_scheme("http://server.com/abc")
+        ('server.com', 'http')
         """
         if is_url(url):
             parsed_url = urlparse(url)
-            return parsed_url.scheme
-
-        return "file"
+            return parsed_url.netloc, parsed_url.scheme
+        return "", "file"
 
 
 def _get_fetchers(cache_repository, cache_option) -> "FetchersType":
@@ -85,6 +90,8 @@ def _fetchers_to_pairs(fetchers):
         for protocol in fetcher.protocols:
             _register_on_urllib(protocol)
             yield protocol, fetcher
+        for domain in fetcher.domains:
+            yield domain, fetcher
 
 
 @lru_cache()

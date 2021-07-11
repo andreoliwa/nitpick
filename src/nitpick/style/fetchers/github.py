@@ -134,11 +134,8 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
     protocols: Tuple[str, ...] = (GitHubProtocol.SHORT.value, GitHubProtocol.LONG.value)
+    domains: Tuple[str, ...] = ("github.com",)
 
     def _download(self, url) -> str:
-        parsed_url = urlparse(url)
-        owner = parsed_url.netloc
-        repository = str(parsed_url.path.split("/")[1])
-
-        github_url = GitHubURL(owner, repository, "", parsed_url.path.replace(f"/{repository}", ""))
+        github_url = GitHubURL.parse_url(url)
         return super()._download(github_url.raw_content_url)
