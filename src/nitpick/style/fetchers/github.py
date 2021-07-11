@@ -9,6 +9,7 @@ from requests import Session, get as requests_get
 
 from nitpick.constants import GIT_AT_REFERENCE
 from nitpick.style.fetchers.http import HttpFetcher
+from nitpick.typedefs import mypy_property
 
 
 class GitHubProtocol(Enum):
@@ -18,7 +19,7 @@ class GitHubProtocol(Enum):
     LONG = "github"
 
 
-@dataclass()
+@dataclass(unsafe_hash=True)
 class GitHubURL:
     """Represent a GitHub URL, created from a URL or from its parts."""
 
@@ -27,18 +28,24 @@ class GitHubURL:
     git_reference: str
     path: str
 
-    _default_branch = ""
-
     def __post_init__(self):
         """Remove the initial slash from the path."""
         self._session = Session()
         self.path = self.path.lstrip("/")
-        self._default_branch = get_default_branch(self.api_url)
+
+    @mypy_property
+    @lru_cache()
+    def default_branch(self) -> str:
+        """Default GitHub branch.
+
+        This property performs a HTTP request and it's memoized with ``lru_cache()``.
+        """
+        return get_default_branch(self.api_url)
 
     @property
     def git_reference_or_default(self) -> str:
         """Return the Git reference if informed, or return the default branch."""
-        return self.git_reference or self._default_branch
+        return self.git_reference or str(self.default_branch)
 
     @property
     def url(self) -> str:
@@ -97,7 +104,7 @@ class GitHubURL:
         return self._build_url(GitHubProtocol.LONG)
 
     def _build_url(self, protocol: GitHubProtocol):
-        if self.git_reference and self.git_reference != self._default_branch:
+        if self.git_reference and self.git_reference != self.default_branch:
             at_reference = f"{GIT_AT_REFERENCE}{self.git_reference}"
         else:
             at_reference = ""
