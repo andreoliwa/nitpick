@@ -221,7 +221,7 @@ with at least one Python (``.py``) file::
     flake8 .
 
 Nitpick will download and use the opinionated `default style
-file <https://github.com/andreoliwa/nitpick/blob/v0.26.0/nitpick-style.toml>`__.
+file <https://github.com/andreoliwa/nitpick/blob/v0.27.0/nitpick-style.toml>`__.
 
 You can use it as a template to configure your own style.
 
@@ -233,7 +233,7 @@ this to the ``.pre-commit-config.yaml`` in your repository::
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.26.0
+        rev: v0.27.0
         hooks:
           - id: nitpick
 
