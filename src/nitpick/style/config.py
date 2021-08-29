@@ -46,7 +46,7 @@ class ConfigValidator:
         return validation_errors
 
     def _get_validation_schemas_for_file(self, info):
-        for plugin_class in self.project.plugin_manager.hook.can_handle(info=info):
+        for plugin_class in self.project.plugin_manager.hook.can_handle(info=info):  # pylint: disable=no-member
             yield plugin_class.validation_schema
 
     def _validate_schemas(self, info, schemas, value_dict):
