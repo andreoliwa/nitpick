@@ -72,7 +72,7 @@ At the end of execution, this command displays:
       You can use partial and multiple file names in the FILES argument.
 
     Options:
-      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)  [x>=0]
+      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
       --help         Show this message and exit.
 
 .. _cli_cmd_check:
@@ -92,7 +92,7 @@ At the end of execution, this command displays:
       argument.
 
     Options:
-      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)  [x>=0]
+      -v, --verbose  Increase logging verbosity (-v = INFO, -vv = DEBUG)
       --help         Show this message and exit.
 
 .. _cli_cmd_ls:
