@@ -76,11 +76,12 @@ def _get_fetchers(cache_repository, cache_option) -> "FetchersType":
     from nitpick.style.fetchers.file import FileFetcher
     from nitpick.style.fetchers.github import GitHubFetcher
     from nitpick.style.fetchers.http import HttpFetcher
+    from nitpick.style.fetchers.pypackage import PythonPackageFetcher
 
     def _factory(klass):
         return klass(cache_repository, cache_option)
 
-    fetchers = (_factory(FileFetcher), _factory(HttpFetcher), _factory(GitHubFetcher))
+    fetchers = (_factory(FileFetcher), _factory(HttpFetcher), _factory(GitHubFetcher), _factory(PythonPackageFetcher))
     pairs = _fetchers_to_pairs(fetchers)
     return dict(pairs)
 

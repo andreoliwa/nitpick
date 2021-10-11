@@ -9,6 +9,7 @@ import responses
 
 from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, SETUP_CFG, TOML_EXTENSION, TOX_INI
 from nitpick.style.fetchers.github import GitHubURL
+from nitpick.style.fetchers.pypackage import PythonPackageURL
 from nitpick.violations import Fuss
 from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, XFAIL_ON_WINDOWS, ProjectMock, assert_conditions
 
@@ -834,6 +835,34 @@ def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_
     assert gh.api_url == "https://api.github.com/repos/andreoliwa/nitpick"
     assert gh.short_protocol_url == f"gh://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
     assert gh.long_protocol_url == f"github://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
+
+
+@pytest.mark.parametrize(
+    "original_url, import_path, resource_name",
+    [
+        ("py://nitpick/styles/nitpick-style.toml", "nitpick.styles", "nitpick-style.toml"),
+        ("py://some_package/nitpick.toml", "some_package", "nitpick.toml"),
+    ],
+)
+def test_parsing_python_package_urls(original_url, import_path, resource_name):
+    """Test a resource URL of python package and its parts."""
+    pp = PythonPackageURL.parse_url(original_url)
+    assert pp.import_path == import_path
+    assert pp.resource_name == resource_name
+
+
+@pytest.mark.parametrize(
+    "original_url, expected_content_path_suffix",
+    [
+        ("py://tests/resources/empty-style.toml", "tests/resources/empty-style.toml"),
+        ("py://tests/resources/nested_package/empty_style.toml", "tests/resources/nested_package/empty_style.toml"),
+    ],
+)
+def test_raw_content_url_of_python_package(original_url, expected_content_path_suffix):
+    """Test ``PythonPackageURL`` can return valid path."""
+    pp = PythonPackageURL.parse_url(original_url)
+    expected_content_path = Path(__file__).parent.parent / expected_content_path_suffix
+    assert pp.raw_content_url == expected_content_path
 
 
 def test_protocol_not_supported(tmp_path):
