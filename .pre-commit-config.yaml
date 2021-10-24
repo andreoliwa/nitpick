@@ -89,7 +89,8 @@ repos:
         # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
         # "using --install-types is problematic"
         # see https://github.com/pre-commit/mirrors-mypy#using-mypy-with-pre-commit
-        additional_dependencies: [types-freezegun, types-toml, types-attrs, types-requests, types-python-slugify]
+        additional_dependencies:
+          [types-freezegun, types-toml, types-attrs, types-requests, types-python-slugify, types-dataclasses]
   # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
   # Note for future attempts with pylint as a pre-commit hook:
   # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.

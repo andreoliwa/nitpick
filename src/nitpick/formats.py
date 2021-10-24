@@ -213,7 +213,7 @@ class TOMLFormat(BaseFormat):
         if self._loaded:
             return False
         if self.path is not None:
-            self._string = Path(self.path).read_text()
+            self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
@@ -245,7 +245,7 @@ class YAMLFormat(BaseFormat):
         yaml.sequence_dash_offset = 2
 
         if self.path is not None:
-            self._string = Path(self.path).read_text()
+            self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
             self._data = yaml.load(io.StringIO(self._string))
         if self._data is not None:
@@ -286,7 +286,7 @@ class JSONFormat(BaseFormat):
         if self._loaded:
             return False
         if self.path is not None:
-            self._string = Path(self.path).read_text()
+            self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
             self._data = json.loads(self._string, object_pairs_hook=OrderedDict)
         if self._data is not None:
