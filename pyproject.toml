@@ -79,7 +79,7 @@ sphobjinv = { version = "*", optional = true }
 pydantic = "*"
 autorepr = "*"
 loguru = "*"
-ConfigUpdater = "<3.0"
+ConfigUpdater = "*"
 cachy = "*"
 importlib-resources = { version = "*", python = ">=3.6, <3.9" }
 
