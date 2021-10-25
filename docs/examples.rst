@@ -126,7 +126,6 @@ Contents of `styles/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/PyCQA/flake8
-        rev: 3.9.2
         hooks:
           - id: flake8
             additional_dependencies:
@@ -266,7 +265,6 @@ Contents of `styles/pre-commit/bash.toml <https://github.com/andreoliwa/nitpick/
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/openstack/bashate
-        rev: 2.0.0
         hooks:
           - id: bashate
     """
