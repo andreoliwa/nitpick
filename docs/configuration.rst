@@ -46,7 +46,7 @@ GitHub URL scheme (``github://`` or ``gh://``) pinned to a specific version:
 The ``@`` syntax is used to get a Git reference (commit, tag, branch).
 It is similar to the syntax used by ``pip`` and ``pipx``:
 
-- `pip install - VCS Support - Git <https://pip.pypa.io/en/stable/cli/pip_install/?highlight=git#git>`_;
+- `pip install - VCS Support - Git <https://pip.pypa.io/en/stable/topics/vcs-support/#git>`_;
 - `pypa/pipx: Installing from Source Control <https://pypa.github.io/pipx/#installing-from-source-control>`_.
 
 If no Git reference is provided, the default GitHub branch will be used (for Nitpick, it's ``develop``):
