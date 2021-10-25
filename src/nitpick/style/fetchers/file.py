@@ -14,4 +14,4 @@ class FileFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
 
     def _do_fetch(self, url):
         file_path = Path(url).expanduser()
-        return file_path.read_text()
+        return file_path.read_text(encoding="UTF-8")
