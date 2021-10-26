@@ -51,7 +51,7 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
     (e.g. `py:some.package.path:nitpick.toml`)
     """
 
-    protocols: Tuple[str, ...] = ("py",)
+    protocols: Tuple[str, ...] = ("py", "pypackage")
 
     def _do_fetch(self, url):
         package_url = PythonPackageURL.parse_url(url)
