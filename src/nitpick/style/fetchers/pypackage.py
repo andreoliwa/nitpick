@@ -47,8 +47,8 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
     """
     Fetch a style from a installed python package.
 
-    URL scheme: `py:<import_path_of_style_file>:<style_file_name>`
-    (e.g. `py:some.package.path:nitpick.toml`)
+    URL scheme: `py://import/path/of/style/file/<style_file_name>`
+    (e.g. `py://some_package/path/nitpick.toml`)
     """
 
     protocols: Tuple[str, ...] = ("py", "pypackage")
