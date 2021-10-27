@@ -16,7 +16,7 @@ except ImportError:
 
 @dataclass(unsafe_hash=True)
 class PythonPackageURL:
-    """Represent a resources file in installed python package."""
+    """Represent a resource file in installed Python package."""
 
     import_path: str
     resource_name: str
@@ -45,10 +45,13 @@ class PythonPackageURL:
 @dataclass(repr=True, unsafe_hash=True)
 class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
     """
-    Fetch a style from a installed python package.
+    Fetch a style from an installed Python package.
 
-    URL scheme: `py://import/path/of/style/file/<style_file_name>`
-    (e.g. `py://some_package/path/nitpick.toml`)
+    URL schemes:
+    - ``py://import/path/of/style/file/<style_file_name>``
+    - ``pypackage://import/path/of/style/file/<style_file_name>``
+
+    E.g. ``py://some_package/path/nitpick.toml``.
     """
 
     protocols: Tuple[str, ...] = ("py", "pypackage")

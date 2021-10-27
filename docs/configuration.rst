@@ -84,6 +84,24 @@ You can also use the raw URL of a `GitHub Gist <https://gist.github.com>`_:
     [tool.nitpick]
     style = "https://gist.githubusercontent.com/andreoliwa/f4fccf4e3e83a3228e8422c01a48be61/raw/ff3447bddfc5a8665538ddf9c250734e7a38eabb/remote-style.toml"
 
+Style inside Python package
+---------------------------
+
+The style file can be fetched from an installed Python package.
+
+Example of a use case: you create a custom flake8 extension and you also want to distribute a (versioned) Nitpick style bundled as a resource inside the Python package (`check out this issue: Get style file from python package · Issue #202 <https://github.com/andreoliwa/nitpick/issues/202#issuecomment-703345486>`_).
+
+Python package URL scheme is ``pypackage://`` or ``py://``:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "pypackage://some_python_package.styles.nitpick-style.toml"
+    # or
+    style = "py://some_python_package.styles.nitpick-style.toml"
+
+Thanks to `@isac322 <https://github.com/isac322>`_ for this feature.
+
 Cache
 -----
 
