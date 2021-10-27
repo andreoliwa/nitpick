@@ -842,6 +842,8 @@ def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_
     [
         ("py://nitpick/styles/nitpick-style.toml", "nitpick.styles", "nitpick-style.toml"),
         ("py://some_package/nitpick.toml", "some_package", "nitpick.toml"),
+        ("pypackage://nitpick/styles/nitpick-style.toml", "nitpick.styles", "nitpick-style.toml"),
+        ("pypackage://some_package/nitpick.toml", "some_package", "nitpick.toml"),
     ],
 )
 def test_parsing_python_package_urls(original_url, import_path, resource_name):
@@ -856,6 +858,11 @@ def test_parsing_python_package_urls(original_url, import_path, resource_name):
     [
         ("py://tests/resources/empty-style.toml", "tests/resources/empty-style.toml"),
         ("py://tests/resources/nested_package/empty_style.toml", "tests/resources/nested_package/empty_style.toml"),
+        ("pypackage://tests/resources/empty-style.toml", "tests/resources/empty-style.toml"),
+        (
+            "pypackage://tests/resources/nested_package/empty_style.toml",
+            "tests/resources/nested_package/empty_style.toml",
+        ),
     ],
 )
 def test_raw_content_url_of_python_package(original_url, expected_content_path_suffix):
