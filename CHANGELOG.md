@@ -1,3 +1,13 @@
+# [0.28.0](https://github.com/andreoliwa/nitpick/compare/v0.27.0...v0.28.0) (2021-10-27)
+
+### Bug Fixes
+
+- remove() has changed to detach() on the ConfigUpdater API ([93c6c52](https://github.com/andreoliwa/nitpick/commit/93c6c52fdeff6dc35cbf66231a7f75fd8b6e99e8))
+
+### Features
+
+- read style from Python package (thanks to [@isac322](https://github.com/isac322)) ([#407](https://github.com/andreoliwa/nitpick/issues/407)) ([0a3c95d](https://github.com/andreoliwa/nitpick/commit/0a3c95d10b42011aaf7f9bfd5322e39cd71cd4af))
+
 # [0.27.0](https://github.com/andreoliwa/nitpick/compare/v0.26.0...v0.27.0) (2021-07-20)
 
 ### Bug Fixes

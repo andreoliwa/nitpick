@@ -1,5 +1,5 @@
 # Default style file for nitpick
-# https://github.com/andreoliwa/nitpick/blob/v0.27.0/nitpick-style.toml
+# https://github.com/andreoliwa/nitpick/blob/v0.28.0/nitpick-style.toml
 
 [nitpick]
 minimum_version = "0.10.0"
