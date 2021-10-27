@@ -81,6 +81,7 @@ autorepr = "*"
 loguru = "*"
 ConfigUpdater = "*"
 cachy = "*"
+importlib-resources = { version = "*", python = ">=3.6, <3.9" }
 
 [tool.poetry.extras]
 lint = ["pylint"]
