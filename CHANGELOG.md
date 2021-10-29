@@ -1,3 +1,35 @@
+# [0.28.0](https://github.com/andreoliwa/nitpick/compare/v0.27.0...v0.28.0) (2021-10-27)
+
+### Bug Fixes
+
+- remove() has changed to detach() on the ConfigUpdater API ([93c6c52](https://github.com/andreoliwa/nitpick/commit/93c6c52fdeff6dc35cbf66231a7f75fd8b6e99e8))
+
+### Features
+
+- read style from Python package (thanks to [@isac322](https://github.com/isac322)) ([#407](https://github.com/andreoliwa/nitpick/issues/407)) ([0a3c95d](https://github.com/andreoliwa/nitpick/commit/0a3c95d10b42011aaf7f9bfd5322e39cd71cd4af))
+
+# [0.27.0](https://github.com/andreoliwa/nitpick/compare/v0.26.0...v0.27.0) (2021-07-20)
+
+### Bug Fixes
+
+- **cli:** print "no violations" message ([2fedd0a](https://github.com/andreoliwa/nitpick/commit/2fedd0a8b252972e06301cb1491054917af556d9))
+- **cli:** replace the "run" command by "fix" and "check" ([#359](https://github.com/andreoliwa/nitpick/issues/359)) ([34d2499](https://github.com/andreoliwa/nitpick/commit/34d24993fed4de40c029d676a434761c19029860))
+- don't fail when there is no config/root file ([#350](https://github.com/andreoliwa/nitpick/issues/350)) ([cca099a](https://github.com/andreoliwa/nitpick/commit/cca099a146f212d0e9ea2df26c12bfbc59706e80))
+- include of remote style when there is only a local style ([#349](https://github.com/andreoliwa/nitpick/issues/349)) ([032855d](https://github.com/andreoliwa/nitpick/commit/032855dbd29f5ca9ddcc3a04ee93af13554d5afc))
+- run pre-commit hooks only on passed files ([#356](https://github.com/andreoliwa/nitpick/issues/356)) ([3db024a](https://github.com/andreoliwa/nitpick/commit/3db024aa1f64972d9cc1d43c86a1eeb1632482aa))
+
+### Features
+
+- accept a regular GitHub URL as a style ([#361](https://github.com/andreoliwa/nitpick/issues/361)) ([8fc34cb](https://github.com/andreoliwa/nitpick/commit/8fc34cb32529d5f192a0433969563c70e32020a2))
+- enforce settings on any TOML file ([#352](https://github.com/andreoliwa/nitpick/issues/352)) ([8fd6324](https://github.com/andreoliwa/nitpick/commit/8fd632459982d8df1456a33f24df5803234ba492))
+- fetch GitHub URLs directly ([#341](https://github.com/andreoliwa/nitpick/issues/341)) ([d3e6811](https://github.com/andreoliwa/nitpick/commit/d3e6811c5c74307f0c618e5636f9043f0995f25b))
+- install on macOS with Homebrew ([c679adf](https://github.com/andreoliwa/nitpick/commit/c679adf47e46fe89165b9a4d5158a38f30223550))
+- pre-commit hook to apply changes ([#322](https://github.com/andreoliwa/nitpick/issues/322)) ([5e98e5f](https://github.com/andreoliwa/nitpick/commit/5e98e5fcda32d1fe40939bf3abd4e6e5da00e9ba))
+- quick setup with `nitpick init` command ([#347](https://github.com/andreoliwa/nitpick/issues/347)) ([3156afe](https://github.com/andreoliwa/nitpick/commit/3156afe3ba9666a460b5ac84cfd82ab74a26605b))
+- read configuration from `.nitpick.toml` or `pyproject.toml` ([#332](https://github.com/andreoliwa/nitpick/issues/332)) ([612ae41](https://github.com/andreoliwa/nitpick/commit/612ae41c6d0a71fd85ca0e37c136e3381978ec8c))
+- root files for other programming languages ([#321](https://github.com/andreoliwa/nitpick/issues/321)) ([09a0e83](https://github.com/andreoliwa/nitpick/commit/09a0e838946a4b7cb615968fb524a9e18326cd7c))
+- support custom protocols for styles ([#333](https://github.com/andreoliwa/nitpick/issues/333)) ([9baef63](https://github.com/andreoliwa/nitpick/commit/9baef630609f9c0b72acee5174494c652205a491))
+
 # [0.26.0](https://github.com/andreoliwa/nitpick/compare/v0.25.0...v0.26.0) (2021-03-16)
 
 ### Features

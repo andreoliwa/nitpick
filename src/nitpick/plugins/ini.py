@@ -275,7 +275,7 @@ class IniPlugin(NitpickPlugin):
         space_removed = False
         while isinstance(self.updater[section].last_block, Space):
             space_removed = True
-            self.updater[section].last_block.remove()
+            self.updater[section].last_block.detach()
 
         self.updater[section].update(options)
         self.dirty = True

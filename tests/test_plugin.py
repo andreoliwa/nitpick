@@ -107,12 +107,15 @@ def test_offline_flag_env_variable(tmpdir):
 @responses.activate
 def test_offline_doesnt_raise_connection_error(tmp_path):
     """On offline mode, no requests are made, so no connection errors should be raised."""
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
     ProjectMock(tmp_path).flake8(offline=True)
 
 
 @responses.activate
 def test_offline_recommend_using_flag(tmp_path, capsys):
     """Recommend using the flag on a connection error."""
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
+
     ProjectMock(tmp_path).flake8()
     out, err = capsys.readouterr()
     assert out == ""

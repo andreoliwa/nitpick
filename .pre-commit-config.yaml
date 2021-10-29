@@ -4,8 +4,12 @@
 # Thanks to https://github.com/sloria/environs/blob/master/.pre-commit-config.yaml
 
 # https://pre-commit.ci/#configuration
+# TODO: skip flake8 for now, it's failing on CI:
+# https://results.pre-commit.ci/run/github/126496135/1635173038.Vb5hHPmFT6q28HG-of-Dvg
+# ImportError: cannot import name 'SortImports' from 'isort' (/pc/clone/BQ54X-ogRzmpWm15sdE8hA/py_env-python3/lib/python3.8/site-packages/isort/__init__.py)
+# flake8.exceptions.FailedToLoadPlugin: Flake8 failed to load plugin "I00" due to cannot import name 'SortImports' from 'isort' (/pc/clone/BQ54X-ogRzmpWm15sdE8hA/py_env-python3/lib/python3.8/site-packages/isort/__init__.py).
 ci:
-  skip: [local-nitpick, generate-docs, pylint]
+  skip: [local-nitpick, generate-docs, pylint, flake8]
 
 repos:
   - repo: local
@@ -33,21 +37,21 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.21.0
+    rev: v2.29.0
     hooks:
       - id: pyupgrade
   - repo: https://github.com/psf/black
-    rev: 21.6b0
+    rev: 21.9b0
     hooks:
       - id: black
         args: [--safe, --quiet]
   - repo: https://github.com/asottile/blacken-docs
-    rev: v1.10.0
+    rev: v1.11.0
     hooks:
       - id: blacken-docs
         additional_dependencies: [black==21.5b2]
   - repo: https://github.com/PyCQA/isort
-    rev: 5.9.2
+    rev: 5.9.3
     hooks:
       - id: isort
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -59,12 +63,12 @@ repos:
       - id: python-no-log-warn
       - id: rst-backticks
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.3.2
+    rev: v2.4.1
     hooks:
       - id: prettier
         stages: [commit]
   - repo: https://github.com/PyCQA/flake8
-    rev: 3.9.2
+    rev: 4.0.1
     hooks:
       - id: flake8
         additional_dependencies:
@@ -82,14 +86,15 @@ repos:
             yesqa,
           ]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.910
+    rev: v0.910-1
     hooks:
       - id: mypy
         # Install additional types to fix new warnings that appeared on v0.910:
         # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
         # "using --install-types is problematic"
         # see https://github.com/pre-commit/mirrors-mypy#using-mypy-with-pre-commit
-        additional_dependencies: [types-freezegun, types-toml, types-attrs, types-requests, types-python-slugify]
+        additional_dependencies:
+          [types-freezegun, types-toml, types-attrs, types-requests, types-python-slugify, types-dataclasses]
   # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
   # Note for future attempts with pylint as a pre-commit hook:
   # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.
@@ -109,7 +114,7 @@ repos:
         args: [--ini, setup.cfg]
         exclude: tests/
   - repo: https://github.com/openstack/bashate
-    rev: 2.0.0
+    rev: 2.1.0
     hooks:
       - id: bashate
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options

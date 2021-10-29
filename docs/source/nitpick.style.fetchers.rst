@@ -16,3 +16,4 @@ Submodules
    nitpick.style.fetchers.file
    nitpick.style.fetchers.github
    nitpick.style.fetchers.http
+   nitpick.style.fetchers.pypackage

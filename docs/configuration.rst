@@ -30,12 +30,52 @@ You can set ``style`` with any local file or URL.
 Remote style
 ------------
 
-Use the URL of the remote file. If it's hosted on GitHub, use the raw GitHub URL:
+Use the URL of the remote file.
+
+If it's hosted on GitHub, use any of the following formats:
+
+GitHub URL scheme (``github://`` or ``gh://``) pinned to a specific version:
 
 .. code-block:: toml
 
     [tool.nitpick]
-    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/v0.26.0/nitpick-style.toml"
+    style = "github://andreoliwa/nitpick@v0.28.0/nitpick-style.toml"
+    # or
+    style = "gh://andreoliwa/nitpick@v0.28.0/nitpick-style.toml"
+
+The ``@`` syntax is used to get a Git reference (commit, tag, branch).
+It is similar to the syntax used by ``pip`` and ``pipx``:
+
+- `pip install - VCS Support - Git <https://pip.pypa.io/en/stable/topics/vcs-support/#git>`_;
+- `pypa/pipx: Installing from Source Control <https://pypa.github.io/pipx/#installing-from-source-control>`_.
+
+If no Git reference is provided, the default GitHub branch will be used (for Nitpick, it's ``develop``):
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "github://andreoliwa/nitpick/nitpick-style.toml"
+    # or
+    style = "gh://andreoliwa/nitpick/nitpick-style.toml"
+
+    # It has the same effect as providing the default branch explicitly:
+    style = "github://andreoliwa/nitpick@develop/nitpick-style.toml"
+    # or
+    style = "gh://andreoliwa/nitpick@develop/nitpick-style.toml"
+
+A regular GitHub URL also works. The corresponding raw URL will be used.
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "https://github.com/andreoliwa/nitpick/blob/v0.28.0/nitpick-style.toml"
+
+Or use the raw GitHub URL directly:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/v0.28.0/nitpick-style.toml"
 
 You can also use the raw URL of a `GitHub Gist <https://gist.github.com>`_:
 
@@ -43,6 +83,24 @@ You can also use the raw URL of a `GitHub Gist <https://gist.github.com>`_:
 
     [tool.nitpick]
     style = "https://gist.githubusercontent.com/andreoliwa/f4fccf4e3e83a3228e8422c01a48be61/raw/ff3447bddfc5a8665538ddf9c250734e7a38eabb/remote-style.toml"
+
+Style inside Python package
+---------------------------
+
+The style file can be fetched from an installed Python package.
+
+Example of a use case: you create a custom flake8 extension and you also want to distribute a (versioned) Nitpick style bundled as a resource inside the Python package (`check out this issue: Get style file from python package · Issue #202 <https://github.com/andreoliwa/nitpick/issues/202#issuecomment-703345486>`_).
+
+Python package URL scheme is ``pypackage://`` or ``py://``:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "pypackage://some_python_package.styles.nitpick-style.toml"
+    # or
+    style = "py://some_python_package.styles.nitpick-style.toml"
+
+Thanks to `@isac322 <https://github.com/isac322>`_ for this feature.
 
 Cache
 -----

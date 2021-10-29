@@ -57,11 +57,11 @@ This in intentional, because `Nitpick is not a conventional flake8 plugin <flake
 Since flake8 only lints Python files, the pre-commit hook will only run when a Python file is modified.
 It won't run when a config/text changes.
 
-An example: suppose you're using a remote Nitpick style (`like the style from WeMake <https://raw.githubusercontent.com/wemake-services/wemake-python-styleguide/master/styles/nitpick-style.toml>`_).
+An example: suppose you're using a remote Nitpick style (`like the style from WeMake <https://github.com/wemake-services/wemake-python-styleguide/blob/master/styles/nitpick-style.toml>`_).
 
 At the moment, their style currently checks ``setup.cfg`` only.
 
-Suppose they change or add an option on their `isort.toml <https://raw.githubusercontent.com/wemake-services/wemake-python-styleguide/master/styles/isort.toml>`_ file.
+Suppose they change or add an option on their `isort.toml <https://github.com/wemake-services/wemake-python-styleguide/blob/master/styles/isort.toml>`_ file.
 
 If the nitpick pre-commit hook had ``always_run: false`` and ``pass_filenames: true``, your local ``setup.cfg`` would only be verified:
 
