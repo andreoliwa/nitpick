@@ -246,7 +246,7 @@ def write_examples() -> int:
                 header=header,
                 dashes="-" * len(header),
                 toml_file=base_name,
-                url=GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", base_name).url,
+                url=GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", base_name, "").url,
                 # Skip TOML with JSON inside, to avoid this error message:
                 # nitpick/docs/examples.rst:193: WARNING: Could not lex literal_block as "toml". Highlighting skipped.
                 language="" if "contains_json" in toml_content else " toml",
