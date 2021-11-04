@@ -82,7 +82,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
     @staticmethod
     def get_default_style_url():
         """Return the URL of the default style for the current version."""
-        return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", NITPICK_STYLE_TOML).long_protocol_url
+        return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", NITPICK_STYLE_TOML, None).long_protocol_url
 
     def find_initial_styles(self, configured_styles: StrOrIterable) -> Iterator[Fuss]:
         """Find the initial style(s) and include them."""
