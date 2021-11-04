@@ -463,19 +463,25 @@ def test_local_style_should_override_settings(tmp_path):
 @responses.activate
 def test_fetch_private_github_urls(tmp_path):
     """Fetch private GitHub URLs with a token on the query string."""
-    base_url = "https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style"
+    gh_url = "https://github.com/user/private_repo/blob/branch/path/to/nitpick-style"
     query_string = "?token=xxx"
-    full_private_url = f"{base_url}{TOML_EXTENSION}{query_string}"
+    full_raw_url = f"https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style{TOML_EXTENSION}"
     body = """
         ["pyproject.toml".tool.black]
         missing = "thing"
         """
-    responses.add(responses.GET, full_private_url, dedent(body), status=200)
+    responses.add(
+        responses.GET,
+        full_raw_url,
+        dedent(body),
+        match_querystring=False,
+        status=200,
+    )
 
     project = ProjectMock(tmp_path).pyproject_toml(
         f"""
         [tool.nitpick]
-        style = "{base_url}{query_string}"
+        style = "{gh_url}{query_string}"
         """
     )
     project.flake8(offline=False).assert_single_error(
@@ -485,6 +491,8 @@ def test_fetch_private_github_urls(tmp_path):
         missing = "thing"{SUGGESTION_END}
         """
     )
+    # 'Basic eHh4Og==' is b64 encoding of "Basic xxx:"
+    assert responses.calls[0].request.headers["Authorization"] == "Basic eHh4Og=="
     project.flake8(offline=True).assert_no_errors()
 
 

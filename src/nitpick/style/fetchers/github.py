@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
 from typing import Tuple
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from requests import Session, get as requests_get
 
@@ -18,6 +18,13 @@ class GitHubProtocol(Enum):
 
     SHORT = "gh"
     LONG = "github"
+
+
+def _get_token_from_querystr(querystr) -> str:
+    if not querystr:
+        return ""
+    query_args = parse_qs(querystr)
+    return query_args.get("token", [""])[0]
 
 
 @dataclass(unsafe_hash=True)
@@ -85,9 +92,11 @@ class GitHubURL:
         """
         parsed_url = urlparse(url)
         git_reference = ""
-        auth_token = parsed_url.username or ""
+
+        auth_token = parsed_url.username or _get_token_from_querystr(parsed_url.query)
+
         if parsed_url.scheme in GitHubFetcher.protocols:
-            owner = parsed_url.hostname
+            owner = parsed_url.hostname or ""
             repo_with_git_reference, path = parsed_url.path.strip("/").split("/", 1)
             if GIT_AT_REFERENCE in repo_with_git_reference:
                 repo, git_reference = repo_with_git_reference.split(GIT_AT_REFERENCE)
@@ -145,6 +154,8 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     protocols: Tuple[str, ...] = (GitHubProtocol.SHORT.value, GitHubProtocol.LONG.value)
     domains: Tuple[str, ...] = ("github.com",)
 
-    def _download(self, url) -> str:
+    def _download(self, url, **kwargs) -> str:
         github_url = GitHubURL.parse_url(url)
-        return super()._download(github_url.raw_content_url, auth=github_url.credentials)
+        if github_url.credentials:
+            kwargs.setdefault("auth", github_url.credentials)
+        return super()._download(github_url.raw_content_url, **kwargs)
