@@ -1,4 +1,5 @@
 """Support for ``gh`` and ``github`` schemes."""
+import os
 from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
@@ -27,6 +28,7 @@ class GitHubURL:
     repository: str
     git_reference: str
     path: str
+    auth_token: str
 
     def __post_init__(self):
         """Remove the initial slash from the path."""
@@ -41,6 +43,21 @@ class GitHubURL:
         This property performs a HTTP request and it's memoized with ``lru_cache()``.
         """
         return get_default_branch(self.api_url)
+
+    @property
+    def credentials(self) -> Tuple:
+        """Credentials encoded in this URL.
+
+        A tuple of ``(api_token, '')`` if present, or empty tuple otherwise.  If
+        the value of ``api_token`` begins with ``$``, it will be replaced with
+        the value of the environment corresponding to the remaining part of the
+        string.
+        """
+        if self.auth_token:
+            if self.auth_token.startswith("$"):
+                return (os.getenv(self.auth_token[1:]), "")
+            return (self.auth_token, "")
+        return ()
 
     @property
     def git_reference_or_default(self) -> str:
@@ -68,8 +85,9 @@ class GitHubURL:
         """
         parsed_url = urlparse(url)
         git_reference = ""
+        auth_token = parsed_url.username or ""
         if parsed_url.scheme in GitHubFetcher.protocols:
-            owner = parsed_url.netloc
+            owner = parsed_url.hostname
             repo_with_git_reference, path = parsed_url.path.strip("/").split("/", 1)
             if GIT_AT_REFERENCE in repo_with_git_reference:
                 repo, git_reference = repo_with_git_reference.split(GIT_AT_REFERENCE)
@@ -77,7 +95,7 @@ class GitHubURL:
                 repo = repo_with_git_reference
         else:
             owner, repo, _, git_reference, path = parsed_url.path.strip("/").split("/", 4)
-        return cls(owner, repo, git_reference, path)
+        return cls(owner, repo, git_reference, path, auth_token)
 
     @property
     def api_url(self) -> str:
@@ -129,4 +147,4 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
 
     def _download(self, url) -> str:
         github_url = GitHubURL.parse_url(url)
-        return super()._download(github_url.raw_content_url)
+        return super()._download(github_url.raw_content_url, auth=github_url.credentials)

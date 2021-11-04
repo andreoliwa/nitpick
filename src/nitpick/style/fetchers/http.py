@@ -43,8 +43,8 @@ class HttpFetcher(StyleFetcher):
             return ""
         return contents
 
-    def _download(self, url) -> str:
+    def _download(self, url, **kwargs) -> str:
         logger.info(f"Downloading style from {url}")
-        response = self._session.get(url)
+        response = self._session.get(url, **kwargs)
         response.raise_for_status()
         return response.text
