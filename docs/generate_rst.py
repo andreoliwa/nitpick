@@ -65,6 +65,7 @@ STYLE_MAPPING = SortedDict(
         "python37.toml": "Python 3.7",
         "python38.toml": "Python 3.8",
         "python39.toml": "Python 3.9",
+        "python310.toml": "Python 3.10",
         "tox.toml": "tox_",
     }
 )

@@ -15,6 +15,10 @@ COLOR_GREEN = "\x1b[32m"
 COLOR_BOLD_RED = "\x1b[1;31m"
 DOCS_BUILD_PATH = "docs/_build"
 
+# TODO: read from tox.ini instead
+MINIMUM_PYTHON_VERSION = "3.6"
+STABLE_PYTHON_VERSION = "py39"
+
 
 class ToxCommands:
     """Tox commands read from the config file."""
@@ -88,12 +92,14 @@ def install(ctx, deps=True, hooks=False):
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
-        print(f"{COLOR_GREEN}Nitpick runs in Python 3.6 and later, but development is done in 3.6{COLOR_NONE}")
-        ctx.run("poetry env use python3.6")
+        print(
+            f"{COLOR_GREEN}Nitpick runs in Python {MINIMUM_PYTHON_VERSION} and later"
+            f", but development is done in {MINIMUM_PYTHON_VERSION}{COLOR_NONE}"
+        )
+        ctx.run(f"poetry env use python{MINIMUM_PYTHON_VERSION}")
         ctx.run("poetry install -E test -E lint -E doc --remove-untracked")
     if hooks:
-        ctx.run("pre-commit install --install-hooks")
-        ctx.run("pre-commit install --hook-type commit-msg")
+        ctx.run("pre-commit install -t pre-commit -t commit-msg --install-hooks")
         ctx.run("pre-commit gc")
 
 
@@ -189,7 +195,7 @@ def ci_build(ctx, full=False, recreate=False):
         ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
         ctx.run(tox_cmd)
     else:
-        ctx.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
+        ctx.run(f"{tox_cmd} -e clean,lint,{STABLE_PYTHON_VERSION},docs,report")
 
     tox.macos(ctx, False)
 
@@ -219,7 +225,7 @@ def clean(ctx, venv=False):
     ctx.run(f"rm -rf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .testmondata")
     if venv:
         ctx.run("rm -rf .tox")
-        ctx.run("poetry env remove python3.6", warn=True)
+        ctx.run(f"poetry env remove python{MINIMUM_PYTHON_VERSION}", warn=True)
 
 
 @task
