@@ -15,7 +15,7 @@ from jmespath.parser import ParsedResult
 from nitpick.constants import DOUBLE_QUOTE, PROJECT_NAME, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
 from nitpick.typedefs import JsonDict, PathOrStr
 
-URL_RE = re.compile(r"[a-z]+://\w+")
+URL_RE = re.compile(r"[a-z]+://[\$\w]\w*")
 
 
 def get_subclasses(cls):
@@ -221,6 +221,12 @@ def is_url(url: str) -> bool:
     >>> is_url("http://example.com")
     True
     >>> is_url("github://andreoliwa/nitpick/styles/black")
+    True
+    >>> is_url("github://$VARNAME@andreoliwa/nitpick/styles/black")
+    True
+    >>> is_url("github://LitErAl@andreoliwa/nitpick/styles/black")
+    True
+    >>> is_url("github://notfirst$@andreoliwa/nitpick/styles/black")
     True
     """
     return bool(URL_RE.match(url))

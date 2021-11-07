@@ -463,19 +463,25 @@ def test_local_style_should_override_settings(tmp_path):
 @responses.activate
 def test_fetch_private_github_urls(tmp_path):
     """Fetch private GitHub URLs with a token on the query string."""
-    base_url = "https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style"
+    gh_url = "https://github.com/user/private_repo/blob/branch/path/to/nitpick-style"
     query_string = "?token=xxx"
-    full_private_url = f"{base_url}{TOML_EXTENSION}{query_string}"
+    full_raw_url = f"https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style{TOML_EXTENSION}"
     body = """
         ["pyproject.toml".tool.black]
         missing = "thing"
         """
-    responses.add(responses.GET, full_private_url, dedent(body), status=200)
+    responses.add(
+        responses.GET,
+        full_raw_url,
+        dedent(body),
+        match_querystring=False,
+        status=200,
+    )
 
     project = ProjectMock(tmp_path).pyproject_toml(
         f"""
         [tool.nitpick]
-        style = "{base_url}{query_string}"
+        style = "{gh_url}{query_string}"
         """
     )
     project.flake8(offline=False).assert_single_error(
@@ -485,7 +491,114 @@ def test_fetch_private_github_urls(tmp_path):
         missing = "thing"{SUGGESTION_END}
         """
     )
+    # 'Basic eHh4Og==' is b64 encoding of "Basic xxx:"
+    assert responses.calls[0].request.headers["Authorization"] == "Basic eHh4Og=="
     project.flake8(offline=True).assert_no_errors()
+
+
+@pytest.mark.parametrize(
+    "style_url",
+    [
+        # Without commit reference (uses default branch)
+        "github://andreoliwa/nitpick/initial.toml",
+        "gh://andreoliwa/nitpick/initial.toml",
+        # Explicit commit reference
+        "github://andreoliwa/nitpick@develop/initial.toml",
+        "gh://andreoliwa/nitpick@develop/initial.toml",
+        # Regular GitHub URL
+        "https://github.com/andreoliwa/nitpick/blob/develop/initial.toml",
+        # Raw URL directly
+        "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
+    ],
+)
+def test_github_url_without_token_has_no_credentials(style_url):
+    """Check private GitHub URLs with a token in various places are parsed correctly."""
+    parsed = GitHubURL.parse_url(style_url)
+    assert parsed.credentials == ()
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        # Without commit reference (uses default branch)
+        "github://token@andreoliwa/nitpick/initial.toml",
+        "gh://token@andreoliwa/nitpick/initial.toml",
+        # Explicit commit reference
+        "github://token@andreoliwa/nitpick@develop/initial.toml",
+        "gh://token@andreoliwa/nitpick@develop/initial.toml",
+        # Regular GitHub URL
+        "https://token@github.com/andreoliwa/nitpick/blob/develop/initial.toml",
+        # Raw URL directly
+        "https://token@raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
+    ],
+)
+def test_github_url_with_fixed_userinfo_token_has_correct_credential(url):
+    """Check private GitHub URLs with a token in various places are parsed correctly."""
+    parsed = GitHubURL.parse_url(url)
+    assert parsed.credentials == ("token", "")
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        # Without commit reference (uses default branch)
+        "github://$TOKEN@andreoliwa/nitpick/initial.toml",
+        "gh://$TOKEN@andreoliwa/nitpick/initial.toml",
+        # Explicit commit reference
+        "github://$TOKEN@andreoliwa/nitpick@develop/initial.toml",
+        "gh://$TOKEN@andreoliwa/nitpick@develop/initial.toml",
+        # Regular GitHub URL
+        "https://$TOKEN@github.com/andreoliwa/nitpick/blob/develop/initial.toml",
+        # Raw URL directly
+        "https://$TOKEN@raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
+    ],
+)
+def test_github_url_with_variable_userinfo_token_has_correct_credential(url, monkeypatch):
+    """Check private GitHub URLs with a token in various places are parsed correctly."""
+    monkeypatch.setenv("TOKEN", "envvar-token")
+    parsed = GitHubURL.parse_url(url)
+    assert parsed.credentials == ("envvar-token", "")
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        # Without commit reference (uses default branch)
+        "github://andreoliwa/nitpick/initial.toml?token=$ENVVAR",
+        "gh://andreoliwa/nitpick/initial.toml?token=$ENVVAR",
+        # Explicit commit reference
+        "github://andreoliwa/nitpick@develop/initial.toml?token=$ENVVAR",
+        "gh://andreoliwa/nitpick@develop/initial.toml?token=$ENVVAR",
+        # Regular GitHub URL
+        "https://github.com/andreoliwa/nitpick/blob/develop/initial.toml?token=$ENVVAR",
+        # Raw URL directly
+        "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml?token=$ENVVAR",
+        # token in both userinfo and queryargs uses userinfo one
+        "github://$ENVVAR@andreoliwa/nitpick/initial.toml?token=$NOTUSED",
+    ],
+)
+def test_github_url_with_variable_query_token_has_correct_credential(url, monkeypatch):
+    """Check private GitHub URLs with a token in various places are parsed correctly."""
+    monkeypatch.setenv("ENVVAR", "envvar-token")
+    parsed = GitHubURL.parse_url(url)
+    assert parsed.credentials == ("envvar-token", "")
+
+
+def test_github_url_with_missing_envvar_has_empty_credential(monkeypatch):
+    """Environment var that doesn't exist is replaced with empty string."""
+    monkeypatch.delenv("MISSINGVAR", raising=False)
+    parsed = GitHubURL.parse_url("https://github.com/foo/bar/blob/branch/filename.toml?token=$MISSINGVAR")
+    assert parsed.credentials == ()
+
+
+@pytest.mark.xfail(reason="GithubURL currently doesnt preserve query args")
+def test_github_url_query_token_retains_other_queryparams(monkeypatch):
+    """Querystring isn't modified by the token switcharoo."""
+    parsed = GitHubURL.parse_url("https://github.com/foo/bar/blob/branch/filename.toml?leavemealone=ok")
+    assert "leavemealone=ok" in parsed.url
+    parsed = GitHubURL.parse_url("https://github.com/foo/bar/blob/branch/filename.toml?token=somevar&leavemealone=ok")
+    assert parsed.credentials == ("somevar", "")
+    assert "leavemealone=ok" in parsed.url
 
 
 @responses.activate

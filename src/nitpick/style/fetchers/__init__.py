@@ -67,7 +67,7 @@ class StyleFetcherManager:
         """
         if is_url(url):
             parsed_url = urlparse(url)
-            return parsed_url.netloc, parsed_url.scheme
+            return parsed_url.hostname or "", parsed_url.scheme
         return "", "file"
 
 
