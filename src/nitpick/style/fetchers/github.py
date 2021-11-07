@@ -60,11 +60,18 @@ class GitHubURL:
         the value of the environment corresponding to the remaining part of the
         string.
         """
-        if self.auth_token:
-            if self.auth_token.startswith("$"):
-                return (os.getenv(self.auth_token[1:]), "")
-            return (self.auth_token, "")
-        return ()
+        if not self.auth_token:
+            return ()
+
+        if self.auth_token.startswith("$"):
+            env_token = os.getenv(self.auth_token[1:])
+
+            if env_token:
+                return (env_token, "")
+
+            return ()
+
+        return (self.auth_token, "")
 
     @property
     def git_reference_or_default(self) -> str:
@@ -103,7 +110,11 @@ class GitHubURL:
             else:
                 repo = repo_with_git_reference
         else:
-            owner, repo, _, git_reference, path = parsed_url.path.strip("/").split("/", 4)
+            # github.com urls have a useless .../blob/... section, but
+            # raw.githubusercontent.com doesn't, so take the first 2, then last 2 url
+            # components to exclude the blob bit if present.
+            owner, repo, *_, git_reference, path = parsed_url.path.strip("/").split("/", 4)
+
         return cls(owner, repo, git_reference, path, auth_token)
 
     @property
