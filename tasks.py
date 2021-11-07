@@ -80,6 +80,22 @@ class ToxCommands:
         else:
             ctx.run("sed -i '' 's/platform = darwin/platform = linux/g' tox.ini")
 
+    def _python_versions(self):
+        """Lines with Python versions executed in tox."""
+        return self._parser["gh-actions"]["python"].strip().splitlines()
+
+    @property
+    def minimum_python_version(self):
+        """Minimum Python version."""
+        last = self._python_versions()[-1]
+        return last.split(":")[0]
+
+    @property
+    def stable_python_version(self):
+        """Stable Python version."""
+        stable = [line for line in self._python_versions() if "lint" in line]
+        return stable[0].split(":")[1].split(",")[0].strip()
+
 
 @task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})
 def install(ctx, deps=True, hooks=False):
@@ -88,12 +104,15 @@ def install(ctx, deps=True, hooks=False):
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
-        print(f"{COLOR_GREEN}Nitpick runs in Python 3.6 and later, but development is done in 3.6{COLOR_NONE}")
-        ctx.run("poetry env use python3.6")
+        version = ToxCommands().minimum_python_version
+        print(
+            f"{COLOR_GREEN}Nitpick runs in Python {version} and later"
+            f", but development is done in {version}{COLOR_NONE}"
+        )
+        ctx.run(f"poetry env use python{version}")
         ctx.run("poetry install -E test -E lint -E doc --remove-untracked")
     if hooks:
-        ctx.run("pre-commit install --install-hooks")
-        ctx.run("pre-commit install --hook-type commit-msg")
+        ctx.run("pre-commit install -t pre-commit -t commit-msg --install-hooks")
         ctx.run("pre-commit gc")
 
 
@@ -189,7 +208,8 @@ def ci_build(ctx, full=False, recreate=False):
         ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
         ctx.run(tox_cmd)
     else:
-        ctx.run(f"{tox_cmd} -e clean,lint,py38,docs,report")
+        version = ToxCommands().stable_python_version
+        ctx.run(f"{tox_cmd} -e clean,lint,{version},docs,report")
 
     tox.macos(ctx, False)
 
@@ -219,7 +239,8 @@ def clean(ctx, venv=False):
     ctx.run(f"rm -rf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .testmondata")
     if venv:
         ctx.run("rm -rf .tox")
-        ctx.run("poetry env remove python3.6", warn=True)
+        version = ToxCommands().minimum_python_version
+        ctx.run(f"poetry env remove python{version}", warn=True)
 
 
 @task

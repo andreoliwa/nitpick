@@ -3,7 +3,7 @@
 [[".github/workflows/python.yaml".contains]]
 __jmespath = "jobs.build.strategy.matrix"
 os = ["ubuntu-latest", "macos-latest", "windows-latest"]
-"python-version" = ["3.6", "3.7", "3.8", "3.9"]
+"python-version" = ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
 # 3. Same as item 4 on "jmespath-on-section.toml", but with a different syntax.
 [[".github/workflows/python.yaml".contains]]
@@ -56,7 +56,7 @@ __yaml = "- uses: actions/checkout@v2"
 [[".github/workflows/python.yaml".contains_sorted]]
 __jmespath = "jobs.build.strategy.matrix"
 os = ["ubuntu-latest", "macos-latest", "windows-latest"]
-"python-version" = ["3.6", "3.7", "3.8", "3.9"]
+"python-version" = ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
 [[".github/workflows/python.yaml".contains_sorted]]
 __jmespath = "jobs.build"

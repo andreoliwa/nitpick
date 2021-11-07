@@ -58,4 +58,4 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
 
     def _do_fetch(self, url):
         package_url = PythonPackageURL.parse_url(url)
-        return package_url.raw_content_url.read_text()
+        return package_url.raw_content_url.read_text(encoding="UTF-8")

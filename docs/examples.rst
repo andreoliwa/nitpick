@@ -411,6 +411,18 @@ Contents of `styles/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.2
     # A regular expression matching the name of dummy variables (i.e. expectedly not used).
     dummy-variables-rgx = "_$|dummy"
 
+.. _example-python-3-10:
+
+Python 3.10
+-----------
+
+Contents of `styles/python310.toml <https://github.com/andreoliwa/nitpick/blob/v0.28.0/styles/python310.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.10"
+
 .. _example-python-3-6:
 
 Python 3.6
