@@ -280,3 +280,12 @@ supported, `see the full documentation <https://nitpick.rtfd.io/>`__.
    :target: https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/develop
 .. |FOSSA Status| image:: https://app.fossa.com/api/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick.svg?type=shield
    :target: https://app.fossa.com/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick?ref=badge_shield
+
+Contributing
+------------
+
+Your help is very much appreciated.
+
+There are many possibilities for new features in this project, and not enough time or hands to work on them.
+
+If you want to contribute with the project, set up your development environment following the steps on the `contribution guidelines <https://nitpick.rtfd.io/en/latest/contributing.html>`_ and send your pull request.
