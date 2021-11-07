@@ -21,6 +21,7 @@ class GitHubProtocol(Enum):
 
 
 def _get_token_from_querystr(querystr) -> str:
+    """Get the value of ``token`` from querystring."""
     if not querystr:
         return ""
     query_args = parse_qs(querystr)

@@ -84,6 +84,23 @@ You can also use the raw URL of a `GitHub Gist <https://gist.github.com>`_:
     [tool.nitpick]
     style = "https://gist.githubusercontent.com/andreoliwa/f4fccf4e3e83a3228e8422c01a48be61/raw/ff3447bddfc5a8665538ddf9c250734e7a38eabb/remote-style.toml"
 
+If your style is on a private GitHub repo, you can provide the token directly on the URL.
+Or you can use an environment variable to avoid keeping secrets in plain text.
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    # A literal token
+    style = "github://p5iCG5AJuDgY@some-user/a-private-repo@some-branch/nitpick-style.toml"
+
+    # Or reading the secret value from the MY_AUTH_KEY env var
+    style = "github://$MY_AUTH_KEY@some-user/a-private-repo@some-branch/nitpick-style.toml"
+
+.. note::
+
+    A literal token cannot start with a ``$``.
+    All tokens must not contain any ``@`` or ``:`` characters.
+
 Style inside Python package
 ---------------------------
 
