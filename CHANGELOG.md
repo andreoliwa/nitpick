@@ -1,3 +1,15 @@
+# [0.29.0](https://github.com/andreoliwa/nitpick/compare/v0.28.0...v0.29.0) (2021-11-08)
+
+### Bug Fixes
+
+- convert ?token=xx into HTTP Basic creds for github style urls ([9b882a2](https://github.com/andreoliwa/nitpick/commit/9b882a26806431ec3c571fc5b130370b07539385))
+
+### Features
+
+- add Python 3.10 ([#410](https://github.com/andreoliwa/nitpick/issues/410)) ([050d2b9](https://github.com/andreoliwa/nitpick/commit/050d2b9642ca07e25300d12a2530311f18938972))
+- add support for private Github repos for style sources ([49dc12d](https://github.com/andreoliwa/nitpick/commit/49dc12d9c5da7e1e71cb1a49d20a951a54d5e033))
+- make generic.is_url() accept dollar-quoted userinfo fragments ([ef99acd](https://github.com/andreoliwa/nitpick/commit/ef99acd80fe11f827ca3edc744d31816eb242fe6))
+
 # [0.28.0](https://github.com/andreoliwa/nitpick/compare/v0.27.0...v0.28.0) (2021-10-27)
 
 ### Bug Fixes
