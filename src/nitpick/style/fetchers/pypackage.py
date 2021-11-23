@@ -7,11 +7,11 @@ from urllib.parse import urlparse
 from nitpick.style.fetchers.base import StyleFetcher
 
 try:
-    from importlib.abc import Traversable  # type: ignore[attr-defined]
-    from importlib.resources import files  # type: ignore[attr-defined]
+    from importlib.abc import Traversable
+    from importlib.resources import files
 except ImportError:
-    from importlib_resources import files
-    from importlib_resources.abc import Traversable
+    from importlib_resources import files  # type: ignore
+    from importlib_resources.abc import Traversable  # type: ignore
 
 
 @dataclass(unsafe_hash=True)
