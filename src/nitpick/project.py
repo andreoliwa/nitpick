@@ -45,7 +45,8 @@ def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str])
             found_files = list(current_dir.glob(root_file))
             if found_files:
                 return set(found_files)
-        current_dir = current_dir.parent
+        break  # FIXME:
+        # current_dir = current_dir.parent
     return set()
 
 
@@ -94,7 +95,8 @@ def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
         logger.debug(f"Root dirs: {str(root_dirs)}")
 
         # Climb up one directory to search for more project files
-        starting_dir = starting_dir.parent
+        break  # FIXME:
+        # starting_dir = starting_dir.parent
 
     if not root_dirs:
         logger.error(f"No files found while climbing directory tree from {starting_dir}")

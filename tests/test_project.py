@@ -17,6 +17,7 @@ from nitpick.constants import (
     TOX_INI,
 )
 from nitpick.core import Nitpick
+from nitpick.exceptions import QuitComplainingError
 from nitpick.project import Configuration, find_main_python_file, find_root
 from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
@@ -194,12 +195,18 @@ def test_find_root_from_sub_dir(tmp_path, root_file):
     root.mkdir(parents=True)
     (root / root_file).write_text("")
 
+    os.chdir(str(root))
+    assert find_root(root) == root, root_file
+    assert find_root(str(root)) == root, root_file
+
     curdir = root / "going" / "down" / "the" / "rabbit" / "hole"
     curdir.mkdir(parents=True)
-    os.chdir(str(curdir))
 
-    assert find_root(curdir) == root, root_file
-    assert find_root(str(curdir)) == root, root_file
+    os.chdir(str(curdir))
+    with pytest.raises(QuitComplainingError):
+        assert find_root(curdir) == root, root_file
+    with pytest.raises(QuitComplainingError):
+        assert find_root(str(curdir)) == root, root_file
 
 
 def test_find_root_django(tmp_path):
