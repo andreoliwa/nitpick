@@ -281,7 +281,6 @@ Contents of `styles/pre-commit/commitlint.toml <https://github.com/andreoliwa/ni
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        rev: v5.0.0
         hooks:
           - id: commitlint
             stages: [commit-msg]
