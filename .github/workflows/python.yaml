@@ -35,7 +35,7 @@ jobs:
           # Upgrade pip first, so the line below will use the upgraded version
           python -m pip install  tox
       - name: "Run tests on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
-        run: "echo py${{ matrix.python-version }} | tr -d . | xargs echo tox -e"
+        run: "echo py${{ matrix.python-version }} | tr -d . | xargs tox -e"
 
       # https://github.com/marketplace/actions/coveralls-python
       # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
