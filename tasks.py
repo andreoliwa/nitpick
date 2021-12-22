@@ -197,8 +197,8 @@ def doc(ctx, full=False, recreate=False, links=False, browse=False, debug=False)
         ctx.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
 
 
-@task(help={"full": "Full build using tox", "recreate": "Recreate tox environment"})
-def ci_build(ctx, full=False, recreate=False):
+@task(help={"full": "Full build using tox", "recreate": "Recreate tox environment", "docs": "Generate Sphinx docs"})
+def ci_build(ctx, full=False, recreate=False, docs=True):
     """Simulate a CI build."""
     tox = ToxCommands()
     tox.macos(ctx, True)
@@ -208,8 +208,11 @@ def ci_build(ctx, full=False, recreate=False):
         ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
         ctx.run(tox_cmd)
     else:
-        version = ToxCommands().stable_python_version
-        ctx.run(f"{tox_cmd} -e clean,lint,{version},docs,report")
+        envs = ["clean", "lint", ToxCommands().stable_python_version]
+        if docs:
+            envs.append("docs")
+        envs.append("report")
+        ctx.run(f"{tox_cmd} -e {','.join(envs)}")
 
     tox.macos(ctx, False)
 
