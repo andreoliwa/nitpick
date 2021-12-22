@@ -4,12 +4,8 @@
 # Thanks to https://github.com/sloria/environs/blob/master/.pre-commit-config.yaml
 
 # https://pre-commit.ci/#configuration
-# TODO: skip flake8 for now, it's failing on CI:
-# https://results.pre-commit.ci/run/github/126496135/1635173038.Vb5hHPmFT6q28HG-of-Dvg
-# ImportError: cannot import name 'SortImports' from 'isort' (/pc/clone/BQ54X-ogRzmpWm15sdE8hA/py_env-python3/lib/python3.8/site-packages/isort/__init__.py)
-# flake8.exceptions.FailedToLoadPlugin: Flake8 failed to load plugin "I00" due to cannot import name 'SortImports' from 'isort' (/pc/clone/BQ54X-ogRzmpWm15sdE8hA/py_env-python3/lib/python3.8/site-packages/isort/__init__.py).
 ci:
-  skip: [local-nitpick, generate-docs, pylint, flake8]
+  skip: [local-nitpick, generate-docs, pylint]
 
 repos:
   - repo: local
@@ -86,7 +82,7 @@ repos:
             yesqa,
           ]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.910-1
+    rev: v0.921
     hooks:
       - id: mypy
         # Install additional types to fix new warnings that appeared on v0.910:
