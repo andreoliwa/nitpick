@@ -6,7 +6,7 @@ Helpful docs:
 """
 import sys
 from configparser import ConfigParser
-from typing import Iterator
+from typing import Iterator, List
 
 from invoke import Collection, Exit, task  # pylint: disable=import-error
 
@@ -80,21 +80,19 @@ class ToxCommands:
         else:
             ctx.run("sed -i '' 's/platform = darwin/platform = linux/g' tox.ini")
 
-    def _python_versions(self):
-        """Lines with Python versions executed in tox."""
-        return self._parser["gh-actions"]["python"].strip().splitlines()
+    def _python_versions(self) -> List[str]:
+        """Python versions executed in tox."""
+        return list(reversed([v for v in self._parser["tox"]["envlist"].split(",") if v.startswith("py")]))
 
     @property
-    def minimum_python_version(self):
+    def minimum_python_version(self) -> str:
         """Minimum Python version."""
-        last = self._python_versions()[-1]
-        return last.split(":")[0]
+        return self._python_versions()[-1]
 
     @property
-    def stable_python_version(self):
+    def stable_python_version(self) -> str:
         """Stable Python version."""
-        stable = [line for line in self._python_versions() if "lint" in line]
-        return stable[0].split(":")[1].split(",")[0].strip()
+        return self._python_versions()[-2]
 
 
 @task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})
@@ -197,8 +195,8 @@ def doc(ctx, full=False, recreate=False, links=False, browse=False, debug=False)
         ctx.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
 
 
-@task(help={"full": "Full build using tox", "recreate": "Recreate tox environment"})
-def ci_build(ctx, full=False, recreate=False):
+@task(help={"full": "Full build using tox", "recreate": "Recreate tox environment", "docs": "Generate Sphinx docs"})
+def ci_build(ctx, full=False, recreate=False, docs=True):
     """Simulate a CI build."""
     tox = ToxCommands()
     tox.macos(ctx, True)
@@ -208,8 +206,11 @@ def ci_build(ctx, full=False, recreate=False):
         ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
         ctx.run(tox_cmd)
     else:
-        version = ToxCommands().stable_python_version
-        ctx.run(f"{tox_cmd} -e clean,lint,{version},docs,report")
+        envs = ["clean", "lint", ToxCommands().stable_python_version]
+        if docs:
+            envs.append("docs")
+        envs.append("report")
+        ctx.run(f"{tox_cmd} -e {','.join(envs)}")
 
     tox.macos(ctx, False)
 
