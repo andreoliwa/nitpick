@@ -155,12 +155,6 @@ def test(ctx, coverage=False, browse=False, watch=False):
         ctx.run("open htmlcov/index.html")
 
 
-@task(help={"hook": "Specific hook to run"})
-def pre_commit(ctx, hook=""):
-    """Run pre-commit for all files."""
-    ctx.run(f"pre-commit run --all-files {hook}")
-
-
 @task(
     help={
         "full": "Run all steps",
@@ -274,7 +268,7 @@ def lab(ctx):
     ctx.run("poetry run python docs/ideas/lab.py")
 
 
-namespace = Collection(install, update, test, pre_commit, doc, ci_build, lint, clean, reactions, lab)
+namespace = Collection(install, update, test, doc, ci_build, lint, clean, reactions, lab)
 namespace.configure(
     {
         "run": {
