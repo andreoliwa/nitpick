@@ -77,9 +77,9 @@ So basically the pre-commit hook would be useless to guarantee that your config 
 Root dir of the project
 -----------------------
 
-Nitpick_ tries to find the root dir of the project using some hardcoded assumptions.
+You should run Nitpick_ in the *root dir* of your project.
 
-#. Starting from the current working directory, it will search for files that are usually in the root of a project:
+A directory is considered a root dir if it contains one of the following files:
 
   - ``.pre-commit-config.yaml`` (pre-commit_)
   - ``pyproject.toml``
@@ -93,16 +93,12 @@ Nitpick_ tries to find the root dir of the project using some hardcoded assumpti
   - ``go.mod``, ``go.sum`` (Golang)
   - ``app.py`` and ``wsgi.py`` (`Flask CLI`_)
   - ``autoapp.py`` (Flask_)
-
-#. If none of these root files were found, search for ``manage.py``.
-   On Django_ projects, it can be in another dir inside the root dir (:issue:`21`).
-#. If multiple roots are found, get the top one in the dir tree.
+  - ``manage.py`` (Django_)
 
 Main Python file
 ----------------
 
-After finding the `root dir of the project`_, Nitpick searches for a
-main Python file.
+On the `root dir of the project`_ Nitpick searches for a main Python file.
 Every project must have at least one ``*.py`` file, otherwise flake8_ won't even work.
 
 Those are the Python files that are considered:

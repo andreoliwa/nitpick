@@ -30,7 +30,7 @@ from nitpick.formats import TOMLFormat
 from nitpick.generic import MergeDict, is_url, search_dict
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
-from nitpick.project import Project, climb_directory_tree
+from nitpick.project import Project, glob_files
 from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.style.config import ConfigValidator
 from nitpick.style.fetchers import StyleFetcherManager
@@ -90,7 +90,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
             chosen_styles: StrOrIterable = list(configured_styles)
             log_message = f"Using styles configured in {PYPROJECT_TOML}"
         else:
-            paths = climb_directory_tree(self.project.root, [NITPICK_STYLE_TOML])
+            paths = glob_files(self.project.root, [NITPICK_STYLE_TOML])
             if paths:
                 chosen_styles = str(sorted(paths)[0])
                 log_message = "Using local style found climbing the directory tree"

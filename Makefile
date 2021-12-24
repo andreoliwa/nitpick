@@ -27,7 +27,7 @@ build: .cache/make/pytest .cache/make/pre-commit # Quick build for local develop
 	touch .cache/make/pytest
 
 .cache/make/pre-commit: $(ANY)
-	invoke pre-commit
+	pre-commit run -a
 	touch .cache/make/pre-commit
 
 .cache/make/doc: $(DOCS) $(STYLES)

@@ -2,6 +2,7 @@
 import os
 
 import pytest
+import responses
 
 from nitpick.constants import (
     DOT_NITPICK_TOML,
@@ -17,7 +18,8 @@ from nitpick.constants import (
     TOX_INI,
 )
 from nitpick.core import Nitpick
-from nitpick.project import Configuration, find_main_python_file, find_root
+from nitpick.exceptions import QuitComplainingError
+from nitpick.project import Configuration, confirm_project_root, find_main_python_file
 from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
 
@@ -116,8 +118,11 @@ def test_django_project_structure(tmp_path):
     ).api_check_then_fix()
 
 
-def test_no_config_file(tmp_path, caplog):
+@responses.activate
+def test_when_no_config_file_the_default_style_is_requested(tmp_path, caplog):
     """There is a root dir (setup.py), but no config file."""
+    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
+
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).api_check(offline=True)
     assert project.nitpick_instance.project.read_configuration() == Configuration(None, [], "")
     assert "Config file: none found" in caplog.text
@@ -188,18 +193,24 @@ def test_has_multiple_config_files(tmp_path, caplog):
         NITPICK_STYLE_TOML,
     ],
 )
-def test_find_root_from_sub_dir(tmp_path, root_file):
-    """Find the root dir from a subdir."""
+def test_use_current_dir_dont_climb_dirs_to_find_project_root(tmp_path, root_file):
+    """Use current dir; don't climb dirs to find the project root."""
     root = tmp_path / "deep" / "root"
     root.mkdir(parents=True)
     (root / root_file).write_text("")
 
-    curdir = root / "going" / "down" / "the" / "rabbit" / "hole"
-    curdir.mkdir(parents=True)
-    os.chdir(str(curdir))
+    os.chdir(str(root))
+    assert confirm_project_root(root) == root, root_file
+    assert confirm_project_root(str(root)) == root, root_file
 
-    assert find_root(curdir) == root, root_file
-    assert find_root(str(curdir)) == root, root_file
+    inner_dir = root / "going" / "down" / "the" / "rabbit" / "hole"
+    inner_dir.mkdir(parents=True)
+
+    os.chdir(str(inner_dir))
+    with pytest.raises(QuitComplainingError):
+        confirm_project_root(inner_dir)
+    with pytest.raises(QuitComplainingError):
+        confirm_project_root(str(inner_dir))
 
 
 def test_find_root_django(tmp_path):
@@ -208,7 +219,7 @@ def test_find_root_django(tmp_path):
     apps_dir.mkdir(parents=True)
     (apps_dir / MANAGE_PY).write_text("")
 
-    assert find_root(apps_dir) == apps_dir
+    assert confirm_project_root(apps_dir) == apps_dir
 
     # Search 2 levels of directories
     assert find_main_python_file(tmp_path) == apps_dir / MANAGE_PY

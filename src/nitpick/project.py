@@ -37,73 +37,26 @@ from nitpick.typedefs import JsonDict, PathOrStr, mypy_property
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
 
 
-def climb_directory_tree(starting_path: PathOrStr, file_patterns: Iterable[str]) -> Set[Path]:  # TODO: add unit test
-    """Climb the directory tree looking for file patterns."""
-    current_dir: Path = Path(starting_path).absolute()
-    while current_dir.anchor != str(current_dir):
-        for root_file in file_patterns:
-            found_files = list(current_dir.glob(root_file))
-            if found_files:
-                return set(found_files)
-        current_dir = current_dir.parent
+def glob_files(dir_: Path, file_patterns: Iterable[str]) -> Set[Path]:
+    """Search a directory looking for file patterns."""
+    for pattern in file_patterns:
+        found_files = list(dir_.glob(pattern))
+        if found_files:
+            return set(found_files)
     return set()
 
 
-def find_starting_dir(current_dir: PathOrStr) -> Path:
-    """Find the starting dir from the current dir."""
-    logger.debug(f"Searching root from current dir: {str(current_dir)!r}")
-    all_files_dirs = list(Path(current_dir).glob("*"))
-    logger.debug("All files/dirs in the current dir:\n{}", "\n".join(str(file) for file in all_files_dirs))
+def confirm_project_root(dir_: Optional[PathOrStr] = None) -> Path:
+    """Confirm this is the root dir of the project (the one that has one of the ``ROOT_FILES``)."""
+    possible_root_dir = Path(dir_ or Path.cwd())
+    root_files = glob_files(possible_root_dir, ROOT_FILES)
+    logger.debug(f"Root files found: {root_files}")
 
-    # Don't fail if the current dir is empty
-    starting_file = str(all_files_dirs[0]) if all_files_dirs else ""
-    if starting_file:
-        return Path(starting_file).parent.absolute()
+    if root_files:
+        return next(iter(root_files)).parent
 
-    return Path(current_dir).absolute()
-
-
-def find_root(current_dir: Optional[PathOrStr] = None) -> Path:
-    """Find the root dir of the Python project (the one that has one of the ``ROOT_FILES``).
-
-    Start from the current working dir.
-    """
-    root_dirs: Set[Path] = set()
-    seen: Set[Path] = set()
-
-    starting_dir = find_starting_dir(current_dir or Path.cwd())
-    while starting_dir:  # pragma: no cover # starting_dir will always have a value on the first run
-        logger.debug(f"Climbing dir: {starting_dir}")
-        project_files = climb_directory_tree(starting_dir, ROOT_FILES)
-        if project_files and project_files & seen:
-            break
-        seen.update(project_files)
-        logger.debug(f"Project files seen: {str(project_files)}")
-
-        if not project_files:
-            # If none of the root files were found, try again with manage.py.
-            # On Django projects, it can be in another dir inside the root dir.
-            project_files = climb_directory_tree(starting_dir, [MANAGE_PY])
-            if not project_files or project_files & seen:
-                break
-            seen.update(project_files)
-            logger.debug(f"Django project files seen: {project_files}")
-
-        for found in project_files:
-            root_dirs.add(found.parent)
-        logger.debug(f"Root dirs: {str(root_dirs)}")
-
-        # Climb up one directory to search for more project files
-        starting_dir = starting_dir.parent
-
-    if not root_dirs:
-        logger.error(f"No files found while climbing directory tree from {starting_dir}")
-        raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NO_ROOT_DIR))
-
-    # If multiple roots are found, get the top one (grandparent dir)
-    top_dir = sorted(root_dirs)[0]
-    logger.debug(f"Top root dir found: {top_dir}")
-    return top_dir
+    logger.error(f"No root files found on directory {possible_root_dir}")
+    raise QuitComplainingError(Reporter().make_fuss(ProjectViolations.NO_ROOT_DIR))
 
 
 def find_main_python_file(root_dir: Path) -> Path:
@@ -165,7 +118,7 @@ class Project:
     @lru_cache()
     def root(self) -> Path:
         """Root dir of the project."""
-        return find_root(self._chosen_root)
+        return confirm_project_root(self._chosen_root)
 
     @mypy_property
     @lru_cache()
