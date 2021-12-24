@@ -1,6 +1,4 @@
 """Constants."""
-import os
-
 import jmespath
 
 PROJECT_OWNER = "andreoliwa"
@@ -71,7 +69,6 @@ NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
 NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
 
 #: Dot/slash is used to indicate a local style file
-SLASH = os.path.sep
-DOT_SLASH = f".{SLASH}"
+DOT_SLASH = "./"
 
 GIT_AT_REFERENCE = "@"
