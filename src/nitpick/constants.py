@@ -20,8 +20,8 @@ SETUP_PY = "setup.py"
 SETUP_CFG = "setup.cfg"
 REQUIREMENTS_STAR_TXT = "requirements*.txt"
 PIPFILE_STAR = "Pipfile*"
-ROOT_PYTHON_FILES = ("app.py", "wsgi.py", "autoapp.py")
 MANAGE_PY = "manage.py"
+ROOT_PYTHON_FILES = ("app.py", "wsgi.py", "autoapp.py", MANAGE_PY)
 TOX_INI = "tox.ini"
 PYLINTRC = ".pylintrc"
 # Tools
