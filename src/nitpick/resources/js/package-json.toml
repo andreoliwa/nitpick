@@ -1,0 +1,2 @@
+["package.json"]
+contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]

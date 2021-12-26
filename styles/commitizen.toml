@@ -1,7 +1,0 @@
-[[".pre-commit-config.yaml".repos]]
-yaml = """
-  - repo: https://github.com/commitizen-tools/commitizen
-    hooks:
-      - id: commitizen
-        stages: [commit-msg]
-"""
