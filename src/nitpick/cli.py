@@ -21,10 +21,11 @@ import click
 from click.exceptions import Exit
 from loguru import logger
 
-from nitpick.constants import DOT_NITPICK_TOML, PROJECT_NAME
+from nitpick.constants import PROJECT_NAME, TOOL_KEY, TOOL_NITPICK_KEY
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
+from nitpick.formats import TOMLFormat
 from nitpick.generic import relative_to_current_dir
 from nitpick.violations import Reporter
 
@@ -142,12 +143,13 @@ def ls(context, files):  # pylint: disable=invalid-name
 @nitpick_cli.command()
 @click.pass_context
 def init(context):
-    """Create a configuration file if it doesn't exist already."""
+    """Create a [tool.nitpick] section in the configuration file if it doesn't exist already."""
     nit = get_nitpick(context)
     config = nit.project.read_configuration()
-    if config.file:
-        click.secho(f"A config file already exists: {config.file.name}", fg="yellow")
+
+    if config.file and PROJECT_NAME in TOMLFormat(path=config.file).as_data[TOOL_KEY]:
+        click.secho(f"The config file {config.file.name} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")
         raise Exit(1)
 
-    nit.project.create_configuration()
-    click.secho(f"Config file created: {DOT_NITPICK_TOML}", fg="green")
+    nit.project.create_configuration(config)
+    click.secho(f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {config.file.name}", fg="green")

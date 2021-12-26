@@ -49,7 +49,7 @@ Main options
     Commands:
       check  Don't modify files, just print the differences.
       fix    Fix files, modifying them directly.
-      init   Create a configuration file if it doesn't exist already.
+      init   Create a [tool.nitpick] section in the configuration file if it...
       ls     List of files configured in the Nitpick style.
 
 .. _cli_cmd_fix:
@@ -123,7 +123,8 @@ At the end of execution, this command displays:
 
     Usage: nitpick init [OPTIONS]
 
-      Create a configuration file if it doesn't exist already.
+      Create a [tool.nitpick] section in the configuration file if it doesn't
+      exist already.
 
     Options:
       --help  Show this message and exit.
