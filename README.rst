@@ -229,8 +229,10 @@ You can use it as a template to configure your own style.
 Run as a pre-commit hook
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you use `pre-commit <https://pre-commit.com/>`__ on your project, add
+If you use `pre-commit <https://pre-commit.com/>`_ on your project, add
 this to the ``.pre-commit-config.yaml`` in your repository::
+
+.. code-block:: yaml
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
@@ -238,7 +240,21 @@ this to the ``.pre-commit-config.yaml`` in your repository::
         hooks:
           - id: nitpick
 
-There are 3 available hook IDs: ``nitpick``, ``nitpick-fix``, ``nitpick-check``.
+There are 3 available hook IDs:
+
+- ``nitpick`` and ``nitpick-fix`` both run the ``nitpick fix`` command;
+- ``nitpick-check`` runs ``nitpick check``.
+
+If you want to run Nitpick as a flake8 plugin instead::
+
+.. code-block:: yaml
+
+    repos:
+      - repo: https://github.com/PyCQA/flake8
+        rev: 4.0.1
+        hooks:
+          - id: flake8
+            additional_dependencies: [nitpick]
 
 More information
 ----------------

@@ -11,8 +11,11 @@ repos:
   - repo: local
     hooks:
       # Run nitpick also with tox, because local repos don't seem to work well with https://pre-commit.ci/
+      # Nitpick doesn't run on pre-commit.ci because it needs HTTP requests to get the default style from GitHub
+      # pre-commit.ci intentionally does not allow network access at runtime for free tier as this is easy to abuse (miners, etc.)
+      # https://github.com/pre-commit-ci/issues/issues/47
       - id: local-nitpick
-        name: "nitpick fix (modify files directly, local hook)"
+        name: "nitpick fix (auto fixing files, local hook)"
         entry: poetry run nitpick fix
         language: system
         always_run: true
