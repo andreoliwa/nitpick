@@ -65,6 +65,22 @@ If you use pre-commit_ on your project, add this to the ``.pre-commit-config.yam
         hooks:
           - id: nitpick
 
+There are 3 available hook IDs:
+
+- ``nitpick`` and ``nitpick-fix`` both run the ``nitpick fix`` command;
+- ``nitpick-check`` runs ``nitpick check``.
+
+If you want to run Nitpick_ as a flake8_ plugin instead::
+
+.. code-block:: yaml
+
+    repos:
+      - repo: https://github.com/PyCQA/flake8
+        rev: 4.0.1
+        hooks:
+          - id: flake8
+            additional_dependencies: [nitpick]
+
 To install the ``pre-commit`` and ``commit-msg`` Git hooks:
 
 .. code-block:: shell

@@ -8,6 +8,7 @@ from typing import Any, Callable, List, Optional, Type, Union
 
 import dictdiffer
 import toml
+from autorepr import autorepr
 from loguru import logger
 from ruamel.yaml import YAML, RoundTripRepresenter
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
@@ -94,6 +95,8 @@ class BaseFormat(metaclass=abc.ABCMeta):
     :param data: Config data in Python format (dict, YAMLFormat, TOMLFormat instances).
     :param ignore_keys: List of keys to ignore when using the comparison methods.
     """
+
+    __repr__ = autorepr(["path"])
 
     def __init__(
         self,

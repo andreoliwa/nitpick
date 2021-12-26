@@ -1,15 +1,14 @@
 # https://pre-commit.com/#creating-new-hooks
 - id: nitpick
-  name: "nitpick flake8 plugin (check files only)"
-  description: "Run as a flake8 plugin and only check configuration files (TOML/INI/JSON/etc.), according to the Nitpick style"
-  entry: flake8 --select=NIP
+  name: "nitpick fix (auto fixing files)"
+  description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style"
+  entry: nitpick fix
   language: python
-  types: [python]
-  always_run: true
   stages: [commit]
 
+# This hook is kept for compatibility (or if one wants to be explicit): "nitpick" does the same as "nitpick-fix" now
 - id: nitpick-fix
-  name: "nitpick fix (modify files directly)"
+  name: "nitpick fix (auto fixing files)"
   description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style"
   entry: nitpick fix
   language: python

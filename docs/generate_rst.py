@@ -355,6 +355,7 @@ def write_config() -> int:
 
 def write_readme(file_types: Set[FileType], divider: str) -> int:
     """Write the README."""
+    # TODO: quickstart.rst has some parts of README.rst as a copy/paste/change
     rows: List[Tuple[str, ...]] = [("File type", "``nitpick check``", "``nitpick fix``")]
     for file_type in sorted(file_types):
         rows.append(file_type.row)
