@@ -63,10 +63,11 @@ SEPARATOR_FLATTEN = "$#@"
 SEPARATOR_QUOTED_SPLIT = "#$@"
 
 # Config sections and keys
-TOOL_NITPICK = "tool.nitpick"
+TOOL_KEY = "tool"
+TOOL_NITPICK_KEY = f"{TOOL_KEY}.{PROJECT_NAME}"
 
 # JMESPath expressions
-TOOL_NITPICK_JMEX = jmespath.compile(TOOL_NITPICK)
+TOOL_NITPICK_JMEX = jmespath.compile(TOOL_NITPICK_KEY)
 NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
 NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
 
