@@ -62,6 +62,23 @@ Contents of `styles/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.29
     #<YAML goes here>
     #"""]
 
+.. _example-commitizen:
+
+commitizen_
+-----------
+
+Contents of `styles/commitizen.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/styles/commitizen.toml>`_:
+
+.. code-block:: toml
+
+    [[".pre-commit-config.yaml".repos]]
+    yaml = """
+      - repo: https://github.com/commitizen-tools/commitizen
+        hooks:
+          - id: commitizen
+            stages: [commit-msg]
+    """
+
 .. _example-editorconfig:
 
 EditorConfig_
@@ -227,19 +244,10 @@ package.json_
 
 Contents of `styles/package-json.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/styles/package-json.toml>`_:
 
-.. code-block::
+.. code-block:: toml
 
     ["package.json"]
     contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
-
-    ["package.json".contains_json]
-    commitlint = """
-      {
-        "extends": [
-          "@commitlint/config-conventional"
-        ]
-      }
-    """
 
 .. _example-poetry:
 
@@ -267,24 +275,6 @@ Contents of `styles/pre-commit/bash.toml <https://github.com/andreoliwa/nitpick/
       - repo: https://github.com/openstack/bashate
         hooks:
           - id: bashate
-    """
-
-.. _example-commitlint:
-
-commitlint_
------------
-
-Contents of `styles/pre-commit/commitlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/styles/pre-commit/commitlint.toml>`_:
-
-.. code-block:: toml
-
-    [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        hooks:
-          - id: commitlint
-            stages: [commit-msg]
-            additional_dependencies: ['@commitlint/config-conventional']
     """
 
 .. _example-pre-commit-hooks:

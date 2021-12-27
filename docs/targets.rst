@@ -7,11 +7,11 @@
 
 .. _Bash: https://www.gnu.org/software/bash/
 .. _black: https://github.com/psf/black
-.. _commitlint: https://commitlint.js.org/
+.. _commitizen: https://github.com/commitizen-tools/commitizen
 .. _Django: https://github.com/django/django
 .. _EditorConfig: https://editorconfig.org
 .. _flake8: https://github.com/PyCQA/flake8
-.. _Flask: https://github.com/pallets/flask/
+.. _Flask: https://github.com/pallets/flask
 .. _Flask CLI: https://flask.palletsprojects.com/en/1.1.x/cli/
 .. _Homebrew: https://github.com/Homebrew/brew
 .. _Invoke: https://github.com/pyinvoke/invoke
