@@ -56,7 +56,7 @@ STYLE_MAPPING = SortedDict(
         "package-json.toml": "package.json_",
         "poetry.toml": "Poetry_",
         "pre-commit/bash.toml": "Bash_",
-        "pre-commit/commitlint.toml": "commitlint_",
+        "commitizen.toml": "commitizen_",
         "pre-commit/general.toml": "pre-commit_ (hooks)",
         "pre-commit/main.toml": "pre-commit_ (main)",
         "pre-commit/python.toml": "pre-commit_ (Python hooks)",

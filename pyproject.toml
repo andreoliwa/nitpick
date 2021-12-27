@@ -46,7 +46,7 @@ toml = "nitpick.plugins.toml"
 python = "^3.6"
 flake8 = ">=3.0.0"
 attrs = "*"
-tomlkit = "*"
+tomlkit = "^0.7.2" # TODO: raises TypeError: object() takes no parameters on Key()
 toml = "*" # TODO: keep only tomlkit if possible, to have only one package to handle TOML
 requests = "*"
 dictdiffer = "*"

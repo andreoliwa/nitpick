@@ -114,23 +114,6 @@ def install(ctx, deps=True, hooks=False):
         ctx.run("pre-commit gc")
 
 
-@task(help={"deps": "Update Poetry dependencies", "hooks": "Update pre-commit hooks"})
-def update(ctx, deps=True, hooks=False):
-    """Update pre-commit hooks and Poetry dependencies."""
-    if hooks:
-        # Uncomment the line below to auto update all repos except a few filtered out with egrep
-        ctx.run(
-            "yq -r '.repos[].repo' .pre-commit-config.yaml | egrep -v -e '^local' -e commitlint"
-            " | sed -E -e 's/http/--repo http/g' | xargs pre-commit autoupdate"
-        )
-
-    if deps:
-        ctx.run("poetry update")
-
-    # Also install what was updated
-    install(ctx, deps, hooks)
-
-
 @task(
     help={
         "coverage": "Run the HTML coverage report",
@@ -268,7 +251,7 @@ def lab(ctx):
     ctx.run("poetry run python docs/ideas/lab.py")
 
 
-namespace = Collection(install, update, test, doc, ci_build, lint, clean, reactions, lab)
+namespace = Collection(install, test, doc, ci_build, lint, clean, reactions, lab)
 namespace.configure(
     {
         "run": {
