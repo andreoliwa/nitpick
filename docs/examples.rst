@@ -289,7 +289,6 @@ Contents of `styles/pre-commit/general.toml <https://github.com/andreoliwa/nitpi
     [[".pre-commit-config.yaml".repos]]
     yaml = """
       - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v4.0.1
         hooks:
           - id: end-of-file-fixer
           - id: trailing-whitespace
