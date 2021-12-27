@@ -5,10 +5,24 @@ from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
+PACKAGE_JSON_STYLE = '''
+    ["package.json"]
+    contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
+
+    ["package.json".contains_json]
+    commitlint = """
+      {
+        "extends": [
+          "@commitlint/config-conventional"
+        ]
+      }
+    """
+'''
+
 
 def test_suggest_initial_contents(tmp_path):
     """Suggest initial contents for missing JSON file."""
-    ProjectMock(tmp_path).load_styles("package-json").pyproject_toml(
+    ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE).pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
@@ -38,7 +52,7 @@ def test_suggest_initial_contents(tmp_path):
 
 def test_json_file_contains_keys(tmp_path):
     """Test if JSON file contains keys."""
-    ProjectMock(tmp_path).load_styles("package-json").pyproject_toml(
+    ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE,).pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]

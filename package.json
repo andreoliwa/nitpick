@@ -43,28 +43,5 @@
         }
       ]
     ]
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
-    "rules": {
-      "scope-enum": [
-        2,
-        "always",
-        [
-          "cli",
-          "flake8",
-          "style",
-          "yaml",
-          "toml",
-          "ini",
-          "json",
-          "deps",
-          "deps-dev",
-          "release"
-        ]
-      ]
-    }
   }
 }

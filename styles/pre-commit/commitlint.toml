@@ -1,8 +1,0 @@
-[[".pre-commit-config.yaml".repos]]
-yaml = """
-  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    hooks:
-      - id: commitlint
-        stages: [commit-msg]
-        additional_dependencies: ['@commitlint/config-conventional']
-"""
