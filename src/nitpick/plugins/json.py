@@ -6,7 +6,7 @@ from loguru import logger
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.formats import JSONFormat
+from nitpick.formats import BaseFormat, JSONFormat
 from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
@@ -42,6 +42,7 @@ class JSONPlugin(NitpickPlugin):
     validation_schema = JSONFileSchema
     identify_tags = {"json"}
     violation_base_code = 340
+    can_fix = True
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"
 
@@ -49,6 +50,33 @@ class JSONPlugin(NitpickPlugin):
         """Enforce rules for missing keys and JSON content."""
         yield from self._check_contained_keys()
         yield from self._check_contained_json()
+        # FIXME:
+        # json_format = JSONFormat(path=self.file_path)
+        # comparison = json_format.compare_with_flatten(self.expected_config)
+        # if not comparison.has_changes:
+        #     return
+        #
+        # document = json_format.as_data if self.fix else None
+        # if self.fix:
+        #     yield from chain(
+        #         self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
+        #         self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),
+        #     )
+        # else:
+        #     yield from self._check_contained_keys()
+        #     yield from self._check_contained_json()
+        #
+        # if self.fix and self.dirty:
+        #     self.file_path.write_text(JSONFormat(data=document).reformatted)
+
+    def report(self, violation: ViolationEnum, document: Optional[JsonDict], change_dict: Optional[BaseFormat]):
+        """Report a violation while optionally modifying the JSON dict."""
+        if not change_dict:
+            return
+        if document:
+            document.update(change_dict.as_data)
+            self.dirty = True
+        yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.fix)
 
     def get_suggested_json(self, raw_actual: JsonDict = None) -> JsonDict:
         """Return the suggested JSON based on actual values."""
@@ -65,7 +93,10 @@ class JSONPlugin(NitpickPlugin):
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         suggestion = self.get_suggested_json()
-        return JSONFormat(data=suggestion).reformatted if suggestion else ""
+        rv = JSONFormat(data=suggestion).reformatted if suggestion else ""
+        if self.fix:
+            self.file_path.write_text(rv)
+        return rv
 
     def _check_contained_keys(self) -> Iterator[Fuss]:
         json_fmt = JSONFormat(path=self.file_path)

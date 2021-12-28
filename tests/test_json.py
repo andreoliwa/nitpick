@@ -22,6 +22,19 @@ PACKAGE_JSON_STYLE = '''
 
 def test_suggest_initial_contents(tmp_path):
     """Suggest initial contents for missing JSON file."""
+    expected_content = """
+        {
+          "name": "<some value here>",
+          "release": {
+            "plugins": "<some value here>"
+          },
+          "repository": {
+            "type": "<some value here>",
+            "url": "<some value here>"
+          },
+          "version": "<some value here>"
+        }"""
+    filename = "package.json"
     ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE).pyproject_toml(
         """
         [tool.nitpick]
@@ -29,24 +42,14 @@ def test_suggest_initial_contents(tmp_path):
         """
     ).api_check_then_fix(
         Fuss(
-            False,
-            "package.json",
+            True,
+            filename,
             341,
             " was not found. Create it with this content:",
-            """
-            {
-              "name": "<some value here>",
-              "release": {
-                "plugins": "<some value here>"
-              },
-              "repository": {
-                "type": "<some value here>",
-                "url": "<some value here>"
-              },
-              "version": "<some value here>"
-            }
-            """,
+            expected_content,
         )
+    ).assert_file_contents(
+        filename, expected_content
     )
 
 
