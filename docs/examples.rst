@@ -421,7 +421,7 @@ Contents of `styles/python36.toml <https://github.com/andreoliwa/nitpick/blob/v0
 .. code-block:: toml
 
     ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.6"
+    python = "^3.6.1"
 
 .. _example-python-3-7:
 

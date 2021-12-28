@@ -43,7 +43,7 @@ ini = "nitpick.plugins.ini"
 toml = "nitpick.plugins.toml"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.6.1"
 flake8 = ">=3.0.0"
 attrs = "*"
 tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
