@@ -24,6 +24,11 @@ def test_suggest_initial_contents(tmp_path):
     """Suggest initial contents for missing JSON file."""
     expected_content = """
         {
+          "commitlint": {
+            "extends": [
+              "@commitlint/config-conventional"
+            ]
+          },
           "name": "<some value here>",
           "release": {
             "plugins": "<some value here>"
@@ -33,7 +38,8 @@ def test_suggest_initial_contents(tmp_path):
             "url": "<some value here>"
           },
           "version": "<some value here>"
-        }"""
+        }
+    """
     filename = "package.json"
     ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE).pyproject_toml(
         """
@@ -55,7 +61,7 @@ def test_suggest_initial_contents(tmp_path):
 
 def test_json_file_contains_keys(tmp_path):
     """Test if JSON file contains keys."""
-    ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE,).pyproject_toml(
+    ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE).pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]

@@ -8,6 +8,7 @@ PathOrStr = Union[Path, str]
 JsonDict = Dict[str, Any]
 StrOrList = Union[str, List[str]]
 StrOrIterable = Union[str, Iterable[str]]
+MultilineStr = str
 Flake8Error = Tuple[int, int, str, Type]
 YamlData = Union[CommentedSeq, CommentedMap]
 
