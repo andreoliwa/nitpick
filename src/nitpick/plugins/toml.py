@@ -68,11 +68,10 @@ class TomlPlugin(NitpickPlugin):
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        rv = TOMLFormat(data=self.expected_config).reformatted
-        if not self.fix:
-            return rv
-        self.file_path.write_text(rv)
-        return rv
+        toml_as_string = TOMLFormat(data=self.expected_config).reformatted
+        if self.fix:
+            self.file_path.write_text(toml_as_string)
+        return toml_as_string
 
 
 @hookimpl
