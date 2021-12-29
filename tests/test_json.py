@@ -1,8 +1,6 @@
 """JSON tests."""
 import warnings
 
-import pytest
-
 from nitpick.constants import PACKAGE_JSON, READ_THE_DOCS_URL
 from nitpick.plugins.json import JSONPlugin
 from nitpick.violations import Fuss, SharedViolations
@@ -62,8 +60,8 @@ def test_suggest_initial_contents(tmp_path):
     )
 
 
-def test_json_file_contains_keys_mixed_with_contains_json_content(tmp_path):
-    """Test if JSON file contains keys, mixed with "contains_json" content."""
+def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path):
+    """Test missing and different values with "contains_json" and "contains_keys"."""
     expected_package_json = """
         {
           "commitlint": {
@@ -88,7 +86,17 @@ def test_json_file_contains_keys_mixed_with_contains_json_content(tmp_path):
         [tool.nitpick]
         style = ["package-json"]
         """
-    ).save_file(PACKAGE_JSON, '{"name": "myproject", "version": "0.0.1", "something": "else"}').api_check_then_fix(
+    ).save_file(
+        PACKAGE_JSON,
+        """
+        {
+          "name": "myproject",
+          "version": "0.0.1",
+          "something": "else",
+          "commitlint":{"extends":["wrong-plugin-should-be-replaced","another-wrong-plugin"]}
+        }
+        """,
+    ).api_check_then_fix(
         Fuss(
             True,
             PACKAGE_JSON,
@@ -96,11 +104,6 @@ def test_json_file_contains_keys_mixed_with_contains_json_content(tmp_path):
             " has missing values:",
             """
             {
-              "commitlint": {
-                "extends": [
-                  "@commitlint/config-conventional"
-                ]
-              },
               "release": {
                 "plugins": "<some value here>"
               },
@@ -111,14 +114,28 @@ def test_json_file_contains_keys_mixed_with_contains_json_content(tmp_path):
             }
             """,
         ),
+        Fuss(
+            True,
+            PACKAGE_JSON,
+            SharedViolations.DIFFERENT_VALUES.code + JSONPlugin.violation_base_code,
+            " has different values. Use this:",
+            """
+            {
+              "commitlint": {
+                "extends": [
+                  "@commitlint/config-conventional"
+                ]
+              }
+            }
+            """,
+        ),
     ).assert_file_contents(
         PACKAGE_JSON, expected_package_json
     )
 
 
-@pytest.mark.xfail(reason="Fixing one test at a time")
-def test_missing_different_values(tmp_path):
-    """Test missing and different values on the JSON file."""
+def test_missing_different_values_with_contains_json_without_contains_keys(tmp_path):
+    """Test missing and different values with "contains_json", without "contains_keys"."""
     ProjectMock(tmp_path).style(
         '''
         ["my.json".contains_json]
@@ -132,7 +149,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             "my.json",
-            348,
+            SharedViolations.MISSING_VALUES.code + JSONPlugin.violation_base_code,
             " has missing values:",
             """
             {
@@ -163,7 +180,7 @@ def test_missing_different_values(tmp_path):
         Fuss(
             True,
             "my.json",
-            349,
+            SharedViolations.DIFFERENT_VALUES.code + JSONPlugin.violation_base_code,
             " has different values. Use this:",
             """
             {
@@ -173,6 +190,35 @@ def test_missing_different_values(tmp_path):
             }
             """,
         ),
+    ).assert_file_contents(
+        "my.json",
+        """
+        {
+          "formatting": {
+            "doesnt": "matter",
+            "here": true,
+            "on.the": "config file"
+          },
+          "name": "myproject",
+          "some.dotted.root.key": {
+            "content": [
+              "should",
+              "be",
+              "here"
+            ],
+            "dotted.subkeys": [
+              "should be preserved",
+              {
+                "complex.weird.sub": {
+                  "objects": true
+                },
+                "even.with": 1
+              }
+            ],
+            "valid": "JSON"
+          }
+        }
+        """,
     )
 
 

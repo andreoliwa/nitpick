@@ -8,7 +8,7 @@ from sortedcontainers import SortedDict
 
 from nitpick import fields
 from nitpick.formats import BaseFormat, JSONFormat
-from nitpick.generic import MergeDict, flatten, unflatten
+from nitpick.generic import flatten, unflatten
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -27,12 +27,6 @@ class JSONFileSchema(BaseNitpickSchema):
     contains_json = fields.Dict(fields.NonEmptyString, fields.JSONString)
 
 
-class Violations(ViolationEnum):
-    """Violations for this plugin."""
-
-    MISSING_KEYS = (348, " has missing keys:")
-
-
 class JSONPlugin(NitpickPlugin):
     """Enforce configurations for any JSON file.
 
@@ -47,48 +41,62 @@ class JSONPlugin(NitpickPlugin):
 
     SOME_VALUE_PLACEHOLDER = "<some value here>"  # FIXME: move to simple constant, outside of the class
 
+    set_from_contains_keys: Set[str]
+
+    def init(self):
+        """Plugin initialization after the instance was created."""
+        self.set_from_contains_keys = set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])
+
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
-        # FIXME:
-        # yield from self._check_contained_keys()
-        # yield from self._check_contained_json()
         json_format = JSONFormat(path=self.file_path)
-        suggested_json = self.get_suggested_json(json_format.as_data)  # FIXME: pass no args?
-        comparison = json_format.compare_with_flatten(suggested_json)
-        if not comparison.has_changes:
-            return
+        final_dict: JsonDict = flatten(json_format.as_data) if self.fix else None
 
-        merge_dict = MergeDict(json_format.as_data) if self.fix else None
-        yield from chain(
-            # FIXME:
-            # self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
-            self.report(SharedViolations.MISSING_VALUES, merge_dict, comparison.missing),
-        )
-        if self.fix and self.dirty and merge_dict:
-            self.file_path.write_text(JSONFormat(data=merge_dict.merge()).reformatted)
+        expected_config = unflatten({key: self.SOME_VALUE_PLACEHOLDER for key in self.set_from_contains_keys})
+        comparison = json_format.compare_with_flatten(expected_config)
+        if comparison.missing:
+            yield from self.report(SharedViolations.MISSING_VALUES, final_dict, comparison.missing)
 
-    def report(self, violation: ViolationEnum, merge_dict: Optional[MergeDict], change: Optional[BaseFormat]):
+        expected_config = {}
+        # TODO: accept key as a jmespath expression, value is valid JSON
+        for key, json_string in (self.expected_config.get(KEY_CONTAINS_JSON) or {}).items():
+            try:
+                expected_config[key] = json.loads(json_string)
+            except json.JSONDecodeError as err:
+                # This should not happen, because the style was already validated before.
+                # Maybe the NIP??? code was disabled by the user?
+                logger.error(f"{err} on {KEY_CONTAINS_JSON} while checking {self.file_path}")
+                continue
+
+        comparison = json_format.compare_with_flatten(expected_config)
+        if comparison.has_changes:
+            yield from chain(
+                self.report(SharedViolations.DIFFERENT_VALUES, final_dict, comparison.diff),
+                self.report(SharedViolations.MISSING_VALUES, final_dict, comparison.missing),
+            )
+
+        if self.fix and self.dirty and final_dict:
+            self.file_path.write_text(JSONFormat(data=unflatten(final_dict)).reformatted)
+
+    def report(self, violation: ViolationEnum, final_dict: Optional[JsonDict], change: Optional[BaseFormat]):
         """Report a violation while optionally modifying the JSON dict."""
         if not change:
             return
-        if merge_dict is not None:
-            merge_dict.add(change.as_data)
+        if final_dict:
+            final_dict.update(flatten(change.as_data))
             self.dirty = True
         yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.fix)
 
-    def get_suggested_json(self, raw_actual: JsonDict = None) -> JsonDict:
+    def get_suggested_json(self) -> JsonDict:  # FIXME: refactor
         """Return the suggested JSON based on actual values."""
-        actual_keys = set(flatten(raw_actual).keys()) if raw_actual else set()
-        set_from_contains_keys: Set[str] = set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])
         expected_json_content: Dict[str, MultilineStr] = self.expected_config.get(KEY_CONTAINS_JSON, {})
-        expected_keys = set_from_contains_keys | set(expected_json_content.keys())
-        missing_keys = expected_keys - actual_keys
+        missing_keys = self.set_from_contains_keys | set(expected_json_content.keys())
         if not missing_keys:
             return {}
 
         rv = {}
         for key in missing_keys:
-            if key in set_from_contains_keys:
+            if key in self.set_from_contains_keys:
                 rv[key] = self.SOME_VALUE_PLACEHOLDER
             else:
                 # FIXME: test invalid json when suggesting for a new file
@@ -103,30 +111,6 @@ class JSONPlugin(NitpickPlugin):
         if self.fix:
             self.file_path.write_text(rv)
         return rv
-
-    def _check_contained_keys(self) -> Iterator[Fuss]:
-        json_format = JSONFormat(path=self.file_path)
-        suggested_json = self.get_suggested_json(json_format.as_data)
-        if not suggested_json:
-            return
-        yield self.reporter.make_fuss(Violations.MISSING_KEYS, JSONFormat(data=suggested_json).reformatted)
-
-    def _check_contained_json(self) -> Iterator[Fuss]:
-        actual_fmt = JSONFormat(path=self.file_path)
-        expected = {}
-        # TODO: accept key as a jmespath expression, value is valid JSON
-        for key, json_string in (self.expected_config.get(KEY_CONTAINS_JSON) or {}).items():
-            try:
-                expected[key] = json.loads(json_string)
-            except json.JSONDecodeError as err:
-                # This should not happen, because the style was already validated before.
-                # Maybe the NIP??? code was disabled by the user?
-                logger.error(f"{err} on {KEY_CONTAINS_JSON} while checking {self.file_path}")
-                continue
-
-        yield from self.warn_missing_different(
-            JSONFormat(data=actual_fmt.as_data).compare_with_dictdiffer(expected, unflatten)
-        )
 
 
 @hookimpl
