@@ -135,7 +135,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
     def _read_toml(self, file_contents, style_path):
         toml = TOMLFormat(string=file_contents)
         try:
-            read_toml_dict = toml.as_object
+            read_toml_dict = toml.as_data
         # TODO: replace by this error when using tomlkit only in the future:
         #  except TOMLKitError as err:
         except TomlDecodeError as err:

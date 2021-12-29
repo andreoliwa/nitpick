@@ -42,7 +42,7 @@ class JSONPlugin(NitpickPlugin):
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
         actual = JSONFormat(path=self.file_path)
-        final_dict: Optional[JsonDict] = flatten(actual.as_object) if self.fix else None
+        final_dict: Optional[JsonDict] = flatten(actual.as_data) if self.fix else None
 
         comparison = actual.compare_with_flatten(self.expected_dict_from_contains_keys())
         if comparison.missing:
@@ -81,7 +81,7 @@ class JSONPlugin(NitpickPlugin):
         if not change:
             return
         if final_dict:
-            final_dict.update(flatten(change.as_object))
+            final_dict.update(flatten(change.as_data))
             self.dirty = True
         yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.fix)
 

@@ -61,7 +61,7 @@ class TomlPlugin(NitpickPlugin):
         if not change:
             return
         if document:
-            change_toml(document, change.as_object)
+            change_toml(document, change.as_data)
             self.dirty = True
         yield self.reporter.make_fuss(violation, change.reformatted.strip(), prefix="", fixed=self.fix)
 
