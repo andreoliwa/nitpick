@@ -1,5 +1,6 @@
 """Config tests."""
 import os
+import shutil
 
 import pytest
 import responses
@@ -35,9 +36,12 @@ def test_singleton():
     assert "This class cannot be instantiated directly" in str(err)
 
 
-def test_no_root_dir_with_python_file(tmp_path):
+def test_no_root_dir_with_python_file(tmp_path, shared_datadir):
     """No root dir with Python file."""
-    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False).create_symlink("hello.py")
+    hello_py = tmp_path / "hello.py"
+    shutil.copy(shared_datadir / "hello.py", hello_py)
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False)
+    project.files_to_lint.append(hello_py)
     error = f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}"
     project.flake8().assert_single_error(error).cli_run(error, exit_code=2).cli_ls(error, exit_code=2)
 

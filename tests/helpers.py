@@ -29,7 +29,6 @@ from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
 
-FIXTURES_DIR: Path = Path(__file__).parent / "fixtures"
 STYLES_DIR: Path = Path(__file__).parent.parent / "styles"
 
 # Non-breaking space
@@ -68,7 +67,7 @@ class ProjectMock:
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
 
-    def create_symlink(self, link_name: str, target_dir: Path = None, target_file: str = None) -> "ProjectMock":
+    def create_symlink(self, link_name: str, target_dir: Path, target_file: str = None) -> "ProjectMock":
         """Create a symlink to a target file.
 
         :param link_name: Link file name.
@@ -76,7 +75,7 @@ class ProjectMock:
         :param target_file: Target file name (default: source file name).
         """
         path: Path = self.root_dir / link_name
-        full_source_path = Path(target_dir or FIXTURES_DIR) / (target_file or link_name)
+        full_source_path = Path(target_dir) / (target_file or link_name)
         if not full_source_path.exists():
             raise RuntimeError(f"Source file does not exist: {full_source_path}")
         path.symlink_to(full_source_path)

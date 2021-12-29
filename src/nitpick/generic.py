@@ -27,6 +27,7 @@ def get_subclasses(cls):
     return subclasses
 
 
+# TODO: move flatten() and unflatten() to DictBlender: they depend on each other and keep state between calls.
 def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict:
     """Flatten a nested dict.
 
@@ -116,8 +117,14 @@ def unflatten(dict_, separator=".", sort=True) -> OrderedDict:
     return items
 
 
-class MergeDict:
-    """A dictionary that can merge other dictionaries into it."""
+class DictBlender:
+    """A blender of dictionaries: keep adding dictionaries and mix them all at the end.
+
+    .. note::
+
+        This class intentionally doesn't inherit from the standard ``dict()``.
+        It's an unnecessary hassle to override and deal with all those magic dunder methods.
+    """
 
     def __init__(self, original_dict: JsonDict = None) -> None:
         self._all_flattened: OrderedDict = OrderedDict()
@@ -129,8 +136,8 @@ class MergeDict:
         flattened_other = flatten(other, separator=SEPARATOR_FLATTEN, current_lists=self._current_lists)
         self._all_flattened.update(flattened_other)
 
-    def merge(self, sort=True) -> JsonDict:
-        """Merge the dictionaries, replacing values with identical keys and extending lists."""
+    def mix(self, sort=True) -> JsonDict:
+        """Mix all dictionaries, replacing values with identical keys and extending lists."""
         return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN, sort=sort)
 
 

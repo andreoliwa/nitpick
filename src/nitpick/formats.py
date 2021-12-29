@@ -296,7 +296,8 @@ class JSONFormat(BaseFormat):
             if isinstance(self._data, BaseFormat):
                 self._reformatted = self._data.reformatted
             else:
-                self._reformatted = json.dumps(self._data, sort_keys=True, indent=2)
+                # Every file should end with a blank line
+                self._reformatted = json.dumps(self._data, sort_keys=True, indent=2) + "\n"
         self._loaded = True
         return True
 
