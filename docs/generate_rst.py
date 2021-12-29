@@ -94,7 +94,7 @@ class FileType:
     text: str
     url: str
     check: Union[bool, int]
-    fix: Union[bool, int]
+    autofix: Union[bool, int]
 
     def __post_init__(self):
         """Warn about text that might render incorrectly."""
@@ -136,14 +136,14 @@ class FileType:
         return self._pretty("check")
 
     @property
-    def fix_str(self) -> str:
-        """The fix flag, as a string."""
-        return self._pretty("fix")
+    def autofix_str(self) -> str:
+        """The autofix flag, as a string."""
+        return self._pretty("autofix")
 
     @property
     def row(self) -> Tuple[str, str, str]:
         """Tuple for a table row."""
-        return self.text_with_url, self.check_str, self.fix_str
+        return self.text_with_url, self.check_str, self.autofix_str
 
 
 IMPLEMENTED_FILE_TYPES: Set[FileType] = {

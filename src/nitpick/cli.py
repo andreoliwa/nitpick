@@ -64,7 +64,7 @@ def get_nitpick(context: click.Context) -> Nitpick:
 
 
 def common_fix_or_check(context, verbose: int, files, check_only: bool) -> None:
-    """Common CLI code for both fix and check commands."""
+    """Common CLI code for both "fix" and "check" commands."""
     if verbose:
         level = logging.INFO if verbose == 1 else logging.DEBUG
 
@@ -77,7 +77,7 @@ def common_fix_or_check(context, verbose: int, files, check_only: bool) -> None:
 
     nit = get_nitpick(context)
     try:
-        for fuss in nit.run(*files, fix=not check_only):
+        for fuss in nit.run(*files, autofix=not check_only):
             nit.echo(fuss.pretty)
     except QuitComplainingError as err:
         for fuss in err.violations:

@@ -37,12 +37,12 @@ class JSONPlugin(NitpickPlugin):
     validation_schema = JSONFileSchema
     identify_tags = {"json"}
     violation_base_code = 340
-    can_fix = True
+    fixable = True
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
         actual = JSONFormat(path=self.file_path)
-        final_dict: Optional[JsonDict] = flatten(actual.as_object) if self.fix else None
+        final_dict: Optional[JsonDict] = flatten(actual.as_object) if self.autofix else None
 
         comparison = actual.compare_with_flatten(self.expected_dict_from_contains_keys())
         if comparison.missing:
@@ -55,7 +55,7 @@ class JSONPlugin(NitpickPlugin):
                 self.report(SharedViolations.MISSING_VALUES, final_dict, comparison.missing),
             )
 
-        if self.fix and self.dirty and final_dict:
+        if self.autofix and self.dirty and final_dict:
             self.file_path.write_text(JSONFormat(obj=unflatten(final_dict)).reformatted)
 
     def expected_dict_from_contains_keys(self):
@@ -83,7 +83,7 @@ class JSONPlugin(NitpickPlugin):
         if final_dict:
             final_dict.update(flatten(change.as_object))
             self.dirty = True
-        yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.fix)
+        yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.autofix)
 
     @property
     def initial_contents(self) -> str:
@@ -91,7 +91,7 @@ class JSONPlugin(NitpickPlugin):
         suggestion = DictBlender(self.expected_dict_from_contains_keys())
         suggestion.add(self.expected_dict_from_contains_json())
         json_as_string = JSONFormat(obj=suggestion.mix()).reformatted if suggestion else ""
-        if self.fix:
+        if self.autofix:
             self.file_path.write_text(json_as_string)
         return json_as_string
 

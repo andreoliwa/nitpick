@@ -83,7 +83,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, fix=False) -> "ProjectMock":
+    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, autofix=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -96,7 +96,7 @@ class ProjectMock:
         self.nitpick_instance = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_violations = set(self.nitpick_instance.run(*partial_names, fix=fix))
+            self._actual_violations = set(self.nitpick_instance.run(*partial_names, autofix=autofix))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -117,22 +117,22 @@ class ProjectMock:
 
     def api_check(self, *partial_names: str, offline=False):
         """Test only the API in check mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, offline=offline, api=True, flake8=False, fix=False)
+        return self._simulate_run(*partial_names, offline=offline, api=True, flake8=False, autofix=False)
 
     def api_fix(self, *partial_names: str):
-        """Test only the API in fix mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, api=True, flake8=False, fix=True)
+        """Test only the API in autofix mode, no flake8 plugin."""
+        return self._simulate_run(*partial_names, api=True, flake8=False, autofix=True)
 
     def api_check_then_fix(
         self, *expected_violations_when_fixing: Fuss, partial_names: Optional[Iterable[str]] = None
     ) -> "ProjectMock":
-        """Assert that check mode does not change files, and that fix mode changes them.
+        """Assert that check mode does not change files, and that autofix mode changes them.
 
         Perform a series of calls and assertions:
         1. Call the API in check mode, assert violations, assert files contents were not modified.
-        2. Call the API in fix mode and assert violations again.
+        2. Call the API in autofix mode and assert violations again.
 
-        :param expected_violations_when_fixing: Expected violations when "fix mode" is on.
+        :param expected_violations_when_fixing: Expected violations when "autofix mode" is on.
         :param partial_names: Names of the files to enforce configs for.
         :return: ``self`` for method chaining (fluent interface)
         """
@@ -341,7 +341,7 @@ class ProjectMock:
     def cli_run(
         self,
         expected_str_or_lines: StrOrList = None,
-        fix=False,
+        autofix=False,
         violations=0,
         exception_class=None,
         exit_code: int = None,
@@ -350,7 +350,7 @@ class ProjectMock:
         if exit_code is None:
             exit_code = 1 if expected_str_or_lines else 0
         result, actual, expected = self._simulate_cli(
-            "fix" if fix else "check", expected_str_or_lines, exit_code=exit_code
+            "fix" if autofix else "check", expected_str_or_lines, exit_code=exit_code
         )
         if exception_class:
             assert isinstance(result.exception, exception_class)
