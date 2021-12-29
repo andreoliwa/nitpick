@@ -80,19 +80,32 @@ class ToxCommands:
         else:
             ctx.run("sed -i '' 's/platform = darwin/platform = linux/g' tox.ini")
 
-    def _python_versions(self) -> List[str]:
+    def _python_versions_old_to_new(self) -> List[str]:
         """Python versions executed in tox."""
-        return list(reversed([v for v in self._parser["tox"]["envlist"].split(",") if v.startswith("py")]))
+        versions = []
+        for py_plus_version_without_dot in self._parser["tox"]["envlist"].split(","):
+            if not py_plus_version_without_dot.startswith("py"):
+                continue
+
+            major = py_plus_version_without_dot[2]
+            minor = py_plus_version_without_dot[3:]
+            versions.append(f"{major}.{minor}")
+        return list(reversed(versions))
 
     @property
     def minimum_python_version(self) -> str:
         """Minimum Python version."""
-        return self._python_versions()[-1]
+        return self._python_versions_old_to_new()[0]
 
     @property
     def stable_python_version(self) -> str:
         """Stable Python version."""
-        return self._python_versions()[-2]
+        return self._as_tox_env(self._python_versions_old_to_new()[-2])
+
+    @staticmethod
+    def _as_tox_env(python_version_with_dot: str) -> str:
+        no_dot = python_version_with_dot.replace(".", "")
+        return f"py{no_dot}"
 
 
 @task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})

@@ -1,28 +1,21 @@
 """JSON tests."""
 import warnings
 
+import pytest
+
 from nitpick.constants import PACKAGE_JSON, READ_THE_DOCS_URL
 from nitpick.plugins.json import JSONPlugin
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
 
-# FIXME: use pytest-datafiles
-PACKAGE_JSON_STYLE = '''
-    ["package.json"]
-    contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
 
-    ["package.json".contains_json]
-    commitlint = """
-      {
-        "extends": [
-          "@commitlint/config-conventional"
-        ]
-      }
-    """
-'''
+@pytest.fixture()
+def package_json_style(shared_datadir) -> str:
+    """A sample style for package.json."""
+    return (shared_datadir / "sample-package-json-style.toml").read_text()
 
 
-def test_suggest_initial_contents(tmp_path):
+def test_suggest_initial_contents(tmp_path, package_json_style):
     """Suggest initial contents for missing JSON file."""
     expected_package_json = """
         {
@@ -42,7 +35,7 @@ def test_suggest_initial_contents(tmp_path):
           "version": "<some value here>"
         }
     """
-    ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE).pyproject_toml(
+    ProjectMock(tmp_path).named_style("package-json", package_json_style).pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
@@ -60,7 +53,7 @@ def test_suggest_initial_contents(tmp_path):
     )
 
 
-def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path):
+def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path, package_json_style):
     """Test missing and different values with "contains_json" and "contains_keys"."""
     expected_package_json = """
         {
@@ -81,7 +74,7 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
           "version": "0.0.1"
         }
     """
-    ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE).pyproject_toml(
+    ProjectMock(tmp_path).named_style("package-json", package_json_style).pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
