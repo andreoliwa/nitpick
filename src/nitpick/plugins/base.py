@@ -68,7 +68,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     def entry_point(self) -> Iterator[Fuss]:
         """Entry point of the Nitpick plugin."""
-        self.init()
+        self.post_init()
 
         should_exist: bool = bool(self.info.project.nitpick_files_section.get(self.filename, True))
         if self.file_path.exists() and not should_exist:
@@ -96,8 +96,12 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if fuss:
                 yield fuss
 
-    def init(self):  # FIXME: rename to post_init() to mimic dataclasses
-        """Hook for plugin initialization after the instance was created."""
+    def post_init(self):
+        """Hook for plugin initialization after the instance was created.
+
+        The name mimics ``__post_init__()`` on dataclasses, without the magic double underscores:
+        `Post-init processing <https://docs.python.org/3/library/dataclasses.html#post-init-processing>`_
+        """
 
     def _suggest_when_file_not_found(self):
         suggestion = self.initial_contents

@@ -18,6 +18,7 @@ from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 KEY_CONTAINS_KEYS = "contains_keys"
 KEY_CONTAINS_JSON = "contains_json"
+VALUE_PLACEHOLDER = "<some value here>"
 
 
 class JSONFileSchema(BaseNitpickSchema):
@@ -39,11 +40,9 @@ class JSONPlugin(NitpickPlugin):
     violation_base_code = 340
     can_fix = True
 
-    SOME_VALUE_PLACEHOLDER = "<some value here>"  # FIXME: move to simple constant, outside of the class
-
     set_from_contains_keys: Set[str]
 
-    def init(self):
+    def post_init(self):
         """Plugin initialization after the instance was created."""
         self.set_from_contains_keys = set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])
 
@@ -52,7 +51,7 @@ class JSONPlugin(NitpickPlugin):
         json_format = JSONFormat(path=self.file_path)
         final_dict: JsonDict = flatten(json_format.as_data) if self.fix else None
 
-        expected_config = unflatten({key: self.SOME_VALUE_PLACEHOLDER for key in self.set_from_contains_keys})
+        expected_config = unflatten({key: VALUE_PLACEHOLDER for key in self.set_from_contains_keys})
         comparison = json_format.compare_with_flatten(expected_config)
         if comparison.missing:
             yield from self.report(SharedViolations.MISSING_VALUES, final_dict, comparison.missing)
@@ -97,7 +96,7 @@ class JSONPlugin(NitpickPlugin):
         rv = {}
         for key in missing_keys:
             if key in self.set_from_contains_keys:
-                rv[key] = self.SOME_VALUE_PLACEHOLDER
+                rv[key] = VALUE_PLACEHOLDER
             else:
                 # FIXME: test invalid json when suggesting for a new file
                 rv[key] = json.loads(expected_json_content.get(key, ""))
