@@ -27,6 +27,7 @@ def get_subclasses(cls):
     return subclasses
 
 
+# TODO: move flatten() and unflatten() to DictBlender: they depend on each other and keep state between calls.
 def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict:
     """Flatten a nested dict.
 
@@ -116,8 +117,8 @@ def unflatten(dict_, separator=".", sort=True) -> OrderedDict:
     return items
 
 
-class MergeDict:  # FIXME: Blender or DictBlender
-    """A dictionary that can merge other dictionaries into it.
+class DictBlender:
+    """A blender of dictionaries: keep adding dictionaries and mix them all at the end.
 
     .. note::
 
@@ -130,13 +131,13 @@ class MergeDict:  # FIXME: Blender or DictBlender
         self._current_lists: Dict[str, Iterable] = {}
         self.add(original_dict or {})
 
-    def add(self, other: JsonDict) -> None:  # FIXME: rename to update(), to mimic a dict(), or Blender.add()
+    def add(self, other: JsonDict) -> None:
         """Add another dictionary to the existing data."""
         flattened_other = flatten(other, separator=SEPARATOR_FLATTEN, current_lists=self._current_lists)
         self._all_flattened.update(flattened_other)
 
-    def merge(self, sort=True) -> JsonDict:  # FIXME: rename to merge_all() or Blender.mix()
-        """Merge the dictionaries, replacing values with identical keys and extending lists."""
+    def mix(self, sort=True) -> JsonDict:
+        """Mix all dictionaries, replacing values with identical keys and extending lists."""
         return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN, sort=sort)
 
 
