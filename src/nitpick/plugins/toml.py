@@ -61,14 +61,14 @@ class TomlPlugin(NitpickPlugin):
         if not change:
             return
         if document:
-            change_toml(document, change.as_data)
+            change_toml(document, change.as_object)
             self.dirty = True
         yield self.reporter.make_fuss(violation, change.reformatted.strip(), prefix="", fixed=self.fix)
 
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        toml_as_string = TOMLFormat(data=self.expected_config).reformatted
+        toml_as_string = TOMLFormat(obj=self.expected_config).reformatted
         if self.fix:
             self.file_path.write_text(toml_as_string)
         return toml_as_string

@@ -15,7 +15,7 @@ workflow = YAMLFormat(path=Path(".github/workflows/python.yaml"))
 def find(expression):
     """Find with JMESpath."""
     print(f"\nExpression: {expression}")
-    rv = search_dict(jmespath.compile(expression), workflow.as_data, {})
+    rv = search_dict(jmespath.compile(expression), workflow.as_object, {})
     print(f"Type: {type(rv)}")
     pprint(rv)
 
@@ -26,7 +26,7 @@ def main():
         click.secho(str(path), fg="green")
 
         toml_format = TOMLFormat(path=path)
-        config: dict = toml_format.as_data[".github/workflows/python.yaml"]
+        config: dict = toml_format.as_object[".github/workflows/python.yaml"]
 
         # config.pop("contains")
         # config.pop("contains_sorted")

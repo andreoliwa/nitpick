@@ -42,7 +42,7 @@ class JSONPlugin(NitpickPlugin):
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
         actual = JSONFormat(path=self.file_path)
-        final_dict: Optional[JsonDict] = flatten(actual.as_data) if self.fix else None
+        final_dict: Optional[JsonDict] = flatten(actual.as_object) if self.fix else None
 
         comparison = actual.compare_with_flatten(self.expected_dict_from_contains_keys())
         if comparison.missing:
@@ -56,7 +56,7 @@ class JSONPlugin(NitpickPlugin):
             )
 
         if self.fix and self.dirty and final_dict:
-            self.file_path.write_text(JSONFormat(data=unflatten(final_dict)).reformatted)
+            self.file_path.write_text(JSONFormat(obj=unflatten(final_dict)).reformatted)
 
     def expected_dict_from_contains_keys(self):
         """Expected dict created from "contains_keys" values."""
@@ -81,7 +81,7 @@ class JSONPlugin(NitpickPlugin):
         if not change:
             return
         if final_dict:
-            final_dict.update(flatten(change.as_data))
+            final_dict.update(flatten(change.as_object))
             self.dirty = True
         yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.fix)
 
@@ -90,7 +90,7 @@ class JSONPlugin(NitpickPlugin):
         """Suggest the initial content for this missing file."""
         suggestion = DictBlender(self.expected_dict_from_contains_keys())
         suggestion.add(self.expected_dict_from_contains_json())
-        json_as_string = JSONFormat(data=suggestion.mix()).reformatted if suggestion else ""
+        json_as_string = JSONFormat(obj=suggestion.mix()).reformatted if suggestion else ""
         if self.fix:
             self.file_path.write_text(json_as_string)
         return json_as_string

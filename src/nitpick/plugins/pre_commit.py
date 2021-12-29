@@ -10,7 +10,7 @@ from nitpick.generic import find_object_by_key, search_dict
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
-from nitpick.typedefs import JsonDict, YamlData
+from nitpick.typedefs import JsonDict, YamlObject
 from nitpick.violations import Fuss, ViolationEnum
 
 KEY_REPOS = "repos"
@@ -44,7 +44,7 @@ class PreCommitHook:
         return self.yaml.as_list[0]
 
     @classmethod
-    def get_all_hooks_from(cls, str_or_yaml: Union[str, YamlData]):
+    def get_all_hooks_from(cls, str_or_yaml: Union[str, YamlObject]):
         """Get all hooks from a YAML string. Split the string in hooks and copy the repo info for each."""
         yaml = YAMLFormat(string=str_or_yaml).as_list if isinstance(str_or_yaml, str) else str_or_yaml
         hooks = []
@@ -55,7 +55,7 @@ class PreCommitHook:
                 hook_data_only = search_dict(f"{KEY_HOOKS}[{index}]", repo, {})
                 repo_data_only.update({KEY_HOOKS: [hook_data_only]})
                 hooks.append(
-                    PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YAMLFormat(data=[repo_data_only])).key_value_pair
+                    PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YAMLFormat(obj=[repo_data_only])).key_value_pair
                 )
         return OrderedDict(hooks)
 
@@ -99,12 +99,12 @@ class PreCommitPlugin(NitpickPlugin):
             repo_list = YAMLFormat(string=repo[KEY_YAML]).as_list
             suggested[KEY_REPOS].extend(repo_list)
         suggested.update(original)
-        return YAMLFormat(data=suggested).reformatted
+        return YAMLFormat(obj=suggested).reformatted
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for the pre-commit hooks."""
         self.actual_yaml = YAMLFormat(path=self.file_path)
-        if KEY_REPOS not in self.actual_yaml.as_data:
+        if KEY_REPOS not in self.actual_yaml.as_object:
             # TODO: if the 'repos' key doesn't exist, assume repos are in the root of the .yml file
             #  Having the 'repos' key is not actually a requirement. 'pre-commit-validate-config' works without it.
             yield self.reporter.make_fuss(Violations.NO_ROOT_KEY)
@@ -112,7 +112,7 @@ class PreCommitPlugin(NitpickPlugin):
 
         # Check the root values in the configuration file
         yield from self.warn_missing_different(
-            YAMLFormat(data=self.actual_yaml.as_data, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(
+            YAMLFormat(obj=self.actual_yaml.as_object, ignore_keys=[KEY_REPOS]).compare_with_dictdiffer(
                 self.expected_config
             )
         )
@@ -121,7 +121,7 @@ class PreCommitPlugin(NitpickPlugin):
 
     def enforce_hooks(self) -> Iterator[Fuss]:
         """Enforce the repositories configured in pre-commit."""
-        self.actual_hooks = PreCommitHook.get_all_hooks_from(self.actual_yaml.as_data.get(KEY_REPOS))
+        self.actual_hooks = PreCommitHook.get_all_hooks_from(self.actual_yaml.as_object.get(KEY_REPOS))
         self.actual_hooks_by_key = {name: index for index, name in enumerate(self.actual_hooks)}
         self.actual_hooks_by_index = list(self.actual_hooks)
 
@@ -139,11 +139,11 @@ class PreCommitPlugin(NitpickPlugin):
         for unique_key, hook in expected_hooks.items():
             if unique_key not in self.actual_hooks:
                 yield self.reporter.make_fuss(
-                    Violations.HOOK_NOT_FOUND, YAMLFormat(data=hook.yaml.as_data).reformatted, id=hook.hook_id
+                    Violations.HOOK_NOT_FOUND, YAMLFormat(obj=hook.yaml.as_object).reformatted, id=hook.hook_id
                 )
                 continue
 
-            comparison = YAMLFormat(data=self.actual_hooks[unique_key].single_hook).compare_with_dictdiffer(
+            comparison = YAMLFormat(obj=self.actual_hooks[unique_key].single_hook).compare_with_dictdiffer(
                 hook.single_hook
             )
 
@@ -154,7 +154,7 @@ class PreCommitPlugin(NitpickPlugin):
 
     def enforce_repo_old_format(self, index: int, repo_data: OrderedDict) -> Iterator[Fuss]:
         """Enforce repos using the old deprecated format with ``hooks`` and ``repo`` keys."""
-        actual: List[YamlData] = self.actual_yaml.as_data.get(KEY_REPOS, [])
+        actual: List[YamlObject] = self.actual_yaml.as_object.get(KEY_REPOS, [])
 
         repo_name = repo_data.get(KEY_REPO)
 
@@ -176,7 +176,7 @@ class PreCommitPlugin(NitpickPlugin):
             yield self.reporter.make_fuss(Violations.STYLE_FILE_MISSING_NAME, key=KEY_HOOKS, repo=repo_name)
             return
 
-        expected_hooks = YAMLFormat(string=yaml_expected_hooks).as_data
+        expected_hooks = YAMLFormat(string=yaml_expected_hooks).as_object
         for expected_dict in expected_hooks:
             hook_id = expected_dict.get(KEY_ID)
             expected_yaml = self.format_hook(expected_dict).rstrip()
@@ -189,7 +189,7 @@ class PreCommitPlugin(NitpickPlugin):
     @staticmethod
     def format_hook(expected_dict) -> str:
         """Format the hook so it's easy to copy and paste it to the .yaml file: ID goes first, indent with spaces."""
-        lines = YAMLFormat(data=expected_dict).reformatted
+        lines = YAMLFormat(obj=expected_dict).reformatted
         output: List[str] = []
         for line in lines.split("\n"):
             if line.startswith("id:"):
