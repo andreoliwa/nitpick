@@ -46,7 +46,7 @@ class Comparison:
     @staticmethod
     def _normalize_value(value: Union[JsonDict, YamlData, "BaseFormat"]) -> JsonDict:
         if isinstance(value, BaseFormat):
-            dict_value: JsonDict = value.as_data
+            dict_value: JsonDict = value.as_object
         else:
             dict_value = value
         return flatten(dict_value)
@@ -128,7 +128,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return self._string or ""
 
     @property
-    def as_data(self) -> Union[JsonDict, YamlData]:  # FIXME: as_object or as_struct
+    def as_object(self) -> Union[JsonDict, YamlData]:
         """String content converted to a Python data structure (a dict, YAML data, etc.)."""
         if self._data is None:
             self.load()
@@ -148,16 +148,16 @@ class BaseFormat(metaclass=abc.ABCMeta):
 
     def _create_comparison(self, expected: Union[JsonDict, YamlData, "BaseFormat"]):
         if not self._ignore_keys:
-            return Comparison(self.as_data or {}, expected or {}, self.__class__)
+            return Comparison(self.as_object or {}, expected or {}, self.__class__)
 
-        actual_original: Union[JsonDict, YamlData] = self.as_data or {}
+        actual_original: Union[JsonDict, YamlData] = self.as_object or {}
         actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
 
         expected_original: Union[JsonDict, YamlData, "BaseFormat"] = expected or {}
         if isinstance(expected_original, dict):
             expected_copy = expected_original.copy()
         elif isinstance(expected_original, BaseFormat):
-            expected_copy = expected_original.as_data.copy()
+            expected_copy = expected_original.as_object.copy()
         else:
             expected_copy = expected_original
         for key in self._ignore_keys:
@@ -263,14 +263,14 @@ class YAMLFormat(BaseFormat):
         return True
 
     @property
-    def as_data(self) -> CommentedMap:
+    def as_object(self) -> CommentedMap:
         """On YAML, this dict is a special object with comments and ordered keys."""
-        return super().as_data
+        return super().as_object
 
     @property
     def as_list(self) -> CommentedSeq:
         """A list of dicts. On YAML, ``as_data`` might contain a ``list``. This property is just a proxy for typing."""
-        return self.as_data
+        return self.as_object
 
     @classmethod
     def cleanup(cls, *args: List[Any]) -> List[Any]:

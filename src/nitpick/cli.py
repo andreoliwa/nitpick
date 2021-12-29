@@ -147,7 +147,7 @@ def init(context):
     nit = get_nitpick(context)
     config = nit.project.read_configuration()
 
-    if config.file and PROJECT_NAME in TOMLFormat(path=config.file).as_data[TOOL_KEY]:
+    if config.file and PROJECT_NAME in TOMLFormat(path=config.file).as_object[TOOL_KEY]:
         click.secho(f"The config file {config.file.name} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")
         raise Exit(1)
 

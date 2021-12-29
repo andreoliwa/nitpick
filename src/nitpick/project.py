@@ -149,7 +149,7 @@ class Project:
             return Configuration(None, [], "")
 
         toml_format = TOMLFormat(path=config_file)
-        config_dict = search_dict(TOOL_NITPICK_JMEX, toml_format.as_data, {})
+        config_dict = search_dict(TOOL_NITPICK_JMEX, toml_format.as_object, {})
         validation_errors = ToolNitpickSectionSchema().validate(config_dict)
         if not validation_errors:
             return Configuration(config_file, config_dict.get("style", []), config_dict.get("cache", ""))

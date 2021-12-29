@@ -283,7 +283,7 @@ class ProjectMock:
         """Assert the contents of the merged style file."""
         expected = TOMLFormat(path=self.cache_dir / MERGED_STYLE_TOML)
         actual = TOMLFormat(string=dedent(toml_string))
-        compare(expected.as_data, actual.as_data)
+        compare(expected.as_object, actual.as_object)
         return self
 
     def assert_violations(self, *expected_violations: Fuss, disclaimer="") -> "ProjectMock":
