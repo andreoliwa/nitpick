@@ -119,11 +119,18 @@ def install(ctx, deps=True, hooks=False):
         "coverage": "Run the HTML coverage report",
         "browse": "Browse the HTML coverage report",
         "watch": "Watch modified files and run tests with testmon",
+        "reset": "Force testmon to update its data before watching tests",
     }
 )
-def test(ctx, coverage=False, browse=False, watch=False):
-    """Run tests and coverage using the commands from tox config."""
+def test(ctx, coverage=False, browse=False, watch=False, reset=False):
+    """Run tests and coverage using the commands from tox config.
+
+    `Testmon Docs <https://testmon.org/>`_
+    """
     tox = ToxCommands()
+    if reset:
+        ctx.run(f"poetry run {tox.pytest_command} --testmon-noselect")
+        watch = True
     if watch:
         ctx.run('poetry run ptw --runner "pytest --testmon"')
         return
