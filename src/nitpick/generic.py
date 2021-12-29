@@ -116,20 +116,26 @@ def unflatten(dict_, separator=".", sort=True) -> OrderedDict:
     return items
 
 
-class MergeDict:
-    """A dictionary that can merge other dictionaries into it."""
+class MergeDict:  # FIXME: Blender or DictBlender
+    """A dictionary that can merge other dictionaries into it.
+
+    .. note::
+
+        This class intentionally doesn't inherit from the standard ``dict()``.
+        It's an unnecessary hassle to override and deal with all those magic dunder methods.
+    """
 
     def __init__(self, original_dict: JsonDict = None) -> None:
         self._all_flattened: OrderedDict = OrderedDict()
         self._current_lists: Dict[str, Iterable] = {}
         self.add(original_dict or {})
 
-    def add(self, other: JsonDict) -> None:
+    def add(self, other: JsonDict) -> None:  # FIXME: rename to update(), to mimic a dict(), or Blender.add()
         """Add another dictionary to the existing data."""
         flattened_other = flatten(other, separator=SEPARATOR_FLATTEN, current_lists=self._current_lists)
         self._all_flattened.update(flattened_other)
 
-    def merge(self, sort=True) -> JsonDict:
+    def merge(self, sort=True) -> JsonDict:  # FIXME: rename to merge_all() or Blender.mix()
         """Merge the dictionaries, replacing values with identical keys and extending lists."""
         return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN, sort=sort)
 

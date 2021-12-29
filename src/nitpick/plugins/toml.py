@@ -56,14 +56,14 @@ class TomlPlugin(NitpickPlugin):
         if self.fix and self.dirty:
             self.file_path.write_text(dumps(document))
 
-    def report(self, violation: ViolationEnum, document: Optional[TOMLDocument], change_dict: Optional[BaseFormat]):
+    def report(self, violation: ViolationEnum, document: Optional[TOMLDocument], change: Optional[BaseFormat]):
         """Report a violation while optionally modifying the TOML document."""
-        if not change_dict:
+        if not change:
             return
         if document:
-            change_toml(document, change_dict.as_data)
+            change_toml(document, change.as_data)
             self.dirty = True
-        yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.fix)
+        yield self.reporter.make_fuss(violation, change.reformatted.strip(), prefix="", fixed=self.fix)
 
     @property
     def initial_contents(self) -> str:

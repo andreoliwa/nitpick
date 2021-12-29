@@ -128,7 +128,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return self._string or ""
 
     @property
-    def as_data(self) -> Union[JsonDict, YamlData]:
+    def as_data(self) -> Union[JsonDict, YamlData]:  # FIXME: as_object or as_struct
         """String content converted to a Python data structure (a dict, YAML data, etc.)."""
         if self._data is None:
             self.load()

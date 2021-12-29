@@ -1,5 +1,6 @@
 """JSON files."""
 import json
+from itertools import chain
 from typing import Dict, Iterator, Optional, Set, Type
 
 from loguru import logger
@@ -7,13 +8,13 @@ from sortedcontainers import SortedDict
 
 from nitpick import fields
 from nitpick.formats import BaseFormat, JSONFormat
-from nitpick.generic import flatten, unflatten
+from nitpick.generic import MergeDict, flatten, unflatten
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.schemas import BaseNitpickSchema
 from nitpick.typedefs import JsonDict, MultilineStr
-from nitpick.violations import Fuss, ViolationEnum
+from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 KEY_CONTAINS_KEYS = "contains_keys"
 KEY_CONTAINS_JSON = "contains_json"
@@ -44,39 +45,36 @@ class JSONPlugin(NitpickPlugin):
     violation_base_code = 340
     can_fix = True
 
-    SOME_VALUE_PLACEHOLDER = "<some value here>"
+    SOME_VALUE_PLACEHOLDER = "<some value here>"  # FIXME: move to simple constant, outside of the class
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
-        yield from self._check_contained_keys()
-        yield from self._check_contained_json()
         # FIXME:
-        # json_format = JSONFormat(path=self.file_path)
-        # comparison = json_format.compare_with_flatten(self.expected_config)
-        # if not comparison.has_changes:
-        #     return
-        #
-        # document = json_format.as_data if self.fix else None
-        # if self.fix:
-        #     yield from chain(
-        #         self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
-        #         self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),
-        #     )
-        # else:
-        #     yield from self._check_contained_keys()
-        #     yield from self._check_contained_json()
-        #
-        # if self.fix and self.dirty:
-        #     self.file_path.write_text(JSONFormat(data=document).reformatted)
-
-    def report(self, violation: ViolationEnum, document: Optional[JsonDict], change_dict: Optional[BaseFormat]):
-        """Report a violation while optionally modifying the JSON dict."""
-        if not change_dict:
+        # yield from self._check_contained_keys()
+        # yield from self._check_contained_json()
+        json_format = JSONFormat(path=self.file_path)
+        suggested_json = self.get_suggested_json(json_format.as_data)  # FIXME: pass no args?
+        comparison = json_format.compare_with_flatten(suggested_json)
+        if not comparison.has_changes:
             return
-        if document:
-            document.update(change_dict.as_data)
+
+        merge_dict = MergeDict(json_format.as_data) if self.fix else None
+        yield from chain(
+            # FIXME:
+            # self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
+            self.report(SharedViolations.MISSING_VALUES, merge_dict, comparison.missing),
+        )
+        if self.fix and self.dirty and merge_dict:
+            self.file_path.write_text(JSONFormat(data=merge_dict.merge()).reformatted)
+
+    def report(self, violation: ViolationEnum, merge_dict: Optional[MergeDict], change: Optional[BaseFormat]):
+        """Report a violation while optionally modifying the JSON dict."""
+        if not change:
+            return
+        if merge_dict is not None:
+            merge_dict.add(change.as_data)
             self.dirty = True
-        yield self.reporter.make_fuss(violation, change_dict.reformatted.strip(), prefix="", fixed=self.fix)
+        yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.fix)
 
     def get_suggested_json(self, raw_actual: JsonDict = None) -> JsonDict:
         """Return the suggested JSON based on actual values."""
@@ -93,11 +91,8 @@ class JSONPlugin(NitpickPlugin):
             if key in set_from_contains_keys:
                 rv[key] = self.SOME_VALUE_PLACEHOLDER
             else:
-                # FIXME: this is hacky, only to pass tests; it should go away once I change the commented code above
-                # Only suggest JSON content if the file is empty
-                if not raw_actual:
-                    # FIXME: test invalid json when suggestingfor a new file
-                    rv[key] = json.loads(expected_json_content.get(key, ""))
+                # FIXME: test invalid json when suggesting for a new file
+                rv[key] = json.loads(expected_json_content.get(key, ""))
         return SortedDict(unflatten(rv))
 
     @property
@@ -110,8 +105,8 @@ class JSONPlugin(NitpickPlugin):
         return rv
 
     def _check_contained_keys(self) -> Iterator[Fuss]:
-        json_fmt = JSONFormat(path=self.file_path)
-        suggested_json = self.get_suggested_json(json_fmt.as_data)
+        json_format = JSONFormat(path=self.file_path)
+        suggested_json = self.get_suggested_json(json_format.as_data)
         if not suggested_json:
             return
         yield self.reporter.make_fuss(Violations.MISSING_KEYS, JSONFormat(data=suggested_json).reformatted)
