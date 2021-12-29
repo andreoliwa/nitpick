@@ -94,7 +94,7 @@ class FileType:
     text: str
     url: str
     check: Union[bool, int]
-    fix: Union[bool, int]
+    autofix: Union[bool, int]
 
     def __post_init__(self):
         """Warn about text that might render incorrectly."""
@@ -136,25 +136,25 @@ class FileType:
         return self._pretty("check")
 
     @property
-    def fix_str(self) -> str:
+    def autofix_str(self) -> str:
         """The fix flag, as a string."""
-        return self._pretty("fix")
+        return self._pretty("autofix")
 
     @property
     def row(self) -> Tuple[str, str, str]:
         """Tuple for a table row."""
-        return self.text_with_url, self.check_str, self.fix_str
+        return self.text_with_url, self.check_str, self.autofix_str
 
 
 IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any INI file", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
-    FileType("Any JSON file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, 358),
+    FileType("Any JSON file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, True),
     FileType("Any text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
     FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
-    FileType(PACKAGE_JSON, f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, 358),
+    FileType(PACKAGE_JSON, f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, True),
     FileType(PYPROJECT_TOML, f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType("requirements.txt", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType(SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),

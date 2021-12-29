@@ -125,7 +125,7 @@ def install(ctx, deps=True, hooks=False):
 def test(ctx, coverage=False, browse=False, watch=False, reset=False):
     """Run tests and coverage using the commands from tox config.
 
-    `Testmon Docs <https://testmon.org/>`_
+    `Testmon <https://github.com/tarpas/pytest-testmon>`_
     """
     tox = ToxCommands()
     if reset:
