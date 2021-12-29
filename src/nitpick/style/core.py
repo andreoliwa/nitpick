@@ -1,7 +1,7 @@
 """Style files."""
 import os
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterator, Optional, Set, Tuple, Type
@@ -49,18 +49,12 @@ class Style:  # pylint: disable=too-many-instance-attributes
     offline: bool
     cache_option: str
 
-    # FIXME: move these variables to __post_init__() below
-    _blender: DictBlender = field(init=False, default_factory=DictBlender)
-    _already_included: Set[str] = field(init=False, default_factory=set)
-    _first_full_path: str = ""
-
-    _style_fetcher_manager: StyleFetcherManager = field(init=False)
-    _config_validator: ConfigValidator = field(init=False)
-
-    _dynamic_schema_class: type = field(init=False, default=BaseStyleSchema)
-
     def __post_init__(self) -> None:
         """Initialize dependant fields."""
+        self._blender: DictBlender = DictBlender()
+        self._already_included: Set[str] = set()
+        self._first_full_path: str = ""
+        self._dynamic_schema_class: type = BaseStyleSchema
         self._style_fetcher_manager = StyleFetcherManager(self.offline, self.cache_dir, self.cache_option)
         self._config_validator = ConfigValidator(self.project)
         self.rebuild_dynamic_schema()
