@@ -1,0 +1,7 @@
+["package.json"]
+contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
+
+["package.json".contains_json]
+commitlint = """
+  { "extends": [ "@commitlint/config-conventional" ] }
+"""

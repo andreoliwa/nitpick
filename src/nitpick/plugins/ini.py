@@ -50,7 +50,7 @@ class IniPlugin(NitpickPlugin):
     updater: ConfigUpdater
     comma_separated_values: Set[str]
 
-    def init(self):
+    def post_init(self):
         """Post initialization after the instance was created."""
         self.updater = ConfigUpdater()
         self.comma_separated_values = set(self.nitpick_file_dict.get(COMMA_SEPARATED_VALUES, []))

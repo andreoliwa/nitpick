@@ -1,68 +1,100 @@
 """JSON tests."""
 import warnings
 
-from nitpick.constants import READ_THE_DOCS_URL
-from nitpick.violations import Fuss
+import pytest
+
+from nitpick.constants import PACKAGE_JSON, READ_THE_DOCS_URL
+from nitpick.plugins.json import JSONPlugin
+from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
 
-PACKAGE_JSON_STYLE = '''
-    ["package.json"]
-    contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
 
-    ["package.json".contains_json]
-    commitlint = """
-      {
-        "extends": [
-          "@commitlint/config-conventional"
-        ]
-      }
-    """
-'''
+@pytest.fixture()
+def package_json_style(shared_datadir) -> str:
+    """A sample style for package.json."""
+    return (shared_datadir / "sample-package-json-style.toml").read_text()
 
 
-def test_suggest_initial_contents(tmp_path):
+def test_suggest_initial_contents(tmp_path, package_json_style):
     """Suggest initial contents for missing JSON file."""
-    ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE).pyproject_toml(
+    expected_package_json = """
+        {
+          "commitlint": {
+            "extends": [
+              "@commitlint/config-conventional"
+            ]
+          },
+          "name": "<some value here>",
+          "release": {
+            "plugins": "<some value here>"
+          },
+          "repository": {
+            "type": "<some value here>",
+            "url": "<some value here>"
+          },
+          "version": "<some value here>"
+        }
+    """
+    ProjectMock(tmp_path).named_style("package-json", package_json_style).pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
         """
     ).api_check_then_fix(
         Fuss(
-            False,
-            "package.json",
+            True,
+            PACKAGE_JSON,
             341,
             " was not found. Create it with this content:",
-            """
-            {
-              "name": "<some value here>",
-              "release": {
-                "plugins": "<some value here>"
-              },
-              "repository": {
-                "type": "<some value here>",
-                "url": "<some value here>"
-              },
-              "version": "<some value here>"
-            }
-            """,
+            expected_package_json,
         )
+    ).assert_file_contents(
+        PACKAGE_JSON, expected_package_json
     )
 
 
-def test_json_file_contains_keys(tmp_path):
-    """Test if JSON file contains keys."""
-    ProjectMock(tmp_path).named_style("package-json", PACKAGE_JSON_STYLE,).pyproject_toml(
+def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path, package_json_style):
+    """Test missing and different values with "contains_json" and "contains_keys"."""
+    expected_package_json = """
+        {
+          "commitlint": {
+            "extends": [
+              "@commitlint/config-conventional"
+            ]
+          },
+          "name": "myproject",
+          "release": {
+            "plugins": "<some value here>"
+          },
+          "repository": {
+            "type": "<some value here>",
+            "url": "<some value here>"
+          },
+          "something": "else",
+          "version": "0.0.1"
+        }
+    """
+    ProjectMock(tmp_path).named_style("package-json", package_json_style).pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
         """
-    ).save_file("package.json", '{"name": "myproject", "version": "0.0.1"}').api_check_then_fix(
+    ).save_file(
+        PACKAGE_JSON,
+        """
+        {
+          "name": "myproject",
+          "version": "0.0.1",
+          "something": "else",
+          "commitlint":{"extends":["wrong-plugin-should-be-replaced","another-wrong-plugin"]}
+        }
+        """,
+    ).api_check_then_fix(
         Fuss(
-            False,
-            "package.json",
-            348,
-            " has missing keys:",
+            True,
+            PACKAGE_JSON,
+            SharedViolations.MISSING_VALUES.code + JSONPlugin.violation_base_code,
+            " has missing values:",
             """
             {
               "release": {
@@ -76,10 +108,10 @@ def test_json_file_contains_keys(tmp_path):
             """,
         ),
         Fuss(
-            False,
-            "package.json",
-            348,
-            " has missing values:",
+            True,
+            PACKAGE_JSON,
+            SharedViolations.DIFFERENT_VALUES.code + JSONPlugin.violation_base_code,
+            " has different values. Use this:",
             """
             {
               "commitlint": {
@@ -90,11 +122,13 @@ def test_json_file_contains_keys(tmp_path):
             }
             """,
         ),
+    ).assert_file_contents(
+        PACKAGE_JSON, expected_package_json
     )
 
 
-def test_missing_different_values(tmp_path):
-    """Test missing and different values on the JSON file."""
+def test_missing_different_values_with_contains_json_without_contains_keys(tmp_path):
+    """Test missing and different values with "contains_json", without "contains_keys"."""
     ProjectMock(tmp_path).style(
         '''
         ["my.json".contains_json]
@@ -106,9 +140,9 @@ def test_missing_different_values(tmp_path):
         '''
     ).save_file("my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}').api_check_then_fix(
         Fuss(
-            False,
+            True,
             "my.json",
-            348,
+            SharedViolations.MISSING_VALUES.code + JSONPlugin.violation_base_code,
             " has missing values:",
             """
             {
@@ -137,9 +171,9 @@ def test_missing_different_values(tmp_path):
             """,
         ),
         Fuss(
-            False,
+            True,
             "my.json",
-            349,
+            SharedViolations.DIFFERENT_VALUES.code + JSONPlugin.violation_base_code,
             " has different values. Use this:",
             """
             {
@@ -149,6 +183,35 @@ def test_missing_different_values(tmp_path):
             }
             """,
         ),
+    ).assert_file_contents(
+        "my.json",
+        """
+        {
+          "formatting": {
+            "doesnt": "matter",
+            "here": true,
+            "on.the": "config file"
+          },
+          "name": "myproject",
+          "some.dotted.root.key": {
+            "content": [
+              "should",
+              "be",
+              "here"
+            ],
+            "dotted.subkeys": [
+              "should be preserved",
+              {
+                "complex.weird.sub": {
+                  "objects": true
+                },
+                "even.with": 1
+              }
+            ],
+            "valid": "JSON"
+          }
+        }
+        """,
     )
 
 

@@ -1,7 +1,7 @@
 """Style files."""
 import os
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterator, Optional, Set, Tuple, Type
@@ -27,7 +27,7 @@ from nitpick.constants import (
 )
 from nitpick.exceptions import QuitComplainingError, pretty_exception
 from nitpick.formats import TOMLFormat
-from nitpick.generic import MergeDict, is_url, search_dict
+from nitpick.generic import DictBlender, is_url, search_dict
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.project import Project, glob_files
@@ -49,17 +49,12 @@ class Style:  # pylint: disable=too-many-instance-attributes
     offline: bool
     cache_option: str
 
-    _all_styles: MergeDict = field(init=False, default_factory=MergeDict)
-    _already_included: Set[str] = field(init=False, default_factory=set)
-    _first_full_path: str = ""
-
-    _style_fetcher_manager: StyleFetcherManager = field(init=False)
-    _config_validator: ConfigValidator = field(init=False)
-
-    _dynamic_schema_class: type = field(init=False, default=BaseStyleSchema)
-
     def __post_init__(self) -> None:
         """Initialize dependant fields."""
+        self._blender: DictBlender = DictBlender()
+        self._already_included: Set[str] = set()
+        self._first_full_path: str = ""
+        self._dynamic_schema_class: type = BaseStyleSchema
         self._style_fetcher_manager = StyleFetcherManager(self.offline, self.cache_dir, self.cache_option)
         self._config_validator = ConfigValidator(self.project)
         self.rebuild_dynamic_schema()
@@ -131,7 +126,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
                 StyleViolations.INVALID_CONFIG, flatten_marshmallow_errors(validation_errors)
             )
 
-        self._all_styles.add(toml_dict)
+        self._blender.add(toml_dict)
 
         sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
         if sub_styles:
@@ -196,7 +191,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        merged_dict = self._all_styles.merge()
+        merged_dict = self._blender.mix()
         # TODO: check if the merged style file is still needed
         merged_style_path: Path = self.cache_dir / MERGED_STYLE_TOML
         toml = TOMLFormat(data=merged_dict)
