@@ -130,7 +130,7 @@ def test_missing_different_values(tmp_path):
         '''
     ).save_file("my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}').api_check_then_fix(
         Fuss(
-            False,
+            True,
             "my.json",
             348,
             " has missing values:",
@@ -161,7 +161,7 @@ def test_missing_different_values(tmp_path):
             """,
         ),
         Fuss(
-            False,
+            True,
             "my.json",
             349,
             " has different values. Use this:",

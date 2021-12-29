@@ -96,7 +96,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
             if fuss:
                 yield fuss
 
-    def init(self):
+    def init(self):  # FIXME: rename to post_init() to mimic dataclasses
         """Hook for plugin initialization after the instance was created."""
 
     def _suggest_when_file_not_found(self):
