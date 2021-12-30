@@ -1,6 +1,6 @@
 [tool.nitpick]
 # Use the default style and override some things (like the Python version)
-style = ["nitpick-style", "styles/python36"]
+style = ["nitpick-style", "pypackage://nitpick/resources/python/python36.toml"]
 
 [tool.black]
 line-length = 120

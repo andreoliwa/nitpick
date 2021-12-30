@@ -29,7 +29,7 @@ from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
 
-STYLES_DIR: Path = Path(__file__).parent.parent / "styles"
+STYLES_DIR: Path = Path(__file__).parent.parent / "src" / "nitpick" / "resources"
 
 # Non-breaking space
 NBSP = "\xc2\xa0"

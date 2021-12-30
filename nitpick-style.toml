@@ -6,22 +6,21 @@ minimum_version = "0.10.0"
 
 [nitpick.styles]
 include = [
-    "styles/python37",
-    "styles/poetry",
-    "styles/absent-files",
-    "styles/pre-commit/main",
-    "styles/pre-commit/general",
-    "styles/pre-commit/python",
-    "styles/pre-commit/bash",
-    "styles/commitizen",
-    "styles/black",
-    "styles/flake8",
-    "styles/isort",
-    "styles/mypy",
-    "styles/pylint",
-    "styles/tox",
-    "styles/package-json",
-    "styles/editorconfig",
+    "pypackage://nitpick/resources/python/python37",
+    "pypackage://nitpick/resources/python/poetry",
+    "pypackage://nitpick/resources/python/absent",
+    "pypackage://nitpick/resources/any/hooks",
+    "pypackage://nitpick/resources/python/hooks",
+    "pypackage://nitpick/resources/shell/hooks",
+    "pypackage://nitpick/resources/any/commitizen",
+    "pypackage://nitpick/resources/python/black",
+    "pypackage://nitpick/resources/python/flake8",
+    "pypackage://nitpick/resources/python/isort",
+    "pypackage://nitpick/resources/python/mypy",
+    "pypackage://nitpick/resources/python/pylint",
+    "pypackage://nitpick/resources/python/tox",
+    "pypackage://nitpick/resources/javascript/package-json",
+    "pypackage://nitpick/resources/any/editorconfig",
 ]
 
 [nitpick.files."setup.cfg"]
