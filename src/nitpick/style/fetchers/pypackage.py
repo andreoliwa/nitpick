@@ -4,14 +4,8 @@ from itertools import chain
 from typing import Tuple
 from urllib.parse import urlparse
 
+from nitpick import compat
 from nitpick.style.fetchers.base import StyleFetcher
-
-try:
-    from importlib.abc import Traversable  # type: ignore[attr-defined]
-    from importlib.resources import files  # type: ignore[attr-defined]
-except ImportError:
-    from importlib_resources import files
-    from importlib_resources.abc import Traversable
 
 
 @dataclass(unsafe_hash=True)
@@ -37,9 +31,9 @@ class PythonPackageURL:
         return cls(import_path=import_path, resource_name=resource_name)
 
     @property
-    def raw_content_url(self) -> Traversable:
+    def raw_content_url(self) -> compat.Traversable:
         """Raw path of resource file."""
-        return files(self.import_path).joinpath(self.resource_name)
+        return compat.files(self.import_path).joinpath(self.resource_name)
 
 
 @dataclass(repr=True, unsafe_hash=True)

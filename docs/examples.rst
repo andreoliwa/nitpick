@@ -305,8 +305,8 @@ Contents of `resources/python/mypy.toml <https://github.com/andreoliwa/nitpick/b
     ["setup.cfg".mypy]
     ignore_missing_imports = true
 
-    # Do not follow imports (except for ones found in typeshed)
-    follow_imports = "skip"
+    # https://mypy.readthedocs.io/en/stable/running_mypy.html#follow-imports
+    follow_imports = "normal"
 
     # Treat Optional per PEP 484
     strict_optional = true

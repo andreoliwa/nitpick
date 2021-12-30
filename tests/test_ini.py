@@ -35,7 +35,7 @@ def test_default_style_is_applied(project_default):
         skip = .tox,build
 
         [mypy]
-        follow_imports = skip
+        follow_imports = normal
         ignore_missing_imports = True
         strict_optional = True
         warn_no_return = True

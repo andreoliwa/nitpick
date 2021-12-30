@@ -88,6 +88,10 @@ repos:
     rev: v0.930
     hooks:
       - id: mypy
+        args: [
+            # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
+            --show-error-codes,
+          ]
         # Install additional types to fix new warnings that appeared on v0.910:
         # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
         # "using --install-types is problematic"
