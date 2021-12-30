@@ -6,10 +6,10 @@ from pprint import pprint
 import click
 import jmespath
 
-from nitpick.formats import TOMLFormat, YAMLFormat
+from nitpick.formats import TomlFormat, YamlFormat
 from nitpick.generic import flatten, search_dict
 
-workflow = YAMLFormat(path=Path(".github/workflows/python.yaml"))
+workflow = YamlFormat(path=Path(".github/workflows/python.yaml"))
 
 
 def find(expression):
@@ -25,7 +25,7 @@ def main():
     for path in sorted(Path("docs/ideas/yaml").glob("*.toml")):
         click.secho(str(path), fg="green")
 
-        toml_format = TOMLFormat(path=path)
+        toml_format = TomlFormat(path=path)
         config: dict = toml_format.as_object[".github/workflows/python.yaml"]
 
         # config.pop("contains")

@@ -26,7 +26,7 @@ from nitpick.constants import (
     TOML_EXTENSION,
 )
 from nitpick.exceptions import QuitComplainingError, pretty_exception
-from nitpick.formats import TOMLFormat
+from nitpick.formats import TomlFormat
 from nitpick.generic import DictBlender, is_url, search_dict
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -133,7 +133,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
             yield from self.include_multiple_styles(sub_styles)
 
     def _read_toml(self, file_contents, style_path):
-        toml = TOMLFormat(string=file_contents)
+        toml = TomlFormat(string=file_contents)
         try:
             read_toml_dict = toml.as_object
         # TODO: replace by this error when using tomlkit only in the future:
@@ -194,7 +194,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
         merged_dict = self._blender.mix()
         # TODO: check if the merged style file is still needed
         merged_style_path: Path = self.cache_dir / MERGED_STYLE_TOML
-        toml = TOMLFormat(obj=merged_dict)
+        toml = TomlFormat(obj=merged_dict)
 
         attempt = 1
         while attempt < 5:

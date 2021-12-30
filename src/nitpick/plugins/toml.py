@@ -6,7 +6,7 @@ from typing import Iterator, Optional, Type
 from tomlkit import dumps, parse
 from tomlkit.toml_document import TOMLDocument
 
-from nitpick.formats import BaseFormat, TOMLFormat
+from nitpick.formats import BaseFormat, TomlFormat
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -43,7 +43,7 @@ class TomlPlugin(NitpickPlugin):
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing key/value pairs in the TOML file."""
-        toml_format = TOMLFormat(path=self.file_path)
+        toml_format = TomlFormat(path=self.file_path)
         comparison = toml_format.compare_with_flatten(self.expected_config)
         if not comparison.has_changes:
             return
@@ -68,7 +68,7 @@ class TomlPlugin(NitpickPlugin):
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        toml_as_string = TOMLFormat(obj=self.expected_config).reformatted
+        toml_as_string = TomlFormat(obj=self.expected_config).reformatted
         if self.autofix:
             self.file_path.write_text(toml_as_string)
         return toml_as_string

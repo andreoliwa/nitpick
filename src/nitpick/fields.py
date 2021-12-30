@@ -37,7 +37,7 @@ class NonEmptyString(fields.String):
         super().__init__(validate=validate, **kwargs)
 
 
-class JSONString(fields.String):
+class JsonString(fields.String):
     """A string field with valid JSON content."""
 
     def __init__(self, **kwargs):

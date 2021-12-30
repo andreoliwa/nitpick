@@ -33,7 +33,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     fixable: bool = False
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
-    #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
+    #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JsonPlugin`).
     validation_schema: Optional[Schema] = None
 
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.

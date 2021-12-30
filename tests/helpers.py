@@ -24,7 +24,7 @@ from nitpick.constants import (
 )
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
-from nitpick.formats import TOMLFormat
+from nitpick.formats import TomlFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
@@ -280,8 +280,8 @@ class ProjectMock:
 
     def assert_merged_style(self, toml_string: str) -> "ProjectMock":
         """Assert the contents of the merged style file."""
-        expected = TOMLFormat(path=self.cache_dir / MERGED_STYLE_TOML)
-        actual = TOMLFormat(string=dedent(toml_string))
+        expected = TomlFormat(path=self.cache_dir / MERGED_STYLE_TOML)
+        actual = TomlFormat(string=dedent(toml_string))
         compare(expected.as_object, actual.as_object)
         return self
 

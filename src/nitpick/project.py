@@ -31,7 +31,7 @@ from nitpick.constants import (
     TOOL_NITPICK_KEY,
 )
 from nitpick.exceptions import QuitComplainingError
-from nitpick.formats import TOMLFormat
+from nitpick.formats import TomlFormat
 from nitpick.generic import search_dict, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
 from nitpick.typedefs import JsonDict, PathOrStr, mypy_property
@@ -148,7 +148,7 @@ class Project:
             logger.warning("Config file: none found")
             return Configuration(None, [], "")
 
-        toml_format = TOMLFormat(path=config_file)
+        toml_format = TomlFormat(path=config_file)
         config_dict = search_dict(TOOL_NITPICK_JMEX, toml_format.as_object, {})
         validation_errors = ToolNitpickSectionSchema().validate(config_dict)
         if not validation_errors:

@@ -4,7 +4,7 @@ import warnings
 import pytest
 
 from nitpick.constants import PACKAGE_JSON, READ_THE_DOCS_URL
-from nitpick.plugins.json import JSONPlugin
+from nitpick.plugins.json import JsonPlugin
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
 
@@ -93,7 +93,7 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
         Fuss(
             True,
             PACKAGE_JSON,
-            SharedViolations.MISSING_VALUES.code + JSONPlugin.violation_base_code,
+            SharedViolations.MISSING_VALUES.code + JsonPlugin.violation_base_code,
             " has missing values:",
             """
             {
@@ -110,7 +110,7 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
         Fuss(
             True,
             PACKAGE_JSON,
-            SharedViolations.DIFFERENT_VALUES.code + JSONPlugin.violation_base_code,
+            SharedViolations.DIFFERENT_VALUES.code + JsonPlugin.violation_base_code,
             " has different values. Use this:",
             """
             {
@@ -142,7 +142,7 @@ def test_missing_different_values_with_contains_json_without_contains_keys(tmp_p
         Fuss(
             True,
             "my.json",
-            SharedViolations.MISSING_VALUES.code + JSONPlugin.violation_base_code,
+            SharedViolations.MISSING_VALUES.code + JsonPlugin.violation_base_code,
             " has missing values:",
             """
             {
@@ -173,7 +173,7 @@ def test_missing_different_values_with_contains_json_without_contains_keys(tmp_p
         Fuss(
             True,
             "my.json",
-            SharedViolations.DIFFERENT_VALUES.code + JSONPlugin.violation_base_code,
+            SharedViolations.DIFFERENT_VALUES.code + JsonPlugin.violation_base_code,
             " has different values. Use this:",
             """
             {
