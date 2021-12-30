@@ -16,7 +16,9 @@ repos:
       # https://github.com/pre-commit-ci/issues/issues/47
       - id: local-nitpick
         name: "nitpick fix (auto fixing files, local hook)"
-        entry: poetry run nitpick fix
+        entry: python -m nitpick fix
+        #        entry: poetry run nitpick fix
+        # FIXME:
         language: system
         always_run: true
         pass_filenames: false
