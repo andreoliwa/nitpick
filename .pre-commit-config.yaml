@@ -5,7 +5,7 @@
 
 # https://pre-commit.ci/#configuration
 ci:
-  skip: [generate-docs, pylint]
+  skip: [local-nitpick, generate-docs, pylint]
 
 repos:
   - repo: local
