@@ -23,3 +23,5 @@ with = {"python-version" = "${{ matrix.python-version }}"}
 name__jinja = "Set up Python ${{ matrix.python-version }}"
 name__no_jinja = "Set up Python ${{ matrix.python-version }}"
 name__jinja_off = "Set up Python ${{ matrix.python-version }}"
+
+# FIXME: create a style from this

@@ -23,3 +23,5 @@ __jinja = false
 # 6. Another way to turn off Jinja for a specific key only, not the whole dict
 # (using the "__" syntax from Django filters, SQLAlchemy, factoryboy...)
 "runs-on__no_jinja" = "${{ matrix.os }}"
+
+# FIXME: create a style from this

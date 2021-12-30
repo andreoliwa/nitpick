@@ -1,4 +1,4 @@
-"""pyproject.toml tests."""
+"""TOML tests."""
 from nitpick.constants import PYPROJECT_TOML
 from nitpick.plugins.toml import TomlPlugin
 from nitpick.violations import Fuss, SharedViolations

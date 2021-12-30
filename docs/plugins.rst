@@ -78,3 +78,10 @@ See also `the [tool.poetry] section of the pyproject.toml file
 
 Style example: :ref:`Python 3.8 version constraint <example-python-3-8>`.
 There are :ref:`many other examples here <examples>`.
+
+.. _yamlplugin:
+
+YAML files
+----------
+
+Enforce config on YAML files.
