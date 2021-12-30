@@ -16,13 +16,12 @@ repos:
       # https://github.com/pre-commit-ci/issues/issues/47
       - id: local-nitpick
         name: "nitpick fix (auto fixing files, local hook)"
-        entry: python -m nitpick fix
-        #        entry: poetry run nitpick fix
-        # FIXME:
+        entry: ./local-nitpick.sh
         language: system
         always_run: true
         pass_filenames: false
         stages: [commit]
+        verbose: true
       - id: generate-docs
         name: Generate ReST documentation from docstrings and TOML
         entry: poetry run python3 docs/generate_rst.py
