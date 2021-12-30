@@ -3,7 +3,7 @@
 
 SRC := $(shell find docs src -type f -a -iname '*.py')
 DOCS := docs/*.rst *.rst *.md
-STYLES := $(shell find styles -type f)
+STYLES := $(shell find src/nitpick/resources -type f)
 TESTS := $(shell find tests -type f -iname '*.py')
 GITHUB = $(shell find .github -type f)
 ANY := $(SRC) $(DOCS) $(STYLES) $(TESTS) $(GITHUB)
