@@ -90,10 +90,7 @@ class JsonPlugin(NitpickPlugin):
         """Suggest the initial content for this missing file."""
         suggestion = DictBlender(self.expected_dict_from_contains_keys())
         suggestion.add(self.expected_dict_from_contains_json())
-        json_as_string = JsonFormat(obj=suggestion.mix()).reformatted if suggestion else ""
-        if self.autofix:
-            self.file_path.write_text(json_as_string)
-        return json_as_string
+        return self.write_initial_contents(JsonFormat, suggestion.mix())
 
 
 @hookimpl

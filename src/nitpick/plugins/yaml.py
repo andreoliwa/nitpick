@@ -34,7 +34,7 @@ class YamlPlugin(NitpickPlugin):
 
     identify_tags = {"yaml"}
     violation_base_code = 360
-    fixable = False  # FIXME:
+    fixable = True
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing data in the YAML file."""
@@ -54,7 +54,7 @@ class YamlPlugin(NitpickPlugin):
             self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),
         )
         if self.autofix and self.dirty and document:
-            document.dump(document, self.file_path)
+            pass  # FIXME: document.dump(document, self.file_path)
 
     def report(self, violation: ViolationEnum, document: Optional[YAML], change: Optional[BaseFormat]):
         """Report a violation while optionally modifying the YAML document."""
@@ -68,10 +68,7 @@ class YamlPlugin(NitpickPlugin):
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        yaml_as_string = YamlFormat(obj=self.expected_config).reformatted
-        if self.autofix:
-            self.file_path.write_text(yaml_as_string)
-        return yaml_as_string
+        return self.write_initial_contents(YamlFormat)
 
 
 @hookimpl

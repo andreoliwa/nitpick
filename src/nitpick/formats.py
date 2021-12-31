@@ -16,14 +16,16 @@ from sortedcontainers import SortedDict
 from nitpick.generic import flatten, unflatten
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject
 
+DictOrYamlObject = Union[JsonDict, YamlObject, "BaseFormat"]
+
 
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
     def __init__(
         self,
-        actual: Union[JsonDict, YamlObject, "BaseFormat"],
-        expected: Union[JsonDict, YamlObject, "BaseFormat"],
+        actual: DictOrYamlObject,
+        expected: DictOrYamlObject,
         format_class: Type["BaseFormat"],
     ) -> None:
         self.flat_actual = self._normalize_value(actual)
@@ -43,7 +45,7 @@ class Comparison:
         return bool(self.missing or self.diff)
 
     @staticmethod
-    def _normalize_value(value: Union[JsonDict, YamlObject, "BaseFormat"]) -> JsonDict:
+    def _normalize_value(value: DictOrYamlObject) -> JsonDict:
         if isinstance(value, BaseFormat):
             dict_value: JsonDict = value.as_object
         else:
@@ -98,12 +100,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
     __repr__ = autorepr(["path"])
 
     def __init__(
-        self,
-        *,
-        path: PathOrStr = None,
-        string: str = None,
-        obj: Union[JsonDict, YamlObject, "BaseFormat"] = None,
-        ignore_keys: List[str] = None
+        self, *, path: PathOrStr = None, string: str = None, obj: DictOrYamlObject = None, ignore_keys: List[str] = None
     ) -> None:
         self.path = path
         self._string = string
@@ -145,14 +142,14 @@ class BaseFormat(metaclass=abc.ABCMeta):
         """Cleanup similar values according to the specific format. E.g.: YamlFormat accepts 'True' or 'true'."""
         return list(*args)
 
-    def _create_comparison(self, expected: Union[JsonDict, YamlObject, "BaseFormat"]):
+    def _create_comparison(self, expected: DictOrYamlObject):
         if not self._ignore_keys:
             return Comparison(self.as_object or {}, expected or {}, self.__class__)
 
         actual_original: Union[JsonDict, YamlObject] = self.as_object or {}
         actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
 
-        expected_original: Union[JsonDict, YamlObject, "BaseFormat"] = expected or {}
+        expected_original: DictOrYamlObject = expected or {}
         if isinstance(expected_original, dict):
             expected_copy = expected_original.copy()
         elif isinstance(expected_original, BaseFormat):

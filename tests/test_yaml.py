@@ -10,24 +10,21 @@ def test_suggest_initial_contents(tmp_path, datadir):
     expected_yaml = (datadir / "2-expected.yaml").read_text()
     ProjectMock(tmp_path).style(datadir / "2-desired.toml").api_check_then_fix(
         Fuss(
-            False,
+            True,
             filename,
             SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + YamlPlugin.violation_base_code,
             " was not found. Create it with this content:",
             expected_yaml,
         )
-    )
-    # ).assert_file_contents(
-    #     filename, expected_toml
-    # )
+    ).assert_file_contents(filename, expected_yaml)
 
 
 def test_missing_different_values(tmp_path, datadir):
     """Test different and missing values on any YAML."""
     filename = "1-actual.yaml"
-    ProjectMock(tmp_path).save_file(filename, datadir / filename).style(datadir / "1-style.toml").api_check_then_fix(
+    ProjectMock(tmp_path).save_file(filename, datadir / filename).style(datadir / "1-desired.toml").api_check_then_fix(
         Fuss(
-            False,
+            True,
             filename,
             YamlPlugin.violation_base_code + SharedViolations.DIFFERENT_VALUES.code,
             " has different values. Use this:",
@@ -42,7 +39,7 @@ def test_missing_different_values(tmp_path, datadir):
             """,
         ),
         Fuss(
-            False,
+            True,
             filename,
             YamlPlugin.violation_base_code + SharedViolations.MISSING_VALUES.code,
             " has missing values:",
@@ -60,4 +57,4 @@ def test_missing_different_values(tmp_path, datadir):
                   - 2
             """,
         ),
-    )  # FIXME: .assert_file_contents(filename, datadir / "1-expected.yaml")
+    )  # FIXME:  .assert_file_contents(filename, datadir / "1-expected.yaml")

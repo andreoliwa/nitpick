@@ -2,14 +2,14 @@
 import abc
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Optional, Set
+from typing import Iterator, Optional, Set, Type
 
 import jmespath
 from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.formats import Comparison
+from nitpick.formats import BaseFormat, Comparison, DictOrYamlObject
 from nitpick.generic import search_dict
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
@@ -126,6 +126,17 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def initial_contents(self) -> str:
         """Suggested initial content when the file doesn't exist."""
+
+    def write_initial_contents(self, format_class: Type[BaseFormat], expected_obj: DictOrYamlObject = None) -> str:
+        """Helper to write initial contents based on a format."""
+        if not expected_obj:
+            expected_obj = self.expected_config
+
+        formatted_str = format_class(obj=expected_obj).reformatted
+        if self.autofix:
+            self.file_path.parent.mkdir(exist_ok=True, parents=True)
+            self.file_path.write_text(formatted_str)
+        return formatted_str
 
     def warn_missing_different(self, comparison: Comparison, prefix: str = "") -> Iterator[Fuss]:
         """Warn about missing and different keys."""
