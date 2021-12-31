@@ -30,7 +30,7 @@ output-format=colorized
 # --disable=W"
 # Configurations for the black formatter
 disable=bad-continuation,bad-whitespace,
-    fixme,cyclic-import
+    fixme,cyclic-import,line-too-long
 
 [BASIC]
 

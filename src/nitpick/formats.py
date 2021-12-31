@@ -204,7 +204,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return comparison
 
 
-class InlineTableTomlDecoder(toml.TomlDecoder):
+class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]
     """A hacky decoder to work around some bug (or unfinished work) in the Python TOML package.
 
     https://github.com/uiri/toml/issues/362.
@@ -231,7 +231,7 @@ class TomlFormat(BaseFormat):
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
             # self._object = OrderedDict(tomlkit.loads(self._string))
-            self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))
+            self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg]
         if self._object is not None:
             if isinstance(self._object, BaseFormat):
                 self._reformatted = self._object.reformatted

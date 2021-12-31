@@ -316,7 +316,8 @@ Contents of `resources/python/mypy.toml <https://github.com/andreoliwa/nitpick/b
 
     # Lint-style cleanliness for typing
     warn_redundant_casts = true
-    warn_unused_ignores = true
+    # False positives when running on local machine... it works on pre-commit.ci ¯\_(ツ)_/¯
+    warn_unused_ignores = false
 
     [[".pre-commit-config.yaml".repos]]
     yaml = """
@@ -368,7 +369,7 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     #  comma_separated_values = ["MESSAGES CONTROL.disable"]
     #  This syntax will be deprecated anyway, so I won't make it work now
     # Configurations for the black formatter
-    #disable = "bad-continuation,bad-whitespace,fixme,cyclic-import"
+    #disable = "bad-continuation,bad-whitespace,fixme,cyclic-import,line-too-long"
 
     [".pylintrc".BASIC]
     # List of builtins function names that should not be used, separated by a comma
