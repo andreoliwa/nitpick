@@ -1,7 +1,7 @@
 """YAML files."""
 from collections import OrderedDict
 from itertools import chain
-from typing import Iterator, List, Optional, Type, Union, cast
+from typing import Iterator, List, Optional, Type, Union
 
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.formats import BaseFormat, YamlFormat
@@ -18,7 +18,7 @@ def is_scalar(value: YamlValue) -> bool:
     return not isinstance(value, (OrderedDict, list))
 
 
-def traverse_yaml_tree(yaml_obj: YamlObject, change: JsonDict):
+def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict]):
     """Traverse a YAML document recursively and change values, keeping its formatting and comments."""
     for key, value in change.items():
         if key not in yaml_obj:
@@ -35,17 +35,24 @@ def traverse_yaml_tree(yaml_obj: YamlObject, change: JsonDict):
             _traverse_yaml_list(yaml_obj, key, value)
 
 
-def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[Union[OrderedDict, str, float]]):
+def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[YamlValue]):
     for index, element in enumerate(value):
+        insert: bool = index >= len(yaml_obj[key])
+
+        if not insert and is_scalar(yaml_obj[key][index]):
+            # If the original object is scalar, replace it with whatever element;
+            # without traversing, even if it's a dict
+            yaml_obj[key][index] = element
+            continue
+
         if is_scalar(element):
-            try:
-                yaml_obj[key][index] = element
-            except IndexError:
+            if insert:
                 yaml_obj[key].append(element)
-        elif isinstance(element, list):
-            pass  # FIXME: a list of lists in YAML? is it possible?
-        else:
-            traverse_yaml_tree(yaml_obj[key][index], cast(OrderedDict, element))
+            else:
+                yaml_obj[key][index] = element
+            continue
+
+        traverse_yaml_tree(yaml_obj[key][index], element)  # type: ignore # mypy kept complaining about the Union
 
 
 class YamlPlugin(NitpickPlugin):

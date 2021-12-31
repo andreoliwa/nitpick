@@ -38,7 +38,7 @@ NIP = "nitpick.flake8:NitpickFlake8Extension"
 [tool.poetry.plugins.nitpick]
 text = "nitpick.plugins.text"
 json = "nitpick.plugins.json"
-pre_commit = "nitpick.plugins.pre_commit"  # FIXME: remove this when removing the plugin class
+pre_commit = "nitpick.plugins.pre_commit"  # TODO: remove this when removing the plugin class
 ini = "nitpick.plugins.ini"
 toml = "nitpick.plugins.toml"
 yaml = "nitpick.plugins.yaml"

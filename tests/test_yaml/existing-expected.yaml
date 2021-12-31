@@ -8,6 +8,19 @@ python:
         - some
         - nice
         - package
+mixed:
+  - lets:
+      ruin: this
+      with:
+        - weird
+        - '1'
+        - crap
+  - second item: also a dict
+  - c: 1
+    b: 2
+    a: 3
+  - and the remaining items are untouched
+  - [5, 3, 1]
 root_key:
   a_dict:
     - c: '3.1'

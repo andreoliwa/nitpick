@@ -208,7 +208,7 @@ def plugin_class() -> Type["NitpickPlugin"]:
 @hookimpl
 def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle pre-commit config file."""
-    # FIXME: the YAML plugin should handle this file, now or later
+    # TODO: the YAML plugin should handle this file, now or later
     if info.path_from_root == PRE_COMMIT_CONFIG_YAML:
         return PreCommitPlugin
     return None

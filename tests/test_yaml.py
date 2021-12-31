@@ -31,6 +31,17 @@ def test_missing_different_values(tmp_path, datadir):
             YamlPlugin.violation_base_code + SharedViolations.DIFFERENT_VALUES.code,
             " has different values. Use this:",
             """
+            mixed:
+              - lets:
+                  ruin: this
+                  with:
+                    - weird
+                    - '1'
+                    - crap
+              - second item: also a dict
+              - c: 1
+                b: 2
+                a: 3
             python:
               install:
                 - extra_requirements:
