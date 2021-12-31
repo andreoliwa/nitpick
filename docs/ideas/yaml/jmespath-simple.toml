@@ -1,7 +1,0 @@
-# Simplified API, having JMESPath as direct keys
-# Read the discussion: https://github.com/andreoliwa/nitpick/pull/353/files#r613816390
-[".github/workflows/python.yaml"]
-"jobs.build.strategy.matrix.os" = "foo"
-"jobs.build.steps" = ["bar"]
-"jobs.build.steps.regex" = "baz d+"
-"jobs.build.steps.contains" = "baz"

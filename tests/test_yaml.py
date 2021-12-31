@@ -4,29 +4,19 @@ from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
 
 
-def test_suggest_initial_contents(tmp_path):
+def test_suggest_initial_contents(tmp_path, datadir):
     """Suggest contents when YAML files do not exist."""
-    pass  # FIXME:
-    # filename = "my.toml"
-    # expected_toml = """
-    #     [section]
-    #     key = "value"
-    #     number = 10
-    # """
-    # ProjectMock(tmp_path).style(
-    #     f"""
-    #     ["{filename}".section]
-    #     key = "value"
-    #     number = 10
-    #     """
-    # ).api_check_then_fix(
-    #     Fuss(
-    #         True,
-    #         filename,
-    #         SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + TomlPlugin.violation_base_code,
-    #         " was not found. Create it with this content:",
-    #         expected_toml,
-    #     )
+    filename = ".github/workflows/python.yaml"
+    expected_yaml = (datadir / "2-expected.yaml").read_text()
+    ProjectMock(tmp_path).style(datadir / "2-desired.toml").api_check_then_fix(
+        Fuss(
+            False,
+            filename,
+            SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + YamlPlugin.violation_base_code,
+            " was not found. Create it with this content:",
+            expected_yaml,
+        )
+    )
     # ).assert_file_contents(
     #     filename, expected_toml
     # )
@@ -34,8 +24,8 @@ def test_suggest_initial_contents(tmp_path):
 
 def test_missing_different_values(tmp_path, datadir):
     """Test different and missing values on any YAML."""
-    filename = "actual.yaml"
-    ProjectMock(tmp_path).save_file(filename, datadir / filename).style(datadir / "style.toml").api_check_then_fix(
+    filename = "1-actual.yaml"
+    ProjectMock(tmp_path).save_file(filename, datadir / filename).style(datadir / "1-style.toml").api_check_then_fix(
         Fuss(
             False,
             filename,
@@ -70,4 +60,4 @@ def test_missing_different_values(tmp_path, datadir):
                   - 2
             """,
         ),
-    )  # FIXME: .assert_file_contents(filename, datadir / "expected.yaml")
+    )  # FIXME: .assert_file_contents(filename, datadir / "1-expected.yaml")

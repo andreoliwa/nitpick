@@ -207,6 +207,20 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return comparison
 
 
+class InlineTableTomlDecoder(toml.TomlDecoder):
+    """A hacky decoder to work around some bug (or unfinished work) in the Python TOML package.
+
+    https://github.com/uiri/toml/issues/362.
+    """
+
+    def get_empty_inline_table(self):
+        """Hackity hack for a crappy unmaintained package.
+
+        Total lack of respect, the guy doesn't even reply: https://github.com/uiri/toml/issues/361
+        """
+        return self.get_empty_table()
+
+
 class TomlFormat(BaseFormat):
     """TOML configuration format."""
 
@@ -220,7 +234,7 @@ class TomlFormat(BaseFormat):
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
             # self._object = OrderedDict(tomlkit.loads(self._string))
-            self._object = toml.loads(self._string, _dict=OrderedDict)
+            self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))
         if self._object is not None:
             if isinstance(self._object, BaseFormat):
                 self._reformatted = self._object.reformatted
@@ -298,8 +312,8 @@ class YamlFormat(BaseFormat):
         return [str(value).lower() if isinstance(value, (int, float, bool)) else value for value in args]
 
 
-RoundTripRepresenter.add_representer(SortedDict, RoundTripRepresenter.represent_dict)
-RoundTripRepresenter.add_representer(OrderedDict, RoundTripRepresenter.represent_dict)
+for dict_class in (SortedDict, OrderedDict):
+    RoundTripRepresenter.add_representer(dict_class, RoundTripRepresenter.represent_dict)
 
 
 class JsonFormat(BaseFormat):

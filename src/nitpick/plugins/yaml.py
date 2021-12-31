@@ -44,7 +44,7 @@ class YamlPlugin(NitpickPlugin):
             return
 
         yaml_format = YamlFormat(path=self.file_path)
-        comparison = yaml_format.compare_with_flatten(self.expected_config)  # FIXME:
+        comparison = yaml_format.compare_with_flatten(self.expected_config)
         if not comparison.has_changes:
             return
 
@@ -68,11 +68,10 @@ class YamlPlugin(NitpickPlugin):
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        return ""  # FIXME:
-        # yaml_as_string = YamlFormat(obj=self.expected_config).reformatted
-        # if self.autofix:
-        #     self.file_path.write_text(yaml_as_string)
-        # return yaml_as_string
+        yaml_as_string = YamlFormat(obj=self.expected_config).reformatted
+        if self.autofix:
+            self.file_path.write_text(yaml_as_string)
+        return yaml_as_string
 
 
 @hookimpl
