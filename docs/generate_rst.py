@@ -44,6 +44,8 @@ MD_DIVIDER_END = "<!-- auto-generated-end-{} -->"
 DOCS_DIR: Path = Path(__file__).parent.absolute()
 STYLES_DIR: Path = DOCS_DIR.parent / "src" / "nitpick" / "resources"
 
+# TODO: keep target URLs here in this mapping, or in another mapping, or inside the style itself [nitpick.meta],
+#  and generate targets.rst instead of editing the file manually
 STYLE_MAPPING = SortedDict(
     {
         "python/absent.toml": "Absent files",
@@ -55,11 +57,10 @@ STYLE_MAPPING = SortedDict(
         "python/mypy.toml": "mypy_",
         "javascript/package-json.toml": "package.json_",
         "python/poetry.toml": "Poetry_",
-        "shell/hooks.toml": "Bash_",
+        "shell/bashate.toml": "bashate_",
         "any/commitizen.toml": "commitizen_",
         "any/commitlint.toml": "commitlint_",
-        "any/hooks.toml": "pre-commit_ (hooks)",
-        "python/hooks.toml": "pre-commit_ (Python hooks)",
+        "python/hooks.toml": "pre-commit_ hooks for Python",
         "python/pylint.toml": "Pylint_",
         "python/python36.toml": "Python 3.6",
         "python/python37.toml": "Python 3.7",
@@ -69,6 +70,14 @@ STYLE_MAPPING = SortedDict(
         "python/tox.toml": "tox_",
         "python/python-stable.toml": "Python (stable version)",
         "python/readthedocs.toml": "ReadTheDocs_",
+        "any/git-legal.toml": "git-legal_",
+        "any/hooks.toml": "pre-commit_ hooks for any language",
+        "any/markdownlint.toml": "markdownlint_",
+        "python/bandit.toml": "bandit_",
+        "any/codeclimate.toml": "codeclimate_",
+        "python/radon.toml": "radon_",
+        "python/sonar-python.toml": "sonar-python_",
+        "shell/shellcheck.toml": "shellcheck_",
     }
 )
 CLI_MAPPING = [

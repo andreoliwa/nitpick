@@ -1,0 +1,3 @@
+[".codeclimate.yml".plugins.sonar-python]  # https://docs.codeclimate.com/docs/sonar-python
+# https://github.com/SonarSource/sonar-python
+enabled = true

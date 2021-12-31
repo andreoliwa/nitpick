@@ -89,7 +89,7 @@ def test_default_style_is_applied(project_default):
     expected_pylintrc = """
         [BASIC]
         bad-functions = map,filter
-        good-names = i,j,k,e,ex,Run,_,id,rv
+        good-names = i,j,k,e,ex,Run,_,id,rv,c
 
         [FORMAT]
         indent-after-paren = 4

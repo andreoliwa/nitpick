@@ -13,6 +13,32 @@ You can use these examples directly with their URL (see :ref:`multiple_styles`),
 
 .. auto-generated-from-here
 
+.. _example-codeclimate:
+
+codeclimate_
+------------
+
+Contents of `resources/any/codeclimate.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/codeclimate.toml>`_:
+
+.. code-block:: toml
+
+    # https://codeclimate.com/
+    # https://docs.codeclimate.com/docs/maintainability#section-checks
+    # https://docs.codeclimate.com/docs/advanced-configuration#default-checks
+    [".codeclimate.yml"]
+    version = "2"
+
+    [".codeclimate.yml".checks.file-lines.config]
+    # Pylint's default is also 1000: https://github.com/PyCQA/pylint/blob/master/pylint/checkers/format.py#L294-L300
+    threshold = 1000
+
+    [".codeclimate.yml".checks.method-complexity.config]
+    threshold = 10  # Same as [flake8]max-complexity
+
+    [".codeclimate.yml".plugins.fixme]  # https://docs.codeclimate.com/docs/fixme
+    # https://github.com/codeclimate/codeclimate-fixme
+    enabled = false
+
 .. _example-commitizen:
 
 commitizen_
@@ -97,10 +123,25 @@ Contents of `resources/any/editorconfig.toml <https://github.com/andreoliwa/nitp
     [".editorconfig".Makefile]
     indent_style = "tab"
 
-.. _example-pre-commit-hooks:
+    [".codeclimate.yml".plugins.editorconfig]  # https://docs.codeclimate.com/docs/editorconfig
+    enabled = true
 
-pre-commit_ (hooks)
--------------------
+.. _example-git-legal:
+
+git-legal_
+----------
+
+Contents of `resources/any/git-legal.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/git-legal.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.git-legal]  # https://docs.codeclimate.com/docs/git-legal
+    enabled = true
+
+.. _example-pre-commit-hooks-for-any-language:
+
+pre-commit_ hooks for any language
+----------------------------------
 
 Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/hooks.toml>`_:
 
@@ -119,6 +160,19 @@ Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blo
           - id: end-of-file-fixer
           - id: trailing-whitespace
     """
+
+.. _example-markdownlint:
+
+markdownlint_
+-------------
+
+Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/markdownlint.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.markdownlint]  # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
+    # https://github.com/markdownlint/markdownlint
+    enabled = false
 
 .. _example-package-json:
 
@@ -148,6 +202,19 @@ Contents of `resources/python/absent.toml <https://github.com/andreoliwa/nitpick
     "Pipfile.lock" = "Use pyproject.toml instead"
     ".venv" = ""
     ".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
+
+.. _example-bandit:
+
+bandit_
+-------
+
+Contents of `resources/python/bandit.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/bandit.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.bandit]  # https://docs.codeclimate.com/docs/bandit
+    # https://github.com/PyCQA/bandit
+    enabled = true
 
 .. _example-black:
 
@@ -224,10 +291,13 @@ Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick
     """
     # TODO suggest nitpick for external repos
 
-.. _example-pre-commit-python-hooks:
+    [".codeclimate.yml".plugins.pep8]  # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit
+    enabled = false
 
-pre-commit_ (Python hooks)
---------------------------
+.. _example-pre-commit-hooks-for-python:
+
+pre-commit_ hooks for Python
+----------------------------
 
 Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/hooks.toml>`_:
 
@@ -375,7 +445,7 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     # List of builtins function names that should not be used, separated by a comma
     bad-functions = "map,filter"
     # Good variable names which should always be accepted, separated by a comma
-    good-names = "i,j,k,e,ex,Run,_,id,rv"
+    good-names = "i,j,k,e,ex,Run,_,id,rv,c"
 
     [".pylintrc".FORMAT]
     # Maximum number of characters on a single line.
@@ -401,6 +471,9 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     [".pylintrc".VARIABLES]
     # A regular expression matching the name of dummy variables (i.e. expectedly not used).
     dummy-variables-rgx = "_$|dummy"
+
+    [".codeclimate.yml".plugins.pylint]  # https://docs.codeclimate.com/docs/pylint Already checked by pre-commit
+    enabled = false
 
 .. _example-python-stable-version:
 
@@ -474,6 +547,21 @@ Contents of `resources/python/python39.toml <https://github.com/andreoliwa/nitpi
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.9"
 
+.. _example-radon:
+
+radon_
+------
+
+Contents of `resources/python/radon.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/radon.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.radon]  # https://docs.codeclimate.com/docs/radon
+    enabled = true
+    [".codeclimate.yml".plugins.radon.config]
+    # https://radon.readthedocs.io/en/latest/commandline.html#the-cc-command
+    threshold = "C"
+
 .. _example-readthedocs:
 
 ReadTheDocs_
@@ -495,6 +583,19 @@ Contents of `resources/python/readthedocs.toml <https://github.com/andreoliwa/ni
     method = "pip"
     path = "."
     extra_requirements = ["doc"]
+
+.. _example-sonar-python:
+
+sonar-python_
+-------------
+
+Contents of `resources/python/sonar-python.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/sonar-python.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.sonar-python]  # https://docs.codeclimate.com/docs/sonar-python
+    # https://github.com/SonarSource/sonar-python
+    enabled = true
 
 .. _example-tox:
 
@@ -534,12 +635,12 @@ Contents of `resources/python/tox.toml <https://github.com/andreoliwa/nitpick/bl
     skip_empty = true
     sort = "Cover"
 
-.. _example-bash:
+.. _example-bashate:
 
-Bash_
------
+bashate_
+--------
 
-Contents of `resources/shell/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/shell/hooks.toml>`_:
+Contents of `resources/shell/bashate.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/shell/bashate.toml>`_:
 
 .. code-block:: toml
 
@@ -549,3 +650,16 @@ Contents of `resources/shell/hooks.toml <https://github.com/andreoliwa/nitpick/b
         hooks:
           - id: bashate
     """
+
+.. _example-shellcheck:
+
+shellcheck_
+-----------
+
+Contents of `resources/shell/shellcheck.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/shell/shellcheck.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.shellcheck]  # https://docs.codeclimate.com/docs/shellcheck
+    # https://github.com/koalaman/shellcheck
+    enabled = true

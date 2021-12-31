@@ -1,0 +1,16 @@
+# https://codeclimate.com/
+# https://docs.codeclimate.com/docs/maintainability#section-checks
+# https://docs.codeclimate.com/docs/advanced-configuration#default-checks
+[".codeclimate.yml"]
+version = "2"
+
+[".codeclimate.yml".checks.file-lines.config]
+# Pylint's default is also 1000: https://github.com/PyCQA/pylint/blob/master/pylint/checkers/format.py#L294-L300
+threshold = 1000
+
+[".codeclimate.yml".checks.method-complexity.config]
+threshold = 10  # Same as [flake8]max-complexity
+
+[".codeclimate.yml".plugins.fixme]  # https://docs.codeclimate.com/docs/fixme
+# https://github.com/codeclimate/codeclimate-fixme
+enabled = false
