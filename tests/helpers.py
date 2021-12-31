@@ -200,6 +200,7 @@ class ProjectMock:
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
         clean = dedent(from_path_or_str(file_contents)).strip()
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"{clean}\n")
         return self
 

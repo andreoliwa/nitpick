@@ -7,8 +7,8 @@ from tests.helpers import ProjectMock
 def test_suggest_initial_contents(tmp_path, datadir):
     """Suggest contents when YAML files do not exist."""
     filename = ".github/workflows/python.yaml"
-    expected_yaml = (datadir / "2-expected.yaml").read_text()
-    ProjectMock(tmp_path).style(datadir / "2-desired.toml").api_check_then_fix(
+    expected_yaml = (datadir / "new-expected.yaml").read_text()
+    ProjectMock(tmp_path).style(datadir / "new-desired.toml").api_check_then_fix(
         Fuss(
             True,
             filename,
@@ -21,8 +21,10 @@ def test_suggest_initial_contents(tmp_path, datadir):
 
 def test_missing_different_values(tmp_path, datadir):
     """Test different and missing values on any YAML."""
-    filename = "1-actual.yaml"
-    ProjectMock(tmp_path).save_file(filename, datadir / filename).style(datadir / "1-desired.toml").api_check_then_fix(
+    filename = "me/deep/rooted.yaml"
+    ProjectMock(tmp_path).save_file(filename, datadir / "existing-actual.yaml").style(
+        datadir / "existing-desired.toml"
+    ).api_check_then_fix(
         Fuss(
             True,
             filename,
@@ -32,9 +34,9 @@ def test_missing_different_values(tmp_path, datadir):
             python:
               install:
                 - extra_requirements:
-                    - item1
-                    - item2
-                    - item3
+                    - some
+                    - nice
+                    - package
               version: '3.9'
             """,
         ),
@@ -46,15 +48,17 @@ def test_missing_different_values(tmp_path, datadir):
             """
             root_key:
               a_dict:
-                - a: string value
-                - b: 2
                 - c: '3.1'
+                - b: 2
+                - a: string value
               a_nested:
                 int: 10
                 list:
                   - 0
-                  - 1
                   - 2
+                  - 1
             """,
         ),
-    )  # FIXME:  .assert_file_contents(filename, datadir / "1-expected.yaml")
+    ).assert_file_contents(
+        filename, datadir / "existing-expected.yaml"
+    )

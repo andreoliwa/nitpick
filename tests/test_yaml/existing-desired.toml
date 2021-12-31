@@ -1,0 +1,18 @@
+["me/deep/rooted.yaml".python]
+version = "3.9"
+
+[["me/deep/rooted.yaml".python.install]]
+extra_requirements = ["some", "nice", "package"]
+
+[["me/deep/rooted.yaml".root_key.a_dict]]
+c = "3.1"
+
+[["me/deep/rooted.yaml".root_key.a_dict]]
+b = 2
+
+[["me/deep/rooted.yaml".root_key.a_dict]]
+a = "string value"
+
+["me/deep/rooted.yaml".root_key.a_nested]
+list = [0, 2, 1]
+int = 10

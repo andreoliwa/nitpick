@@ -1,8 +1,7 @@
 """YAML files."""
+from collections import OrderedDict
 from itertools import chain
-from typing import Iterator, Optional, Type
-
-from ruamel.yaml import YAML
+from typing import Iterator, List, Optional, Type, Union, cast
 
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.formats import BaseFormat, YamlFormat
@@ -10,23 +9,43 @@ from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.plugins.text import KEY_CONTAINS
-from nitpick.typedefs import YamlObject
+from nitpick.typedefs import JsonDict, YamlObject, YamlValue
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 
-def change_yaml(document: YAML, dictionary: YamlObject):
+def is_scalar(value: YamlValue) -> bool:
+    """Return True if the value is NOT a dict or a list."""
+    return not isinstance(value, (OrderedDict, list))
+
+
+def traverse_yaml_tree(yaml_obj: YamlObject, change: JsonDict):
     """Traverse a YAML document recursively and change values, keeping its formatting and comments."""
-    del document
-    del dictionary
-    # FIXME:
-    # for key, value in dictionary.items():
-    #     if isinstance(value, (dict, OrderedDict)):
-    #         if key in document:
-    #             change_toml(document[key], value)
-    #         else:
-    #             document.add(key, value)
-    #     else:
-    #         document[key] = value
+    for key, value in change.items():
+        if key not in yaml_obj:
+            # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
+            last_pos = len(yaml_obj.keys()) + 1
+            yaml_obj.insert(last_pos, key, value)
+            continue
+
+        if is_scalar(value):
+            yaml_obj[key] = value
+        elif isinstance(value, OrderedDict):
+            traverse_yaml_tree(yaml_obj[key], value)
+        elif isinstance(value, list):
+            _traverse_yaml_list(yaml_obj, key, value)
+
+
+def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[Union[OrderedDict, str, float]]):
+    for index, element in enumerate(value):
+        if is_scalar(element):
+            try:
+                yaml_obj[key][index] = element
+            except IndexError:
+                yaml_obj[key].append(element)
+        elif isinstance(element, list):
+            pass  # FIXME: a list of lists in YAML? is it possible?
+        else:
+            traverse_yaml_tree(yaml_obj[key][index], cast(OrderedDict, element))
 
 
 class YamlPlugin(NitpickPlugin):
@@ -48,20 +67,19 @@ class YamlPlugin(NitpickPlugin):
         if not comparison.has_changes:
             return
 
-        document = yaml_format.document if self.autofix else None
         yield from chain(
-            self.report(SharedViolations.DIFFERENT_VALUES, document, comparison.diff),
-            self.report(SharedViolations.MISSING_VALUES, document, comparison.missing),
+            self.report(SharedViolations.DIFFERENT_VALUES, yaml_format.as_object, comparison.diff),
+            self.report(SharedViolations.MISSING_VALUES, yaml_format.as_object, comparison.missing),
         )
-        if self.autofix and self.dirty and document:
-            pass  # FIXME: document.dump(document, self.file_path)
+        if self.autofix and self.dirty:
+            yaml_format.document.dump(yaml_format.as_object, self.file_path)
 
-    def report(self, violation: ViolationEnum, document: Optional[YAML], change: Optional[BaseFormat]):
+    def report(self, violation: ViolationEnum, yaml_object: YamlObject, change: Optional[BaseFormat]):
         """Report a violation while optionally modifying the YAML document."""
         if not change:
             return
-        if document:
-            change_yaml(document, change.as_object)
+        if self.autofix:
+            traverse_yaml_tree(yaml_object, change.as_object)
             self.dirty = True
         yield self.reporter.make_fuss(violation, change.reformatted.strip(), prefix="", fixed=self.autofix)
 

@@ -5,4 +5,4 @@ _includes/*
 README.md
 
 # Prettier uses double quotes, ruamel.yaml uses single quotes
-tests/test_yaml/2-expected.yaml
+tests/test_yaml/*.yaml
