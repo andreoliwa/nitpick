@@ -9,7 +9,7 @@ from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.formats import BaseFormat, Comparison, DictOrYamlObject
+from nitpick.documents import BaseDoc, Comparison, DictOrYamlObject
 from nitpick.generic import search_dict
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
@@ -127,7 +127,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     def initial_contents(self) -> str:
         """Suggested initial content when the file doesn't exist."""
 
-    def write_initial_contents(self, format_class: Type[BaseFormat], expected_obj: DictOrYamlObject = None) -> str:
+    def write_initial_contents(self, format_class: Type[BaseDoc], expected_obj: DictOrYamlObject = None) -> str:
         """Helper to write initial contents based on a format."""
         if not expected_obj:
             expected_obj = self.expected_config

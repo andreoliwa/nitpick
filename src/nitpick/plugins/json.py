@@ -6,7 +6,7 @@ from typing import Iterator, Optional, Type
 from loguru import logger
 
 from nitpick import fields
-from nitpick.formats import BaseFormat, JsonFormat
+from nitpick.documents import BaseDoc, JsonDoc
 from nitpick.generic import DictBlender, flatten, unflatten
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
@@ -41,7 +41,7 @@ class JsonPlugin(NitpickPlugin):
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
-        actual = JsonFormat(path=self.file_path)
+        actual = JsonDoc(path=self.file_path)
         final_dict: Optional[JsonDict] = flatten(actual.as_object) if self.autofix else None
 
         comparison = actual.compare_with_flatten(self.expected_dict_from_contains_keys())
@@ -56,7 +56,7 @@ class JsonPlugin(NitpickPlugin):
             )
 
         if self.autofix and self.dirty and final_dict:
-            self.file_path.write_text(JsonFormat(obj=unflatten(final_dict)).reformatted)
+            self.file_path.write_text(JsonDoc(obj=unflatten(final_dict)).reformatted)
 
     def expected_dict_from_contains_keys(self):
         """Expected dict created from "contains_keys" values."""
@@ -76,7 +76,7 @@ class JsonPlugin(NitpickPlugin):
                 continue
         return expected_config
 
-    def report(self, violation: ViolationEnum, final_dict: Optional[JsonDict], change: Optional[BaseFormat]):
+    def report(self, violation: ViolationEnum, final_dict: Optional[JsonDict], change: Optional[BaseDoc]):
         """Report a violation while optionally modifying the JSON dict."""
         if not change:
             return
@@ -90,7 +90,7 @@ class JsonPlugin(NitpickPlugin):
         """Suggest the initial content for this missing file."""
         suggestion = DictBlender(self.expected_dict_from_contains_keys())
         suggestion.add(self.expected_dict_from_contains_json())
-        return self.write_initial_contents(JsonFormat, suggestion.mix())
+        return self.write_initial_contents(JsonDoc, suggestion.mix())
 
 
 @hookimpl

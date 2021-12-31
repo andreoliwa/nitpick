@@ -7,6 +7,7 @@ from typing import Any, Callable, List, Optional, Type, Union
 
 import dictdiffer
 import toml
+import tomlkit
 from autorepr import autorepr
 from loguru import logger
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
@@ -14,9 +15,9 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, unflatten
-from nitpick.typedefs import JsonDict, PathOrStr, YamlObject
+from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
 
-DictOrYamlObject = Union[JsonDict, YamlObject, "BaseFormat"]
+DictOrYamlObject = Union[JsonDict, YamlObject, "BaseDoc"]
 
 
 class Comparison:
@@ -26,17 +27,17 @@ class Comparison:
         self,
         actual: DictOrYamlObject,
         expected: DictOrYamlObject,
-        format_class: Type["BaseFormat"],
+        format_class: Type["BaseDoc"],
     ) -> None:
         self.flat_actual = self._normalize_value(actual)
         self.flat_expected = self._normalize_value(expected)
 
         self.format_class = format_class
 
-        self.missing: Optional[BaseFormat] = None
+        self.missing: Optional[BaseDoc] = None
         self.missing_dict: Union[JsonDict, YamlObject] = {}
 
-        self.diff: Optional[BaseFormat] = None
+        self.diff: Optional[BaseDoc] = None
         self.diff_dict: Union[JsonDict, YamlObject] = {}
 
     @property
@@ -46,7 +47,7 @@ class Comparison:
 
     @staticmethod
     def _normalize_value(value: DictOrYamlObject) -> JsonDict:
-        if isinstance(value, BaseFormat):
+        if isinstance(value, BaseDoc):
             dict_value: JsonDict = value.as_object
         else:
             dict_value = value
@@ -88,12 +89,12 @@ class Comparison:
         logger.warning("Err... this is unexpected, please open an issue: key={} raw_expected={}", key, raw_expected)
 
 
-class BaseFormat(metaclass=abc.ABCMeta):
+class BaseDoc(metaclass=abc.ABCMeta):
     """Base class for configuration file formats.
 
     :param path: Path of the config file to be loaded.
     :param string: Config in string format.
-    :param obj: Config object (Python dict, YamlFormat, TomlFormat instances).
+    :param obj: Config object (Python dict, YamlDoc, TomlDoc instances).
     :param ignore_keys: List of keys to ignore when using the comparison methods.
     """
 
@@ -139,7 +140,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
 
     @classmethod
     def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YamlFormat accepts 'True' or 'true'."""
+        """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
         return list(*args)
 
     def _create_comparison(self, expected: DictOrYamlObject):
@@ -152,7 +153,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         expected_original: DictOrYamlObject = expected or {}
         if isinstance(expected_original, dict):
             expected_copy = expected_original.copy()
-        elif isinstance(expected_original, BaseFormat):
+        elif isinstance(expected_original, BaseDoc):
             expected_copy = expected_original.as_object.copy()
         else:
             expected_copy = expected_original
@@ -161,7 +162,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
             expected_copy.pop(key, None)
         return Comparison(actual_copy, expected_copy, self.__class__)
 
-    def compare_with_flatten(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
+    def compare_with_flatten(self, expected: Union[JsonDict, "BaseDoc"] = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
         comparison = self._create_comparison(expected)
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
@@ -182,7 +183,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return comparison
 
     def compare_with_dictdiffer(
-        self, expected: Union[JsonDict, "BaseFormat"] = None, transform_function: Callable = None
+        self, expected: Union[JsonDict, "BaseDoc"] = None, transform_function: Callable = None
     ) -> Comparison:
         """Compare two structures and compute missing and different items using ``dictdiffer``."""
         comparison = self._create_comparison(expected)
@@ -218,7 +219,7 @@ class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]
         return self.get_empty_table()
 
 
-class TomlFormat(BaseFormat):
+class TomlDoc(BaseDoc):
     """TOML configuration format."""
 
     def load(self) -> bool:
@@ -233,7 +234,7 @@ class TomlFormat(BaseFormat):
             # self._object = OrderedDict(tomlkit.loads(self._string))
             self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg]
         if self._object is not None:
-            if isinstance(self._object, BaseFormat):
+            if isinstance(self._object, BaseDoc):
                 self._reformatted = self._object.reformatted
             else:
                 # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
@@ -242,6 +243,18 @@ class TomlFormat(BaseFormat):
                 self._reformatted = toml.dumps(self._object)
         self._loaded = True
         return True
+
+
+def traverse_toml_tree(document: tomlkit.TOMLDocument, dictionary):
+    """Traverse a TOML document recursively and change values, keeping its formatting and comments."""
+    for key, value in dictionary.items():
+        if isinstance(value, (dict, OrderedDict)):
+            if key in document:
+                traverse_toml_tree(document[key], value)
+            else:
+                document.add(key, value)
+        else:
+            document[key] = value
 
 
 class SensibleYAML(YAML):
@@ -268,27 +281,27 @@ class SensibleYAML(YAML):
         return output.getvalue()
 
 
-class YamlFormat(BaseFormat):
+class YamlDoc(BaseDoc):
     """YAML configuration format."""
 
-    document: SensibleYAML
+    updater: SensibleYAML
 
     def load(self) -> bool:
         """Load a YAML file by its path, a string or a dict."""
         if self._loaded:
             return False
 
-        self.document = SensibleYAML()
+        self.updater = SensibleYAML()
 
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
-            self._object = self.document.loads(self._string)
+            self._object = self.updater.loads(self._string)
         if self._object is not None:
-            if isinstance(self._object, BaseFormat):
+            if isinstance(self._object, BaseDoc):
                 self._reformatted = self._object.reformatted
             else:
-                self._reformatted = self.document.dumps(self._object)
+                self._reformatted = self.updater.dumps(self._object)
 
         self._loaded = True
         return True
@@ -313,7 +326,49 @@ for dict_class in (SortedDict, OrderedDict):
     RoundTripRepresenter.add_representer(dict_class, RoundTripRepresenter.represent_dict)
 
 
-class JsonFormat(BaseFormat):
+def is_scalar(value: YamlValue) -> bool:
+    """Return True if the value is NOT a dict or a list."""
+    return not isinstance(value, (OrderedDict, list))
+
+
+def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict]):
+    """Traverse a YAML document recursively and change values, keeping its formatting and comments."""
+    for key, value in change.items():
+        if key not in yaml_obj:
+            # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
+            last_pos = len(yaml_obj.keys()) + 1
+            yaml_obj.insert(last_pos, key, value)
+            continue
+
+        if is_scalar(value):
+            yaml_obj[key] = value
+        elif isinstance(value, OrderedDict):
+            traverse_yaml_tree(yaml_obj[key], value)
+        elif isinstance(value, list):
+            _traverse_yaml_list(yaml_obj, key, value)
+
+
+def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[YamlValue]):
+    for index, element in enumerate(value):
+        insert: bool = index >= len(yaml_obj[key])
+
+        if not insert and is_scalar(yaml_obj[key][index]):
+            # If the original object is scalar, replace it with whatever element;
+            # without traversing, even if it's a dict
+            yaml_obj[key][index] = element
+            continue
+
+        if is_scalar(element):
+            if insert:
+                yaml_obj[key].append(element)
+            else:
+                yaml_obj[key][index] = element
+            continue
+
+        traverse_yaml_tree(yaml_obj[key][index], element)  # type: ignore # mypy kept complaining about the Union
+
+
+class JsonDoc(BaseDoc):
     """JSON configuration format."""
 
     def load(self) -> bool:
@@ -325,7 +380,7 @@ class JsonFormat(BaseFormat):
         if self._string is not None:
             self._object = json.loads(self._string, object_pairs_hook=OrderedDict)
         if self._object is not None:
-            if isinstance(self._object, BaseFormat):
+            if isinstance(self._object, BaseDoc):
                 self._reformatted = self._object.reformatted
             else:
                 # Every file should end with a blank line
@@ -335,5 +390,5 @@ class JsonFormat(BaseFormat):
 
     @classmethod
     def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YamlFormat accepts 'True' or 'true'."""
+        """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
         return list(args)

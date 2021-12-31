@@ -187,7 +187,7 @@ class IniPlugin(NitpickPlugin):
         """Enforce rules for a section."""
         expected_dict = self.expected_config[section]
         actual_dict = {k: v.value for k, v in self.updater[section].items()}
-        # TODO: add a class Ini(BaseFormat) and move this dictdiffer code there
+        # TODO: add a class Ini(BaseDoc) and move this dictdiffer code there
         for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):
             if diff_type == dictdiffer.CHANGE:
                 if f"{section}.{key}" in self.comma_separated_values:
