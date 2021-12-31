@@ -1,7 +1,0 @@
-[[".pre-commit-config.yaml".repos]]
-yaml = """
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    hooks:
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-"""

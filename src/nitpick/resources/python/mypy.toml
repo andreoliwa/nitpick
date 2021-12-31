@@ -2,8 +2,8 @@
 ["setup.cfg".mypy]
 ignore_missing_imports = true
 
-# Do not follow imports (except for ones found in typeshed)
-follow_imports = "skip"
+# https://mypy.readthedocs.io/en/stable/running_mypy.html#follow-imports
+follow_imports = "normal"
 
 # Treat Optional per PEP 484
 strict_optional = true
@@ -13,7 +13,8 @@ warn_no_return = true
 
 # Lint-style cleanliness for typing
 warn_redundant_casts = true
-warn_unused_ignores = true
+# False positives when running on local machine... it works on pre-commit.ci ¯\_(ツ)_/¯
+warn_unused_ignores = false
 
 [[".pre-commit-config.yaml".repos]]
 yaml = """

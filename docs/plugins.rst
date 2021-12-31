@@ -26,7 +26,7 @@ Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
 INI files
 ---------
 
-Enforce config on INI files.
+Enforce configurations and autofix INI files.
 
 Examples of ``.ini`` files handled by this plugin:
 
@@ -42,7 +42,7 @@ Style examples enforcing values on INI files: :ref:`flake8 configuration <exampl
 JSON files
 ----------
 
-Enforce configurations for any JSON file.
+Enforce configurations and autofix JSON files.
 
 Add the configurations for the file name you wish to check.
 Style example: :ref:`the default config for package.json <example-package-json>`.
@@ -69,7 +69,7 @@ To check if ``some.txt`` file contains the lines ``abc`` and ``def`` (in any ord
 TOML files
 ----------
 
-Enforce config on TOML files.
+Enforce configurations and autofix TOML files.
 
 E.g.: `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-format>`_.
 
@@ -78,3 +78,10 @@ See also `the [tool.poetry] section of the pyproject.toml file
 
 Style example: :ref:`Python 3.8 version constraint <example-python-3-8>`.
 There are :ref:`many other examples here <examples>`.
+
+.. _yamlplugin:
+
+YAML files
+----------
+
+Enforce configurations and autofix YAML files.

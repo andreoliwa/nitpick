@@ -1,0 +1,34 @@
+# Root comment
+python:
+  version: '3.9' # Python 3.6 EOL this month!
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - some
+        - nice
+        - package
+mixed:
+  - lets:
+      ruin: this
+      with:
+        - weird
+        - '1'
+        - crap
+  - second item: also a dict
+  - c: 1
+    b: 2
+    a: 3
+  - and the remaining items are untouched
+  - [5, 3, 1]
+root_key:
+  a_dict:
+    - c: '3.1'
+    - b: 2
+    - a: string value
+  a_nested:
+    int: 10
+    list:
+      - 0
+      - 2
+      - 1

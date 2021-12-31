@@ -1,0 +1,39 @@
+# JMESPath as part of the section name, after the file name.
+# Everything after the file name is considered a JMESPath https://jmespath.org/
+# Format: ["path/to/file.ext".jmes.path.expression]
+# The values below were taken from .github/workflows/python.yaml in this repo
+
+# 1. Complex JMESPath expressions should be quoted
+# (I still don't know how to deal with JMESPath that matches multiple items)
+[[".github/workflows/python.yaml"."jobs.build.steps[].{name: name, uses: uses}"]]
+uses = "actions/checkout@v2"
+
+# 2. JMESPath expression that has double quotes, wrapped in single quotes for TOML
+[[".github/workflows/python.yaml".'jobs.build.strategy.matrix."python-version"']]
+name = "Set up Python ${{ matrix.python-version }}"
+uses = "actions/setup-python@v2"
+with = {"python-version" = "${{ matrix.python-version }}"}
+
+# 3. It allows Jinja tuning in https://github.com/andreoliwa/nitpick/issues/283
+name__jinja = "Set up Python ${{ matrix.python-version }}"
+name__no_jinja = "Set up Python ${{ matrix.python-version }}"
+name__jinja_off = "Set up Python ${{ matrix.python-version }}"
+
+# 4. "{{" and "}}" will conflict with Jinja https://github.com/andreoliwa/nitpick/issues/283
+# So we need a way to turn on/off Jinja templating.
+# Probably "false" will be the default, to keep compatibility.
+# Whoever wants to use Jinja will need to set "true" either here or as a global config on .nitpick.toml
+[".github/workflows/python.yaml".jobs.build]
+__jinja = false
+
+# 5. Another way to turn off Jinja for a specific key only, not the whole dict
+# (using the "__" syntax from Django filters, SQLAlchemy, factoryboy...)
+"runs-on__no_jinja" = "${{ matrix.os }}"
+
+# 6. Simplified API, having JMESPath as direct keys
+# Read the discussion: https://github.com/andreoliwa/nitpick/pull/353/files#r613816390
+[".github/workflows/jmespath-simple.yaml"]
+"jobs.build.strategy.matrix.os" = "foo"
+"jobs.build.steps" = ["bar"]
+"jobs.build.steps.regex" = "baz d+"
+"jobs.build.steps.contains" = "baz"

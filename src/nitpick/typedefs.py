@@ -1,4 +1,5 @@
 """Type definitions."""
+from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple, Type, Union
 
@@ -9,7 +10,8 @@ JsonDict = Dict[str, Any]
 StrOrList = Union[str, List[str]]
 StrOrIterable = Union[str, Iterable[str]]
 Flake8Error = Tuple[int, int, str, Type]
-YamlData = Union[CommentedSeq, CommentedMap]
+YamlObject = Union[CommentedSeq, CommentedMap]
+YamlValue = Union[JsonDict, OrderedDict, List[Any], str, float]
 
 # Decorated property not supported · Issue #1362 · python/mypy
 # https://github.com/python/mypy/issues/1362#issuecomment-562141376

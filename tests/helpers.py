@@ -23,13 +23,13 @@ from nitpick.constants import (
     SETUP_CFG,
 )
 from nitpick.core import Nitpick
+from nitpick.documents import TomlDoc
 from nitpick.flake8 import NitpickFlake8Extension
-from nitpick.formats import TOMLFormat
 from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
 
-STYLES_DIR: Path = Path(__file__).parent.parent / "styles"
+STYLES_DIR: Path = Path(__file__).parent.parent / "src" / "nitpick" / "resources"
 
 # Non-breaking space
 NBSP = "\xc2\xa0"
@@ -46,6 +46,17 @@ def assert_conditions(*args):
     for arg in args:
         if not arg:
             raise AssertionError()
+
+
+def from_path_or_str(file_contents: PathOrStr):
+    """Read file contents from a Path or string."""
+    if file_contents is None:
+        raise RuntimeError("No path and no file contents.")
+
+    if isinstance(file_contents, Path):
+        return file_contents.read_text()
+
+    return file_contents
 
 
 class ProjectMock:
@@ -83,7 +94,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, fix=False) -> "ProjectMock":
+    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, autofix=False) -> "ProjectMock":
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -96,7 +107,7 @@ class ProjectMock:
         self.nitpick_instance = Nitpick.singleton().init(offline=offline)
 
         if api:
-            self._actual_violations = set(self.nitpick_instance.run(*partial_names, fix=fix))
+            self._actual_violations = set(self.nitpick_instance.run(*partial_names, autofix=autofix))
 
         if flake8:
             npc = NitpickFlake8Extension(filename=str(self.files_to_lint[0]))
@@ -117,22 +128,22 @@ class ProjectMock:
 
     def api_check(self, *partial_names: str, offline=False):
         """Test only the API in check mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, offline=offline, api=True, flake8=False, fix=False)
+        return self._simulate_run(*partial_names, offline=offline, api=True, flake8=False, autofix=False)
 
     def api_fix(self, *partial_names: str):
-        """Test only the API in fix mode, no flake8 plugin."""
-        return self._simulate_run(*partial_names, api=True, flake8=False, fix=True)
+        """Test only the API in autofix mode, no flake8 plugin."""
+        return self._simulate_run(*partial_names, api=True, flake8=False, autofix=True)
 
     def api_check_then_fix(
         self, *expected_violations_when_fixing: Fuss, partial_names: Optional[Iterable[str]] = None
     ) -> "ProjectMock":
-        """Assert that check mode does not change files, and that fix mode changes them.
+        """Assert that check mode does not change files, and that autofix mode changes them.
 
         Perform a series of calls and assertions:
         1. Call the API in check mode, assert violations, assert files contents were not modified.
-        2. Call the API in fix mode and assert violations again.
+        2. Call the API in autofix mode and assert violations again.
 
-        :param expected_violations_when_fixing: Expected violations when "fix mode" is on.
+        :param expected_violations_when_fixing: Expected violations when "autofix mode" is on.
         :param partial_names: Names of the files to enforce configs for.
         :return: ``self`` for method chaining (fluent interface)
         """
@@ -171,7 +182,7 @@ class ProjectMock:
         """Read multiple files and return a hash with filename (key) and contents (value)."""
         return {filename: self.read_file(filename) for filename in filenames}
 
-    def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
+    def save_file(self, filename: PathOrStr, file_contents: PathOrStr, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents and a new line at the end.
 
         Create the parent dirs if the file name contains a slash.
@@ -188,7 +199,8 @@ class ProjectMock:
         path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
-        clean = dedent(file_contents).strip()
+        clean = dedent(from_path_or_str(file_contents)).strip()
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"{clean}\n")
         return self
 
@@ -196,9 +208,9 @@ class ProjectMock:
         """Save an empty file (like the ``touch`` command)."""
         return self.save_file(filename, "")
 
-    def style(self, file_contents: str) -> "ProjectMock":
+    def style(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save the default style file."""
-        return self.save_file(NITPICK_STYLE_TOML, file_contents)
+        return self.save_file(NITPICK_STYLE_TOML, from_path_or_str(file_contents))
 
     # TODO: remove this function, don't test real styles anymore to avoid breaking tests on Renovate updates
     def load_styles(self, *args: PathOrStr) -> "ProjectMock":
@@ -212,26 +224,26 @@ class ProjectMock:
             self.named_style(filename, style_path.read_text())
         return self
 
-    def named_style(self, filename: PathOrStr, file_contents: str) -> "ProjectMock":
+    def named_style(self, filename: PathOrStr, file_contents: PathOrStr) -> "ProjectMock":
         """Save a style file with a name. Add the .toml extension if needed."""
-        return self.save_file(self.ensure_toml_extension(filename), file_contents)
+        return self.save_file(self.ensure_toml_extension(filename), from_path_or_str(file_contents))
 
     @staticmethod
     def ensure_toml_extension(filename: PathOrStr) -> PathOrStr:
         """Ensure a file name has the .toml extension."""
         return filename if str(filename).endswith(".toml") else f"{filename}.toml"
 
-    def setup_cfg(self, file_contents: str) -> "ProjectMock":
+    def setup_cfg(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save setup.cfg."""
-        return self.save_file(SETUP_CFG, file_contents)
+        return self.save_file(SETUP_CFG, from_path_or_str(file_contents))
 
-    def pyproject_toml(self, file_contents: str) -> "ProjectMock":
+    def pyproject_toml(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save pyproject.toml."""
-        return self.save_file(PYPROJECT_TOML, file_contents)
+        return self.save_file(PYPROJECT_TOML, from_path_or_str(file_contents))
 
-    def pre_commit(self, file_contents: str) -> "ProjectMock":
+    def pre_commit(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save .pre-commit-config.yaml."""
-        return self.save_file(PreCommitPlugin.filename, file_contents)
+        return self.save_file(PreCommitPlugin.filename, from_path_or_str(file_contents))
 
     def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""
@@ -280,9 +292,9 @@ class ProjectMock:
 
     def assert_merged_style(self, toml_string: str) -> "ProjectMock":
         """Assert the contents of the merged style file."""
-        expected = TOMLFormat(path=self.cache_dir / MERGED_STYLE_TOML)
-        actual = TOMLFormat(string=dedent(toml_string))
-        compare(expected.as_data, actual.as_data)
+        expected = TomlDoc(path=self.cache_dir / MERGED_STYLE_TOML)
+        actual = TomlDoc(string=dedent(toml_string))
+        compare(expected.as_object, actual.as_object)
         return self
 
     def assert_violations(self, *expected_violations: Fuss, disclaimer="") -> "ProjectMock":
@@ -341,7 +353,7 @@ class ProjectMock:
     def cli_run(
         self,
         expected_str_or_lines: StrOrList = None,
-        fix=False,
+        autofix=False,
         violations=0,
         exception_class=None,
         exit_code: int = None,
@@ -350,7 +362,7 @@ class ProjectMock:
         if exit_code is None:
             exit_code = 1 if expected_str_or_lines else 0
         result, actual, expected = self._simulate_cli(
-            "fix" if fix else "check", expected_str_or_lines, exit_code=exit_code
+            "fix" if autofix else "check", expected_str_or_lines, exit_code=exit_code
         )
         if exception_class:
             assert isinstance(result.exception, exception_class)
@@ -392,7 +404,7 @@ class ProjectMock:
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)
-            expected = None if file_contents is None else dedent(file_contents).lstrip()
+            expected = None if file_contents is None else dedent(from_path_or_str(file_contents)).lstrip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
         return self
 

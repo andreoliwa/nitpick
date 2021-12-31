@@ -112,7 +112,7 @@ nitpick_ignore = [
     (key, identifier)
     for key, identifiers in {
         "py:class": {
-            "BaseFormat",
+            "BaseDoc",
             "bool|tuple",
             "builtins.dict",
             "callable",

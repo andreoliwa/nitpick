@@ -42,31 +42,31 @@ MD_DIVIDER_START = "<!-- auto-generated-start-{} -->"
 MD_DIVIDER_END = "<!-- auto-generated-end-{} -->"
 
 DOCS_DIR: Path = Path(__file__).parent.absolute()
-STYLES_DIR: Path = DOCS_DIR.parent / "styles"
+STYLES_DIR: Path = DOCS_DIR.parent / "src" / "nitpick" / "resources"
 
 STYLE_MAPPING = SortedDict(
     {
-        "absent-files.toml": "Absent files",
-        "black.toml": "black_",
-        "editorconfig.toml": "EditorConfig_",
-        "flake8.toml": "flake8_",
-        "ipython.toml": "IPython_",
-        "isort.toml": "isort_",
-        "mypy.toml": "mypy_",
-        "package-json.toml": "package.json_",
-        "poetry.toml": "Poetry_",
-        "pre-commit/bash.toml": "Bash_",
-        "commitizen.toml": "commitizen_",
-        "pre-commit/general.toml": "pre-commit_ (hooks)",
-        "pre-commit/main.toml": "pre-commit_ (main)",
-        "pre-commit/python.toml": "pre-commit_ (Python hooks)",
-        "pylint.toml": "Pylint_",
-        "python36.toml": "Python 3.6",
-        "python37.toml": "Python 3.7",
-        "python38.toml": "Python 3.8",
-        "python39.toml": "Python 3.9",
-        "python310.toml": "Python 3.10",
-        "tox.toml": "tox_",
+        "python/absent.toml": "Absent files",
+        "python/black.toml": "black_",
+        "any/editorconfig.toml": "EditorConfig_",
+        "python/flake8.toml": "flake8_",
+        "python/ipython.toml": "IPython_",
+        "python/isort.toml": "isort_",
+        "python/mypy.toml": "mypy_",
+        "javascript/package-json.toml": "package.json_",
+        "python/poetry.toml": "Poetry_",
+        "shell/hooks.toml": "Bash_",
+        "any/commitizen.toml": "commitizen_",
+        "any/commitlint.toml": "commitlint_",
+        "any/hooks.toml": "pre-commit_ (hooks)",
+        "python/hooks.toml": "pre-commit_ (Python hooks)",
+        "python/pylint.toml": "Pylint_",
+        "python/python36.toml": "Python 3.6",
+        "python/python37.toml": "Python 3.7",
+        "python/python38.toml": "Python 3.8",
+        "python/python39.toml": "Python 3.9",
+        "python/python310.toml": "Python 3.10",
+        "python/tox.toml": "tox_",
     }
 )
 CLI_MAPPING = [
@@ -94,7 +94,7 @@ class FileType:
     text: str
     url: str
     check: Union[bool, int]
-    fix: Union[bool, int]
+    autofix: Union[bool, int]
 
     def __post_init__(self):
         """Warn about text that might render incorrectly."""
@@ -136,14 +136,14 @@ class FileType:
         return self._pretty("check")
 
     @property
-    def fix_str(self) -> str:
-        """The fix flag, as a string."""
-        return self._pretty("fix")
+    def autofix_str(self) -> str:
+        """The autofix flag, as a string."""
+        return self._pretty("autofix")
 
     @property
     def row(self) -> Tuple[str, str, str]:
         """Tuple for a table row."""
-        return self.text_with_url, self.check_str, self.fix_str
+        return self.text_with_url, self.check_str, self.autofix_str
 
 
 IMPLEMENTED_FILE_TYPES: Set[FileType] = {
@@ -151,6 +151,9 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any JSON file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, True),
     FileType("Any text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
+    FileType(
+        f"Any YAML file (except {PRE_COMMIT_CONFIG_YAML})", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True
+    ),
     FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
     FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),

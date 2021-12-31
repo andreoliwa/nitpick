@@ -1,6 +1,5 @@
 """Configuration file formats."""
 import abc
-import io
 import json
 from collections import OrderedDict
 from pathlib import Path
@@ -8,14 +7,17 @@ from typing import Any, Callable, List, Optional, Type, Union
 
 import dictdiffer
 import toml
+import tomlkit
 from autorepr import autorepr
 from loguru import logger
-from ruamel.yaml import YAML, RoundTripRepresenter
+from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, unflatten
-from nitpick.typedefs import JsonDict, PathOrStr, YamlData
+from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
+
+DictOrYamlObject = Union[JsonDict, YamlObject, "BaseDoc"]
 
 
 class Comparison:
@@ -23,20 +25,20 @@ class Comparison:
 
     def __init__(
         self,
-        actual: Union[JsonDict, YamlData, "BaseFormat"],
-        expected: Union[JsonDict, YamlData, "BaseFormat"],
-        format_class: Type["BaseFormat"],
+        actual: DictOrYamlObject,
+        expected: DictOrYamlObject,
+        format_class: Type["BaseDoc"],
     ) -> None:
         self.flat_actual = self._normalize_value(actual)
         self.flat_expected = self._normalize_value(expected)
 
         self.format_class = format_class
 
-        self.missing: Optional[BaseFormat] = None
-        self.missing_dict: Union[JsonDict, YamlData] = {}
+        self.missing: Optional[BaseDoc] = None
+        self.missing_dict: Union[JsonDict, YamlObject] = {}
 
-        self.diff: Optional[BaseFormat] = None
-        self.diff_dict: Union[JsonDict, YamlData] = {}
+        self.diff: Optional[BaseDoc] = None
+        self.diff_dict: Union[JsonDict, YamlObject] = {}
 
     @property
     def has_changes(self) -> bool:
@@ -44,9 +46,9 @@ class Comparison:
         return bool(self.missing or self.diff)
 
     @staticmethod
-    def _normalize_value(value: Union[JsonDict, YamlData, "BaseFormat"]) -> JsonDict:
-        if isinstance(value, BaseFormat):
-            dict_value: JsonDict = value.as_data
+    def _normalize_value(value: DictOrYamlObject) -> JsonDict:
+        if isinstance(value, BaseDoc):
+            dict_value: JsonDict = value.as_object
         else:
             dict_value = value
         return flatten(dict_value)
@@ -57,7 +59,7 @@ class Comparison:
             return
         self.missing_dict = missing_dict
         if self.format_class:
-            self.missing = self.format_class(data=missing_dict)
+            self.missing = self.format_class(obj=missing_dict)
 
     def set_diff(self, diff_dict):
         """Set the diff dict and corresponding format."""
@@ -65,7 +67,7 @@ class Comparison:
             return
         self.diff_dict = diff_dict
         if self.format_class:
-            self.diff = self.format_class(data=diff_dict)
+            self.diff = self.format_class(obj=diff_dict)
 
     def update_pair(self, key, raw_expected):
         """Update a key on one of the comparison dicts, with its raw expected value."""
@@ -87,30 +89,25 @@ class Comparison:
         logger.warning("Err... this is unexpected, please open an issue: key={} raw_expected={}", key, raw_expected)
 
 
-class BaseFormat(metaclass=abc.ABCMeta):
+class BaseDoc(metaclass=abc.ABCMeta):
     """Base class for configuration file formats.
 
     :param path: Path of the config file to be loaded.
     :param string: Config in string format.
-    :param data: Config data in Python format (dict, YAMLFormat, TOMLFormat instances).
+    :param obj: Config object (Python dict, YamlDoc, TomlDoc instances).
     :param ignore_keys: List of keys to ignore when using the comparison methods.
     """
 
     __repr__ = autorepr(["path"])
 
     def __init__(
-        self,
-        *,
-        path: PathOrStr = None,
-        string: str = None,
-        data: Union[JsonDict, YamlData, "BaseFormat"] = None,
-        ignore_keys: List[str] = None
+        self, *, path: PathOrStr = None, string: str = None, obj: DictOrYamlObject = None, ignore_keys: List[str] = None
     ) -> None:
         self.path = path
         self._string = string
-        self._data = data
-        if path is None and string is None and data is None:
-            raise RuntimeError("Inform at least one argument: path, string or data")
+        self._object = obj
+        if path is None and string is None and obj is None:
+            raise RuntimeError("Inform at least one argument: path, string or object")
 
         self._ignore_keys = ignore_keys or []
         self._reformatted: Optional[str] = None
@@ -128,11 +125,11 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return self._string or ""
 
     @property
-    def as_data(self) -> Union[JsonDict, YamlData]:
-        """String content converted to a Python data structure (a dict, YAML data, etc.)."""
-        if self._data is None:
+    def as_object(self) -> Union[JsonDict, YamlObject]:
+        """String content converted to a Python object (dict, YAML object instance, etc.)."""
+        if self._object is None:
             self.load()
-        return self._data or {}
+        return self._object or {}
 
     @property
     def reformatted(self) -> str:
@@ -143,21 +140,21 @@ class BaseFormat(metaclass=abc.ABCMeta):
 
     @classmethod
     def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YAMLFormat accepts 'True' or 'true'."""
+        """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
         return list(*args)
 
-    def _create_comparison(self, expected: Union[JsonDict, YamlData, "BaseFormat"]):
+    def _create_comparison(self, expected: DictOrYamlObject):
         if not self._ignore_keys:
-            return Comparison(self.as_data or {}, expected or {}, self.__class__)
+            return Comparison(self.as_object or {}, expected or {}, self.__class__)
 
-        actual_original: Union[JsonDict, YamlData] = self.as_data or {}
+        actual_original: Union[JsonDict, YamlObject] = self.as_object or {}
         actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
 
-        expected_original: Union[JsonDict, YamlData, "BaseFormat"] = expected or {}
+        expected_original: DictOrYamlObject = expected or {}
         if isinstance(expected_original, dict):
             expected_copy = expected_original.copy()
-        elif isinstance(expected_original, BaseFormat):
-            expected_copy = expected_original.as_data.copy()
+        elif isinstance(expected_original, BaseDoc):
+            expected_copy = expected_original.as_object.copy()
         else:
             expected_copy = expected_original
         for key in self._ignore_keys:
@@ -165,7 +162,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
             expected_copy.pop(key, None)
         return Comparison(actual_copy, expected_copy, self.__class__)
 
-    def compare_with_flatten(self, expected: Union[JsonDict, "BaseFormat"] = None) -> Comparison:
+    def compare_with_flatten(self, expected: Union[JsonDict, "BaseDoc"] = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
         comparison = self._create_comparison(expected)
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
@@ -186,7 +183,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return comparison
 
     def compare_with_dictdiffer(
-        self, expected: Union[JsonDict, "BaseFormat"] = None, transform_function: Callable = None
+        self, expected: Union[JsonDict, "BaseDoc"] = None, transform_function: Callable = None
     ) -> Comparison:
         """Compare two structures and compute missing and different items using ``dictdiffer``."""
         comparison = self._create_comparison(expected)
@@ -208,7 +205,21 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return comparison
 
 
-class TOMLFormat(BaseFormat):
+class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]
+    """A hacky decoder to work around some bug (or unfinished work) in the Python TOML package.
+
+    https://github.com/uiri/toml/issues/362.
+    """
+
+    def get_empty_inline_table(self):
+        """Hackity hack for a crappy unmaintained package.
+
+        Total lack of respect, the guy doesn't even reply: https://github.com/uiri/toml/issues/361
+        """
+        return self.get_empty_table()
+
+
+class TomlDoc(BaseDoc):
     """TOML configuration format."""
 
     def load(self) -> bool:
@@ -220,57 +231,90 @@ class TOMLFormat(BaseFormat):
         if self._string is not None:
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
-            # self._data = OrderedDict(tomlkit.loads(self._string))
-            self._data = toml.loads(self._string, _dict=OrderedDict)
-        if self._data is not None:
-            if isinstance(self._data, BaseFormat):
-                self._reformatted = self._data.reformatted
+            # self._object = OrderedDict(tomlkit.loads(self._string))
+            self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg]
+        if self._object is not None:
+            if isinstance(self._object, BaseDoc):
+                self._reformatted = self._object.reformatted
             else:
                 # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
                 #  but comments are being lost when the TOML plugin does dict comparisons.
-                # self._reformatted = tomlkit.dumps(OrderedDict(self._data), sort_keys=True)
-                self._reformatted = toml.dumps(self._data)
+                # self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
+                self._reformatted = toml.dumps(self._object)
         self._loaded = True
         return True
 
 
-class YAMLFormat(BaseFormat):
+def traverse_toml_tree(document: tomlkit.TOMLDocument, dictionary):
+    """Traverse a TOML document recursively and change values, keeping its formatting and comments."""
+    for key, value in dictionary.items():
+        if isinstance(value, (dict, OrderedDict)):
+            if key in document:
+                traverse_toml_tree(document[key], value)
+            else:
+                document.add(key, value)
+        else:
+            document[key] = value
+
+
+class SensibleYAML(YAML):
+    """YAML with sensible defaults but an inefficient dump to string.
+
+    `Output of dump() as a string
+    <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_
+    """
+
+    def __init__(self, *, typ=None, pure=False, output=None, plug_ins=None):
+        super().__init__(typ=typ, pure=pure, output=output, plug_ins=plug_ins)
+        self.map_indent = 2
+        self.sequence_indent = 4
+        self.sequence_dash_offset = 2
+
+    def loads(self, string: str):
+        """Load YAML from a string... that unusual use case in a world of files only."""
+        return self.load(StringIO(string))
+
+    def dumps(self, data) -> str:
+        """Dump to a string... who would want such a thing? One can dump to a file or stdout."""
+        output = StringIO()
+        self.dump(data, output, transform=None)
+        return output.getvalue()
+
+
+class YamlDoc(BaseDoc):
     """YAML configuration format."""
+
+    updater: SensibleYAML
 
     def load(self) -> bool:
         """Load a YAML file by its path, a string or a dict."""
         if self._loaded:
             return False
 
-        yaml = YAML()
-        yaml.map_indent = 2
-        yaml.sequence_indent = 4
-        yaml.sequence_dash_offset = 2
+        self.updater = SensibleYAML()
 
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
-            self._data = yaml.load(io.StringIO(self._string))
-        if self._data is not None:
-            if isinstance(self._data, BaseFormat):
-                self._reformatted = self._data.reformatted
+            self._object = self.updater.loads(self._string)
+        if self._object is not None:
+            if isinstance(self._object, BaseDoc):
+                self._reformatted = self._object.reformatted
             else:
-                output = io.StringIO()
-                yaml.dump(self._data, output)
-                self._reformatted = output.getvalue()
+                self._reformatted = self.updater.dumps(self._object)
 
         self._loaded = True
         return True
 
     @property
-    def as_data(self) -> CommentedMap:
+    def as_object(self) -> CommentedMap:
         """On YAML, this dict is a special object with comments and ordered keys."""
-        return super().as_data
+        return super().as_object
 
     @property
     def as_list(self) -> CommentedSeq:
-        """A list of dicts. On YAML, ``as_data`` might contain a ``list``. This property is just a proxy for typing."""
-        return self.as_data
+        """A list of dicts, for typing purposes. On YAML, ``as_object`` might contain a ``list``."""
+        return self.as_object
 
     @classmethod
     def cleanup(cls, *args: List[Any]) -> List[Any]:
@@ -278,10 +322,53 @@ class YAMLFormat(BaseFormat):
         return [str(value).lower() if isinstance(value, (int, float, bool)) else value for value in args]
 
 
-RoundTripRepresenter.add_representer(SortedDict, RoundTripRepresenter.represent_dict)
+for dict_class in (SortedDict, OrderedDict):
+    RoundTripRepresenter.add_representer(dict_class, RoundTripRepresenter.represent_dict)
 
 
-class JSONFormat(BaseFormat):
+def is_scalar(value: YamlValue) -> bool:
+    """Return True if the value is NOT a dict or a list."""
+    return not isinstance(value, (OrderedDict, list))
+
+
+def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict]):
+    """Traverse a YAML document recursively and change values, keeping its formatting and comments."""
+    for key, value in change.items():
+        if key not in yaml_obj:
+            # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
+            last_pos = len(yaml_obj.keys()) + 1
+            yaml_obj.insert(last_pos, key, value)
+            continue
+
+        if is_scalar(value):
+            yaml_obj[key] = value
+        elif isinstance(value, OrderedDict):
+            traverse_yaml_tree(yaml_obj[key], value)
+        elif isinstance(value, list):
+            _traverse_yaml_list(yaml_obj, key, value)
+
+
+def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[YamlValue]):
+    for index, element in enumerate(value):
+        insert: bool = index >= len(yaml_obj[key])
+
+        if not insert and is_scalar(yaml_obj[key][index]):
+            # If the original object is scalar, replace it with whatever element;
+            # without traversing, even if it's a dict
+            yaml_obj[key][index] = element
+            continue
+
+        if is_scalar(element):
+            if insert:
+                yaml_obj[key].append(element)
+            else:
+                yaml_obj[key][index] = element
+            continue
+
+        traverse_yaml_tree(yaml_obj[key][index], element)  # type: ignore # mypy kept complaining about the Union
+
+
+class JsonDoc(BaseDoc):
     """JSON configuration format."""
 
     def load(self) -> bool:
@@ -291,17 +378,17 @@ class JSONFormat(BaseFormat):
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
-            self._data = json.loads(self._string, object_pairs_hook=OrderedDict)
-        if self._data is not None:
-            if isinstance(self._data, BaseFormat):
-                self._reformatted = self._data.reformatted
+            self._object = json.loads(self._string, object_pairs_hook=OrderedDict)
+        if self._object is not None:
+            if isinstance(self._object, BaseDoc):
+                self._reformatted = self._object.reformatted
             else:
                 # Every file should end with a blank line
-                self._reformatted = json.dumps(self._data, sort_keys=True, indent=2) + "\n"
+                self._reformatted = json.dumps(self._object, sort_keys=True, indent=2) + "\n"
         self._loaded = True
         return True
 
     @classmethod
     def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YAMLFormat accepts 'True' or 'true'."""
+        """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
         return list(args)

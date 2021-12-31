@@ -8,6 +8,7 @@
 .. _Bash: https://www.gnu.org/software/bash/
 .. _black: https://github.com/psf/black
 .. _commitizen: https://github.com/commitizen-tools/commitizen
+.. _commitlint: https://commitlint.js.org/
 .. _Django: https://github.com/django/django
 .. _EditorConfig: https://editorconfig.org
 .. _flake8: https://github.com/PyCQA/flake8

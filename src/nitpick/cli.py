@@ -23,9 +23,9 @@ from loguru import logger
 
 from nitpick.constants import PROJECT_NAME, TOOL_KEY, TOOL_NITPICK_KEY
 from nitpick.core import Nitpick
+from nitpick.documents import TomlDoc
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
-from nitpick.formats import TOMLFormat
 from nitpick.generic import relative_to_current_dir
 from nitpick.violations import Reporter
 
@@ -64,7 +64,7 @@ def get_nitpick(context: click.Context) -> Nitpick:
 
 
 def common_fix_or_check(context, verbose: int, files, check_only: bool) -> None:
-    """Common CLI code for both fix and check commands."""
+    """Common CLI code for both "fix" and "check" commands."""
     if verbose:
         level = logging.INFO if verbose == 1 else logging.DEBUG
 
@@ -77,7 +77,7 @@ def common_fix_or_check(context, verbose: int, files, check_only: bool) -> None:
 
     nit = get_nitpick(context)
     try:
-        for fuss in nit.run(*files, fix=not check_only):
+        for fuss in nit.run(*files, autofix=not check_only):
             nit.echo(fuss.pretty)
     except QuitComplainingError as err:
         for fuss in err.violations:
@@ -147,7 +147,7 @@ def init(context):
     nit = get_nitpick(context)
     config = nit.project.read_configuration()
 
-    if config.file and PROJECT_NAME in TOMLFormat(path=config.file).as_data[TOOL_KEY]:
+    if config.file and PROJECT_NAME in TomlDoc(path=config.file).as_object[TOOL_KEY]:
         click.secho(f"The config file {config.file.name} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")
         raise Exit(1)
 

@@ -2,14 +2,14 @@
 import abc
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Optional, Set
+from typing import Iterator, Optional, Set, Type
 
 import jmespath
 from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.formats import Comparison
+from nitpick.documents import BaseDoc, Comparison, DictOrYamlObject
 from nitpick.generic import search_dict
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
@@ -21,7 +21,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     :param data: File information (project, path, tags).
     :param expected_config: Expected configuration for the file
-    :param fix: Flag to modify files, if the plugin supports it (default: True).
+    :param autofix: Flag to modify files, if the plugin supports it (default: True).
     """
 
     __str__, __unicode__ = autotext("{self.info.path_from_root} ({self.__class__.__name__})")
@@ -29,11 +29,11 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     filename = ""  # TODO: remove filename attribute after fixing dynamic/fixed schema loading
     violation_base_code: int = 0
 
-    #: Can this plugin modify files directly?
-    can_fix: bool = False
+    #: Can this plugin modify its files directly? Are the files fixable?
+    fixable: bool = False
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
-    #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JSONPlugin`).
+    #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JsonPlugin`).
     validation_schema: Optional[Schema] = None
 
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
@@ -41,7 +41,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
 
     skip_empty_suggestion = False
 
-    def __init__(self, info: FileInfo, expected_config: JsonDict, fix=False) -> None:
+    def __init__(self, info: FileInfo, expected_config: JsonDict, autofix=False) -> None:
         self.info = info
         self.filename = info.path_from_root
         self.reporter = Reporter(info, self.violation_base_code)
@@ -51,7 +51,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         # Configuration for this file as a TOML dict, taken from the style file.
         self.expected_config: JsonDict = expected_config or {}
 
-        self.fix = self.can_fix and fix
+        self.autofix = self.fixable and autofix
         # Dirty flag to avoid changing files without need
         self.dirty: bool = False
 
@@ -91,7 +91,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         else:
             yield from self._suggest_when_file_not_found()
 
-        if self.fix and self.dirty:
+        if self.autofix and self.dirty:
             fuss = self.write_file(file_exists)  # pylint: disable=assignment-from-none
             if fuss:
                 yield fuss
@@ -110,12 +110,12 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         logger.info(f"{self}: Suggest initial contents for {self.filename}")
 
         if suggestion:
-            yield self.reporter.make_fuss(SharedViolations.CREATE_FILE_WITH_SUGGESTION, suggestion, fixed=self.fix)
+            yield self.reporter.make_fuss(SharedViolations.CREATE_FILE_WITH_SUGGESTION, suggestion, fixed=self.autofix)
         else:
             yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
     def write_file(self, file_exists: bool) -> Optional[Fuss]:  # pylint: disable=unused-argument,no-self-use
-        """Hook to write the new file when fix mode is on. Should be used by inherited classes."""
+        """Hook to write the new file when autofix mode is on. Should be used by inherited classes."""
         return None
 
     @abc.abstractmethod
@@ -126,6 +126,17 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def initial_contents(self) -> str:
         """Suggested initial content when the file doesn't exist."""
+
+    def write_initial_contents(self, format_class: Type[BaseDoc], expected_obj: DictOrYamlObject = None) -> str:
+        """Helper to write initial contents based on a format."""
+        if not expected_obj:
+            expected_obj = self.expected_config
+
+        formatted_str = format_class(obj=expected_obj).reformatted
+        if self.autofix:
+            self.file_path.parent.mkdir(exist_ok=True, parents=True)
+            self.file_path.write_text(formatted_str)
+        return formatted_str
 
     def warn_missing_different(self, comparison: Comparison, prefix: str = "") -> Iterator[Fuss]:
         """Warn about missing and different keys."""

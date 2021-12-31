@@ -25,8 +25,8 @@ from nitpick.constants import (
     PYPROJECT_TOML,
     TOML_EXTENSION,
 )
+from nitpick.documents import TomlDoc
 from nitpick.exceptions import QuitComplainingError, pretty_exception
-from nitpick.formats import TOMLFormat
 from nitpick.generic import DictBlender, is_url, search_dict
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -133,9 +133,9 @@ class Style:  # pylint: disable=too-many-instance-attributes
             yield from self.include_multiple_styles(sub_styles)
 
     def _read_toml(self, file_contents, style_path):
-        toml = TOMLFormat(string=file_contents)
+        toml = TomlDoc(string=file_contents)
         try:
-            read_toml_dict = toml.as_data
+            read_toml_dict = toml.as_object
         # TODO: replace by this error when using tomlkit only in the future:
         #  except TOMLKitError as err:
         except TomlDecodeError as err:
@@ -194,7 +194,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
         merged_dict = self._blender.mix()
         # TODO: check if the merged style file is still needed
         merged_style_path: Path = self.cache_dir / MERGED_STYLE_TOML
-        toml = TOMLFormat(data=merged_dict)
+        toml = TomlDoc(obj=merged_dict)
 
         attempt = 1
         while attempt < 5:
@@ -215,7 +215,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
         if base_file_class.validation_schema:
             file_field = fields.Nested(base_file_class.validation_schema, **kwargs)
         else:
-            # For some files (e.g.: pyproject.toml, INI files), there is no strict schema;
+            # For some files (e.g.: TOML/ INI files), there is no strict schema;
             # it can be anything they allow.
             # It's out of Nitpick's scope to validate those files.
             file_field = fields.Dict(fields.String, **kwargs)

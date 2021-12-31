@@ -6,7 +6,7 @@ from typing import Iterator, Optional, Type
 from loguru import logger
 
 from nitpick import fields
-from nitpick.formats import BaseFormat, JSONFormat
+from nitpick.documents import BaseDoc, JsonDoc
 from nitpick.generic import DictBlender, flatten, unflatten
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
@@ -20,29 +20,29 @@ KEY_CONTAINS_JSON = "contains_json"
 VALUE_PLACEHOLDER = "<some value here>"
 
 
-class JSONFileSchema(BaseNitpickSchema):
+class JsonFileSchema(BaseNitpickSchema):
     """Validation schema for any JSON file added to the style."""
 
     contains_keys = fields.List(fields.NonEmptyString)
-    contains_json = fields.Dict(fields.NonEmptyString, fields.JSONString)
+    contains_json = fields.Dict(fields.NonEmptyString, fields.JsonString)
 
 
-class JSONPlugin(NitpickPlugin):
-    """Enforce configurations for any JSON file.
+class JsonPlugin(NitpickPlugin):
+    """Enforce configurations and autofix JSON files.
 
     Add the configurations for the file name you wish to check.
     Style example: :ref:`the default config for package.json <example-package-json>`.
     """
 
-    validation_schema = JSONFileSchema
+    validation_schema = JsonFileSchema
     identify_tags = {"json"}
     violation_base_code = 340
-    can_fix = True
+    fixable = True
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
-        actual = JSONFormat(path=self.file_path)
-        final_dict: Optional[JsonDict] = flatten(actual.as_data) if self.fix else None
+        actual = JsonDoc(path=self.file_path)
+        final_dict: Optional[JsonDict] = flatten(actual.as_object) if self.autofix else None
 
         comparison = actual.compare_with_flatten(self.expected_dict_from_contains_keys())
         if comparison.missing:
@@ -55,8 +55,8 @@ class JSONPlugin(NitpickPlugin):
                 self.report(SharedViolations.MISSING_VALUES, final_dict, comparison.missing),
             )
 
-        if self.fix and self.dirty and final_dict:
-            self.file_path.write_text(JSONFormat(data=unflatten(final_dict)).reformatted)
+        if self.autofix and self.dirty and final_dict:
+            self.file_path.write_text(JsonDoc(obj=unflatten(final_dict)).reformatted)
 
     def expected_dict_from_contains_keys(self):
         """Expected dict created from "contains_keys" values."""
@@ -76,35 +76,32 @@ class JSONPlugin(NitpickPlugin):
                 continue
         return expected_config
 
-    def report(self, violation: ViolationEnum, final_dict: Optional[JsonDict], change: Optional[BaseFormat]):
+    def report(self, violation: ViolationEnum, final_dict: Optional[JsonDict], change: Optional[BaseDoc]):
         """Report a violation while optionally modifying the JSON dict."""
         if not change:
             return
         if final_dict:
-            final_dict.update(flatten(change.as_data))
+            final_dict.update(flatten(change.as_object))
             self.dirty = True
-        yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.fix)
+        yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.autofix)
 
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
         suggestion = DictBlender(self.expected_dict_from_contains_keys())
         suggestion.add(self.expected_dict_from_contains_json())
-        json_as_string = JSONFormat(data=suggestion.mix()).reformatted if suggestion else ""
-        if self.fix:
-            self.file_path.write_text(json_as_string)
-        return json_as_string
+        return self.write_initial_contents(JsonDoc, suggestion.mix())
 
 
 @hookimpl
 def plugin_class() -> Type["NitpickPlugin"]:
     """Handle JSON files."""
-    return JSONPlugin
+    return JsonPlugin
 
 
 @hookimpl
 def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
     """Handle JSON files."""
-    if JSONPlugin.identify_tags & info.tags:
-        return JSONPlugin
+    if JsonPlugin.identify_tags & info.tags:
+        return JsonPlugin
     return None

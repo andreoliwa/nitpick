@@ -54,7 +54,7 @@ SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
 
 #: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
-# to avoid collision with existing key values (e.g. the default dot separator "." can be part of a pyproject.toml key).
+# to avoid collision with existing key values (e.g. the default dot separator "." can be part of a TOML key).
 SEPARATOR_FLATTEN = "$#@"
 
 #: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
