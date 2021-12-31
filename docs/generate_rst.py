@@ -67,6 +67,8 @@ STYLE_MAPPING = SortedDict(
         "python/python39.toml": "Python 3.9",
         "python/python310.toml": "Python 3.10",
         "python/tox.toml": "tox_",
+        "python/python-stable.toml": "Python (stable version)",
+        "python/readthedocs.toml": "ReadTheDocs_",
     }
 )
 CLI_MAPPING = [
@@ -268,7 +270,7 @@ def write_examples() -> int:
 
     if missing:
         click.secho(
-            f"ERROR: Add missing style files to the 'style_mapping' var in '{__file__}',"
+            f"ERROR: Add missing style files to the 'STYLE_MAPPING' var in '{__file__}',"
             f" as file/header pairs. Example:",
             fg="red",
         )

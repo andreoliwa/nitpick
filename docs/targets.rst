@@ -3,7 +3,7 @@
 .. _nitpick-style.toml:
 .. _default style file: https://github.com/andreoliwa/nitpick/blob/v0.29.0/nitpick-style.toml
 
-.. Sort alphabetically from here:
+.. Sort alphabetically from here (with Visual Stuido Code, which is case-insensitive):
 
 .. _Bash: https://www.gnu.org/software/bash/
 .. _black: https://github.com/psf/black
@@ -12,8 +12,8 @@
 .. _Django: https://github.com/django/django
 .. _EditorConfig: https://editorconfig.org
 .. _flake8: https://github.com/PyCQA/flake8
-.. _Flask: https://github.com/pallets/flask
 .. _Flask CLI: https://flask.palletsprojects.com/en/1.1.x/cli/
+.. _Flask: https://github.com/pallets/flask
 .. _Homebrew: https://github.com/Homebrew/brew
 .. _Invoke: https://github.com/pyinvoke/invoke
 .. _IPython: https://github.com/ipython/ipython
@@ -27,5 +27,6 @@
 .. _pre-commit: https://github.com/pre-commit/pre-commit
 .. _Pylint: https://github.com/PyCQA/pylint
 .. _pytest: https://github.com/pytest-dev/pytest
+.. _ReadTheDocs: https://readthedocs.org/
 .. _TOML: https://github.com/toml-lang/toml
 .. _tox: https://github.com/tox-dev/tox

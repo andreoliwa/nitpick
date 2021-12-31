@@ -21,6 +21,7 @@ include = [
     "pypackage://nitpick/resources/python/tox",
     "pypackage://nitpick/resources/javascript/package-json",
     "pypackage://nitpick/resources/any/editorconfig",
+    "pypackage://nitpick/resources/python/readthedocs.toml",
 ]
 
 [nitpick.files."setup.cfg"]
