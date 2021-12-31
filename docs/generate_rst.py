@@ -152,7 +152,7 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType(
-        f"Any YAML file (except {PRE_COMMIT_CONFIG_YAML}", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True
+        f"Any YAML file (except {PRE_COMMIT_CONFIG_YAML})", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True
     ),
     FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
     FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
