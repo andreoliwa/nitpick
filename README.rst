@@ -109,6 +109,9 @@ Implemented
    * - `Any TOML file <https://nitpick.rtfd.io/en/latest/plugins.html#toml-files>`_
      - ✅
      - ✅
+   * - `Any YAML file (except .pre-commit-config.yaml) <https://nitpick.rtfd.io/en/latest/plugins.html#yaml-files>`_
+     - ✅
+     - ✅
    * - `.editorconfig <https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig>`_
      - ✅
      - ✅

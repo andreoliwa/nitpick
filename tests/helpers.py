@@ -48,6 +48,17 @@ def assert_conditions(*args):
             raise AssertionError()
 
 
+def from_path_or_str(file_contents: PathOrStr):
+    """Read file contents from a Path or string."""
+    if file_contents is None:
+        raise RuntimeError("No path and no file contents.")
+
+    if isinstance(file_contents, Path):
+        return file_contents.read_text()
+
+    return file_contents
+
+
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
@@ -171,7 +182,7 @@ class ProjectMock:
         """Read multiple files and return a hash with filename (key) and contents (value)."""
         return {filename: self.read_file(filename) for filename in filenames}
 
-    def save_file(self, filename: PathOrStr, file_contents: str, lint: bool = None) -> "ProjectMock":
+    def save_file(self, filename: PathOrStr, file_contents: PathOrStr, lint: bool = None) -> "ProjectMock":
         """Save a file in the root dir with the desired contents and a new line at the end.
 
         Create the parent dirs if the file name contains a slash.
@@ -188,7 +199,8 @@ class ProjectMock:
         path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)
-        clean = dedent(file_contents).strip()
+        clean = dedent(from_path_or_str(file_contents)).strip()
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"{clean}\n")
         return self
 
@@ -196,9 +208,9 @@ class ProjectMock:
         """Save an empty file (like the ``touch`` command)."""
         return self.save_file(filename, "")
 
-    def style(self, file_contents: str) -> "ProjectMock":
+    def style(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save the default style file."""
-        return self.save_file(NITPICK_STYLE_TOML, file_contents)
+        return self.save_file(NITPICK_STYLE_TOML, from_path_or_str(file_contents))
 
     # TODO: remove this function, don't test real styles anymore to avoid breaking tests on Renovate updates
     def load_styles(self, *args: PathOrStr) -> "ProjectMock":
@@ -212,26 +224,26 @@ class ProjectMock:
             self.named_style(filename, style_path.read_text())
         return self
 
-    def named_style(self, filename: PathOrStr, file_contents: str) -> "ProjectMock":
+    def named_style(self, filename: PathOrStr, file_contents: PathOrStr) -> "ProjectMock":
         """Save a style file with a name. Add the .toml extension if needed."""
-        return self.save_file(self.ensure_toml_extension(filename), file_contents)
+        return self.save_file(self.ensure_toml_extension(filename), from_path_or_str(file_contents))
 
     @staticmethod
     def ensure_toml_extension(filename: PathOrStr) -> PathOrStr:
         """Ensure a file name has the .toml extension."""
         return filename if str(filename).endswith(".toml") else f"{filename}.toml"
 
-    def setup_cfg(self, file_contents: str) -> "ProjectMock":
+    def setup_cfg(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save setup.cfg."""
-        return self.save_file(SETUP_CFG, file_contents)
+        return self.save_file(SETUP_CFG, from_path_or_str(file_contents))
 
-    def pyproject_toml(self, file_contents: str) -> "ProjectMock":
+    def pyproject_toml(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save pyproject.toml."""
-        return self.save_file(PYPROJECT_TOML, file_contents)
+        return self.save_file(PYPROJECT_TOML, from_path_or_str(file_contents))
 
-    def pre_commit(self, file_contents: str) -> "ProjectMock":
+    def pre_commit(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save .pre-commit-config.yaml."""
-        return self.save_file(PreCommitPlugin.filename, file_contents)
+        return self.save_file(PreCommitPlugin.filename, from_path_or_str(file_contents))
 
     def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""
@@ -392,7 +404,7 @@ class ProjectMock:
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)
-            expected = None if file_contents is None else dedent(file_contents).lstrip()
+            expected = None if file_contents is None else dedent(from_path_or_str(file_contents)).lstrip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
         return self
 

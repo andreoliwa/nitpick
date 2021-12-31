@@ -3,3 +3,6 @@ index.html
 _includes/*
 *.min.css
 README.md
+
+# Prettier uses double quotes, ruamel.yaml uses single quotes
+tests/test_yaml/*.yaml

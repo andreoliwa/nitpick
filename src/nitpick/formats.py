@@ -1,6 +1,5 @@
 """Configuration file formats."""
 import abc
-import io
 import json
 from collections import OrderedDict
 from pathlib import Path
@@ -10,12 +9,14 @@ import dictdiffer
 import toml
 from autorepr import autorepr
 from loguru import logger
-from ruamel.yaml import YAML, RoundTripRepresenter
+from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, unflatten
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject
+
+DictOrYamlObject = Union[JsonDict, YamlObject, "BaseFormat"]
 
 
 class Comparison:
@@ -23,8 +24,8 @@ class Comparison:
 
     def __init__(
         self,
-        actual: Union[JsonDict, YamlObject, "BaseFormat"],
-        expected: Union[JsonDict, YamlObject, "BaseFormat"],
+        actual: DictOrYamlObject,
+        expected: DictOrYamlObject,
         format_class: Type["BaseFormat"],
     ) -> None:
         self.flat_actual = self._normalize_value(actual)
@@ -44,7 +45,7 @@ class Comparison:
         return bool(self.missing or self.diff)
 
     @staticmethod
-    def _normalize_value(value: Union[JsonDict, YamlObject, "BaseFormat"]) -> JsonDict:
+    def _normalize_value(value: DictOrYamlObject) -> JsonDict:
         if isinstance(value, BaseFormat):
             dict_value: JsonDict = value.as_object
         else:
@@ -99,12 +100,7 @@ class BaseFormat(metaclass=abc.ABCMeta):
     __repr__ = autorepr(["path"])
 
     def __init__(
-        self,
-        *,
-        path: PathOrStr = None,
-        string: str = None,
-        obj: Union[JsonDict, YamlObject, "BaseFormat"] = None,
-        ignore_keys: List[str] = None
+        self, *, path: PathOrStr = None, string: str = None, obj: DictOrYamlObject = None, ignore_keys: List[str] = None
     ) -> None:
         self.path = path
         self._string = string
@@ -146,14 +142,14 @@ class BaseFormat(metaclass=abc.ABCMeta):
         """Cleanup similar values according to the specific format. E.g.: YamlFormat accepts 'True' or 'true'."""
         return list(*args)
 
-    def _create_comparison(self, expected: Union[JsonDict, YamlObject, "BaseFormat"]):
+    def _create_comparison(self, expected: DictOrYamlObject):
         if not self._ignore_keys:
             return Comparison(self.as_object or {}, expected or {}, self.__class__)
 
         actual_original: Union[JsonDict, YamlObject] = self.as_object or {}
         actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
 
-        expected_original: Union[JsonDict, YamlObject, "BaseFormat"] = expected or {}
+        expected_original: DictOrYamlObject = expected or {}
         if isinstance(expected_original, dict):
             expected_copy = expected_original.copy()
         elif isinstance(expected_original, BaseFormat):
@@ -208,6 +204,20 @@ class BaseFormat(metaclass=abc.ABCMeta):
         return comparison
 
 
+class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]
+    """A hacky decoder to work around some bug (or unfinished work) in the Python TOML package.
+
+    https://github.com/uiri/toml/issues/362.
+    """
+
+    def get_empty_inline_table(self):
+        """Hackity hack for a crappy unmaintained package.
+
+        Total lack of respect, the guy doesn't even reply: https://github.com/uiri/toml/issues/361
+        """
+        return self.get_empty_table()
+
+
 class TomlFormat(BaseFormat):
     """TOML configuration format."""
 
@@ -221,7 +231,7 @@ class TomlFormat(BaseFormat):
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
             # self._object = OrderedDict(tomlkit.loads(self._string))
-            self._object = toml.loads(self._string, _dict=OrderedDict)
+            self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg]
         if self._object is not None:
             if isinstance(self._object, BaseFormat):
                 self._reformatted = self._object.reformatted
@@ -234,30 +244,51 @@ class TomlFormat(BaseFormat):
         return True
 
 
+class SensibleYAML(YAML):
+    """YAML with sensible defaults but an inefficient dump to string.
+
+    `Output of dump() as a string
+    <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_
+    """
+
+    def __init__(self, *, typ=None, pure=False, output=None, plug_ins=None):
+        super().__init__(typ=typ, pure=pure, output=output, plug_ins=plug_ins)
+        self.map_indent = 2
+        self.sequence_indent = 4
+        self.sequence_dash_offset = 2
+
+    def loads(self, string: str):
+        """Load YAML from a string... that unusual use case in a world of files only."""
+        return self.load(StringIO(string))
+
+    def dumps(self, data) -> str:
+        """Dump to a string... who would want such a thing? One can dump to a file or stdout."""
+        output = StringIO()
+        self.dump(data, output, transform=None)
+        return output.getvalue()
+
+
 class YamlFormat(BaseFormat):
     """YAML configuration format."""
+
+    document: SensibleYAML
 
     def load(self) -> bool:
         """Load a YAML file by its path, a string or a dict."""
         if self._loaded:
             return False
 
-        yaml = YAML()
-        yaml.map_indent = 2
-        yaml.sequence_indent = 4
-        yaml.sequence_dash_offset = 2
+        self.document = SensibleYAML()
 
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
-            self._object = yaml.load(io.StringIO(self._string))
+            self._object = self.document.loads(self._string)
         if self._object is not None:
             if isinstance(self._object, BaseFormat):
                 self._reformatted = self._object.reformatted
             else:
-                output = io.StringIO()
-                yaml.dump(self._object, output)
-                self._reformatted = output.getvalue()
+                self._reformatted = self.document.dumps(self._object)
 
         self._loaded = True
         return True
@@ -278,7 +309,8 @@ class YamlFormat(BaseFormat):
         return [str(value).lower() if isinstance(value, (int, float, bool)) else value for value in args]
 
 
-RoundTripRepresenter.add_representer(SortedDict, RoundTripRepresenter.represent_dict)
+for dict_class in (SortedDict, OrderedDict):
+    RoundTripRepresenter.add_representer(dict_class, RoundTripRepresenter.represent_dict)
 
 
 class JsonFormat(BaseFormat):

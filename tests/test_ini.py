@@ -40,7 +40,7 @@ def test_default_style_is_applied(project_default):
         strict_optional = True
         warn_no_return = True
         warn_redundant_casts = True
-        warn_unused_ignores = True
+        warn_unused_ignores = False
     """
     expected_editor_config = """
         root = True

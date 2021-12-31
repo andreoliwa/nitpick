@@ -12,6 +12,7 @@ from nitpick.schemas import help_message
 from nitpick.violations import Fuss, ViolationEnum
 
 TEXT_FILE_RTFD_PAGE = "plugins.html#text-files"
+KEY_CONTAINS = "contains"
 
 
 class TextItemSchema(Schema):
@@ -58,7 +59,7 @@ class TextPlugin(NitpickPlugin):
     violation_base_code = 350
 
     def _expected_lines(self):
-        return [obj.get("line") for obj in self.expected_config.get("contains", {})]
+        return [obj.get("line") for obj in self.expected_config.get(KEY_CONTAINS, {})]
 
     @property
     def initial_contents(self) -> str:

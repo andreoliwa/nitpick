@@ -215,7 +215,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
         if base_file_class.validation_schema:
             file_field = fields.Nested(base_file_class.validation_schema, **kwargs)
         else:
-            # For some files (e.g.: pyproject.toml, INI files), there is no strict schema;
+            # For some files (e.g.: TOML/ INI files), there is no strict schema;
             # it can be anything they allow.
             # It's out of Nitpick's scope to validate those files.
             file_field = fields.Dict(fields.String, **kwargs)

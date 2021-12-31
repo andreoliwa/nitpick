@@ -20,7 +20,7 @@ output-format = "colorized"
 #  comma_separated_values = ["MESSAGES CONTROL.disable"]
 #  This syntax will be deprecated anyway, so I won't make it work now
 # Configurations for the black formatter
-#disable = "bad-continuation,bad-whitespace,fixme,cyclic-import"
+#disable = "bad-continuation,bad-whitespace,fixme,cyclic-import,line-too-long"
 
 [".pylintrc".BASIC]
 # List of builtins function names that should not be used, separated by a comma
