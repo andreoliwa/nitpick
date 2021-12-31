@@ -30,7 +30,7 @@ def change_yaml(document: YAML, dictionary: YamlObject):
 
 
 class YamlPlugin(NitpickPlugin):
-    """Enforce config on YAML files."""
+    """Enforce configurations and autofix YAML files."""
 
     identify_tags = {"yaml"}
     violation_base_code = 360

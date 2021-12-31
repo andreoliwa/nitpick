@@ -26,7 +26,7 @@ def change_toml(document: TOMLDocument, dictionary):
 
 
 class TomlPlugin(NitpickPlugin):
-    """Enforce config on TOML files.
+    """Enforce configurations and autofix TOML files.
 
     E.g.: `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-format>`_.
 

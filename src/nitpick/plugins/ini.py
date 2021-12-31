@@ -31,7 +31,7 @@ class Violations(ViolationEnum):
 
 
 class IniPlugin(NitpickPlugin):
-    """Enforce config on INI files.
+    """Enforce configurations and autofix INI files.
 
     Examples of ``.ini`` files handled by this plugin:
 

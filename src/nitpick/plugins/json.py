@@ -28,7 +28,7 @@ class JsonFileSchema(BaseNitpickSchema):
 
 
 class JsonPlugin(NitpickPlugin):
-    """Enforce configurations for any JSON file.
+    """Enforce configurations and autofix JSON files.
 
     Add the configurations for the file name you wish to check.
     Style example: :ref:`the default config for package.json <example-package-json>`.
