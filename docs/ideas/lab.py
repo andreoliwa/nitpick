@@ -21,6 +21,13 @@ def find(expression):
     pprint(rv)
 
 
+@click.group()
+def cli_lab():
+    """Laboratory of experiments and ideas."""
+
+
+@cli_lab.command()
+@click.argument("path_from_root")
 def convert(path_from_root: str):
     """Convert file to a TOML config."""
     tags = identify.tags_from_path(path_from_root)
@@ -66,5 +73,4 @@ def main():
 
 
 if __name__ == "__main__":
-    # convert(".readthedocs.yml")
-    main()
+    cli_lab()

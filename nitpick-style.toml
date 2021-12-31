@@ -6,22 +6,34 @@ minimum_version = "0.10.0"
 
 [nitpick.styles]
 include = [
-    "pypackage://nitpick/resources/python/python37",
-    "pypackage://nitpick/resources/python/poetry",
-    "pypackage://nitpick/resources/python/absent",
-    "pypackage://nitpick/resources/any/hooks",
-    "pypackage://nitpick/resources/python/hooks",
-    "pypackage://nitpick/resources/shell/hooks",
-    "pypackage://nitpick/resources/any/commitizen",
-    "pypackage://nitpick/resources/python/black",
-    "pypackage://nitpick/resources/python/flake8",
-    "pypackage://nitpick/resources/python/isort",
-    "pypackage://nitpick/resources/python/mypy",
-    "pypackage://nitpick/resources/python/pylint",
-    "pypackage://nitpick/resources/python/tox",
-    "pypackage://nitpick/resources/javascript/package-json",
-    "pypackage://nitpick/resources/any/editorconfig",
-    "pypackage://nitpick/resources/python/readthedocs.toml",
+    # Suggest the current stable Python version for projects
+    "py://nitpick/resources/python/python39",
+
+    "py://nitpick/resources/python/absent",
+    "py://nitpick/resources/python/bandit",
+    "py://nitpick/resources/python/black",
+    "py://nitpick/resources/python/flake8",
+    "py://nitpick/resources/python/hooks",
+    "py://nitpick/resources/python/isort",
+    "py://nitpick/resources/python/mypy",
+    "py://nitpick/resources/python/poetry",
+    "py://nitpick/resources/python/pylint",
+    "py://nitpick/resources/python/radon",
+    "py://nitpick/resources/python/readthedocs",
+    "py://nitpick/resources/python/sonar-python",
+    "py://nitpick/resources/python/tox",
+
+    "py://nitpick/resources/any/codeclimate",
+    "py://nitpick/resources/any/commitizen",
+    "py://nitpick/resources/any/editorconfig",
+    "py://nitpick/resources/any/git-legal",
+    "py://nitpick/resources/any/hooks",
+    "py://nitpick/resources/any/markdownlint",
+
+    "py://nitpick/resources/shell/bashate",
+    "py://nitpick/resources/shell/shellcheck",
+
+    "py://nitpick/resources/javascript/package-json",
 ]
 
 [nitpick.files."setup.cfg"]

@@ -27,6 +27,9 @@ build: .cache/make/pytest .cache/make/pre-commit # Quick build for local develop
 	touch .cache/make/pytest
 
 .cache/make/pre-commit: $(ANY)
+	# Force a cache update before running "nitpick fix" in pre-commit
+	# TODO: the cache doesn't detect changes in TOML style files
+	rm -rf .cache/nitpick
 	pre-commit run -a
 	touch .cache/make/pre-commit
 
