@@ -19,3 +19,4 @@ Submodules
    nitpick.plugins.pre_commit
    nitpick.plugins.text
    nitpick.plugins.toml
+   nitpick.plugins.yaml
