@@ -5,6 +5,7 @@ from pprint import pprint
 
 import click
 import jmespath
+from identify import identify
 
 from nitpick.documents import TomlDoc, YamlDoc
 from nitpick.generic import flatten, search_dict
@@ -18,6 +19,19 @@ def find(expression):
     rv = search_dict(jmespath.compile(expression), workflow.as_object, {})
     print(f"Type: {type(rv)}")
     pprint(rv)
+
+
+def convert(path_from_root: str):
+    """Convert file to a TOML config."""
+    tags = identify.tags_from_path(path_from_root)
+    if "yaml" in tags:
+        which_doc = YamlDoc(path=Path(path_from_root))
+    else:
+        raise NotImplementedError(f"No conversion for these types: {tags}")
+
+    toml_doc = TomlDoc(obj={path_from_root: which_doc.as_object})
+    print(toml_doc.reformatted)
+    return toml_doc.reformatted
 
 
 def main():
@@ -52,4 +66,5 @@ def main():
 
 
 if __name__ == "__main__":
+    # convert(".readthedocs.yml")
     main()

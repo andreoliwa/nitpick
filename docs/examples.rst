@@ -402,6 +402,18 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     # A regular expression matching the name of dummy variables (i.e. expectedly not used).
     dummy-variables-rgx = "_$|dummy"
 
+.. _example-python-stable-version:
+
+Python (stable version)
+-----------------------
+
+Contents of `resources/python/python-stable.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python-stable.toml>`_:
+
+.. code-block:: toml
+
+    [".readthedocs.yml".python]
+    version = "3.9"
+
 .. _example-python-3-10:
 
 Python 3.10
@@ -461,6 +473,28 @@ Contents of `resources/python/python39.toml <https://github.com/andreoliwa/nitpi
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.9"
+
+.. _example-readthedocs:
+
+ReadTheDocs_
+------------
+
+Contents of `resources/python/readthedocs.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/readthedocs.toml>`_:
+
+.. code-block:: toml
+
+    # https://docs.readthedocs.io/en/stable/config-file/v2.html
+    [".readthedocs.yml"]
+    version = 2
+    formats = "all"
+
+    [".readthedocs.yml".sphinx]
+    configuration = "docs/conf.py"
+
+    [[".readthedocs.yml".python.install]]
+    method = "pip"
+    path = "."
+    extra_requirements = ["doc"]
 
 .. _example-tox:
 
