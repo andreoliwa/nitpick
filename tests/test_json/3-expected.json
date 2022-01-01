@@ -1,0 +1,25 @@
+{
+  "formatting": {
+    "doesnt": "matter",
+    "here": true,
+    "on.the": "config file"
+  },
+  "name": "myproject",
+  "some.dotted.root.key": {
+    "content": [
+      "should",
+      "be",
+      "here"
+    ],
+    "dotted.subkeys": [
+      "should be preserved",
+      {
+        "complex.weird.sub": {
+          "objects": true
+        },
+        "even.with": 1
+      }
+    ],
+    "valid": "JSON"
+  }
+}

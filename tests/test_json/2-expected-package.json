@@ -1,0 +1,17 @@
+{
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "name": "myproject",
+  "release": {
+    "plugins": "<some value here>"
+  },
+  "repository": {
+    "type": "<some value here>",
+    "url": "<some value here>"
+  },
+  "something": "else",
+  "version": "0.0.1"
+}
