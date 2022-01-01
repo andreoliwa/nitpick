@@ -78,6 +78,7 @@ STYLE_MAPPING = SortedDict(
         "python/radon.toml": "radon_",
         "python/sonar-python.toml": "sonar-python_",
         "shell/shellcheck.toml": "shellcheck_",
+        "python/github-workflow.toml": "GitHub Workflow (Python)",
     }
 )
 CLI_MAPPING = [

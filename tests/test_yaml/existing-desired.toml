@@ -16,11 +16,6 @@ lets = { ruin = "this", with = ["weird", "1", "crap"] }
 [["me/deep/rooted.yaml".mixed]]
 "second item" = "also a dict"
 
-# Even though the third item is the same,
-# it will show up as "has different values".
-# When it's a list, the diff comparison returns the whole list
-# and doesn't compare individual items.
-# TODO: Maybe an improvement for the future? Compare and discard list items that are equal
 [["me/deep/rooted.yaml".mixed]]
 c = 1
 b = 2

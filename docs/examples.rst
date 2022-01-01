@@ -294,6 +294,47 @@ Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick
     [".codeclimate.yml".plugins.pep8]  # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit
     enabled = false
 
+.. _example-github-workflow-python:
+
+GitHub Workflow (Python)
+------------------------
+
+Contents of `resources/python/github-workflow.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/github-workflow.toml>`_:
+
+.. code-block:: toml
+
+    [".github/workflows/python.yaml"]
+    name = "Python"
+    on = ["push", "pull_request"]
+
+    [".github/workflows/python.yaml".jobs.build.strategy]
+    fail-fast = false
+
+    [".github/workflows/python.yaml".jobs.build.strategy.matrix]
+    os = ["ubuntu-latest", "windows-latest", "macos-latest"]
+    python-version = ["3.6", "3.7", "3.8", "3.9", "3.10"]
+
+    [".github/workflows/python.yaml".jobs.build]
+    name = "${{ matrix.python-version }} ${{ matrix.os }}"
+    runs-on = "${{ matrix.os }}"
+
+    [".github/workflows/python.yaml".jobs.build.env]
+    PYTHONUNBUFFERED = 1
+
+    [[".github/workflows/python.yaml".jobs.build.steps]]
+    uses = "actions/checkout@v2"
+
+    [[".github/workflows/python.yaml".jobs.build.steps]]
+    name = "Set up Python ${{ matrix.python-version }}"
+    uses = "actions/setup-python@v2"
+
+    [".github/workflows/python.yaml".jobs.build.steps.with]
+    python-version = "${{ matrix.python-version }}"
+
+    [[".github/workflows/python.yaml".jobs.build.steps]]
+    name = "Install tox"
+    run = "python -m pip install tox"
+
 .. _example-pre-commit-hooks-for-python:
 
 pre-commit_ hooks for Python

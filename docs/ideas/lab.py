@@ -32,11 +32,11 @@ def convert(path_from_root: str):
     """Convert file to a TOML config."""
     tags = identify.tags_from_path(path_from_root)
     if "yaml" in tags:
-        which_doc = YamlDoc(path=Path(path_from_root))
+        which_doc = YamlDoc(path=path_from_root)
     else:
         raise NotImplementedError(f"No conversion for these types: {tags}")
 
-    toml_doc = TomlDoc(obj={path_from_root: which_doc.as_object})
+    toml_doc = TomlDoc(obj={path_from_root: which_doc.as_object}, use_tomlkit=True)
     print(toml_doc.reformatted)
     return toml_doc.reformatted
 

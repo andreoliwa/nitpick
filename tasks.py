@@ -285,7 +285,7 @@ def lab(c, convert_file_name="", lab_help=False):
     if convert_file_name:
         from conjuring.grimoire import run_with_fzf  # pylint: disable=import-error,import-outside-toplevel
 
-        chosen_file = run_with_fzf(c, "fd -uu", convert_file_name)
+        chosen_file = run_with_fzf(c, "fd -H -t f", query=convert_file_name)
         extra_args.extend(["convert", chosen_file])
 
     c.run(f"poetry run python docs/ideas/lab.py {' '.join(extra_args)}")
