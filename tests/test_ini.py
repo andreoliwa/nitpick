@@ -16,101 +16,12 @@ def test_setup_cfg_has_no_configuration(tmp_path):
 
 
 @XFAIL_ON_WINDOWS
-def test_default_style_is_applied(project_default):
+def test_default_style_is_applied(project_default, datadir):
     """Test if the default style is applied on an empty project."""
-    expected_setup_cfg = """
-        [flake8]
-        exclude = .tox,build
-        ignore = D107,D202,D203,D401,E203,E402,E501,W503
-        inline-quotes = double
-        max-line-length = 120
-
-        [isort]
-        combine_as_imports = True
-        force_grid_wrap = 0
-        include_trailing_comma = True
-        known_first_party = tests
-        line_length = 120
-        multi_line_output = 3
-        skip = .tox,build
-
-        [mypy]
-        follow_imports = normal
-        ignore_missing_imports = True
-        strict_optional = True
-        warn_no_return = True
-        warn_redundant_casts = True
-        warn_unused_ignores = False
-    """
-    expected_editor_config = """
-        root = True
-
-        [*]
-        end_of_line = lf
-        indent_size = 4
-        indent_style = space
-        insert_final_newline = True
-        trim_trailing_whitespace = True
-
-        [*.py]
-        charset = utf-8
-
-        [*.{js,json}]
-        charset = utf-8
-        indent_size = 2
-
-        [*.{yml,yaml,md,rb}]
-        indent_size = 2
-
-        [Makefile]
-        indent_style = tab
-    """
-    expected_tox_ini = """
-        [coverage:report]
-        precision = 2
-        show_missing = True
-        skip_covered = True
-        skip_empty = True
-        sort = Cover
-
-        [coverage:run]
-        branch = True
-        parallel = True
-        relative_files = True
-        source = src/
-
-        [testenv]
-        description = Run tests with pytest and coverage
-        extras = test
-
-        [tox]
-        isolated_build = True
-    """
-    expected_pylintrc = """
-        [BASIC]
-        bad-functions = map,filter
-        good-names = i,j,k,e,ex,Run,_,id,rv,c
-
-        [FORMAT]
-        indent-after-paren = 4
-        max-line-length = 120
-        max-module-lines = 1000
-
-        [MASTER]
-        jobs = 1
-
-        [REPORTS]
-        output-format = colorized
-
-        [SIMILARITIES]
-        ignore-comments = yes
-        ignore-docstrings = yes
-        ignore-imports = no
-        min-similarity-lines = 4
-
-        [VARIABLES]
-        dummy-variables-rgx = _$|dummy
-    """
+    expected_setup_cfg = (datadir / "1-expected-setup.cfg").read_text()
+    expected_editor_config = (datadir / "1-expected-editorconfig.ini").read_text()
+    expected_tox_ini = (datadir / "1-expected-tox.ini").read_text()
+    expected_pylintrc = (datadir / "1-expected-pylintrc.ini").read_text()
     project_default.api_check_then_fix(
         Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
         Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
@@ -358,42 +269,10 @@ def test_missing_different_values(tmp_path):
     )
 
 
-def test_missing_different_values_editorconfig_with_root(tmp_path):
+def test_missing_different_values_editorconfig_with_root(tmp_path, datadir):
     """Test different and missing keys/values for .editorconfig with root values."""
-    ProjectMock(tmp_path).save_file(
-        EDITOR_CONFIG,
-        """
-        # Comments should be kept
-        root = false
-        some_other = "value without a section"
-
-        [*]
-        ; Another comment that should be kept
-        end_of_line = cr
-        insert_final_newline = false
-        indent_style = space
-        tab_width = 2
-        indent_size = tab
-
-        [*.{js,json}]
-        charset = utf-8
-        """,
-    ).style(
-        f"""
-        ["{EDITOR_CONFIG}"]
-        root = true
-        missing = "value"
-        another_missing = 100
-
-        ["{EDITOR_CONFIG}"."*"]
-        end_of_line = "lf"
-        insert_final_newline = true
-        tab_width = 4
-
-        ["{EDITOR_CONFIG}"."*.{{js,json}}"]
-        charset = "utf-8"
-        indent_size = 2
-        """
+    ProjectMock(tmp_path).save_file(EDITOR_CONFIG, datadir / "2-actual-editorconfig.ini").style(
+        datadir / "2-style.toml"
     ).api_check_then_fix(
         Fuss(True, EDITOR_CONFIG, 327, ": root is false but it should be:", "root = True"),
         Fuss(
@@ -447,26 +326,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path):
             """,
         ),
     ).assert_file_contents(
-        EDITOR_CONFIG,
-        """
-        # Comments should be kept
-        root = true
-        some_other = "value without a section"
-        another_missing = 100
-        missing = value
-
-        [*]
-        ; Another comment that should be kept
-        end_of_line = lf
-        insert_final_newline = true
-        indent_style = space
-        tab_width = 4
-        indent_size = tab
-
-        [*.{js,json}]
-        charset = utf-8
-        indent_size = 2
-        """,
+        EDITOR_CONFIG, datadir / "2-expected-editorconfig.ini"
     )
 
 
@@ -547,31 +407,14 @@ def test_invalid_sections_comma_separated_values(tmp_path):
     )
 
 
-def test_multiline_comment(tmp_path):
+def test_multiline_comment(tmp_path, datadir):
     """Test file with multiline comments should not raise a configparser.ParsingError."""
-    original_file = """
-        [flake8]
-        exclude =
-          # Trash and cache:
-          .git
-          __pycache__
-          .venv
-          .eggs
-          *.egg
-          temp
-          # Bad code that I write to test things:
-          ex.py
-        another =
-            A valid line
-            ; Now a comment with semicolon
-            Another valid line
-        """
     ProjectMock(tmp_path).style(
         f"""
         ["{SETUP_CFG}".flake8]
         new = "value"
         """
-    ).setup_cfg(original_file).api_fix().assert_violations(
+    ).setup_cfg(datadir / "3-actual-setup.cfg").api_fix().assert_violations(
         Fuss(
             True,
             SETUP_CFG,
@@ -583,10 +426,7 @@ def test_multiline_comment(tmp_path):
             """,
         )
     ).assert_file_contents(
-        SETUP_CFG,
-        f"""
-        {original_file}new = value
-        """,
+        SETUP_CFG, datadir / "3-expected-setup.cfg"
     )
 
 

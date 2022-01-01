@@ -15,6 +15,7 @@ def package_json_style(shared_datadir) -> str:
     return (shared_datadir / "sample-package-json-style.toml").read_text()
 
 
+# FIXME: use datadir
 def test_suggest_initial_contents(tmp_path, package_json_style):
     """Suggest initial contents for missing JSON file."""
     expected_package_json = """
