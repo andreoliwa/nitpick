@@ -1,42 +1,16 @@
 """JSON tests."""
 import warnings
 
-import pytest
-
 from nitpick.constants import PACKAGE_JSON, READ_THE_DOCS_URL
 from nitpick.plugins.json import JsonPlugin
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
 
 
-@pytest.fixture()
-def package_json_style(shared_datadir) -> str:
-    """A sample style for package.json."""
-    return (shared_datadir / "sample-package-json-style.toml").read_text()
-
-
-# FIXME: use datadir
-def test_suggest_initial_contents(tmp_path, package_json_style):
+def test_suggest_initial_contents(tmp_path, datadir):
     """Suggest initial contents for missing JSON file."""
-    expected_package_json = """
-        {
-          "commitlint": {
-            "extends": [
-              "@commitlint/config-conventional"
-            ]
-          },
-          "name": "<some value here>",
-          "release": {
-            "plugins": "<some value here>"
-          },
-          "repository": {
-            "type": "<some value here>",
-            "url": "<some value here>"
-          },
-          "version": "<some value here>"
-        }
-    """
-    ProjectMock(tmp_path).named_style("package-json", package_json_style).pyproject_toml(
+    expected_package_json = (datadir / "1-expected-package.json").read_text()
+    ProjectMock(tmp_path).named_style("package-json", datadir / "package-json-style.toml").pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
@@ -54,43 +28,15 @@ def test_suggest_initial_contents(tmp_path, package_json_style):
     )
 
 
-def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path, package_json_style):
+def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path, datadir):
     """Test missing and different values with "contains_json" and "contains_keys"."""
-    expected_package_json = """
-        {
-          "commitlint": {
-            "extends": [
-              "@commitlint/config-conventional"
-            ]
-          },
-          "name": "myproject",
-          "release": {
-            "plugins": "<some value here>"
-          },
-          "repository": {
-            "type": "<some value here>",
-            "url": "<some value here>"
-          },
-          "something": "else",
-          "version": "0.0.1"
-        }
-    """
-    ProjectMock(tmp_path).named_style("package-json", package_json_style).pyproject_toml(
+    expected_package_json = (datadir / "2-expected-package.json").read_text()
+    ProjectMock(tmp_path).named_style("package-json", datadir / "package-json-style.toml").pyproject_toml(
         """
         [tool.nitpick]
         style = ["package-json"]
         """
-    ).save_file(
-        PACKAGE_JSON,
-        """
-        {
-          "name": "myproject",
-          "version": "0.0.1",
-          "something": "else",
-          "commitlint":{"extends":["wrong-plugin-should-be-replaced","another-wrong-plugin"]}
-        }
-        """,
-    ).api_check_then_fix(
+    ).save_file(PACKAGE_JSON, datadir / "2-actual-package.json").api_check_then_fix(
         Fuss(
             True,
             PACKAGE_JSON,
@@ -128,18 +74,11 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
     )
 
 
-def test_missing_different_values_with_contains_json_without_contains_keys(tmp_path):
+def test_missing_different_values_with_contains_json_without_contains_keys(tmp_path, datadir):
     """Test missing and different values with "contains_json", without "contains_keys"."""
-    ProjectMock(tmp_path).style(
-        '''
-        ["my.json".contains_json]
-        "some.dotted.root.key" = """
-            { "valid": "JSON", "content": ["should", "be", "here"]  , "dotted.subkeys"  : ["should be preserved",
-            {"even.with": 1, "complex.weird.sub":{"objects":true}}] }
-        """
-        formatting = """ {"doesnt":"matter","here":true,"on.the": "config file"} """
-        '''
-    ).save_file("my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}').api_check_then_fix(
+    ProjectMock(tmp_path).style(datadir / "3-style.toml").save_file(
+        "my.json", '{"name":"myproject","formatting":{"on.the":"actual file"}}'
+    ).api_check_then_fix(
         Fuss(
             True,
             "my.json",
@@ -185,51 +124,14 @@ def test_missing_different_values_with_contains_json_without_contains_keys(tmp_p
             """,
         ),
     ).assert_file_contents(
-        "my.json",
-        """
-        {
-          "formatting": {
-            "doesnt": "matter",
-            "here": true,
-            "on.the": "config file"
-          },
-          "name": "myproject",
-          "some.dotted.root.key": {
-            "content": [
-              "should",
-              "be",
-              "here"
-            ],
-            "dotted.subkeys": [
-              "should be preserved",
-              {
-                "complex.weird.sub": {
-                  "objects": true
-                },
-                "even.with": 1
-              }
-            ],
-            "valid": "JSON"
-          }
-        }
-        """,
+        "my.json", datadir / "3-expected.json"
     )
 
 
-def test_invalid_json(tmp_path):
+def test_invalid_json(tmp_path, datadir):
     """Test invalid JSON on a TOML style."""
     # pylint: disable=line-too-long
-    ProjectMock(tmp_path).style(
-        '''
-        ["another.json".contains_json]
-        some_field = """
-            { "this": "is missing the end...
-        """
-
-        ["another.json".with]
-        extra = "key"
-        '''
-    ).api_check_then_fix(
+    ProjectMock(tmp_path).style(datadir / "4-style.toml").api_check_then_fix(
         Fuss(
             False,
             "nitpick-style.toml",

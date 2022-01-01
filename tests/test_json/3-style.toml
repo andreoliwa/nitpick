@@ -1,0 +1,6 @@
+["my.json".contains_json]
+"some.dotted.root.key" = """
+            { "valid": "JSON", "content": ["should", "be", "here"]  , "dotted.subkeys"  : ["should be preserved",
+            {"even.with": 1, "complex.weird.sub":{"objects":true}}] }
+"""
+formatting = """ {"doesnt":"matter","here":true,"on.the": "config file"} """

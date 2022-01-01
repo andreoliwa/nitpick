@@ -1,0 +1,7 @@
+["another.json".contains_json]
+some_field = """
+    { "this": "is missing the end...
+"""
+
+["another.json".with]
+extra = "key"
