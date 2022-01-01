@@ -18,6 +18,20 @@ from nitpick.generic import flatten, unflatten
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
 
 DictOrYamlObject = Union[JsonDict, YamlObject, "BaseDoc"]
+DICT_CLASSES = (dict, SortedDict, OrderedDict)
+LIST_CLASSES = (list, tuple)
+
+
+def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> List:
+    """Compare two lists using dictdiffer."""
+    additions_and_changes = [change for change in dictdiffer.diff(actual, expected) if change[0] != "remove"]
+    if additions_and_changes:
+        try:
+            changed_dict = dictdiffer.patch(additions_and_changes, {})
+            return list(changed_dict.values())
+        except KeyError:
+            return expected
+    return []
 
 
 class Comparison:
@@ -171,15 +185,22 @@ class BaseDoc(metaclass=abc.ABCMeta):
         comparison.set_missing(
             unflatten({k: v for k, v in comparison.flat_expected.items() if k not in comparison.flat_actual})
         )
-        comparison.set_diff(
-            unflatten(
-                {
-                    k: v
-                    for k, v in comparison.flat_expected.items()
-                    if k in comparison.flat_actual and v != comparison.flat_actual[k]
-                }
-            )
-        )
+        diff = {}
+        for key, value in comparison.flat_expected.items():
+            if key not in comparison.flat_actual:
+                continue
+
+            if isinstance(value, list):
+                difference = compare_lists_with_dictdiffer(comparison.flat_actual[key], value)
+            elif value != comparison.flat_actual[key]:
+                difference = value
+            else:
+                difference = None
+
+            if difference:
+                diff.update({key: difference})
+
+        comparison.set_diff(unflatten(diff))
         return comparison
 
     def compare_with_dictdiffer(
@@ -222,6 +243,18 @@ class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]
 class TomlDoc(BaseDoc):
     """TOML configuration format."""
 
+    def __init__(
+        self,
+        *,
+        path: PathOrStr = None,
+        string: str = None,
+        obj: DictOrYamlObject = None,
+        ignore_keys: List[str] = None,
+        use_tomlkit=False
+    ) -> None:
+        super().__init__(path=path, string=string, obj=obj, ignore_keys=ignore_keys)
+        self.use_tomlkit = use_tomlkit
+
     def load(self) -> bool:
         """Load a TOML file by its path, a string or a dict."""
         if self._loaded:
@@ -231,16 +264,20 @@ class TomlDoc(BaseDoc):
         if self._string is not None:
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
-            # self._object = OrderedDict(tomlkit.loads(self._string))
-            self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg]
+            if self.use_tomlkit:
+                self._object = OrderedDict(tomlkit.loads(self._string))
+            else:
+                self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg]
         if self._object is not None:
             if isinstance(self._object, BaseDoc):
                 self._reformatted = self._object.reformatted
             else:
                 # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
                 #  but comments are being lost when the TOML plugin does dict comparisons.
-                # self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
-                self._reformatted = toml.dumps(self._object)
+                if self.use_tomlkit:
+                    self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
+                else:
+                    self._reformatted = toml.dumps(self._object)
         self._loaded = True
         return True
 
@@ -269,6 +306,7 @@ class SensibleYAML(YAML):
         self.map_indent = 2
         self.sequence_indent = 4
         self.sequence_dash_offset = 2
+        self.preserve_quotes = True
 
     def loads(self, string: str):
         """Load YAML from a string... that unusual use case in a world of files only."""
@@ -328,7 +366,7 @@ for dict_class in (SortedDict, OrderedDict):
 
 def is_scalar(value: YamlValue) -> bool:
     """Return True if the value is NOT a dict or a list."""
-    return not isinstance(value, (OrderedDict, list))
+    return not isinstance(value, LIST_CLASSES + DICT_CLASSES)
 
 
 def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict]):

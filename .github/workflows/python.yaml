@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "LINT_DOCS=,lint,docs" >> $GITHUB_ENV
 
-      - name: "Run tests on ${{ matrix.os }} with Python ${{ matrix.python-version }}"
+      - name: "Run tests on ${{ matrix.os }}"
         run: |
           tox -e clean,$(echo py${{ matrix.python-version }} | tr -d .)${{env.LINT_DOCS}},report
 

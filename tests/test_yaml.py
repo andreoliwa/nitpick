@@ -16,15 +16,14 @@ def test_suggest_initial_contents(tmp_path, datadir):
             " was not found. Create it with this content:",
             expected_yaml,
         )
-    ).assert_file_contents(filename, expected_yaml)
+    ).assert_file_contents(filename, expected_yaml).api_check().assert_violations()
 
 
 def test_missing_different_values(tmp_path, datadir):
     """Test different and missing values on any YAML."""
     filename = "me/deep/rooted.yaml"
-    ProjectMock(tmp_path).save_file(filename, datadir / "existing-actual.yaml").style(
-        datadir / "existing-desired.toml"
-    ).api_check_then_fix(
+    project = ProjectMock(tmp_path).save_file(filename, datadir / "existing-actual.yaml")
+    project.style(datadir / "existing-desired.toml").api_check_then_fix(
         Fuss(
             True,
             filename,
@@ -39,9 +38,6 @@ def test_missing_different_values(tmp_path, datadir):
                     - '1'
                     - crap
               - second item: also a dict
-              - c: 1
-                b: 2
-                a: 3
             python:
               install:
                 - extra_requirements:
@@ -70,6 +66,5 @@ def test_missing_different_values(tmp_path, datadir):
                   - 1
             """,
         ),
-    ).assert_file_contents(
-        filename, datadir / "existing-expected.yaml"
-    )
+    ).assert_file_contents(filename, datadir / "existing-expected.yaml")
+    project.api_check().assert_violations()

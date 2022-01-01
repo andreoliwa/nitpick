@@ -19,11 +19,12 @@
 .. _Pylint: https://github.com/PyCQA/pylint
 .. _ReadTheDocs: https://readthedocs.org/
 .. _TOML: https://github.com/toml-lang/toml
+.. _bandit: https://github.com/PyCQA/bandit
 .. _bashate: https://github.com/openstack/bashate
 .. _black: https://github.com/psf/black
+.. _codeclimate: https://codeclimate.com/
 .. _commitizen: https://github.com/commitizen-tools/commitizen
 .. _commitlint: https://commitlint.js.org/
-.. _codeclimate: https://codeclimate.com/
 .. _flake8: https://github.com/PyCQA/flake8
 .. _git-legal: https://docs.codeclimate.com/docs/git-legal
 .. _isort: https://github.com/PyCQA/isort
@@ -33,8 +34,7 @@
 .. _pipx: https://github.com/pipxproject/pipx
 .. _pre-commit: https://github.com/pre-commit/pre-commit
 .. _pytest: https://github.com/pytest-dev/pytest
-.. _tox: https://github.com/tox-dev/tox
-.. _bandit: https://github.com/PyCQA/bandit
 .. _radon: https://github.com/rubik/radon
-.. _sonar-python: https://github.com/SonarSource/sonar-python
 .. _shellcheck: https://github.com/koalaman/shellcheck
+.. _sonar-python: https://github.com/SonarSource/sonar-python
+.. _tox: https://github.com/tox-dev/tox
