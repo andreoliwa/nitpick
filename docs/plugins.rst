@@ -72,10 +72,13 @@ There are :ref:`many other examples here <examples>`.
 
 .. _yamlplugin:
 
-YAML files
-----------
+Enforce configurations and autofix YAML files
+---------------------------------------------
 
 Enforce configurations and autofix YAML files.
+
+- Example: `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
+- Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
 
 .. note:
 
@@ -83,3 +86,13 @@ Enforce configurations and autofix YAML files.
     It works for most cases.
     If your comment was removed, place them in a different place of the fil and try again.
     If it still doesn't work, please `report a bug <new issue>`_.
+
+.. warning::
+
+    No validation of ``.pre-commit-config.yaml`` will be done anymore in this generic YAML plugin.
+    Nitpick_ will not validate pre-commit config hooks and syntax anymore;
+    it's not the responsibility of this package.
+
+    You can set whatever you want in ``.pre-commit-config.yaml``... up to you.
+    An old (wrong) style will be applied as is.
+    It is the responsibility of the user/developer to pick the correct YAML style to apply.

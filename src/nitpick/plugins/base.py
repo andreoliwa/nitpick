@@ -127,12 +127,13 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     def initial_contents(self) -> str:
         """Suggested initial content when the file doesn't exist."""
 
-    def write_initial_contents(self, doc_class: Type[BaseDoc], expected_obj: JsonYamlDoc = None) -> str:
+    def write_initial_contents(self, doc_class: Type[BaseDoc], expected_dict_like: JsonYamlDoc = None) -> str:
         """Helper to write initial contents based on a format."""
-        if not expected_obj:
-            expected_obj = self.expected_config
+        # FIXME: try mutable mapping
+        if not expected_dict_like:
+            expected_dict_like = self.expected_config
 
-        formatted_str = doc_class(obj=expected_obj).reformatted
+        formatted_str = doc_class(obj=expected_dict_like).reformatted
         if self.autofix:
             self.file_path.parent.mkdir(exist_ok=True, parents=True)
             self.file_path.write_text(formatted_str)

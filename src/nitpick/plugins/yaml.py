@@ -1,8 +1,12 @@
-"""YAML files."""
+"""Enforce configurations and autofix YAML files."""
+from collections import OrderedDict
 from itertools import chain
-from typing import Iterator, Optional, Type, cast
+from typing import Iterator, Optional, Tuple, Type, Union, cast
+
+import attr
 
 from nitpick.documents import BaseDoc, YamlDoc, traverse_yaml_tree
+from nitpick.generic import search_dict
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -12,10 +16,56 @@ from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 KEY_REPOS = "repos"
 KEY_YAML = "yaml"
+KEY_HOOKS = "hooks"
+KEY_REPO = "repo"
+KEY_ID = "id"
+
+
+@attr.s()
+class PreCommitHook:
+    """A pre-commit hook."""
+
+    repo = attr.ib(type=str)
+    hook_id = attr.ib(type=str)
+    yaml = attr.ib(type=YamlDoc)
+
+    @property
+    def unique_key(self) -> str:
+        """Unique key of this hook, to be used in a dict."""
+        return f"{self.repo}_{self.hook_id}"
+
+    @property
+    def key_value_pair(self) -> Tuple[str, "PreCommitHook"]:
+        """Key/value pair to be used as a dict item."""
+        return self.unique_key, self
+
+    @property
+    def single_hook(self) -> JsonDict:
+        """Return only a single hook instead of a list."""
+        return self.yaml.as_list[0]
+
+    @classmethod
+    def get_all_hooks_from(cls, str_or_yaml: Union[str, YamlObject]):
+        """Get all hooks from a YAML string. Split the string in hooks and copy the repo info for each."""
+        yaml = YamlDoc(string=str_or_yaml).as_list if isinstance(str_or_yaml, str) else str_or_yaml
+        hooks = []
+        for repo in yaml:
+            for index, hook in enumerate(repo.get(KEY_HOOKS, [])):
+                repo_data_only = repo.copy()
+                repo_data_only.pop(KEY_HOOKS)
+                hook_data_only = search_dict(f"{KEY_HOOKS}[{index}]", repo, {})
+                repo_data_only.update({KEY_HOOKS: [hook_data_only]})
+                hooks.append(
+                    PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YamlDoc(obj=[repo_data_only])).key_value_pair
+                )
+        return OrderedDict(hooks)
 
 
 class YamlPlugin(NitpickPlugin):
     """Enforce configurations and autofix YAML files.
+
+    - Example: `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
+    - Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
 
     .. note:
 
@@ -23,6 +73,16 @@ class YamlPlugin(NitpickPlugin):
         It works for most cases.
         If your comment was removed, place them in a different place of the fil and try again.
         If it still doesn't work, please `report a bug <new issue>`_.
+
+    .. warning::
+
+        No validation of ``.pre-commit-config.yaml`` will be done anymore in this generic YAML plugin.
+        Nitpick_ will not validate pre-commit config hooks and syntax anymore;
+        it's not the responsibility of this package.
+
+        You can set whatever you want in ``.pre-commit-config.yaml``... up to you.
+        An old (wrong) style will be applied as is.
+        It is the responsibility of the user/developer to pick the correct YAML style to apply.
     """
 
     identify_tags = {"yaml"}
@@ -83,7 +143,7 @@ class YamlPlugin(NitpickPlugin):
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        return self.write_initial_contents(YamlDoc)
+        return self.write_initial_contents(YamlDoc, self._remove_yaml_subkey(self.expected_config))
 
 
 @hookimpl

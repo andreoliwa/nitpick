@@ -1,0 +1,29 @@
+repos:
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.1.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: missing-hook-in-this-position
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: rst-backticks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: debug-statements
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.16.0
+    hooks:
+      - id: pyupgrade
+  - repo: https://github.com/openstack/bashate
+    rev: 0.5.0
+    hooks:
+      - id: extra-hook-before-should-be-ignored
+      - id: bashate
+        args: [extra, arguments, should, --not, --throw, errors]
+      - id: extra-hook-after-should-be-ignored
+  - repo: https://github.com/user/repo
+    rev: 1.2.3
+    hooks:
+      - id: my-hook
+        args: [--different, args, --should, throw, errors]

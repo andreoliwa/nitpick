@@ -36,11 +36,21 @@ def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> Lis
 
 def search_element_by_unique_key(actual: List[Any], expected: List[Any], jmes_search_key: str) -> List:
     """Search an element in a list with a JMES expression representing the unique key."""
-    actual_ids = set(search_dict(f"[].{jmes_search_key}", actual, []))
+    actual_keys = set(search_dict(f"[].{jmes_search_key}", actual, []))
+    if not actual_keys:
+        # There are no actual keys in the current YAML: let's insert the whole expected block
+        return expected
+
     new_elements = []
     for element in expected:
+        expected_ids = search_dict(jmes_search_key, element, [])
+        if not expected_ids:
+            # There are no expected keys in this current element: let's insert the whole element
+            new_elements.append(element)
+            continue
+
         for expected_hook_id in search_dict(jmes_search_key, element, []):
-            if expected_hook_id not in actual_ids:
+            if expected_hook_id not in actual_keys:
                 new_elements.append(element)
                 break
             # else:
