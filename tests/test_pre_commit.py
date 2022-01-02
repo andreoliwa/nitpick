@@ -4,6 +4,7 @@
 
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
 """
+import warnings
 from textwrap import dedent
 
 import pytest
@@ -37,6 +38,7 @@ def test_pre_commit_referenced_in_style(tmp_path):
 
 def test_suggest_initial_contents(tmp_path, datadir):
     """Suggest initial contents for missing pre-commit config file."""
+    warnings.simplefilter("ignore")  # "repos.yaml" key
     ProjectMock(tmp_path).named_style("isort", datadir / "1-isort.toml").named_style(
         "black", datadir / "1-black.toml"
     ).pyproject_toml(
@@ -415,23 +417,14 @@ def test_get_all_hooks_from():
     )
 
 
-def test_missing_different_values(tmp_path, datadir):
+def test_missing_different_values(tmp_path, datadir, shared_datadir):
     """Test missing and different values on the hooks. All "yaml" keys in the style are now ignored.
 
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
     """
+    warnings.simplefilter("ignore")  # "repos.yaml" key
     ProjectMock(tmp_path).named_style(
-        "root",
-        '''
-        [[".pre-commit-config.yaml".repos]]
-        yaml = """
-          - repo: https://github.com/user/repo
-            rev: 1.2.3
-            hooks:
-              - id: my-hook
-                args: [--expected, arguments]
-        """
-        ''',
+        "root", shared_datadir / "pre-commit-config-with-old-repos-yaml-key.toml"
     ).named_style(
         "mypy",
         '''

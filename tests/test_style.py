@@ -1,4 +1,5 @@
 """Style tests."""
+import warnings
 from pathlib import Path
 from textwrap import dedent
 from unittest import mock
@@ -636,6 +637,7 @@ def test_include_remote_style_from_local_style(tmp_path):
 @pytest.mark.parametrize("offline", [False, True])
 def test_merge_styles_into_single_file(offline, tmp_path):
     """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit repos)."""
+    warnings.simplefilter("ignore")  # "repos.yaml" key
     ProjectMock(tmp_path).named_style(
         "black",
         '''

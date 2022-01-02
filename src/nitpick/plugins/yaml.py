@@ -6,6 +6,7 @@ from typing import Iterator, Optional, Tuple, Type, Union, cast
 import attr
 
 from nitpick.documents import BaseDoc, YamlDoc, traverse_yaml_tree
+from nitpick.exceptions import Deprecation
 from nitpick.generic import search_dict
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
@@ -113,13 +114,21 @@ class YamlPlugin(NitpickPlugin):
         """Remove the obsolete "yaml" key that was used in the deprecated ``PreCommitPlugin``."""
         if KEY_REPOS not in old_config:
             return old_config
+
         new_config = old_config.copy()
         new_config[KEY_REPOS] = []
+        repos_with_yaml_key = False
         for repo in old_config[KEY_REPOS]:  # type: JsonDict
             new_repo = repo.copy()
-            new_repo.pop(KEY_YAML, None)
+            if KEY_YAML in new_repo:
+                new_repo.pop(KEY_YAML, None)
+                repos_with_yaml_key = True
             if bool(new_repo):
                 new_config[KEY_REPOS].append(new_repo)
+
+        if repos_with_yaml_key:
+            Deprecation.pre_commit_repos_with_yaml_key()
+
         return new_config
 
     def report(

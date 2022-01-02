@@ -47,10 +47,20 @@ class Deprecation:
             return True
         return False
 
-    # FIXME: add warning for "yaml" config key, add test
-    #  Slight breaking change in the TOML config format: ditching the old TOML config
-    #  Maybe display an error message warning about the format change?
-    #  "Please update your style, repos.yaml is not supported anymore"
+    @staticmethod
+    def pre_commit_repos_with_yaml_key() -> bool:
+        """The pre-commit config should not have the "repos.yaml" key anymore; this is the old style.
+
+        Slight breaking change in the TOML config format: ditching the old TOML config.
+        """
+        from nitpick.plugins.yaml import KEY_REPOS, KEY_YAML  # pylint: disable=import-outside-toplevel
+
+        warnings.warn(
+            f"The {KEY_REPOS}.{KEY_YAML} key is not supported anymore."
+            " Check the documentation and please update your YAML styles",
+            DeprecationWarning,
+        )
+        return True
 
     # FIXME: change all styles and remove yaml key
 

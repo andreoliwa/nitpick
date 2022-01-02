@@ -1,4 +1,6 @@
 """YAML tests."""
+import warnings
+
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.plugins.yaml import YamlPlugin
 from nitpick.violations import Fuss, SharedViolations
@@ -96,3 +98,26 @@ def test_pre_commit_repo_should_be_added_not_replaced(tmp_path, datadir):
         ),
     ).assert_file_contents(filename, datadir / "1-expected-pre-commit-config.yaml")
     project.api_check().assert_violations()
+
+
+def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
+    """Test the deprecated "repos.yaml" key in the old style."""
+    with warnings.catch_warnings(record=True) as captured:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+
+        ProjectMock(tmp_path).style(shared_datadir / "pre-commit-config-with-old-repos-yaml-key.toml").pre_commit(
+            """
+            repos:
+              - repo: not checked yet
+                hooks:
+                  - id: my-hook
+            """
+        ).api_check().assert_violations()
+
+        assert len(captured) == 1
+        assert issubclass(captured[-1].category, DeprecationWarning)
+        assert (
+            "The repos.yaml key is not supported anymore."
+            " Check the documentation and please update your YAML styles" in str(captured[-1].message)
+        )
