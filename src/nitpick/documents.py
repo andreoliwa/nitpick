@@ -57,12 +57,12 @@ class Comparison:
         self,
         actual: DictOrYamlObject,
         expected: DictOrYamlObject,
-        format_class: Type["BaseDoc"],
+        doc_class: Type["BaseDoc"],
     ) -> None:
         self.flat_actual = self._normalize_value(actual)
         self.flat_expected = self._normalize_value(expected)
 
-        self.format_class = format_class
+        self.doc_class = doc_class
 
         self.missing: Optional[BaseDoc] = None
         self.missing_dict: Union[JsonDict, YamlObject] = {}
@@ -88,16 +88,16 @@ class Comparison:
         if not missing_dict:
             return
         self.missing_dict = missing_dict
-        if self.format_class:
-            self.missing = self.format_class(obj=missing_dict)
+        if self.doc_class:
+            self.missing = self.doc_class(obj=missing_dict)
 
     def set_diff(self, diff_dict):
         """Set the diff dict and corresponding format."""
         if not diff_dict:
             return
         self.diff_dict = diff_dict
-        if self.format_class:
-            self.diff = self.format_class(obj=diff_dict)
+        if self.doc_class:
+            self.diff = self.doc_class(obj=diff_dict)
 
     def update_pair(self, key, raw_expected):
         """Update a key on one of the comparison dicts, with its raw expected value."""
@@ -238,7 +238,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
                 comparison.missing_dict.update(dict(values))
             elif diff_type == dictdiffer.CHANGE:
                 raw_actual, raw_expected = values
-                actual_value, expected_value = comparison.format_class.cleanup(raw_actual, raw_expected)
+                actual_value, expected_value = comparison.doc_class.cleanup(raw_actual, raw_expected)
                 if actual_value != expected_value:
                     comparison.update_pair(key, raw_expected)
 
