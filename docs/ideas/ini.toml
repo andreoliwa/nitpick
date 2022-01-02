@@ -1,10 +1,11 @@
 # Keys should be present
+# [Enforce presence of keys (with any values) · Issue #218 · andreoliwa/nitpick](https://github.com/andreoliwa/nitpick/issues/218)
 ["setup.cfg".flake8]
-ignore__present = "str"
-max-line-length__present = "int"
-exclude__present = "str"
-max-complexity__present = "int"
-inline-quotes__present = "str"
+ignore__exists = "str"
+max-line-length__exists = "int"
+exclude__exists = "str"
+max-complexity__exists = "int"
+inline-quotes__exists = "str"
 
 # https://github.com/andreoliwa/nitpick/issues/271
 ignore__separators = ","
@@ -12,28 +13,28 @@ exclude__separators = ","
 
 # Keys should be absent
 ["setup.cfg".some-section]
-ignore__present = true
-max-line-length__present = true
-exclude__present = true
-max-complexity__present = true
-inline-quotes__present = true
+ignore__exists = true
+max-line-length__exists = true
+exclude__exists = true
+max-complexity__exists = true
+inline-quotes__exists = true
 
 # Section should be absent
 ["setup.cfg".darglint]
-__present = false
+__exists = false
 blabla = "{{ nit.section_absent() }}"
 
 # Section should be absent
 ["setup.cfg"."tox:tox"]
-__present = false
+__exists = false
 ["setup.cfg"."gh-actions"]
-__present = false
+__exists = false
 
 # Section should be present
 ["tox.ini"."tox"]
-__present = true
+__exists = true
 ["tox.ini".gh-actions]
-__present = true
+__exists = true
 
 # Keys should be present using Jinja
 ["setup.cfg".flake8-jinja]
