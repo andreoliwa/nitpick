@@ -30,7 +30,6 @@ yaml = """
             yesqa,
           ]
 """
-# TODO suggest nitpick for external repos
 
 [".codeclimate.yml".plugins.pep8]  # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit
 enabled = false

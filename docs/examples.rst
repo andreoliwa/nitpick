@@ -203,6 +203,22 @@ Contents of `resources/python/absent.toml <https://github.com/andreoliwa/nitpick
     ".venv" = ""
     ".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
+.. _example-autoflake:
+
+autoflake_
+----------
+
+Contents of `resources/python/autoflake.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/autoflake.toml>`_:
+
+.. code-block:: toml
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/myint/autoflake"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "autoflake"
+    args = ["--in-place", "--remove-all-unused-imports", "--remove-unused-variables", "--remove-duplicate-keys", "--ignore-init-module-imports"]
+
 .. _example-bandit:
 
 bandit_
@@ -289,7 +305,6 @@ Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick
                 yesqa,
               ]
     """
-    # TODO suggest nitpick for external repos
 
     [".codeclimate.yml".plugins.pep8]  # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit
     enabled = false

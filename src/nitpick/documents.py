@@ -14,11 +14,11 @@ from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
-from nitpick.generic import flatten, unflatten
+from nitpick.generic import flatten, search_dict, unflatten
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
 
 DictOrYamlObject = Union[JsonDict, YamlObject, "BaseDoc"]
-DICT_CLASSES = (dict, SortedDict, OrderedDict)
+DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
 LIST_CLASSES = (list, tuple)
 
 
@@ -32,6 +32,22 @@ def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> Lis
         except KeyError:
             return expected
     return []
+
+
+def search_element_by_unique_key(actual: List[Any], expected: List[Any], jmes_search_key: str) -> List:
+    """Search an element in a list with a JMES expression representing the unique key."""
+    actual_ids = set(search_dict(f"[].{jmes_search_key}", actual, []))
+    new_elements = []
+    for element in expected:
+        for expected_hook_id in search_dict(jmes_search_key, element, []):
+            if expected_hook_id not in actual_ids:
+                new_elements.append(element)
+                break
+            # else:
+            # FIXME: if hook exists, compare it and add to "diff" if different
+    if not new_elements:
+        return []
+    return actual + new_elements
 
 
 class Comparison:
@@ -182,24 +198,30 @@ class BaseDoc(metaclass=abc.ABCMeta):
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
             return comparison
 
-        comparison.set_missing(
-            unflatten({k: v for k, v in comparison.flat_expected.items() if k not in comparison.flat_actual})
-        )
         diff = {}
-        for key, value in comparison.flat_expected.items():
+        miss = {}
+        for key, expected_value in comparison.flat_expected.items():
             if key not in comparison.flat_actual:
+                miss[key] = expected_value
                 continue
 
-            if isinstance(value, list):
-                difference = compare_lists_with_dictdiffer(comparison.flat_actual[key], value)
-            elif value != comparison.flat_actual[key]:
-                difference = value
-            else:
-                difference = None
+            apply_diff = None
+            apply_miss = None
+            if isinstance(expected_value, list):
+                # FIXME: make this code generic. look at github steps
+                if key == "repos":
+                    apply_miss = search_element_by_unique_key(comparison.flat_actual[key], expected_value, "hooks[].id")
+                else:
+                    apply_diff = compare_lists_with_dictdiffer(comparison.flat_actual[key], expected_value)
+            elif expected_value != comparison.flat_actual[key]:
+                apply_diff = expected_value
 
-            if difference:
-                diff.update({key: difference})
+            if apply_miss:
+                miss[key] = apply_miss
+            if apply_diff:
+                diff[key] = apply_diff
 
+        comparison.set_missing(unflatten(miss))
         comparison.set_diff(unflatten(diff))
         return comparison
 
@@ -250,7 +272,7 @@ class TomlDoc(BaseDoc):
         string: str = None,
         obj: DictOrYamlObject = None,
         ignore_keys: List[str] = None,
-        use_tomlkit=False
+        use_tomlkit=False,
     ) -> None:
         super().__init__(path=path, string=string, obj=obj, ignore_keys=ignore_keys)
         self.use_tomlkit = use_tomlkit
@@ -380,7 +402,7 @@ def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict
 
         if is_scalar(value):
             yaml_obj[key] = value
-        elif isinstance(value, OrderedDict):
+        elif isinstance(value, DICT_CLASSES):
             traverse_yaml_tree(yaml_obj[key], value)
         elif isinstance(value, list):
             _traverse_yaml_list(yaml_obj, key, value)
@@ -396,14 +418,14 @@ def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[YamlValue]):
             yaml_obj[key][index] = element
             continue
 
-        if is_scalar(element):
-            if insert:
-                yaml_obj[key].append(element)
-            else:
-                yaml_obj[key][index] = element
+        if insert:
+            yaml_obj[key].append(element)
             continue
 
-        traverse_yaml_tree(yaml_obj[key][index], element)  # type: ignore # mypy kept complaining about the Union
+        if is_scalar(element):
+            yaml_obj[key][index] = element
+        else:
+            traverse_yaml_tree(yaml_obj[key][index], element)  # type: ignore # mypy kept complaining about the Union
 
 
 class JsonDoc(BaseDoc):

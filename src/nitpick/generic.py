@@ -162,7 +162,9 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
     return {}
 
 
-def search_dict(jmespath_expression: Union[ParsedResult, str], data: MutableMapping[str, Any], default: Any) -> Any:
+def search_dict(
+    jmespath_expression: Union[ParsedResult, str], data: Union[MutableMapping[str, Any], List[Any]], default: Any
+) -> Any:
     """Search a dictionary using a JMESPath expression, and returning a default value.
 
     >>> data = {"root": {"app": [1, 2], "test": "something"}}

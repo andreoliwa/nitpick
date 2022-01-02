@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Union
 
 from more_itertools import always_iterable
 
-from nitpick.constants import PROJECT_NAME
+from nitpick.constants import PRE_COMMIT_CONFIG_YAML, PROJECT_NAME
 from nitpick.violations import Fuss
 
 
@@ -26,9 +26,7 @@ class Deprecation:
     @staticmethod
     def pre_commit_without_dash(path_from_root: str) -> bool:
         """The pre-commit config should start with a dot on the config file."""
-        from nitpick.plugins.pre_commit import PreCommitPlugin  # pylint: disable=import-outside-toplevel
-
-        if path_from_root == PreCommitPlugin.filename[1:]:
+        if path_from_root == PRE_COMMIT_CONFIG_YAML[1:]:
             warnings.warn(
                 f'The section name for dotfiles should start with a dot: [".{path_from_root}"]', DeprecationWarning
             )

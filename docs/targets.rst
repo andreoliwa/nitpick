@@ -19,6 +19,7 @@
 .. _Pylint: https://github.com/PyCQA/pylint
 .. _ReadTheDocs: https://readthedocs.org/
 .. _TOML: https://github.com/toml-lang/toml
+.. _autoflake: https://github.com/myint/autoflake
 .. _bandit: https://github.com/PyCQA/bandit
 .. _bashate: https://github.com/openstack/bashate
 .. _black: https://github.com/psf/black
