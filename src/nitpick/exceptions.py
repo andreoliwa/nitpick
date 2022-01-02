@@ -48,6 +48,10 @@ class Deprecation:
         return False
 
     # FIXME: add warning for "yaml" config key, add test
+    #  Slight breaking change in the TOML config format: ditching the old TOML config
+    #  Maybe display an error message warning about the format change?
+    #  "Please update your style, repos.yaml is not supported anymore"
+
     # FIXME: change all styles and remove yaml key
 
 

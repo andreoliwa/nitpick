@@ -2,14 +2,14 @@
 import abc
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterator, Optional, Set, Type
+from typing import Iterator, MutableMapping, Optional, Set, Type
 
 import jmespath
 from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.documents import BaseDoc, Comparison, JsonYamlDoc
+from nitpick.documents import BaseDoc, Comparison
 from nitpick.generic import search_dict
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
@@ -127,9 +127,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
     def initial_contents(self) -> str:
         """Suggested initial content when the file doesn't exist."""
 
-    def write_initial_contents(self, doc_class: Type[BaseDoc], expected_dict_like: JsonYamlDoc = None) -> str:
+    def write_initial_contents(self, doc_class: Type[BaseDoc], expected_dict_like: MutableMapping = None) -> str:
         """Helper to write initial contents based on a format."""
-        # FIXME: try mutable mapping
         if not expected_dict_like:
             expected_dict_like = self.expected_config
 
