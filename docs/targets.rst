@@ -39,3 +39,4 @@
 .. _shellcheck: https://github.com/koalaman/shellcheck
 .. _sonar-python: https://github.com/SonarSource/sonar-python
 .. _tox: https://github.com/tox-dev/tox
+.. _new issue: https://github.com/andreoliwa/nitpick/issues/new/choose

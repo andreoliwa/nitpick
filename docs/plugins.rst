@@ -76,3 +76,10 @@ YAML files
 ----------
 
 Enforce configurations and autofix YAML files.
+
+.. note:
+
+    The plugin tries to preserve comments in the YAML file by using the ``ruamel.yaml`` package.
+    It works for most cases.
+    If your comment was removed, place them in a different place of the fil and try again.
+    If it still doesn't work, please `report a bug <new issue>`_.
