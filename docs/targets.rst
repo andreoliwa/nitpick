@@ -31,12 +31,13 @@
 .. _isort: https://github.com/PyCQA/isort
 .. _markdownlint: https://github.com/markdownlint/markdownlint
 .. _mypy: https://github.com/python/mypy
+.. _new issue: https://github.com/andreoliwa/nitpick/issues/new/choose
 .. _package.json: https://docs.npmjs.com/files/package.json
 .. _pipx: https://github.com/pipxproject/pipx
 .. _pre-commit: https://github.com/pre-commit/pre-commit
+.. _prettier: https://github.com/prettier/prettier
 .. _pytest: https://github.com/pytest-dev/pytest
 .. _radon: https://github.com/rubik/radon
 .. _shellcheck: https://github.com/koalaman/shellcheck
 .. _sonar-python: https://github.com/SonarSource/sonar-python
 .. _tox: https://github.com/tox-dev/tox
-.. _new issue: https://github.com/andreoliwa/nitpick/issues/new/choose

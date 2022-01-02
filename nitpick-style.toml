@@ -25,6 +25,7 @@ include = [
     "py://nitpick/resources/python/github-workflow",
     "py://nitpick/resources/python/autoflake",
 
+    "py://nitpick/resources/any/prettier.toml",
     "py://nitpick/resources/any/codeclimate",
     "py://nitpick/resources/any/commitizen",
     "py://nitpick/resources/any/editorconfig",

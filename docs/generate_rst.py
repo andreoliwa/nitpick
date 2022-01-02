@@ -80,6 +80,7 @@ STYLE_MAPPING = SortedDict(
         "shell/shellcheck.toml": "shellcheck_",
         "python/github-workflow.toml": "GitHub Workflow (Python)",
         "python/autoflake.toml": "autoflake_",
+        "any/prettier.toml": "Prettier_",
     }
 )
 CLI_MAPPING = [

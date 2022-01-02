@@ -657,14 +657,6 @@ def test_merge_styles_into_single_file(offline, tmp_path):
               - id: blacken-docs
                 additional_dependencies: [black==21.5b2]
         """
-        # TODO The toml library has issues loading arrays with multiline strings:
-        #  https://github.com/uiri/toml/issues/123
-        #  https://github.com/uiri/toml/issues/230
-        #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
-        #[".pre-commit-config.yaml"]
-        #repos = ["""
-        #<YAML goes here>
-        #"""]
         ''',
     ).named_style(
         "isort",

@@ -24,7 +24,13 @@ KEY_ID = "id"
 
 @attr.s()
 class PreCommitHook:
-    """A pre-commit hook."""
+    """A pre-commit hook.
+
+    .. note:
+
+        This is a class from the deprecated ``nitpick.plugins.pre_commit.PreCommitPlugin``.
+        It's not being used at the moment, but it was kept here because it's harmless.
+    """
 
     repo = attr.ib(type=str)
     hook_id = attr.ib(type=str)

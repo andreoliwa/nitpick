@@ -43,8 +43,6 @@ repos:
     rev: v1.4
     hooks:
       - id: autoflake
-        name: autoflake
-        language: python
         args:
           [
             --in-place,
