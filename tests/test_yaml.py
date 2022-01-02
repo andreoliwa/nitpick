@@ -83,12 +83,6 @@ def test_pre_commit_repo_should_be_added_not_replaced(tmp_path, datadir):
             " has missing values:",
             """
             repos:
-              - repo: https://github.com/pre-commit/pre-commit-hooks
-                rev: v4.1.0
-                hooks:
-                  - id: debug-statements
-                  - id: end-of-file-fixer
-                  - id: trailing-whitespace
               - repo: https://github.com/myint/autoflake
                 hooks:
                   - id: autoflake

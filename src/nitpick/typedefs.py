@@ -11,6 +11,8 @@ StrOrList = Union[str, List[str]]
 StrOrIterable = Union[str, Iterable[str]]
 Flake8Error = Tuple[int, int, str, Type]
 YamlObject = Union[CommentedSeq, CommentedMap]
+JsonYaml = Union[JsonDict, YamlObject]
+
 YamlValue = Union[JsonDict, OrderedDict, List[Any], str, float]
 
 # Decorated property not supported · Issue #1362 · python/mypy

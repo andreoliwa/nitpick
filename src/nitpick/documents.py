@@ -15,9 +15,9 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, search_dict, unflatten
-from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
+from nitpick.typedefs import JsonDict, JsonYaml, PathOrStr, YamlObject, YamlValue
 
-DictOrYamlObject = Union[JsonDict, YamlObject, "BaseDoc"]
+JsonYamlDoc = Union[JsonDict, YamlObject, "BaseDoc"]
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
 LIST_CLASSES = (list, tuple)
 
@@ -45,9 +45,14 @@ def search_element_by_unique_key(actual: List[Any], expected: List[Any], jmes_se
                 break
             # else:
             # FIXME: if hook exists, compare it and add to "diff" if different
-    if not new_elements:
-        return []
-    return actual + new_elements
+    return new_elements
+
+
+def set_key_if_not_empty(dict_: JsonYaml, key: str, value: Any) -> None:
+    """Update the dict if the value is valid."""
+    if not value:
+        return
+    dict_[key] = value
 
 
 class Comparison:
@@ -55,8 +60,8 @@ class Comparison:
 
     def __init__(
         self,
-        actual: DictOrYamlObject,
-        expected: DictOrYamlObject,
+        actual: JsonYamlDoc,
+        expected: JsonYamlDoc,
         doc_class: Type["BaseDoc"],
     ) -> None:
         self.flat_actual = self._normalize_value(actual)
@@ -64,40 +69,43 @@ class Comparison:
 
         self.doc_class = doc_class
 
-        self.missing: Optional[BaseDoc] = None
-        self.missing_dict: Union[JsonDict, YamlObject] = {}
+        self.missing_dict: JsonYaml = {}
+        self.diff_dict: JsonYaml = {}
+        self.replace_dict: JsonYaml = {}
 
-        self.diff: Optional[BaseDoc] = None
-        self.diff_dict: Union[JsonDict, YamlObject] = {}
+    @property
+    def missing(self) -> Optional["BaseDoc"]:
+        """Missing data."""
+        if not self.missing_dict:
+            return None
+        return self.doc_class(obj=self.missing_dict)
+
+    @property
+    def diff(self) -> Optional["BaseDoc"]:
+        """Different data."""
+        if not self.diff_dict:
+            return None
+        return self.doc_class(obj=self.diff_dict)
+
+    @property
+    def replace(self) -> Optional["BaseDoc"]:
+        """Data to be replaced."""
+        if not self.replace_dict:
+            return None
+        return self.doc_class(obj=self.replace_dict)
 
     @property
     def has_changes(self) -> bool:
         """Return True is there is a difference or something missing."""
-        return bool(self.missing or self.diff)
+        return bool(self.missing or self.diff or self.replace)
 
     @staticmethod
-    def _normalize_value(value: DictOrYamlObject) -> JsonDict:
+    def _normalize_value(value: JsonYamlDoc) -> JsonDict:
         if isinstance(value, BaseDoc):
             dict_value: JsonDict = value.as_object
         else:
             dict_value = value
         return flatten(dict_value)
-
-    def set_missing(self, missing_dict):
-        """Set the missing dict and corresponding format."""
-        if not missing_dict:
-            return
-        self.missing_dict = missing_dict
-        if self.doc_class:
-            self.missing = self.doc_class(obj=missing_dict)
-
-    def set_diff(self, diff_dict):
-        """Set the diff dict and corresponding format."""
-        if not diff_dict:
-            return
-        self.diff_dict = diff_dict
-        if self.doc_class:
-            self.diff = self.doc_class(obj=diff_dict)
 
     def update_pair(self, key, raw_expected):
         """Update a key on one of the comparison dicts, with its raw expected value."""
@@ -131,13 +139,11 @@ class BaseDoc(metaclass=abc.ABCMeta):
     __repr__ = autorepr(["path"])
 
     def __init__(
-        self, *, path: PathOrStr = None, string: str = None, obj: DictOrYamlObject = None, ignore_keys: List[str] = None
+        self, *, path: PathOrStr = None, string: str = None, obj: JsonYamlDoc = None, ignore_keys: List[str] = None
     ) -> None:
         self.path = path
         self._string = string
         self._object = obj
-        if path is None and string is None and obj is None:
-            raise RuntimeError("Inform at least one argument: path, string or object")
 
         self._ignore_keys = ignore_keys or []
         self._reformatted: Optional[str] = None
@@ -155,7 +161,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
         return self._string or ""
 
     @property
-    def as_object(self) -> Union[JsonDict, YamlObject]:
+    def as_object(self) -> JsonYaml:
         """String content converted to a Python object (dict, YAML object instance, etc.)."""
         if self._object is None:
             self.load()
@@ -173,14 +179,14 @@ class BaseDoc(metaclass=abc.ABCMeta):
         """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
         return list(*args)
 
-    def _create_comparison(self, expected: DictOrYamlObject):
+    def _create_comparison(self, expected: JsonYamlDoc):
         if not self._ignore_keys:
             return Comparison(self.as_object or {}, expected or {}, self.__class__)
 
-        actual_original: Union[JsonDict, YamlObject] = self.as_object or {}
+        actual_original: JsonYaml = self.as_object or {}
         actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
 
-        expected_original: DictOrYamlObject = expected or {}
+        expected_original: JsonYamlDoc = expected or {}
         if isinstance(expected_original, dict):
             expected_copy = expected_original.copy()
         elif isinstance(expected_original, BaseDoc):
@@ -198,31 +204,30 @@ class BaseDoc(metaclass=abc.ABCMeta):
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
             return comparison
 
-        diff = {}
-        miss = {}
+        diff: JsonDict = {}
+        missing: JsonDict = {}
+        replace: JsonDict = {}
         for key, expected_value in comparison.flat_expected.items():
             if key not in comparison.flat_actual:
-                miss[key] = expected_value
+                missing[key] = expected_value
                 continue
 
-            apply_diff = None
-            apply_miss = None
+            actual = comparison.flat_actual[key]
             if isinstance(expected_value, list):
                 # FIXME: make this code generic. look at github steps
                 if key == "repos":
-                    apply_miss = search_element_by_unique_key(comparison.flat_actual[key], expected_value, "hooks[].id")
+                    new_elements = search_element_by_unique_key(actual, expected_value, "hooks[].id")
+                    set_key_if_not_empty(missing, key, new_elements)
+                    if new_elements:
+                        set_key_if_not_empty(replace, key, actual + new_elements)
                 else:
-                    apply_diff = compare_lists_with_dictdiffer(comparison.flat_actual[key], expected_value)
-            elif expected_value != comparison.flat_actual[key]:
-                apply_diff = expected_value
+                    set_key_if_not_empty(diff, key, compare_lists_with_dictdiffer(actual, expected_value))
+            elif expected_value != actual:
+                set_key_if_not_empty(diff, key, expected_value)
 
-            if apply_miss:
-                miss[key] = apply_miss
-            if apply_diff:
-                diff[key] = apply_diff
-
-        comparison.set_missing(unflatten(miss))
-        comparison.set_diff(unflatten(diff))
+        comparison.missing_dict = unflatten(missing)
+        comparison.diff_dict = unflatten(diff)
+        comparison.replace_dict = unflatten(replace)
         return comparison
 
     def compare_with_dictdiffer(
@@ -231,20 +236,17 @@ class BaseDoc(metaclass=abc.ABCMeta):
         """Compare two structures and compute missing and different items using ``dictdiffer``."""
         comparison = self._create_comparison(expected)
 
-        comparison.missing_dict = SortedDict()
-        comparison.diff_dict = SortedDict()
+        missing_dict = SortedDict()
         for diff_type, key, values in dictdiffer.diff(comparison.flat_actual, comparison.flat_expected):
             if diff_type == dictdiffer.ADD:
-                comparison.missing_dict.update(dict(values))
+                missing_dict.update(dict(values))
             elif diff_type == dictdiffer.CHANGE:
                 raw_actual, raw_expected = values
                 actual_value, expected_value = comparison.doc_class.cleanup(raw_actual, raw_expected)
                 if actual_value != expected_value:
                     comparison.update_pair(key, raw_expected)
 
-        missing = transform_function(comparison.missing_dict) if transform_function else comparison.missing_dict
-        comparison.set_missing(missing)
-        comparison.set_diff(comparison.diff_dict)
+        comparison.missing_dict = transform_function(missing_dict) if transform_function else missing_dict
         return comparison
 
 
@@ -270,7 +272,7 @@ class TomlDoc(BaseDoc):
         *,
         path: PathOrStr = None,
         string: str = None,
-        obj: DictOrYamlObject = None,
+        obj: JsonYamlDoc = None,
         ignore_keys: List[str] = None,
         use_tomlkit=False,
     ) -> None:

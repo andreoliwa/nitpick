@@ -1,6 +1,6 @@
 """YAML files."""
 from itertools import chain
-from typing import Iterator, Optional, Type
+from typing import Iterator, Optional, Type, cast
 
 from nitpick.documents import BaseDoc, YamlDoc, traverse_yaml_tree
 from nitpick.plugins import hookimpl
@@ -35,7 +35,7 @@ class YamlPlugin(NitpickPlugin):
 
         yield from chain(
             self.report(SharedViolations.DIFFERENT_VALUES, yaml_doc.as_object, comparison.diff),
-            self.report(SharedViolations.MISSING_VALUES, yaml_doc.as_object, comparison.missing),
+            self.report(SharedViolations.MISSING_VALUES, yaml_doc.as_object, comparison.missing, comparison.replace),
         )
         if self.autofix and self.dirty:
             yaml_doc.updater.dump(yaml_doc.as_object, self.file_path)
@@ -54,14 +54,23 @@ class YamlPlugin(NitpickPlugin):
                 new_config[KEY_REPOS].append(new_repo)
         return new_config
 
-    def report(self, violation: ViolationEnum, yaml_object: YamlObject, change: Optional[BaseDoc]):
+    def report(
+        self,
+        violation: ViolationEnum,
+        yaml_object: YamlObject,
+        change: Optional[BaseDoc],
+        replacement: Optional[BaseDoc] = None,
+    ):
         """Report a violation while optionally modifying the YAML document."""
-        if not change:
+        if not (change or replacement):
             return
         if self.autofix:
-            traverse_yaml_tree(yaml_object, change.as_object)
+            real_change = cast(BaseDoc, replacement or change)
+            traverse_yaml_tree(yaml_object, real_change.as_object)
             self.dirty = True
-        yield self.reporter.make_fuss(violation, change.reformatted.strip(), prefix="", fixed=self.autofix)
+
+        to_display = cast(BaseDoc, change or replacement)
+        yield self.reporter.make_fuss(violation, to_display.reformatted.strip(), prefix="", fixed=self.autofix)
 
     @property
     def initial_contents(self) -> str:
