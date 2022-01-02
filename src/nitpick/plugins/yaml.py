@@ -56,7 +56,7 @@ class PreCommitHook:
                 hook_data_only = search_dict(f"{KEY_HOOKS}[{index}]", repo, {})
                 repo_data_only.update({KEY_HOOKS: [hook_data_only]})
                 hooks.append(
-                    PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YamlDoc(obj=[repo_data_only])).key_value_pair
+                    PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YamlDoc(obj=[repo_data_only])).key_value_pair  # type: ignore[arg-type]
                 )
         return OrderedDict(hooks)
 

@@ -39,6 +39,22 @@ repos:
     rev: v2.30.1
     hooks:
       - id: pyupgrade
+  - repo: https://github.com/myint/autoflake
+    rev: v1.4
+    hooks:
+      - id: autoflake
+        name: autoflake
+        language: python
+        args:
+          [
+            --in-place,
+            --remove-all-unused-imports,
+            --remove-unused-variables,
+            --remove-duplicate-keys,
+            --ignore-init-module-imports,
+            --exclude,
+            compat.py,
+          ]
   - repo: https://github.com/psf/black
     rev: 21.12b0
     hooks:
@@ -66,22 +82,6 @@ repos:
     hooks:
       - id: prettier
         stages: [commit]
-  - repo: https://github.com/myint/autoflake
-    rev: v1.4
-    hooks:
-      - id: autoflake
-        name: autoflake
-        language: python
-        args:
-          [
-            --in-place,
-            --remove-all-unused-imports,
-            --remove-unused-variables,
-            --remove-duplicate-keys,
-            --ignore-init-module-imports,
-            --exclude,
-            compat.py,
-          ]
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
     hooks:

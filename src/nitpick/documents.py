@@ -3,7 +3,7 @@ import abc
 import json
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 import dictdiffer
 import toml
@@ -17,7 +17,6 @@ from sortedcontainers import SortedDict
 from nitpick.generic import flatten, search_dict, unflatten
 from nitpick.typedefs import JsonDict, JsonYaml, PathOrStr, YamlObject, YamlValue
 
-JsonYamlDoc = Union[JsonDict, YamlObject, "BaseDoc"]
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
 LIST_CLASSES = (list, tuple)
 
@@ -70,8 +69,8 @@ class Comparison:
 
     def __init__(
         self,
-        actual: JsonYamlDoc,
-        expected: JsonYamlDoc,
+        actual: JsonDict,
+        expected: JsonDict,
         doc_class: Type["BaseDoc"],
     ) -> None:
         self.flat_actual = self._normalize_value(actual)
@@ -110,9 +109,9 @@ class Comparison:
         return bool(self.missing or self.diff or self.replace)
 
     @staticmethod
-    def _normalize_value(value: JsonYamlDoc) -> JsonDict:
+    def _normalize_value(value: JsonDict) -> Dict:
         if isinstance(value, BaseDoc):
-            dict_value: JsonDict = value.as_object
+            dict_value = value.as_object
         else:
             dict_value = value
         return flatten(dict_value)
@@ -149,7 +148,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
     __repr__ = autorepr(["path"])
 
     def __init__(
-        self, *, path: PathOrStr = None, string: str = None, obj: JsonYamlDoc = None, ignore_keys: List[str] = None
+        self, *, path: PathOrStr = None, string: str = None, obj: JsonDict = None, ignore_keys: List[str] = None
     ) -> None:
         self.path = path
         self._string = string
@@ -171,7 +170,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
         return self._string or ""
 
     @property
-    def as_object(self) -> JsonYaml:
+    def as_object(self) -> Dict:
         """String content converted to a Python object (dict, YAML object instance, etc.)."""
         if self._object is None:
             self.load()
@@ -189,18 +188,18 @@ class BaseDoc(metaclass=abc.ABCMeta):
         """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
         return list(*args)
 
-    def _create_comparison(self, expected: JsonYamlDoc):
+    def _create_comparison(self, expected: JsonDict):
         if not self._ignore_keys:
             return Comparison(self.as_object or {}, expected or {}, self.__class__)
 
-        actual_original: JsonYaml = self.as_object or {}
+        actual_original = self.as_object or {}
         actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
 
-        expected_original: JsonYamlDoc = expected or {}
+        expected_original: JsonDict = expected or {}
         if isinstance(expected_original, dict):
-            expected_copy = expected_original.copy()
+            expected_copy: JsonDict = expected_original.copy()
         elif isinstance(expected_original, BaseDoc):
-            expected_copy = expected_original.as_object.copy()
+            expected_copy = expected_original.as_object.copy()  # type: ignore[attr-defined]
         else:
             expected_copy = expected_original
         for key in self._ignore_keys:
@@ -208,9 +207,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
             expected_copy.pop(key, None)
         return Comparison(actual_copy, expected_copy, self.__class__)
 
-    def compare_with_flatten(self, expected: Union[JsonDict, "BaseDoc"] = None) -> Comparison:
+    def compare_with_flatten(self, expected: JsonDict = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
-        comparison = self._create_comparison(expected)
+        comparison = self._create_comparison(expected or {})
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
             return comparison
 
@@ -240,11 +239,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
         comparison.replace_dict = unflatten(replace)
         return comparison
 
-    def compare_with_dictdiffer(
-        self, expected: Union[JsonDict, "BaseDoc"] = None, transform_function: Callable = None
-    ) -> Comparison:
+    def compare_with_dictdiffer(self, expected: JsonDict = None, transform_function: Callable = None) -> Comparison:
         """Compare two structures and compute missing and different items using ``dictdiffer``."""
-        comparison = self._create_comparison(expected)
+        comparison = self._create_comparison(expected or {})
 
         missing_dict = SortedDict()
         for diff_type, key, values in dictdiffer.diff(comparison.flat_actual, comparison.flat_expected):
@@ -282,7 +279,7 @@ class TomlDoc(BaseDoc):
         *,
         path: PathOrStr = None,
         string: str = None,
-        obj: JsonYamlDoc = None,
+        obj: JsonDict = None,
         ignore_keys: List[str] = None,
         use_tomlkit=False,
     ) -> None:
@@ -301,7 +298,7 @@ class TomlDoc(BaseDoc):
             if self.use_tomlkit:
                 self._object = OrderedDict(tomlkit.loads(self._string))
             else:
-                self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg]
+                self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
             if isinstance(self._object, BaseDoc):
                 self._reformatted = self._object.reformatted
