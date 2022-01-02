@@ -15,7 +15,7 @@ from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
 from nitpick.generic import flatten, search_dict, unflatten
-from nitpick.typedefs import JsonDict, JsonYaml, PathOrStr, YamlObject, YamlValue
+from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
 
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
 LIST_CLASSES = (list, tuple)
@@ -57,7 +57,7 @@ def search_element_by_unique_key(actual: List[Any], expected: List[Any], jmes_se
     return new_elements
 
 
-def set_key_if_not_empty(dict_: JsonYaml, key: str, value: Any) -> None:
+def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     """Update the dict if the value is valid."""
     if not value:
         return
@@ -78,9 +78,9 @@ class Comparison:
 
         self.doc_class = doc_class
 
-        self.missing_dict: JsonYaml = {}
-        self.diff_dict: JsonYaml = {}
-        self.replace_dict: JsonYaml = {}
+        self.missing_dict: JsonDict = {}
+        self.diff_dict: JsonDict = {}
+        self.replace_dict: JsonDict = {}
 
     @property
     def missing(self) -> Optional["BaseDoc"]:
