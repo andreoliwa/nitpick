@@ -397,9 +397,12 @@ def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict
     """Traverse a YAML document recursively and change values, keeping its formatting and comments."""
     for key, value in change.items():
         if key not in yaml_obj:
-            # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
-            last_pos = len(yaml_obj.keys()) + 1
-            yaml_obj.insert(last_pos, key, value)
+            if isinstance(yaml_obj, dict):
+                yaml_obj[key] = value
+            else:
+                # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
+                last_pos = len(yaml_obj.keys()) + 1
+                yaml_obj.insert(last_pos, key, value)
             continue
 
         if is_scalar(value):
