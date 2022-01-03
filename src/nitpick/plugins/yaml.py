@@ -1,4 +1,4 @@
-"""Enforce configurations and autofix YAML files."""
+"""YAML files."""
 from collections import OrderedDict
 from itertools import chain
 from typing import Iterator, Optional, Tuple, Type, Union, cast

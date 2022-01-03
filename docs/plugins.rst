@@ -72,8 +72,8 @@ There are :ref:`many other examples here <examples>`.
 
 .. _yamlplugin:
 
-Enforce configurations and autofix YAML files
----------------------------------------------
+YAML files
+----------
 
 Enforce configurations and autofix YAML files.
 
