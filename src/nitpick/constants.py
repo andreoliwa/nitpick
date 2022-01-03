@@ -78,10 +78,5 @@ DOT_SLASH = f".{SLASH}"
 GIT_AT_REFERENCE = "@"
 
 # Special configurations for plugins
-DUNDER_UNIQUE_KEYS = "__unique_keys"
-# FIXME: rename __unique_keys to __search_unique_key
+DUNDER_SEARCH_UNIQUE_KEY = "__search_unique_key"
 # FIXME: document __search_unique_key on .rst, under "Special configurations on styles"
-# FIXME: another idea: __search_object_hash. In a list of dicts, hash each dict of the actual list
-#  (all key/value pairs). Then loop through the new elements and only add those who were not found with the same hash
-# FIXME: __search_custom: a custom function called by Nitpick, that receives X, Y, Z
-#  and returns the new element and its index in the list (0 to len(list), or -1 to append it at the end)

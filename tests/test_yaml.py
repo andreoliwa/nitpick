@@ -73,33 +73,6 @@ def test_missing_different_values(tmp_path, datadir):
     project.api_check().assert_violations()
 
 
-def test_pre_commit_repo_should_be_added_not_replaced(tmp_path, datadir):
-    """Test a pre-commit repo being added to the list and not replacing an existing repo in the same position."""
-    filename = PRE_COMMIT_CONFIG_YAML
-    project = ProjectMock(tmp_path).save_file(filename, datadir / "1-actual-pre-commit-config.yaml")
-    project.style(datadir / "1-desired.toml").api_check_then_fix(
-        Fuss(
-            True,
-            filename,
-            YamlPlugin.violation_base_code + SharedViolations.MISSING_VALUES.code,
-            " has missing values:",
-            """
-            repos:
-              - repo: https://github.com/myint/autoflake
-                hooks:
-                  - id: autoflake
-                    args:
-                      - --in-place
-                      - --remove-all-unused-imports
-                      - --remove-unused-variables
-                      - --remove-duplicate-keys
-                      - --ignore-init-module-imports
-            """,
-        ),
-    ).assert_file_contents(filename, datadir / "1-expected-pre-commit-config.yaml")
-    project.api_check().assert_violations()
-
-
 def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
     """Test the deprecated "repos.yaml" key in the old style."""
     with warnings.catch_warnings(record=True) as captured:
@@ -123,14 +96,72 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
         )
 
 
-# FIXME: test overriding the default unique key with nothing
-# [".pre-commit-config.yaml".__unique_keys]
-# repos = ""
+def test_unique_key_pre_commit_repo_should_be_added_not_replaced(tmp_path, datadir):
+    """Test a pre-commit repo being added to the list and not replacing an existing repo in the same position."""
+    filename = PRE_COMMIT_CONFIG_YAML
+    ProjectMock(tmp_path).save_file(filename, datadir / "uk-actual.yaml").style(
+        datadir / "uk-default.toml"
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            filename,
+            YamlPlugin.violation_base_code + SharedViolations.MISSING_VALUES.code,
+            " has missing values:",
+            """
+            repos:
+              - repo: https://github.com/myint/autoflake
+                hooks:
+                  - id: autoflake
+                    args:
+                      - --in-place
+                      - --remove-all-unused-imports
+                      - --remove-unused-variables
+                      - --remove-duplicate-keys
+                      - --ignore-init-module-imports
+            """,
+        ),
+    ).assert_file_contents(
+        filename, datadir / "uk-default-expected.yaml"
+    ).api_check().assert_violations()
+
+
+def test_unique_key_overriding_the_default_with_nothing(tmp_path, datadir):
+    """Test overriding the default unique key with nothing.
+
+    The new element will be merged on top of the first list element.
+    TODO Shouldn't the whole list be replaced by one single element? If there is a use case, change this behaviour.
+    """
+    filename = PRE_COMMIT_CONFIG_YAML
+    ProjectMock(tmp_path).save_file(filename, datadir / "uk-actual.yaml").style(
+        datadir / "uk-empty.toml"
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            filename,
+            YamlPlugin.violation_base_code + SharedViolations.DIFFERENT_VALUES.code,
+            " has different values. Use this:",
+            """
+            repos:
+              - repo: https://github.com/myint/autoflake
+                hooks:
+                  - id: autoflake
+                    args:
+                      - --in-place
+                      - --remove-all-unused-imports
+                      - --remove-unused-variables
+                      - --remove-duplicate-keys
+                      - --ignore-init-module-imports
+            """,
+        ),
+    ).assert_file_contents(
+        filename, datadir / "uk-empty-expected.yaml"
+    ).api_check().assert_violations()
+
 
 # FIXME: test overriding the default unique key with some other field
-# [".pre-commit-config.yaml".__unique_keys]
+# [".pre-commit-config.yaml".__search_unique_key]
 # repos = "hooks[].name"
 
 # FIXME: test adding a default unique to some other file with a list of objects
-# [".pre-commit-config.yaml".__unique_keys]
+# [".pre-commit-config.yaml".__search_unique_key]
 # repos = "hooks[].name"
