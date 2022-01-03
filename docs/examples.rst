@@ -568,7 +568,10 @@ Contents of `resources/python/python-stable.toml <https://github.com/andreoliwa/
 .. code-block:: toml
 
     [".readthedocs.yml".python]
-    version = "3.9"
+    # ReadTheDocs still didn't upgrade to Python 3.9:
+    # Problem in your project's configuration. Invalid "python.version":
+    # expected one of (2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, pypy3.5), got 3.9
+    version = "3.8"
 
 .. _example-python-3-10:
 
