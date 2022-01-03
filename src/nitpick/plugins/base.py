@@ -9,6 +9,7 @@ from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
+from nitpick.constants import DUNDER_UNIQUE_KEYS
 from nitpick.documents import BaseDoc, Comparison
 from nitpick.generic import search_dict
 from nitpick.plugins.info import FileInfo
@@ -16,7 +17,7 @@ from nitpick.typedefs import JsonDict, mypy_property
 from nitpick.violations import Fuss, Reporter, SharedViolations
 
 
-class NitpickPlugin(metaclass=abc.ABCMeta):
+class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance-attributes
     """Base class for Nitpick plugins.
 
     :param data: File information (project, path, tags).
@@ -55,11 +56,20 @@ class NitpickPlugin(metaclass=abc.ABCMeta):
         # Dirty flag to avoid changing files without need
         self.dirty: bool = False
 
+        # The user can override the default unique keys (if any) by setting them on the style file.
+        self.unique_keys: JsonDict = self.unique_keys_default.copy()
+        self.unique_keys.update(self.expected_config.pop(DUNDER_UNIQUE_KEYS, None) or {})
+
     @mypy_property
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
         return search_dict(f'files."{self.filename}"', self.info.project.nitpick_section, {})
+
+    @property
+    def unique_keys_default(self) -> JsonDict:
+        """Default unique keys that might be set by a plugin."""
+        return {}
 
     @classmethod
     def get_compiled_jmespath_filenames(cls):

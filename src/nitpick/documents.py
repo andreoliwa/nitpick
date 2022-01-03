@@ -207,11 +207,14 @@ class BaseDoc(metaclass=abc.ABCMeta):
             expected_copy.pop(key, None)
         return Comparison(actual_copy, expected_copy, self.__class__)
 
-    def compare_with_flatten(self, expected: JsonDict = None) -> Comparison:
+    def compare_with_flatten(self, expected: JsonDict = None, unique_keys: JsonDict = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
         comparison = self._create_comparison(expected or {})
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
             return comparison
+
+        # FIXME: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
+        unique_keys = unique_keys or {}
 
         diff: JsonDict = {}
         missing: JsonDict = {}
@@ -223,9 +226,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
 
             actual = comparison.flat_actual[key]
             if isinstance(expected_value, list):
-                # FIXME: make this code generic. look at github steps
-                if key == "repos":
-                    new_elements = search_element_by_unique_key(actual, expected_value, "hooks[].id")
+                unique_key = unique_keys.get(key, None)
+                if unique_key:
+                    new_elements = search_element_by_unique_key(actual, expected_value, unique_key)
                     set_key_if_not_empty(missing, key, new_elements)
                     if new_elements:
                         set_key_if_not_empty(replace, key, actual + new_elements)

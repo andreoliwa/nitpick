@@ -62,8 +62,6 @@ class Deprecation:
         )
         return True
 
-    # FIXME: change all styles and remove yaml key
-
 
 def pretty_exception(err: Exception, message: str = ""):
     """Return a pretty error message with the full path of the Exception."""

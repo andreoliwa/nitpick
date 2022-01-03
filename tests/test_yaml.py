@@ -121,3 +121,16 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
             "The repos.yaml key is not supported anymore."
             " Check the documentation and please update your YAML styles" in str(captured[-1].message)
         )
+
+
+# FIXME: test overriding the default unique key with nothing
+# [".pre-commit-config.yaml".__unique_keys]
+# repos = ""
+
+# FIXME: test overriding the default unique key with some other field
+# [".pre-commit-config.yaml".__unique_keys]
+# repos = "hooks[].name"
+
+# FIXME: test adding a default unique to some other file with a list of objects
+# [".pre-commit-config.yaml".__unique_keys]
+# repos = "hooks[].name"

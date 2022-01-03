@@ -5,6 +5,7 @@ from typing import Iterator, Optional, Tuple, Type, Union, cast
 
 import attr
 
+from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.documents import BaseDoc, YamlDoc, traverse_yaml_tree
 from nitpick.exceptions import Deprecation
 from nitpick.generic import search_dict
@@ -96,6 +97,13 @@ class YamlPlugin(NitpickPlugin):
     violation_base_code = 360
     fixable = True
 
+    @property
+    def unique_keys_default(self) -> JsonDict:
+        """Default unique keys for .pre-commit-config.yaml."""
+        if self.filename == PRE_COMMIT_CONFIG_YAML:
+            return {"repos": "hooks[].id"}
+        return super().unique_keys_default
+
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing data in the YAML file."""
         if KEY_CONTAINS in self.expected_config:
@@ -104,7 +112,7 @@ class YamlPlugin(NitpickPlugin):
             return
 
         yaml_doc = YamlDoc(path=self.file_path)
-        comparison = yaml_doc.compare_with_flatten(self._remove_yaml_subkey(self.expected_config))
+        comparison = yaml_doc.compare_with_flatten(self._remove_yaml_subkey(self.expected_config), self.unique_keys)
         if not comparison.has_changes:
             return
 
