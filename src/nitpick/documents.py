@@ -214,6 +214,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
             return comparison
 
         # FIXME: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
+        #  the method should receive SpecialConfig instead of unique_keys
         unique_keys = unique_keys or {}
 
         diff: JsonDict = {}
