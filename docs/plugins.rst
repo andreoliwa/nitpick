@@ -12,15 +12,6 @@ Below are the currently included plugins.
 
 .. auto-generated-from-here
 
-.. _precommitplugin:
-
-.pre-commit-config.yaml
------------------------
-
-Enforce configuration for `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
-
-Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
-
 .. _iniplugin:
 
 INI files
