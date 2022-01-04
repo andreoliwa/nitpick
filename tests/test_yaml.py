@@ -125,7 +125,7 @@ def test_unique_key_pre_commit_repo_should_be_added_not_replaced(tmp_path, datad
     ).api_check().assert_violations()
 
 
-def test_unique_key_overriding_the_default_with_nothing(tmp_path, datadir):
+def test_unique_key_override_with_nothing(tmp_path, datadir):
     """Test overriding the default unique key with nothing.
 
     The new element will be merged on top of the first list element.
@@ -138,7 +138,7 @@ def test_unique_key_overriding_the_default_with_nothing(tmp_path, datadir):
         Fuss(
             True,
             filename,
-            YamlPlugin.violation_base_code + SharedViolations.DIFFERENT_VALUES.code,
+            369,
             " has different values. Use this:",
             """
             repos:
@@ -158,9 +158,48 @@ def test_unique_key_overriding_the_default_with_nothing(tmp_path, datadir):
     ).api_check().assert_violations()
 
 
-# FIXME: test overriding the default unique key with some other field
-# [".pre-commit-config.yaml".__search_unique_key]
-# repos = "hooks[].name"
+def test_unique_key_override_with_other_field(tmp_path, datadir):
+    """Test overriding the default unique key with some other field."""
+    filename = PRE_COMMIT_CONFIG_YAML
+    ProjectMock(tmp_path).save_file(filename, datadir / "uk-actual.yaml").style(
+        datadir / "uk-override.toml"
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            PRE_COMMIT_CONFIG_YAML,
+            368,
+            " has missing values:",
+            """
+            repos:
+              - repo: https://github.com/psf/black
+                hooks:
+                  - id: autoflake
+                    args:
+                      - --wrong-id-for-the-black-repo
+                      - --wont-be-validated-by-nitpick
+            """,
+        )
+    ).assert_file_contents(
+        filename, datadir / "uk-override-expected.yaml"
+    ).api_check().assert_violations(
+        # FIXME: File is being modified twice
+        Fuss(
+            False,
+            PRE_COMMIT_CONFIG_YAML,
+            368,
+            " has missing values:",
+            """
+            repos:
+              - repo: https://github.com/psf/black
+                hooks:
+                  - id: autoflake
+                    args:
+                      - --wrong-id-for-the-black-repo
+                      - --wont-be-validated-by-nitpick
+            """,
+        )
+    )
+
 
 # FIXME: test adding a default unique to some other file with a list of objects
 # [".pre-commit-config.yaml".__search_unique_key]

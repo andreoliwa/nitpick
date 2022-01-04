@@ -1,0 +1,9 @@
+[".pre-commit-config.yaml".__search_unique_key]
+repos = "repo"
+
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/psf/black"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "autoflake"
+args = ["--wrong-id-for-the-black-repo", "--wont-be-validated-by-nitpick"]
