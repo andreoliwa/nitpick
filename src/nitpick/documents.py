@@ -67,6 +67,10 @@ def search_element_by_unique_key(
                 new_list.append(element)
                 continue
 
+            # FIXME: compare elements individually
+            # search_dict(f'hooks[?id==`{expected_key}`]', actual_list[1], {}) ==
+            #   search_dict(f'hooks[?id==`{expected_key}`]', element, {})
+
             # TODO: If the key exists, ignore it for now. Writing generic code is more complex than I anticipated.
             # If the element exists, compare with the actual one (by index), and add to "diff"
             # new_element_index = actual_indexes.get(expected_key, None)
