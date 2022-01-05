@@ -27,9 +27,3 @@ repos:
       - id: python-no-eval
       - id: python-no-log-warn
       - id: rst-backticks
-  - repo: https://github.com/psf/black
-    hooks:
-      - id: autoflake
-        args:
-          - --wrong-id-for-the-black-repo
-          - --wont-be-validated-by-nitpick

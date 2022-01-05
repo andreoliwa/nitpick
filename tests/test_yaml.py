@@ -164,41 +164,34 @@ def test_unique_key_override_with_other_field(tmp_path, datadir):
     ProjectMock(tmp_path).save_file(filename, datadir / "uk-actual.yaml").style(
         datadir / "uk-override.toml"
     ).api_check_then_fix(
-        Fuss(
-            True,
-            PRE_COMMIT_CONFIG_YAML,
-            368,
-            " has missing values:",
-            """
-            repos:
-              - repo: https://github.com/psf/black
-                hooks:
-                  - id: autoflake
-                    args:
-                      - --wrong-id-for-the-black-repo
-                      - --wont-be-validated-by-nitpick
-            """,
-        )
+        # FIXME: document this case
+        # TODO: the "repo" key already exists with the same value; for now, no change will be made to the file
+        # Fuss(
+        #     True,
+        #     PRE_COMMIT_CONFIG_YAML,
+        #     368,
+        #     " has missing values:",
+        #     """
+        #     repos:
+        #       - repo: https://github.com/psf/black
+        #         hooks:
+        #           - id: autoflake
+        #             args:
+        #               - --wrong-id-for-the-black-repo
+        #               - --wont-be-validated-by-nitpick
+        #     """,
+        # )
     ).assert_file_contents(
         filename, datadir / "uk-override-expected.yaml"
-    ).api_check().assert_violations(
-        # FIXME: File is being modified twice
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            368,
-            " has missing values:",
-            """
-            repos:
-              - repo: https://github.com/psf/black
-                hooks:
-                  - id: autoflake
-                    args:
-                      - --wrong-id-for-the-black-repo
-                      - --wont-be-validated-by-nitpick
-            """,
-        )
-    )
+    ).api_check().assert_violations()
+
+
+def test_pre_commit_with_multiple_repos_should_not_change_if_repos_exist(tmp_path, datadir):
+    """A real pre-commit config with multiple repos should not be changed if all the expected repos are there.."""
+    filename = PRE_COMMIT_CONFIG_YAML
+    ProjectMock(tmp_path).save_file(filename, datadir / "real.yaml").style(datadir / "real.toml").api_check_then_fix(
+        partial_names=[PRE_COMMIT_CONFIG_YAML]
+    ).assert_file_contents(filename, datadir / "real.yaml").api_check(PRE_COMMIT_CONFIG_YAML).assert_violations()
 
 
 # FIXME: test adding a default unique to some other file with a list of objects

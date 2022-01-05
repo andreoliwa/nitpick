@@ -3,13 +3,14 @@ import abc
 import json
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import dictdiffer
 import toml
 import tomlkit
 from autorepr import autorepr
 from loguru import logger
+from more_itertools import always_iterable
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
@@ -33,28 +34,52 @@ def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> Lis
     return []
 
 
-def search_element_by_unique_key(actual: List[Any], expected: List[Any], jmes_search_key: str) -> List:
-    """Search an element in a list with a JMES expression representing the unique key."""
-    actual_keys = set(search_dict(f"[].{jmes_search_key}", actual, []))
+def search_element_by_unique_key(
+    actual_list: List[Any], expected_list: List[Any], jmes_search_key: str
+) -> Tuple[List, List]:
+    """Search an element in a list with a JMES expression representing the unique key.
+
+    :return: Tuple with 2 lists: new elements only and the whole new list.
+    """
+    actual_keys = search_dict(f"[].{jmes_search_key}", actual_list, [])
     if not actual_keys:
         # There are no actual keys in the current YAML: let's insert the whole expected block
-        return expected
+        return expected_list, actual_list + expected_list
+
+    # TODO: used in the commented code below
+    # actual_indexes = {
+    #     key: index for index, element in enumerate(actual_list) for key in search_dict(jmes_search_key, element, [])
+    # }
 
     new_elements = []
-    for element in expected:
-        expected_ids = search_dict(jmes_search_key, element, [])
-        if not expected_ids:
+    new_list = actual_list.copy()
+    for element in expected_list:
+        expected_keys = search_dict(jmes_search_key, element, None)
+        if not expected_keys:
             # There are no expected keys in this current element: let's insert the whole element
             new_elements.append(element)
+            new_list.append(element)
             continue
 
-        for expected_hook_id in search_dict(jmes_search_key, element, []):
-            if expected_hook_id not in actual_keys:
+        for expected_key in always_iterable(expected_keys or []):
+            if expected_key not in actual_keys:
                 new_elements.append(element)
-                break
-            # else:
-            # FIXME: if hook exists, compare it and add to "diff" if different
-    return new_elements
+                new_list.append(element)
+                continue
+
+            # TODO: If the key exists, ignore it for now. Writing generic code is more complex than I anticipated.
+            # If the element exists, compare with the actual one (by index), and add to "diff"
+            # new_element_index = actual_indexes.get(expected_key, None)
+            # if new_element_index is None:
+            #     continue
+            # try:
+            #     element_diff = compare_lists_with_dictdiffer(actual_list[new_element_index], element)
+            # except IndexError:
+            #     element_diff = None
+            # if element_diff:
+            #     new_elements.append(element_diff)
+            #     new_list[new_element_index] = element_diff
+    return new_elements, new_list
 
 
 def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
@@ -229,10 +254,10 @@ class BaseDoc(metaclass=abc.ABCMeta):
             if isinstance(expected_value, list):
                 unique_key = unique_keys.get(key, None)
                 if unique_key:
-                    new_elements = search_element_by_unique_key(actual, expected_value, unique_key)
-                    set_key_if_not_empty(missing, key, new_elements)
+                    new_elements, whole_list = search_element_by_unique_key(actual, expected_value, unique_key)
                     if new_elements:
-                        set_key_if_not_empty(replace, key, actual + new_elements)
+                        set_key_if_not_empty(missing, key, new_elements)
+                        set_key_if_not_empty(replace, key, whole_list)
                 else:
                     set_key_if_not_empty(diff, key, compare_lists_with_dictdiffer(actual, expected_value))
             elif expected_value != actual:
