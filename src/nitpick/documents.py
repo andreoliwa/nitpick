@@ -34,18 +34,14 @@ def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> Lis
     return []
 
 
-# FIXME: reduce complexity
-def search_element_by_unique_key(  # pylint: disable=too-many-locals # noqa: C901
+def search_element_by_unique_key(  # pylint: disable=too-many-locals
     actual_list: List[Any], expected_list: List[Any], nested_key: str, parent_key: str = ""
 ) -> Tuple[List, List]:
     """Search an element in a list with a JMES expression representing the unique key.
 
     :return: Tuple with 2 lists: new elements only and the whole new list.
     """
-    if parent_key:
-        jmes_search_key = f"{parent_key}[].{nested_key}"
-    else:
-        jmes_search_key = nested_key
+    jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
 
     actual_keys = search_dict(f"[].{jmes_search_key}", actual_list, [])
     if not actual_keys:
@@ -80,10 +76,7 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals # noqa: C90
             jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
             actual_nested = search_dict(jmes_nested, actual_list[index], [])
             expected_nested = search_dict(jmes_nested, element, [{}])
-            try:
-                diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
-            except IndexError:
-                diff_nested = None
+            diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
             if not diff_nested:
                 continue
 
