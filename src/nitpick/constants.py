@@ -79,4 +79,6 @@ GIT_AT_REFERENCE = "@"
 
 # Special configurations for plugins
 DUNDER_SEARCH_UNIQUE_KEY = "__search_unique_key"
-# FIXME: document __search_unique_key on .rst, under "Special configurations on styles"
+# TODO: document __search_unique_key on .rst, under "Special configurations on styles",
+#  when Pydantic will be used and when the feature will be more stable, shaped, more generic and less complex.
+#  For now, keep it for internal use only, undocumented

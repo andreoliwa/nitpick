@@ -161,7 +161,6 @@ def test_unique_key_override_with_other_field(tmp_path, datadir):
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
         datadir / "uk-override.toml"
     ).api_check_then_fix(
-        # FIXME: document this case
         # TODO: the "repo" key already exists with the same value; for now, no change will be made to the file
         # Fuss(
         #     True,
@@ -226,3 +225,5 @@ def test_nested_dict_with_additional_key_value_pairs(tmp_path, datadir):
 
 # FIXME: test different args for black, e.g.: args: [--safe, --custom, --loud]
 # FIXME: test deps with different versions, e.g.: additional_dependencies: [black==22.1]
+# FIXME: test some GitHub workflow file with some real use case
+#  (e.g.: certain steps should exist, and should be changed if different)
