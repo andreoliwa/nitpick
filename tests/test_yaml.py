@@ -222,3 +222,7 @@ def test_nested_dict_with_additional_key_value_pairs(tmp_path, datadir):
     ).assert_file_contents(
         PRE_COMMIT_CONFIG_YAML, datadir / "hook-args-add.yaml"
     ).api_check().assert_violations()
+
+
+# FIXME: test different args for black, e.g.: args: [--safe, --custom, --loud]
+# FIXME: test deps with different versions, e.g.: additional_dependencies: [black==22.1]

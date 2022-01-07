@@ -9,7 +9,7 @@ repos:
     rev: v1.4
     hooks:
       - id: autoflake
-        # Note: ruamel.yaml will join this list in a single line and remove comments from items
+        # KNOWN ISSUE: this list will be joined in a single line and comments from items will be removed
         args:
           [
             --in-place,
@@ -47,7 +47,7 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
-        # Note: ruamel.yaml will join this list in a single line and remove comments from items
+        # KNOWN ISSUE: this list will be joined in a single line and comments from items will be removed
         additional_dependencies:
           [
             flake8-blind-except,
@@ -66,7 +66,7 @@ repos:
     rev: v0.930
     hooks:
       - id: mypy
-        # Note: ruamel.yaml will join this list in a single line and remove comments from items
+        # KNOWN ISSUE: this list will be joined in a single line and comments from items will be removed
         args: [
             # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
             --show-error-codes,

@@ -9,7 +9,7 @@ repos:
     rev: v1.4
     hooks:
       - id: autoflake
-        # Note: ruamel.yaml will join this list in a single line and remove comments from items
+        # KNOWN ISSUE: this list will be joined in a single line and comments from items will be removed
         args: [--in-place, --remove-all-unused-imports, --remove-unused-variables,
           --remove-duplicate-keys, --ignore-init-module-imports, --exclude, compat.py]
   - repo: https://github.com/psf/black
@@ -44,7 +44,7 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
-        # Note: ruamel.yaml will join this list in a single line and remove comments from items
+        # KNOWN ISSUE: this list will be joined in a single line and comments from items will be removed
         additional_dependencies: [flake8-blind-except, flake8-bugbear, flake8-comprehensions,
           flake8-debugger, flake8-docstrings, flake8-isort, flake8-polyfill, flake8-pytest,
           flake8-quotes, flake8-typing-imports, yesqa]
@@ -52,7 +52,7 @@ repos:
     rev: v0.930
     hooks:
       - id: mypy
-        # Note: ruamel.yaml will join this list in a single line and remove comments from items
+        # KNOWN ISSUE: this list will be joined in a single line and comments from items will be removed
         args: [--show-error-codes]
         # Install additional types to fix new warnings that appeared on v0.910:
         # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
