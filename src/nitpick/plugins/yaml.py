@@ -27,7 +27,7 @@ KEY_ID = "id"
 class PreCommitHook:
     """A pre-commit hook.
 
-    .. note:
+    .. note::
 
         This is a class from the deprecated ``nitpick.plugins.pre_commit.PreCommitPlugin``.
         It's not being used at the moment, but it was kept here because it's harmless.
@@ -75,7 +75,7 @@ class YamlPlugin(NitpickPlugin):
     - Example: `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
     - Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
 
-    .. warning:
+    .. warning::
 
         The plugin tries to preserve comments in the YAML file by using the ``ruamel.yaml`` package.
         It works for most cases.

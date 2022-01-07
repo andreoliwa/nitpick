@@ -80,7 +80,7 @@ Enforce configurations and autofix YAML files.
 - Example: `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
 - Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
 
-.. warning:
+.. warning::
 
     The plugin tries to preserve comments in the YAML file by using the ``ruamel.yaml`` package.
     It works for most cases.

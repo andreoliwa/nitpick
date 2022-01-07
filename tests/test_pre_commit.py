@@ -1,6 +1,6 @@
 """Tests for the deprecated ``nitpick.plugins.pre_commit.PreCommitPlugin`` with the old style format.
 
-.. warning
+.. warning::
 
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
 """
