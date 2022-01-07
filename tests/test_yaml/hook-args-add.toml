@@ -1,0 +1,8 @@
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/pre-commit/pygrep-hooks"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "python-no-eval"
+args = ["--first", "--second"]
+another = "value"
+last = "key"

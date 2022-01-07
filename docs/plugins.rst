@@ -76,3 +76,22 @@ YAML files
 ----------
 
 Enforce configurations and autofix YAML files.
+
+- Example: `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
+- Style example: :ref:`the default pre-commit hooks <example-pre-commit-hooks>`.
+
+.. warning::
+
+    The plugin tries to preserve comments in the YAML file by using the ``ruamel.yaml`` package.
+    It works for most cases.
+    If your comment was removed, place them in a different place of the fil and try again.
+    If it still doesn't work, please `report a bug <new issue>`_.
+
+Known issue: lists like ``args`` and ``additional_dependencies`` might be joined in a single line,
+    and comments between items will be removed.
+Move your comments outside these lists, and they should be preserved.
+
+.. note::
+
+    No validation of ``.pre-commit-config.yaml`` will be done anymore in this generic YAML plugin.
+    Nitpick_ will not validate hooks and missing keys as it did before; it's not the purpose of this package.

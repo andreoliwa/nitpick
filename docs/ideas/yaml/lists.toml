@@ -1,0 +1,21 @@
+# 1. For some lists, only check if the element is present but don't enforce the whole list to be the same
+[".pre-commit-config.yaml".ci]
+skip = ["pylint"]
+
+# 2. Search lists by a hash of the JSON/dic object another idea: . In a list of dicts, hash each dict of the actual list
+#  (all key/value pairs). Then loop through the new elements and only add those who were not found with the same hash
+["some-file.yaml".__search_object_hash]
+# Hash all fields
+some_list = "*"
+# Hash only specific fields
+person_list = "name,age,gender"
+# Hash all fields except these
+another_list = "-price,size"
+
+# 3. Search using a custom function
+# A custom function called by Nitpick that receives X, Y, Z arguments (to be defined)
+# And returns the new element and its index it should be in the list:
+# - 0 to len(list)
+# - or -1 to append the element at the end
+["another-file.yaml".__search_custom]
+my_fancy_list = "path.to.module.and.function"

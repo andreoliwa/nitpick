@@ -1,0 +1,9 @@
+[".pre-commit-config.yaml".__search_unique_key]
+repos = ""
+
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/myint/autoflake"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "autoflake"
+args = ["--in-place", "--remove-all-unused-imports", "--remove-unused-variables", "--remove-duplicate-keys", "--ignore-init-module-imports"]

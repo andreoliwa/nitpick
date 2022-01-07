@@ -11,26 +11,11 @@ exclude = ".tox,build"
 # This way, the developer has the choice of overriding this style, instead of having lots of plugins installed
 # without being asked.
 [[".pre-commit-config.yaml".repos]]
-yaml = """
-  - repo: https://github.com/PyCQA/flake8
-    hooks:
-      - id: flake8
-        additional_dependencies:
-          [
-            flake8-blind-except,
-            flake8-bugbear,
-            flake8-comprehensions,
-            flake8-debugger,
-            flake8-docstrings,
-            flake8-isort,
-            flake8-polyfill,
-            flake8-pytest,
-            flake8-quotes,
-            flake8-typing-imports,
-            yesqa,
-          ]
-"""
-# TODO suggest nitpick for external repos
+repo = "https://github.com/PyCQA/flake8"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "flake8"
+additional_dependencies = ["flake8-blind-except", "flake8-bugbear", "flake8-comprehensions", "flake8-debugger", "flake8-docstrings", "flake8-isort", "flake8-polyfill", "flake8-pytest", "flake8-quotes", "flake8-typing-imports", "yesqa"]
 
 [".codeclimate.yml".plugins.pep8]  # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit
 enabled = false

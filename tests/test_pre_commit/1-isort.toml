@@ -12,7 +12,9 @@ force_grid_wrap = 0
 combine_as_imports = true
 
 [[".pre-commit-config.yaml".repos]]
-repo = "https://github.com/PyCQA/isort"
-
-[[".pre-commit-config.yaml".repos.hooks]]
-id = "isort"
+yaml = """
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.8.0
+    hooks:
+      - id: isort
+"""

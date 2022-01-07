@@ -19,6 +19,7 @@
 .. _Pylint: https://github.com/PyCQA/pylint
 .. _ReadTheDocs: https://readthedocs.org/
 .. _TOML: https://github.com/toml-lang/toml
+.. _autoflake: https://github.com/myint/autoflake
 .. _bandit: https://github.com/PyCQA/bandit
 .. _bashate: https://github.com/openstack/bashate
 .. _black: https://github.com/psf/black
@@ -30,9 +31,11 @@
 .. _isort: https://github.com/PyCQA/isort
 .. _markdownlint: https://github.com/markdownlint/markdownlint
 .. _mypy: https://github.com/python/mypy
+.. _new issue: https://github.com/andreoliwa/nitpick/issues/new/choose
 .. _package.json: https://docs.npmjs.com/files/package.json
 .. _pipx: https://github.com/pipxproject/pipx
 .. _pre-commit: https://github.com/pre-commit/pre-commit
+.. _prettier: https://github.com/prettier/prettier
 .. _pytest: https://github.com/pytest-dev/pytest
 .. _radon: https://github.com/rubik/radon
 .. _shellcheck: https://github.com/koalaman/shellcheck

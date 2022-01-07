@@ -16,7 +16,6 @@ Submodules
    nitpick.plugins.info
    nitpick.plugins.ini
    nitpick.plugins.json
-   nitpick.plugins.pre_commit
    nitpick.plugins.text
    nitpick.plugins.toml
    nitpick.plugins.yaml

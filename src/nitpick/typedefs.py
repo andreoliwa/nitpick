@@ -6,7 +6,7 @@ from typing import Any, Dict, Iterable, List, Tuple, Type, Union
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 PathOrStr = Union[Path, str]
-JsonDict = Dict[str, Any]
+JsonDict = Dict[str, Any]  # https://github.com/python/typing/issues/182#issuecomment-185996450
 StrOrList = Union[str, List[str]]
 StrOrIterable = Union[str, Iterable[str]]
 Flake8Error = Tuple[int, int, str, Type]

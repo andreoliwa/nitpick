@@ -79,6 +79,8 @@ STYLE_MAPPING = SortedDict(
         "python/sonar-python.toml": "sonar-python_",
         "shell/shellcheck.toml": "shellcheck_",
         "python/github-workflow.toml": "GitHub Workflow (Python)",
+        "python/autoflake.toml": "autoflake_",
+        "any/prettier.toml": "Prettier_",
     }
 )
 CLI_MAPPING = [
@@ -167,7 +169,7 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
         f"Any YAML file (except {PRE_COMMIT_CONFIG_YAML})", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True
     ),
     FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
-    FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
+    FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, True),
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
     FileType(PACKAGE_JSON, f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, True),
     FileType(PYPROJECT_TOML, f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),

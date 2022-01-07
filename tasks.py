@@ -15,6 +15,8 @@ COLOR_GREEN = "\x1b[32m"
 COLOR_BOLD_RED = "\x1b[1;31m"
 DOCS_BUILD_PATH = "docs/_build"
 
+# pylint: disable=too-many-arguments
+
 
 class ToxCommands:
     """Tox commands read from the config file."""
@@ -129,13 +131,14 @@ def install(c, deps=True, hooks=False):
 
 @task(
     help={
+        "file": "Choose (with fzf) a specific file to run tests",
         "coverage": "Run the HTML coverage report",
         "browse": "Browse the HTML coverage report",
         "watch": "Watch modified files and run tests with testmon",
         "reset": "Force testmon to update its data before watching tests",
     }
 )
-def test(c, coverage=False, browse=False, watch=False, reset=False):
+def test(c, file="", coverage=False, browse=False, watch=False, reset=False):
     """Run tests and coverage using the commands from tox config.
 
     `Testmon <https://github.com/tarpas/pytest-testmon>`_
@@ -148,7 +151,15 @@ def test(c, coverage=False, browse=False, watch=False, reset=False):
         c.run('poetry run ptw --runner "pytest --testmon"')
         return
 
-    c.run(f"poetry run {tox.pytest_command}")
+    file_opt = ""
+    if file:
+        from conjuring.grimoire import run_with_fzf  # pylint: disable=import-error,import-outside-toplevel
+
+        chosen_file = run_with_fzf(c, "fd -H -t f test_.*.py", query=file)
+        if not chosen_file:
+            return
+        file_opt = f" -- {chosen_file}"
+    c.run(f"poetry run {tox.pytest_command}{file_opt}")
 
     if coverage:
         for cmd in tox.coverage_commands():
@@ -165,7 +176,7 @@ def test(c, coverage=False, browse=False, watch=False, reset=False):
         "links": "Check links",
         "browse": "Browse the HTML index",
         "debug": "Debug HTML generation to fix warnings",
-    }  # pylint: disable=too-many-arguments
+    }
 )
 def doc(c, full=False, recreate=False, links=False, browse=False, debug=False):
     """Build documentation."""

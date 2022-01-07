@@ -4,6 +4,18 @@ pylint = {version = "*", optional = true}
 ["pyproject.toml".tool.poetry.extras]
 lint = ["pylint"]
 
+# pylint needs to be installed in the same venv as the project, to be more useful
+# https://github.com/pre-commit/mirrors-pylint#using-pylint-with-pre-commit
+[[".pre-commit-config.yaml".repos]]
+repo = "local"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "pylint"
+name = "pylint"
+language = "system"
+exclude = "tests/"
+types = ["python"]
+
 [".pylintrc".MASTER]
 # Use multiple processes to speed up Pylint.
 jobs = 1

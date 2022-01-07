@@ -1,0 +1,4 @@
+# Keys should be present
+# See [Enforce presence of keys (with any values) · Issue #218 · andreoliwa/nitpick](https://github.com/andreoliwa/nitpick/issues/218)
+[[".pre-commit-config.yaml".repos.hooks]]
+entry__exists = true

@@ -49,12 +49,11 @@ Contents of `resources/any/commitizen.toml <https://github.com/andreoliwa/nitpic
 .. code-block:: toml
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/commitizen-tools/commitizen
-        hooks:
-          - id: commitizen
-            stages: [commit-msg]
-    """
+    repo = "https://github.com/commitizen-tools/commitizen"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "commitizen"
+    stages = ["commit-msg"]
 
 .. _example-commitlint:
 
@@ -75,13 +74,12 @@ Contents of `resources/any/commitlint.toml <https://github.com/andreoliwa/nitpic
     """
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        hooks:
-          - id: commitlint
-            stages: [commit-msg]
-            additional_dependencies: ['@commitlint/config-conventional']
-    """
+    repo = "https://github.com/alessandrojcm/commitlint-pre-commit-hook"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    additional_dependencies = ["@commitlint/config-conventional"]
+    id = "commitlint"
+    stages = ["commit-msg"]
 
 .. _example-editorconfig:
 
@@ -154,12 +152,13 @@ Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blo
     ".pre-commit-config.yaml" = "Create the file with the contents below, then run 'pre-commit install'"
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/pre-commit/pre-commit-hooks
-        hooks:
-          - id: end-of-file-fixer
-          - id: trailing-whitespace
-    """
+    repo = "https://github.com/pre-commit/pre-commit-hooks"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "end-of-file-fixer"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "trailing-whitespace"
 
 .. _example-markdownlint:
 
@@ -173,6 +172,22 @@ Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitp
     [".codeclimate.yml".plugins.markdownlint]  # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
     # https://github.com/markdownlint/markdownlint
     enabled = false
+
+.. _example-prettier:
+
+Prettier_
+---------
+
+Contents of `resources/any/prettier.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/prettier.toml>`_:
+
+.. code-block:: toml
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/pre-commit/mirrors-prettier"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "prettier"
+    stages = ["commit"]
 
 .. _example-package-json:
 
@@ -203,6 +218,22 @@ Contents of `resources/python/absent.toml <https://github.com/andreoliwa/nitpick
     ".venv" = ""
     ".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
+.. _example-autoflake:
+
+autoflake_
+----------
+
+Contents of `resources/python/autoflake.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/autoflake.toml>`_:
+
+.. code-block:: toml
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/myint/autoflake"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "autoflake"
+    args = ["--in-place", "--remove-all-unused-imports", "--remove-unused-variables", "--remove-duplicate-keys", "--ignore-init-module-imports"]
+
 .. _example-bandit:
 
 bandit_
@@ -211,6 +242,14 @@ bandit_
 Contents of `resources/python/bandit.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/bandit.toml>`_:
 
 .. code-block:: toml
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/PyCQA/bandit"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "bandit"
+    args = ["--ini", "setup.cfg"]
+    exclude = "tests/"
 
     [".codeclimate.yml".plugins.bandit]  # https://docs.codeclimate.com/docs/bandit
     # https://github.com/PyCQA/bandit
@@ -229,24 +268,18 @@ Contents of `resources/python/black.toml <https://github.com/andreoliwa/nitpick/
     line-length = 120
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/psf/black
-        hooks:
-          - id: black
-            args: [--safe, --quiet]
-      - repo: https://github.com/asottile/blacken-docs
-        hooks:
-          - id: blacken-docs
-            additional_dependencies: [black==21.5b2]
-    """
-    # TODO The toml library has issues loading arrays with multiline strings:
-    #  https://github.com/uiri/toml/issues/123
-    #  https://github.com/uiri/toml/issues/230
-    #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
-    #[".pre-commit-config.yaml"]
-    #repos = ["""
-    #<YAML goes here>
-    #"""]
+    repo = "https://github.com/psf/black"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "black"
+    args = ["--safe", "--quiet"]
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/asottile/blacken-docs"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "blacken-docs"
+    additional_dependencies = ["black==21.5b2"]
 
 .. _example-flake8:
 
@@ -270,26 +303,11 @@ Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick
     # This way, the developer has the choice of overriding this style, instead of having lots of plugins installed
     # without being asked.
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/PyCQA/flake8
-        hooks:
-          - id: flake8
-            additional_dependencies:
-              [
-                flake8-blind-except,
-                flake8-bugbear,
-                flake8-comprehensions,
-                flake8-debugger,
-                flake8-docstrings,
-                flake8-isort,
-                flake8-polyfill,
-                flake8-pytest,
-                flake8-quotes,
-                flake8-typing-imports,
-                yesqa,
-              ]
-    """
-    # TODO suggest nitpick for external repos
+    repo = "https://github.com/PyCQA/flake8"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "flake8"
+    additional_dependencies = ["flake8-blind-except", "flake8-bugbear", "flake8-comprehensions", "flake8-debugger", "flake8-docstrings", "flake8-isort", "flake8-polyfill", "flake8-pytest", "flake8-quotes", "flake8-typing-imports", "yesqa"]
 
     [".codeclimate.yml".plugins.pep8]  # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit
     enabled = false
@@ -345,21 +363,34 @@ Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/
 .. code-block:: toml
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/pre-commit/pygrep-hooks
-        hooks:
-          - id: python-check-blanket-noqa
-          - id: python-check-mock-methods
-          - id: python-no-eval
-          - id: python-no-log-warn
-          - id: rst-backticks
-      - repo: https://github.com/pre-commit/pre-commit-hooks
-        hooks:
-          - id: debug-statements
-      - repo: https://github.com/asottile/pyupgrade
-        hooks:
-          - id: pyupgrade
-    """
+    repo = "https://github.com/pre-commit/pygrep-hooks"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-check-blanket-noqa"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-check-mock-methods"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-no-eval"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-no-log-warn"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "rst-backticks"
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/pre-commit/pre-commit-hooks"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "debug-statements"
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/asottile/pyupgrade"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "pyupgrade"
 
 .. _example-ipython:
 
@@ -397,11 +428,10 @@ Contents of `resources/python/isort.toml <https://github.com/andreoliwa/nitpick/
     combine_as_imports = true
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/PyCQA/isort
-        hooks:
-          - id: isort
-    """
+    repo = "https://github.com/PyCQA/isort"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "isort"
 
 .. _example-mypy:
 
@@ -431,11 +461,11 @@ Contents of `resources/python/mypy.toml <https://github.com/andreoliwa/nitpick/b
     warn_unused_ignores = false
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/pre-commit/mirrors-mypy
-        hooks:
-          - id: mypy
-    """
+    repo = "https://github.com/pre-commit/mirrors-mypy"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "mypy"
+    args = ["--show-error-codes"]
 
 .. _example-poetry:
 
@@ -463,6 +493,18 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
 
     ["pyproject.toml".tool.poetry.extras]
     lint = ["pylint"]
+
+    # pylint needs to be installed in the same venv as the project, to be more useful
+    # https://github.com/pre-commit/mirrors-pylint#using-pylint-with-pre-commit
+    [[".pre-commit-config.yaml".repos]]
+    repo = "local"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "pylint"
+    name = "pylint"
+    language = "system"
+    exclude = "tests/"
+    types = ["python"]
 
     [".pylintrc".MASTER]
     # Use multiple processes to speed up Pylint.
@@ -689,11 +731,13 @@ Contents of `resources/shell/bashate.toml <https://github.com/andreoliwa/nitpick
 .. code-block:: toml
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/openstack/bashate
-        hooks:
-          - id: bashate
-    """
+    repo = "https://github.com/openstack/bashate"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "bashate"
+
+    # https://docs.openstack.org/bashate/latest/man/bashate.html#options
+    args = ["-i", "E006"]
 
 .. _example-shellcheck:
 

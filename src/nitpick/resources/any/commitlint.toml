@@ -8,10 +8,9 @@ commitlint = """
 """
 
 [[".pre-commit-config.yaml".repos]]
-yaml = """
-  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    hooks:
-      - id: commitlint
-        stages: [commit-msg]
-        additional_dependencies: ['@commitlint/config-conventional']
-"""
+repo = "https://github.com/alessandrojcm/commitlint-pre-commit-hook"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+additional_dependencies = ["@commitlint/config-conventional"]
+id = "commitlint"
+stages = ["commit-msg"]
