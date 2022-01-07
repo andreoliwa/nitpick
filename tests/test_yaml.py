@@ -224,7 +224,7 @@ def test_nested_dict_with_missing_key_value_pairs(tmp_path, datadir):
 
 
 def test_nested_dict_with_different_key_value_pairs(tmp_path, datadir):
-    """Test a nested dict with different key/value pairs."""
+    """Test a nested dict with different key/value pairs, e.g.: different args or dependencies."""
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "hook-args.yaml").style(
         datadir / "hook-args-change.toml"
     ).api_check_then_fix(
@@ -242,6 +242,11 @@ def test_nested_dict_with_different_key_value_pairs(tmp_path, datadir):
                       - --safe
                       - --custom
                       - --loud
+              - repo: https://github.com/asottile/blacken-docs
+                hooks:
+                  - id: blacken-docs
+                    additional_dependencies:
+                      - black==22.1
             """,
         )
     ).assert_file_contents(
@@ -249,6 +254,5 @@ def test_nested_dict_with_different_key_value_pairs(tmp_path, datadir):
     ).api_check().assert_violations()
 
 
-# FIXME: test deps with different versions, e.g.: additional_dependencies: [black==22.1]
 # FIXME: test some GitHub workflow file with some real use case
 #  (e.g.: certain steps should exist, and should be changed if different)
