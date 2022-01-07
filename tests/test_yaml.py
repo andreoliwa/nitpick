@@ -196,8 +196,8 @@ def test_pre_commit_with_multiple_repos_should_not_change_if_repos_exist(tmp_pat
     ).assert_violations()
 
 
-def test_nested_dict_with_additional_key_value_pairs(tmp_path, datadir):
-    """Test a nested dict with additional key/value pairs."""
+def test_nested_dict_with_missing_key_value_pairs(tmp_path, datadir):
+    """Test a nested dict with missing key/value pairs."""
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "hook-args.yaml").style(
         datadir / "hook-args-add.toml"
     ).api_check_then_fix(
@@ -223,7 +223,32 @@ def test_nested_dict_with_additional_key_value_pairs(tmp_path, datadir):
     ).api_check().assert_violations()
 
 
-# FIXME: test different args for black, e.g.: args: [--safe, --custom, --loud]
+def test_nested_dict_with_different_key_value_pairs(tmp_path, datadir):
+    """Test a nested dict with different key/value pairs."""
+    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "hook-args.yaml").style(
+        datadir / "hook-args-change.toml"
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            PRE_COMMIT_CONFIG_YAML,
+            368,
+            " has missing values:",
+            """
+            repos:
+              - repo: https://github.com/psf/black
+                hooks:
+                  - id: black
+                    args:
+                      - --safe
+                      - --custom
+                      - --loud
+            """,
+        )
+    ).assert_file_contents(
+        PRE_COMMIT_CONFIG_YAML, datadir / "hook-args-change.yaml"
+    ).api_check().assert_violations()
+
+
 # FIXME: test deps with different versions, e.g.: additional_dependencies: [black==22.1]
 # FIXME: test some GitHub workflow file with some real use case
 #  (e.g.: certain steps should exist, and should be changed if different)
