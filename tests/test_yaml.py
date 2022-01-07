@@ -182,9 +182,6 @@ def test_unique_key_override_with_other_field(tmp_path, datadir):
     ).api_check().assert_violations()
 
 
-# FIXME: test adding a default unique to some other file with a list of objects
-# [".pre-commit-config.yaml".__search_unique_key]
-# repos = "hooks[].name"
 def test_pre_commit_with_multiple_repos_should_not_change_if_repos_exist(tmp_path, datadir):
     """A real pre-commit config with multiple repos should not be changed if all the expected repos are there.."""
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml").style(
@@ -252,7 +249,3 @@ def test_nested_dict_with_different_key_value_pairs(tmp_path, datadir):
     ).assert_file_contents(
         PRE_COMMIT_CONFIG_YAML, datadir / "hook-args-change.yaml"
     ).api_check().assert_violations()
-
-
-# FIXME: test some GitHub workflow file with some real use case
-#  (e.g.: certain steps should exist, and should be changed if different)
