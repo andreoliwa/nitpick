@@ -10,7 +10,7 @@ from loguru import logger
 from marshmallow import Schema
 
 from nitpick.constants import DUNDER_SEARCH_UNIQUE_KEY
-from nitpick.documents import BaseDoc, Comparison
+from nitpick.documents import BaseDoc
 from nitpick.generic import search_dict
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
@@ -147,13 +147,3 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
             self.file_path.parent.mkdir(exist_ok=True, parents=True)
             self.file_path.write_text(formatted_str)
         return formatted_str
-
-    def warn_missing_different(self, comparison: Comparison, prefix: str = "") -> Iterator[Fuss]:
-        """Warn about missing and different keys."""
-        # pylint: disable=not-callable
-        if comparison.missing:
-            yield self.reporter.make_fuss(
-                SharedViolations.MISSING_VALUES, comparison.missing.reformatted, prefix=prefix
-            )
-        if comparison.diff:
-            yield self.reporter.make_fuss(SharedViolations.DIFFERENT_VALUES, comparison.diff.reformatted, prefix=prefix)

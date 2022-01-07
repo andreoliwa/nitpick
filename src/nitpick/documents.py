@@ -3,13 +3,12 @@ import abc
 import json
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import dictdiffer
 import toml
 import tomlkit
 from autorepr import autorepr
-from loguru import logger
 from more_itertools import always_iterable
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
@@ -152,25 +151,6 @@ class Comparison:
             dict_value = value
         return flatten(dict_value)
 
-    def update_pair(self, key, raw_expected):
-        """Update a key on one of the comparison dicts, with its raw expected value."""
-        if isinstance(key, str):
-            self.diff_dict.update({key: raw_expected})
-            return
-
-        if isinstance(key, list):
-            if len(key) == 4 and isinstance(key[3], int):
-                _, _, new_key, index = key
-                if new_key not in self.diff_dict:
-                    self.diff_dict[new_key] = []
-                self.diff_dict[new_key].insert(index, raw_expected)
-                return
-            if len(key) == 1:
-                self.diff_dict.update(unflatten({key[0]: raw_expected}))
-                return
-
-        logger.warning("Err... this is unexpected, please open an issue: key={} raw_expected={}", key, raw_expected)
-
 
 class BaseDoc(metaclass=abc.ABCMeta):
     """Base class for configuration file formats.
@@ -283,23 +263,6 @@ class BaseDoc(metaclass=abc.ABCMeta):
         comparison.missing_dict = unflatten(missing)
         comparison.diff_dict = unflatten(diff)
         comparison.replace_dict = unflatten(replace)
-        return comparison
-
-    def compare_with_dictdiffer(self, expected: JsonDict = None, transform_function: Callable = None) -> Comparison:
-        """Compare two structures and compute missing and different items using ``dictdiffer``."""
-        comparison = self._create_comparison(expected or {})
-
-        missing_dict = SortedDict()
-        for diff_type, key, values in dictdiffer.diff(comparison.flat_actual, comparison.flat_expected):
-            if diff_type == dictdiffer.ADD:
-                missing_dict.update(dict(values))
-            elif diff_type == dictdiffer.CHANGE:
-                raw_actual, raw_expected = values
-                actual_value, expected_value = comparison.doc_class.cleanup(raw_actual, raw_expected)
-                if actual_value != expected_value:
-                    comparison.update_pair(key, raw_expected)
-
-        comparison.missing_dict = transform_function(missing_dict) if transform_function else missing_dict
         return comparison
 
 
