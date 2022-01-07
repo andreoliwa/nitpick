@@ -101,7 +101,7 @@ class YamlPlugin(NitpickPlugin):
     def unique_keys_default(self) -> JsonDict:
         """Default unique keys for .pre-commit-config.yaml."""
         if self.filename == PRE_COMMIT_CONFIG_YAML:
-            return {"repos": "hooks[].id"}
+            return {"repos": ["id", "hooks"]}
         return super().unique_keys_default
 
     def enforce_rules(self) -> Iterator[Fuss]:

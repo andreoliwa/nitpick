@@ -98,13 +98,12 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
 
 def test_unique_key_pre_commit_repo_should_be_added_not_replaced(tmp_path, datadir):
     """Test a pre-commit repo being added to the list and not replacing an existing repo in the same position."""
-    filename = PRE_COMMIT_CONFIG_YAML
-    ProjectMock(tmp_path).save_file(filename, datadir / "uk-actual.yaml").style(
+    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
         datadir / "uk-default.toml"
     ).api_check_then_fix(
         Fuss(
             True,
-            filename,
+            PRE_COMMIT_CONFIG_YAML,
             YamlPlugin.violation_base_code + SharedViolations.MISSING_VALUES.code,
             " has missing values:",
             """
@@ -121,7 +120,7 @@ def test_unique_key_pre_commit_repo_should_be_added_not_replaced(tmp_path, datad
             """,
         ),
     ).assert_file_contents(
-        filename, datadir / "uk-default-expected.yaml"
+        PRE_COMMIT_CONFIG_YAML, datadir / "uk-default-expected.yaml"
     ).api_check().assert_violations()
 
 
@@ -131,13 +130,12 @@ def test_unique_key_override_with_nothing(tmp_path, datadir):
     The new element will be merged on top of the first list element.
     TODO Shouldn't the whole list be replaced by one single element? If there is a use case, change this behaviour.
     """
-    filename = PRE_COMMIT_CONFIG_YAML
-    ProjectMock(tmp_path).save_file(filename, datadir / "uk-actual.yaml").style(
+    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
         datadir / "uk-empty.toml"
     ).api_check_then_fix(
         Fuss(
             True,
-            filename,
+            PRE_COMMIT_CONFIG_YAML,
             369,
             " has different values. Use this:",
             """
@@ -154,14 +152,13 @@ def test_unique_key_override_with_nothing(tmp_path, datadir):
             """,
         ),
     ).assert_file_contents(
-        filename, datadir / "uk-empty-expected.yaml"
+        PRE_COMMIT_CONFIG_YAML, datadir / "uk-empty-expected.yaml"
     ).api_check().assert_violations()
 
 
 def test_unique_key_override_with_other_field(tmp_path, datadir):
     """Test overriding the default unique key with some other field."""
-    filename = PRE_COMMIT_CONFIG_YAML
-    ProjectMock(tmp_path).save_file(filename, datadir / "uk-actual.yaml").style(
+    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
         datadir / "uk-override.toml"
     ).api_check_then_fix(
         # FIXME: document this case
@@ -182,18 +179,46 @@ def test_unique_key_override_with_other_field(tmp_path, datadir):
         #     """,
         # )
     ).assert_file_contents(
-        filename, datadir / "uk-override-expected.yaml"
+        PRE_COMMIT_CONFIG_YAML, datadir / "uk-override-expected.yaml"
     ).api_check().assert_violations()
-
-
-def test_pre_commit_with_multiple_repos_should_not_change_if_repos_exist(tmp_path, datadir):
-    """A real pre-commit config with multiple repos should not be changed if all the expected repos are there.."""
-    filename = PRE_COMMIT_CONFIG_YAML
-    ProjectMock(tmp_path).save_file(filename, datadir / "real.yaml").style(datadir / "real.toml").api_check_then_fix(
-        partial_names=[PRE_COMMIT_CONFIG_YAML]
-    ).assert_file_contents(filename, datadir / "real.yaml").api_check(PRE_COMMIT_CONFIG_YAML).assert_violations()
 
 
 # FIXME: test adding a default unique to some other file with a list of objects
 # [".pre-commit-config.yaml".__search_unique_key]
 # repos = "hooks[].name"
+def test_pre_commit_with_multiple_repos_should_not_change_if_repos_exist(tmp_path, datadir):
+    """A real pre-commit config with multiple repos should not be changed if all the expected repos are there.."""
+    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml").style(
+        datadir / "real.toml"
+    ).api_check_then_fix(partial_names=[PRE_COMMIT_CONFIG_YAML]).assert_file_contents(
+        PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml"
+    ).api_check(
+        PRE_COMMIT_CONFIG_YAML
+    ).assert_violations()
+
+
+def test_nested_dict_with_additional_key_value_pairs(tmp_path, datadir):
+    """Test a nested dict with additional key/value pairs."""
+    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "hook-args.yaml").style(
+        datadir / "hook-args-add.toml"
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            PRE_COMMIT_CONFIG_YAML,
+            368,
+            " has missing values:",
+            """
+            repos:
+              - repo: https://github.com/pre-commit/pygrep-hooks
+                hooks:
+                  - id: python-no-eval
+                    args:
+                      - --first
+                      - --second
+                    another: value
+                    last: key
+            """,
+        )
+    ).assert_file_contents(
+        PRE_COMMIT_CONFIG_YAML, datadir / "hook-args-add.yaml"
+    ).api_check().assert_violations()

@@ -34,56 +34,70 @@ def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> Lis
     return []
 
 
-def search_element_by_unique_key(
-    actual_list: List[Any], expected_list: List[Any], jmes_search_key: str
+# FIXME: reduce complexity
+def search_element_by_unique_key(  # pylint: disable=too-many-locals # noqa: C901
+    actual_list: List[Any], expected_list: List[Any], nested_key: str, parent_key: str = ""
 ) -> Tuple[List, List]:
     """Search an element in a list with a JMES expression representing the unique key.
 
     :return: Tuple with 2 lists: new elements only and the whole new list.
     """
+    if parent_key:
+        jmes_search_key = f"{parent_key}[].{nested_key}"
+    else:
+        jmes_search_key = nested_key
+
     actual_keys = search_dict(f"[].{jmes_search_key}", actual_list, [])
     if not actual_keys:
         # There are no actual keys in the current YAML: let's insert the whole expected block
         return expected_list, actual_list + expected_list
 
-    # TODO: used in the commented code below
-    # actual_indexes = {
-    #     key: index for index, element in enumerate(actual_list) for key in search_dict(jmes_search_key, element, [])
-    # }
+    actual_indexes = {
+        key: index for index, element in enumerate(actual_list) for key in search_dict(jmes_search_key, element, [])
+    }
 
-    new_elements = []
-    new_list = actual_list.copy()
+    display = []
+    replace = actual_list.copy()
     for element in expected_list:
         expected_keys = search_dict(jmes_search_key, element, None)
         if not expected_keys:
             # There are no expected keys in this current element: let's insert the whole element
-            new_elements.append(element)
-            new_list.append(element)
+            display.append(element)
+            replace.append(element)
             continue
 
         for expected_key in always_iterable(expected_keys or []):
             if expected_key not in actual_keys:
-                new_elements.append(element)
-                new_list.append(element)
+                display.append(element)
+                replace.append(element)
                 continue
 
-            # FIXME: compare elements individually
-            # search_dict(f'hooks[?id==`{expected_key}`]', actual_list[1], {}) ==
-            #   search_dict(f'hooks[?id==`{expected_key}`]', element, {})
+            # If the element exists, compare with the actual one (by index)
+            index = actual_indexes.get(expected_key, None)
+            if index is None:
+                continue
 
-            # TODO: If the key exists, ignore it for now. Writing generic code is more complex than I anticipated.
-            # If the element exists, compare with the actual one (by index), and add to "diff"
-            # new_element_index = actual_indexes.get(expected_key, None)
-            # if new_element_index is None:
-            #     continue
-            # try:
-            #     element_diff = compare_lists_with_dictdiffer(actual_list[new_element_index], element)
-            # except IndexError:
-            #     element_diff = None
-            # if element_diff:
-            #     new_elements.append(element_diff)
-            #     new_list[new_element_index] = element_diff
-    return new_elements, new_list
+            jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
+            actual_nested = search_dict(jmes_nested, actual_list[index], [])
+            expected_nested = search_dict(jmes_nested, element, [{}])
+            try:
+                diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
+            except IndexError:
+                diff_nested = None
+            if not diff_nested:
+                continue
+
+            element[parent_key] = diff_nested
+            display.append(element)
+
+            new_block = actual_list[index].copy()
+            for nested_index, obj in enumerate(actual_list[index][parent_key]):
+                if obj == actual_nested[0]:
+                    new_block[parent_key][nested_index] = diff_nested[0]
+                    break
+            replace[index] = new_block
+
+    return display, replace
 
 
 def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
@@ -256,9 +270,15 @@ class BaseDoc(metaclass=abc.ABCMeta):
 
             actual = comparison.flat_actual[key]
             if isinstance(expected_value, list):
-                unique_key = unique_keys.get(key, None)
-                if unique_key:
-                    new_elements, whole_list = search_element_by_unique_key(actual, expected_value, unique_key)
+                try:
+                    nested_key, parent_key = unique_keys.get(key, ("", ""))
+                except ValueError:
+                    nested_key = ""
+                    parent_key = ""
+                if nested_key:
+                    new_elements, whole_list = search_element_by_unique_key(
+                        actual, expected_value, nested_key, parent_key
+                    )
                     if new_elements:
                         set_key_if_not_empty(missing, key, new_elements)
                         set_key_if_not_empty(replace, key, whole_list)

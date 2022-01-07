@@ -1,5 +1,5 @@
 [".pre-commit-config.yaml".__search_unique_key]
-repos = "repo"
+repos = ["repo", ""]
 
 [[".pre-commit-config.yaml".repos]]
 repo = "https://github.com/psf/black"
