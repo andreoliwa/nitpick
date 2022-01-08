@@ -169,20 +169,20 @@ def jmes_search_json(
 ) -> Any:
     """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
 
-    >>> json_data = {"root": {"app": [1, 2], "test": "something"}}
-    >>> jmes_search_json(json_data,"root.app",None)
+    >>> data = {"root": {"app": [1, 2], "test": "something"}}
+    >>> jmes_search_json(data, "root.app", None)
     [1, 2]
-    >>> jmes_search_json(json_data,"root.test",None)
+    >>> jmes_search_json(data, "root.test", None)
     'something'
-    >>> jmes_search_json(json_data,"root.unknown","")
+    >>> jmes_search_json(data, "root.unknown", "")
     ''
-    >>> jmes_search_json(json_data,"root.unknown",None)
+    >>> jmes_search_json(data, "root.unknown", None)
 
-    >>> jmes_search_json(json_data,"root.unknown")
+    >>> jmes_search_json(data, "root.unknown")
 
-    >>> jmes_search_json(json_data,jmespath.compile("root.app"),[])
+    >>> jmes_search_json(data, jmespath.compile("root.app"), [])
     [1, 2]
-    >>> jmes_search_json(json_data,jmespath.compile("root.whatever"),"xxx")
+    >>> jmes_search_json(data, jmespath.compile("root.whatever"), "xxx")
     'xxx'
 
     :param jmespath_expression: A compiled JMESPath expression or a string with an expression.
