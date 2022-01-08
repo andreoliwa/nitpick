@@ -1,7 +1,9 @@
 """Test blender of dicts and related functions."""
+import pytest
 from testfixtures import compare
 
 from nitpick.blender import DictBlender
+from nitpick.constants import DOT
 from tests.helpers import assert_conditions
 
 
@@ -47,3 +49,19 @@ def test_merge_dicts_extending_lists():
     assert_conditions(
         blender.mix() == {"box": {"colors": ["blue", "yellow", "white"], "cutlery": ["fork", "knife", "spoon"]}}
     )
+
+
+def test_unflatten_valid():
+    """Valid dict being unflattened."""
+    blender = DictBlender({"my.sub.path": True, "another.path": 3, "my.home": 4}, separator=DOT, flatten_on_add=False)
+    assert blender.mix() == {"my": {"sub": {"path": True}, "home": 4}, "another": {"path": 3}}
+
+
+def test_unflatten_invalid():
+    """Invalid dict being unflattened."""
+    blender = DictBlender(
+        {"repo": "conflicted key", "repo.name": "?", "repo.path": "?"}, separator=DOT, flatten_on_add=False
+    )
+    with pytest.raises(TypeError) as err:
+        blender.mix()
+    assert "'str' object does not support item assignment" in str(err)

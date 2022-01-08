@@ -6,7 +6,8 @@ from typing import Iterator, Optional, Type
 from loguru import logger
 
 from nitpick import fields
-from nitpick.blender import BaseDoc, DictBlender, JsonDoc, unflatten
+from nitpick.blender import BaseDoc, DictBlender, JsonDoc
+from nitpick.constants import DOT
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -58,7 +59,9 @@ class JsonPlugin(NitpickPlugin):
 
     def expected_dict_from_contains_keys(self):
         """Expected dict created from "contains_keys" values."""
-        return unflatten({key: VALUE_PLACEHOLDER for key in set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])})
+        blender = DictBlender(separator=DOT, flatten_on_add=False)
+        blender.add({key: VALUE_PLACEHOLDER for key in set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])})
+        return blender.mix()
 
     def expected_dict_from_contains_json(self):
         """Expected dict created from "contains_json" values."""

@@ -187,34 +187,6 @@ def quoted_split(string_: str, separator=DOT) -> List[str]:
     ]
 
 
-def unflatten(dict_, separator=DOT, sort=True) -> OrderedDict:
-    """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
-
-    >>> expected = {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
-    >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4}) == expected
-    True
-    >>> unflatten({"repo": "conflicted key", "repo.name": "?", "repo.path": "?"})
-    Traceback (most recent call last):
-      ...
-    TypeError: 'str' object does not support item assignment
-    """
-    # TODO: move flatten() and unflatten() to DictBlender: they depend on each other and keep state between calls.
-    items: OrderedDict = OrderedDict()
-    for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
-        all_keys = quoted_split(root_key, separator)
-        sub_items = items
-        for key in all_keys[:-1]:
-            try:
-                sub_items = sub_items[key]
-            except KeyError:
-                sub_items[key] = OrderedDict()
-                sub_items = sub_items[key]
-
-        sub_items[all_keys[-1]] = root_value
-
-    return items
-
-
 class DictBlender:
     """A blender of dictionaries: keep adding dictionaries and mix them all at the end.
 
@@ -222,33 +194,53 @@ class DictBlender:
 
         This class intentionally doesn't inherit from the standard ``dict()``.
         It's an unnecessary hassle to override and deal with all those magic dunder methods.
+
+    :param dict_: Any optional dict.
+    :param extend_lists: True if nested lists should be extended when the key is the same.
+        False if they should be replaced.
+    :param separator: Separator used for flatten and unflatten operations. Default is a unique special separator.
+    :param flatten_on_add: True if dictionaries should be flattened when added (default). False to add them "as is".
     """
 
     def __init__(
-        self, original_dict: JsonDict = None, *, extend_lists=True, separator: str = SEPARATOR_FLATTEN
+        self,
+        dict_: JsonDict = None,
+        *,
+        extend_lists=True,
+        separator: str = SEPARATOR_FLATTEN,
+        flatten_on_add: bool = True,
     ) -> None:
         self._current_flat_dict: OrderedDict = OrderedDict()
         self._current_lists: Dict[str, List[Any]] = {}
         self.extend_lists = extend_lists
         self.separator = separator
-        self.add(original_dict or {})
+        self.flatten_on_add = flatten_on_add
+        self.add(dict_ or {}, flatten_on_add=self.flatten_on_add)
 
-    def add(self, other: JsonDict) -> None:
+    @property
+    def flat_dict(self):
+        """Return a flat dictionary with the current content."""
+        return self._current_flat_dict
+
+    def add(self, other: JsonDict, *, flatten_on_add: Optional[bool] = None) -> "DictBlender":
         """Add another dictionary to the existing data."""
-        self._current_flat_dict.update(self._flatten(other))
+        if flatten_on_add is None:
+            flatten_on_add = self.flatten_on_add
+        new_dict = self._flatten(other) if flatten_on_add else other
+        self._current_flat_dict.update(new_dict)
+        return self
 
-    def _flatten(self, other_dict: JsonDict, parent_key="") -> JsonDict:
+    def _flatten(self, dict_: JsonDict, parent_key="") -> JsonDict:
         """Flatten a nested dict.
 
         Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
         """
         items: List[Tuple[str, Any]] = []
-        for key, value in other_dict.items():
+        for key, value in dict_.items():
             quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if self.separator in str(key) else key
             new_key = str(parent_key) + self.separator + str(quoted_key) if parent_key else quoted_key
             if isinstance(value, dict):
-                flat_dict = self._flatten(value, new_key)
-                items.extend(flat_dict.items())
+                items.extend(self._flatten(value, new_key).items())
             elif isinstance(value, (list, tuple)) and self.extend_lists:
                 # If the value is a list or tuple, append to a previously existing list.
                 existing_list = self._current_lists.get(new_key, [])
@@ -260,14 +252,26 @@ class DictBlender:
                 items.append((new_key, value))
         return dict(items)
 
-    @property
-    def flat_dict(self):
-        """Return a flat dictionary with the current content."""
-        return self._current_flat_dict
+    def _unflatten(self, dict_: JsonDict, sort=True) -> OrderedDict:
+        """Turn back a flat dict created by the ``_flatten()`` method into a nested dict."""
+        items: OrderedDict = OrderedDict()
+        for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
+            all_keys = quoted_split(root_key, self.separator)
+            sub_items = items
+            for key in all_keys[:-1]:
+                try:
+                    sub_items = sub_items[key]
+                except KeyError:
+                    sub_items[key] = OrderedDict()
+                    sub_items = sub_items[key]
+
+            sub_items[all_keys[-1]] = root_value
+
+        return items
 
     def mix(self, sort=True) -> JsonDict:
         """Mix all dictionaries, replacing values with identical keys and extending lists."""
-        return unflatten(self._current_flat_dict, self.separator, sort)
+        return self._unflatten(self._current_flat_dict, sort)
 
 
 class Comparison:
@@ -392,9 +396,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
             elif expected_value != actual:
                 set_key_if_not_empty(diff, key, expected_value)
 
-        comparison.missing_dict = unflatten(missing)
-        comparison.diff_dict = unflatten(diff)
-        comparison.replace_dict = unflatten(replace)
+        comparison.missing_dict = DictBlender(separator=DOT, flatten_on_add=False).add(missing).mix()
+        comparison.diff_dict = DictBlender(separator=DOT, flatten_on_add=False).add(diff).mix()
+        comparison.replace_dict = DictBlender(separator=DOT, flatten_on_add=False).add(replace).mix()
         return comparison
 
 
