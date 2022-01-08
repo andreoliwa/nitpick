@@ -14,6 +14,7 @@ from slugify import slugify
 from toml import TomlDecodeError
 
 from nitpick import __version__, fields
+from nitpick.blender import DictBlender, TomlDoc, search_json
 from nitpick.constants import (
     CACHE_DIR_NAME,
     DOT_SLASH,
@@ -25,9 +26,8 @@ from nitpick.constants import (
     PYPROJECT_TOML,
     TOML_EXTENSION,
 )
-from nitpick.documents import TomlDoc
 from nitpick.exceptions import QuitComplainingError, pretty_exception
-from nitpick.generic import DictBlender, is_url, search_dict
+from nitpick.generic import is_url
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.project import Project, glob_files
@@ -128,7 +128,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         self._blender.add(toml_dict)
 
-        sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
+        sub_styles: StrOrList = search_json(toml_dict, NITPICK_STYLES_INCLUDE_JMEX, [])
         if sub_styles:
             yield from self.include_multiple_styles(sub_styles)
 

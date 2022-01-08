@@ -22,6 +22,7 @@ from sortedcontainers import SortedDict
 from nitpick import PROJECT_NAME, __version__
 from nitpick.constants import (
     CONFIG_FILES,
+    DOT,
     EDITOR_CONFIG,
     PACKAGE_JSON,
     PRE_COMMIT_CONFIG_YAML,
@@ -127,7 +128,7 @@ class FileType:
     @property
     def sort_key(self) -> str:
         """Sort key of this element."""
-        return ("0" if self.text.startswith("Any") else "1") + self.text.casefold().replace(".", "")
+        return ("0" if self.text.startswith("Any") else "1") + self.text.casefold().replace(DOT, "")
 
     @property
     def text_with_url(self) -> str:

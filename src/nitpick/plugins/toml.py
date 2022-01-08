@@ -5,7 +5,7 @@ from typing import Iterator, Optional, Type
 from tomlkit import dumps, parse
 from tomlkit.toml_document import TOMLDocument
 
-from nitpick.documents import BaseDoc, TomlDoc, traverse_toml_tree
+from nitpick.blender import BaseDoc, TomlDoc, traverse_toml_tree
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo

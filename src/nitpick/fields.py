@@ -6,6 +6,7 @@ from marshmallow.fields import Dict, Field, List, Nested, String
 from marshmallow.validate import Length
 from more_itertools import always_iterable
 
+from nitpick.constants import DOT
 from nitpick.exceptions import pretty_exception
 
 __all__ = ("Dict", "List", "String", "Nested", "Field")
@@ -56,9 +57,9 @@ def string_or_list_field(object_dict, parent_object_dict):  # pylint: disable=un
 def validate_section_dot_field(section_field: str) -> bool:
     """Validate if the combination section/field has a dot separating them."""
     common = "Use <section_name>.<field_name>"
-    if "." not in section_field:
+    if DOT not in section_field:
         raise ValidationError(f"Dot is missing. {common}")
-    parts = section_field.split(".")
+    parts = section_field.split(DOT)
     if len(parts) > 2:
         raise ValidationError(f"There's more than one dot. {common}")
     if not parts[0].strip():

@@ -1,21 +1,40 @@
-"""Configuration file formats."""
+"""Dictionary blender and configuration file formats.
+
+.. testsetup::
+
+    from nitpick.generic import *
+"""
 import abc
 import json
+import re
 from collections import OrderedDict
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
 
 import dictdiffer
+import jmespath
 import toml
 import tomlkit
 from autorepr import autorepr
+from jmespath.parser import ParsedResult
 from more_itertools import always_iterable
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
-from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from ruamel.yaml.comments import CommentedMap
 from sortedcontainers import SortedDict
 
-from nitpick.generic import flatten, search_dict, unflatten
+from nitpick.constants import DOT
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
+
+SINGLE_QUOTE = "'"
+DOUBLE_QUOTE = '"'
+
+#: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
+# to avoid collision with existing key values (e.g. the default dot separator "." can be part of a TOML key).
+SEPARATOR_FLATTEN = "$#@"
+
+#: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
+SEPARATOR_QUOTED_SPLIT = "#$@"
 
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
 LIST_CLASSES = (list, tuple)
@@ -33,6 +52,41 @@ def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> Lis
     return []
 
 
+def search_json(
+    json_data: Union[MutableMapping[str, Any], List[Any]],
+    jmespath_expression: Union[ParsedResult, str],
+    default: Any = None,
+) -> Any:
+    """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
+
+    >>> data = {"root": {"app": [1, 2], "test": "something"}}
+    >>> search_json(data, "root.app", None)
+    [1, 2]
+    >>> search_json(data, "root.test", None)
+    'something'
+    >>> search_json(data, "root.unknown", "")
+    ''
+    >>> search_json(data, "root.unknown", None)
+
+    >>> search_json(data, "root.unknown")
+
+    >>> search_json(data, jmespath.compile("root.app"), [])
+    [1, 2]
+    >>> search_json(data, jmespath.compile("root.whatever"), "xxx")
+    'xxx'
+
+    :param jmespath_expression: A compiled JMESPath expression or a string with an expression.
+    :param json_data: The dictionary to be searched.
+    :param default: Default value in case nothing is found.
+    :return: The object that was found or the default value.
+    """
+    if isinstance(jmespath_expression, str):
+        rv = jmespath.search(jmespath_expression, json_data)
+    else:
+        rv = jmespath_expression.search(json_data)
+    return rv or default
+
+
 def search_element_by_unique_key(  # pylint: disable=too-many-locals
     actual_list: List[Any], expected_list: List[Any], nested_key: str, parent_key: str = ""
 ) -> Tuple[List, List]:
@@ -42,19 +96,19 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
     """
     jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
 
-    actual_keys = search_dict(f"[].{jmes_search_key}", actual_list, [])
+    actual_keys = search_json(actual_list, f"[].{jmes_search_key}", [])
     if not actual_keys:
         # There are no actual keys in the current YAML: let's insert the whole expected block
         return expected_list, actual_list + expected_list
 
     actual_indexes = {
-        key: index for index, element in enumerate(actual_list) for key in search_dict(jmes_search_key, element, [])
+        key: index for index, element in enumerate(actual_list) for key in search_json(element, jmes_search_key, [])
     }
 
     display = []
     replace = actual_list.copy()
     for element in expected_list:
-        expected_keys = search_dict(jmes_search_key, element, None)
+        expected_keys = search_json(element, jmes_search_key, None)
         if not expected_keys:
             # There are no expected keys in this current element: let's insert the whole element
             display.append(element)
@@ -73,8 +127,8 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
                 continue
 
             jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
-            actual_nested = search_dict(jmes_nested, actual_list[index], [])
-            expected_nested = search_dict(jmes_nested, element, [{}])
+            actual_nested = search_json(actual_list[index], jmes_nested, [])
+            expected_nested = search_json(element, jmes_nested, [{}])
             diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
             if not diff_nested:
                 continue
@@ -99,6 +153,127 @@ def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     dict_[key] = value
 
 
+def quoted_split(string_: str, separator=DOT) -> List[str]:
+    """Split a string by a separator, but considering quoted parts (single or double quotes).
+
+    >>> quoted_split("my.key.without.quotes")
+    ['my', 'key', 'without', 'quotes']
+    >>> quoted_split('"double.quoted.string"')
+    ['double.quoted.string']
+    >>> quoted_split('"double.quoted.string".and.after')
+    ['double.quoted.string', 'and', 'after']
+    >>> quoted_split('something.before."double.quoted.string"')
+    ['something', 'before', 'double.quoted.string']
+    >>> quoted_split("'single.quoted.string'")
+    ['single.quoted.string']
+    >>> quoted_split("'single.quoted.string'.and.after")
+    ['single.quoted.string', 'and', 'after']
+    >>> quoted_split("something.before.'single.quoted.string'")
+    ['something', 'before', 'single.quoted.string']
+    """
+    if DOUBLE_QUOTE not in string_ and SINGLE_QUOTE not in string_:
+        return string_.split(separator)
+
+    quoted_regex = re.compile(
+        f"([{SINGLE_QUOTE}{DOUBLE_QUOTE}][^{SINGLE_QUOTE}{DOUBLE_QUOTE}]+[{SINGLE_QUOTE}{DOUBLE_QUOTE}])"
+    )
+
+    def remove_quotes(match):
+        return match.group(0).strip("".join([SINGLE_QUOTE, DOUBLE_QUOTE])).replace(separator, SEPARATOR_QUOTED_SPLIT)
+
+    return [
+        part.replace(SEPARATOR_QUOTED_SPLIT, separator)
+        for part in quoted_regex.sub(remove_quotes, string_).split(separator)
+    ]
+
+
+class DictBlender:
+    """A blender of dictionaries: keep adding dictionaries and mix them all at the end.
+
+    .. note::
+
+        This class intentionally doesn't inherit from the standard ``dict()``.
+        It's an unnecessary hassle to override and deal with all those magic dunder methods.
+
+    :param dict_: Any optional dict.
+    :param extend_lists: True if nested lists should be extended when the key is the same.
+        False if they should be replaced.
+    :param separator: Separator used for flatten and unflatten operations. Default is a unique special separator.
+    :param flatten_on_add: True if dictionaries should be flattened when added (default). False to add them "as is".
+    """
+
+    def __init__(
+        self,
+        dict_: JsonDict = None,
+        *,
+        extend_lists=True,
+        separator: str = SEPARATOR_FLATTEN,
+        flatten_on_add: bool = True,
+    ) -> None:
+        self._current_flat_dict: OrderedDict = OrderedDict()
+        self._current_lists: Dict[str, List[Any]] = {}
+        self.extend_lists = extend_lists
+        self.separator = separator
+        self.flatten_on_add = flatten_on_add
+        self.add(dict_ or {}, flatten_on_add=self.flatten_on_add)
+
+    @property
+    def flat_dict(self):
+        """Return a flat dictionary with the current content."""
+        return self._current_flat_dict
+
+    def add(self, other: JsonDict, *, flatten_on_add: Optional[bool] = None) -> "DictBlender":
+        """Add another dictionary to the existing data."""
+        if flatten_on_add is None:
+            flatten_on_add = self.flatten_on_add
+        new_dict = self._flatten(other) if flatten_on_add else other
+        self._current_flat_dict.update(new_dict)
+        return self
+
+    def _flatten(self, dict_: JsonDict, parent_key="") -> JsonDict:
+        """Flatten a nested dict.
+
+        Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
+        """
+        items: List[Tuple[str, Any]] = []
+        for key, value in dict_.items():
+            quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if self.separator in str(key) else key
+            new_key = str(parent_key) + self.separator + str(quoted_key) if parent_key else quoted_key
+            if isinstance(value, dict):
+                items.extend(self._flatten(value, new_key).items())
+            elif isinstance(value, (list, tuple)) and self.extend_lists:
+                # If the value is a list or tuple, append to a previously existing list.
+                existing_list = self._current_lists.get(new_key, [])
+                existing_list.extend(list(value))
+                self._current_lists[new_key] = existing_list
+
+                items.append((new_key, existing_list))
+            else:
+                items.append((new_key, value))
+        return dict(items)
+
+    def _unflatten(self, dict_: JsonDict, sort=True) -> OrderedDict:
+        """Turn back a flat dict created by the ``_flatten()`` method into a nested dict."""
+        items: OrderedDict = OrderedDict()
+        for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
+            all_keys = quoted_split(root_key, self.separator)
+            sub_items = items
+            for key in all_keys[:-1]:
+                try:
+                    sub_items = sub_items[key]
+                except KeyError:
+                    sub_items[key] = OrderedDict()
+                    sub_items = sub_items[key]
+
+            sub_items[all_keys[-1]] = root_value
+
+        return items
+
+    def mix(self, sort=True) -> JsonDict:
+        """Mix all dictionaries, replacing values with identical keys and extending lists."""
+        return self._unflatten(self._current_flat_dict, sort)
+
+
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
@@ -108,8 +283,8 @@ class Comparison:
         expected: JsonDict,
         doc_class: Type["BaseDoc"],
     ) -> None:
-        self.flat_actual = self._normalize_value(actual)
-        self.flat_expected = self._normalize_value(expected)
+        self.flat_actual = DictBlender(actual, separator=DOT).flat_dict
+        self.flat_expected = DictBlender(expected, separator=DOT).flat_dict
 
         self.doc_class = doc_class
 
@@ -143,14 +318,6 @@ class Comparison:
         """Return True is there is a difference or something missing."""
         return bool(self.missing or self.diff or self.replace)
 
-    @staticmethod
-    def _normalize_value(value: JsonDict) -> Dict:
-        if isinstance(value, BaseDoc):
-            dict_value = value.as_object
-        else:
-            dict_value = value
-        return flatten(dict_value)
-
 
 class BaseDoc(metaclass=abc.ABCMeta):
     """Base class for configuration file formats.
@@ -158,31 +325,24 @@ class BaseDoc(metaclass=abc.ABCMeta):
     :param path: Path of the config file to be loaded.
     :param string: Config in string format.
     :param obj: Config object (Python dict, YamlDoc, TomlDoc instances).
-    :param ignore_keys: List of keys to ignore when using the comparison methods.
     """
 
     __repr__ = autorepr(["path"])
 
-    def __init__(
-        self, *, path: PathOrStr = None, string: str = None, obj: JsonDict = None, ignore_keys: List[str] = None
-    ) -> None:
+    def __init__(self, *, path: PathOrStr = None, string: str = None, obj: JsonDict = None) -> None:
         self.path = path
         self._string = string
         self._object = obj
 
-        self._ignore_keys = ignore_keys or []
         self._reformatted: Optional[str] = None
-        self._loaded = False
 
     @abc.abstractmethod
-    def load(self):
+    def load(self) -> bool:
         """Load the configuration from a file, a string or a dict."""
 
     @property
     def as_string(self) -> str:
         """Contents of the file or the original string provided when the instance was created."""
-        if self._string is None:
-            self.load()
         return self._string or ""
 
     @property
@@ -199,33 +359,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
             self.load()
         return self._reformatted or ""
 
-    @classmethod
-    def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
-        return list(*args)
-
-    def _create_comparison(self, expected: JsonDict):
-        if not self._ignore_keys:
-            return Comparison(self.as_object or {}, expected or {}, self.__class__)
-
-        actual_original = self.as_object or {}
-        actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
-
-        expected_original: JsonDict = expected or {}
-        if isinstance(expected_original, dict):
-            expected_copy: JsonDict = expected_original.copy()
-        elif isinstance(expected_original, BaseDoc):
-            expected_copy = expected_original.as_object.copy()  # type: ignore[attr-defined]
-        else:
-            expected_copy = expected_original
-        for key in self._ignore_keys:
-            actual_copy.pop(key, None)
-            expected_copy.pop(key, None)
-        return Comparison(actual_copy, expected_copy, self.__class__)
-
     def compare_with_flatten(self, expected: JsonDict = None, unique_keys: JsonDict = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
-        comparison = self._create_comparison(expected or {})
+        comparison = Comparison(self.as_object or {}, expected or {}, self.__class__)
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
             return comparison
 
@@ -260,9 +396,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
             elif expected_value != actual:
                 set_key_if_not_empty(diff, key, expected_value)
 
-        comparison.missing_dict = unflatten(missing)
-        comparison.diff_dict = unflatten(diff)
-        comparison.replace_dict = unflatten(replace)
+        comparison.missing_dict = DictBlender(separator=DOT, flatten_on_add=False).add(missing).mix()
+        comparison.diff_dict = DictBlender(separator=DOT, flatten_on_add=False).add(diff).mix()
+        comparison.replace_dict = DictBlender(separator=DOT, flatten_on_add=False).add(replace).mix()
         return comparison
 
 
@@ -289,16 +425,14 @@ class TomlDoc(BaseDoc):
         path: PathOrStr = None,
         string: str = None,
         obj: JsonDict = None,
-        ignore_keys: List[str] = None,
         use_tomlkit=False,
     ) -> None:
-        super().__init__(path=path, string=string, obj=obj, ignore_keys=ignore_keys)
+        super().__init__(path=path, string=string, obj=obj)
         self.use_tomlkit = use_tomlkit
 
+    @lru_cache()
     def load(self) -> bool:
         """Load a TOML file by its path, a string or a dict."""
-        if self._loaded:
-            return False
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
@@ -309,16 +443,12 @@ class TomlDoc(BaseDoc):
             else:
                 self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
-            if isinstance(self._object, BaseDoc):
-                self._reformatted = self._object.reformatted
+            # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
+            #  but comments are being lost when the TOML plugin does dict comparisons.
+            if self.use_tomlkit:
+                self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
             else:
-                # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
-                #  but comments are being lost when the TOML plugin does dict comparisons.
-                if self.use_tomlkit:
-                    self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
-                else:
-                    self._reformatted = toml.dumps(self._object)
-        self._loaded = True
+                self._reformatted = toml.dumps(self._object)
         return True
 
 
@@ -341,8 +471,8 @@ class SensibleYAML(YAML):
     <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_
     """
 
-    def __init__(self, *, typ=None, pure=False, output=None, plug_ins=None):
-        super().__init__(typ=typ, pure=pure, output=output, plug_ins=plug_ins)
+    def __init__(self):
+        super().__init__()
         self.map_indent = 2
         self.sequence_indent = 4
         self.sequence_dash_offset = 2
@@ -364,11 +494,9 @@ class YamlDoc(BaseDoc):
 
     updater: SensibleYAML
 
+    @lru_cache()
     def load(self) -> bool:
         """Load a YAML file by its path, a string or a dict."""
-        if self._loaded:
-            return False
-
         self.updater = SensibleYAML()
 
         if self.path is not None:
@@ -376,28 +504,8 @@ class YamlDoc(BaseDoc):
         if self._string is not None:
             self._object = self.updater.loads(self._string)
         if self._object is not None:
-            if isinstance(self._object, BaseDoc):
-                self._reformatted = self._object.reformatted
-            else:
-                self._reformatted = self.updater.dumps(self._object)
-
-        self._loaded = True
+            self._reformatted = self.updater.dumps(self._object)
         return True
-
-    @property
-    def as_object(self) -> CommentedMap:
-        """On YAML, this dict is a special object with comments and ordered keys."""
-        return super().as_object
-
-    @property
-    def as_list(self) -> CommentedSeq:
-        """A list of dicts, for typing purposes. On YAML, ``as_object`` might contain a ``list``."""
-        return self.as_object
-
-    @classmethod
-    def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """A boolean "True" or "true" might have the same effect on YAML."""
-        return [str(value).lower() if isinstance(value, (int, float, bool)) else value for value in args]
 
 
 for dict_class in (SortedDict, OrderedDict):
@@ -452,24 +560,14 @@ def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[YamlValue]):
 class JsonDoc(BaseDoc):
     """JSON configuration format."""
 
+    @lru_cache()
     def load(self) -> bool:
         """Load a JSON file by its path, a string or a dict."""
-        if self._loaded:
-            return False
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
             self._object = json.loads(self._string, object_pairs_hook=OrderedDict)
         if self._object is not None:
-            if isinstance(self._object, BaseDoc):
-                self._reformatted = self._object.reformatted
-            else:
-                # Every file should end with a blank line
-                self._reformatted = json.dumps(self._object, sort_keys=True, indent=2) + "\n"
-        self._loaded = True
+            # Every file should end with a blank line
+            self._reformatted = json.dumps(self._object, sort_keys=True, indent=2) + "\n"
         return True
-
-    @classmethod
-    def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
-        return list(args)
