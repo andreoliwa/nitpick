@@ -201,6 +201,66 @@ Contents of `resources/javascript/package-json.toml <https://github.com/andreoli
     ["package.json"]
     contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
 
+.. _example-python-3-10:
+
+Python 3.10
+-----------
+
+Contents of `resources/python/310.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/310.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.10"
+
+.. _example-python-3-6:
+
+Python 3.6
+----------
+
+Contents of `resources/python/36.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/36.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.6.1"
+
+.. _example-python-3-7:
+
+Python 3.7
+----------
+
+Contents of `resources/python/37.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/37.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.7"
+
+.. _example-python-3-8:
+
+Python 3.8
+----------
+
+Contents of `resources/python/38.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/38.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.8"
+
+.. _example-python-3-9:
+
+Python 3.9
+----------
+
+Contents of `resources/python/39.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/39.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.9"
+
 .. _example-absent-files:
 
 Absent files
@@ -558,81 +618,6 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     [".codeclimate.yml".plugins.pylint]  # https://docs.codeclimate.com/docs/pylint Already checked by pre-commit
     enabled = false
 
-.. _example-python-stable-version:
-
-Python (stable version)
------------------------
-
-Contents of `resources/python/python-stable.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python-stable.toml>`_:
-
-.. code-block:: toml
-
-    [".readthedocs.yml".python]
-    # ReadTheDocs still didn't upgrade to Python 3.9:
-    # Problem in your project's configuration. Invalid "python.version":
-    # expected one of (2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, pypy3.5), got 3.9
-    version = "3.8"
-
-.. _example-python-3-10:
-
-Python 3.10
------------
-
-Contents of `resources/python/python310.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python310.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.10"
-
-.. _example-python-3-6:
-
-Python 3.6
-----------
-
-Contents of `resources/python/python36.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python36.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.6.1"
-
-.. _example-python-3-7:
-
-Python 3.7
-----------
-
-Contents of `resources/python/python37.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python37.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.7"
-
-.. _example-python-3-8:
-
-Python 3.8
-----------
-
-Contents of `resources/python/python38.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python38.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.8"
-
-.. _example-python-3-9:
-
-Python 3.9
-----------
-
-Contents of `resources/python/python39.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python39.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.9"
-
 .. _example-radon:
 
 radon_
@@ -682,6 +667,21 @@ Contents of `resources/python/sonar-python.toml <https://github.com/andreoliwa/n
     [".codeclimate.yml".plugins.sonar-python]  # https://docs.codeclimate.com/docs/sonar-python
     # https://github.com/SonarSource/sonar-python
     enabled = true
+
+.. _example-python-stable-version:
+
+Python (stable version)
+-----------------------
+
+Contents of `resources/python/stable.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/stable.toml>`_:
+
+.. code-block:: toml
+
+    [".readthedocs.yml".python]
+    # ReadTheDocs still didn't upgrade to Python 3.9:
+    # Problem in your project's configuration. Invalid "python.version":
+    # expected one of (2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, pypy3.5), got 3.9
+    version = "3.8"
 
 .. _example-tox:
 

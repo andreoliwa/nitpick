@@ -31,7 +31,6 @@
 .. _isort: https://github.com/PyCQA/isort
 .. _markdownlint: https://github.com/markdownlint/markdownlint
 .. _mypy: https://github.com/python/mypy
-.. _new issue: https://github.com/andreoliwa/nitpick/issues/new/choose
 .. _package.json: https://docs.npmjs.com/files/package.json
 .. _pipx: https://github.com/pipxproject/pipx
 .. _pre-commit: https://github.com/pre-commit/pre-commit

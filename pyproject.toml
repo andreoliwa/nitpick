@@ -2,8 +2,8 @@
 # Use the default style and override some things (like the Python version)
 style = [
     "nitpick-style",
-    "py://nitpick/resources/python/python36.toml",
-    "py://nitpick/resources/python/python-stable.toml"
+    "py://nitpick/resources/python/36.toml",
+    "py://nitpick/resources/python/stable.toml"
 ]
 
 [tool.black]
