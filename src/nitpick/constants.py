@@ -72,8 +72,9 @@ NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
 NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
 
 #: Dot/slash is used to indicate a local style file
+DOT = "."
 SLASH = os.path.sep
-DOT_SLASH = f".{SLASH}"
+DOT_SLASH = f"{DOT}{SLASH}"
 
 GIT_AT_REFERENCE = "@"
 

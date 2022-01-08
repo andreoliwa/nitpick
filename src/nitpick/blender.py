@@ -22,7 +22,7 @@ from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
-from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
+from nitpick.constants import DOT, DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
 
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
@@ -142,7 +142,7 @@ def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     dict_[key] = value
 
 
-def quoted_split(string_: str, separator=".") -> List[str]:
+def quoted_split(string_: str, separator=DOT) -> List[str]:
     """Split a string by a separator, but considering quoted parts (single or double quotes).
 
     >>> quoted_split("my.key.without.quotes")
@@ -176,7 +176,7 @@ def quoted_split(string_: str, separator=".") -> List[str]:
     ]
 
 
-def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict:
+def flatten(dict_, parent_key="", separator=DOT, current_lists=None, extend_lists=True) -> JsonDict:
     """Flatten a nested dict.
 
     Use :py:meth:`unflatten()` to revert.
@@ -192,8 +192,8 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
         quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if separator in str(key) else key
         new_key = str(parent_key) + separator + str(quoted_key) if parent_key else quoted_key
         if isinstance(value, dict):
-            items.extend(flatten(value, new_key, separator, current_lists).items())
-        elif isinstance(value, (list, tuple)):
+            items.extend(flatten(value, new_key, separator, current_lists, extend_lists).items())
+        elif isinstance(value, (list, tuple)) and extend_lists:
             # If the value is a list or tuple, append to a previously existing list.
             existing_list = current_lists.get(new_key, [])
             existing_list.extend(list(value))
@@ -205,7 +205,7 @@ def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict
     return dict(items)
 
 
-def unflatten(dict_, separator=".", sort=True) -> OrderedDict:
+def unflatten(dict_, separator=DOT, sort=True) -> OrderedDict:
     """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
 
     >>> expected = {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
@@ -241,19 +241,28 @@ class DictBlender:
         It's an unnecessary hassle to override and deal with all those magic dunder methods.
     """
 
-    def __init__(self, original_dict: JsonDict = None) -> None:
-        self._all_flattened: OrderedDict = OrderedDict()
+    def __init__(
+        self, original_dict: JsonDict = None, *, extend_lists=True, separator: str = SEPARATOR_FLATTEN
+    ) -> None:
+        self._current_flat_dict: OrderedDict = OrderedDict()
         self._current_lists: Dict[str, Iterable] = {}
+        self.extend_lists = extend_lists
+        self.separator = separator
         self.add(original_dict or {})
 
     def add(self, other: JsonDict) -> None:
         """Add another dictionary to the existing data."""
-        flattened_other = flatten(other, separator=SEPARATOR_FLATTEN, current_lists=self._current_lists)
-        self._all_flattened.update(flattened_other)
+        flattened_other = flatten(other, "", self.separator, self._current_lists, self.extend_lists)
+        self._current_flat_dict.update(flattened_other)
+
+    @property
+    def flat_dict(self):
+        """Return a flat dictionary with the current content."""
+        return self._current_flat_dict
 
     def mix(self, sort=True) -> JsonDict:
         """Mix all dictionaries, replacing values with identical keys and extending lists."""
-        return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN, sort=sort)
+        return unflatten(self._current_flat_dict, self.separator, sort)
 
 
 class Comparison:

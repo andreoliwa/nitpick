@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from typing import Iterable, List, Optional, Tuple
 
-from nitpick.constants import PROJECT_NAME
+from nitpick.constants import DOT, PROJECT_NAME
 from nitpick.typedefs import PathOrStr
 
 URL_RE = re.compile(r"[a-z]+://[\$\w]\w*")
@@ -38,7 +38,7 @@ def version_to_tuple(version: str = None) -> Tuple[int, ...]:
     clean_version = version.strip()
     if not clean_version:
         return ()
-    return tuple(int(part) for part in clean_version.split("."))
+    return tuple(int(part) for part in clean_version.split(DOT))
 
 
 def is_url(url: str) -> bool:
@@ -70,7 +70,7 @@ def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:
     path = Path(path_or_str)
     if str(path).startswith(str(Path.cwd())):
         rv = str(path.relative_to(Path.cwd()))
-        return "" if rv == "." else rv
+        return "" if rv == DOT else rv
 
     return str(path.absolute())
 

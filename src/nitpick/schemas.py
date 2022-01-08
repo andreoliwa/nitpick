@@ -6,14 +6,14 @@ from marshmallow_polyfield import PolyField
 from sortedcontainers import SortedDict
 
 from nitpick import fields
-from nitpick.blender import flatten
-from nitpick.constants import READ_THE_DOCS_URL, SETUP_CFG
+from nitpick.blender import DictBlender
+from nitpick.constants import DOT, READ_THE_DOCS_URL, SETUP_CFG
 
 
 def flatten_marshmallow_errors(errors: Dict) -> str:
     """Flatten Marshmallow errors to a string."""
     formatted = []
-    for field, data in SortedDict(flatten(errors)).items():
+    for field, data in SortedDict(DictBlender(errors, separator=DOT).flat_dict).items():
         if isinstance(data, (list, tuple)):
             messages_per_field = [f"{field}: {', '.join(data)}"]
         else:
