@@ -16,7 +16,7 @@ workflow = YamlDoc(path=Path(".github/workflows/python.yaml"))
 def find(expression):
     """Find with JMESpath."""
     print(f"\nExpression: {expression}")
-    rv = jmes_search_json(jmespath.compile(expression), workflow.as_object, {})
+    rv = jmes_search_json(workflow.as_object, jmespath.compile(expression), {})
     print(f"Type: {type(rv)}")
     pprint(rv)
 

@@ -163,35 +163,37 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
 
 
 def jmes_search_json(
-    jmespath_expression: Union[ParsedResult, str], data: Union[MutableMapping[str, Any], List[Any]], default: Any = None
+    json_data: Union[MutableMapping[str, Any], List[Any]],
+    jmespath_expression: Union[ParsedResult, str],
+    default: Any = None,
 ) -> Any:
-    """Search a dictionary or list using a JMESPath expression, and returning a default value.
+    """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
 
-    >>> data = {"root": {"app": [1, 2], "test": "something"}}
-    >>> jmes_search_json("root.app", data, None)
+    >>> json_data = {"root": {"app": [1, 2], "test": "something"}}
+    >>> jmes_search_json(json_data,"root.app",None)
     [1, 2]
-    >>> jmes_search_json("root.test", data, None)
+    >>> jmes_search_json(json_data,"root.test",None)
     'something'
-    >>> jmes_search_json("root.unknown", data, "")
+    >>> jmes_search_json(json_data,"root.unknown","")
     ''
-    >>> jmes_search_json("root.unknown", data, None)
+    >>> jmes_search_json(json_data,"root.unknown",None)
 
-    >>> jmes_search_json("root.unknown", data)
+    >>> jmes_search_json(json_data,"root.unknown")
 
-    >>> jmes_search_json(jmespath.compile("root.app"), data, [])
+    >>> jmes_search_json(json_data,jmespath.compile("root.app"),[])
     [1, 2]
-    >>> jmes_search_json(jmespath.compile("root.whatever"), data, "xxx")
+    >>> jmes_search_json(json_data,jmespath.compile("root.whatever"),"xxx")
     'xxx'
 
     :param jmespath_expression: A compiled JMESPath expression or a string with an expression.
-    :param data: The dictionary to be searched.
+    :param json_data: The dictionary to be searched.
     :param default: Default value in case nothing is found.
     :return: The object that was found or the default value.
     """
     if isinstance(jmespath_expression, str):
-        rv = jmespath.search(jmespath_expression, data)
+        rv = jmespath.search(jmespath_expression, json_data)
     else:
-        rv = jmespath_expression.search(data)
+        rv = jmespath_expression.search(json_data)
     return rv or default
 
 

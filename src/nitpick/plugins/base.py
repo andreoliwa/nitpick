@@ -64,7 +64,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
-        return jmes_search_json(f'files."{self.filename}"', self.info.project.nitpick_section, {})
+        return jmes_search_json(self.info.project.nitpick_section, f'files."{self.filename}"', {})
 
     @property
     def unique_keys_default(self) -> JsonDict:

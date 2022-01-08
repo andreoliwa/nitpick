@@ -42,7 +42,7 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
     """
     jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
 
-    actual_keys = jmes_search_json(f"[].{jmes_search_key}", actual_list, [])
+    actual_keys = jmes_search_json(actual_list, f"[].{jmes_search_key}", [])
     if not actual_keys:
         # There are no actual keys in the current YAML: let's insert the whole expected block
         return expected_list, actual_list + expected_list
@@ -50,13 +50,13 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
     actual_indexes = {
         key: index
         for index, element in enumerate(actual_list)
-        for key in jmes_search_json(jmes_search_key, element, [])
+        for key in jmes_search_json(element, jmes_search_key, [])
     }
 
     display = []
     replace = actual_list.copy()
     for element in expected_list:
-        expected_keys = jmes_search_json(jmes_search_key, element, None)
+        expected_keys = jmes_search_json(element, jmes_search_key, None)
         if not expected_keys:
             # There are no expected keys in this current element: let's insert the whole element
             display.append(element)
@@ -75,8 +75,8 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
                 continue
 
             jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
-            actual_nested = jmes_search_json(jmes_nested, actual_list[index], [])
-            expected_nested = jmes_search_json(jmes_nested, element, [{}])
+            actual_nested = jmes_search_json(actual_list[index], jmes_nested, [])
+            expected_nested = jmes_search_json(element, jmes_nested, [{}])
             diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
             if not diff_nested:
                 continue

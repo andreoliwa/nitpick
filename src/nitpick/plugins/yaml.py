@@ -61,7 +61,7 @@ class PreCommitHook:
             for index, hook in enumerate(repo.get(KEY_HOOKS, [])):
                 repo_data_only = repo.copy()
                 repo_data_only.pop(KEY_HOOKS)
-                hook_data_only = jmes_search_json(f"{KEY_HOOKS}[{index}]", repo, {})
+                hook_data_only = jmes_search_json(repo, f"{KEY_HOOKS}[{index}]", {})
                 repo_data_only.update({KEY_HOOKS: [hook_data_only]})
                 hooks.append(
                     PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YamlDoc(obj=[repo_data_only])).key_value_pair  # type: ignore[arg-type]

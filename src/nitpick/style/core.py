@@ -128,7 +128,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         self._blender.add(toml_dict)
 
-        sub_styles: StrOrList = jmes_search_json(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
+        sub_styles: StrOrList = jmes_search_json(toml_dict, NITPICK_STYLES_INCLUDE_JMEX, [])
         if sub_styles:
             yield from self.include_multiple_styles(sub_styles)
 

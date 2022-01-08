@@ -149,7 +149,7 @@ class Project:
             return Configuration(None, [], "")
 
         toml_doc = TomlDoc(path=config_file)
-        config_dict = jmes_search_json(TOOL_NITPICK_JMEX, toml_doc.as_object, {})
+        config_dict = jmes_search_json(toml_doc.as_object, TOOL_NITPICK_JMEX, {})
         validation_errors = ToolNitpickSectionSchema().validate(config_dict)
         if not validation_errors:
             return Configuration(config_file, config_dict.get("style", []), config_dict.get("cache", ""))
@@ -181,7 +181,7 @@ class Project:
 
         from nitpick.flake8 import NitpickFlake8Extension
 
-        minimum_version = jmes_search_json(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
+        minimum_version = jmes_search_json(self.style_dict, NITPICK_MINIMUM_VERSION_JMEX, None)
         logger.debug(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
             yield Reporter().make_fuss(
