@@ -7,27 +7,7 @@ from unittest import mock
 from testfixtures import compare
 
 from nitpick.constants import EDITOR_CONFIG, TOX_INI
-from nitpick.generic import get_subclasses, relative_to_current_dir
-from tests.helpers import assert_conditions
-
-
-def test_get_subclasses():
-    """Test subclasses."""
-
-    # pylint: disable=missing-docstring,too-few-public-methods
-    class Vehicle:
-        pass
-
-    class Car(Vehicle):
-        pass
-
-    class Audi(Car):
-        pass
-
-    class Bicycle(Vehicle):
-        pass
-
-    assert_conditions(get_subclasses(Vehicle) == [Car, Audi, Bicycle])
+from nitpick.generic import relative_to_current_dir
 
 
 @mock.patch.object(Path, "cwd")

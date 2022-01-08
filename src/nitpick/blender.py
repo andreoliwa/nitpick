@@ -6,6 +6,7 @@
 """
 import abc
 import json
+import re
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, Type, Union
@@ -21,8 +22,7 @@ from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
-from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN
-from nitpick.generic import quoted_split
+from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
 
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
@@ -140,6 +140,40 @@ def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     if not value:
         return
     dict_[key] = value
+
+
+def quoted_split(string_: str, separator=".") -> List[str]:
+    """Split a string by a separator, but considering quoted parts (single or double quotes).
+
+    >>> quoted_split("my.key.without.quotes")
+    ['my', 'key', 'without', 'quotes']
+    >>> quoted_split('"double.quoted.string"')
+    ['double.quoted.string']
+    >>> quoted_split('"double.quoted.string".and.after')
+    ['double.quoted.string', 'and', 'after']
+    >>> quoted_split('something.before."double.quoted.string"')
+    ['something', 'before', 'double.quoted.string']
+    >>> quoted_split("'single.quoted.string'")
+    ['single.quoted.string']
+    >>> quoted_split("'single.quoted.string'.and.after")
+    ['single.quoted.string', 'and', 'after']
+    >>> quoted_split("something.before.'single.quoted.string'")
+    ['something', 'before', 'single.quoted.string']
+    """
+    if DOUBLE_QUOTE not in string_ and SINGLE_QUOTE not in string_:
+        return string_.split(separator)
+
+    quoted_regex = re.compile(
+        f"([{SINGLE_QUOTE}{DOUBLE_QUOTE}][^{SINGLE_QUOTE}{DOUBLE_QUOTE}]+[{SINGLE_QUOTE}{DOUBLE_QUOTE}])"
+    )
+
+    def remove_quotes(match):
+        return match.group(0).strip("".join([SINGLE_QUOTE, DOUBLE_QUOTE])).replace(separator, SEPARATOR_QUOTED_SPLIT)
+
+    return [
+        part.replace(SEPARATOR_QUOTED_SPLIT, separator)
+        for part in quoted_regex.sub(remove_quotes, string_).split(separator)
+    ]
 
 
 def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict:

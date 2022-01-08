@@ -5,13 +5,10 @@
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
 """
 import warnings
-from textwrap import dedent
 
 import pytest
-from testfixtures import compare
 
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML, SETUP_CFG
-from nitpick.plugins.yaml import PreCommitHook
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
@@ -350,70 +347,6 @@ def test_missing_hook_with_id(tmp_path):
                 hooks: "- id: black\\n  name: black\\n  entry: black\\n"
             """,
         )
-    )
-
-
-def test_get_all_hooks_from():
-    """Test if the get_all_hooks_from() method will split the YAML block in hooks and copy the repo info for each."""
-    data = """
-      - repo: https://github.com/user/repo
-        rev: v0.4.5
-        hooks:
-          - id: first
-            additional_dependencies: [package==1.0.0]
-          - id: second
-            args: [1, 2, 3]
-          - id: third
-          - id: fourth
-            args: [some, here]
-            additional_dependencies: [another>=2.0.3]
-    """
-    rv = PreCommitHook.get_all_hooks_from(dedent(data))
-
-    def assert_hook_yaml(key, yaml_string):
-        expected = rv["https://github.com/user/repo_" + key].yaml.reformatted
-        actual = yaml_string
-        compare(dedent(actual).strip(), dedent(expected).strip())
-
-    assert_hook_yaml(
-        "first",
-        """
-          - repo: https://github.com/user/repo
-            rev: v0.4.5
-            hooks:
-              - id: first
-                additional_dependencies: [package==1.0.0]
-        """,
-    )
-    assert_hook_yaml(
-        "second",
-        """
-          - repo: https://github.com/user/repo
-            rev: v0.4.5
-            hooks:
-              - id: second
-                args: [1, 2, 3]
-        """,
-    )
-    assert_hook_yaml(
-        "third",
-        """
-          - repo: https://github.com/user/repo
-            rev: v0.4.5
-            hooks:
-              - id: third
-        """,
-    )
-    assert_hook_yaml(
-        "fourth",
-        """
-          - repo: https://github.com/user/repo
-            rev: v0.4.5
-            hooks:
-              - id: fourth
-                args: [some, here]
-                additional_dependencies: [another>=2.0.3]
-        """,
     )
 
 
