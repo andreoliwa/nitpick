@@ -1,7 +1,7 @@
-nitpick.formats module
+nitpick.blender module
 ======================
 
-.. automodule:: nitpick.formats
+.. automodule:: nitpick.blender
    :members:
    :undoc-members:
    :show-inheritance:
