@@ -162,25 +162,25 @@ def find_object_by_key(list_: List[dict], search_key: str, search_value: Any) ->
     return {}
 
 
-def search_dict(
+def jmes_search_json(
     jmespath_expression: Union[ParsedResult, str], data: Union[MutableMapping[str, Any], List[Any]], default: Any = None
 ) -> Any:
-    """Search a dictionary using a JMESPath expression, and returning a default value.
+    """Search a dictionary or list using a JMESPath expression, and returning a default value.
 
     >>> data = {"root": {"app": [1, 2], "test": "something"}}
-    >>> search_dict("root.app", data, None)
+    >>> jmes_search_json("root.app", data, None)
     [1, 2]
-    >>> search_dict("root.test", data, None)
+    >>> jmes_search_json("root.test", data, None)
     'something'
-    >>> search_dict("root.unknown", data, "")
+    >>> jmes_search_json("root.unknown", data, "")
     ''
-    >>> search_dict("root.unknown", data, None)
+    >>> jmes_search_json("root.unknown", data, None)
 
-    >>> search_dict("root.unknown", data)
+    >>> jmes_search_json("root.unknown", data)
 
-    >>> search_dict(jmespath.compile("root.app"), data, [])
+    >>> jmes_search_json(jmespath.compile("root.app"), data, [])
     [1, 2]
-    >>> search_dict(jmespath.compile("root.whatever"), data, "xxx")
+    >>> jmes_search_json(jmespath.compile("root.whatever"), data, "xxx")
     'xxx'
 
     :param jmespath_expression: A compiled JMESPath expression or a string with an expression.

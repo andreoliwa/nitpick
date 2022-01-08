@@ -27,7 +27,7 @@ from nitpick.constants import (
 )
 from nitpick.documents import TomlDoc
 from nitpick.exceptions import QuitComplainingError, pretty_exception
-from nitpick.generic import DictBlender, is_url, search_dict
+from nitpick.generic import DictBlender, is_url, jmes_search_json
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.project import Project, glob_files
@@ -128,7 +128,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
         self._blender.add(toml_dict)
 
-        sub_styles: StrOrList = search_dict(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
+        sub_styles: StrOrList = jmes_search_json(NITPICK_STYLES_INCLUDE_JMEX, toml_dict, [])
         if sub_styles:
             yield from self.include_multiple_styles(sub_styles)
 

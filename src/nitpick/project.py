@@ -32,7 +32,7 @@ from nitpick.constants import (
 )
 from nitpick.documents import TomlDoc
 from nitpick.exceptions import QuitComplainingError
-from nitpick.generic import search_dict, version_to_tuple
+from nitpick.generic import jmes_search_json, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
 from nitpick.typedefs import JsonDict, PathOrStr, mypy_property
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
@@ -149,7 +149,7 @@ class Project:
             return Configuration(None, [], "")
 
         toml_doc = TomlDoc(path=config_file)
-        config_dict = search_dict(TOOL_NITPICK_JMEX, toml_doc.as_object, {})
+        config_dict = jmes_search_json(TOOL_NITPICK_JMEX, toml_doc.as_object, {})
         validation_errors = ToolNitpickSectionSchema().validate(config_dict)
         if not validation_errors:
             return Configuration(config_file, config_dict.get("style", []), config_dict.get("cache", ""))
@@ -181,7 +181,7 @@ class Project:
 
         from nitpick.flake8 import NitpickFlake8Extension
 
-        minimum_version = search_dict(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
+        minimum_version = jmes_search_json(NITPICK_MINIMUM_VERSION_JMEX, self.style_dict, None)
         logger.debug(f"Minimum version: {minimum_version}")
         if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
             yield Reporter().make_fuss(

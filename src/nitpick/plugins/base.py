@@ -11,7 +11,7 @@ from marshmallow import Schema
 
 from nitpick.constants import DUNDER_SEARCH_UNIQUE_KEY
 from nitpick.documents import BaseDoc
-from nitpick.generic import search_dict
+from nitpick.generic import jmes_search_json
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
 from nitpick.violations import Fuss, Reporter, SharedViolations
@@ -64,7 +64,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
-        return search_dict(f'files."{self.filename}"', self.info.project.nitpick_section, {})
+        return jmes_search_json(f'files."{self.filename}"', self.info.project.nitpick_section, {})
 
     @property
     def unique_keys_default(self) -> JsonDict:

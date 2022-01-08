@@ -14,7 +14,7 @@ from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
-from nitpick.generic import flatten, search_dict, unflatten
+from nitpick.generic import flatten, jmes_search_json, unflatten
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
 
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
@@ -42,19 +42,21 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
     """
     jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
 
-    actual_keys = search_dict(f"[].{jmes_search_key}", actual_list, [])
+    actual_keys = jmes_search_json(f"[].{jmes_search_key}", actual_list, [])
     if not actual_keys:
         # There are no actual keys in the current YAML: let's insert the whole expected block
         return expected_list, actual_list + expected_list
 
     actual_indexes = {
-        key: index for index, element in enumerate(actual_list) for key in search_dict(jmes_search_key, element, [])
+        key: index
+        for index, element in enumerate(actual_list)
+        for key in jmes_search_json(jmes_search_key, element, [])
     }
 
     display = []
     replace = actual_list.copy()
     for element in expected_list:
-        expected_keys = search_dict(jmes_search_key, element, None)
+        expected_keys = jmes_search_json(jmes_search_key, element, None)
         if not expected_keys:
             # There are no expected keys in this current element: let's insert the whole element
             display.append(element)
@@ -73,8 +75,8 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
                 continue
 
             jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
-            actual_nested = search_dict(jmes_nested, actual_list[index], [])
-            expected_nested = search_dict(jmes_nested, element, [{}])
+            actual_nested = jmes_search_json(jmes_nested, actual_list[index], [])
+            expected_nested = jmes_search_json(jmes_nested, element, [{}])
             diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
             if not diff_nested:
                 continue
