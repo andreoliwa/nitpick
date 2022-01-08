@@ -400,6 +400,7 @@ Contents of `resources/python/github-workflow.toml <https://github.com/andreoliw
     PYTHONUNBUFFERED = 1
 
     [[".github/workflows/python.yaml".jobs.build.steps]]
+    name = "Checkout"
     uses = "actions/checkout@v2"
 
     [[".github/workflows/python.yaml".jobs.build.steps]]

@@ -40,16 +40,22 @@ DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
 LIST_CLASSES = (list, tuple)
 
 
-def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> List:
+def compare_lists_with_dictdiffer(
+    actual: List[Any], expected: List[Any], *, return_list: bool = True
+) -> Union[List, Dict]:
     """Compare two lists using dictdiffer."""
     additions_and_changes = [change for change in dictdiffer.diff(actual, expected) if change[0] != "remove"]
-    if additions_and_changes:
-        try:
-            changed_dict = dictdiffer.patch(additions_and_changes, {})
-            return list(changed_dict.values())
-        except KeyError:
-            return expected
-    return []
+    if not additions_and_changes:
+        return []
+
+    try:
+        changed_dict = dictdiffer.patch(additions_and_changes, {})
+    except KeyError:
+        return expected
+
+    if return_list:
+        return list(changed_dict.values())
+    return changed_dict
 
 
 def search_json(
@@ -87,7 +93,8 @@ def search_json(
     return rv or default
 
 
-def search_element_by_unique_key(  # pylint: disable=too-many-locals
+# FIXME: refactor to reduce complexity again
+def search_element_by_unique_key(  # pylint: disable=too-many-locals # noqa: C901
     actual_list: List[Any], expected_list: List[Any], nested_key: str, parent_key: str = ""
 ) -> Tuple[List, List]:
     """Search an element in a list with a JMES expression representing the unique key.
@@ -102,8 +109,11 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
         return expected_list, actual_list + expected_list
 
     actual_indexes = {
-        key: index for index, element in enumerate(actual_list) for key in search_json(element, jmes_search_key, [])
+        key: index
+        for index, element in enumerate(actual_list)
+        for key in always_iterable(search_json(element, jmes_search_key, []))
     }
+    # TODO: the return of search_json() could be an ordered dict with {key: index}
 
     display = []
     replace = actual_list.copy()
@@ -126,21 +136,31 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
             if index is None:
                 continue
 
-            jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
-            actual_nested = search_json(actual_list[index], jmes_nested, [])
-            expected_nested = search_json(element, jmes_nested, [{}])
-            diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
-            if not diff_nested:
+            if parent_key:
+                jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
+                actual_nested = search_json(actual_list[index], jmes_nested, [])
+                expected_nested = search_json(element, jmes_nested, [{}])
+                diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested, return_list=True)
+                if not diff_nested:
+                    continue
+
+                element[parent_key] = diff_nested
+                display.append(element)
+
+                new_nested_block = actual_list[index].copy()
+                for nested_index, obj in enumerate(actual_list[index][parent_key]):
+                    if obj == actual_nested[0]:
+                        new_nested_block[parent_key][nested_index] = diff_nested[0]
+                        break
+                replace[index] = new_nested_block
                 continue
 
-            element[parent_key] = diff_nested
-            display.append(element)
-
-            new_block = actual_list[index].copy()
-            for nested_index, obj in enumerate(actual_list[index][parent_key]):
-                if obj == actual_nested[0]:
-                    new_block[parent_key][nested_index] = diff_nested[0]
-                    break
+            diff = compare_lists_with_dictdiffer(actual_list[index], element, return_list=False)
+            if not diff:
+                continue
+            new_block: Dict = actual_list[index].copy()
+            new_block.update(diff)
+            display.append(new_block)
             replace[index] = new_block
 
     return display, replace

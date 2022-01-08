@@ -1,0 +1,14 @@
+[[".github/workflows/any-language.yaml".jobs.build.steps]]
+name = "Checkout"
+uses = "actions/checkout@v2"
+
+[[".github/workflows/any-language.yaml".jobs.build.steps]]
+name = "Set up Python ${{ matrix.python-version }}"
+uses = "actions/setup-python@v2"
+
+[".github/workflows/any-language.yaml".jobs.build.steps.with]
+python-version = "${{ matrix.python-version }}"
+
+[[".github/workflows/any-language.yaml".jobs.build.steps]]
+name = "Install tox"
+run = "python -m pip install tox"

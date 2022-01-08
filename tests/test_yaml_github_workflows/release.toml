@@ -1,0 +1,20 @@
+[[".github/workflows/python.yaml".jobs.release.steps]]
+name = "Checkout"
+uses = "actions/checkout@v2"
+
+[".github/workflows/python.yaml".jobs.release.steps.with]
+persist-credentials = false
+
+[[".github/workflows/python.yaml".jobs.release.steps]]
+name = "Add to PATH"
+run = "echo \"$HOME/.local/bin\" >> $GITHUB_PATH"
+
+[[".github/workflows/python.yaml".jobs.release.steps]]
+name = "Install pip/setuptools first"
+run = "python --version\npython3 --version\npython3 -m pip --version\npython3 -m pip install --upgrade pip setuptools\n"
+
+[[".github/workflows/python.yaml".jobs.release.steps]]
+name = "Install pre-commit bumpversion twine"
+run = "python3 -m pip install --upgrade poetry pre-commit bumpversion twine\npre-commit --version\ntwine --version\npython3 -m pip freeze\n"
+
+# FIXME: test any "jobs.*.steps" key is autofixed

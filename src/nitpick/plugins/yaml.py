@@ -51,6 +51,8 @@ class YamlPlugin(NitpickPlugin):
         """Default unique keys for .pre-commit-config.yaml."""
         if self.filename == PRE_COMMIT_CONFIG_YAML:
             return {"repos": ["id", "hooks"]}
+        if self.filename.startswith(".github/workflows"):
+            return {"jobs.build.steps": ["name", ""]}  # FIXME: jobs.*.steps
         return super().unique_keys_default
 
     def enforce_rules(self) -> Iterator[Fuss]:

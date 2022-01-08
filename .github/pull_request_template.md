@@ -1,10 +1,8 @@
-Fixes # .
+Fixes issue(s) #
 
 ## Proposed changes
 
--
--
--
+1.
 
 ## Checklist
 
