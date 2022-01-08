@@ -457,8 +457,8 @@ class SensibleYAML(YAML):
     <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_
     """
 
-    def __init__(self, *, typ=None, pure=False, output=None, plug_ins=None):
-        super().__init__(typ=typ, pure=pure, output=output, plug_ins=plug_ins)
+    def __init__(self):
+        super().__init__()
         self.map_indent = 2
         self.sequence_indent = 4
         self.sequence_dash_offset = 2
