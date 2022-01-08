@@ -5,10 +5,9 @@ from typing import Iterator, Optional, Tuple, Type, Union, cast
 
 import attr
 
+from nitpick.blender import BaseDoc, YamlDoc, search_json, traverse_yaml_tree
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
-from nitpick.documents import BaseDoc, YamlDoc, traverse_yaml_tree
 from nitpick.exceptions import Deprecation
-from nitpick.generic import jmes_search_json
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -61,7 +60,7 @@ class PreCommitHook:
             for index, hook in enumerate(repo.get(KEY_HOOKS, [])):
                 repo_data_only = repo.copy()
                 repo_data_only.pop(KEY_HOOKS)
-                hook_data_only = jmes_search_json(repo, f"{KEY_HOOKS}[{index}]", {})
+                hook_data_only = search_json(repo, f"{KEY_HOOKS}[{index}]", {})
                 repo_data_only.update({KEY_HOOKS: [hook_data_only]})
                 hooks.append(
                     PreCommitHook(repo.get(KEY_REPO), hook[KEY_ID], YamlDoc(obj=[repo_data_only])).key_value_pair  # type: ignore[arg-type]

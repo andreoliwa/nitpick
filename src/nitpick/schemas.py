@@ -6,8 +6,8 @@ from marshmallow_polyfield import PolyField
 from sortedcontainers import SortedDict
 
 from nitpick import fields
+from nitpick.blender import flatten
 from nitpick.constants import READ_THE_DOCS_URL, SETUP_CFG
-from nitpick.generic import flatten
 
 
 def flatten_marshmallow_errors(errors: Dict) -> str:

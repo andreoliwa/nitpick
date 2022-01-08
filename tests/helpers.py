@@ -12,6 +12,7 @@ from more_itertools.more import always_iterable, windowed
 from responses import RequestsMock
 from testfixtures import compare
 
+from nitpick.blender import TomlDoc
 from nitpick.cli import nitpick_cli
 from nitpick.constants import (
     CACHE_DIR_NAME,
@@ -24,7 +25,6 @@ from nitpick.constants import (
     SETUP_CFG,
 )
 from nitpick.core import Nitpick
-from nitpick.documents import TomlDoc
 from nitpick.flake8 import NitpickFlake8Extension
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter

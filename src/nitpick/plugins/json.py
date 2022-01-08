@@ -6,8 +6,7 @@ from typing import Iterator, Optional, Type
 from loguru import logger
 
 from nitpick import fields
-from nitpick.documents import BaseDoc, JsonDoc
-from nitpick.generic import DictBlender, flatten, unflatten
+from nitpick.blender import BaseDoc, DictBlender, JsonDoc, flatten, unflatten
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo

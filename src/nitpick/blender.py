@@ -1,20 +1,28 @@
-"""Configuration file formats."""
+"""Dictionary blender and configuration file formats.
+
+.. testsetup::
+
+    from nitpick.generic import *
+"""
 import abc
 import json
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, Type, Union
 
 import dictdiffer
+import jmespath
 import toml
 import tomlkit
 from autorepr import autorepr
+from jmespath.parser import ParsedResult
 from more_itertools import always_iterable
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from sortedcontainers import SortedDict
 
-from nitpick.generic import flatten, jmes_search_json, unflatten
+from nitpick.constants import DOUBLE_QUOTE, SEPARATOR_FLATTEN
+from nitpick.generic import quoted_split
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
 
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
@@ -33,6 +41,41 @@ def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> Lis
     return []
 
 
+def search_json(
+    json_data: Union[MutableMapping[str, Any], List[Any]],
+    jmespath_expression: Union[ParsedResult, str],
+    default: Any = None,
+) -> Any:
+    """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
+
+    >>> data = {"root": {"app": [1, 2], "test": "something"}}
+    >>> search_json(data, "root.app", None)
+    [1, 2]
+    >>> search_json(data, "root.test", None)
+    'something'
+    >>> search_json(data, "root.unknown", "")
+    ''
+    >>> search_json(data, "root.unknown", None)
+
+    >>> search_json(data, "root.unknown")
+
+    >>> search_json(data, jmespath.compile("root.app"), [])
+    [1, 2]
+    >>> search_json(data, jmespath.compile("root.whatever"), "xxx")
+    'xxx'
+
+    :param jmespath_expression: A compiled JMESPath expression or a string with an expression.
+    :param json_data: The dictionary to be searched.
+    :param default: Default value in case nothing is found.
+    :return: The object that was found or the default value.
+    """
+    if isinstance(jmespath_expression, str):
+        rv = jmespath.search(jmespath_expression, json_data)
+    else:
+        rv = jmespath_expression.search(json_data)
+    return rv or default
+
+
 def search_element_by_unique_key(  # pylint: disable=too-many-locals
     actual_list: List[Any], expected_list: List[Any], nested_key: str, parent_key: str = ""
 ) -> Tuple[List, List]:
@@ -42,21 +85,19 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
     """
     jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
 
-    actual_keys = jmes_search_json(actual_list, f"[].{jmes_search_key}", [])
+    actual_keys = search_json(actual_list, f"[].{jmes_search_key}", [])
     if not actual_keys:
         # There are no actual keys in the current YAML: let's insert the whole expected block
         return expected_list, actual_list + expected_list
 
     actual_indexes = {
-        key: index
-        for index, element in enumerate(actual_list)
-        for key in jmes_search_json(element, jmes_search_key, [])
+        key: index for index, element in enumerate(actual_list) for key in search_json(element, jmes_search_key, [])
     }
 
     display = []
     replace = actual_list.copy()
     for element in expected_list:
-        expected_keys = jmes_search_json(element, jmes_search_key, None)
+        expected_keys = search_json(element, jmes_search_key, None)
         if not expected_keys:
             # There are no expected keys in this current element: let's insert the whole element
             display.append(element)
@@ -75,8 +116,8 @@ def search_element_by_unique_key(  # pylint: disable=too-many-locals
                 continue
 
             jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
-            actual_nested = jmes_search_json(actual_list[index], jmes_nested, [])
-            expected_nested = jmes_search_json(element, jmes_nested, [{}])
+            actual_nested = search_json(actual_list[index], jmes_nested, [])
+            expected_nested = search_json(element, jmes_nested, [{}])
             diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
             if not diff_nested:
                 continue
@@ -99,6 +140,86 @@ def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     if not value:
         return
     dict_[key] = value
+
+
+def flatten(dict_, parent_key="", separator=".", current_lists=None) -> JsonDict:
+    """Flatten a nested dict.
+
+    Use :py:meth:`unflatten()` to revert.
+
+    Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
+    """
+    # TODO: move flatten() and unflatten() to DictBlender: they depend on each other and keep state between calls.
+    if current_lists is None:
+        current_lists = {}
+
+    items: List[Tuple[str, Any]] = []
+    for key, value in dict_.items():
+        quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if separator in str(key) else key
+        new_key = str(parent_key) + separator + str(quoted_key) if parent_key else quoted_key
+        if isinstance(value, dict):
+            items.extend(flatten(value, new_key, separator, current_lists).items())
+        elif isinstance(value, (list, tuple)):
+            # If the value is a list or tuple, append to a previously existing list.
+            existing_list = current_lists.get(new_key, [])
+            existing_list.extend(list(value))
+            current_lists[new_key] = existing_list
+
+            items.append((new_key, existing_list))
+        else:
+            items.append((new_key, value))
+    return dict(items)
+
+
+def unflatten(dict_, separator=".", sort=True) -> OrderedDict:
+    """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
+
+    >>> expected = {'my': {'sub': {'path': True}, 'home': 4}, 'another': {'path': 3}}
+    >>> unflatten({"my.sub.path": True, "another.path": 3, "my.home": 4}) == expected
+    True
+    >>> unflatten({"repo": "conflicted key", "repo.name": "?", "repo.path": "?"})
+    Traceback (most recent call last):
+      ...
+    TypeError: 'str' object does not support item assignment
+    """
+    items: OrderedDict = OrderedDict()
+    for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
+        all_keys = quoted_split(root_key, separator)
+        sub_items = items
+        for key in all_keys[:-1]:
+            try:
+                sub_items = sub_items[key]
+            except KeyError:
+                sub_items[key] = OrderedDict()
+                sub_items = sub_items[key]
+
+        sub_items[all_keys[-1]] = root_value
+
+    return items
+
+
+class DictBlender:
+    """A blender of dictionaries: keep adding dictionaries and mix them all at the end.
+
+    .. note::
+
+        This class intentionally doesn't inherit from the standard ``dict()``.
+        It's an unnecessary hassle to override and deal with all those magic dunder methods.
+    """
+
+    def __init__(self, original_dict: JsonDict = None) -> None:
+        self._all_flattened: OrderedDict = OrderedDict()
+        self._current_lists: Dict[str, Iterable] = {}
+        self.add(original_dict or {})
+
+    def add(self, other: JsonDict) -> None:
+        """Add another dictionary to the existing data."""
+        flattened_other = flatten(other, separator=SEPARATOR_FLATTEN, current_lists=self._current_lists)
+        self._all_flattened.update(flattened_other)
+
+    def mix(self, sort=True) -> JsonDict:
+        """Mix all dictionaries, replacing values with identical keys and extending lists."""
+        return unflatten(self._all_flattened, separator=SEPARATOR_FLATTEN, sort=sort)
 
 
 class Comparison:

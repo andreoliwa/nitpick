@@ -21,9 +21,9 @@ import click
 from click.exceptions import Exit
 from loguru import logger
 
+from nitpick.blender import TomlDoc
 from nitpick.constants import PROJECT_NAME, TOOL_KEY, TOOL_NITPICK_KEY
 from nitpick.core import Nitpick
-from nitpick.documents import TomlDoc
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import relative_to_current_dir

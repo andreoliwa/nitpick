@@ -7,8 +7,7 @@ import click
 import jmespath
 from identify import identify
 
-from nitpick.documents import TomlDoc, YamlDoc
-from nitpick.generic import flatten, jmes_search_json
+from nitpick.blender import TomlDoc, YamlDoc, flatten, search_json
 
 workflow = YamlDoc(path=Path(".github/workflows/python.yaml"))
 
@@ -16,7 +15,7 @@ workflow = YamlDoc(path=Path(".github/workflows/python.yaml"))
 def find(expression):
     """Find with JMESpath."""
     print(f"\nExpression: {expression}")
-    rv = jmes_search_json(workflow.as_object, jmespath.compile(expression), {})
+    rv = search_json(workflow.as_object, jmespath.compile(expression), {})
     print(f"Type: {type(rv)}")
     pprint(rv)
 
