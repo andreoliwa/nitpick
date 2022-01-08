@@ -1,0 +1,2 @@
+[".codeclimate.yml".plugins.git-legal]  # https://docs.codeclimate.com/docs/git-legal
+enabled = true

@@ -2,21 +2,15 @@
 line-length = 120
 
 [[".pre-commit-config.yaml".repos]]
-yaml = """
-  - repo: https://github.com/psf/black
-    hooks:
-      - id: black
-        args: [--safe, --quiet]
-  - repo: https://github.com/asottile/blacken-docs
-    hooks:
-      - id: blacken-docs
-        additional_dependencies: [black==21.5b2]
-"""
-# TODO The toml library has issues loading arrays with multiline strings:
-#  https://github.com/uiri/toml/issues/123
-#  https://github.com/uiri/toml/issues/230
-#  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
-#[".pre-commit-config.yaml"]
-#repos = ["""
-#<YAML goes here>
-#"""]
+repo = "https://github.com/psf/black"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "black"
+args = ["--safe", "--quiet"]
+
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/asottile/blacken-docs"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "blacken-docs"
+additional_dependencies = ["black==21.5b2"]

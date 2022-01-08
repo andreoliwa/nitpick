@@ -17,8 +17,8 @@ warn_redundant_casts = true
 warn_unused_ignores = false
 
 [[".pre-commit-config.yaml".repos]]
-yaml = """
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    hooks:
-      - id: mypy
-"""
+repo = "https://github.com/pre-commit/mirrors-mypy"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "mypy"
+args = ["--show-error-codes"]

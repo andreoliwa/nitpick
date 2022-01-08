@@ -5,9 +5,10 @@ from pprint import pprint
 
 import click
 import jmespath
+from identify import identify
 
-from nitpick.documents import TomlDoc, YamlDoc
-from nitpick.generic import flatten, search_dict
+from nitpick.blender import DictBlender, TomlDoc, YamlDoc, search_json
+from nitpick.constants import DOT
 
 workflow = YamlDoc(path=Path(".github/workflows/python.yaml"))
 
@@ -15,9 +16,29 @@ workflow = YamlDoc(path=Path(".github/workflows/python.yaml"))
 def find(expression):
     """Find with JMESpath."""
     print(f"\nExpression: {expression}")
-    rv = search_dict(jmespath.compile(expression), workflow.as_object, {})
+    rv = search_json(workflow.as_object, jmespath.compile(expression), {})
     print(f"Type: {type(rv)}")
     pprint(rv)
+
+
+@click.group()
+def cli_lab():
+    """Laboratory of experiments and ideas."""
+
+
+@cli_lab.command()
+@click.argument("path_from_root")
+def convert(path_from_root: str):
+    """Convert file to a TOML config."""
+    tags = identify.tags_from_path(path_from_root)
+    if "yaml" in tags:
+        which_doc = YamlDoc(path=path_from_root)
+    else:
+        raise NotImplementedError(f"No conversion for these types: {tags}")
+
+    toml_doc = TomlDoc(obj={path_from_root: which_doc.as_object}, use_tomlkit=True)
+    print(toml_doc.reformatted)
+    return toml_doc.reformatted
 
 
 def main():
@@ -35,7 +56,7 @@ def main():
         print(json.dumps(config, indent=2))
 
         click.secho("Flattened JSON", fg="yellow")
-        print(json.dumps(flatten(config), indent=2))
+        print(json.dumps(DictBlender(config, separator=DOT).flat_dict, indent=2))
 
     # find("jobs.build")
     # find("jobs.build.strategy.matrix")
@@ -52,4 +73,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    cli_lab()

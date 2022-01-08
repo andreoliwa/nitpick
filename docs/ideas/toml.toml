@@ -1,17 +1,18 @@
 # Keys are absent
+# See [Enforce absence of keys · Issue #10 · andreoliwa/nitpick](https://github.com/andreoliwa/nitpick/issues/10)
 ["pyproject.toml".tool.poetry.dev-dependencies]
-pep257__present = false
-pycodestyle__present = false
-pur__present = false
+pep257__exists = false
+pycodestyle__exists = false
+pur__exists = false
 pep257 = "{{ nit.absent() }}" # Jinja
 pycodestyle = "{{ nit.absent() }}" # Jinja
 pur = "{{ nit.absent() }}" # Jinja
 
 # Keys are absent
 ["pyproject.toml".tool.poetry.dependencies]
-pep257__present = false
-pycodestyle__present = false
-pur__present = false
+pep257__exists = false
+pycodestyle__exists = false
+pur__exists = false
 pep257 = "{{ nit.absent() }}" # Jinja
 pycodestyle = "{{ nit.absent() }}" # Jinja
 pur = "{{ nit.absent() }}" # Jinja
@@ -21,17 +22,18 @@ pur = "{{ nit.absent() }}" # Jinja
 
 # Keys are present, with the expected types
 ["pyproject.toml".build-system]
-requires__present = "List[str]"
-build-backend__present = "str"
+requires__exists = "List[str]"
+build-backend__exists = "str"
 requires = "{{ nit.present(List[str]) }}" # Jinja
 build-backend = "{{ nit.present(str) }}" # Jinja
 
 # Integer key exists
 ["pyproject.toml".tool.black]
-line-length__present = "int"
+line-length__exists = "int"
 line-length = "{{ nit.present(int) }}" # Jinja
 
 # Section exists with anything inside
+# [Enforce presence of keys (with any values) · Issue #218 · andreoliwa/nitpick](https://github.com/andreoliwa/nitpick/issues/218)
 ["pyproject.toml".tool.black2]
-__present = true
+__exists = true
 blabla = "{{ nit.section_present() }}" # Jinja

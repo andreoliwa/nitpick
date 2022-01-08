@@ -5,9 +5,10 @@
 ".pre-commit-config.yaml" = "Create the file with the contents below, then run 'pre-commit install'"
 
 [[".pre-commit-config.yaml".repos]]
-yaml = """
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    hooks:
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-"""
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "end-of-file-fixer"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "trailing-whitespace"

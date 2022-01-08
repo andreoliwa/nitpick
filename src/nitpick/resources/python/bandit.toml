@@ -1,0 +1,11 @@
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/PyCQA/bandit"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "bandit"
+args = ["--ini", "setup.cfg"]
+exclude = "tests/"
+
+[".codeclimate.yml".plugins.bandit]  # https://docs.codeclimate.com/docs/bandit
+# https://github.com/PyCQA/bandit
+enabled = true

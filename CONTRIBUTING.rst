@@ -1,3 +1,5 @@
+.. include:: targets.rst
+
 ============
 Contributing
 ============
@@ -11,7 +13,7 @@ Bug reports or feature requests
 ===============================
 
 * First, search the `GitHub issue tracker <https://github.com/andreoliwa/nitpick/issues>`_ to see if your bug/feature is already there.
-* If nothing is found, just `add a new issue and follow the instructions there <https://github.com/andreoliwa/nitpick/issues/new/choose>`_.
+* If nothing is found, just `add a new issue and follow the instructions <https://github.com/andreoliwa/nitpick/issues/new/choose>`_.
 
 Documentation improvements
 ==========================

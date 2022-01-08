@@ -141,7 +141,7 @@ class IniPlugin(NitpickPlugin):
 
         yield from self.enforce_missing_sections()
 
-        csv_sections = {v.split(".")[0] for v in self.comma_separated_values}
+        csv_sections = {v.split(SECTION_SEPARATOR)[0] for v in self.comma_separated_values}
         missing_csv = csv_sections.difference(self.current_sections)
         if missing_csv:
             yield self.reporter.make_fuss(

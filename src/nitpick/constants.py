@@ -50,16 +50,6 @@ ROOT_FILES = (
 ) + ROOT_PYTHON_FILES
 CONFIG_FILES = (DOT_NITPICK_TOML, PYPROJECT_TOML)
 
-SINGLE_QUOTE = "'"
-DOUBLE_QUOTE = '"'
-
-#: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
-# to avoid collision with existing key values (e.g. the default dot separator "." can be part of a TOML key).
-SEPARATOR_FLATTEN = "$#@"
-
-#: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
-SEPARATOR_QUOTED_SPLIT = "#$@"
-
 # Config sections and keys
 TOOL_KEY = "tool"
 TOOL_NITPICK_KEY = f"{TOOL_KEY}.{PROJECT_NAME}"
@@ -71,6 +61,14 @@ NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
 
 # Dot/slash is just a convention to indicate a local style file;
 # the same pair of characters should be used on Windows, even though the path separator is different
-DOT_SLASH = "./"
+DOT = "."
+SLASH = "/"
+DOT_SLASH = f"{DOT}{SLASH}"
 
 GIT_AT_REFERENCE = "@"
+
+# Special configurations for plugins
+DUNDER_SEARCH_UNIQUE_KEY = "__search_unique_key"
+# TODO: document __search_unique_key on .rst, under "Special configurations on styles",
+#  when Pydantic will be used and when the feature will be more stable, shaped, more generic and less complex.
+#  For now, keep it for internal use only, undocumented

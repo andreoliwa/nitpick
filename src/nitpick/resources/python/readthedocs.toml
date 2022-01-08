@@ -1,0 +1,12 @@
+# https://docs.readthedocs.io/en/stable/config-file/v2.html
+[".readthedocs.yml"]
+version = 2
+formats = "all"
+
+[".readthedocs.yml".sphinx]
+configuration = "docs/conf.py"
+
+[[".readthedocs.yml".python.install]]
+method = "pip"
+path = "."
+extra_requirements = ["doc"]

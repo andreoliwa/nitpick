@@ -13,6 +13,32 @@ You can use these examples directly with their URL (see :ref:`multiple_styles`),
 
 .. auto-generated-from-here
 
+.. _example-codeclimate:
+
+codeclimate_
+------------
+
+Contents of `resources/any/codeclimate.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/codeclimate.toml>`_:
+
+.. code-block:: toml
+
+    # https://codeclimate.com/
+    # https://docs.codeclimate.com/docs/maintainability#section-checks
+    # https://docs.codeclimate.com/docs/advanced-configuration#default-checks
+    [".codeclimate.yml"]
+    version = "2"
+
+    [".codeclimate.yml".checks.file-lines.config]
+    # Pylint's default is also 1000: https://github.com/PyCQA/pylint/blob/master/pylint/checkers/format.py#L294-L300
+    threshold = 1000
+
+    [".codeclimate.yml".checks.method-complexity.config]
+    threshold = 10  # Same as [flake8]max-complexity
+
+    [".codeclimate.yml".plugins.fixme]  # https://docs.codeclimate.com/docs/fixme
+    # https://github.com/codeclimate/codeclimate-fixme
+    enabled = false
+
 .. _example-commitizen:
 
 commitizen_
@@ -23,12 +49,11 @@ Contents of `resources/any/commitizen.toml <https://github.com/andreoliwa/nitpic
 .. code-block:: toml
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/commitizen-tools/commitizen
-        hooks:
-          - id: commitizen
-            stages: [commit-msg]
-    """
+    repo = "https://github.com/commitizen-tools/commitizen"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "commitizen"
+    stages = ["commit-msg"]
 
 .. _example-commitlint:
 
@@ -49,13 +74,12 @@ Contents of `resources/any/commitlint.toml <https://github.com/andreoliwa/nitpic
     """
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-        hooks:
-          - id: commitlint
-            stages: [commit-msg]
-            additional_dependencies: ['@commitlint/config-conventional']
-    """
+    repo = "https://github.com/alessandrojcm/commitlint-pre-commit-hook"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    additional_dependencies = ["@commitlint/config-conventional"]
+    id = "commitlint"
+    stages = ["commit-msg"]
 
 .. _example-editorconfig:
 
@@ -97,10 +121,25 @@ Contents of `resources/any/editorconfig.toml <https://github.com/andreoliwa/nitp
     [".editorconfig".Makefile]
     indent_style = "tab"
 
-.. _example-pre-commit-hooks:
+    [".codeclimate.yml".plugins.editorconfig]  # https://docs.codeclimate.com/docs/editorconfig
+    enabled = true
 
-pre-commit_ (hooks)
--------------------
+.. _example-git-legal:
+
+git-legal_
+----------
+
+Contents of `resources/any/git-legal.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/git-legal.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.git-legal]  # https://docs.codeclimate.com/docs/git-legal
+    enabled = true
+
+.. _example-pre-commit-hooks-for-any-language:
+
+pre-commit_ hooks for any language
+----------------------------------
 
 Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/hooks.toml>`_:
 
@@ -113,12 +152,42 @@ Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blo
     ".pre-commit-config.yaml" = "Create the file with the contents below, then run 'pre-commit install'"
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/pre-commit/pre-commit-hooks
-        hooks:
-          - id: end-of-file-fixer
-          - id: trailing-whitespace
-    """
+    repo = "https://github.com/pre-commit/pre-commit-hooks"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "end-of-file-fixer"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "trailing-whitespace"
+
+.. _example-markdownlint:
+
+markdownlint_
+-------------
+
+Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/markdownlint.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.markdownlint]  # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
+    # https://github.com/markdownlint/markdownlint
+    enabled = false
+
+.. _example-prettier:
+
+Prettier_
+---------
+
+Contents of `resources/any/prettier.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/prettier.toml>`_:
+
+.. code-block:: toml
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/pre-commit/mirrors-prettier"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "prettier"
+    stages = ["commit"]
 
 .. _example-package-json:
 
@@ -131,6 +200,66 @@ Contents of `resources/javascript/package-json.toml <https://github.com/andreoli
 
     ["package.json"]
     contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
+
+.. _example-python-3-10:
+
+Python 3.10
+-----------
+
+Contents of `resources/python/310.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/310.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.10"
+
+.. _example-python-3-6:
+
+Python 3.6
+----------
+
+Contents of `resources/python/36.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/36.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.6.1"
+
+.. _example-python-3-7:
+
+Python 3.7
+----------
+
+Contents of `resources/python/37.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/37.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.7"
+
+.. _example-python-3-8:
+
+Python 3.8
+----------
+
+Contents of `resources/python/38.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/38.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.8"
+
+.. _example-python-3-9:
+
+Python 3.9
+----------
+
+Contents of `resources/python/39.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/39.toml>`_:
+
+.. code-block:: toml
+
+    ["pyproject.toml".tool.poetry.dependencies]
+    python = "^3.9"
 
 .. _example-absent-files:
 
@@ -149,6 +278,43 @@ Contents of `resources/python/absent.toml <https://github.com/andreoliwa/nitpick
     ".venv" = ""
     ".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 
+.. _example-autoflake:
+
+autoflake_
+----------
+
+Contents of `resources/python/autoflake.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/autoflake.toml>`_:
+
+.. code-block:: toml
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/myint/autoflake"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "autoflake"
+    args = ["--in-place", "--remove-all-unused-imports", "--remove-unused-variables", "--remove-duplicate-keys", "--ignore-init-module-imports"]
+
+.. _example-bandit:
+
+bandit_
+-------
+
+Contents of `resources/python/bandit.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/bandit.toml>`_:
+
+.. code-block:: toml
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/PyCQA/bandit"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "bandit"
+    args = ["--ini", "setup.cfg"]
+    exclude = "tests/"
+
+    [".codeclimate.yml".plugins.bandit]  # https://docs.codeclimate.com/docs/bandit
+    # https://github.com/PyCQA/bandit
+    enabled = true
+
 .. _example-black:
 
 black_
@@ -162,24 +328,18 @@ Contents of `resources/python/black.toml <https://github.com/andreoliwa/nitpick/
     line-length = 120
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/psf/black
-        hooks:
-          - id: black
-            args: [--safe, --quiet]
-      - repo: https://github.com/asottile/blacken-docs
-        hooks:
-          - id: blacken-docs
-            additional_dependencies: [black==21.5b2]
-    """
-    # TODO The toml library has issues loading arrays with multiline strings:
-    #  https://github.com/uiri/toml/issues/123
-    #  https://github.com/uiri/toml/issues/230
-    #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
-    #[".pre-commit-config.yaml"]
-    #repos = ["""
-    #<YAML goes here>
-    #"""]
+    repo = "https://github.com/psf/black"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "black"
+    args = ["--safe", "--quiet"]
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/asottile/blacken-docs"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "blacken-docs"
+    additional_dependencies = ["black==21.5b2"]
 
 .. _example-flake8:
 
@@ -203,52 +363,94 @@ Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick
     # This way, the developer has the choice of overriding this style, instead of having lots of plugins installed
     # without being asked.
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/PyCQA/flake8
-        hooks:
-          - id: flake8
-            additional_dependencies:
-              [
-                flake8-blind-except,
-                flake8-bugbear,
-                flake8-comprehensions,
-                flake8-debugger,
-                flake8-docstrings,
-                flake8-isort,
-                flake8-polyfill,
-                flake8-pytest,
-                flake8-quotes,
-                flake8-typing-imports,
-                yesqa,
-              ]
-    """
-    # TODO suggest nitpick for external repos
+    repo = "https://github.com/PyCQA/flake8"
 
-.. _example-pre-commit-python-hooks:
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "flake8"
+    additional_dependencies = ["flake8-blind-except", "flake8-bugbear", "flake8-comprehensions", "flake8-debugger", "flake8-docstrings", "flake8-isort", "flake8-polyfill", "flake8-pytest", "flake8-quotes", "flake8-typing-imports", "yesqa"]
 
-pre-commit_ (Python hooks)
---------------------------
+    [".codeclimate.yml".plugins.pep8]  # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit
+    enabled = false
+
+.. _example-github-workflow-python:
+
+GitHub Workflow (Python)
+------------------------
+
+Contents of `resources/python/github-workflow.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/github-workflow.toml>`_:
+
+.. code-block:: toml
+
+    [".github/workflows/python.yaml"]
+    name = "Python"
+    on = ["push", "pull_request"]
+
+    [".github/workflows/python.yaml".jobs.build.strategy]
+    fail-fast = false
+
+    [".github/workflows/python.yaml".jobs.build.strategy.matrix]
+    os = ["ubuntu-latest", "windows-latest", "macos-latest"]
+    python-version = ["3.6", "3.7", "3.8", "3.9", "3.10"]
+
+    [".github/workflows/python.yaml".jobs.build]
+    name = "${{ matrix.python-version }} ${{ matrix.os }}"
+    runs-on = "${{ matrix.os }}"
+
+    [".github/workflows/python.yaml".jobs.build.env]
+    PYTHONUNBUFFERED = 1
+
+    [[".github/workflows/python.yaml".jobs.build.steps]]
+    uses = "actions/checkout@v2"
+
+    [[".github/workflows/python.yaml".jobs.build.steps]]
+    name = "Set up Python ${{ matrix.python-version }}"
+    uses = "actions/setup-python@v2"
+
+    [".github/workflows/python.yaml".jobs.build.steps.with]
+    python-version = "${{ matrix.python-version }}"
+
+    [[".github/workflows/python.yaml".jobs.build.steps]]
+    name = "Install tox"
+    run = "python -m pip install tox"
+
+.. _example-pre-commit-hooks-for-python:
+
+pre-commit_ hooks for Python
+----------------------------
 
 Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/hooks.toml>`_:
 
 .. code-block:: toml
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/pre-commit/pygrep-hooks
-        hooks:
-          - id: python-check-blanket-noqa
-          - id: python-check-mock-methods
-          - id: python-no-eval
-          - id: python-no-log-warn
-          - id: rst-backticks
-      - repo: https://github.com/pre-commit/pre-commit-hooks
-        hooks:
-          - id: debug-statements
-      - repo: https://github.com/asottile/pyupgrade
-        hooks:
-          - id: pyupgrade
-    """
+    repo = "https://github.com/pre-commit/pygrep-hooks"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-check-blanket-noqa"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-check-mock-methods"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-no-eval"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-no-log-warn"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "rst-backticks"
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/pre-commit/pre-commit-hooks"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "debug-statements"
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/asottile/pyupgrade"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "pyupgrade"
 
 .. _example-ipython:
 
@@ -286,11 +488,10 @@ Contents of `resources/python/isort.toml <https://github.com/andreoliwa/nitpick/
     combine_as_imports = true
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/PyCQA/isort
-        hooks:
-          - id: isort
-    """
+    repo = "https://github.com/PyCQA/isort"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "isort"
 
 .. _example-mypy:
 
@@ -320,11 +521,11 @@ Contents of `resources/python/mypy.toml <https://github.com/andreoliwa/nitpick/b
     warn_unused_ignores = false
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/pre-commit/mirrors-mypy
-        hooks:
-          - id: mypy
-    """
+    repo = "https://github.com/pre-commit/mirrors-mypy"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "mypy"
+    args = ["--show-error-codes"]
 
 .. _example-poetry:
 
@@ -353,6 +554,18 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     ["pyproject.toml".tool.poetry.extras]
     lint = ["pylint"]
 
+    # pylint needs to be installed in the same venv as the project, to be more useful
+    # https://github.com/pre-commit/mirrors-pylint#using-pylint-with-pre-commit
+    [[".pre-commit-config.yaml".repos]]
+    repo = "local"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "pylint"
+    name = "pylint"
+    language = "system"
+    exclude = "tests/"
+    types = ["python"]
+
     [".pylintrc".MASTER]
     # Use multiple processes to speed up Pylint.
     jobs = 1
@@ -375,7 +588,7 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     # List of builtins function names that should not be used, separated by a comma
     bad-functions = "map,filter"
     # Good variable names which should always be accepted, separated by a comma
-    good-names = "i,j,k,e,ex,Run,_,id,rv"
+    good-names = "i,j,k,e,ex,Run,_,id,rv,c"
 
     [".pylintrc".FORMAT]
     # Maximum number of characters on a single line.
@@ -402,65 +615,73 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     # A regular expression matching the name of dummy variables (i.e. expectedly not used).
     dummy-variables-rgx = "_$|dummy"
 
-.. _example-python-3-10:
+    [".codeclimate.yml".plugins.pylint]  # https://docs.codeclimate.com/docs/pylint Already checked by pre-commit
+    enabled = false
 
-Python 3.10
------------
+.. _example-radon:
 
-Contents of `resources/python/python310.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python310.toml>`_:
+radon_
+------
 
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.10"
-
-.. _example-python-3-6:
-
-Python 3.6
-----------
-
-Contents of `resources/python/python36.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python36.toml>`_:
+Contents of `resources/python/radon.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/radon.toml>`_:
 
 .. code-block:: toml
 
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.6.1"
+    [".codeclimate.yml".plugins.radon]  # https://docs.codeclimate.com/docs/radon
+    enabled = true
+    [".codeclimate.yml".plugins.radon.config]
+    # https://radon.readthedocs.io/en/latest/commandline.html#the-cc-command
+    threshold = "C"
 
-.. _example-python-3-7:
+.. _example-readthedocs:
 
-Python 3.7
-----------
+ReadTheDocs_
+------------
 
-Contents of `resources/python/python37.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python37.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.7"
-
-.. _example-python-3-8:
-
-Python 3.8
-----------
-
-Contents of `resources/python/python38.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python38.toml>`_:
+Contents of `resources/python/readthedocs.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/readthedocs.toml>`_:
 
 .. code-block:: toml
 
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.8"
+    # https://docs.readthedocs.io/en/stable/config-file/v2.html
+    [".readthedocs.yml"]
+    version = 2
+    formats = "all"
 
-.. _example-python-3-9:
+    [".readthedocs.yml".sphinx]
+    configuration = "docs/conf.py"
 
-Python 3.9
-----------
+    [[".readthedocs.yml".python.install]]
+    method = "pip"
+    path = "."
+    extra_requirements = ["doc"]
 
-Contents of `resources/python/python39.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/python39.toml>`_:
+.. _example-sonar-python:
+
+sonar-python_
+-------------
+
+Contents of `resources/python/sonar-python.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/sonar-python.toml>`_:
 
 .. code-block:: toml
 
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.9"
+    [".codeclimate.yml".plugins.sonar-python]  # https://docs.codeclimate.com/docs/sonar-python
+    # https://github.com/SonarSource/sonar-python
+    enabled = true
+
+.. _example-python-stable-version:
+
+Python (stable version)
+-----------------------
+
+Contents of `resources/python/stable.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/stable.toml>`_:
+
+.. code-block:: toml
+
+    [".readthedocs.yml".python]
+    # ReadTheDocs still didn't upgrade to Python 3.9:
+    # Problem in your project's configuration. Invalid "python.version":
+    # expected one of (2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, pypy3.5), got 3.9
+    version = "3.8"
 
 .. _example-tox:
 
@@ -500,18 +721,33 @@ Contents of `resources/python/tox.toml <https://github.com/andreoliwa/nitpick/bl
     skip_empty = true
     sort = "Cover"
 
-.. _example-bash:
+.. _example-bashate:
 
-Bash_
------
+bashate_
+--------
 
-Contents of `resources/shell/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/shell/hooks.toml>`_:
+Contents of `resources/shell/bashate.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/shell/bashate.toml>`_:
 
 .. code-block:: toml
 
     [[".pre-commit-config.yaml".repos]]
-    yaml = """
-      - repo: https://github.com/openstack/bashate
-        hooks:
-          - id: bashate
-    """
+    repo = "https://github.com/openstack/bashate"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "bashate"
+
+    # https://docs.openstack.org/bashate/latest/man/bashate.html#options
+    args = ["-i", "E006"]
+
+.. _example-shellcheck:
+
+shellcheck_
+-----------
+
+Contents of `resources/shell/shellcheck.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/shell/shellcheck.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.shellcheck]  # https://docs.codeclimate.com/docs/shellcheck
+    # https://github.com/koalaman/shellcheck
+    enabled = true

@@ -1,0 +1,8 @@
+{
+  "name": "myproject",
+  "version": "0.0.1",
+  "something": "else",
+  "commitlint": {
+    "extends": ["wrong-plugin-should-be-replaced", "another-wrong-plugin"]
+  }
+}

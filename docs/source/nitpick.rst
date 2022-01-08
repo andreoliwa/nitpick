@@ -13,6 +13,7 @@ Subpackages
    :maxdepth: 4
 
    nitpick.plugins
+   nitpick.resources
    nitpick.style
 
 Submodules
@@ -22,13 +23,14 @@ Submodules
    :maxdepth: 4
 
    nitpick.cli
+   nitpick.compat
    nitpick.constants
    nitpick.core
+   nitpick.documents
    nitpick.enums
    nitpick.exceptions
    nitpick.fields
    nitpick.flake8
-   nitpick.formats
    nitpick.generic
    nitpick.project
    nitpick.schemas

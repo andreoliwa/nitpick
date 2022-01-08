@@ -15,6 +15,8 @@ COLOR_GREEN = "\x1b[32m"
 COLOR_BOLD_RED = "\x1b[1;31m"
 DOCS_BUILD_PATH = "docs/_build"
 
+# pylint: disable=too-many-arguments
+
 
 class ToxCommands:
     """Tox commands read from the config file."""
@@ -69,16 +71,16 @@ class ToxCommands:
         )
 
     @staticmethod
-    def macos(ctx, enable: bool):
+    def macos(c, enable: bool):
         """Enable/disable macOS on tox.ini."""
         if sys.platform != "darwin":
             return
 
         if enable:
             # Hack to be able to run `invoke lint` on a macOS machine during development.
-            ctx.run("sed -i '' 's/platform = linux/platform = darwin/g' tox.ini")
+            c.run("sed -i '' 's/platform = linux/platform = darwin/g' tox.ini")
         else:
-            ctx.run("sed -i '' 's/platform = darwin/platform = linux/g' tox.ini")
+            c.run("sed -i '' 's/platform = darwin/platform = linux/g' tox.ini")
 
     def _python_versions_old_to_new(self) -> List[str]:
         """Python versions executed in tox."""
@@ -109,7 +111,7 @@ class ToxCommands:
 
 
 @task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})
-def install(ctx, deps=True, hooks=False):
+def install(c, deps=True, hooks=False):
     """Install dependencies and pre-commit hooks.
 
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
@@ -120,42 +122,51 @@ def install(ctx, deps=True, hooks=False):
             f"{COLOR_GREEN}Nitpick runs in Python {version} and later"
             f", but development is done in {version}{COLOR_NONE}"
         )
-        ctx.run(f"poetry env use python{version}")
-        ctx.run("poetry install -E test -E lint -E doc --remove-untracked")
+        c.run(f"poetry env use python{version}")
+        c.run("poetry install -E test -E lint -E doc --remove-untracked")
     if hooks:
-        ctx.run("pre-commit install -t pre-commit -t commit-msg --install-hooks")
-        ctx.run("pre-commit gc")
+        c.run("pre-commit install -t pre-commit -t commit-msg --install-hooks")
+        c.run("pre-commit gc")
 
 
 @task(
     help={
+        "file": "Choose (with fzf) a specific file to run tests",
         "coverage": "Run the HTML coverage report",
         "browse": "Browse the HTML coverage report",
         "watch": "Watch modified files and run tests with testmon",
         "reset": "Force testmon to update its data before watching tests",
     }
 )
-def test(ctx, coverage=False, browse=False, watch=False, reset=False):
+def test(c, file="", coverage=False, browse=False, watch=False, reset=False):
     """Run tests and coverage using the commands from tox config.
 
     `Testmon <https://github.com/tarpas/pytest-testmon>`_
     """
     tox = ToxCommands()
     if reset:
-        ctx.run(f"poetry run {tox.pytest_command} --testmon-noselect")
+        c.run(f"poetry run {tox.pytest_command} --testmon-noselect")
         watch = True
     if watch:
-        ctx.run('poetry run ptw --runner "pytest --testmon"')
+        c.run('poetry run ptw --runner "pytest --testmon"')
         return
 
-    ctx.run(f"poetry run {tox.pytest_command}")
+    file_opt = ""
+    if file:
+        from conjuring.grimoire import run_with_fzf  # pylint: disable=import-error,import-outside-toplevel
+
+        chosen_file = run_with_fzf(c, "fd -H -t f test_.*.py", query=file)
+        if not chosen_file:
+            return
+        file_opt = f" -- {chosen_file}"
+    c.run(f"poetry run {tox.pytest_command}{file_opt}")
 
     if coverage:
         for cmd in tox.coverage_commands():
-            ctx.run(f"poetry run {cmd}")
+            c.run(f"poetry run {cmd}")
 
     if browse:
-        ctx.run("open htmlcov/index.html")
+        c.run("open htmlcov/index.html")
 
 
 @task(
@@ -165,63 +176,63 @@ def test(ctx, coverage=False, browse=False, watch=False, reset=False):
         "links": "Check links",
         "browse": "Browse the HTML index",
         "debug": "Debug HTML generation to fix warnings",
-    }  # pylint: disable=too-many-arguments
+    }
 )
-def doc(ctx, full=False, recreate=False, links=False, browse=False, debug=False):
+def doc(c, full=False, recreate=False, links=False, browse=False, debug=False):
     """Build documentation."""
     tox = ToxCommands()
 
     if full:
         recreate = links = True
     if recreate:
-        ctx.run("mkdir -p docs/_static")
-        ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
+        c.run("mkdir -p docs/_static")
+        c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
 
-    ctx.run(f"poetry run {tox.generate_rst}")
-    ctx.run(f"poetry run {tox.api}")
+    c.run(f"poetry run {tox.generate_rst}")
+    c.run(f"poetry run {tox.api}")
     if debug:
-        ctx.run("poetry run sphinx-apidoc --help")
+        c.run("poetry run sphinx-apidoc --help")
 
     debug_options = "-nWT --keep-going -vvv" if debug else ""
-    ctx.run(f"poetry run {tox.html_docs} {debug_options}")
+    c.run(f"poetry run {tox.html_docs} {debug_options}")
 
     if links:
-        ctx.run(f"poetry run {tox.check_links}", warn=True)
+        c.run(f"poetry run {tox.check_links}", warn=True)
 
     if browse:
-        ctx.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
+        c.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
 
 
 @task(help={"full": "Full build using tox", "recreate": "Recreate tox environment", "docs": "Generate Sphinx docs"})
-def ci_build(ctx, full=False, recreate=False, docs=True):
+def ci_build(c, full=False, recreate=False, docs=True):
     """Simulate a CI build."""
     tox = ToxCommands()
-    tox.macos(ctx, True)
+    tox.macos(c, True)
 
     tox_cmd = "tox -r" if recreate else "tox"
     if full:
-        ctx.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
-        ctx.run(tox_cmd)
+        c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
+        c.run(tox_cmd)
     else:
         envs = ["clean", "lint", ToxCommands().stable_python_version]
         if docs:
             envs.append("docs")
         envs.append("report")
-        ctx.run(f"{tox_cmd} -e {','.join(envs)}")
+        c.run(f"{tox_cmd} -e {','.join(envs)}")
 
-    tox.macos(ctx, False)
+    tox.macos(c, False)
 
 
 @task(help={"recreate": "Recreate tox environment"})
-def lint(ctx, recreate=False):
+def lint(c, recreate=False):
     """Lint using tox."""
     tox = ToxCommands()
-    tox.macos(ctx, True)
+    tox.macos(c, True)
 
     tox_cmd = "tox -r" if recreate else "tox"
-    result = ctx.run(f"{tox_cmd} -e lint", warn=True)
+    result = c.run(f"{tox_cmd} -e lint", warn=True)
 
-    tox.macos(ctx, False)
+    tox.macos(c, False)
 
     # Exit only after restoring tox.ini
     if result.exited > 0:
@@ -229,29 +240,29 @@ def lint(ctx, recreate=False):
 
 
 @task(help={"venv": "Remove the Poetry virtualenv and the tox dir"})
-def clean(ctx, venv=False):
+def clean(c, venv=False):
     """Clean build output and temp files."""
-    ctx.run("find . -type f -name '*.py[co]' -print -delete")
-    ctx.run("find . -type d -name '__pycache__' -print -delete")
-    ctx.run("find . -type d \\( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \\) -print -delete")
-    ctx.run(f"rm -rf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .testmondata")
+    c.run("find . -type f -name '*.py[co]' -print -delete")
+    c.run("find . -type d -name '__pycache__' -print -delete")
+    c.run("find . -type d \\( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \\) -print -delete")
+    c.run(f"rm -rf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .testmondata")
     if venv:
-        ctx.run("rm -rf .tox")
+        c.run("rm -rf .tox")
         version = ToxCommands().minimum_python_version
-        ctx.run(f"poetry env remove python{version}", warn=True)
+        c.run(f"poetry env remove python{version}", warn=True)
 
 
 @task
-def reactions(ctx):
+def reactions(c):
     """List issues with reactions.
 
     https://github.blog/2021-03-11-scripting-with-github-cli/
     https://docs.github.com/en/rest/reference/issues#get-an-issue
     https://developer.github.com/changes/2016-05-12-reactions-api-preview/
     """
-    result = ctx.run("gh api -X GET 'repos/andreoliwa/nitpick/issues' | jq -r '.[].number'", pty=False)
+    result = c.run("gh api -X GET 'repos/andreoliwa/nitpick/issues' | jq -r '.[].number'", pty=False)
     for issue in result.stdout.splitlines():
-        result_users = ctx.run(
+        result_users = c.run(
             f"gh api -X GET 'repos/andreoliwa/nitpick/issues/{int(issue)}/reactions'"
             " -H 'Accept: application/vnd.github.squirrel-girl-preview'"
             " | jq -r '.[].user.html_url'"
@@ -265,10 +276,30 @@ def reactions(ctx):
             print(COLOR_NONE)
 
 
-@task
-def lab(ctx):
-    """Laboratory of ideas."""
-    ctx.run("poetry run python docs/ideas/lab.py")
+@task(
+    help={
+        "convert_file_name": "Partial name of the file you want to convert into a Nitpick TOML style",
+        "lab_help": "Display the help for the lab CLI (a Click CLI within an Invoke CLI... CLI inception!)",
+    }
+)
+def lab(c, convert_file_name="", lab_help=False):
+    """Laboratory of experiments and ideas. You need to install certain tools if you want to use this command.
+
+    Pre-requisites:
+    - https://github.com/andreoliwa/conjuring
+    - https://github.com/junegunn/fzf
+    - https://github.com/sharkdp/fd
+    """
+    extra_args: List[str] = []
+    if lab_help:
+        extra_args.append("--help")
+    if convert_file_name:
+        from conjuring.grimoire import run_with_fzf  # pylint: disable=import-error,import-outside-toplevel
+
+        chosen_file = run_with_fzf(c, "fd -H -t f", query=convert_file_name)
+        extra_args.extend(["convert", chosen_file])
+
+    c.run(f"poetry run python docs/ideas/lab.py {' '.join(extra_args)}")
 
 
 namespace = Collection(install, test, doc, ci_build, lint, clean, reactions, lab)

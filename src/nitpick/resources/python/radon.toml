@@ -1,0 +1,5 @@
+[".codeclimate.yml".plugins.radon]  # https://docs.codeclimate.com/docs/radon
+enabled = true
+[".codeclimate.yml".plugins.radon.config]
+# https://radon.readthedocs.io/en/latest/commandline.html#the-cc-command
+threshold = "C"

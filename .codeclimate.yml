@@ -1,5 +1,6 @@
 version: "2"
 
+# https://codeclimate.com/
 # https://docs.codeclimate.com/docs/maintainability#section-checks
 # https://docs.codeclimate.com/docs/advanced-configuration#default-checks
 checks:
@@ -31,7 +32,7 @@ plugins:
     config:
       # https://radon.readthedocs.io/en/latest/commandline.html#the-cc-command
       threshold: "C"
-  shellcheck: #https://docs.codeclimate.com/docs/shellcheck
+  shellcheck: # https://docs.codeclimate.com/docs/shellcheck
     enabled: true
-  sonar-python: #https://docs.codeclimate.com/docs/sonar-python
+  sonar-python: # https://docs.codeclimate.com/docs/sonar-python
     enabled: true

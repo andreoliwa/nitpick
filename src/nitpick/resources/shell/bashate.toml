@@ -1,0 +1,8 @@
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/openstack/bashate"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "bashate"
+
+# https://docs.openstack.org/bashate/latest/man/bashate.html#options
+args = ["-i", "E006"]

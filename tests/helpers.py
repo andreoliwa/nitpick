@@ -12,20 +12,20 @@ from more_itertools.more import always_iterable, windowed
 from responses import RequestsMock
 from testfixtures import compare
 
+from nitpick.blender import TomlDoc
 from nitpick.cli import nitpick_cli
 from nitpick.constants import (
     CACHE_DIR_NAME,
     FLAKE8_PREFIX,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
+    PRE_COMMIT_CONFIG_YAML,
     PROJECT_NAME,
     PYPROJECT_TOML,
     SETUP_CFG,
 )
 from nitpick.core import Nitpick
-from nitpick.documents import TomlDoc
 from nitpick.flake8 import NitpickFlake8Extension
-from nitpick.plugins.pre_commit import PreCommitPlugin
 from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
 
@@ -243,7 +243,7 @@ class ProjectMock:
 
     def pre_commit(self, file_contents: PathOrStr) -> "ProjectMock":
         """Save .pre-commit-config.yaml."""
-        return self.save_file(PreCommitPlugin.filename, from_path_or_str(file_contents))
+        return self.save_file(PRE_COMMIT_CONFIG_YAML, from_path_or_str(file_contents))
 
     def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
         """Show detailed errors in case of an assertion failure."""
@@ -317,11 +317,11 @@ class ProjectMock:
             actual=[obj.__dict__ for obj in sorted(self._actual_violations)],
             raises=False,
         )
-        preffix = f"[{disclaimer}] " if disclaimer else ""
+        prefix = f"[{disclaimer}] " if disclaimer else ""
         compare(
             expected=stripped,
             actual=self._actual_violations,
-            suffix=f"{preffix}Comparing Fuss objects as dictionaries: {dict_difference}",
+            suffix=f"{prefix}Comparing Fuss objects as dictionaries: {dict_difference}",
         )
         compare(expected=fixed, actual=Reporter.fixed)
         compare(expected=manual, actual=Reporter.manual)

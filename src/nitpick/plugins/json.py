@@ -6,13 +6,12 @@ from typing import Iterator, Optional, Type
 from loguru import logger
 
 from nitpick import fields
-from nitpick.documents import BaseDoc, JsonDoc
-from nitpick.generic import DictBlender, flatten, unflatten
+from nitpick.blender import BaseDoc, DictBlender, JsonDoc
+from nitpick.constants import DOT
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.schemas import BaseNitpickSchema
-from nitpick.typedefs import JsonDict
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 KEY_CONTAINS_KEYS = "contains_keys"
@@ -42,25 +41,27 @@ class JsonPlugin(NitpickPlugin):
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
         actual = JsonDoc(path=self.file_path)
-        final_dict: Optional[JsonDict] = flatten(actual.as_object) if self.autofix else None
+        blender: Optional[DictBlender] = DictBlender(actual.as_object, extend_lists=False) if self.autofix else None
 
         comparison = actual.compare_with_flatten(self.expected_dict_from_contains_keys())
         if comparison.missing:
-            yield from self.report(SharedViolations.MISSING_VALUES, final_dict, comparison.missing)
+            yield from self.report(SharedViolations.MISSING_VALUES, blender, comparison.missing)
 
         comparison = actual.compare_with_flatten(self.expected_dict_from_contains_json())
         if comparison.has_changes:
             yield from chain(
-                self.report(SharedViolations.DIFFERENT_VALUES, final_dict, comparison.diff),
-                self.report(SharedViolations.MISSING_VALUES, final_dict, comparison.missing),
+                self.report(SharedViolations.DIFFERENT_VALUES, blender, comparison.diff),
+                self.report(SharedViolations.MISSING_VALUES, blender, comparison.missing),
             )
 
-        if self.autofix and self.dirty and final_dict:
-            self.file_path.write_text(JsonDoc(obj=unflatten(final_dict)).reformatted)
+        if self.autofix and self.dirty and blender:
+            self.file_path.write_text(JsonDoc(obj=blender.mix()).reformatted)
 
     def expected_dict_from_contains_keys(self):
         """Expected dict created from "contains_keys" values."""
-        return unflatten({key: VALUE_PLACEHOLDER for key in set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])})
+        blender = DictBlender(separator=DOT, flatten_on_add=False)
+        blender.add({key: VALUE_PLACEHOLDER for key in set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])})
+        return blender.mix()
 
     def expected_dict_from_contains_json(self):
         """Expected dict created from "contains_json" values."""
@@ -76,12 +77,12 @@ class JsonPlugin(NitpickPlugin):
                 continue
         return expected_config
 
-    def report(self, violation: ViolationEnum, final_dict: Optional[JsonDict], change: Optional[BaseDoc]):
+    def report(self, violation: ViolationEnum, blender: Optional[DictBlender], change: Optional[BaseDoc]):
         """Report a violation while optionally modifying the JSON dict."""
         if not change:
             return
-        if final_dict:
-            final_dict.update(flatten(change.as_object))
+        if blender:
+            blender.add(change.as_object)
             self.dirty = True
         yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.autofix)
 

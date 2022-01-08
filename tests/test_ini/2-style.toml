@@ -1,0 +1,13 @@
+[".editorconfig"]
+root = true
+missing = "value"
+another_missing = 100
+
+[".editorconfig"."*"]
+end_of_line = "lf"
+insert_final_newline = true
+tab_width = 4
+
+[".editorconfig"."*.{js,json}"]
+charset = "utf-8"
+indent_size = 2

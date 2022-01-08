@@ -5,6 +5,7 @@ from typing import Tuple
 from urllib.parse import urlparse
 
 from nitpick import compat
+from nitpick.constants import DOT
 from nitpick.style.fetchers.base import StyleFetcher
 
 
@@ -25,7 +26,7 @@ class PythonPackageURL:
         package_name = parsed_url.netloc
         resource_path = parsed_url.path.strip("/").split("/")
 
-        import_path = ".".join(chain((package_name,), resource_path[:-1]))
+        import_path = DOT.join(chain((package_name,), resource_path[:-1]))
         resource_name = resource_path[-1]
 
         return cls(import_path=import_path, resource_name=resource_name)

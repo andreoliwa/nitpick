@@ -1,13 +1,16 @@
-"""Pre-commit tests."""
-from textwrap import dedent
+"""Tests for the deprecated ``nitpick.plugins.pre_commit.PreCommitPlugin`` with the old style format.
+
+.. warning::
+
+    Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
+"""
+import warnings
 
 import pytest
-from testfixtures import compare
 
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML, SETUP_CFG
-from nitpick.plugins.pre_commit import PreCommitHook
 from nitpick.violations import Fuss
-from tests.helpers import NBSP, ProjectMock
+from tests.helpers import ProjectMock
 
 
 def test_pre_commit_has_no_configuration(tmp_path):
@@ -25,63 +28,16 @@ def test_pre_commit_referenced_in_style(tmp_path):
         [".pre-commit-config.yaml"]
         fail_fast = true
         """
-    ).pre_commit("").api_check_then_fix(Fuss(False, PRE_COMMIT_CONFIG_YAML, 331, " doesn't have the 'repos' root key"))
+    ).pre_commit("").api_check_then_fix(
+        Fuss(True, PRE_COMMIT_CONFIG_YAML, 368, " has missing values:", "fail_fast: true")
+    )
 
 
-def test_suggest_initial_contents(tmp_path):
+def test_suggest_initial_contents(tmp_path, datadir):
     """Suggest initial contents for missing pre-commit config file."""
-    ProjectMock(tmp_path).named_style(
-        "isort",
-        '''
-        ["setup.cfg".isort]
-        line_length = 120
-        skip = ".tox,build"
-        known_first_party = "tests"
-
-        # The configuration below is needed for compatibility with black.
-        # https://github.com/python/black#how-black-wraps-lines
-        # https://github.com/PyCQA/isort#multi-line-output-modes
-        multi_line_output = 3
-        include_trailing_comma = true
-        force_grid_wrap = 0
-        combine_as_imports = true
-
-        [[".pre-commit-config.yaml".repos]]
-        yaml = """
-          - repo: https://github.com/PyCQA/isort
-            rev: 5.8.0
-            hooks:
-              - id: isort
-        """
-        ''',
-    ).named_style(
-        "black",
-        '''
-        ["pyproject.toml".tool.black]
-        line-length = 120
-
-        [[".pre-commit-config.yaml".repos]]
-        yaml = """
-          - repo: https://github.com/psf/black
-            rev: 21.5b2
-            hooks:
-              - id: black
-                args: [--safe, --quiet]
-          - repo: https://github.com/asottile/blacken-docs
-            rev: v1.10.0
-            hooks:
-              - id: blacken-docs
-                additional_dependencies: [black==21.5b2]
-        """
-        # TODO The toml library has issues loading arrays with multiline strings:
-        #  https://github.com/uiri/toml/issues/123
-        #  https://github.com/uiri/toml/issues/230
-        #  If they are fixed one day, remove this 'yaml' key and use only a 'repos' list with a single element:
-        #[".pre-commit-config.yaml"]
-        #repos = ["""
-        #<YAML goes here>
-        #"""]
-        ''',
+    warnings.simplefilter("ignore")  # "repos.yaml" key
+    ProjectMock(tmp_path).named_style("isort", datadir / "1-isort.toml").named_style(
+        "black", datadir / "1-black.toml"
     ).pyproject_toml(
         """
         [tool.nitpick]
@@ -89,34 +45,25 @@ def test_suggest_initial_contents(tmp_path):
         """
     ).api_check_then_fix(
         Fuss(
-            False,
+            True,
             PRE_COMMIT_CONFIG_YAML,
-            331,
+            361,
             " was not found. Create it with this content:",
             """
-            repos:
-              - repo: https://github.com/PyCQA/isort
-                rev: 5.8.0
-                hooks:
-                  - id: isort
-              - repo: https://github.com/psf/black
-                rev: 21.5b2
-                hooks:
-                  - id: black
-                    args: [--safe, --quiet]
-              - repo: https://github.com/asottile/blacken-docs
-                rev: v1.10.0
-                hooks:
-                  - id: blacken-docs
-                    additional_dependencies: [black==21.5b2]
+            repos: []
             """,
         ),
         partial_names=[PRE_COMMIT_CONFIG_YAML],
+    ).assert_file_contents(
+        PRE_COMMIT_CONFIG_YAML,
+        """
+        repos: []
+        """,
     )
 
 
 def test_no_yaml_key(tmp_path):
-    """Test an invalid repo config."""
+    """What was an invalid repo config before, now will be autofixed. Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`."""
     ProjectMock(tmp_path).style(
         '''
         [[".pre-commit-config.yaml".repos]]
@@ -129,13 +76,14 @@ def test_no_yaml_key(tmp_path):
         '''
     ).api_check_then_fix(
         Fuss(
-            False,
+            True,
             PRE_COMMIT_CONFIG_YAML,
-            331,
+            361,
             " was not found. Create it with this content:",
-            """
-            repos: []
-            """,
+            "repos:\n"
+            '  - missing_yaml_key: "  - repo: '
+            "https://github.com/PyCQA/isort\\n    rev: 5.8.0\\n\\\n"
+            '      \\    hooks:\\n      - id: isort\\n"',
         )
     )
 
@@ -151,9 +99,9 @@ def test_root_values_on_missing_file(tmp_path):
         """
     ).api_check_then_fix(
         Fuss(
-            False,
+            True,
             PRE_COMMIT_CONFIG_YAML,
-            331,
+            361,
             " was not found. Create it with this content:",
             """
             bla_bla: oh yeah
@@ -184,9 +132,9 @@ def test_root_values_on_existing_file(tmp_path):
         """
     ).api_check_then_fix(
         Fuss(
-            False,
+            True,
             PRE_COMMIT_CONFIG_YAML,
-            338,
+            368,
             " has missing values:",
             """
             blabla: what
@@ -194,9 +142,9 @@ def test_root_values_on_existing_file(tmp_path):
             """,
         ),
         Fuss(
-            False,
+            True,
             PRE_COMMIT_CONFIG_YAML,
-            339,
+            369,
             " has different values. Use this:",
             """
             another_thing: yep
@@ -220,7 +168,7 @@ def test_missing_repos(tmp_path):
           - id: whatever
         """
     ).api_check_then_fix(
-        Fuss(False, PRE_COMMIT_CONFIG_YAML, 331, " doesn't have the 'repos' root key")
+        Fuss(True, PRE_COMMIT_CONFIG_YAML, 368, " has missing values:", "fail_fast: true")
     )
 
 
@@ -238,7 +186,24 @@ def test_missing_repo_key(tmp_path):
           - id: whatever
         """
     ).api_check_then_fix(
-        Fuss(False, PRE_COMMIT_CONFIG_YAML, 332, ": style file is missing 'repo' key in repo #0")
+        Fuss(
+            True,
+            PRE_COMMIT_CONFIG_YAML,
+            368,
+            " has missing values:",
+            """
+            repos:
+              - grepo: glocal
+            """,
+        ),
+    ).assert_file_contents(
+        PRE_COMMIT_CONFIG_YAML,
+        """
+        repos:
+          - hooks:
+              - id: whatever
+          - grepo: glocal
+        """,
     )
 
 
@@ -256,12 +221,21 @@ def test_repo_does_not_exist(tmp_path):
           - id: whatever
         """
     ).api_check_then_fix(
-        Fuss(False, PRE_COMMIT_CONFIG_YAML, 333, ": repo 'local' does not exist under 'repos'")
+        Fuss(
+            True,
+            PRE_COMMIT_CONFIG_YAML,
+            368,
+            " has missing values:",
+            """
+            repos:
+              - repo: local
+            """,
+        )
     )
 
 
 def test_missing_hooks_in_repo(tmp_path):
-    """Test missing hooks in repo."""
+    """Test missing hooks in repo. Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`."""
     ProjectMock(tmp_path).style(
         """
         [[".pre-commit-config.yaml".repos]]
@@ -272,9 +246,7 @@ def test_missing_hooks_in_repo(tmp_path):
         repos:
         - repo: whatever
         """
-    ).api_check_then_fix(
-        Fuss(False, PRE_COMMIT_CONFIG_YAML, 334, ": missing 'hooks' in repo 'whatever'")
-    )
+    ).api_check_then_fix()
 
 
 def test_style_missing_hooks_in_repo(tmp_path):
@@ -292,12 +264,21 @@ def test_style_missing_hooks_in_repo(tmp_path):
           - id: isort
         """
     ).api_check_then_fix(
-        Fuss(False, PRE_COMMIT_CONFIG_YAML, 335, ": style file is missing 'hooks' in repo 'another'")
+        Fuss(
+            True,
+            PRE_COMMIT_CONFIG_YAML,
+            368,
+            " has missing values:",
+            """
+            repos:
+              - repo: another
+            """,
+        )
     )
 
 
 def test_style_missing_id_in_hook(tmp_path):
-    """Test style file is missing id in hook."""
+    """Test style file is missing id in hook. Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`."""
     ProjectMock(tmp_path).style(
         f'''
         [[".pre-commit-config.yaml".repos]]
@@ -316,15 +297,22 @@ def test_style_missing_id_in_hook(tmp_path):
         """
     ).api_check_then_fix(
         Fuss(
-            False,
+            True,
             PRE_COMMIT_CONFIG_YAML,
-            336,
-            ": style file is missing 'id' in hook:",
-            f"""
-            {NBSP*4}name: isort
-            {NBSP*4}entry: isort -sp {SETUP_CFG}
-            """,
+            368,
+            " has missing values:",
+            'repos:\n  - repo: another\n    hooks: "- name: isort\\n  entry: isort -sp setup.cfg\\n"',
         )
+    ).assert_file_contents(
+        PRE_COMMIT_CONFIG_YAML,
+        r"""
+        repos:
+          - repo: another
+            hooks:
+              - id: isort
+          - repo: another
+            hooks: "- name: isort\n  entry: isort -sp setup.cfg\n"
+        """,
     )
 
 
@@ -349,97 +337,27 @@ def test_missing_hook_with_id(tmp_path):
         """
     ).api_check_then_fix(
         Fuss(
-            False,
+            True,
             PRE_COMMIT_CONFIG_YAML,
-            337,
-            ": missing hook with id 'black':",
-            f"""
-            {NBSP * 2}- id: black
-            {NBSP * 2}  name: black
-            {NBSP * 2}  entry: black
+            368,
+            " has missing values:",
+            """
+            repos:
+              - repo: other
+                hooks: "- id: black\\n  name: black\\n  entry: black\\n"
             """,
         )
     )
 
 
-def test_get_all_hooks_from():
-    """Test if the get_all_hooks_from() method will split the YAML block in hooks and copy the repo info for each."""
-    data = """
-      - repo: https://github.com/user/repo
-        rev: v0.4.5
-        hooks:
-          - id: first
-            additional_dependencies: [package==1.0.0]
-          - id: second
-            args: [1, 2, 3]
-          - id: third
-          - id: fourth
-            args: [some, here]
-            additional_dependencies: [another>=2.0.3]
+def test_missing_different_values(tmp_path, datadir, shared_datadir):
+    """Test missing and different values on the hooks. All "yaml" keys in the style are now ignored.
+
+    Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
     """
-    rv = PreCommitHook.get_all_hooks_from(dedent(data))
-
-    def assert_hook_yaml(key, yaml_string):
-        expected = rv["https://github.com/user/repo_" + key].yaml.reformatted
-        actual = yaml_string
-        compare(dedent(actual).strip(), dedent(expected).strip())
-
-    assert_hook_yaml(
-        "first",
-        """
-          - repo: https://github.com/user/repo
-            rev: v0.4.5
-            hooks:
-              - id: first
-                additional_dependencies: [package==1.0.0]
-        """,
-    )
-    assert_hook_yaml(
-        "second",
-        """
-          - repo: https://github.com/user/repo
-            rev: v0.4.5
-            hooks:
-              - id: second
-                args: [1, 2, 3]
-        """,
-    )
-    assert_hook_yaml(
-        "third",
-        """
-          - repo: https://github.com/user/repo
-            rev: v0.4.5
-            hooks:
-              - id: third
-        """,
-    )
-    assert_hook_yaml(
-        "fourth",
-        """
-          - repo: https://github.com/user/repo
-            rev: v0.4.5
-            hooks:
-              - id: fourth
-                args: [some, here]
-                additional_dependencies: [another>=2.0.3]
-        """,
-    )
-
-
-def test_missing_different_values(tmp_path):
-    """Test missing and different values on the hooks."""
+    warnings.simplefilter("ignore")  # "repos.yaml" key
     ProjectMock(tmp_path).named_style(
-        "root",
-        '''
-        [[".pre-commit-config.yaml".repos]]
-        yaml = """
-          - repo: https://github.com/user/repo
-            rev: 1.2.3
-            hooks:
-              - id: my-hook
-                args: [--expected, arguments]
-        """
-        ''',
+        "root", shared_datadir / "pre-commit-config-with-old-repos-yaml-key.toml"
     ).named_style(
         "mypy",
         '''
@@ -507,109 +425,11 @@ def test_missing_different_values(tmp_path):
         style = ["root", "mypy", "pre-commit/python", "pre-commit/bash"]
         """
     ).pre_commit(
-        """
-        repos:
-          - repo: https://github.com/pre-commit/pygrep-hooks
-            rev: v1.1.0
-            hooks:
-              - id: python-check-blanket-noqa
-              - id: missing-hook-in-this-position
-              - id: python-no-eval
-              - id: python-no-log-warn
-              - id: rst-backticks
-          - repo: https://github.com/pre-commit/pre-commit-hooks
-            rev: v4.0.1
-            hooks:
-              - id: debug-statements
-          - repo: https://github.com/asottile/pyupgrade
-            rev: v2.16.0
-            hooks:
-              - id: pyupgrade
-          - repo: https://github.com/openstack/bashate
-            rev: 0.5.0
-            hooks:
-              - id: extra-hook-before-should-be-ignored
-              - id: bashate
-                args: [extra, arguments, should, --not, --throw, errors]
-              - id: extra-hook-after-should-be-ignored
-          - repo: https://github.com/user/repo
-            rev: 1.2.3
-            hooks:
-              - id: my-hook
-                args: [--different, args, --should, throw, errors]
-        """
+        datadir / "2-untouched-pre-commit.yaml"
     ).api_check_then_fix(
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            332,
-            ": hook 'mypy' not found. Use this:",
-            f"""
-            {NBSP * 2}- repo: https://github.com/pre-commit/mirrors-mypy
-                rev: v0.812
-                hooks:
-                  - id: mypy
-            """,
-        ),
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            332,
-            ": hook 'python-check-mock-methods' not found. Use this:",
-            f"""
-            {NBSP * 2}- repo: https://github.com/pre-commit/pygrep-hooks
-                rev: v1.8.0
-                hooks:
-                  - id: python-check-mock-methods
-            """,
-        ),
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            339,
-            ": hook 'bashate' (rev: 0.5.0) has different values. Use this:",
-            "rev: 2.0.0",
-        ),
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            339,
-            ": hook 'python-check-blanket-noqa' (rev: v1.1.0) has different values. Use this:",
-            "rev: v1.8.0",
-        ),
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            339,
-            ": hook 'python-no-eval' (rev: v1.1.0) has different values. Use this:",
-            "rev: v1.8.0",
-        ),
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            339,
-            ": hook 'python-no-log-warn' (rev: v1.1.0) has different values. Use this:",
-            "rev: v1.8.0",
-        ),
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            339,
-            ": hook 'my-hook' (rev: 1.2.3) has different values. Use this:",
-            """
-            args:
-              - --expected
-              - arguments
-            """,
-        ),
-        Fuss(
-            False,
-            PRE_COMMIT_CONFIG_YAML,
-            339,
-            ": hook 'rst-backticks' (rev: v1.1.0) has different values. Use this:",
-            "rev: v1.8.0",
-        ),
         partial_names=[PRE_COMMIT_CONFIG_YAML],
+    ).assert_file_contents(
+        PRE_COMMIT_CONFIG_YAML, datadir / "2-untouched-pre-commit.yaml"
     )
 
 
@@ -623,11 +443,11 @@ def test_pre_commit_section_without_dot_deprecated(tmp_path):
         fail_fast = true
         """
         )
-        .pre_commit("")
+        .pre_commit("fail_fast: true")
     )
 
     with pytest.deprecated_call() as warning_list:
-        project.flake8().assert_single_error("NIP331 File .pre-commit-config.yaml doesn't have the 'repos' root key")
+        project.flake8().assert_no_errors()
 
     assert len(warning_list) == 1
     assert (

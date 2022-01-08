@@ -1,6 +1,10 @@
 [tool.nitpick]
 # Use the default style and override some things (like the Python version)
-style = ["nitpick-style", "pypackage://nitpick/resources/python/python36.toml"]
+style = [
+    "nitpick-style",
+    "py://nitpick/resources/python/36.toml",
+    "py://nitpick/resources/python/stable.toml"
+]
 
 [tool.black]
 line-length = 120
@@ -38,7 +42,6 @@ NIP = "nitpick.flake8:NitpickFlake8Extension"
 [tool.poetry.plugins.nitpick]
 text = "nitpick.plugins.text"
 json = "nitpick.plugins.json"
-pre_commit = "nitpick.plugins.pre_commit"  # TODO: remove this when removing the plugin class
 ini = "nitpick.plugins.ini"
 toml = "nitpick.plugins.toml"
 yaml = "nitpick.plugins.yaml"

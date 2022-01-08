@@ -22,6 +22,7 @@ from sortedcontainers import SortedDict
 from nitpick import PROJECT_NAME, __version__
 from nitpick.constants import (
     CONFIG_FILES,
+    DOT,
     EDITOR_CONFIG,
     PACKAGE_JSON,
     PRE_COMMIT_CONFIG_YAML,
@@ -44,6 +45,8 @@ MD_DIVIDER_END = "<!-- auto-generated-end-{} -->"
 DOCS_DIR: Path = Path(__file__).parent.absolute()
 STYLES_DIR: Path = DOCS_DIR.parent / "src" / "nitpick" / "resources"
 
+# TODO: keep target URLs here in this mapping, or in another mapping, or inside the style itself [nitpick.meta],
+#  and generate targets.rst instead of editing the file manually
 STYLE_MAPPING = SortedDict(
     {
         "python/absent.toml": "Absent files",
@@ -55,18 +58,30 @@ STYLE_MAPPING = SortedDict(
         "python/mypy.toml": "mypy_",
         "javascript/package-json.toml": "package.json_",
         "python/poetry.toml": "Poetry_",
-        "shell/hooks.toml": "Bash_",
+        "shell/bashate.toml": "bashate_",
         "any/commitizen.toml": "commitizen_",
         "any/commitlint.toml": "commitlint_",
-        "any/hooks.toml": "pre-commit_ (hooks)",
-        "python/hooks.toml": "pre-commit_ (Python hooks)",
+        "python/hooks.toml": "pre-commit_ hooks for Python",
         "python/pylint.toml": "Pylint_",
-        "python/python36.toml": "Python 3.6",
-        "python/python37.toml": "Python 3.7",
-        "python/python38.toml": "Python 3.8",
-        "python/python39.toml": "Python 3.9",
-        "python/python310.toml": "Python 3.10",
+        "python/36.toml": "Python 3.6",
+        "python/37.toml": "Python 3.7",
+        "python/38.toml": "Python 3.8",
+        "python/39.toml": "Python 3.9",
+        "python/310.toml": "Python 3.10",
         "python/tox.toml": "tox_",
+        "python/stable.toml": "Python (stable version)",
+        "python/readthedocs.toml": "ReadTheDocs_",
+        "any/git-legal.toml": "git-legal_",
+        "any/hooks.toml": "pre-commit_ hooks for any language",
+        "any/markdownlint.toml": "markdownlint_",
+        "python/bandit.toml": "bandit_",
+        "any/codeclimate.toml": "codeclimate_",
+        "python/radon.toml": "radon_",
+        "python/sonar-python.toml": "sonar-python_",
+        "shell/shellcheck.toml": "shellcheck_",
+        "python/github-workflow.toml": "GitHub Workflow (Python)",
+        "python/autoflake.toml": "autoflake_",
+        "any/prettier.toml": "Prettier_",
     }
 )
 CLI_MAPPING = [
@@ -113,7 +128,7 @@ class FileType:
     @property
     def sort_key(self) -> str:
         """Sort key of this element."""
-        return ("0" if self.text.startswith("Any") else "1") + self.text.casefold().replace(".", "")
+        return ("0" if self.text.startswith("Any") else "1") + self.text.casefold().replace(DOT, "")
 
     @property
     def text_with_url(self) -> str:
@@ -151,11 +166,9 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any JSON file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, True),
     FileType("Any text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
-    FileType(
-        f"Any YAML file (except {PRE_COMMIT_CONFIG_YAML})", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True
-    ),
+    FileType("Any YAML file", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True),
     FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
-    FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, 282),
+    FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, True),
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
     FileType(PACKAGE_JSON, f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, True),
     FileType(PYPROJECT_TOML, f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
@@ -268,7 +281,7 @@ def write_examples() -> int:
 
     if missing:
         click.secho(
-            f"ERROR: Add missing style files to the 'style_mapping' var in '{__file__}',"
+            f"ERROR: Add missing style files to the 'STYLE_MAPPING' var in '{__file__}',"
             f" as file/header pairs. Example:",
             fg="red",
         )
