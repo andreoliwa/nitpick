@@ -22,14 +22,17 @@ help:
 build: .cache/make/pytest .cache/make/pre-commit # Quick build for local development
 .PHONY: build
 
-.cache/make/pytest: $(SRC) $(TESTS)
-	invoke test
-	touch .cache/make/pytest
-
-.cache/make/pre-commit: $(ANY)
+.delete-cache:
 	# Force a cache update before running "nitpick fix" in pre-commit
 	# TODO: the cache doesn't detect changes in TOML style files
 	rm -rf .cache/nitpick
+.PHONY: .delete-cache
+
+.cache/make/pytest: .delete-cache $(SRC) $(TESTS)
+	invoke test
+	touch .cache/make/pytest
+
+.cache/make/pre-commit: .delete-cache $(ANY)
 	pre-commit run -a
 	touch .cache/make/pre-commit
 
