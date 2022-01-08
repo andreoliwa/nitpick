@@ -52,16 +52,6 @@ ROOT_FILES = (
 ) + ROOT_PYTHON_FILES
 CONFIG_FILES = (DOT_NITPICK_TOML, PYPROJECT_TOML)
 
-SINGLE_QUOTE = "'"
-DOUBLE_QUOTE = '"'
-
-#: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
-# to avoid collision with existing key values (e.g. the default dot separator "." can be part of a TOML key).
-SEPARATOR_FLATTEN = "$#@"
-
-#: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
-SEPARATOR_QUOTED_SPLIT = "#$@"
-
 # Config sections and keys
 TOOL_KEY = "tool"
 TOOL_NITPICK_KEY = f"{TOOL_KEY}.{PROJECT_NAME}"

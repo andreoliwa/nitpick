@@ -23,8 +23,18 @@ from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from ruamel.yaml.comments import CommentedMap
 from sortedcontainers import SortedDict
 
-from nitpick.constants import DOT, DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
+from nitpick.constants import DOT
 from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
+
+SINGLE_QUOTE = "'"
+DOUBLE_QUOTE = '"'
+
+#: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
+# to avoid collision with existing key values (e.g. the default dot separator "." can be part of a TOML key).
+SEPARATOR_FLATTEN = "$#@"
+
+#: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
+SEPARATOR_QUOTED_SPLIT = "#$@"
 
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
 LIST_CLASSES = (list, tuple)
