@@ -1,4 +1,4 @@
-Fixes issue(s) #
+Fix these issue(s): #
 
 ## Proposed changes
 
