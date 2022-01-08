@@ -8,6 +8,7 @@ import abc
 import json
 import re
 from collections import OrderedDict
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
 
@@ -19,7 +20,7 @@ from autorepr import autorepr
 from jmespath.parser import ParsedResult
 from more_itertools import always_iterable
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
-from ruamel.yaml.comments import CommentedMap, CommentedSeq
+from ruamel.yaml.comments import CommentedMap
 from sortedcontainers import SortedDict
 
 from nitpick.constants import DOT, DOUBLE_QUOTE, SEPARATOR_FLATTEN, SEPARATOR_QUOTED_SPLIT, SINGLE_QUOTE
@@ -310,31 +311,24 @@ class BaseDoc(metaclass=abc.ABCMeta):
     :param path: Path of the config file to be loaded.
     :param string: Config in string format.
     :param obj: Config object (Python dict, YamlDoc, TomlDoc instances).
-    :param ignore_keys: List of keys to ignore when using the comparison methods.
     """
 
     __repr__ = autorepr(["path"])
 
-    def __init__(
-        self, *, path: PathOrStr = None, string: str = None, obj: JsonDict = None, ignore_keys: List[str] = None
-    ) -> None:
+    def __init__(self, *, path: PathOrStr = None, string: str = None, obj: JsonDict = None) -> None:
         self.path = path
         self._string = string
         self._object = obj
 
-        self._ignore_keys = ignore_keys or []
         self._reformatted: Optional[str] = None
-        self._loaded = False
 
     @abc.abstractmethod
-    def load(self):
+    def load(self) -> bool:
         """Load the configuration from a file, a string or a dict."""
 
     @property
     def as_string(self) -> str:
         """Contents of the file or the original string provided when the instance was created."""
-        if self._string is None:
-            self.load()
         return self._string or ""
 
     @property
@@ -351,33 +345,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
             self.load()
         return self._reformatted or ""
 
-    @classmethod
-    def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
-        return list(*args)
-
-    def _create_comparison(self, expected: JsonDict):
-        if not self._ignore_keys:
-            return Comparison(self.as_object or {}, expected or {}, self.__class__)
-
-        actual_original = self.as_object or {}
-        actual_copy = actual_original.copy() if isinstance(actual_original, dict) else actual_original
-
-        expected_original: JsonDict = expected or {}
-        if isinstance(expected_original, dict):
-            expected_copy: JsonDict = expected_original.copy()
-        elif isinstance(expected_original, BaseDoc):
-            expected_copy = expected_original.as_object.copy()  # type: ignore[attr-defined]
-        else:
-            expected_copy = expected_original
-        for key in self._ignore_keys:
-            actual_copy.pop(key, None)
-            expected_copy.pop(key, None)
-        return Comparison(actual_copy, expected_copy, self.__class__)
-
     def compare_with_flatten(self, expected: JsonDict = None, unique_keys: JsonDict = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
-        comparison = self._create_comparison(expected or {})
+        comparison = Comparison(self.as_object or {}, expected or {}, self.__class__)
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
             return comparison
 
@@ -441,16 +411,14 @@ class TomlDoc(BaseDoc):
         path: PathOrStr = None,
         string: str = None,
         obj: JsonDict = None,
-        ignore_keys: List[str] = None,
         use_tomlkit=False,
     ) -> None:
-        super().__init__(path=path, string=string, obj=obj, ignore_keys=ignore_keys)
+        super().__init__(path=path, string=string, obj=obj)
         self.use_tomlkit = use_tomlkit
 
+    @lru_cache()
     def load(self) -> bool:
         """Load a TOML file by its path, a string or a dict."""
-        if self._loaded:
-            return False
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
@@ -461,16 +429,12 @@ class TomlDoc(BaseDoc):
             else:
                 self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
-            if isinstance(self._object, BaseDoc):
-                self._reformatted = self._object.reformatted
+            # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
+            #  but comments are being lost when the TOML plugin does dict comparisons.
+            if self.use_tomlkit:
+                self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
             else:
-                # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
-                #  but comments are being lost when the TOML plugin does dict comparisons.
-                if self.use_tomlkit:
-                    self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
-                else:
-                    self._reformatted = toml.dumps(self._object)
-        self._loaded = True
+                self._reformatted = toml.dumps(self._object)
         return True
 
 
@@ -516,11 +480,9 @@ class YamlDoc(BaseDoc):
 
     updater: SensibleYAML
 
+    @lru_cache()
     def load(self) -> bool:
         """Load a YAML file by its path, a string or a dict."""
-        if self._loaded:
-            return False
-
         self.updater = SensibleYAML()
 
         if self.path is not None:
@@ -528,28 +490,8 @@ class YamlDoc(BaseDoc):
         if self._string is not None:
             self._object = self.updater.loads(self._string)
         if self._object is not None:
-            if isinstance(self._object, BaseDoc):
-                self._reformatted = self._object.reformatted
-            else:
-                self._reformatted = self.updater.dumps(self._object)
-
-        self._loaded = True
+            self._reformatted = self.updater.dumps(self._object)
         return True
-
-    @property
-    def as_object(self) -> CommentedMap:
-        """On YAML, this dict is a special object with comments and ordered keys."""
-        return super().as_object
-
-    @property
-    def as_list(self) -> CommentedSeq:
-        """A list of dicts, for typing purposes. On YAML, ``as_object`` might contain a ``list``."""
-        return self.as_object
-
-    @classmethod
-    def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """A boolean "True" or "true" might have the same effect on YAML."""
-        return [str(value).lower() if isinstance(value, (int, float, bool)) else value for value in args]
 
 
 for dict_class in (SortedDict, OrderedDict):
@@ -604,24 +546,14 @@ def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[YamlValue]):
 class JsonDoc(BaseDoc):
     """JSON configuration format."""
 
+    @lru_cache()
     def load(self) -> bool:
         """Load a JSON file by its path, a string or a dict."""
-        if self._loaded:
-            return False
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
             self._object = json.loads(self._string, object_pairs_hook=OrderedDict)
         if self._object is not None:
-            if isinstance(self._object, BaseDoc):
-                self._reformatted = self._object.reformatted
-            else:
-                # Every file should end with a blank line
-                self._reformatted = json.dumps(self._object, sort_keys=True, indent=2) + "\n"
-        self._loaded = True
+            # Every file should end with a blank line
+            self._reformatted = json.dumps(self._object, sort_keys=True, indent=2) + "\n"
         return True
-
-    @classmethod
-    def cleanup(cls, *args: List[Any]) -> List[Any]:
-        """Cleanup similar values according to the specific format. E.g.: YamlDoc accepts 'True' or 'true'."""
-        return list(args)
