@@ -1,7 +1,7 @@
 """Test blender of dicts and related functions."""
 from testfixtures import compare
 
-from nitpick.blender import DictBlender, flatten
+from nitpick.blender import DictBlender
 from tests.helpers import assert_conditions
 
 
@@ -33,7 +33,7 @@ def test_flatten():
         ),
     ]
     for original, expected, separator in examples:
-        compare(actual=flatten(original, separator=separator), expected=expected)
+        compare(actual=DictBlender(original, separator=separator).flat_dict, expected=expected)
 
 
 def test_merge_dicts_extending_lists():

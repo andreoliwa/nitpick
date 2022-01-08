@@ -9,7 +9,7 @@ import json
 import re
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, MutableMapping, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
 
 import dictdiffer
 import jmespath
@@ -176,35 +176,6 @@ def quoted_split(string_: str, separator=DOT) -> List[str]:
     ]
 
 
-def flatten(dict_, parent_key="", separator=DOT, current_lists=None, extend_lists=True) -> JsonDict:
-    """Flatten a nested dict.
-
-    Use :py:meth:`unflatten()` to revert.
-
-    Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
-    """
-    # TODO: move flatten() and unflatten() to DictBlender: they depend on each other and keep state between calls.
-    if current_lists is None:
-        current_lists = {}
-
-    items: List[Tuple[str, Any]] = []
-    for key, value in dict_.items():
-        quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if separator in str(key) else key
-        new_key = str(parent_key) + separator + str(quoted_key) if parent_key else quoted_key
-        if isinstance(value, dict):
-            items.extend(flatten(value, new_key, separator, current_lists, extend_lists).items())
-        elif isinstance(value, (list, tuple)) and extend_lists:
-            # If the value is a list or tuple, append to a previously existing list.
-            existing_list = current_lists.get(new_key, [])
-            existing_list.extend(list(value))
-            current_lists[new_key] = existing_list
-
-            items.append((new_key, existing_list))
-        else:
-            items.append((new_key, value))
-    return dict(items)
-
-
 def unflatten(dict_, separator=DOT, sort=True) -> OrderedDict:
     """Turn back a flattened dict created by :py:meth:`flatten()` into a nested dict.
 
@@ -216,6 +187,7 @@ def unflatten(dict_, separator=DOT, sort=True) -> OrderedDict:
       ...
     TypeError: 'str' object does not support item assignment
     """
+    # TODO: move flatten() and unflatten() to DictBlender: they depend on each other and keep state between calls.
     items: OrderedDict = OrderedDict()
     for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
         all_keys = quoted_split(root_key, separator)
@@ -245,15 +217,37 @@ class DictBlender:
         self, original_dict: JsonDict = None, *, extend_lists=True, separator: str = SEPARATOR_FLATTEN
     ) -> None:
         self._current_flat_dict: OrderedDict = OrderedDict()
-        self._current_lists: Dict[str, Iterable] = {}
+        self._current_lists: Dict[str, List[Any]] = {}
         self.extend_lists = extend_lists
         self.separator = separator
         self.add(original_dict or {})
 
     def add(self, other: JsonDict) -> None:
         """Add another dictionary to the existing data."""
-        flattened_other = flatten(other, "", self.separator, self._current_lists, self.extend_lists)
-        self._current_flat_dict.update(flattened_other)
+        self._current_flat_dict.update(self._flatten(other))
+
+    def _flatten(self, other_dict: JsonDict, parent_key="") -> JsonDict:
+        """Flatten a nested dict.
+
+        Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
+        """
+        items: List[Tuple[str, Any]] = []
+        for key, value in other_dict.items():
+            quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if self.separator in str(key) else key
+            new_key = str(parent_key) + self.separator + str(quoted_key) if parent_key else quoted_key
+            if isinstance(value, dict):
+                flat_dict = self._flatten(value, new_key)
+                items.extend(flat_dict.items())
+            elif isinstance(value, (list, tuple)) and self.extend_lists:
+                # If the value is a list or tuple, append to a previously existing list.
+                existing_list = self._current_lists.get(new_key, [])
+                existing_list.extend(list(value))
+                self._current_lists[new_key] = existing_list
+
+                items.append((new_key, existing_list))
+            else:
+                items.append((new_key, value))
+        return dict(items)
 
     @property
     def flat_dict(self):
@@ -274,8 +268,8 @@ class Comparison:
         expected: JsonDict,
         doc_class: Type["BaseDoc"],
     ) -> None:
-        self.flat_actual = self._normalize_value(actual)
-        self.flat_expected = self._normalize_value(expected)
+        self.flat_actual = DictBlender(actual, separator=DOT).flat_dict
+        self.flat_expected = DictBlender(expected, separator=DOT).flat_dict
 
         self.doc_class = doc_class
 
@@ -308,14 +302,6 @@ class Comparison:
     def has_changes(self) -> bool:
         """Return True is there is a difference or something missing."""
         return bool(self.missing or self.diff or self.replace)
-
-    @staticmethod
-    def _normalize_value(value: JsonDict) -> Dict:
-        if isinstance(value, BaseDoc):
-            dict_value = value.as_object
-        else:
-            dict_value = value
-        return flatten(dict_value)
 
 
 class BaseDoc(metaclass=abc.ABCMeta):
