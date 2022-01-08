@@ -1,5 +1,0 @@
-[".github/workflows/python.yaml".jobs.build.strategy.matrix]
-os = ["ubuntu-latest", "windows-latest", "macos-latest"]
-python-version = ["3.6", "3.7", "3.8", "3.9", "3.10"]
-# FIXME: test if any existing lists are replaced by these above
-# FIXME: test a new step is added with the data if the style doesn't have the unique key (e.g. "name" for GHA)

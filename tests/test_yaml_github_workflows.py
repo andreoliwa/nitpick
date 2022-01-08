@@ -3,11 +3,15 @@ from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
 
-def test_steps_should_exist(tmp_path, datadir):
-    """Test steps should exist."""
+def test_list_of_dicts_search_missing_element_by_key_and_changeadd_element_individually(tmp_path, datadir):
+    """Test list of dicts: search missing element by key and change/add element individually.
+
+    In GitHub Workflows: steps are searched by name and they should exist.
+    """
+    # FIXME document this on .rst
     filename = ".github/workflows/any-language.yaml"
-    ProjectMock(tmp_path).save_file(filename, datadir / "steps-should-exist-actual.yaml").style(
-        datadir / "steps-should-exist.toml"
+    ProjectMock(tmp_path).save_file(filename, datadir / "dict-search-by-key-actual.yaml").style(
+        datadir / "dict-search-by-key.toml"
     ).api_check_then_fix(
         Fuss(
             True,
@@ -29,5 +33,43 @@ def test_steps_should_exist(tmp_path, datadir):
             """,
         ),
     ).assert_file_contents(
-        filename, datadir / "steps-should-exist-desired.yaml"
+        filename, datadir / "dict-search-by-key-desired.yaml"
     ).api_check().assert_violations()
+
+
+def test_list_of_scalars_change_add_elements_starting_from_index_0_keep_remaining_items_if_they_exist(
+    tmp_path, datadir
+):
+    """Test list of scalars: change/add elements starting from index 0, keep remaining items if they exist."""
+    # FIXME document this on .rst. This is the default for lists of scalars, for now
+    filename = ".github/workflows/python.yaml"
+    ProjectMock(tmp_path).save_file(filename, datadir / "scalar-change-from-index-zero-actual.yaml").style(
+        datadir / "scalar-change-from-index-zero.toml"
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            filename,
+            369,
+            " has different values. Use this:",
+            """
+            jobs:
+              build:
+                strategy:
+                  matrix:
+                    os:
+                      - ubuntu-latest
+                      - windows-latest
+                    python-version:
+                      - '3.7'
+                      - '3.8'
+                      - '3.9'
+                      - '3.10'
+                      - '3.11'
+            """,
+        ),
+    ).assert_file_contents(
+        filename, datadir / "scalar-change-from-index-zero-desired.yaml"
+    ).api_check().assert_violations()
+
+
+# FIXME: test a new step is added with the data if the style doesn't have the unique key (e.g. "name" for GHA)

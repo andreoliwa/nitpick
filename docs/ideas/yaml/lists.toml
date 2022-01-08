@@ -1,9 +1,16 @@
-# 1. For some lists, only check if the element is present but don't enforce the whole list to be the same
+# Possible list behaviours in YAML (maybe in other formats too?) that are still not implemented
+
+# FIXME: this should be the default behaviour for lists of scalars; it's less destructive
+# 1. List of scalars: add missing elements to the list
+# Only check if the element is present but don't enforce the whole list to be the same
 [".pre-commit-config.yaml".ci]
 skip = ["pylint"]
 
-# 2. Search lists by a hash of the JSON/dic object another idea: . In a list of dicts, hash each dict of the actual list
-#  (all key/value pairs). Then loop through the new elements and only add those who were not found with the same hash
+# 2. List of scalars: the whole list should be exactly as in the style
+
+# 3. Search lists by a hash of the JSON/dic object.
+#  In a list of dicts, hash each dict of the actual list (all key/value pairs).
+#  Then loop through the new elements and only add those who were not found with the same hash.
 ["some-file.yaml".__search_object_hash]
 # Hash all fields
 some_list = "*"
@@ -12,7 +19,7 @@ person_list = "name,age,gender"
 # Hash all fields except these
 another_list = "-price,size"
 
-# 3. Search using a custom function
+# 4. Search using a custom function
 # A custom function called by Nitpick that receives X, Y, Z arguments (to be defined)
 # And returns the new element and its index it should be in the list:
 # - 0 to len(list)
