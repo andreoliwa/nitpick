@@ -437,10 +437,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
 
             actual = comparison.flat_actual[key]
             if isinstance(expected_value, list):
-                try:
-                    jmes_element_key = element_key.get(key, "")
-                except ValueError:
-                    jmes_element_key = ""
+                jmes_element_key = element_key.get(key, "")
                 if jmes_element_key:
                     new_elements, whole_list = compare_list_elements(actual, expected_value, jmes_element_key)
                     if new_elements:
