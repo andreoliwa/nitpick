@@ -10,7 +10,7 @@ import re
 from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 import dictdiffer
 import jmespath
@@ -18,7 +18,6 @@ import toml
 import tomlkit
 from autorepr import autorepr
 from jmespath.parser import ParsedResult
-from more_itertools import always_iterable
 from pydantic import BaseModel
 from ruamel.yaml import YAML, CommentedMap, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
@@ -45,7 +44,7 @@ LIST_CLASSES = (list, tuple)
 
 
 def compare_lists_with_dictdiffer(
-    actual: List[Any], expected: List[Any], *, return_list: bool = True
+    actual: Union[List, Dict], expected: Union[List, Dict], *, return_list: bool = True
 ) -> Union[List, Dict]:
     """Compare two lists using dictdiffer."""
     additions_and_changes = [change for change in dictdiffer.diff(actual, expected) if change[0] != "remove"]
@@ -62,11 +61,7 @@ def compare_lists_with_dictdiffer(
     return changed_dict
 
 
-def search_json(
-    json_data: Union[JsonDict, List[Any], Tuple[Any, ...]],
-    jmespath_expression: Union[ParsedResult, str],
-    default: Any = None,
-) -> Any:
+def search_json(json_data: ElementData, jmespath_expression: Union[ParsedResult, str], default: Any = None) -> Any:
     """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
 
     >>> data = {"root": {"app": [1, 2], "test": "something"}}
@@ -136,9 +131,19 @@ class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
             data=data, elements=[ElementDetail.from_data(index, data, jmes_key) for index, data in enumerate(data)]
         )
 
+    def find_by_key(self, desired: ElementDetail) -> Optional[ElementDetail]:
+        """Find an element by key."""
+        for actual in self.elements:
+            if isinstance(desired.key, list):
+                if set(desired.key).issubset(set(actual.key)):
+                    return actual
+            else:
+                if desired.key == actual.key:
+                    return actual
+        return None
 
-# FIXME: refactor to reduce complexity again
-def compare_list_elements(  # pylint: disable=too-many-locals # noqa: C901
+
+def compare_list_elements(  # pylint: disable=too-many-locals
     actual_list: ListOrCommentedSeq, expected_list: ListOrCommentedSeq, nested_key: str, parent_key: str = ""
 ) -> Tuple[ListOrCommentedSeq, ListOrCommentedSeq]:
     """Search an element in a list with a JMES expression representing the key.
@@ -147,68 +152,50 @@ def compare_list_elements(  # pylint: disable=too-many-locals # noqa: C901
     """
     jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
 
-    ListDetail.from_data(actual_list, jmes_search_key)
-    ListDetail.from_data(expected_list, jmes_search_key)
-
-    actual_keys = search_json(actual_list, f"[].{jmes_search_key}", [])
-    if not actual_keys:
-        # There are no actual keys in the current YAML: let's insert the whole expected block
-        return expected_list, actual_list + expected_list
-
-    actual_indexes = {
-        key: index
-        for index, element in enumerate(actual_list)
-        for key in always_iterable(search_json(element, jmes_search_key, []))
-    }
-    # TODO: the return of search_json() could be an ordered dict with {key: index}
+    actual_detail = ListDetail.from_data(actual_list, jmes_search_key)
+    expected_detail = ListDetail.from_data(expected_list, jmes_search_key)
 
     display = []
-    replace = actual_list.copy()
-    for element in expected_list:
-        expected_keys = search_json(element, jmes_search_key, None)
-        if not expected_keys:
-            # There are no expected keys in this current element: let's insert the whole element
-            display.append(element)
-            replace.append(element)
+    replace = actual_detail.data.copy()
+    for expected_element in expected_detail.elements:
+        actual_element = actual_detail.find_by_key(expected_element)
+        if not actual_element:
+            display.append(expected_element.data)
+            replace.append(expected_element.data)
             continue
 
-        for expected_key in always_iterable(expected_keys or []):
-            if expected_key not in actual_keys:
-                display.append(element)
-                replace.append(element)
+        if parent_key:
+            jmes_nested = f"{parent_key}[?{nested_key}=='{expected_element.key[0]}']"
+            actual_nested = search_json(actual_list[actual_element.index], jmes_nested, [])
+            expected_nested = search_json(expected_element.data, jmes_nested, [{}])
+            diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested, return_list=True)
+            if not diff_nested:
                 continue
 
-            # If the element exists, compare with the actual one (by index)
-            index = actual_indexes.get(expected_key, None)
-            if index is None:
-                continue
+            actual_data = cast(JsonDict, actual_element.data)
+            expected_data = cast(JsonDict, expected_element.data)
 
-            if parent_key:
-                jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
-                actual_nested = search_json(actual_list[index], jmes_nested, [])
-                expected_nested = search_json(element, jmes_nested, [{}])
-                diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested, return_list=True)
-                if not diff_nested:
-                    continue
+            expected_data[parent_key] = diff_nested
+            display.append(expected_element.data)
 
-                element[parent_key] = diff_nested
-                display.append(element)
+            new_nested_block = actual_data.copy()
+            for nested_index, obj in enumerate(actual_data[parent_key]):
+                if obj == actual_nested[0]:
+                    new_nested_block[parent_key][nested_index] = diff_nested[0]
+                    break
+            replace[actual_element.index] = new_nested_block
+            continue
 
-                new_nested_block = actual_list[index].copy()
-                for nested_index, obj in enumerate(actual_list[index][parent_key]):
-                    if obj == actual_nested[0]:
-                        new_nested_block[parent_key][nested_index] = diff_nested[0]
-                        break
-                replace[index] = new_nested_block
-                continue
+        diff = compare_lists_with_dictdiffer(
+            cast(JsonDict, actual_element.data), cast(JsonDict, expected_element.data), return_list=False
+        )
+        if not diff:
+            continue
 
-            diff = compare_lists_with_dictdiffer(actual_list[index], element, return_list=False)
-            if not diff:
-                continue
-            new_block: Dict = actual_list[index].copy()
-            new_block.update(diff)
-            display.append(new_block)
-            replace[index] = new_block
+        new_block: Dict = cast(JsonDict, actual_element.data).copy()
+        new_block.update(diff)
+        display.append(new_block)
+        replace[actual_element.index] = new_block
 
     return display, replace
 
