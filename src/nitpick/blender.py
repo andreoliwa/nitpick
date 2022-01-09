@@ -578,17 +578,8 @@ def is_scalar(value: YamlValue) -> bool:
 def replace_or_add_list_element(yaml_obj: YamlObject, element: Any, key: str, index: int) -> None:
     """Replace or add a new element in a YAML list."""
     current = yaml_obj
-    if key:
-        if key in yaml_obj:
-            current = yaml_obj[key]
-        else:
-            if isinstance(yaml_obj, dict):
-                yaml_obj[key] = element
-            else:
-                # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
-                last_pos = len(yaml_obj.keys()) + 1
-                yaml_obj.insert(last_pos, key, element)
-            return
+    if key in yaml_obj:
+        current = yaml_obj[key]
 
     insert: bool = index >= len(current)
     if insert:
