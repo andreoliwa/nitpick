@@ -96,7 +96,7 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
     """Detailed information about an element of a list."""
 
     data: ElementData
-    key: Optional[Union[str, List[str]]]
+    key: Union[str, List[str]]
     index: int
     scalar: bool
     compact: str
@@ -106,7 +106,7 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
         """Create an element detail from dict data."""
         if isinstance(data, LIST_CLASSES + DICT_CLASSES):
             scalar = False
-            key = search_json(data, jmes_key)
+            key = search_json(data, jmes_key) or [""]
             # search_json(data, jmes_search_key, [])
             compact = json.dumps(data, sort_keys=True, separators=(SEPARATOR_COMMA, SEPARATOR_COLON))
         else:
@@ -131,6 +131,8 @@ class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
     def find_by_key(self, desired: ElementDetail) -> Optional[ElementDetail]:
         """Find an element by key."""
         for actual in self.elements:
+            if not actual.key:
+                continue
             if isinstance(desired.key, list):
                 if set(desired.key).issubset(set(actual.key)):
                     return actual
