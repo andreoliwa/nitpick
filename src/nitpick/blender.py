@@ -143,17 +143,21 @@ class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
 
 
 def compare_list_elements(  # pylint: disable=too-many-locals
-    actual_list: ListOrCommentedSeq, expected_list: ListOrCommentedSeq, nested_key: str, parent_key: str = ""
+    actual_list: ListOrCommentedSeq, expected_list: ListOrCommentedSeq, jmes_element_key: str = ""
 ) -> Tuple[ListOrCommentedSeq, ListOrCommentedSeq]:
     """Search an element in a list with a JMES expression representing the key.
 
     :return: Tuple with 2 lists: new elements only and the whole new list.
     """
-    # FIXME: next: refactor: receive a JMES expression and find parent_key and nested_key from it
-    jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
+    if SEPARATOR_DOT in jmes_element_key:
+        parent_key, nested_key = jmes_element_key.split(SEPARATOR_DOT)
+        parent_key = parent_key.strip("[]")
+    else:
+        parent_key = ""
+        nested_key = jmes_element_key
 
-    actual_detail = ListDetail.from_data(actual_list, jmes_search_key)
-    expected_detail = ListDetail.from_data(expected_list, jmes_search_key)
+    actual_detail = ListDetail.from_data(actual_list, jmes_element_key)
+    expected_detail = ListDetail.from_data(expected_list, jmes_element_key)
 
     display = []
     replace = actual_detail.data.copy()
@@ -413,15 +417,15 @@ class BaseDoc(metaclass=abc.ABCMeta):
             self.load()
         return self._reformatted or ""
 
-    def compare_with_flatten(self, expected: JsonDict = None, unique_keys: JsonDict = None) -> Comparison:
+    def compare_with_flatten(self, expected: JsonDict = None, element_key: JsonDict = None) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
         comparison = Comparison(self.as_object or {}, expected or {}, self.__class__)
         if comparison.flat_expected.items() <= comparison.flat_actual.items():
             return comparison
 
-        # TODO: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
+        # FIXME: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
         #  the method should receive SpecialConfig instead of element_key
-        unique_keys = unique_keys or {}
+        element_key = element_key or {}
 
         diff: JsonDict = {}
         missing: JsonDict = {}
@@ -434,12 +438,11 @@ class BaseDoc(metaclass=abc.ABCMeta):
             actual = comparison.flat_actual[key]
             if isinstance(expected_value, list):
                 try:
-                    nested_key, parent_key = unique_keys.get(key, ("", ""))
+                    jmes_element_key = element_key.get(key, "")
                 except ValueError:
-                    nested_key = ""
-                    parent_key = ""
-                if nested_key:
-                    new_elements, whole_list = compare_list_elements(actual, expected_value, nested_key, parent_key)
+                    jmes_element_key = ""
+                if jmes_element_key:
+                    new_elements, whole_list = compare_list_elements(actual, expected_value, jmes_element_key)
                     if new_elements:
                         set_key_if_not_empty(missing, key, new_elements)
                         set_key_if_not_empty(replace, key, whole_list)

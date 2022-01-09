@@ -50,9 +50,9 @@ class YamlPlugin(NitpickPlugin):
     def element_key_default(self) -> JsonDict:
         """Default element keys for .pre-commit-config.yaml and GitHub Workflow files."""
         if self.filename == PRE_COMMIT_CONFIG_YAML:
-            return {"repos": ["id", "hooks"]}
+            return {"repos": "hooks[].id"}
         if self.filename.startswith(".github/workflows"):
-            return {"jobs.build.steps": ["name", ""]}  # FIXME: jobs.*.steps
+            return {"jobs.build.steps": "name"}  # FIXME: jobs.*.steps
         return super().element_key_default
 
     def enforce_rules(self) -> Iterator[Fuss]:
