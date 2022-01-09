@@ -439,6 +439,8 @@ class BaseDoc(metaclass=abc.ABCMeta):
             actual = comparison.flat_actual[key]
             if isinstance(expected_value, list):
                 jmes_element_key = element_key.get(key, "")
+                # FIXME: next remove "if" and always call compare_list_elements(),
+                #  but also return diff, missing, replace dicts
                 if jmes_element_key:
                     new_elements, whole_list = compare_list_elements(actual, expected_value, jmes_element_key)
                     if new_elements:
