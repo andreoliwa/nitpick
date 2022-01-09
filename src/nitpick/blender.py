@@ -79,12 +79,17 @@ def search_json(json_data: ElementData, jmespath_expression: Union[ParsedResult,
     [1, 2]
     >>> search_json(data, jmespath.compile("root.whatever"), "xxx")
     'xxx'
+    >>> search_json(data, "")
+
+    >>> search_json(data, None)
 
     :param jmespath_expression: A compiled JMESPath expression or a string with an expression.
     :param json_data: The dictionary to be searched.
     :param default: Default value in case nothing is found.
     :return: The object that was found or the default value.
     """
+    if not jmespath_expression:
+        return default
     if isinstance(jmespath_expression, str):
         rv = jmespath.search(jmespath_expression, json_data)
     else:
@@ -106,9 +111,10 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
         """Create an element detail from dict data."""
         if isinstance(data, LIST_CLASSES + DICT_CLASSES):
             scalar = False
-            key = search_json(data, jmes_key) or [""]
-            # search_json(data, jmes_search_key, [])
             compact = json.dumps(data, sort_keys=True, separators=(SEPARATOR_COMMA, SEPARATOR_COLON))
+            key = search_json(data, jmes_key)
+            if not key:
+                key = compact
         else:
             scalar = True
             key = compact = str(data)
