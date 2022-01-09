@@ -69,7 +69,6 @@ DOT_SLASH = f"{DOT}{SLASH}"
 GIT_AT_REFERENCE = "@"
 
 # Special configurations for plugins
-DUNDER_SEARCH_UNIQUE_KEY = "__search_unique_key"
-# TODO: document __search_unique_key on .rst, under "Special configurations on styles",
+DUNDER_ELEMENT_KEY = "__element_key"
+# FIXME: document __element_key under "Special configurations on styles",
 #  when Pydantic will be used and when the feature will be more stable, shaped, more generic and less complex.
-#  For now, keep it for internal use only, undocumented

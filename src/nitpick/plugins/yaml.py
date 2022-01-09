@@ -47,13 +47,13 @@ class YamlPlugin(NitpickPlugin):
     fixable = True
 
     @property
-    def unique_keys_default(self) -> JsonDict:
-        """Default unique keys for .pre-commit-config.yaml."""
+    def element_key_default(self) -> JsonDict:
+        """Default element keys for .pre-commit-config.yaml and GitHub Workflow files."""
         if self.filename == PRE_COMMIT_CONFIG_YAML:
             return {"repos": ["id", "hooks"]}
         if self.filename.startswith(".github/workflows"):
             return {"jobs.build.steps": ["name", ""]}  # FIXME: jobs.*.steps
-        return super().unique_keys_default
+        return super().element_key_default
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing data in the YAML file."""
@@ -63,7 +63,7 @@ class YamlPlugin(NitpickPlugin):
             return
 
         yaml_doc = YamlDoc(path=self.file_path)
-        comparison = yaml_doc.compare_with_flatten(self._remove_yaml_subkey(self.expected_config), self.unique_keys)
+        comparison = yaml_doc.compare_with_flatten(self._remove_yaml_subkey(self.expected_config), self.element_key)
         if not comparison.has_changes:
             return
 

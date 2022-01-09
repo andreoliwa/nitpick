@@ -96,10 +96,7 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
     """Detailed information about an element of a list."""
 
     data: ElementData
-    # FIXME: pydantic.error_wrappers.ValidationError: 1 validation error for ElementDetail
-    # E   key
-    # E     str type expected (type=type_error.str)
-    key: Any
+    key: Optional[Union[str, List[str]]]
     index: int
     scalar: bool
     compact: str
@@ -150,6 +147,7 @@ def compare_list_elements(  # pylint: disable=too-many-locals
 
     :return: Tuple with 2 lists: new elements only and the whole new list.
     """
+    # FIXME: next: refactor: receive a JMES expression and find parent_key and nested_key from it
     jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
 
     actual_detail = ListDetail.from_data(actual_list, jmes_search_key)
@@ -420,7 +418,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
             return comparison
 
         # TODO: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
-        #  the method should receive SpecialConfig instead of unique_keys
+        #  the method should receive SpecialConfig instead of element_key
         unique_keys = unique_keys or {}
 
         diff: JsonDict = {}

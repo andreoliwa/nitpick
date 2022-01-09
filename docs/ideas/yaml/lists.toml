@@ -1,16 +1,27 @@
 # List behaviours that are still not implemented in YAML (maybe they can be used in other formats too)
 
-# FIXME: this should be the default behaviour for lists of scalars; it's less destructive
-# 1. List behaviour: Compare elements (dict: by key or hash, scalar: by value). Change existing and add missing.
+# FIXME: this should be the default behaviour for all lists; it's less destructive
+# FIXME document on .rst 1. List behaviour: Compare elements (dict: by __element_key or hash, scalar: by value). Change existing and add missing.
+# When there is no config: The default is to compare list elements by hash (dict) or by value (scalar)
 # On a list of scalars, add missing elements to the list
 # Only check if the element is present but don't enforce the whole list to be the same
 [".pre-commit-config.yaml".ci]
 skip = ["pylint"]
 
-# 2. List behaviour: Replace whole list (dict or scalar)
-# In a list of scalars, the whole list should be exactly as in the style
+# FIXME document this 2. For list of dicts: If an element key is defined, use it
 
-# 3. List behaviour: [DUPLICATED] Search by hash
+
+# 3. List behaviour: Exact list (dict or scalar) __exact_list
+# The whole list will be replaced exactly by what's defined in the style
+# Use the "__exact" suffix on the list name
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/alessandrojcm/commitlint-pre-commit-hook"
+[[".pre-commit-config.yaml".repos.hooks]]
+additional_dependencies__exact = ["@commitlint/config-conventional"]
+id = "commitlint"
+stages = ["commit-msg"]
+
+# FIXME implement this as default 4. List behaviour: Search by hash when there is no key
 #  In a list of dicts, search lists by a hash of the dict object.
 #  Hash each dict of the actual list (all key/value pairs).
 #  Then loop through the new elements and only add those who were not found with the same hash.
@@ -22,7 +33,7 @@ person_list = "name,age,gender"
 # Hash all fields except these
 another_list = "-price,size"
 
-# 4. List behaviour: Custom function (dict or scalar)
+# 5. List behaviour: Custom function (dict or scalar)
 # Search using a custom function.
 # A custom function called by Nitpick that receives X, Y, Z arguments (to be defined)
 # And returns the new element and its index it should be in the list:
