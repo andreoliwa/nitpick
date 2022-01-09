@@ -21,6 +21,7 @@ from jmespath.parser import ParsedResult
 from pydantic import BaseModel
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
+from tomlkit import items
 
 from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
 
@@ -293,29 +294,29 @@ class DictBlender:
 
         Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
         """
-        items: List[Tuple[str, Any]] = []
+        elements: List[Tuple[str, Any]] = []
         for key, value in dict_.items():
             quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if self.separator in str(key) else key
             new_key = str(parent_key) + self.separator + str(quoted_key) if parent_key else quoted_key
             if isinstance(value, dict):
-                items.extend(self._flatten(value, new_key).items())
+                elements.extend(self._flatten(value, new_key).items())
             elif isinstance(value, (list, tuple)) and self.extend_lists:
                 # If the value is a list or tuple, append to a previously existing list.
                 existing_list = self._current_lists.get(new_key, [])
                 existing_list.extend(list(value))
                 self._current_lists[new_key] = existing_list
 
-                items.append((new_key, existing_list))
+                elements.append((new_key, existing_list))
             else:
-                items.append((new_key, value))
-        return dict(items)
+                elements.append((new_key, value))
+        return dict(elements)
 
     def _unflatten(self, dict_: JsonDict, sort=True) -> OrderedDict:
         """Turn back a flat dict created by the ``_flatten()`` method into a nested dict."""
-        items: OrderedDict = OrderedDict()
+        elements: OrderedDict = OrderedDict()
         for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
             all_keys = quoted_split(root_key, self.separator)
-            sub_items = items
+            sub_items = elements
             for key in all_keys[:-1]:
                 try:
                     sub_items = sub_items[key]
@@ -325,7 +326,7 @@ class DictBlender:
 
             sub_items[all_keys[-1]] = root_value
 
-        return items
+        return elements
 
     def mix(self, sort=True) -> JsonDict:
         """Mix all dictionaries, replacing values with identical keys and extending lists."""
@@ -491,7 +492,7 @@ class TomlDoc(BaseDoc):
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
             if self.use_tomlkit:
-                self._object = OrderedDict(tomlkit.loads(self._string))
+                self._object = tomlkit.loads(self._string)
             else:
                 self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
@@ -560,8 +561,13 @@ class YamlDoc(BaseDoc):
         return True
 
 
-for dict_class in (SortedDict, OrderedDict):
+# Classes and their representation on ruamel.yaml
+for dict_class in (SortedDict, OrderedDict, items.Table, items.InlineTable):
     RoundTripRepresenter.add_representer(dict_class, RoundTripRepresenter.represent_dict)
+RoundTripRepresenter.add_representer(items.String, RoundTripRepresenter.represent_str)
+for list_class in (items.Array, items.AoT):
+    RoundTripRepresenter.add_representer(list_class, RoundTripRepresenter.represent_list)
+RoundTripRepresenter.add_representer(items.Integer, RoundTripRepresenter.represent_int)
 
 
 def is_scalar(value: YamlValue) -> bool:
