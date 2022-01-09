@@ -133,8 +133,6 @@ class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
     def find_by_key(self, desired: ElementDetail) -> Optional[ElementDetail]:
         """Find an element by key."""
         for actual in self.elements:
-            if not actual.key:
-                continue
             if isinstance(desired.key, list):
                 if set(desired.key).issubset(set(actual.key)):
                     return actual
