@@ -19,7 +19,7 @@ import tomlkit
 from autorepr import autorepr
 from jmespath.parser import ParsedResult
 from pydantic import BaseModel
-from ruamel.yaml import YAML, CommentedMap, RoundTripRepresenter, StringIO
+from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
 
 from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
@@ -37,10 +37,6 @@ SEPARATOR_FLATTEN = "$#@"
 
 #: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
 SEPARATOR_QUOTED_SPLIT = "#$@"
-
-# For use with isinstance()
-DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
-LIST_CLASSES = (list, tuple)
 
 
 def compare_lists_with_dictdiffer(
@@ -109,7 +105,7 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
     @classmethod
     def from_data(cls, index: int, data: ElementData, jmes_key: str) -> "ElementDetail":
         """Create an element detail from dict data."""
-        if isinstance(data, LIST_CLASSES + DICT_CLASSES):
+        if isinstance(data, (list, dict)):
             scalar = False
             compact = json.dumps(data, sort_keys=True, separators=(SEPARATOR_COMMA, SEPARATOR_COLON))
             key = search_json(data, jmes_key)
@@ -575,10 +571,10 @@ for dict_class in (SortedDict, OrderedDict):
 
 def is_scalar(value: YamlValue) -> bool:
     """Return True if the value is NOT a dict or a list."""
-    return not isinstance(value, LIST_CLASSES + DICT_CLASSES)
+    return not isinstance(value, (list, dict))
 
 
-def yaml_list_replace_or_add(yaml_obj: YamlObject, element: Any, key: str = None, index: int = None) -> None:
+def replace_or_add_list_element(yaml_obj: YamlObject, element: Any, key: str, index: int) -> None:
     """Replace or add a new element in a YAML list."""
     current = yaml_obj
     if key:
@@ -593,10 +589,6 @@ def yaml_list_replace_or_add(yaml_obj: YamlObject, element: Any, key: str = None
                 yaml_obj.insert(last_pos, key, element)
             return
 
-    if index is None:
-        current.append(element)
-        return
-
     insert: bool = index >= len(current)
     if insert:
         current.append(element)
@@ -607,7 +599,7 @@ def yaml_list_replace_or_add(yaml_obj: YamlObject, element: Any, key: str = None
         # without traversing, even if it's a dict
         current[index] = element
         return
-    if isinstance(element, DICT_CLASSES):
+    if isinstance(element, dict):
         traverse_yaml_tree(current[index], element)
         return
 
@@ -628,13 +620,13 @@ def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict
                 yaml_obj.insert(last_pos, key, value)
             continue
 
-        if is_scalar(value):
-            yaml_obj[key] = value
-        elif isinstance(value, DICT_CLASSES):
+        if isinstance(value, dict):
             traverse_yaml_tree(yaml_obj[key], value)
         elif isinstance(value, list):
             for index, element in enumerate(value):
-                yaml_list_replace_or_add(yaml_obj, element, key, index)
+                replace_or_add_list_element(yaml_obj, element, key, index)
+        else:
+            yaml_obj[key] = value
 
 
 class JsonDoc(BaseDoc):
