@@ -578,6 +578,44 @@ def is_scalar(value: YamlValue) -> bool:
     return not isinstance(value, LIST_CLASSES + DICT_CLASSES)
 
 
+def yaml_list_replace_or_add(yaml_obj: YamlObject, element: Any, key: str = None, index: int = None) -> None:
+    """Replace or add a new element in a YAML list."""
+    current = yaml_obj
+    if key:
+        if key in yaml_obj:
+            current = yaml_obj[key]
+        else:
+            if isinstance(yaml_obj, dict):
+                yaml_obj[key] = element
+            else:
+                # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
+                last_pos = len(yaml_obj.keys()) + 1
+                yaml_obj.insert(last_pos, key, element)
+            return
+
+    if index is None:
+        current.append(element)
+        return
+
+    insert: bool = index >= len(current)
+    if insert:
+        current.append(element)
+        return
+
+    if is_scalar(current[index]) or is_scalar(element):
+        # If the original object is scalar, replace it with whatever element;
+        # without traversing, even if it's a dict
+        current[index] = element
+        return
+    if isinstance(element, DICT_CLASSES):
+        traverse_yaml_tree(current[index], element)
+        return
+
+    # At this point, value is probably a list. Set the whole list in YAML.
+    current[index] = element
+    return
+
+
 def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict]):
     """Traverse a YAML document recursively and change values, keeping its formatting and comments."""
     for key, value in change.items():
@@ -595,27 +633,8 @@ def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict
         elif isinstance(value, DICT_CLASSES):
             traverse_yaml_tree(yaml_obj[key], value)
         elif isinstance(value, list):
-            _traverse_yaml_list(yaml_obj, key, value)
-
-
-def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[YamlValue]):
-    for index, element in enumerate(value):
-        insert: bool = index >= len(yaml_obj[key])
-
-        if not insert and is_scalar(yaml_obj[key][index]):
-            # If the original object is scalar, replace it with whatever element;
-            # without traversing, even if it's a dict
-            yaml_obj[key][index] = element
-            continue
-
-        if insert:
-            yaml_obj[key].append(element)
-            continue
-
-        if is_scalar(element):
-            yaml_obj[key][index] = element
-        else:
-            traverse_yaml_tree(yaml_obj[key][index], element)  # type: ignore # mypy kept complaining about the Union
+            for index, element in enumerate(value):
+                yaml_list_replace_or_add(yaml_obj, element, key, index)
 
 
 class JsonDoc(BaseDoc):
