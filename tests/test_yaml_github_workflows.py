@@ -3,12 +3,12 @@ from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
 
-def test_list_of_dicts_search_missing_element_by_key_and_changeadd_element_individually(tmp_path, datadir):
+def test_list_of_dicts_search_missing_element_by_key_and_change_add_element_individually(tmp_path, datadir):
     """Test list of dicts: search missing element by key and change/add element individually.
 
     In GitHub Workflows: steps are searched by name and they should exist.
     """
-    # FIXME document this on .rst
+    # FIXME List behaviour: Search by key
     filename = ".github/workflows/any-language.yaml"
     ProjectMock(tmp_path).save_file(filename, datadir / "dict-search-by-key-actual.yaml").style(
         datadir / "dict-search-by-key.toml"
@@ -41,7 +41,8 @@ def test_list_of_scalars_change_add_elements_starting_from_index_0_keep_remainin
     tmp_path, datadir
 ):
     """Test list of scalars: change/add elements starting from index 0, keep remaining items if they exist."""
-    # FIXME document this on .rst. This is the default for lists of scalars, for now
+    # FIXME List behaviour: Compare from first (dict or scalar)
+    #  This is the default for all lists
     filename = ".github/workflows/python.yaml"
     ProjectMock(tmp_path).save_file(filename, datadir / "scalar-change-from-index-zero-actual.yaml").style(
         datadir / "scalar-change-from-index-zero.toml"

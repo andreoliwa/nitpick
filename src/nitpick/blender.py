@@ -10,7 +10,7 @@ import re
 from collections import OrderedDict
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import dictdiffer
 import jmespath
@@ -19,23 +19,27 @@ import tomlkit
 from autorepr import autorepr
 from jmespath.parser import ParsedResult
 from more_itertools import always_iterable
-from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
-from ruamel.yaml.comments import CommentedMap
+from pydantic import BaseModel
+from ruamel.yaml import YAML, CommentedMap, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
 
-from nitpick.constants import DOT
-from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
+from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
 
+SEPARATOR_DOT = "."
+SEPARATOR_COMMA = ","
+SEPARATOR_COLON = ":"
+
 #: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
-# to avoid collision with existing key values (e.g. the default dot separator "." can be part of a TOML key).
+# to avoid collision with existing key values (e.g. the default SEPARATOR_DOT separator "." can be part of a TOML key).
 SEPARATOR_FLATTEN = "$#@"
 
 #: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
 SEPARATOR_QUOTED_SPLIT = "#$@"
 
+# For use with isinstance()
 DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
 LIST_CLASSES = (list, tuple)
 
@@ -59,7 +63,7 @@ def compare_lists_with_dictdiffer(
 
 
 def search_json(
-    json_data: Union[MutableMapping[str, Any], List[Any]],
+    json_data: Union[JsonDict, List[Any], Tuple[Any, ...]],
     jmespath_expression: Union[ParsedResult, str],
     default: Any = None,
 ) -> Any:
@@ -93,15 +97,58 @@ def search_json(
     return rv or default
 
 
+class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
+    """Detailed information about an element of a list."""
+
+    data: ElementData
+    # FIXME: pydantic.error_wrappers.ValidationError: 1 validation error for ElementDetail
+    # E   key
+    # E     str type expected (type=type_error.str)
+    key: Any
+    index: int
+    scalar: bool
+    compact: str
+
+    @classmethod
+    def from_data(cls, index: int, data: ElementData, jmes_key: str) -> "ElementDetail":
+        """Create an element detail from dict data."""
+        if isinstance(data, LIST_CLASSES + DICT_CLASSES):
+            scalar = False
+            key = search_json(data, jmes_key)
+            # search_json(data, jmes_search_key, [])
+            compact = json.dumps(data, sort_keys=True, separators=(SEPARATOR_COMMA, SEPARATOR_COLON))
+        else:
+            scalar = True
+            key = compact = str(data)
+        return ElementDetail(data=data, key=key, index=index, scalar=scalar, compact=compact)
+
+
+class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
+    """Detailed info about a list."""
+
+    data: ListOrCommentedSeq
+    elements: List[ElementDetail]
+
+    @classmethod
+    def from_data(cls, data: ListOrCommentedSeq, jmes_key: str) -> "ListDetail":
+        """Create a list detail from list data."""
+        return ListDetail(
+            data=data, elements=[ElementDetail.from_data(index, data, jmes_key) for index, data in enumerate(data)]
+        )
+
+
 # FIXME: refactor to reduce complexity again
-def search_element_by_unique_key(  # pylint: disable=too-many-locals # noqa: C901
-    actual_list: List[Any], expected_list: List[Any], nested_key: str, parent_key: str = ""
-) -> Tuple[List, List]:
-    """Search an element in a list with a JMES expression representing the unique key.
+def compare_list_elements(  # pylint: disable=too-many-locals # noqa: C901
+    actual_list: ListOrCommentedSeq, expected_list: ListOrCommentedSeq, nested_key: str, parent_key: str = ""
+) -> Tuple[ListOrCommentedSeq, ListOrCommentedSeq]:
+    """Search an element in a list with a JMES expression representing the key.
 
     :return: Tuple with 2 lists: new elements only and the whole new list.
     """
     jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
+
+    ListDetail.from_data(actual_list, jmes_search_key)
+    ListDetail.from_data(expected_list, jmes_search_key)
 
     actual_keys = search_json(actual_list, f"[].{jmes_search_key}", [])
     if not actual_keys:
@@ -173,7 +220,7 @@ def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     dict_[key] = value
 
 
-def quoted_split(string_: str, separator=DOT) -> List[str]:
+def quoted_split(string_: str, separator=SEPARATOR_DOT) -> List[str]:
     """Split a string by a separator, but considering quoted parts (single or double quotes).
 
     >>> quoted_split("my.key.without.quotes")
@@ -303,8 +350,8 @@ class Comparison:
         expected: JsonDict,
         doc_class: Type["BaseDoc"],
     ) -> None:
-        self.flat_actual = DictBlender(actual, separator=DOT).flat_dict
-        self.flat_expected = DictBlender(expected, separator=DOT).flat_dict
+        self.flat_actual = DictBlender(actual, separator=SEPARATOR_DOT).flat_dict
+        self.flat_expected = DictBlender(expected, separator=SEPARATOR_DOT).flat_dict
 
         self.doc_class = doc_class
 
@@ -405,9 +452,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
                     nested_key = ""
                     parent_key = ""
                 if nested_key:
-                    new_elements, whole_list = search_element_by_unique_key(
-                        actual, expected_value, nested_key, parent_key
-                    )
+                    new_elements, whole_list = compare_list_elements(actual, expected_value, nested_key, parent_key)
                     if new_elements:
                         set_key_if_not_empty(missing, key, new_elements)
                         set_key_if_not_empty(replace, key, whole_list)
@@ -416,9 +461,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
             elif expected_value != actual:
                 set_key_if_not_empty(diff, key, expected_value)
 
-        comparison.missing_dict = DictBlender(separator=DOT, flatten_on_add=False).add(missing).mix()
-        comparison.diff_dict = DictBlender(separator=DOT, flatten_on_add=False).add(diff).mix()
-        comparison.replace_dict = DictBlender(separator=DOT, flatten_on_add=False).add(replace).mix()
+        comparison.missing_dict = DictBlender(separator=SEPARATOR_DOT, flatten_on_add=False).add(missing).mix()
+        comparison.diff_dict = DictBlender(separator=SEPARATOR_DOT, flatten_on_add=False).add(diff).mix()
+        comparison.replace_dict = DictBlender(separator=SEPARATOR_DOT, flatten_on_add=False).add(replace).mix()
         return comparison
 
 
