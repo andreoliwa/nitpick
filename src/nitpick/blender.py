@@ -103,6 +103,11 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
     scalar: bool
     compact: str
 
+    @property
+    def cast_to_dict(self) -> JsonDict:
+        """Data cast to dict, for mypy. Do not confuse with the ``dict()`` method from pydantic."""
+        return cast(JsonDict, self.data)
+
     @classmethod
     def from_data(cls, index: int, data: ElementData, jmes_key: str) -> "ElementDetail":
         """Create an element detail from dict data."""
@@ -333,7 +338,20 @@ class Comparison:
                 # FIXME: next remove "if" and always call compare_list_elements(),
                 #  but also return diff, missing, replace dicts
                 if jmes_element_key:
-                    self._compare_list_elements(key, actual, expected_value, jmes_element_key)
+                    if SEPARATOR_DOT in jmes_element_key:
+                        parent_key, nested_key = jmes_element_key.split(SEPARATOR_DOT)
+                        parent_key = parent_key.strip("[]")
+                    else:
+                        parent_key = ""
+                        nested_key = jmes_element_key
+
+                    self._compare_list_elements(
+                        key,
+                        parent_key,
+                        nested_key,
+                        ListDetail.from_data(actual, jmes_element_key),
+                        ListDetail.from_data(expected_value, jmes_element_key),
+                    )
                 else:
                     set_key_if_not_empty(self.diff_dict, key, compare_lists_with_dictdiffer(actual, expected_value))
             elif expected_value != actual:
@@ -341,23 +359,10 @@ class Comparison:
 
         return self
 
-    def _compare_list_elements(  # pylint: disable=too-many-locals
-        self, key: str, actual_list: ListOrCommentedSeq, expected_list: ListOrCommentedSeq, jmes_element_key: str = ""
+    def _compare_list_elements(  # pylint: disable=too-many-arguments
+        self, key: str, parent_key: str, nested_key: str, actual_detail: ListDetail, expected_detail: ListDetail
     ) -> None:
-        """Search an element in a list with a JMES expression representing the key.
-
-        :return: Tuple with 2 lists: new elements only and the whole new list.
-        """
-        if SEPARATOR_DOT in jmes_element_key:
-            parent_key, nested_key = jmes_element_key.split(SEPARATOR_DOT)
-            parent_key = parent_key.strip("[]")
-        else:
-            parent_key = ""
-            nested_key = jmes_element_key
-
-        actual_detail = ListDetail.from_data(actual_list, jmes_element_key)
-        expected_detail = ListDetail.from_data(expected_list, jmes_element_key)
-
+        """Search an element in a list with a JMES expression representing the key."""
         display = []
         replace = actual_detail.data.copy()
         for expected_element in expected_detail.elements:
@@ -368,31 +373,34 @@ class Comparison:
                 continue
 
             if parent_key:
-                new_nested_block = self._compare_children(parent_key, nested_key, actual_element, expected_element)
-                if new_nested_block:
+                new_block: JsonDict = self._compare_children(parent_key, nested_key, actual_element, expected_element)
+                if new_block:
                     display.append(expected_element.data)
-                    replace[actual_element.index] = new_nested_block
+                    replace[actual_element.index] = new_block
                 continue
 
             diff = compare_lists_with_dictdiffer(
-                cast(JsonDict, actual_element.data), cast(JsonDict, expected_element.data), return_list=False
+                actual_element.cast_to_dict, expected_element.cast_to_dict, return_list=False
             )
-            if not diff:
-                continue
+            if diff:
+                new_block = cast(JsonDict, actual_element.data).copy()
+                new_block.update(diff)
+                display.append(new_block)
+                replace[actual_element.index] = new_block
 
-            new_block: Dict = cast(JsonDict, actual_element.data).copy()
-            new_block.update(diff)
-            display.append(new_block)
-            replace[actual_element.index] = new_block
-
-        if not display:
-            return
-
-        set_key_if_not_empty(self.missing_dict, key, display)
-        set_key_if_not_empty(self.replace_dict, key, replace)
+        if display:
+            set_key_if_not_empty(self.missing_dict, key, display)
+            set_key_if_not_empty(self.replace_dict, key, replace)
 
     @staticmethod
-    def _compare_children(parent_key, nested_key, actual_element, expected_element):
+    def _compare_children(
+        parent_key: str, nested_key: str, actual_element: ElementDetail, expected_element: ElementDetail
+    ) -> JsonDict:
+        """Compare children of a JSON dict, return only the inner difference.
+
+        E.g.: a pre-commit hook ID with different args will return a JSON only with the specific hook,
+        not with all the hooks of the parent repo.
+        """
         new_nested_block: JsonDict = {}
         jmes_nested = f"{parent_key}[?{nested_key}=='{expected_element.key[0]}']"
         actual_nested = search_json(actual_element.data, jmes_nested, [])
