@@ -8,9 +8,9 @@ import abc
 import json
 import re
 from collections import OrderedDict
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import dictdiffer
 import jmespath
@@ -333,49 +333,78 @@ class DictBlender:
         return self._unflatten(self._current_flat_dict, sort)
 
 
+DotBlender = partial(DictBlender, separator=SEPARATOR_DOT, flatten_on_add=False)
+
+
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
-    def __init__(
-        self,
-        actual: JsonDict,
-        expected: JsonDict,
-        doc_class: Type["BaseDoc"],
-    ) -> None:
-        self.flat_actual = DictBlender(actual, separator=SEPARATOR_DOT).flat_dict
+    def __init__(self, actual: "BaseDoc", expected: JsonDict, element_key_config: JsonDict = None) -> None:
+        self.flat_actual = DictBlender(actual.as_object, separator=SEPARATOR_DOT).flat_dict
         self.flat_expected = DictBlender(expected, separator=SEPARATOR_DOT).flat_dict
 
-        self.doc_class = doc_class
+        self.doc_class = actual.__class__
 
         self.missing_dict: JsonDict = {}
         self.diff_dict: JsonDict = {}
         self.replace_dict: JsonDict = {}
+
+        # FIXME: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
+        #  the method should receive SpecialConfig instead of element_key
+        self.element_key_config = element_key_config or {}
 
     @property
     def missing(self) -> Optional["BaseDoc"]:
         """Missing data."""
         if not self.missing_dict:
             return None
-        return self.doc_class(obj=self.missing_dict)
+        return self.doc_class(obj=DotBlender(self.missing_dict).mix())
 
     @property
     def diff(self) -> Optional["BaseDoc"]:
         """Different data."""
         if not self.diff_dict:
             return None
-        return self.doc_class(obj=self.diff_dict)
+        return self.doc_class(obj=DotBlender(self.diff_dict).mix())
 
     @property
     def replace(self) -> Optional["BaseDoc"]:
         """Data to be replaced."""
         if not self.replace_dict:
             return None
-        return self.doc_class(obj=self.replace_dict)
+        return self.doc_class(obj=DotBlender(self.replace_dict).mix())
 
     @property
     def has_changes(self) -> bool:
         """Return True is there is a difference or something missing."""
         return bool(self.missing or self.diff or self.replace)
+
+    def __call__(self) -> "Comparison":
+        """Compare two flattened dictionaries and compute missing and different items."""
+        if self.flat_expected.items() <= self.flat_actual.items():
+            return self
+
+        for key, expected_value in self.flat_expected.items():
+            if key not in self.flat_actual:
+                self.missing_dict[key] = expected_value
+                continue
+
+            actual = self.flat_actual[key]
+            if isinstance(expected_value, list):
+                jmes_element_key = self.element_key_config.get(key, "")
+                # FIXME: next remove "if" and always call compare_list_elements(),
+                #  but also return diff, missing, replace dicts
+                if jmes_element_key:
+                    new_elements, whole_list = compare_list_elements(actual, expected_value, jmes_element_key)
+                    if new_elements:
+                        set_key_if_not_empty(self.missing_dict, key, new_elements)
+                        set_key_if_not_empty(self.replace_dict, key, whole_list)
+                else:
+                    set_key_if_not_empty(self.diff_dict, key, compare_lists_with_dictdiffer(actual, expected_value))
+            elif expected_value != actual:
+                set_key_if_not_empty(self.diff_dict, key, expected_value)
+
+        return self
 
 
 class BaseDoc(metaclass=abc.ABCMeta):
@@ -417,44 +446,6 @@ class BaseDoc(metaclass=abc.ABCMeta):
         if self._reformatted is None:
             self.load()
         return self._reformatted or ""
-
-    def compare_with_flatten(self, expected: JsonDict = None, element_key: JsonDict = None) -> Comparison:
-        """Compare two flattened dictionaries and compute missing and different items."""
-        comparison = Comparison(self.as_object or {}, expected or {}, self.__class__)
-        if comparison.flat_expected.items() <= comparison.flat_actual.items():
-            return comparison
-
-        # FIXME: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
-        #  the method should receive SpecialConfig instead of element_key
-        element_key = element_key or {}
-
-        diff: JsonDict = {}
-        missing: JsonDict = {}
-        replace: JsonDict = {}
-        for key, expected_value in comparison.flat_expected.items():
-            if key not in comparison.flat_actual:
-                missing[key] = expected_value
-                continue
-
-            actual = comparison.flat_actual[key]
-            if isinstance(expected_value, list):
-                jmes_element_key = element_key.get(key, "")
-                # FIXME: next remove "if" and always call compare_list_elements(),
-                #  but also return diff, missing, replace dicts
-                if jmes_element_key:
-                    new_elements, whole_list = compare_list_elements(actual, expected_value, jmes_element_key)
-                    if new_elements:
-                        set_key_if_not_empty(missing, key, new_elements)
-                        set_key_if_not_empty(replace, key, whole_list)
-                else:
-                    set_key_if_not_empty(diff, key, compare_lists_with_dictdiffer(actual, expected_value))
-            elif expected_value != actual:
-                set_key_if_not_empty(diff, key, expected_value)
-
-        comparison.missing_dict = DictBlender(separator=SEPARATOR_DOT, flatten_on_add=False).add(missing).mix()
-        comparison.diff_dict = DictBlender(separator=SEPARATOR_DOT, flatten_on_add=False).add(diff).mix()
-        comparison.replace_dict = DictBlender(separator=SEPARATOR_DOT, flatten_on_add=False).add(replace).mix()
-        return comparison
 
 
 class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]

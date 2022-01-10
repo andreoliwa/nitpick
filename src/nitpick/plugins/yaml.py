@@ -2,7 +2,7 @@
 from itertools import chain
 from typing import Iterator, Optional, Type, cast
 
-from nitpick.blender import YamlDoc, traverse_yaml_tree
+from nitpick.blender import Comparison, YamlDoc, traverse_yaml_tree
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.exceptions import Deprecation
 from nitpick.plugins import hookimpl
@@ -63,7 +63,7 @@ class YamlPlugin(NitpickPlugin):
             return
 
         yaml_doc = YamlDoc(path=self.file_path)
-        comparison = yaml_doc.compare_with_flatten(self._remove_yaml_subkey(self.expected_config), self.element_key)
+        comparison = Comparison(yaml_doc, self._remove_yaml_subkey(self.expected_config), self.element_key)()
         if not comparison.has_changes:
             return
 

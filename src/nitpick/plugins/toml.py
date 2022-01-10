@@ -5,7 +5,7 @@ from typing import Iterator, Optional, Type
 from tomlkit import dumps, parse
 from tomlkit.toml_document import TOMLDocument
 
-from nitpick.blender import BaseDoc, TomlDoc, traverse_toml_tree
+from nitpick.blender import BaseDoc, Comparison, TomlDoc, traverse_toml_tree
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
@@ -31,7 +31,7 @@ class TomlPlugin(NitpickPlugin):
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing key/value pairs in the TOML file."""
         toml_doc = TomlDoc(path=self.file_path)
-        comparison = toml_doc.compare_with_flatten(self.expected_config)
+        comparison = Comparison(toml_doc, self.expected_config)()
         if not comparison.has_changes:
             return
 

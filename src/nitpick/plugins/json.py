@@ -6,7 +6,7 @@ from typing import Iterator, Optional, Type
 from loguru import logger
 
 from nitpick import fields
-from nitpick.blender import BaseDoc, DictBlender, JsonDoc
+from nitpick.blender import BaseDoc, Comparison, DictBlender, JsonDoc
 from nitpick.constants import DOT
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
@@ -40,14 +40,14 @@ class JsonPlugin(NitpickPlugin):
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
-        actual = JsonDoc(path=self.file_path)
-        blender: Optional[DictBlender] = DictBlender(actual.as_object, extend_lists=False) if self.autofix else None
+        json_doc = JsonDoc(path=self.file_path)
+        blender: Optional[DictBlender] = DictBlender(json_doc.as_object, extend_lists=False) if self.autofix else None
 
-        comparison = actual.compare_with_flatten(self.expected_dict_from_contains_keys())
+        comparison = Comparison(json_doc, self.expected_dict_from_contains_keys())()
         if comparison.missing:
             yield from self.report(SharedViolations.MISSING_VALUES, blender, comparison.missing)
 
-        comparison = actual.compare_with_flatten(self.expected_dict_from_contains_json())
+        comparison = Comparison(json_doc, self.expected_dict_from_contains_json())()
         if comparison.has_changes:
             yield from chain(
                 self.report(SharedViolations.DIFFERENT_VALUES, blender, comparison.diff),
