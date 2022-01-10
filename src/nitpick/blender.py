@@ -143,68 +143,6 @@ class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
         return None
 
 
-def compare_list_elements(  # pylint: disable=too-many-locals
-    actual_list: ListOrCommentedSeq, expected_list: ListOrCommentedSeq, jmes_element_key: str = ""
-) -> Tuple[ListOrCommentedSeq, ListOrCommentedSeq]:
-    """Search an element in a list with a JMES expression representing the key.
-
-    :return: Tuple with 2 lists: new elements only and the whole new list.
-    """
-    if SEPARATOR_DOT in jmes_element_key:
-        parent_key, nested_key = jmes_element_key.split(SEPARATOR_DOT)
-        parent_key = parent_key.strip("[]")
-    else:
-        parent_key = ""
-        nested_key = jmes_element_key
-
-    actual_detail = ListDetail.from_data(actual_list, jmes_element_key)
-    expected_detail = ListDetail.from_data(expected_list, jmes_element_key)
-
-    display = []
-    replace = actual_detail.data.copy()
-    for expected_element in expected_detail.elements:
-        actual_element = actual_detail.find_by_key(expected_element)
-        if not actual_element:
-            display.append(expected_element.data)
-            replace.append(expected_element.data)
-            continue
-
-        if parent_key:
-            jmes_nested = f"{parent_key}[?{nested_key}=='{expected_element.key[0]}']"
-            actual_nested = search_json(actual_list[actual_element.index], jmes_nested, [])
-            expected_nested = search_json(expected_element.data, jmes_nested, [{}])
-            diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested, return_list=True)
-            if not diff_nested:
-                continue
-
-            actual_data = cast(JsonDict, actual_element.data)
-            expected_data = cast(JsonDict, expected_element.data)
-
-            expected_data[parent_key] = diff_nested
-            display.append(expected_element.data)
-
-            new_nested_block = actual_data.copy()
-            for nested_index, obj in enumerate(actual_data[parent_key]):
-                if obj == actual_nested[0]:
-                    new_nested_block[parent_key][nested_index] = diff_nested[0]
-                    break
-            replace[actual_element.index] = new_nested_block
-            continue
-
-        diff = compare_lists_with_dictdiffer(
-            cast(JsonDict, actual_element.data), cast(JsonDict, expected_element.data), return_list=False
-        )
-        if not diff:
-            continue
-
-        new_block: Dict = cast(JsonDict, actual_element.data).copy()
-        new_block.update(diff)
-        display.append(new_block)
-        replace[actual_element.index] = new_block
-
-    return display, replace
-
-
 def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     """Update the dict if the value is valid."""
     if not value:
@@ -395,16 +333,78 @@ class Comparison:
                 # FIXME: next remove "if" and always call compare_list_elements(),
                 #  but also return diff, missing, replace dicts
                 if jmes_element_key:
-                    new_elements, whole_list = compare_list_elements(actual, expected_value, jmes_element_key)
-                    if new_elements:
-                        set_key_if_not_empty(self.missing_dict, key, new_elements)
-                        set_key_if_not_empty(self.replace_dict, key, whole_list)
+                    self._compare_list_elements(key, actual, expected_value, jmes_element_key)
                 else:
                     set_key_if_not_empty(self.diff_dict, key, compare_lists_with_dictdiffer(actual, expected_value))
             elif expected_value != actual:
                 set_key_if_not_empty(self.diff_dict, key, expected_value)
 
         return self
+
+    def _compare_list_elements(  # pylint: disable=too-many-locals
+        self, key: str, actual_list: ListOrCommentedSeq, expected_list: ListOrCommentedSeq, jmes_element_key: str = ""
+    ) -> None:
+        """Search an element in a list with a JMES expression representing the key.
+
+        :return: Tuple with 2 lists: new elements only and the whole new list.
+        """
+        if SEPARATOR_DOT in jmes_element_key:
+            parent_key, nested_key = jmes_element_key.split(SEPARATOR_DOT)
+            parent_key = parent_key.strip("[]")
+        else:
+            parent_key = ""
+            nested_key = jmes_element_key
+
+        actual_detail = ListDetail.from_data(actual_list, jmes_element_key)
+        expected_detail = ListDetail.from_data(expected_list, jmes_element_key)
+
+        display = []
+        replace = actual_detail.data.copy()
+        for expected_element in expected_detail.elements:
+            actual_element = actual_detail.find_by_key(expected_element)
+            if not actual_element:
+                display.append(expected_element.data)
+                replace.append(expected_element.data)
+                continue
+
+            if parent_key:
+                jmes_nested = f"{parent_key}[?{nested_key}=='{expected_element.key[0]}']"
+                actual_nested = search_json(actual_list[actual_element.index], jmes_nested, [])
+                expected_nested = search_json(expected_element.data, jmes_nested, [{}])
+                diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested, return_list=True)
+                if not diff_nested:
+                    continue
+
+                actual_data = cast(JsonDict, actual_element.data)
+                expected_data = cast(JsonDict, expected_element.data)
+
+                expected_data[parent_key] = diff_nested
+                display.append(expected_element.data)
+
+                new_nested_block = actual_data.copy()
+                for nested_index, obj in enumerate(actual_data[parent_key]):
+                    if obj == actual_nested[0]:
+                        new_nested_block[parent_key][nested_index] = diff_nested[0]
+                        break
+                replace[actual_element.index] = new_nested_block
+                continue
+
+            diff = compare_lists_with_dictdiffer(
+                cast(JsonDict, actual_element.data), cast(JsonDict, expected_element.data), return_list=False
+            )
+            if not diff:
+                continue
+
+            new_block: Dict = cast(JsonDict, actual_element.data).copy()
+            new_block.update(diff)
+            display.append(new_block)
+            replace[actual_element.index] = new_block
+
+        if not display:
+            return
+
+        set_key_if_not_empty(self.missing_dict, key, display)
+        set_key_if_not_empty(self.replace_dict, key, replace)
 
 
 class BaseDoc(metaclass=abc.ABCMeta):
