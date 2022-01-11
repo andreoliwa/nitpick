@@ -45,8 +45,8 @@ def test_clear_unique_key(tmp_path, datadir):
         Fuss(
             True,
             PRE_COMMIT_CONFIG_YAML,
-            369,
-            " has different values. Use this:",
+            368,
+            " has missing values:",
             """
             repos:
               - repo: https://github.com/myint/autoflake

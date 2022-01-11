@@ -5,10 +5,19 @@ python:
     - method: pip
       path: .
       extra_requirements:
+        - doc
+    - extra_requirements:
         - some
         - nice
         - package
 mixed:
+  - 1
+  - string
+  - c: 1
+    b: 2
+    a: 3
+  - and the remaining items are untouched
+  - [5, 3, 1]
   - lets:
       ruin: this
       with:
@@ -16,11 +25,6 @@ mixed:
         - '1'
         - crap
   - second item: also a dict
-  - c: 1
-    b: 2
-    a: 3
-  - and the remaining items are untouched
-  - [5, 3, 1]
 root_key:
   a_dict:
     - c: '3.1'

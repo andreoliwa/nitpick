@@ -6,8 +6,8 @@ jobs:
       matrix:
         # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
         # See https://github.com/actions/virtual-environments/issues/1816
-        os: [ubuntu-latest, windows-latest, macos-latest, arch-linux]
-        python-version: ["3.7", "3.8", "3.9", '3.10', '3.11']
+        os: [windows-latest, gentoo, macos-latest, arch-linux, ubuntu-latest]
+        python-version: ["3.8", "3.9", "2.7", '3.7', '3.10', '3.11']
     runs-on: ${{ matrix.os }}
     env:
       PYTHONUNBUFFERED: 1

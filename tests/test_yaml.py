@@ -29,8 +29,18 @@ def test_missing_different_values(tmp_path, datadir):
         Fuss(
             True,
             filename,
-            YamlPlugin.violation_base_code + SharedViolations.DIFFERENT_VALUES.code,
+            369,
             " has different values. Use this:",
+            """
+            python:
+              version: '3.9'
+            """,
+        ),
+        Fuss(
+            True,
+            filename,
+            368,
+            " has missing values:",
             """
             mixed:
               - lets:
@@ -46,15 +56,6 @@ def test_missing_different_values(tmp_path, datadir):
                     - some
                     - nice
                     - package
-              version: '3.9'
-            """,
-        ),
-        Fuss(
-            True,
-            filename,
-            YamlPlugin.violation_base_code + SharedViolations.MISSING_VALUES.code,
-            " has missing values:",
-            """
             root_key:
               a_dict:
                 - c: '3.1'
@@ -93,3 +94,6 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
             "The repos.yaml key is not supported anymore."
             " Check the documentation and please update your YAML styles" in str(captured[-1].message)
         )
+
+
+# FIXME: test list of dicts: by default, objects are compared by hash and new ones are added

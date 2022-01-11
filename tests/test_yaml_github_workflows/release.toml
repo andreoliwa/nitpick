@@ -16,5 +16,3 @@ run = "python --version\npython3 --version\npython3 -m pip --version\npython3 -m
 [[".github/workflows/python.yaml".jobs.release.steps]]
 name = "Install pre-commit bumpversion twine"
 run = "python3 -m pip install --upgrade poetry pre-commit bumpversion twine\npre-commit --version\ntwine --version\npython3 -m pip freeze\n"
-
-# FIXME: test any "jobs.*.steps" key is autofixed

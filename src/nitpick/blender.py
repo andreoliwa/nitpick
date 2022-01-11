@@ -330,30 +330,26 @@ class Comparison:
         for key, expected_value in self.flat_expected.items():
             if key not in self.flat_actual:
                 self.missing_dict[key] = expected_value
+                self.replace_dict[key] = expected_value
                 continue
 
             actual = self.flat_actual[key]
             if isinstance(expected_value, list):
                 jmes_element_key = self.element_key_config.get(key, "")
-                # FIXME: next remove "if" and always call compare_list_elements(),
-                #  but also return diff, missing, replace dicts
-                if jmes_element_key:
-                    if SEPARATOR_DOT in jmes_element_key:
-                        parent_key, nested_key = jmes_element_key.split(SEPARATOR_DOT)
-                        parent_key = parent_key.strip("[]")
-                    else:
-                        parent_key = ""
-                        nested_key = jmes_element_key
-
-                    self._compare_list_elements(
-                        key,
-                        parent_key,
-                        nested_key,
-                        ListDetail.from_data(actual, jmes_element_key),
-                        ListDetail.from_data(expected_value, jmes_element_key),
-                    )
+                if SEPARATOR_DOT in jmes_element_key:
+                    parent_key, nested_key = jmes_element_key.split(SEPARATOR_DOT)
+                    parent_key = parent_key.strip("[]")
                 else:
-                    set_key_if_not_empty(self.diff_dict, key, compare_lists_with_dictdiffer(actual, expected_value))
+                    parent_key = ""
+                    nested_key = jmes_element_key
+
+                self._compare_list_elements(
+                    key,
+                    parent_key,
+                    nested_key,
+                    ListDetail.from_data(actual, jmes_element_key),
+                    ListDetail.from_data(expected_value, jmes_element_key),
+                )
             elif expected_value != actual:
                 set_key_if_not_empty(self.diff_dict, key, expected_value)
 

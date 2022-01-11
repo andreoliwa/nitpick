@@ -36,20 +36,17 @@ def test_list_of_dicts_search_missing_element_by_key_and_change_add_element_indi
     ).api_check().assert_violations()
 
 
-def test_list_of_scalars_change_add_elements_starting_from_index_0_keep_remaining_items_if_they_exist(
-    tmp_path, datadir
-):
-    """Test list of scalars: change/add elements starting from index 0, keep remaining items if they exist."""
-    # FIXME List behaviour: Compare from first (dict or scalar) The current default for all lists... this should change
+def test_list_of_scalars_only_add_elements_that_do_not_exist(tmp_path, datadir):
+    """Test list of scalars: only add elements that do not exist."""
     filename = ".github/workflows/python.yaml"
-    ProjectMock(tmp_path).save_file(filename, datadir / "scalar-change-from-index-zero-actual.yaml").style(
-        datadir / "scalar-change-from-index-zero.toml"
+    ProjectMock(tmp_path).save_file(filename, datadir / "scalar-add-elements-that-do-not-exist-actual.yaml").style(
+        datadir / "scalar-add-elements-that-do-not-exist.toml"
     ).api_check_then_fix(
         Fuss(
             True,
             filename,
-            369,
-            " has different values. Use this:",
+            368,
+            " has missing values:",
             """
             jobs:
               build:
@@ -57,18 +54,16 @@ def test_list_of_scalars_change_add_elements_starting_from_index_0_keep_remainin
                   matrix:
                     os:
                       - ubuntu-latest
-                      - windows-latest
                     python-version:
                       - '3.7'
-                      - '3.8'
-                      - '3.9'
                       - '3.10'
                       - '3.11'
             """,
         ),
     ).assert_file_contents(
-        filename, datadir / "scalar-change-from-index-zero-desired.yaml"
+        filename, datadir / "scalar-add-elements-that-do-not-exist-desired.yaml"
     ).api_check().assert_violations()
 
 
-# FIXME: next: test a new step is added with the data if the style doesn't have the unique key (e.g. "name" for GHA)
+# FIXME: test more than one element with the same key. e.g.: 2 steps with the same name...
+#  what to do? update only the first? both?
