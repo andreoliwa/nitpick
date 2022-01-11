@@ -97,3 +97,8 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
 
 
 # FIXME: test list of dicts: by default, objects are compared by hash and new ones are added
+
+# FIXME: test adding a list key to some other file
+# ["somefile.yaml".__list_keys]
+# some.deeper.list = "foo"
+# weird[1].jmes[3].expression = "bar"

@@ -70,5 +70,3 @@ GIT_AT_REFERENCE = "@"
 
 # Special configurations for plugins
 DUNDER_LIST_KEYS = "__list_keys"
-# FIXME: document __list_keys under "Special configurations on styles",
-#  when Pydantic will be used and when the feature will be more stable, shaped, more generic and less complex.

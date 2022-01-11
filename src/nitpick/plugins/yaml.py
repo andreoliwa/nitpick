@@ -52,7 +52,8 @@ class YamlPlugin(NitpickPlugin):
         if self.filename == PRE_COMMIT_CONFIG_YAML:
             return {"repos": "hooks[].id"}
         if self.filename.startswith(".github/workflows"):
-            return {"jobs.build.steps": "name"}  # FIXME: test any "jobs.*.steps" key is autofixed
+            # FIXME: test any "jobs.*.steps" key is autofixed (JMES expression that matches multiple keys)
+            return {"jobs.build.steps": "name"}
         return super().default_list_keys
 
     def enforce_rules(self) -> Iterator[Fuss]:

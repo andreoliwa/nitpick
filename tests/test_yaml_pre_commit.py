@@ -33,11 +33,10 @@ def test_repo_should_be_added_not_replaced(tmp_path, datadir):
     ).api_check().assert_violations()
 
 
-def test_clear_unique_key(tmp_path, datadir):
-    """Test overriding the default unique key with nothing.
+def test_overriding_list_key_with_empty_string_restores_default_behaviour(tmp_path, datadir):
+    """Test overriding the default list key with nothing.
 
-    The new element will be merged on top of the first list element.
-    TODO Shouldn't the whole list be replaced by one single element? If there is a use case, change this behaviour.
+    The default behaviour will be restored, and the new element will be appended at the end of the list.
     """
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
         datadir / "uk-empty.toml"

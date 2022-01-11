@@ -37,7 +37,10 @@ def test_list_of_dicts_search_missing_element_by_key_and_change_add_element_indi
 
 
 def test_list_of_scalars_only_add_elements_that_do_not_exist(tmp_path, datadir):
-    """Test list of scalars: only add elements that do not exist."""
+    """Test list of scalars: only add elements that do not exist.
+
+    Only check if the element is present but don't enforce the whole list to be the same.
+    """
     filename = ".github/workflows/python.yaml"
     ProjectMock(tmp_path).save_file(filename, datadir / "scalar-add-elements-that-do-not-exist-actual.yaml").style(
         datadir / "scalar-add-elements-that-do-not-exist.toml"

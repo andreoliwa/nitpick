@@ -95,6 +95,54 @@ To enforce all your projects to ignore missing imports, add this to your `nitpic
     ["setup.cfg".mypy]
     ignore_missing_imports = true
 
+.. _special-configurations:
+
+Special configurations
+----------------------
+
+Comparing elements on lists
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note::
+
+    At the moment, this feature only works on `the YAML plugin <yamlplugin>`_.
+
+On YAML files, a list (called a "sequence" in the YAML spec) can contain different elements:
+
+- Scalar values like int, float and string;
+- Dictionaries or objects with key/value pairs (called "mappings" in the YAML spec)
+- Other lists (sequences).
+
+The default behaviour for all lists: when applying a style, Nitpick_ searches
+if the element already exists in the list; if not found, the element is appended at the end of list.
+
+1. With scalar values, Nitpick_ compares the elements by their exact value.
+   Strings are compared in a case-sensitive manner, and spaces are considered.
+2. Dicts are compared by a "hash" of their key/value pairs.
+
+On lists containing dicts, it is possible to define a custom "list key" used to search for an element,
+overriding the default compare mechanism above.
+
+If an element is found by its key, the other key/values are compared and Nitpick_ applies the difference.
+If the key doesn't exist, the new dict is appended at the end of the list.
+
+Some files have a predefined configuration:
+
+1. On ``.pre-commit-config.yaml``, repos are searched by their hook IDs.
+2. On GitHub Workflow YAML files, steps are searched by their names.
+
+You can define your own list keys for your YAML files by using ``__list_keys`` on your style:
+
+.. code-block:: toml
+
+    ["path/from/root/to/your/config.yaml".__list_keys]
+    "path.to.list" = "<JMES path expression for the search key>"
+
+You can even override the predefined list keys mentioned above.
+
+If you have suggestions for predefined list keys for popular files (e.g.: GitLab CI config),
+feel free to submit a pull request.
+
 .. _breaking-changes:
 
 Breaking style changes

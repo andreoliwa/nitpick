@@ -1,17 +1,6 @@
 # List behaviours that are still not implemented in YAML (maybe they can be used in other formats too)
 
-# FIXME: this should be the default behaviour for all lists; it's less destructive
-# document on .rst 1. List behaviour: Compare elements (dict: by __list_keys or hash, scalar: by value). Change existing and add missing.
-# When there is no config: The default is to compare list elements by hash (dict) or by value (scalar)
-# On a list of scalars, add missing elements to the list
-# Only check if the element is present but don't enforce the whole list to be the same
-[".pre-commit-config.yaml".ci]
-skip = ["pylint"]
-
-# FIXME document this 2. For list of dicts: If an element key is defined, use it
-
-
-# 3. List behaviour: Exact list (dict or scalar) __exact_list
+# 1. List behaviour: Exact list (dict or scalar) __exact_list
 # The whole list will be replaced exactly by what's defined in the style
 # Use the "__exact" suffix on the list name
 [[".pre-commit-config.yaml".repos]]
@@ -21,19 +10,16 @@ additional_dependencies__exact = ["@commitlint/config-conventional"]
 id = "commitlint"
 stages = ["commit-msg"]
 
-# FIXME implement this as default 4. List behaviour: Search by hash when there is no key
-#  In a list of dicts, search lists by a hash of the dict object.
-#  Hash each dict of the actual list (all key/value pairs).
-#  Then loop through the new elements and only add those who were not found with the same hash.
-["some-file.yaml".__search_object_hash]
-# Hash all fields
+# 2. List behaviour: Define the fields that should be part of the hash
+["some-file.yaml".__list_hash_fields]
+# Hash all fields (default)
 some_list = "*"
 # Hash only specific fields
 person_list = "name,age,gender"
 # Hash all fields except these
 another_list = "-price,size"
 
-# 5. List behaviour: Custom function (dict or scalar)
+# 3. List behaviour: Custom function (dict or scalar)
 # Search using a custom function.
 # A custom function called by Nitpick that receives X, Y, Z arguments (to be defined)
 # And returns the new element and its index it should be in the list:
