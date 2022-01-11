@@ -96,7 +96,28 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
         )
 
 
-# FIXME: test list of dicts: by default, objects are compared by hash and new ones are added
+def test_objects_are_compared_by_hash_on_list_of_dicts_and_new_ones_are_added(tmp_path, datadir):
+    """Test list of dicts: by default, objects are compared by hash and new ones are added."""
+    filename = "some/nice/config.yaml"
+    project = ProjectMock(tmp_path).save_file(filename, datadir / "dicts-hash-actual.yaml")
+    project.style(datadir / "dicts-hash-desired.toml").api_check_then_fix(
+        Fuss(
+            True,
+            filename,
+            368,
+            " has missing values:",
+            """
+            my:
+              list:
+                with:
+                  dicts:
+                    - age: 35
+                      name: Silly
+            """,
+        ),
+    ).assert_file_contents(filename, datadir / "dicts-hash-expected.yaml")
+    project.api_check().assert_violations()
+
 
 # FIXME: test adding a list key to some other file
 # ["somefile.yaml".__list_keys]

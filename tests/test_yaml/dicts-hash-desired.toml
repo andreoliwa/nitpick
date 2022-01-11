@@ -1,0 +1,15 @@
+[["some/nice/config.yaml".my.list.with.dicts]]
+age = 56
+name = "Will"
+
+[["some/nice/config.yaml".my.list.with.dicts]]
+age = 35
+name = "Silly"
+
+[["some/nice/config.yaml".my.list.with.dicts]]
+age = 38
+name = "Carrie"
+
+[["some/nice/config.yaml".my.list.with.dicts]]
+age = 40
+name = "Mary"

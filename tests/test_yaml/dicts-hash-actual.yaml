@@ -1,0 +1,14 @@
+my:
+  list:
+    with:
+      dicts:
+        - name: John
+          age: 50
+        - name: Mary
+          age: 40
+        - name: Frank
+          age: 55
+        - name: Will
+          age: 56
+        - name: Carrie
+          age: 38
