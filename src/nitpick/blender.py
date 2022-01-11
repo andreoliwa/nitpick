@@ -282,7 +282,7 @@ DotBlender = partial(DictBlender, separator=SEPARATOR_DOT, flatten_on_add=False)
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
-    def __init__(self, actual: "BaseDoc", expected: JsonDict, element_key_config: JsonDict = None) -> None:
+    def __init__(self, actual: "BaseDoc", expected: JsonDict, list_keys_config: JsonDict = None) -> None:
         self.flat_actual = DictBlender(actual.as_object, separator=SEPARATOR_DOT).flat_dict
         self.flat_expected = DictBlender(expected, separator=SEPARATOR_DOT).flat_dict
 
@@ -292,9 +292,9 @@ class Comparison:
         self.diff_dict: JsonDict = {}
         self.replace_dict: JsonDict = {}
 
-        # FIXME: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
-        #  the method should receive SpecialConfig instead of element_key
-        self.element_key_config = element_key_config or {}
+        # FIXME: this can be a field in a Pydantic model called SpecialConfig.list_keys
+        #  the method should receive SpecialConfig instead of list_keys
+        self.list_keys_config = list_keys_config or {}
 
     @property
     def missing(self) -> Optional["BaseDoc"]:
@@ -335,20 +335,20 @@ class Comparison:
 
             actual = self.flat_actual[key]
             if isinstance(expected_value, list):
-                jmes_element_key = self.element_key_config.get(key, "")
-                if SEPARATOR_DOT in jmes_element_key:
-                    parent_key, nested_key = jmes_element_key.split(SEPARATOR_DOT)
+                jmes_list_keys = self.list_keys_config.get(key, "")
+                if SEPARATOR_DOT in jmes_list_keys:
+                    parent_key, nested_key = jmes_list_keys.split(SEPARATOR_DOT)
                     parent_key = parent_key.strip("[]")
                 else:
                     parent_key = ""
-                    nested_key = jmes_element_key
+                    nested_key = jmes_list_keys
 
                 self._compare_list_elements(
                     key,
                     parent_key,
                     nested_key,
-                    ListDetail.from_data(actual, jmes_element_key),
-                    ListDetail.from_data(expected_value, jmes_element_key),
+                    ListDetail.from_data(actual, jmes_list_keys),
+                    ListDetail.from_data(expected_value, jmes_list_keys),
                 )
             elif expected_value != actual:
                 set_key_if_not_empty(self.diff_dict, key, expected_value)

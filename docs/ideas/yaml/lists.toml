@@ -1,7 +1,7 @@
 # List behaviours that are still not implemented in YAML (maybe they can be used in other formats too)
 
 # FIXME: this should be the default behaviour for all lists; it's less destructive
-# document on .rst 1. List behaviour: Compare elements (dict: by __element_key or hash, scalar: by value). Change existing and add missing.
+# document on .rst 1. List behaviour: Compare elements (dict: by __list_keys or hash, scalar: by value). Change existing and add missing.
 # When there is no config: The default is to compare list elements by hash (dict) or by value (scalar)
 # On a list of scalars, add missing elements to the list
 # Only check if the element is present but don't enforce the whole list to be the same

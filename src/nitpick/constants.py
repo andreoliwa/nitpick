@@ -69,6 +69,6 @@ DOT_SLASH = f"{DOT}{SLASH}"
 GIT_AT_REFERENCE = "@"
 
 # Special configurations for plugins
-DUNDER_ELEMENT_KEY = "__element_key"
-# FIXME: document __element_key under "Special configurations on styles",
+DUNDER_LIST_KEYS = "__list_keys"
+# FIXME: document __list_keys under "Special configurations on styles",
 #  when Pydantic will be used and when the feature will be more stable, shaped, more generic and less complex.

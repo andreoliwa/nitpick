@@ -2,7 +2,7 @@
 version = "3.9"
 
 [["me/deep/rooted.yaml".python.install]]
-# There is no __element_key defined for this list, so a new element with "extra_requirements" will be added
+# There is no __list_keys defined for this list, so a new element with "extra_requirements" will be added
 # instead of replacing the existing "extra_requirements"
 extra_requirements = ["some", "nice", "package"]
 

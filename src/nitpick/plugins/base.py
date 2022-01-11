@@ -10,7 +10,7 @@ from loguru import logger
 from marshmallow import Schema
 
 from nitpick.blender import BaseDoc, search_json
-from nitpick.constants import DUNDER_ELEMENT_KEY
+from nitpick.constants import DUNDER_LIST_KEYS
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
 from nitpick.violations import Fuss, Reporter, SharedViolations
@@ -56,8 +56,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         self.dirty: bool = False
 
         # The user can override the default unique keys (if any) by setting them on the style file.
-        self.element_key: JsonDict = self.element_key_default.copy()
-        self.element_key.update(self.expected_config.pop(DUNDER_ELEMENT_KEY, None) or {})
+        self.list_keys: JsonDict = self.default_list_keys.copy()
+        self.list_keys.update(self.expected_config.pop(DUNDER_LIST_KEYS, None) or {})
 
     @mypy_property
     @lru_cache()
@@ -66,7 +66,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         return search_json(self.info.project.nitpick_section, f'files."{self.filename}"', {})
 
     @property
-    def element_key_default(self) -> JsonDict:
+    def default_list_keys(self) -> JsonDict:
         """Default unique keys that might be set by a plugin."""
         return {}
 

@@ -1,4 +1,4 @@
-[".pre-commit-config.yaml".__element_key]
+[".pre-commit-config.yaml".__list_keys]
 repos = ""
 
 [[".pre-commit-config.yaml".repos]]
