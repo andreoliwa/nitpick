@@ -31,7 +31,7 @@ class TomlPlugin(NitpickPlugin):
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing key/value pairs in the TOML file."""
         toml_doc = TomlDoc(path=self.file_path)
-        comparison = Comparison(toml_doc, self.expected_config)()
+        comparison = Comparison(toml_doc, self.expected_config, self.special_config)()
         if not comparison.has_changes:
             return
 

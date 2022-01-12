@@ -136,19 +136,25 @@ You can define your own list keys for your YAML files (or override the predefine
 .. code-block:: toml
 
     ["path/from/root/to/your/config.yaml".__list_keys]
-    "path.to.list" = "<search key expression>"
+    "<list expression>" = "<search key expression>"
 
-Where ``<search key expression>`` is:
+``<list expression>``:
 
-- a key from the dict inside the list, e.g. ``name``
-- a parent key and its child key separated by a dot, e.g. ``hooks.id``
+- a dotted path to a list, e.g. ``repos``, ``path.to.some.key``; or
+- a pattern containing wildcards (``?`` and ``*``).
+  For example, ``jobs.*.steps``: all ``jobs`` containing ``steps`` will use the same ``<search key expression>``.
+
+``<search key expression>``:
+
+- a key from the dict inside the list, e.g. ``name``; or
+- a parent key and its child key separated by a dot, e.g. ``hooks.id``.
 
 .. warning::
 
     For now, only two-level nesting is possible: parent and child keys.
 
-If you have suggestions for predefined list keys for popular files (e.g.: GitLab CI config),
-feel free to submit a pull request.
+If you have suggestions for predefined list keys for other popular YAML files not covered by Nitpick_ (e.g.: GitLab CI config),
+feel free to `create an issue <https://github.com/andreoliwa/nitpick/issues/new/choose>`_ or submit a pull request.
 
 .. _breaking-changes:
 

@@ -1,5 +1,6 @@
 """Base class for file checkers."""
 import abc
+import fnmatch
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterator, Optional, Set, Type
@@ -10,6 +11,7 @@ from loguru import logger
 from marshmallow import Schema
 
 from nitpick.blender import SEPARATOR_DOT, BaseDoc, DictBlender, search_json
+from nitpick.config import OverridableConfig, SpecialConfig
 from nitpick.constants import DUNDER_LIST_KEYS
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
@@ -55,10 +57,22 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         # Dirty flag to avoid changing files without need
         self.dirty: bool = False
 
-        # The user can override the default unique keys (if any) by setting them on the style file.
-        self.list_keys: JsonDict = self.default_list_keys.copy()
-        dunder_list_keys = self.expected_config.pop(DUNDER_LIST_KEYS, None) or {}
-        self.list_keys.update(DictBlender(dunder_list_keys, separator=SEPARATOR_DOT).flat_dict)
+        # FIXME: refactor this block; each plugin should have a property plugin_special_config()
+
+        list_keys = OverridableConfig(from_plugin=self.default_list_keys)  # type: ignore[call-arg]
+        temp = list_keys.from_plugin.copy()  # pylint: disable=no-member
+
+        # The user can override the default list keys (if any) by setting them on the style file.
+        list_keys.from_style = self.expected_config.pop(DUNDER_LIST_KEYS, None) or {}
+        temp.update(DictBlender(list_keys.from_style, separator=SEPARATOR_DOT).flat_dict)
+
+        flat_config = DictBlender(self.expected_config, separator=SEPARATOR_DOT).flat_dict
+
+        for key_with_pattern, parent_child_keys in temp.items():
+            for expanded_key in fnmatch.filter(flat_config.keys(), key_with_pattern):
+                list_keys.value[expanded_key] = parent_child_keys
+
+        self.special_config = SpecialConfig(list_keys=list_keys)  # type: ignore[call-arg]
 
     @mypy_property
     @lru_cache()

@@ -43,11 +43,11 @@ class JsonPlugin(NitpickPlugin):
         json_doc = JsonDoc(path=self.file_path)
         blender: Optional[DictBlender] = DictBlender(json_doc.as_object, extend_lists=False) if self.autofix else None
 
-        comparison = Comparison(json_doc, self.expected_dict_from_contains_keys())()
+        comparison = Comparison(json_doc, self.expected_dict_from_contains_keys(), self.special_config)()
         if comparison.missing:
             yield from self.report(SharedViolations.MISSING_VALUES, blender, comparison.missing)
 
-        comparison = Comparison(json_doc, self.expected_dict_from_contains_json())()
+        comparison = Comparison(json_doc, self.expected_dict_from_contains_json(), self.special_config)()
         if comparison.has_changes:
             yield from chain(
                 self.report(SharedViolations.DIFFERENT_VALUES, blender, comparison.diff),

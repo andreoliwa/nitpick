@@ -1,0 +1,19 @@
+jobs:
+  build:
+    steps:
+      - name: Before checkout
+      - name: Checkout
+        uses: wrong/checkout@v2
+      - name: This should be the last step
+  test:
+    steps:
+      - name: Wrong checkout as well
+      - name: Checkout
+        uses: wrong-as-well
+      - name: This should be the last step
+  release:
+    steps:
+      - name: Wrong checkout once again
+      - name: Checkout
+        uses: bad-copy-paste
+      - name: This should be the last step

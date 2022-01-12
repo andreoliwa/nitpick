@@ -10,7 +10,7 @@ def test_list_of_dicts_search_missing_element_by_key_and_change_add_element_indi
     """
     filename = ".github/workflows/any-language.yaml"
     ProjectMock(tmp_path).save_file(filename, datadir / "dict-search-by-key-actual.yaml").style(
-        datadir / "dict-search-by-key.toml"
+        datadir / "dict-search-by-key-desired.toml"
     ).api_check_then_fix(
         Fuss(
             True,
@@ -32,7 +32,7 @@ def test_list_of_dicts_search_missing_element_by_key_and_change_add_element_indi
             """,
         ),
     ).assert_file_contents(
-        filename, datadir / "dict-search-by-key-desired.yaml"
+        filename, datadir / "dict-search-by-key-expected.yaml"
     ).api_check().assert_violations()
 
 
@@ -43,7 +43,7 @@ def test_list_of_scalars_only_add_elements_that_do_not_exist(tmp_path, datadir):
     """
     filename = ".github/workflows/python.yaml"
     ProjectMock(tmp_path).save_file(filename, datadir / "scalar-add-elements-that-do-not-exist-actual.yaml").style(
-        datadir / "scalar-add-elements-that-do-not-exist.toml"
+        datadir / "scalar-add-elements-that-do-not-exist-desired.toml"
     ).api_check_then_fix(
         Fuss(
             True,
@@ -64,7 +64,39 @@ def test_list_of_scalars_only_add_elements_that_do_not_exist(tmp_path, datadir):
             """,
         ),
     ).assert_file_contents(
-        filename, datadir / "scalar-add-elements-that-do-not-exist-desired.yaml"
+        filename, datadir / "scalar-add-elements-that-do-not-exist-expected.yaml"
+    ).api_check().assert_violations()
+
+
+def test_wildcard_expression_matches_multiple_keys(tmp_path, datadir):
+    """Test wildcard expressions that match multiple keys. E.g.: any "jobs.*.steps"."""
+    filename = ".github/workflows/anything.yaml"
+    ProjectMock(tmp_path).save_file(filename, datadir / "wildcard-actual.yaml").style(
+        datadir / "wildcard-desired.toml"
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            filename,
+            368,
+            " has missing values:",
+            """
+            jobs:
+              build:
+                steps:
+                  - name: Checkout
+                    uses: actions/checkout@v2
+              release:
+                steps:
+                  - name: Checkout
+                    uses: actions/checkout@v2
+              test:
+                steps:
+                  - name: Checkout
+                    uses: actions/checkout@v2
+            """,
+        ),
+    ).assert_file_contents(
+        filename, datadir / "wildcard-expected.yaml"
     ).api_check().assert_violations()
 
 

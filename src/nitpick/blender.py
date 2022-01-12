@@ -23,6 +23,7 @@ from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
 from tomlkit import items
 
+from nitpick.config import SpecialConfig
 from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
 
 SINGLE_QUOTE = "'"
@@ -123,6 +124,7 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
         return ElementDetail(data=data, key=key, index=index, scalar=scalar, compact=compact)
 
 
+# FIXME: try using attrs
 class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
     """Detailed info about a list."""
 
@@ -282,7 +284,7 @@ DotBlender = partial(DictBlender, separator=SEPARATOR_DOT, flatten_on_add=False)
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
-    def __init__(self, actual: "BaseDoc", expected: JsonDict, list_keys_config: JsonDict = None) -> None:
+    def __init__(self, actual: "BaseDoc", expected: JsonDict, special_config: SpecialConfig) -> None:
         self.flat_actual = DictBlender(actual.as_object, separator=SEPARATOR_DOT).flat_dict
         self.flat_expected = DictBlender(expected, separator=SEPARATOR_DOT).flat_dict
 
@@ -292,9 +294,7 @@ class Comparison:
         self.diff_dict: JsonDict = {}
         self.replace_dict: JsonDict = {}
 
-        # FIXME: this can be a field in a Pydantic model called SpecialConfig.list_keys
-        #  the method should receive SpecialConfig instead of list_keys
-        self.list_keys_config = list_keys_config or {}
+        self.special_config = special_config
 
     @property
     def missing(self) -> Optional["BaseDoc"]:
@@ -335,7 +335,7 @@ class Comparison:
 
             actual = self.flat_actual[key]
             if isinstance(expected_value, list):
-                list_keys = self.list_keys_config.get(key, "")
+                list_keys = self.special_config.list_keys.value.get(key, "")
                 if SEPARATOR_DOT in list_keys:
                     parent_key, child_key = list_keys.rsplit(SEPARATOR_DOT, 1)
                     jmes_key = f"{parent_key}[].{child_key}"
