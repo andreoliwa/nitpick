@@ -136,17 +136,26 @@ You can define your own list keys for your YAML files by using ``__list_keys`` o
 .. code-block:: toml
 
     ["path/from/root/to/your/config.yaml".__list_keys]
-    "path.to.list" = "<JMES path expression for the search key>"
+    "path.to.list" = "<search key expression>"
 
-You can even override the predefined list keys mentioned above.
+Where ``<search key expression>`` is:
+
+- a key from the dict inside the list, e.g. ``name``
+- a parent key and its child key separated by a dot, e.g. ``hooks.id``
+
+.. warning::
+
+    For now, only two-level nesting is possible: parent and child keys.
+
+You can use ``__list_keys`` to override the predefined list keys mentioned above.
 
 If you have suggestions for predefined list keys for popular files (e.g.: GitLab CI config),
 feel free to submit a pull request.
 
 .. _breaking-changes:
 
-Breaking style changes
-----------------------
+Breaking changes
+----------------
 
 .. warning::
 

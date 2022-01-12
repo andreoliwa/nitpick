@@ -99,8 +99,8 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
 def test_objects_are_compared_by_hash_on_list_of_dicts_and_new_ones_are_added(tmp_path, datadir):
     """Test list of dicts: by default, objects are compared by hash and new ones are added."""
     filename = "some/nice/config.yaml"
-    project = ProjectMock(tmp_path).save_file(filename, datadir / "dicts-hash-actual.yaml")
-    project.style(datadir / "dicts-hash-desired.toml").api_check_then_fix(
+    project = ProjectMock(tmp_path).save_file(filename, datadir / "multiple-lists.yaml")
+    project.style(datadir / "list-by-hash-desired.toml").api_check_then_fix(
         Fuss(
             True,
             filename,
@@ -115,11 +115,41 @@ def test_objects_are_compared_by_hash_on_list_of_dicts_and_new_ones_are_added(tm
                       name: Silly
             """,
         ),
-    ).assert_file_contents(filename, datadir / "dicts-hash-expected.yaml")
+    ).assert_file_contents(filename, datadir / "list-by-hash-expected.yaml")
     project.api_check().assert_violations()
 
 
-# FIXME: test adding a list key to some other file
-# ["somefile.yaml".__list_keys]
-# some.deeper.list = "foo"
-# weird[1].jmes[3].expression = "bar"
+def test_maximum_two_level_nesting_on_lists_using_jmes_expression_as_list_key_fails(tmp_path, datadir):
+    """Test a maximum of two-level nesting on lists. Using a JMES expression as a list key will fail.
+
+    Keys must have a maximum of 2 level for now: parent and nested keys.
+    """
+    filename = "an/arbitrary/file.yaml"
+    project = ProjectMock(tmp_path).save_file(filename, datadir / "multiple-lists.yaml")
+    project.style(datadir / "jmes-list-key-desired.toml").api_check_then_fix(
+        Fuss(
+            True,
+            filename,
+            368,
+            " has missing values:",
+            """
+            my:
+              list:
+                with:
+                  dicts:
+                    - name: Will
+                      age: 50
+            root:
+              - country: ENG
+                regions:
+                  - region: West Midlands
+                    cities:
+                      - city: Birmingham
+                        people:
+                          - name: Ann
+                            age: 27
+                            from: Liverpool
+            """,
+        ),
+    ).assert_file_contents(filename, datadir / "jmes-list-key-expected.yaml")
+    project.api_check().assert_violations()

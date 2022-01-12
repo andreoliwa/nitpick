@@ -1,0 +1,48 @@
+my:
+  list:
+    with:
+      dicts:
+        - name: John
+          age: 50
+        - name: Mary
+          age: 40
+        - name: Frank
+          age: 55
+        - name: Will
+          age: 50
+        - name: Carrie
+          age: 38
+root:
+  - country: GER
+    regions:
+      - region: Bayern
+        cities:
+          - city: München
+            people:
+              - name: Fritz
+                age: 60
+              - age: 45
+                name: Helga
+              - name: Otto
+                age: 67
+  - country: ENG
+    regions:
+      - region: West Midlands
+        cities:
+          - city: Birmingham
+            people:
+              - name: Judy
+                age: 36
+              - name: Ann
+                age: 32
+              - name: Mildred
+                age: 47
+  - country: ENG
+    regions:
+      - region: West Midlands
+        cities:
+          - city: Birmingham
+            people:
+              - name: Ann
+                age: 27
+                from: Liverpool

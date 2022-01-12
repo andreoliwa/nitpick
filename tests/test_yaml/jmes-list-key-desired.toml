@@ -1,0 +1,19 @@
+["an/arbitrary/file.yaml".__list_keys]
+my.list.with.dicts = "name"
+# TODO: this raises a KeyError: 'regions[].cities[].people'; try dpath-python
+# root = "regions[].cities[].people[].name"
+
+[["an/arbitrary/file.yaml".my.list.with.dicts]]
+name = "Will"
+age = 50
+
+[["an/arbitrary/file.yaml".root]]
+country = "ENG"
+[["an/arbitrary/file.yaml".root.regions]]
+region = "West Midlands"
+[["an/arbitrary/file.yaml".root.regions.cities]]
+city = "Birmingham"
+[["an/arbitrary/file.yaml".root.regions.cities.people]]
+name = "Ann"
+age = 27
+from = "Liverpool"

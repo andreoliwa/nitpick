@@ -337,16 +337,16 @@ class Comparison:
             if isinstance(expected_value, list):
                 jmes_list_keys = self.list_keys_config.get(key, "")
                 if SEPARATOR_DOT in jmes_list_keys:
-                    parent_key, nested_key = jmes_list_keys.split(SEPARATOR_DOT)
+                    parent_key, child_key = jmes_list_keys.rsplit(SEPARATOR_DOT, 1)
                     parent_key = parent_key.strip("[]")
                 else:
                     parent_key = ""
-                    nested_key = jmes_list_keys
+                    child_key = jmes_list_keys
 
                 self._compare_list_elements(
                     key,
                     parent_key,
-                    nested_key,
+                    child_key,
                     ListDetail.from_data(actual, jmes_list_keys),
                     ListDetail.from_data(expected_value, jmes_list_keys),
                 )
@@ -356,7 +356,7 @@ class Comparison:
         return self
 
     def _compare_list_elements(  # pylint: disable=too-many-arguments
-        self, key: str, parent_key: str, nested_key: str, actual_detail: ListDetail, expected_detail: ListDetail
+        self, key: str, parent_key: str, child_key: str, actual_detail: ListDetail, expected_detail: ListDetail
     ) -> None:
         """Search an element in a list with a JMES expression representing the key."""
         display = []
@@ -369,7 +369,7 @@ class Comparison:
                 continue
 
             if parent_key:
-                new_block: JsonDict = self._compare_children(parent_key, nested_key, actual_element, expected_element)
+                new_block: JsonDict = self._compare_children(parent_key, child_key, actual_element, expected_element)
                 if new_block:
                     display.append(expected_element.data)
                     replace[actual_element.index] = new_block
@@ -390,7 +390,7 @@ class Comparison:
 
     @staticmethod
     def _compare_children(
-        parent_key: str, nested_key: str, actual_element: ElementDetail, expected_element: ElementDetail
+        parent_key: str, child_key: str, actual_element: ElementDetail, expected_element: ElementDetail
     ) -> JsonDict:
         """Compare children of a JSON dict, return only the inner difference.
 
@@ -398,13 +398,14 @@ class Comparison:
         not with all the hooks of the parent repo.
         """
         new_nested_block: JsonDict = {}
-        jmes_nested = f"{parent_key}[?{nested_key}=='{expected_element.key[0]}']"
+        jmes_nested = f"{parent_key}[?{child_key}=='{expected_element.key[0]}']"
         actual_nested = search_json(actual_element.data, jmes_nested, [])
         expected_nested = search_json(expected_element.data, jmes_nested, [{}])
         diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested, return_list=True)
         if diff_nested:
             actual_data = cast(JsonDict, actual_element.data)
             expected_data = cast(JsonDict, expected_element.data)
+            # TODO: set value deep down the tree (try dpath-python). parent_key = 'regions[].cities[].people'
             expected_data[parent_key] = diff_nested
 
             new_nested_block = actual_data.copy()

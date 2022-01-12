@@ -9,7 +9,7 @@ from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.blender import BaseDoc, search_json
+from nitpick.blender import SEPARATOR_DOT, BaseDoc, DictBlender, search_json
 from nitpick.constants import DUNDER_LIST_KEYS
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
@@ -57,7 +57,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
 
         # The user can override the default unique keys (if any) by setting them on the style file.
         self.list_keys: JsonDict = self.default_list_keys.copy()
-        self.list_keys.update(self.expected_config.pop(DUNDER_LIST_KEYS, None) or {})
+        dunder_list_keys = self.expected_config.pop(DUNDER_LIST_KEYS, None) or {}
+        self.list_keys.update(DictBlender(dunder_list_keys, separator=SEPARATOR_DOT).flat_dict)
 
     @mypy_property
     @lru_cache()
