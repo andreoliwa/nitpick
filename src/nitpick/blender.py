@@ -16,9 +16,9 @@ import dictdiffer
 import jmespath
 import toml
 import tomlkit
+from attrs import define
 from autorepr import autorepr
 from jmespath.parser import ParsedResult
-from pydantic import BaseModel
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
 from tomlkit import items
@@ -95,7 +95,8 @@ def search_json(json_data: ElementData, jmespath_expression: Union[ParsedResult,
     return rv or default
 
 
-class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
+@define
+class ElementDetail:  # pylint: disable=too-few-public-methods
     """Detailed information about an element of a list."""
 
     data: ElementData
@@ -106,7 +107,7 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
 
     @property
     def cast_to_dict(self) -> JsonDict:
-        """Data cast to dict, for mypy. Do not confuse with the ``dict()`` method from pydantic."""
+        """Data cast to dict, for mypy."""
         return cast(JsonDict, self.data)
 
     @classmethod
@@ -121,11 +122,11 @@ class ElementDetail(BaseModel):  # pylint: disable=too-few-public-methods
         else:
             scalar = True
             key = compact = str(data)
-        return ElementDetail(data=data, key=key, index=index, scalar=scalar, compact=compact)
+        return ElementDetail(data=data, key=key, index=index, scalar=scalar, compact=compact)  # type: ignore[call-arg]
 
 
-# FIXME: try using attrs
-class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
+@define
+class ListDetail:  # pylint: disable=too-few-public-methods
     """Detailed info about a list."""
 
     data: ListOrCommentedSeq
@@ -134,7 +135,7 @@ class ListDetail(BaseModel):  # pylint: disable=too-few-public-methods
     @classmethod
     def from_data(cls, data: ListOrCommentedSeq, jmes_key: str) -> "ListDetail":
         """Create a list detail from list data."""
-        return ListDetail(
+        return ListDetail(  # type: ignore[call-arg]
             data=data, elements=[ElementDetail.from_data(index, data, jmes_key) for index, data in enumerate(data)]
         )
 
