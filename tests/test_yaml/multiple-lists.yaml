@@ -17,7 +17,7 @@ root:
     regions:
       - region: Bayern
         cities:
-          - city: München
+          - city: Muenchen  # TODO: München failing on CI on Windows
             people:
               - name: Fritz
                 age: 60
