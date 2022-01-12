@@ -131,7 +131,7 @@ Some files have a predefined configuration:
 1. On ``.pre-commit-config.yaml``, repos are searched by their hook IDs.
 2. On GitHub Workflow YAML files, steps are searched by their names.
 
-You can define your own list keys for your YAML files by using ``__list_keys`` on your style:
+You can define your own list keys for your YAML files (or override the predefined configs above) by using ``__list_keys`` on your style:
 
 .. code-block:: toml
 
@@ -146,8 +146,6 @@ Where ``<search key expression>`` is:
 .. warning::
 
     For now, only two-level nesting is possible: parent and child keys.
-
-You can use ``__list_keys`` to override the predefined list keys mentioned above.
 
 If you have suggestions for predefined list keys for popular files (e.g.: GitLab CI config),
 feel free to submit a pull request.

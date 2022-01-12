@@ -50,7 +50,7 @@ class YamlPlugin(NitpickPlugin):
     def default_list_keys(self) -> JsonDict:
         """Default list keys for .pre-commit-config.yaml and GitHub Workflow files."""
         if self.filename == PRE_COMMIT_CONFIG_YAML:
-            return {"repos": "hooks[].id"}  # FIXME: use the simple syntax "hooks.id" and build JMES from it
+            return {"repos": "hooks.id"}
         if self.filename.startswith(".github/workflows"):
             # FIXME: test any "jobs.*.steps" key is autofixed (regular expression that matches multiple keys)
             return {"jobs.build.steps": "name"}

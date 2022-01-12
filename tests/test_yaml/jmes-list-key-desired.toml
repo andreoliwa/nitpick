@@ -1,7 +1,7 @@
 ["an/arbitrary/file.yaml".__list_keys]
 my.list.with.dicts = "name"
-# TODO: this raises a KeyError: 'regions[].cities[].people'; try dpath-python
-# root = "regions[].cities[].people[].name"
+# TODO: this raises a KeyError: 'regions.cities.people'; try dpath-python
+# root = "regions.cities.people.name"
 
 [["an/arbitrary/file.yaml".my.list.with.dicts]]
 name = "Will"

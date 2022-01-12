@@ -335,20 +335,21 @@ class Comparison:
 
             actual = self.flat_actual[key]
             if isinstance(expected_value, list):
-                jmes_list_keys = self.list_keys_config.get(key, "")
-                if SEPARATOR_DOT in jmes_list_keys:
-                    parent_key, child_key = jmes_list_keys.rsplit(SEPARATOR_DOT, 1)
-                    parent_key = parent_key.strip("[]")
+                list_keys = self.list_keys_config.get(key, "")
+                if SEPARATOR_DOT in list_keys:
+                    parent_key, child_key = list_keys.rsplit(SEPARATOR_DOT, 1)
+                    jmes_key = f"{parent_key}[].{child_key}"
                 else:
                     parent_key = ""
-                    child_key = jmes_list_keys
+                    child_key = list_keys
+                    jmes_key = child_key
 
                 self._compare_list_elements(
                     key,
                     parent_key,
                     child_key,
-                    ListDetail.from_data(actual, jmes_list_keys),
-                    ListDetail.from_data(expected_value, jmes_list_keys),
+                    ListDetail.from_data(actual, jmes_key),
+                    ListDetail.from_data(expected_value, jmes_key),
                 )
             elif expected_value != actual:
                 set_key_if_not_empty(self.diff_dict, key, expected_value)
