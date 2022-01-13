@@ -238,3 +238,6 @@ Use ``./`` to indicate the local style:
         "https://example.com/on/the/web/remote-style.toml",
         "./my-local-style.toml",
     ]
+
+For Windows users: even though the path separator is a backslash, use the example above as-is.
+The "dot-slash" is a convention for Nitpick_ to know this is a local style file.
