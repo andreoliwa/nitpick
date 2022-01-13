@@ -8,7 +8,7 @@ from nitpick.typedefs import JsonDict
 class OverridableConfig:  # pylint: disable=too-few-public-methods
     """Configs formed from defaults from the plugin that can be overridden by the style."""
 
-    from_plugin: JsonDict
+    from_plugin: JsonDict = Factory(dict)
     from_style: JsonDict = Factory(dict)
     value: JsonDict = Factory(dict)
 
@@ -17,4 +17,4 @@ class OverridableConfig:  # pylint: disable=too-few-public-methods
 class SpecialConfig:  # pylint: disable=too-few-public-methods
     """Special configurations for plugins."""
 
-    list_keys: OverridableConfig
+    list_keys: OverridableConfig = Factory(OverridableConfig)

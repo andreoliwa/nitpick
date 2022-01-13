@@ -3,6 +3,7 @@ from itertools import chain
 from typing import Iterator, Optional, Type, cast
 
 from nitpick.blender import Comparison, YamlDoc, traverse_yaml_tree
+from nitpick.config import SpecialConfig
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.exceptions import Deprecation
 from nitpick.plugins import hookimpl
@@ -46,14 +47,15 @@ class YamlPlugin(NitpickPlugin):
     violation_base_code = 360
     fixable = True
 
-    @property
-    def default_list_keys(self) -> JsonDict:
-        """Default list keys for .pre-commit-config.yaml and GitHub Workflow files."""
+    def predefined_special_config(self) -> SpecialConfig:
+        """Predefined special config, with list keys for .pre-commit-config.yaml and GitHub Workflow files."""
+        spc = SpecialConfig()
+        # pylint: disable=assigning-non-slot
         if self.filename == PRE_COMMIT_CONFIG_YAML:
-            return {"repos": "hooks.id"}
-        if self.filename.startswith(".github/workflows"):
-            return {"jobs.*.steps": "name"}
-        return super().default_list_keys
+            spc.list_keys.from_plugin = {"repos": "hooks.id"}
+        elif self.filename.startswith(".github/workflows"):
+            spc.list_keys.from_plugin = {"jobs.*.steps": "name"}
+        return spc
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing data in the YAML file."""
