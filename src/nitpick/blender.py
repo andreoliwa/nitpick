@@ -360,7 +360,7 @@ class Comparison:
     def _compare_list_elements(  # pylint: disable=too-many-arguments
         self, key: str, parent_key: str, child_key: str, actual_detail: ListDetail, expected_detail: ListDetail
     ) -> None:
-        """Search an element in a list with a JMES expression representing the key."""
+        """Compare list elements by their keys or hashes."""
         display = []
         replace = actual_detail.data.copy()
         for expected_element in expected_detail.elements:
@@ -580,7 +580,7 @@ def is_scalar(value: YamlValue) -> bool:
 
 
 def replace_or_add_list_element(yaml_obj: YamlObject, element: Any, key: str, index: int) -> None:
-    """Replace or add a new element in a YAML list."""
+    """Replace or add a new element in a YAML sequence of mappings."""
     current = yaml_obj
     if key in yaml_obj:
         current = yaml_obj[key]
