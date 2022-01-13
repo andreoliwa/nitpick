@@ -18,7 +18,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "bumpversion --allow-dirty --no-commit --no-tag --new-version ${nextRelease.version} patch && pre-commit run --all-files end-of-file-fixer || true && pre-commit run --all-files trailing-whitespace || true && rm -rf dist/ && poetry build && twine upload --verbose --disable-progress-bar --skip-existing --password $TWINE_TEST_PASSWORD -r testpypi dist/*",
+          "prepareCmd": "./ci-prepare-cmd.sh ${nextRelease.version}",
           "publishCmd": "twine upload --verbose --disable-progress-bar --skip-existing dist/*"
         }
       ],
