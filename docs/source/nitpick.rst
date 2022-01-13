@@ -25,6 +25,7 @@ Submodules
    nitpick.blender
    nitpick.cli
    nitpick.compat
+   nitpick.config
    nitpick.constants
    nitpick.core
    nitpick.enums
