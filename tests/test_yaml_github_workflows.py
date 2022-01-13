@@ -100,13 +100,36 @@ def test_wildcard_expression_matches_multiple_keys(tmp_path, datadir):
     ).api_check().assert_violations()
 
 
-# FIXME: test more than one element with the same key. e.g.: 2 steps with the same name...
-#  what to do? update only the first? both?
-
-
 def test_steps_are_present_in_any_order(tmp_path, datadir):
     """Test steps are present in any order."""
     filename = ".github/workflows/any-order.yaml"
     ProjectMock(tmp_path).save_file(filename, datadir / "any-order.yaml").style(
         datadir / "any-order.toml"
     ).api_check_then_fix().assert_file_contents(filename, datadir / "any-order.yaml").api_check().assert_violations()
+
+
+def test_more_than_one_element_with_the_same_key_only_first_one_will_be_considered(tmp_path, datadir):
+    """Test more than one element with the same key: only the first one will be considered.
+
+    E.g.: two steps with the same name.
+    """
+    filename = ".github/workflows/something.yaml"
+    ProjectMock(tmp_path).save_file(filename, datadir / "same-key-actual.yaml").style(
+        datadir / "same-key-desired.toml"
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            filename,
+            368,
+            " has missing values:",
+            """
+            jobs:
+              whatever:
+                steps:
+                  - name: Same key
+                    uses: actions/replacing-duplicated-element@v2
+            """,
+        )
+    ).assert_file_contents(
+        filename, datadir / "same-key-expected.yaml"
+    ).api_check().assert_violations()

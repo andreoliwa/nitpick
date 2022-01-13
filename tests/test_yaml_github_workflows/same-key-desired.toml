@@ -1,0 +1,3 @@
+[[".github/workflows/something.yaml".jobs.whatever.steps]]
+name = "Same key"
+uses = "actions/replacing-duplicated-element@v2"
