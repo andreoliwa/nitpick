@@ -22,11 +22,12 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   nitpick.blender
    nitpick.cli
    nitpick.compat
+   nitpick.config
    nitpick.constants
    nitpick.core
-   nitpick.documents
    nitpick.enums
    nitpick.exceptions
    nitpick.fields

@@ -8,55 +8,58 @@ import abc
 import json
 import re
 from collections import OrderedDict
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
-from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import dictdiffer
 import jmespath
 import toml
 import tomlkit
+from attrs import define
 from autorepr import autorepr
 from jmespath.parser import ParsedResult
-from more_itertools import always_iterable
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
-from ruamel.yaml.comments import CommentedMap
 from sortedcontainers import SortedDict
+from tomlkit import items
 
-from nitpick.constants import DOT
-from nitpick.typedefs import JsonDict, PathOrStr, YamlObject, YamlValue
+from nitpick.config import SpecialConfig
+from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
 
+SEPARATOR_DOT = "."
+SEPARATOR_COMMA = ","
+SEPARATOR_COLON = ":"
+
 #: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
-# to avoid collision with existing key values (e.g. the default dot separator "." can be part of a TOML key).
+# to avoid collision with existing key values (e.g. the default SEPARATOR_DOT separator "." can be part of a TOML key).
 SEPARATOR_FLATTEN = "$#@"
 
 #: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
 SEPARATOR_QUOTED_SPLIT = "#$@"
 
-DICT_CLASSES = (dict, SortedDict, OrderedDict, CommentedMap)
-LIST_CLASSES = (list, tuple)
 
-
-def compare_lists_with_dictdiffer(actual: List[Any], expected: List[Any]) -> List:
+def compare_lists_with_dictdiffer(
+    actual: Union[List, Dict], expected: Union[List, Dict], *, return_list: bool = True
+) -> Union[List, Dict]:
     """Compare two lists using dictdiffer."""
     additions_and_changes = [change for change in dictdiffer.diff(actual, expected) if change[0] != "remove"]
-    if additions_and_changes:
-        try:
-            changed_dict = dictdiffer.patch(additions_and_changes, {})
-            return list(changed_dict.values())
-        except KeyError:
-            return expected
-    return []
+    if not additions_and_changes:
+        return []
+
+    try:
+        changed_dict = dictdiffer.patch(additions_and_changes, {})
+    except KeyError:
+        return expected
+
+    if return_list:
+        return list(changed_dict.values())
+    return changed_dict
 
 
-def search_json(
-    json_data: Union[MutableMapping[str, Any], List[Any]],
-    jmespath_expression: Union[ParsedResult, str],
-    default: Any = None,
-) -> Any:
+def search_json(json_data: ElementData, jmespath_expression: Union[ParsedResult, str], default: Any = None) -> Any:
     """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
 
     >>> data = {"root": {"app": [1, 2], "test": "something"}}
@@ -74,12 +77,17 @@ def search_json(
     [1, 2]
     >>> search_json(data, jmespath.compile("root.whatever"), "xxx")
     'xxx'
+    >>> search_json(data, "")
+
+    >>> search_json(data, None)
 
     :param jmespath_expression: A compiled JMESPath expression or a string with an expression.
     :param json_data: The dictionary to be searched.
     :param default: Default value in case nothing is found.
     :return: The object that was found or the default value.
     """
+    if not jmespath_expression:
+        return default
     if isinstance(jmespath_expression, str):
         rv = jmespath.search(jmespath_expression, json_data)
     else:
@@ -87,63 +95,60 @@ def search_json(
     return rv or default
 
 
-def search_element_by_unique_key(  # pylint: disable=too-many-locals
-    actual_list: List[Any], expected_list: List[Any], nested_key: str, parent_key: str = ""
-) -> Tuple[List, List]:
-    """Search an element in a list with a JMES expression representing the unique key.
+@define
+class ElementDetail:  # pylint: disable=too-few-public-methods
+    """Detailed information about an element of a list."""
 
-    :return: Tuple with 2 lists: new elements only and the whole new list.
-    """
-    jmes_search_key = f"{parent_key}[].{nested_key}" if parent_key else nested_key
+    data: ElementData
+    key: Union[str, List[str]]
+    index: int
+    scalar: bool
+    compact: str
 
-    actual_keys = search_json(actual_list, f"[].{jmes_search_key}", [])
-    if not actual_keys:
-        # There are no actual keys in the current YAML: let's insert the whole expected block
-        return expected_list, actual_list + expected_list
+    @property
+    def cast_to_dict(self) -> JsonDict:
+        """Data cast to dict, for mypy."""
+        return cast(JsonDict, self.data)
 
-    actual_indexes = {
-        key: index for index, element in enumerate(actual_list) for key in search_json(element, jmes_search_key, [])
-    }
+    @classmethod
+    def from_data(cls, index: int, data: ElementData, jmes_key: str) -> "ElementDetail":
+        """Create an element detail from dict data."""
+        if isinstance(data, (list, dict)):
+            scalar = False
+            compact = json.dumps(data, sort_keys=True, separators=(SEPARATOR_COMMA, SEPARATOR_COLON))
+            key = search_json(data, jmes_key)
+            if not key:
+                key = compact
+        else:
+            scalar = True
+            key = compact = str(data)
+        return ElementDetail(data=data, key=key, index=index, scalar=scalar, compact=compact)  # type: ignore[call-arg]
 
-    display = []
-    replace = actual_list.copy()
-    for element in expected_list:
-        expected_keys = search_json(element, jmes_search_key, None)
-        if not expected_keys:
-            # There are no expected keys in this current element: let's insert the whole element
-            display.append(element)
-            replace.append(element)
-            continue
 
-        for expected_key in always_iterable(expected_keys or []):
-            if expected_key not in actual_keys:
-                display.append(element)
-                replace.append(element)
-                continue
+@define
+class ListDetail:  # pylint: disable=too-few-public-methods
+    """Detailed info about a list."""
 
-            # If the element exists, compare with the actual one (by index)
-            index = actual_indexes.get(expected_key, None)
-            if index is None:
-                continue
+    data: ListOrCommentedSeq
+    elements: List[ElementDetail]
 
-            jmes_nested = f"{parent_key}[?{nested_key}=='{expected_key}']"
-            actual_nested = search_json(actual_list[index], jmes_nested, [])
-            expected_nested = search_json(element, jmes_nested, [{}])
-            diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested)
-            if not diff_nested:
-                continue
+    @classmethod
+    def from_data(cls, data: ListOrCommentedSeq, jmes_key: str) -> "ListDetail":
+        """Create a list detail from list data."""
+        return ListDetail(  # type: ignore[call-arg]
+            data=data, elements=[ElementDetail.from_data(index, data, jmes_key) for index, data in enumerate(data)]
+        )
 
-            element[parent_key] = diff_nested
-            display.append(element)
-
-            new_block = actual_list[index].copy()
-            for nested_index, obj in enumerate(actual_list[index][parent_key]):
-                if obj == actual_nested[0]:
-                    new_block[parent_key][nested_index] = diff_nested[0]
-                    break
-            replace[index] = new_block
-
-    return display, replace
+    def find_by_key(self, desired: ElementDetail) -> Optional[ElementDetail]:
+        """Find an element by key."""
+        for actual in self.elements:
+            if isinstance(desired.key, list):
+                if set(desired.key).issubset(set(actual.key)):
+                    return actual
+            else:
+                if desired.key == actual.key:
+                    return actual
+        return None
 
 
 def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
@@ -153,7 +158,7 @@ def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     dict_[key] = value
 
 
-def quoted_split(string_: str, separator=DOT) -> List[str]:
+def quoted_split(string_: str, separator=SEPARATOR_DOT) -> List[str]:
     """Split a string by a separator, but considering quoted parts (single or double quotes).
 
     >>> quoted_split("my.key.without.quotes")
@@ -235,29 +240,29 @@ class DictBlender:
 
         Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
         """
-        items: List[Tuple[str, Any]] = []
+        elements: List[Tuple[str, Any]] = []
         for key, value in dict_.items():
             quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if self.separator in str(key) else key
             new_key = str(parent_key) + self.separator + str(quoted_key) if parent_key else quoted_key
             if isinstance(value, dict):
-                items.extend(self._flatten(value, new_key).items())
+                elements.extend(self._flatten(value, new_key).items())
             elif isinstance(value, (list, tuple)) and self.extend_lists:
                 # If the value is a list or tuple, append to a previously existing list.
                 existing_list = self._current_lists.get(new_key, [])
                 existing_list.extend(list(value))
                 self._current_lists[new_key] = existing_list
 
-                items.append((new_key, existing_list))
+                elements.append((new_key, existing_list))
             else:
-                items.append((new_key, value))
-        return dict(items)
+                elements.append((new_key, value))
+        return dict(elements)
 
     def _unflatten(self, dict_: JsonDict, sort=True) -> OrderedDict:
         """Turn back a flat dict created by the ``_flatten()`` method into a nested dict."""
-        items: OrderedDict = OrderedDict()
+        elements: OrderedDict = OrderedDict()
         for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
             all_keys = quoted_split(root_key, self.separator)
-            sub_items = items
+            sub_items = elements
             for key in all_keys[:-1]:
                 try:
                     sub_items = sub_items[key]
@@ -267,56 +272,150 @@ class DictBlender:
 
             sub_items[all_keys[-1]] = root_value
 
-        return items
+        return elements
 
     def mix(self, sort=True) -> JsonDict:
         """Mix all dictionaries, replacing values with identical keys and extending lists."""
         return self._unflatten(self._current_flat_dict, sort)
 
 
+DotBlender = partial(DictBlender, separator=SEPARATOR_DOT, flatten_on_add=False)
+
+
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
-    def __init__(
-        self,
-        actual: JsonDict,
-        expected: JsonDict,
-        doc_class: Type["BaseDoc"],
-    ) -> None:
-        self.flat_actual = DictBlender(actual, separator=DOT).flat_dict
-        self.flat_expected = DictBlender(expected, separator=DOT).flat_dict
+    def __init__(self, actual: "BaseDoc", expected: JsonDict, special_config: SpecialConfig) -> None:
+        self.flat_actual = DictBlender(actual.as_object, separator=SEPARATOR_DOT).flat_dict
+        self.flat_expected = DictBlender(expected, separator=SEPARATOR_DOT).flat_dict
 
-        self.doc_class = doc_class
+        self.doc_class = actual.__class__
 
         self.missing_dict: JsonDict = {}
         self.diff_dict: JsonDict = {}
         self.replace_dict: JsonDict = {}
+
+        self.special_config = special_config
 
     @property
     def missing(self) -> Optional["BaseDoc"]:
         """Missing data."""
         if not self.missing_dict:
             return None
-        return self.doc_class(obj=self.missing_dict)
+        return self.doc_class(obj=DotBlender(self.missing_dict).mix())
 
     @property
     def diff(self) -> Optional["BaseDoc"]:
         """Different data."""
         if not self.diff_dict:
             return None
-        return self.doc_class(obj=self.diff_dict)
+        return self.doc_class(obj=DotBlender(self.diff_dict).mix())
 
     @property
     def replace(self) -> Optional["BaseDoc"]:
         """Data to be replaced."""
         if not self.replace_dict:
             return None
-        return self.doc_class(obj=self.replace_dict)
+        return self.doc_class(obj=DotBlender(self.replace_dict).mix())
 
     @property
     def has_changes(self) -> bool:
         """Return True is there is a difference or something missing."""
         return bool(self.missing or self.diff or self.replace)
+
+    def __call__(self) -> "Comparison":
+        """Compare two flattened dictionaries and compute missing and different items."""
+        if self.flat_expected.items() <= self.flat_actual.items():
+            return self
+
+        for key, expected_value in self.flat_expected.items():
+            if key not in self.flat_actual:
+                self.missing_dict[key] = expected_value
+                self.replace_dict[key] = expected_value
+                continue
+
+            actual = self.flat_actual[key]
+            if isinstance(expected_value, list):
+                list_keys = self.special_config.list_keys.value.get(key, "")
+                if SEPARATOR_DOT in list_keys:
+                    parent_key, child_key = list_keys.rsplit(SEPARATOR_DOT, 1)
+                    jmes_key = f"{parent_key}[].{child_key}"
+                else:
+                    parent_key = ""
+                    child_key = list_keys
+                    jmes_key = child_key
+
+                self._compare_list_elements(
+                    key,
+                    parent_key,
+                    child_key,
+                    ListDetail.from_data(actual, jmes_key),
+                    ListDetail.from_data(expected_value, jmes_key),
+                )
+            elif expected_value != actual:
+                set_key_if_not_empty(self.diff_dict, key, expected_value)
+
+        return self
+
+    def _compare_list_elements(  # pylint: disable=too-many-arguments
+        self, key: str, parent_key: str, child_key: str, actual_detail: ListDetail, expected_detail: ListDetail
+    ) -> None:
+        """Compare list elements by their keys or hashes."""
+        display = []
+        replace = actual_detail.data.copy()
+        for expected_element in expected_detail.elements:
+            actual_element = actual_detail.find_by_key(expected_element)
+            if not actual_element:
+                display.append(expected_element.data)
+                replace.append(expected_element.data)
+                continue
+
+            if parent_key:
+                new_block: JsonDict = self._compare_children(parent_key, child_key, actual_element, expected_element)
+                if new_block:
+                    display.append(expected_element.data)
+                    replace[actual_element.index] = new_block
+                continue
+
+            diff = compare_lists_with_dictdiffer(
+                actual_element.cast_to_dict, expected_element.cast_to_dict, return_list=False
+            )
+            if diff:
+                new_block = cast(JsonDict, actual_element.data).copy()
+                new_block.update(diff)
+                display.append(new_block)
+                replace[actual_element.index] = new_block
+
+        if display:
+            set_key_if_not_empty(self.missing_dict, key, display)
+            set_key_if_not_empty(self.replace_dict, key, replace)
+
+    @staticmethod
+    def _compare_children(
+        parent_key: str, child_key: str, actual_element: ElementDetail, expected_element: ElementDetail
+    ) -> JsonDict:
+        """Compare children of a JSON dict, return only the inner difference.
+
+        E.g.: a pre-commit hook ID with different args will return a JSON only with the specific hook,
+        not with all the hooks of the parent repo.
+        """
+        new_nested_block: JsonDict = {}
+        jmes_nested = f"{parent_key}[?{child_key}=='{expected_element.key[0]}']"
+        actual_nested = search_json(actual_element.data, jmes_nested, [])
+        expected_nested = search_json(expected_element.data, jmes_nested, [{}])
+        diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested, return_list=True)
+        if diff_nested:
+            actual_data = cast(JsonDict, actual_element.data)
+            expected_data = cast(JsonDict, expected_element.data)
+            # TODO: set value deep down the tree (try dpath-python). parent_key = 'regions[].cities[].people'
+            expected_data[parent_key] = diff_nested
+
+            new_nested_block = actual_data.copy()
+            for nested_index, obj in enumerate(actual_data[parent_key]):
+                if obj == actual_nested[0]:
+                    new_nested_block[parent_key][nested_index] = diff_nested[0]
+                    break
+        return new_nested_block
 
 
 class BaseDoc(metaclass=abc.ABCMeta):
@@ -359,48 +458,6 @@ class BaseDoc(metaclass=abc.ABCMeta):
             self.load()
         return self._reformatted or ""
 
-    def compare_with_flatten(self, expected: JsonDict = None, unique_keys: JsonDict = None) -> Comparison:
-        """Compare two flattened dictionaries and compute missing and different items."""
-        comparison = Comparison(self.as_object or {}, expected or {}, self.__class__)
-        if comparison.flat_expected.items() <= comparison.flat_actual.items():
-            return comparison
-
-        # TODO: this can be a field in a Pydantic model called SpecialConfig.search_unique_key
-        #  the method should receive SpecialConfig instead of unique_keys
-        unique_keys = unique_keys or {}
-
-        diff: JsonDict = {}
-        missing: JsonDict = {}
-        replace: JsonDict = {}
-        for key, expected_value in comparison.flat_expected.items():
-            if key not in comparison.flat_actual:
-                missing[key] = expected_value
-                continue
-
-            actual = comparison.flat_actual[key]
-            if isinstance(expected_value, list):
-                try:
-                    nested_key, parent_key = unique_keys.get(key, ("", ""))
-                except ValueError:
-                    nested_key = ""
-                    parent_key = ""
-                if nested_key:
-                    new_elements, whole_list = search_element_by_unique_key(
-                        actual, expected_value, nested_key, parent_key
-                    )
-                    if new_elements:
-                        set_key_if_not_empty(missing, key, new_elements)
-                        set_key_if_not_empty(replace, key, whole_list)
-                else:
-                    set_key_if_not_empty(diff, key, compare_lists_with_dictdiffer(actual, expected_value))
-            elif expected_value != actual:
-                set_key_if_not_empty(diff, key, expected_value)
-
-        comparison.missing_dict = DictBlender(separator=DOT, flatten_on_add=False).add(missing).mix()
-        comparison.diff_dict = DictBlender(separator=DOT, flatten_on_add=False).add(diff).mix()
-        comparison.replace_dict = DictBlender(separator=DOT, flatten_on_add=False).add(replace).mix()
-        return comparison
-
 
 class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]
     """A hacky decoder to work around some bug (or unfinished work) in the Python TOML package.
@@ -439,7 +496,7 @@ class TomlDoc(BaseDoc):
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
             if self.use_tomlkit:
-                self._object = OrderedDict(tomlkit.loads(self._string))
+                self._object = tomlkit.loads(self._string)
             else:
                 self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
@@ -508,13 +565,43 @@ class YamlDoc(BaseDoc):
         return True
 
 
-for dict_class in (SortedDict, OrderedDict):
+# Classes and their representation on ruamel.yaml
+for dict_class in (SortedDict, OrderedDict, items.Table, items.InlineTable):
     RoundTripRepresenter.add_representer(dict_class, RoundTripRepresenter.represent_dict)
+RoundTripRepresenter.add_representer(items.String, RoundTripRepresenter.represent_str)
+for list_class in (items.Array, items.AoT):
+    RoundTripRepresenter.add_representer(list_class, RoundTripRepresenter.represent_list)
+RoundTripRepresenter.add_representer(items.Integer, RoundTripRepresenter.represent_int)
 
 
 def is_scalar(value: YamlValue) -> bool:
     """Return True if the value is NOT a dict or a list."""
-    return not isinstance(value, LIST_CLASSES + DICT_CLASSES)
+    return not isinstance(value, (list, dict))
+
+
+def replace_or_add_list_element(yaml_obj: YamlObject, element: Any, key: str, index: int) -> None:
+    """Replace or add a new element in a YAML sequence of mappings."""
+    current = yaml_obj
+    if key in yaml_obj:
+        current = yaml_obj[key]
+
+    insert: bool = index >= len(current)
+    if insert:
+        current.append(element)
+        return
+
+    if is_scalar(current[index]) or is_scalar(element):
+        # If the original object is scalar, replace it with whatever element;
+        # without traversing, even if it's a dict
+        current[index] = element
+        return
+    if isinstance(element, dict):
+        traverse_yaml_tree(current[index], element)
+        return
+
+    # At this point, value is probably a list. Set the whole list in YAML.
+    current[index] = element
+    return
 
 
 def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict]):
@@ -529,32 +616,13 @@ def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict
                 yaml_obj.insert(last_pos, key, value)
             continue
 
-        if is_scalar(value):
-            yaml_obj[key] = value
-        elif isinstance(value, DICT_CLASSES):
+        if isinstance(value, dict):
             traverse_yaml_tree(yaml_obj[key], value)
         elif isinstance(value, list):
-            _traverse_yaml_list(yaml_obj, key, value)
-
-
-def _traverse_yaml_list(yaml_obj: YamlObject, key: str, value: List[YamlValue]):
-    for index, element in enumerate(value):
-        insert: bool = index >= len(yaml_obj[key])
-
-        if not insert and is_scalar(yaml_obj[key][index]):
-            # If the original object is scalar, replace it with whatever element;
-            # without traversing, even if it's a dict
-            yaml_obj[key][index] = element
-            continue
-
-        if insert:
-            yaml_obj[key].append(element)
-            continue
-
-        if is_scalar(element):
-            yaml_obj[key][index] = element
+            for index, element in enumerate(value):
+                replace_or_add_list_element(yaml_obj, element, key, index)
         else:
-            traverse_yaml_tree(yaml_obj[key][index], element)  # type: ignore # mypy kept complaining about the Union
+            yaml_obj[key] = value
 
 
 class JsonDoc(BaseDoc):

@@ -1,7 +1,6 @@
 """YAML tests."""
 import warnings
 
-from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.plugins.yaml import YamlPlugin
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
@@ -30,8 +29,18 @@ def test_missing_different_values(tmp_path, datadir):
         Fuss(
             True,
             filename,
-            YamlPlugin.violation_base_code + SharedViolations.DIFFERENT_VALUES.code,
+            369,
             " has different values. Use this:",
+            """
+            python:
+              version: '3.9'
+            """,
+        ),
+        Fuss(
+            True,
+            filename,
+            368,
+            " has missing values:",
             """
             mixed:
               - lets:
@@ -47,15 +56,6 @@ def test_missing_different_values(tmp_path, datadir):
                     - some
                     - nice
                     - package
-              version: '3.9'
-            """,
-        ),
-        Fuss(
-            True,
-            filename,
-            YamlPlugin.violation_base_code + SharedViolations.MISSING_VALUES.code,
-            " has missing values:",
-            """
             root_key:
               a_dict:
                 - c: '3.1'
@@ -96,156 +96,60 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
         )
 
 
-def test_unique_key_pre_commit_repo_should_be_added_not_replaced(tmp_path, datadir):
-    """Test a pre-commit repo being added to the list and not replacing an existing repo in the same position."""
-    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
-        datadir / "uk-default.toml"
-    ).api_check_then_fix(
+def test_objects_are_compared_by_hash_on_list_of_dicts_and_new_ones_are_added(tmp_path, datadir):
+    """Test list of dicts: by default, objects are compared by hash and new ones are added."""
+    filename = "some/nice/config.yaml"
+    project = ProjectMock(tmp_path).save_file(filename, datadir / "multiple-lists.yaml")
+    project.style(datadir / "list-by-hash-desired.toml").api_check_then_fix(
         Fuss(
             True,
-            PRE_COMMIT_CONFIG_YAML,
-            YamlPlugin.violation_base_code + SharedViolations.MISSING_VALUES.code,
+            filename,
+            368,
             " has missing values:",
             """
-            repos:
-              - repo: https://github.com/myint/autoflake
-                hooks:
-                  - id: autoflake
-                    args:
-                      - --in-place
-                      - --remove-all-unused-imports
-                      - --remove-unused-variables
-                      - --remove-duplicate-keys
-                      - --ignore-init-module-imports
+            my:
+              list:
+                with:
+                  dicts:
+                    - age: 35
+                      name: Silly
             """,
         ),
-    ).assert_file_contents(
-        PRE_COMMIT_CONFIG_YAML, datadir / "uk-default-expected.yaml"
-    ).api_check().assert_violations()
+    ).assert_file_contents(filename, datadir / "list-by-hash-expected.yaml")
+    project.api_check().assert_violations()
 
 
-def test_unique_key_override_with_nothing(tmp_path, datadir):
-    """Test overriding the default unique key with nothing.
+def test_maximum_two_level_nesting_on_lists_using_jmes_expression_as_list_key_fails(tmp_path, datadir):
+    """Test a maximum of two-level nesting on lists. Using a JMES expression as a list key will fail.
 
-    The new element will be merged on top of the first list element.
-    TODO Shouldn't the whole list be replaced by one single element? If there is a use case, change this behaviour.
+    Keys must have a maximum of 2 level for now: parent and nested keys.
     """
-    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
-        datadir / "uk-empty.toml"
-    ).api_check_then_fix(
+    filename = "an/arbitrary/file.yaml"
+    project = ProjectMock(tmp_path).save_file(filename, datadir / "multiple-lists.yaml")
+    project.style(datadir / "jmes-list-key-desired.toml").api_check_then_fix(
         Fuss(
             True,
-            PRE_COMMIT_CONFIG_YAML,
-            369,
-            " has different values. Use this:",
+            filename,
+            368,
+            " has missing values:",
             """
-            repos:
-              - repo: https://github.com/myint/autoflake
-                hooks:
-                  - id: autoflake
-                    args:
-                      - --in-place
-                      - --remove-all-unused-imports
-                      - --remove-unused-variables
-                      - --remove-duplicate-keys
-                      - --ignore-init-module-imports
+            my:
+              list:
+                with:
+                  dicts:
+                    - name: Will
+                      age: 50
+            root:
+              - country: ENG
+                regions:
+                  - region: West Midlands
+                    cities:
+                      - city: Birmingham
+                        people:
+                          - name: Ann
+                            age: 27
+                            from: Liverpool
             """,
         ),
-    ).assert_file_contents(
-        PRE_COMMIT_CONFIG_YAML, datadir / "uk-empty-expected.yaml"
-    ).api_check().assert_violations()
-
-
-def test_unique_key_override_with_other_field(tmp_path, datadir):
-    """Test overriding the default unique key with some other field."""
-    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
-        datadir / "uk-override.toml"
-    ).api_check_then_fix(
-        # TODO: the "repo" key already exists with the same value; for now, no change will be made to the file
-        # Fuss(
-        #     True,
-        #     PRE_COMMIT_CONFIG_YAML,
-        #     368,
-        #     " has missing values:",
-        #     """
-        #     repos:
-        #       - repo: https://github.com/psf/black
-        #         hooks:
-        #           - id: autoflake
-        #             args:
-        #               - --wrong-id-for-the-black-repo
-        #               - --wont-be-validated-by-nitpick
-        #     """,
-        # )
-    ).assert_file_contents(
-        PRE_COMMIT_CONFIG_YAML, datadir / "uk-override-expected.yaml"
-    ).api_check().assert_violations()
-
-
-def test_pre_commit_with_multiple_repos_should_not_change_if_repos_exist(tmp_path, datadir):
-    """A real pre-commit config with multiple repos should not be changed if all the expected repos are there.."""
-    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml").style(
-        datadir / "real.toml"
-    ).api_check_then_fix(partial_names=[PRE_COMMIT_CONFIG_YAML]).assert_file_contents(
-        PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml"
-    ).api_check(
-        PRE_COMMIT_CONFIG_YAML
-    ).assert_violations()
-
-
-def test_nested_dict_with_missing_key_value_pairs(tmp_path, datadir):
-    """Test a nested dict with missing key/value pairs."""
-    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "hook-args.yaml").style(
-        datadir / "hook-args-add.toml"
-    ).api_check_then_fix(
-        Fuss(
-            True,
-            PRE_COMMIT_CONFIG_YAML,
-            368,
-            " has missing values:",
-            """
-            repos:
-              - repo: https://github.com/pre-commit/pygrep-hooks
-                hooks:
-                  - id: python-no-eval
-                    args:
-                      - --first
-                      - --second
-                    another: value
-                    last: key
-            """,
-        )
-    ).assert_file_contents(
-        PRE_COMMIT_CONFIG_YAML, datadir / "hook-args-add.yaml"
-    ).api_check().assert_violations()
-
-
-def test_nested_dict_with_different_key_value_pairs(tmp_path, datadir):
-    """Test a nested dict with different key/value pairs, e.g.: different args or dependencies."""
-    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "hook-args.yaml").style(
-        datadir / "hook-args-change.toml"
-    ).api_check_then_fix(
-        Fuss(
-            True,
-            PRE_COMMIT_CONFIG_YAML,
-            368,
-            " has missing values:",
-            """
-            repos:
-              - repo: https://github.com/psf/black
-                hooks:
-                  - id: black
-                    args:
-                      - --safe
-                      - --custom
-                      - --loud
-              - repo: https://github.com/asottile/blacken-docs
-                hooks:
-                  - id: blacken-docs
-                    additional_dependencies:
-                      - black==22.1
-            """,
-        )
-    ).assert_file_contents(
-        PRE_COMMIT_CONFIG_YAML, datadir / "hook-args-change.yaml"
-    ).api_check().assert_violations()
+    ).assert_file_contents(filename, datadir / "jmes-list-key-expected.yaml")
+    project.api_check().assert_violations()

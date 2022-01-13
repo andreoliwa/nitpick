@@ -400,6 +400,7 @@ Contents of `resources/python/github-workflow.toml <https://github.com/andreoliw
     PYTHONUNBUFFERED = 1
 
     [[".github/workflows/python.yaml".jobs.build.steps]]
+    name = "Checkout"
     uses = "actions/checkout@v2"
 
     [[".github/workflows/python.yaml".jobs.build.steps]]
@@ -569,6 +570,9 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
     [".pylintrc".MASTER]
     # Use multiple processes to speed up Pylint.
     jobs = 1
+
+    # https://github.com/samuelcolvin/pydantic/issues/1961#issuecomment-759522422
+    extension-pkg-whitelist = "pydantic"
 
     [".pylintrc".REPORTS]
     # Set the output format. Available formats are text, parseable, colorized, msvs (visual studio) and html.

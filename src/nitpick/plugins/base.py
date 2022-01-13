@@ -1,16 +1,17 @@
 """Base class for file checkers."""
 import abc
+import fnmatch
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterator, Optional, Set, Type
 
-import jmespath
 from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.blender import BaseDoc, search_json
-from nitpick.constants import DUNDER_SEARCH_UNIQUE_KEY
+from nitpick.blender import SEPARATOR_DOT, BaseDoc, DictBlender, search_json
+from nitpick.config import SpecialConfig
+from nitpick.constants import DUNDER_LIST_KEYS
 from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
 from nitpick.violations import Fuss, Reporter, SharedViolations
@@ -55,25 +56,35 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         # Dirty flag to avoid changing files without need
         self.dirty: bool = False
 
-        # The user can override the default unique keys (if any) by setting them on the style file.
-        self.unique_keys: JsonDict = self.unique_keys_default.copy()
-        self.unique_keys.update(self.expected_config.pop(DUNDER_SEARCH_UNIQUE_KEY, None) or {})
+        self._merge_special_configs()
+
+    def _merge_special_configs(self):
+        """Merge the predefined plugin config with the style dict to create the special config."""
+        spc = self.predefined_special_config()
+        temp_dict = spc.list_keys.from_plugin.copy()  # pylint: disable=no-member
+
+        # The user can override the default list keys (if any) by setting them on the style file.
+        # pylint: disable=assigning-non-slot,no-member
+        spc.list_keys.from_style = self.expected_config.pop(DUNDER_LIST_KEYS, None) or {}
+        temp_dict.update(DictBlender(spc.list_keys.from_style, separator=SEPARATOR_DOT).flat_dict)
+
+        flat_config = DictBlender(self.expected_config, separator=SEPARATOR_DOT).flat_dict
+
+        for key_with_pattern, parent_child_keys in temp_dict.items():
+            for expanded_key in fnmatch.filter(flat_config.keys(), key_with_pattern):
+                spc.list_keys.value[expanded_key] = parent_child_keys
+
+        self.special_config = spc
+
+    def predefined_special_config(self) -> SpecialConfig:  # pylint: disable=no-self-use
+        """Create a predefined special configuration for this plugin. Each plugin can override this method."""
+        return SpecialConfig()
 
     @mypy_property
     @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
         return search_json(self.info.project.nitpick_section, f'files."{self.filename}"', {})
-
-    @property
-    def unique_keys_default(self) -> JsonDict:
-        """Default unique keys that might be set by a plugin."""
-        return {}
-
-    @classmethod
-    def get_compiled_jmespath_filenames(cls):
-        """Return a compiled JMESPath expression for file names, using the class name as part of the key."""
-        return jmespath.compile(f"nitpick.{cls.__name__}.filenames")
 
     def entry_point(self) -> Iterator[Fuss]:
         """Entry point of the Nitpick plugin."""

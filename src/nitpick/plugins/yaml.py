@@ -2,7 +2,8 @@
 from itertools import chain
 from typing import Iterator, Optional, Type, cast
 
-from nitpick.blender import BaseDoc, YamlDoc, traverse_yaml_tree
+from nitpick.blender import Comparison, YamlDoc, traverse_yaml_tree
+from nitpick.config import SpecialConfig
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.exceptions import Deprecation
 from nitpick.plugins import hookimpl
@@ -46,12 +47,15 @@ class YamlPlugin(NitpickPlugin):
     violation_base_code = 360
     fixable = True
 
-    @property
-    def unique_keys_default(self) -> JsonDict:
-        """Default unique keys for .pre-commit-config.yaml."""
+    def predefined_special_config(self) -> SpecialConfig:
+        """Predefined special config, with list keys for .pre-commit-config.yaml and GitHub Workflow files."""
+        spc = SpecialConfig()
+        # pylint: disable=assigning-non-slot
         if self.filename == PRE_COMMIT_CONFIG_YAML:
-            return {"repos": ["id", "hooks"]}
-        return super().unique_keys_default
+            spc.list_keys.from_plugin = {"repos": "hooks.id"}
+        elif self.filename.startswith(".github/workflows"):
+            spc.list_keys.from_plugin = {"jobs.*.steps": "name"}
+        return spc
 
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing data in the YAML file."""
@@ -61,13 +65,18 @@ class YamlPlugin(NitpickPlugin):
             return
 
         yaml_doc = YamlDoc(path=self.file_path)
-        comparison = yaml_doc.compare_with_flatten(self._remove_yaml_subkey(self.expected_config), self.unique_keys)
+        comparison = Comparison(yaml_doc, self._remove_yaml_subkey(self.expected_config), self.special_config)()
         if not comparison.has_changes:
             return
 
         yield from chain(
-            self.report(SharedViolations.DIFFERENT_VALUES, yaml_doc.as_object, comparison.diff),
-            self.report(SharedViolations.MISSING_VALUES, yaml_doc.as_object, comparison.missing, comparison.replace),
+            self.report(SharedViolations.DIFFERENT_VALUES, yaml_doc.as_object, cast(YamlDoc, comparison.diff)),
+            self.report(
+                SharedViolations.MISSING_VALUES,
+                yaml_doc.as_object,
+                cast(YamlDoc, comparison.missing),
+                cast(YamlDoc, comparison.replace),
+            ),
         )
         if self.autofix and self.dirty:
             yaml_doc.updater.dump(yaml_doc.as_object, self.file_path)
@@ -98,18 +107,18 @@ class YamlPlugin(NitpickPlugin):
         self,
         violation: ViolationEnum,
         yaml_object: YamlObject,
-        change: Optional[BaseDoc],
-        replacement: Optional[BaseDoc] = None,
+        change: Optional[YamlDoc],
+        replacement: Optional[YamlDoc] = None,
     ):
         """Report a violation while optionally modifying the YAML document."""
         if not (change or replacement):
             return
         if self.autofix:
-            real_change = cast(BaseDoc, replacement or change)
+            real_change = cast(YamlDoc, replacement or change)
             traverse_yaml_tree(yaml_object, real_change.as_object)
             self.dirty = True
 
-        to_display = cast(BaseDoc, change or replacement)
+        to_display = cast(YamlDoc, change or replacement)
         yield self.reporter.make_fuss(violation, to_display.reformatted.strip(), prefix="", fixed=self.autofix)
 
     @property

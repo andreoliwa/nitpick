@@ -21,7 +21,8 @@ jobs:
     env:
       PYTHONUNBUFFERED: 1
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:

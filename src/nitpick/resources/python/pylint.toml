@@ -20,6 +20,9 @@ types = ["python"]
 # Use multiple processes to speed up Pylint.
 jobs = 1
 
+# https://github.com/samuelcolvin/pydantic/issues/1961#issuecomment-759522422
+extension-pkg-whitelist = "pydantic"
+
 [".pylintrc".REPORTS]
 # Set the output format. Available formats are text, parseable, colorized, msvs (visual studio) and html.
 # You can also give a reporter class, eg mypackage.mymodule.MyReporterClass.

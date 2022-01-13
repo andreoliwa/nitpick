@@ -57,8 +57,8 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
         Fuss(
             True,
             PACKAGE_JSON,
-            SharedViolations.DIFFERENT_VALUES.code + JsonPlugin.violation_base_code,
-            " has different values. Use this:",
+            348,
+            " has missing values:",
             """
             {
               "commitlint": {
