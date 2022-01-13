@@ -24,11 +24,8 @@ from nitpick.constants import (
     CONFIG_FILES,
     DOT,
     EDITOR_CONFIG,
-    PACKAGE_JSON,
-    PRE_COMMIT_CONFIG_YAML,
     PROJECT_OWNER,
     PYLINTRC,
-    PYPROJECT_TOML,
     READ_THE_DOCS_URL,
     SETUP_CFG,
 )
@@ -164,15 +161,11 @@ class FileType:
 IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any INI file", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
     FileType("Any JSON file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, True),
-    FileType("Any text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
+    FileType("Any plain text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType("Any YAML file", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True),
     FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
-    FileType(PRE_COMMIT_CONFIG_YAML, f"{READ_THE_DOCS_URL}plugins.html#pre-commit-config-yaml", True, True),
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
-    FileType(PACKAGE_JSON, f"{READ_THE_DOCS_URL}examples.html#example-package-json", True, True),
-    FileType(PYPROJECT_TOML, f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
-    FileType("requirements.txt", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType(SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
 }
 PLANNED_FILE_TYPES: Set[FileType] = {
@@ -180,7 +173,6 @@ PLANNED_FILE_TYPES: Set[FileType] = {
     FileType("Any Terraform file", "", 318, 0),
     FileType(".dockerignore", "", 8, 8),
     FileType(".gitignore", "", 8, 8),
-    FileType(".travis.yml", "", 15, 15),
     FileType("Dockerfile", "", 272, 272),
     FileType("Jenkinsfile", "", 278, 0),
     FileType("Makefile", "", 277, 0),

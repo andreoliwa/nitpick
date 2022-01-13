@@ -33,11 +33,10 @@ def test_repo_should_be_added_not_replaced(tmp_path, datadir):
     ).api_check().assert_violations()
 
 
-def test_clear_unique_key(tmp_path, datadir):
-    """Test overriding the default unique key with nothing.
+def test_overriding_list_key_with_empty_string_restores_default_behaviour(tmp_path, datadir):
+    """Test overriding the default list key with nothing.
 
-    The new element will be merged on top of the first list element.
-    TODO Shouldn't the whole list be replaced by one single element? If there is a use case, change this behaviour.
+    The default behaviour will be restored, and the new element will be appended at the end of the list.
     """
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
         datadir / "uk-empty.toml"
@@ -45,8 +44,8 @@ def test_clear_unique_key(tmp_path, datadir):
         Fuss(
             True,
             PRE_COMMIT_CONFIG_YAML,
-            369,
-            " has different values. Use this:",
+            368,
+            " has missing values:",
             """
             repos:
               - repo: https://github.com/myint/autoflake
@@ -70,22 +69,22 @@ def test_use_another_attribute_as_unique_key(tmp_path, datadir):
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
         datadir / "uk-override.toml"
     ).api_check_then_fix(
-        # TODO: the "repo" key already exists with the same value; for now, no change will be made to the file
-        # Fuss(
-        #     True,
-        #     PRE_COMMIT_CONFIG_YAML,
-        #     368,
-        #     " has missing values:",
-        #     """
-        #     repos:
-        #       - repo: https://github.com/psf/black
-        #         hooks:
-        #           - id: autoflake
-        #             args:
-        #               - --wrong-id-for-the-black-repo
-        #               - --wont-be-validated-by-nitpick
-        #     """,
-        # )
+        Fuss(
+            True,
+            PRE_COMMIT_CONFIG_YAML,
+            368,
+            " has missing values:",
+            """
+            repos:
+              - repo: https://github.com/psf/black
+                rev: 21.12b0
+                hooks:
+                  - id: autoflake
+                    args:
+                      - --wrong-id-for-the-black-repo
+                      - --wont-be-validated-by-nitpick
+            """,
+        )
     ).assert_file_contents(
         PRE_COMMIT_CONFIG_YAML, datadir / "uk-override-expected.yaml"
     ).api_check().assert_violations()

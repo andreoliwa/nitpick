@@ -1,0 +1,10 @@
+jobs:
+  build:
+    steps:
+      - name: Before checkout
+      - name: Checkout
+        uses: some-wrong-action/checkout@v2
+      - name: Right after checkout
+        run: echo yeah yeah yeah
+      - name: Another step after checkout
+        run: echo die die die

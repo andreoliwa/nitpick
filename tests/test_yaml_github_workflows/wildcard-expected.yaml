@@ -1,0 +1,19 @@
+jobs:
+  build:
+    steps:
+      - name: Before checkout
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: This should be the last step
+  test:
+    steps:
+      - name: Wrong checkout as well
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: This should be the last step
+  release:
+    steps:
+      - name: Wrong checkout once again
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: This should be the last step

@@ -1,0 +1,33 @@
+jobs:
+  release:
+    steps:
+      - name: C
+        uses: C
+      - name: D
+        uses: D
+      - name: New release published
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          echo ${{ steps.semantic.outputs.new_release_version }}
+          echo ${{ steps.semantic.outputs.new_release_major_version }}
+          echo ${{ steps.semantic.outputs.new_release_minor_version }}
+          echo ${{ steps.semantic.outputs.new_release_patch_version }}
+          echo ${{ steps.semantic.outputs.new_release_channel }}
+          echo ${{ steps.semantic.outputs.new_release_notes }}
+      - name: A
+        uses: A
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v2
+        with:
+          semantic_version: 17.3.9
+          extra_plugins: |
+            @semantic-release/changelog@5.0.1
+            @semantic-release/git@9.0.0
+            @semantic-release/exec@5.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          TWINE_TEST_PASSWORD: ${{ secrets.TWINE_TEST_PASSWORD }}
+      - name: B
+        uses: B

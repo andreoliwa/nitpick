@@ -1,0 +1,12 @@
+jobs:
+  whatever:
+    steps:
+      - name: Some step
+      - name: Same key
+        uses: actions/first-element-will-be-replaced@v2
+      - name: Another step
+      - name: Next step has the same key as another one above
+      - name: Same key
+        uses: actions/duplicated-element-will-be-kept@v2
+      - name: Step after the duplicated one
+      - name: And the final step

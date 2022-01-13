@@ -68,7 +68,7 @@ marshmallow-polyfield = "^5.10"
 identify = "*"
 "more-itertools" = "*"
 pluggy = "*"
-pydantic = "*"
+dataclasses = { version = "*", python = ">=3.6, <3.7" }  # TODO: use attrs instead
 autorepr = "*"
 loguru = "*"
 ConfigUpdater = "*"
