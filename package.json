@@ -18,7 +18,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "./ci-prepare-cmd.sh ${nextRelease.version}",
+          "prepareCmd": "bash ./ci-prepare-cmd.sh ${nextRelease.version}",
           "publishCmd": "twine upload --verbose --disable-progress-bar --skip-existing dist/*"
         }
       ],
