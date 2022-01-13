@@ -1,20 +1,34 @@
-[[".github/workflows/python.yaml".jobs.release.steps]]
+[[".github/workflows/any-order.yaml".jobs.release.steps]]
+name = "D"
+uses = "D"
+
+[[".github/workflows/any-order.yaml".jobs.release.steps]]
+name = "B"
+uses = "B"
+
+[[".github/workflows/any-order.yaml".jobs.release.steps]]
 name = "Semantic Release"
 uses = "cycjimmy/semantic-release-action@v2"
 
-[".github/workflows/python.yaml".jobs.release.steps.env]
+[".github/workflows/any-order.yaml".jobs.release.steps.env]
 GITHUB_TOKEN = "${{ secrets.GITHUB_TOKEN }}"
 TWINE_PASSWORD = "${{ secrets.TWINE_PASSWORD }}"
 TWINE_TEST_PASSWORD = "${{ secrets.TWINE_TEST_PASSWORD }}"
 TWINE_USERNAME = "${{ secrets.TWINE_USERNAME }}"
 
-[".github/workflows/python.yaml".jobs.release.steps.with]
+[".github/workflows/any-order.yaml".jobs.release.steps.with]
 extra_plugins = "@semantic-release/changelog@5.0.1\n@semantic-release/git@9.0.0\n@semantic-release/exec@5.0.0\n"
 semantic_version = "17.3.9"
 
-[[".github/workflows/python.yaml".jobs.release.steps]]
+[[".github/workflows/any-order.yaml".jobs.release.steps]]
+name = "A"
+uses = "A"
+
+[[".github/workflows/any-order.yaml".jobs.release.steps]]
 if = "steps.semantic.outputs.new_release_published == 'true'"
 name = "New release published"
 run = "echo ${{ steps.semantic.outputs.new_release_version }}\necho ${{ steps.semantic.outputs.new_release_major_version }}\necho ${{ steps.semantic.outputs.new_release_minor_version }}\necho ${{ steps.semantic.outputs.new_release_patch_version }}\necho ${{ steps.semantic.outputs.new_release_channel }}\necho ${{ steps.semantic.outputs.new_release_notes }}\n"
 
-# FIXME: test steps are present in any order
+[[".github/workflows/any-order.yaml".jobs.release.steps]]
+name = "C"
+uses = "C"

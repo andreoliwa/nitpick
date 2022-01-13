@@ -102,3 +102,11 @@ def test_wildcard_expression_matches_multiple_keys(tmp_path, datadir):
 
 # FIXME: test more than one element with the same key. e.g.: 2 steps with the same name...
 #  what to do? update only the first? both?
+
+
+def test_steps_are_present_in_any_order(tmp_path, datadir):
+    """Test steps are present in any order."""
+    filename = ".github/workflows/any-order.yaml"
+    ProjectMock(tmp_path).save_file(filename, datadir / "any-order.yaml").style(
+        datadir / "any-order.toml"
+    ).api_check_then_fix().assert_file_contents(filename, datadir / "any-order.yaml").api_check().assert_violations()
