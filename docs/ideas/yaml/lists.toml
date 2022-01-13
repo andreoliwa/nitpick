@@ -1,6 +1,6 @@
 # List behaviours that are still not implemented in YAML (maybe they can be used in other formats too)
 
-# 1. List behaviour: Exact list (dict or scalar) __exact_list
+# 1. List behaviour: Exact list (dict or scalar) __exact
 # The whole list will be replaced exactly by what's defined in the style
 # Use the "__exact" suffix on the list name
 [[".pre-commit-config.yaml".repos]]
