@@ -94,6 +94,7 @@ pytest-datadir = { version = "*", optional = true }
 sphinx = { version = "*", optional = true }
 sphinx_rtd_theme = { version = "*", optional = true }
 sphobjinv = { version = "*", optional = true }
+flatten-dict = "*"
 
 [tool.poetry.extras]
 lint = ["pylint"]
