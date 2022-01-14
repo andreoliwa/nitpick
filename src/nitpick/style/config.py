@@ -14,7 +14,7 @@ from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema
 from nitpick.typedefs import JsonDict
 
 
-@dataclass(repr=True)
+@dataclass(repr=True)  # TODO: use attrs instead
 class ConfigValidator:
     """Validate a nitpick configuration."""
 

@@ -1,5 +1,4 @@
 [".readthedocs.yml".python]
 # ReadTheDocs still didn't upgrade to Python 3.9:
-# Problem in your project's configuration. Invalid "python.version":
-# expected one of (2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, pypy3.5), got 3.9
+# Problem in your project's configuration. Invalid "python.version"
 version = "3.8"

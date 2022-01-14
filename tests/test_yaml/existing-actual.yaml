@@ -1,6 +1,6 @@
 # Root comment
 python:
-  version: 3.6  # Python 3.6 EOL this month!
+  version: 3.7  # This comment should be kept
   install:
     - method: pip
       path: .

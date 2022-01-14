@@ -31,7 +31,7 @@ But they might still be present in the `entry_points.txt plugin metadata <https:
 .. code-block::
 
     $ rg nitpick.plugins.setup ~/Library/Caches/pypoetry/
-    /Users/john.doe/Library/Caches/pypoetry/virtualenvs/nitpick-UU_pZ5zs-py3.6/lib/python3.6/site-packages/nitpick-0.24.1.dist-info/entry_points.txt
+    /Users/john.doe/Library/Caches/pypoetry/virtualenvs/nitpick-UU_pZ5zs-py3.7/lib/python3.7/site-packages/nitpick-0.24.1.dist-info/entry_points.txt
     11:setup_cfg=nitpick.plugins.setup_cfg
 
 Remove and recreate the virtualenv; this should fix it.

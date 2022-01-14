@@ -7,7 +7,7 @@ fail-fast = false
 
 [".github/workflows/python.yaml".jobs.build.strategy.matrix]
 os = ["ubuntu-latest", "windows-latest", "macos-latest"]
-python-version = ["3.6", "3.7", "3.8", "3.9", "3.10"]
+python-version = ["3.7", "3.8", "3.9", "3.10"]
 
 [".github/workflows/python.yaml".jobs.build]
 name = "${{ matrix.python-version }} ${{ matrix.os }}"

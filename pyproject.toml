@@ -2,7 +2,7 @@
 # Use the default style and override some things (like the Python version)
 style = [
     "nitpick-style",
-    "py://nitpick/resources/python/36.toml",
+    "py://nitpick/resources/python/37.toml",
     "py://nitpick/resources/python/stable.toml"
 ]
 
@@ -47,7 +47,7 @@ toml = "nitpick.plugins.toml"
 yaml = "nitpick.plugins.yaml"
 
 [tool.poetry.dependencies]
-python = "^3.6.1"
+python = "^3.7"
 flake8 = ">=3.0.0"
 attrs = "*"
 tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
@@ -68,12 +68,11 @@ marshmallow-polyfield = "^5.10"
 identify = "*"
 "more-itertools" = "*"
 pluggy = "*"
-dataclasses = { version = "*", python = ">=3.6, <3.7" }  # TODO: use attrs instead
 autorepr = "*"
 loguru = "*"
 ConfigUpdater = "*"
 cachy = "*"
-importlib-resources = { version = "*", python = ">=3.6, <3.9" }
+importlib-resources = { version = "*", python = ">=3.7, <3.9" }
 
 # TODO: Move to dependency groups once the feature is on a stable version of Poetry
 #  https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups
