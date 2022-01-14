@@ -18,7 +18,7 @@ You can use these examples directly with their URL (see :ref:`multiple_styles`),
 codeclimate_
 ------------
 
-Contents of `resources/any/codeclimate.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/codeclimate.toml>`_:
+Contents of `resources/any/codeclimate.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/any/codeclimate.toml>`_:
 
 .. code-block:: toml
 
@@ -44,7 +44,7 @@ Contents of `resources/any/codeclimate.toml <https://github.com/andreoliwa/nitpi
 commitizen_
 -----------
 
-Contents of `resources/any/commitizen.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/commitizen.toml>`_:
+Contents of `resources/any/commitizen.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/any/commitizen.toml>`_:
 
 .. code-block:: toml
 
@@ -60,7 +60,7 @@ Contents of `resources/any/commitizen.toml <https://github.com/andreoliwa/nitpic
 commitlint_
 -----------
 
-Contents of `resources/any/commitlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/commitlint.toml>`_:
+Contents of `resources/any/commitlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/any/commitlint.toml>`_:
 
 .. code-block::
 
@@ -86,7 +86,7 @@ Contents of `resources/any/commitlint.toml <https://github.com/andreoliwa/nitpic
 EditorConfig_
 -------------
 
-Contents of `resources/any/editorconfig.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/editorconfig.toml>`_:
+Contents of `resources/any/editorconfig.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/any/editorconfig.toml>`_:
 
 .. code-block:: toml
 
@@ -129,7 +129,7 @@ Contents of `resources/any/editorconfig.toml <https://github.com/andreoliwa/nitp
 git-legal_
 ----------
 
-Contents of `resources/any/git-legal.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/git-legal.toml>`_:
+Contents of `resources/any/git-legal.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/any/git-legal.toml>`_:
 
 .. code-block:: toml
 
@@ -141,7 +141,7 @@ Contents of `resources/any/git-legal.toml <https://github.com/andreoliwa/nitpick
 pre-commit_ hooks for any language
 ----------------------------------
 
-Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/hooks.toml>`_:
+Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/any/hooks.toml>`_:
 
 .. code-block:: toml
 
@@ -165,7 +165,7 @@ Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blo
 markdownlint_
 -------------
 
-Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/markdownlint.toml>`_:
+Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/any/markdownlint.toml>`_:
 
 .. code-block:: toml
 
@@ -178,7 +178,7 @@ Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitp
 Prettier_
 ---------
 
-Contents of `resources/any/prettier.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/any/prettier.toml>`_:
+Contents of `resources/any/prettier.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/any/prettier.toml>`_:
 
 .. code-block:: toml
 
@@ -194,7 +194,7 @@ Contents of `resources/any/prettier.toml <https://github.com/andreoliwa/nitpick/
 package.json_
 -------------
 
-Contents of `resources/javascript/package-json.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/javascript/package-json.toml>`_:
+Contents of `resources/javascript/package-json.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/javascript/package-json.toml>`_:
 
 .. code-block:: toml
 
@@ -206,7 +206,7 @@ Contents of `resources/javascript/package-json.toml <https://github.com/andreoli
 Python 3.10
 -----------
 
-Contents of `resources/python/310.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/310.toml>`_:
+Contents of `resources/python/310.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/310.toml>`_:
 
 .. code-block:: toml
 
@@ -218,7 +218,7 @@ Contents of `resources/python/310.toml <https://github.com/andreoliwa/nitpick/bl
 Python 3.6
 ----------
 
-Contents of `resources/python/36.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/36.toml>`_:
+Contents of `resources/python/36.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/36.toml>`_:
 
 .. code-block:: toml
 
@@ -230,7 +230,7 @@ Contents of `resources/python/36.toml <https://github.com/andreoliwa/nitpick/blo
 Python 3.7
 ----------
 
-Contents of `resources/python/37.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/37.toml>`_:
+Contents of `resources/python/37.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/37.toml>`_:
 
 .. code-block:: toml
 
@@ -242,7 +242,7 @@ Contents of `resources/python/37.toml <https://github.com/andreoliwa/nitpick/blo
 Python 3.8
 ----------
 
-Contents of `resources/python/38.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/38.toml>`_:
+Contents of `resources/python/38.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/38.toml>`_:
 
 .. code-block:: toml
 
@@ -254,7 +254,7 @@ Contents of `resources/python/38.toml <https://github.com/andreoliwa/nitpick/blo
 Python 3.9
 ----------
 
-Contents of `resources/python/39.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/39.toml>`_:
+Contents of `resources/python/39.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/39.toml>`_:
 
 .. code-block:: toml
 
@@ -266,7 +266,7 @@ Contents of `resources/python/39.toml <https://github.com/andreoliwa/nitpick/blo
 Absent files
 ------------
 
-Contents of `resources/python/absent.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/absent.toml>`_:
+Contents of `resources/python/absent.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/absent.toml>`_:
 
 .. code-block:: toml
 
@@ -283,7 +283,7 @@ Contents of `resources/python/absent.toml <https://github.com/andreoliwa/nitpick
 autoflake_
 ----------
 
-Contents of `resources/python/autoflake.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/autoflake.toml>`_:
+Contents of `resources/python/autoflake.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/autoflake.toml>`_:
 
 .. code-block:: toml
 
@@ -299,7 +299,7 @@ Contents of `resources/python/autoflake.toml <https://github.com/andreoliwa/nitp
 bandit_
 -------
 
-Contents of `resources/python/bandit.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/bandit.toml>`_:
+Contents of `resources/python/bandit.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/bandit.toml>`_:
 
 .. code-block:: toml
 
@@ -320,7 +320,7 @@ Contents of `resources/python/bandit.toml <https://github.com/andreoliwa/nitpick
 black_
 ------
 
-Contents of `resources/python/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/black.toml>`_:
+Contents of `resources/python/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/black.toml>`_:
 
 .. code-block:: toml
 
@@ -346,7 +346,7 @@ Contents of `resources/python/black.toml <https://github.com/andreoliwa/nitpick/
 flake8_
 -------
 
-Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/flake8.toml>`_:
+Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/flake8.toml>`_:
 
 .. code-block:: toml
 
@@ -377,7 +377,7 @@ Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick
 GitHub Workflow (Python)
 ------------------------
 
-Contents of `resources/python/github-workflow.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/github-workflow.toml>`_:
+Contents of `resources/python/github-workflow.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/github-workflow.toml>`_:
 
 .. code-block:: toml
 
@@ -419,7 +419,7 @@ Contents of `resources/python/github-workflow.toml <https://github.com/andreoliw
 pre-commit_ hooks for Python
 ----------------------------
 
-Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/hooks.toml>`_:
+Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/hooks.toml>`_:
 
 .. code-block:: toml
 
@@ -458,7 +458,7 @@ Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/
 IPython_
 --------
 
-Contents of `resources/python/ipython.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/ipython.toml>`_:
+Contents of `resources/python/ipython.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/ipython.toml>`_:
 
 .. code-block:: toml
 
@@ -471,7 +471,7 @@ Contents of `resources/python/ipython.toml <https://github.com/andreoliwa/nitpic
 isort_
 ------
 
-Contents of `resources/python/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/isort.toml>`_:
+Contents of `resources/python/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/isort.toml>`_:
 
 .. code-block:: toml
 
@@ -499,7 +499,7 @@ Contents of `resources/python/isort.toml <https://github.com/andreoliwa/nitpick/
 mypy_
 -----
 
-Contents of `resources/python/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/mypy.toml>`_:
+Contents of `resources/python/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/mypy.toml>`_:
 
 .. code-block:: toml
 
@@ -533,7 +533,7 @@ Contents of `resources/python/mypy.toml <https://github.com/andreoliwa/nitpick/b
 Poetry_
 -------
 
-Contents of `resources/python/poetry.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/poetry.toml>`_:
+Contents of `resources/python/poetry.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/poetry.toml>`_:
 
 .. code-block:: toml
 
@@ -545,7 +545,7 @@ Contents of `resources/python/poetry.toml <https://github.com/andreoliwa/nitpick
 Pylint_
 -------
 
-Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/pylint.toml>`_:
+Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/pylint.toml>`_:
 
 .. code-block:: toml
 
@@ -627,7 +627,7 @@ Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick
 radon_
 ------
 
-Contents of `resources/python/radon.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/radon.toml>`_:
+Contents of `resources/python/radon.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/radon.toml>`_:
 
 .. code-block:: toml
 
@@ -642,7 +642,7 @@ Contents of `resources/python/radon.toml <https://github.com/andreoliwa/nitpick/
 ReadTheDocs_
 ------------
 
-Contents of `resources/python/readthedocs.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/readthedocs.toml>`_:
+Contents of `resources/python/readthedocs.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/readthedocs.toml>`_:
 
 .. code-block:: toml
 
@@ -664,7 +664,7 @@ Contents of `resources/python/readthedocs.toml <https://github.com/andreoliwa/ni
 sonar-python_
 -------------
 
-Contents of `resources/python/sonar-python.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/sonar-python.toml>`_:
+Contents of `resources/python/sonar-python.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/sonar-python.toml>`_:
 
 .. code-block:: toml
 
@@ -677,7 +677,7 @@ Contents of `resources/python/sonar-python.toml <https://github.com/andreoliwa/n
 Python (stable version)
 -----------------------
 
-Contents of `resources/python/stable.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/stable.toml>`_:
+Contents of `resources/python/stable.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/stable.toml>`_:
 
 .. code-block:: toml
 
@@ -692,7 +692,7 @@ Contents of `resources/python/stable.toml <https://github.com/andreoliwa/nitpick
 tox_
 ----
 
-Contents of `resources/python/tox.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/python/tox.toml>`_:
+Contents of `resources/python/tox.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/tox.toml>`_:
 
 .. code-block:: toml
 
@@ -730,7 +730,7 @@ Contents of `resources/python/tox.toml <https://github.com/andreoliwa/nitpick/bl
 bashate_
 --------
 
-Contents of `resources/shell/bashate.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/shell/bashate.toml>`_:
+Contents of `resources/shell/bashate.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/shell/bashate.toml>`_:
 
 .. code-block:: toml
 
@@ -748,7 +748,7 @@ Contents of `resources/shell/bashate.toml <https://github.com/andreoliwa/nitpick
 shellcheck_
 -----------
 
-Contents of `resources/shell/shellcheck.toml <https://github.com/andreoliwa/nitpick/blob/v0.29.0/resources/shell/shellcheck.toml>`_:
+Contents of `resources/shell/shellcheck.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/shell/shellcheck.toml>`_:
 
 .. code-block:: toml
 
