@@ -98,7 +98,7 @@ jobs:
         with:
           # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
           # https://github.com/semantic-release/semantic-release/releases
-          semantic_version: 17.3.9
+          semantic_version: 18.0.1
 
           # To debug, see these options:
           # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
@@ -109,9 +109,9 @@ jobs:
           # https://github.com/semantic-release/git/releases
           # https://github.com/semantic-release/exec/releases
           extra_plugins: |
-            @semantic-release/changelog@5.0.1
-            @semantic-release/git@9.0.0
-            @semantic-release/exec@5.0.0
+            @semantic-release/changelog@6.0.1
+            @semantic-release/git@10.0.1
+            @semantic-release/exec@6.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
