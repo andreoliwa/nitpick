@@ -1,20 +1,18 @@
 # [0.30.0](https://github.com/andreoliwa/nitpick/compare/v0.29.0...v0.30.0) (2022-01-14)
 
-
 ### Bug Fixes
 
-* style override on Windows ([#422](https://github.com/andreoliwa/nitpick/issues/422)) ([e7d2897](https://github.com/andreoliwa/nitpick/commit/e7d2897096df3ab868c97b68d915191b488e83bf))
-* use current dir; don't climb dirs to find the project root ([#421](https://github.com/andreoliwa/nitpick/issues/421)) ([3c82e8c](https://github.com/andreoliwa/nitpick/commit/3c82e8c4d019a5b25e1c0d9db1792f72cf800305))
-
+- style override on Windows ([#422](https://github.com/andreoliwa/nitpick/issues/422)) ([e7d2897](https://github.com/andreoliwa/nitpick/commit/e7d2897096df3ab868c97b68d915191b488e83bf))
+- use current dir; don't climb dirs to find the project root ([#421](https://github.com/andreoliwa/nitpick/issues/421)) ([3c82e8c](https://github.com/andreoliwa/nitpick/commit/3c82e8c4d019a5b25e1c0d9db1792f72cf800305))
 
 ### Features
 
-* default pre-commit hook now runs "nitpick fix" ([cb4c242](https://github.com/andreoliwa/nitpick/commit/cb4c242607c6810c629dc7f5604920c1b64a070e))
-* **json:** autofix JSON files ([#429](https://github.com/andreoliwa/nitpick/issues/429)) ([4b58a03](https://github.com/andreoliwa/nitpick/commit/4b58a0380f88b01c99945817e7ff9b595ea362aa))
-* nitpick init adds a [tool.nitpick] section ([36f4065](https://github.com/andreoliwa/nitpick/commit/36f4065483b1ec4308bc28b815c82aa0abac104c))
-* **yaml:** autofix .pre-commit-config.yaml (note: style changed!) ([#434](https://github.com/andreoliwa/nitpick/issues/434)) ([352b53d](https://github.com/andreoliwa/nitpick/commit/352b53d574e49ca683666fd40de3462d1396e575))
-* **yaml:** autofix GitHub Workflow files ([#437](https://github.com/andreoliwa/nitpick/issues/437)) ([6af77c4](https://github.com/andreoliwa/nitpick/commit/6af77c4293d8f964ccd249626d47c82440e6412f))
-* **yaml:** autofix YAML files ([#431](https://github.com/andreoliwa/nitpick/issues/431)) ([d8cc4b1](https://github.com/andreoliwa/nitpick/commit/d8cc4b1e80366d475c08316c54dc35393b4430dd))
+- default pre-commit hook now runs "nitpick fix" ([cb4c242](https://github.com/andreoliwa/nitpick/commit/cb4c242607c6810c629dc7f5604920c1b64a070e))
+- **json:** autofix JSON files ([#429](https://github.com/andreoliwa/nitpick/issues/429)) ([4b58a03](https://github.com/andreoliwa/nitpick/commit/4b58a0380f88b01c99945817e7ff9b595ea362aa))
+- nitpick init adds a [tool.nitpick] section ([36f4065](https://github.com/andreoliwa/nitpick/commit/36f4065483b1ec4308bc28b815c82aa0abac104c))
+- **yaml:** autofix .pre-commit-config.yaml (note: style changed!) ([#434](https://github.com/andreoliwa/nitpick/issues/434)) ([352b53d](https://github.com/andreoliwa/nitpick/commit/352b53d574e49ca683666fd40de3462d1396e575))
+- **yaml:** autofix GitHub Workflow files ([#437](https://github.com/andreoliwa/nitpick/issues/437)) ([6af77c4](https://github.com/andreoliwa/nitpick/commit/6af77c4293d8f964ccd249626d47c82440e6412f))
+- **yaml:** autofix YAML files ([#431](https://github.com/andreoliwa/nitpick/issues/431)) ([d8cc4b1](https://github.com/andreoliwa/nitpick/commit/d8cc4b1e80366d475c08316c54dc35393b4430dd))
 
 # [0.29.0](https://github.com/andreoliwa/nitpick/compare/v0.28.0...v0.29.0) (2021-11-08)
 

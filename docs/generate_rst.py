@@ -20,15 +20,7 @@ from slugify import slugify
 from sortedcontainers import SortedDict
 
 from nitpick import PROJECT_NAME, __version__
-from nitpick.constants import (
-    CONFIG_FILES,
-    DOT,
-    EDITOR_CONFIG,
-    PROJECT_OWNER,
-    PYLINTRC,
-    READ_THE_DOCS_URL,
-    SETUP_CFG,
-)
+from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PROJECT_OWNER, PYLINTRC, READ_THE_DOCS_URL, SETUP_CFG
 from nitpick.core import Nitpick
 from nitpick.style.fetchers.github import GitHubURL
 
@@ -60,7 +52,6 @@ STYLE_MAPPING = SortedDict(
         "any/commitlint.toml": "commitlint_",
         "python/hooks.toml": "pre-commit_ hooks for Python",
         "python/pylint.toml": "Pylint_",
-        "python/36.toml": "Python 3.6",
         "python/37.toml": "Python 3.7",
         "python/38.toml": "Python 3.8",
         "python/39.toml": "Python 3.9",

@@ -213,18 +213,6 @@ Contents of `resources/python/310.toml <https://github.com/andreoliwa/nitpick/bl
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.10"
 
-.. _example-python-3-6:
-
-Python 3.6
-----------
-
-Contents of `resources/python/36.toml <https://github.com/andreoliwa/nitpick/blob/v0.30.0/resources/python/36.toml>`_:
-
-.. code-block:: toml
-
-    ["pyproject.toml".tool.poetry.dependencies]
-    python = "^3.6.1"
-
 .. _example-python-3-7:
 
 Python 3.7
@@ -390,7 +378,7 @@ Contents of `resources/python/github-workflow.toml <https://github.com/andreoliw
 
     [".github/workflows/python.yaml".jobs.build.strategy.matrix]
     os = ["ubuntu-latest", "windows-latest", "macos-latest"]
-    python-version = ["3.6", "3.7", "3.8", "3.9", "3.10"]
+    python-version = ["3.7", "3.8", "3.9", "3.10"]
 
     [".github/workflows/python.yaml".jobs.build]
     name = "${{ matrix.python-version }} ${{ matrix.os }}"
@@ -452,6 +440,7 @@ Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/
 
     [[".pre-commit-config.yaml".repos.hooks]]
     id = "pyupgrade"
+    args = ["--py37-plus"]
 
 .. _example-ipython:
 
@@ -683,8 +672,7 @@ Contents of `resources/python/stable.toml <https://github.com/andreoliwa/nitpick
 
     [".readthedocs.yml".python]
     # ReadTheDocs still didn't upgrade to Python 3.9:
-    # Problem in your project's configuration. Invalid "python.version":
-    # expected one of (2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, pypy3.5), got 3.9
+    # Problem in your project's configuration. Invalid "python.version"
     version = "3.8"
 
 .. _example-tox:
