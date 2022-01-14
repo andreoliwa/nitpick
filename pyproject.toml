@@ -106,5 +106,6 @@ ipdb = "*"
 icecream = "*"
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+# https://github.com/python-poetry/poetry/issues/1993
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
