@@ -86,7 +86,9 @@ responses = { version = "*", optional = true }
 freezegun = { version = "*", optional = true }
 pytest-testmon = { version = "*", optional = true }
 pytest-watch = { version = "*", optional = true }
-pytest-socket = { version = "*", optional = true }
+# TODO: 0.5.0 fails with AttributeError: 'DoctestItem' object has no attribute 'fixturenames'
+#  See https://github.com/miketheman/pytest-socket/issues/105
+pytest-socket = { version = "<0.5.0", optional = true }
 pytest-datadir = { version = "*", optional = true }
 # Group: doc
 sphinx = { version = "*", optional = true }
