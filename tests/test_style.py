@@ -474,6 +474,8 @@ def test_fetch_private_github_urls(tmp_path):
         responses.GET,
         full_raw_url,
         dedent(body),
+        # TODO: fix DeprecationWarning: Argument 'match_querystring' is deprecated.
+        #  Use 'responses.matchers.query_param_matcher' or 'responses.matchers.query_string_matcher'
         match_querystring=False,
         status=200,
     )
