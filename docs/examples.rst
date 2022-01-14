@@ -440,6 +440,7 @@ Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/
 
     [[".pre-commit-config.yaml".repos.hooks]]
     id = "pyupgrade"
+    args = ["--py37-plus"]
 
 .. _example-ipython:
 

@@ -39,6 +39,7 @@ repos:
     rev: v2.31.0
     hooks:
       - id: pyupgrade
+        args: [--py37-plus]
   - repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:
@@ -102,10 +103,8 @@ repos:
     rev: v0.931
     hooks:
       - id: mypy
-        args: [
-            # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
-            --show-error-codes,
-          ]
+        # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
+        args: [--show-error-codes]
         # Install additional types to fix new warnings that appeared on v0.910:
         # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
         # "using --install-types is problematic"
