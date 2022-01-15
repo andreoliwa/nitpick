@@ -9,7 +9,7 @@ from autorepr import autotext
 from loguru import logger
 from marshmallow import Schema
 
-from nitpick.blender import SEPARATOR_DOT, BaseDoc, DictBlender, search_json
+from nitpick.blender import BaseDoc, flatten_quotes, search_json
 from nitpick.config import SpecialConfig
 from nitpick.constants import DUNDER_LIST_KEYS
 from nitpick.plugins.info import FileInfo
@@ -66,9 +66,9 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         # The user can override the default list keys (if any) by setting them on the style file.
         # pylint: disable=assigning-non-slot,no-member
         spc.list_keys.from_style = self.expected_config.pop(DUNDER_LIST_KEYS, None) or {}
-        temp_dict.update(DictBlender(spc.list_keys.from_style, separator=SEPARATOR_DOT).flat_dict)
+        temp_dict.update(flatten_quotes(spc.list_keys.from_style))
 
-        flat_config = DictBlender(self.expected_config, separator=SEPARATOR_DOT).flat_dict
+        flat_config = flatten_quotes(self.expected_config)
 
         for key_with_pattern, parent_child_keys in temp_dict.items():
             for expanded_key in fnmatch.filter(flat_config.keys(), key_with_pattern):

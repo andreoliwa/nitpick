@@ -25,7 +25,7 @@ def test_suggest_initial_contents(tmp_path, datadir):
         )
     ).assert_file_contents(
         PACKAGE_JSON, expected_package_json
-    )
+    ).api_check_then_fix()
 
 
 def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path, datadir):
@@ -71,7 +71,7 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
         ),
     ).assert_file_contents(
         PACKAGE_JSON, expected_package_json
-    )
+    ).api_check_then_fix()
 
 
 def test_missing_different_values_with_contains_json_without_contains_keys(tmp_path, datadir):
@@ -125,7 +125,7 @@ def test_missing_different_values_with_contains_json_without_contains_keys(tmp_p
         ),
     ).assert_file_contents(
         "my.json", datadir / "3-expected.json"
-    )
+    ).api_check_then_fix()
 
 
 def test_invalid_json(tmp_path, datadir):

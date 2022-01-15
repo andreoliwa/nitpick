@@ -7,7 +7,8 @@
 import abc
 import json
 import re
-from collections import OrderedDict
+import shlex
+from collections import OrderedDict  # FIXME: remove ordereddict?
 from functools import lru_cache, partial
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
@@ -18,6 +19,7 @@ import toml
 import tomlkit
 from attrs import define
 from autorepr import autorepr
+from flatten_dict import flatten, unflatten
 from jmespath.parser import ParsedResult
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
@@ -32,6 +34,7 @@ DOUBLE_QUOTE = '"'
 SEPARATOR_DOT = "."
 SEPARATOR_COMMA = ","
 SEPARATOR_COLON = ":"
+SEPARATOR_SPACE = " "
 
 #: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
 # to avoid collision with existing key values (e.g. the default SEPARATOR_DOT separator "." can be part of a TOML key).
@@ -192,7 +195,49 @@ def quoted_split(string_: str, separator=SEPARATOR_DOT) -> List[str]:
     ]
 
 
-class DictBlender:
+def quote_if_dotted(key: str) -> str:
+    """Quote the key if it has a dot."""
+    if not isinstance(key, str):
+        return key
+    if SEPARATOR_DOT in key and DOUBLE_QUOTE not in key:
+        return f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}"
+    return key
+
+
+def quote_reducer(key1: Optional[str], key2: str) -> str:
+    """Reducer used to unflatten dicts. Quote keys when they have dots."""
+    if key1 is None:
+        return quote_if_dotted(key2)
+    return f"{key1}{SEPARATOR_DOT}{quote_if_dotted(key2)}"
+
+
+def quotes_splitter(flat_key: str) -> Tuple[str, ...]:
+    """Split keys keeping quotes strings together."""
+    return tuple(
+        piece.replace(SEPARATOR_SPACE, SEPARATOR_DOT) if SEPARATOR_SPACE in piece else piece
+        for piece in shlex.split(flat_key.replace(SEPARATOR_DOT, SEPARATOR_SPACE))
+    )
+
+
+def flatten_quotes(dict_: JsonDict) -> JsonDict:
+    """Flatten a dict keeping quotes in keys."""
+    dict_with_quoted_keys = flatten(dict_, reducer=quote_reducer)
+    clean_dict = {}
+    for key, value in dict_with_quoted_keys.items():  # type: str, Any
+        key_with_stripped_ends = key.strip(DOUBLE_QUOTE)
+        if key_with_stripped_ends.count(DOUBLE_QUOTE):
+            # Key has quotes in the middle; keep all quotes
+            clean_dict[key] = value
+        else:
+            # Key only has quotes in the beginning and end; remove quotes
+            clean_dict[key_with_stripped_ends] = value
+    return clean_dict
+
+
+unflatten_quotes = partial(unflatten, splitter=quotes_splitter)
+
+
+class DictBlender:  # FIXME: remove all references
     """A blender of dictionaries: keep adding dictionaries and mix them all at the end.
 
     .. note::
@@ -279,15 +324,12 @@ class DictBlender:
         return self._unflatten(self._current_flat_dict, sort)
 
 
-DotBlender = partial(DictBlender, separator=SEPARATOR_DOT, flatten_on_add=False)
-
-
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
     def __init__(self, actual: "BaseDoc", expected: JsonDict, special_config: SpecialConfig) -> None:
-        self.flat_actual = DictBlender(actual.as_object, separator=SEPARATOR_DOT).flat_dict
-        self.flat_expected = DictBlender(expected, separator=SEPARATOR_DOT).flat_dict
+        self.flat_actual = flatten_quotes(actual.as_object)
+        self.flat_expected = flatten_quotes(expected)
 
         self.doc_class = actual.__class__
 
@@ -302,21 +344,21 @@ class Comparison:
         """Missing data."""
         if not self.missing_dict:
             return None
-        return self.doc_class(obj=DotBlender(self.missing_dict).mix())
+        return self.doc_class(obj=(unflatten_quotes(self.missing_dict)))
 
     @property
     def diff(self) -> Optional["BaseDoc"]:
         """Different data."""
         if not self.diff_dict:
             return None
-        return self.doc_class(obj=DotBlender(self.diff_dict).mix())
+        return self.doc_class(obj=(unflatten_quotes(self.diff_dict)))
 
     @property
     def replace(self) -> Optional["BaseDoc"]:
         """Data to be replaced."""
         if not self.replace_dict:
             return None
-        return self.doc_class(obj=DotBlender(self.replace_dict).mix())
+        return self.doc_class(obj=unflatten_quotes(self.replace_dict))
 
     @property
     def has_changes(self) -> bool:
@@ -634,7 +676,7 @@ class JsonDoc(BaseDoc):
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
-            self._object = json.loads(self._string, object_pairs_hook=OrderedDict)
+            self._object = flatten_quotes(json.loads(self._string, object_pairs_hook=OrderedDict))
         if self._object is not None:
             # Every file should end with a blank line
             self._reformatted = json.dumps(self._object, sort_keys=True, indent=2) + "\n"
