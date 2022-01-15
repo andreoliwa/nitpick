@@ -7,10 +7,10 @@
 import abc
 import json
 import re
-from collections import OrderedDict
+import shlex
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import dictdiffer
 import jmespath
@@ -18,6 +18,7 @@ import toml
 import tomlkit
 from attrs import define
 from autorepr import autorepr
+from flatten_dict import flatten, unflatten
 from jmespath.parser import ParsedResult
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
@@ -32,6 +33,7 @@ DOUBLE_QUOTE = '"'
 SEPARATOR_DOT = "."
 SEPARATOR_COMMA = ","
 SEPARATOR_COLON = ":"
+SEPARATOR_SPACE = " "
 
 #: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
 # to avoid collision with existing key values (e.g. the default SEPARATOR_DOT separator "." can be part of a TOML key).
@@ -192,102 +194,79 @@ def quoted_split(string_: str, separator=SEPARATOR_DOT) -> List[str]:
     ]
 
 
-class DictBlender:
-    """A blender of dictionaries: keep adding dictionaries and mix them all at the end.
-
-    .. note::
-
-        This class intentionally doesn't inherit from the standard ``dict()``.
-        It's an unnecessary hassle to override and deal with all those magic dunder methods.
-
-    :param dict_: Any optional dict.
-    :param extend_lists: True if nested lists should be extended when the key is the same.
-        False if they should be replaced.
-    :param separator: Separator used for flatten and unflatten operations. Default is a unique special separator.
-    :param flatten_on_add: True if dictionaries should be flattened when added (default). False to add them "as is".
-    """
-
-    def __init__(
-        self,
-        dict_: JsonDict = None,
-        *,
-        extend_lists=True,
-        separator: str = SEPARATOR_FLATTEN,
-        flatten_on_add: bool = True,
-    ) -> None:
-        self._current_flat_dict: OrderedDict = OrderedDict()
-        self._current_lists: Dict[str, List[Any]] = {}
-        self.extend_lists = extend_lists
-        self.separator = separator
-        self.flatten_on_add = flatten_on_add
-        self.add(dict_ or {}, flatten_on_add=self.flatten_on_add)
-
-    @property
-    def flat_dict(self):
-        """Return a flat dictionary with the current content."""
-        return self._current_flat_dict
-
-    def add(self, other: JsonDict, *, flatten_on_add: Optional[bool] = None) -> "DictBlender":
-        """Add another dictionary to the existing data."""
-        if flatten_on_add is None:
-            flatten_on_add = self.flatten_on_add
-        new_dict = self._flatten(other) if flatten_on_add else other
-        self._current_flat_dict.update(new_dict)
-        return self
-
-    def _flatten(self, dict_: JsonDict, parent_key="") -> JsonDict:
-        """Flatten a nested dict.
-
-        Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
-        """
-        elements: List[Tuple[str, Any]] = []
-        for key, value in dict_.items():
-            quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if self.separator in str(key) else key
-            new_key = str(parent_key) + self.separator + str(quoted_key) if parent_key else quoted_key
-            if isinstance(value, dict):
-                elements.extend(self._flatten(value, new_key).items())
-            elif isinstance(value, (list, tuple)) and self.extend_lists:
-                # If the value is a list or tuple, append to a previously existing list.
-                existing_list = self._current_lists.get(new_key, [])
-                existing_list.extend(list(value))
-                self._current_lists[new_key] = existing_list
-
-                elements.append((new_key, existing_list))
-            else:
-                elements.append((new_key, value))
-        return dict(elements)
-
-    def _unflatten(self, dict_: JsonDict, sort=True) -> OrderedDict:
-        """Turn back a flat dict created by the ``_flatten()`` method into a nested dict."""
-        elements: OrderedDict = OrderedDict()
-        for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
-            all_keys = quoted_split(root_key, self.separator)
-            sub_items = elements
-            for key in all_keys[:-1]:
-                try:
-                    sub_items = sub_items[key]
-                except KeyError:
-                    sub_items[key] = OrderedDict()
-                    sub_items = sub_items[key]
-
-            sub_items[all_keys[-1]] = root_value
-
-        return elements
-
-    def mix(self, sort=True) -> JsonDict:
-        """Mix all dictionaries, replacing values with identical keys and extending lists."""
-        return self._unflatten(self._current_flat_dict, sort)
+def quote_if_dotted(key: str) -> str:
+    """Quote the key if it has a dot."""
+    if not isinstance(key, str):
+        return key
+    if SEPARATOR_DOT in key and DOUBLE_QUOTE not in key:
+        return f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}"
+    return key
 
 
-DotBlender = partial(DictBlender, separator=SEPARATOR_DOT, flatten_on_add=False)
+def quote_reducer(separator: str) -> Callable:
+    """Reducer used to unflatten dicts. Quote keys when they have dots."""
+
+    def _inner_quote_reducer(key1: Optional[str], key2: str) -> str:
+        if key1 is None:
+            return quote_if_dotted(key2)
+        return f"{key1}{separator}{quote_if_dotted(key2)}"
+
+    return _inner_quote_reducer
+
+
+def quotes_splitter(flat_key: str) -> Tuple[str, ...]:
+    """Split keys keeping quoted strings together."""
+    return tuple(
+        piece.replace(SEPARATOR_SPACE, SEPARATOR_DOT) if SEPARATOR_SPACE in piece else piece
+        for piece in shlex.split(flat_key.replace(SEPARATOR_DOT, SEPARATOR_SPACE))
+    )
+
+
+def custom_reducer(separator: str) -> Callable:
+    """Custom reducer for :py:meth:`flatten_dict.flatten_dict.flatten()` accepting a separator."""
+
+    def _inner_custom_reducer(key1, key2):
+        if key1 is None:
+            return key2
+        return f"{key1}{separator}{key2}"
+
+    return _inner_custom_reducer
+
+
+def custom_splitter(separator: str) -> Callable:
+    """Custom splitter for :py:meth:`flatten_dict.flatten_dict.unflatten()` accepting a separator."""
+
+    def _inner_custom_splitter(flat_key) -> Tuple[str, ...]:
+        keys = tuple(flat_key.split(separator))
+        return keys
+
+    return _inner_custom_splitter
+
+
+def flatten_quotes(dict_: JsonDict, separator=SEPARATOR_DOT) -> JsonDict:
+    """Flatten a dict keeping quotes in keys."""
+    dict_with_quoted_keys = flatten(dict_, reducer=quote_reducer(separator))
+    clean_dict = {}
+    for key, value in dict_with_quoted_keys.items():  # type: str, Any
+        key_with_stripped_ends = key.strip(DOUBLE_QUOTE)
+        if key_with_stripped_ends.count(DOUBLE_QUOTE):
+            # Key has quotes in the middle; keep all quotes
+            clean_dict[key] = value
+        else:
+            # Key only has quotes in the beginning and end; remove quotes
+            clean_dict[key_with_stripped_ends] = value
+    return clean_dict
+
+
+unflatten_quotes = partial(unflatten, splitter=quotes_splitter)
 
 
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
     def __init__(self, actual: "BaseDoc", expected: JsonDict, special_config: SpecialConfig) -> None:
-        self.flat_actual = DictBlender(actual.as_object, separator=SEPARATOR_DOT).flat_dict
-        self.flat_expected = DictBlender(expected, separator=SEPARATOR_DOT).flat_dict
+        self.flat_actual = flatten_quotes(actual.as_object)
+        self.flat_expected = flatten_quotes(expected)
 
         self.doc_class = actual.__class__
 
@@ -302,21 +281,21 @@ class Comparison:
         """Missing data."""
         if not self.missing_dict:
             return None
-        return self.doc_class(obj=DotBlender(self.missing_dict).mix())
+        return self.doc_class(obj=(unflatten_quotes(self.missing_dict)))
 
     @property
     def diff(self) -> Optional["BaseDoc"]:
         """Different data."""
         if not self.diff_dict:
             return None
-        return self.doc_class(obj=DotBlender(self.diff_dict).mix())
+        return self.doc_class(obj=(unflatten_quotes(self.diff_dict)))
 
     @property
     def replace(self) -> Optional["BaseDoc"]:
         """Data to be replaced."""
         if not self.replace_dict:
             return None
-        return self.doc_class(obj=DotBlender(self.replace_dict).mix())
+        return self.doc_class(obj=unflatten_quotes(self.replace_dict))
 
     @property
     def has_changes(self) -> bool:
@@ -494,16 +473,15 @@ class TomlDoc(BaseDoc):
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
-            #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
             if self.use_tomlkit:
                 self._object = tomlkit.loads(self._string)
             else:
-                self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg,assignment]
+                self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(dict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
             # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
             #  but comments are being lost when the TOML plugin does dict comparisons.
             if self.use_tomlkit:
-                self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
+                self._reformatted = tomlkit.dumps(self._object, sort_keys=True)
             else:
                 self._reformatted = toml.dumps(self._object)
         return True
@@ -512,7 +490,7 @@ class TomlDoc(BaseDoc):
 def traverse_toml_tree(document: tomlkit.TOMLDocument, dictionary):
     """Traverse a TOML document recursively and change values, keeping its formatting and comments."""
     for key, value in dictionary.items():
-        if isinstance(value, (dict, OrderedDict)):
+        if isinstance(value, (dict,)):
             if key in document:
                 traverse_toml_tree(document[key], value)
             else:
@@ -566,7 +544,7 @@ class YamlDoc(BaseDoc):
 
 
 # Classes and their representation on ruamel.yaml
-for dict_class in (SortedDict, OrderedDict, items.Table, items.InlineTable):
+for dict_class in (SortedDict, items.Table, items.InlineTable):
     RoundTripRepresenter.add_representer(dict_class, RoundTripRepresenter.represent_dict)
 RoundTripRepresenter.add_representer(items.String, RoundTripRepresenter.represent_str)
 for list_class in (items.Array, items.AoT):
@@ -604,14 +582,14 @@ def replace_or_add_list_element(yaml_obj: YamlObject, element: Any, key: str, in
     return
 
 
-def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict]):
+def traverse_yaml_tree(yaml_obj: YamlObject, change: JsonDict):
     """Traverse a YAML document recursively and change values, keeping its formatting and comments."""
     for key, value in change.items():
         if key not in yaml_obj:
             if isinstance(yaml_obj, dict):
                 yaml_obj[key] = value
             else:
-                # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
+                # Key doesn't exist: we can insert the whole nested dict at once, no regrets
                 last_pos = len(yaml_obj.keys()) + 1
                 yaml_obj.insert(last_pos, key, value)
             continue
@@ -634,7 +612,7 @@ class JsonDoc(BaseDoc):
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
-            self._object = json.loads(self._string, object_pairs_hook=OrderedDict)
+            self._object = flatten_quotes(json.loads(self._string))
         if self._object is not None:
             # Every file should end with a blank line
             self._reformatted = json.dumps(self._object, sort_keys=True, indent=2) + "\n"

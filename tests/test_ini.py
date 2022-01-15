@@ -92,8 +92,8 @@ def test_suggest_initial_contents(tmp_path):
     """
     expected_generic_ini = """
         [your-section]
-        your_number = 123
         your_string = value
+        your_number = 123
     """
     expected_editor_config = """
         [*]
@@ -321,8 +321,8 @@ def test_missing_different_values_editorconfig_with_root(tmp_path, datadir):
             Violations.TOP_SECTION_MISSING_OPTION.code,
             ": top section has missing options. Use this:",
             """
-            another_missing = 100
             missing = value
+            another_missing = 100
             """,
         ),
     ).assert_file_contents(
@@ -351,9 +351,9 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
             " was not found. Create it with this content:",
             """
             [flake8]
-            ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503
-            max-complexity = 12
             max-line-length = 85
+            max-complexity = 12
+            ignore = D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503
             select = E241,C,E,F,W,B,B9
             """,
         )

@@ -85,11 +85,11 @@ def test_wildcard_expression_matches_multiple_keys(tmp_path, datadir):
                 steps:
                   - name: Checkout
                     uses: actions/checkout@v2
-              release:
+              test:
                 steps:
                   - name: Checkout
                     uses: actions/checkout@v2
-              test:
+              release:
                 steps:
                   - name: Checkout
                     uses: actions/checkout@v2

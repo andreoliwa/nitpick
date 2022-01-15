@@ -1,5 +1,4 @@
 """Type definitions."""
-from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple, Type, Union
 
@@ -11,7 +10,7 @@ StrOrList = Union[str, List[str]]
 StrOrIterable = Union[str, Iterable[str]]
 Flake8Error = Tuple[int, int, str, Type]
 YamlObject = Union[CommentedSeq, CommentedMap]
-YamlValue = Union[JsonDict, OrderedDict, List[Any], str, float]
+YamlValue = Union[JsonDict, List[Any], str, float]
 ListOrCommentedSeq = Union[List[Any], CommentedSeq]
 ElementData = Union[JsonDict, str, int, float, CommentedMap, List[Any]]
 

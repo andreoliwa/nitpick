@@ -42,14 +42,6 @@ def test_missing_different_values(tmp_path, datadir):
             368,
             " has missing values:",
             """
-            mixed:
-              - lets:
-                  ruin: this
-                  with:
-                    - weird
-                    - '1'
-                    - crap
-              - second item: also a dict
             python:
               install:
                 - extra_requirements:
@@ -62,11 +54,19 @@ def test_missing_different_values(tmp_path, datadir):
                 - b: 2
                 - a: string value
               a_nested:
-                int: 10
                 list:
                   - 0
                   - 2
                   - 1
+                int: 10
+            mixed:
+              - lets:
+                  ruin: this
+                  with:
+                    - weird
+                    - '1'
+                    - crap
+              - second item: also a dict
             """,
         ),
     ).assert_file_contents(filename, datadir / "existing-expected.yaml")

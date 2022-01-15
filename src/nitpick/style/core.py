@@ -1,12 +1,13 @@
 """Style files."""
 import os
-from collections import OrderedDict
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Iterator, Optional, Set, Tuple, Type
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
+import dpath.util
+from flatten_dict import flatten, unflatten
 from identify import identify
 from loguru import logger
 from more_itertools import always_iterable
@@ -14,7 +15,7 @@ from slugify import slugify
 from toml import TomlDecodeError
 
 from nitpick import __version__, fields
-from nitpick.blender import DictBlender, TomlDoc, search_json
+from nitpick.blender import SEPARATOR_FLATTEN, TomlDoc, custom_reducer, custom_splitter, search_json
 from nitpick.constants import (
     CACHE_DIR_NAME,
     DOT_SLASH,
@@ -51,7 +52,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
     def __post_init__(self) -> None:
         """Initialize dependant fields."""
-        self._blender: DictBlender = DictBlender()
+        self._merged_styles: JsonDict = {}
         self._already_included: Set[str] = set()
         self._first_full_path: str = ""
         self._dynamic_schema_class: type = BaseStyleSchema
@@ -126,7 +127,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
                 StyleViolations.INVALID_CONFIG, flatten_marshmallow_errors(validation_errors)
             )
 
-        self._blender.add(toml_dict)
+        dpath.util.merge(self._merged_styles, flatten(toml_dict, custom_reducer(SEPARATOR_FLATTEN)))
 
         sub_styles: StrOrList = search_json(toml_dict, NITPICK_STYLES_INCLUDE_JMEX, [])
         if sub_styles:
@@ -191,7 +192,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
-        merged_dict = self._blender.mix()
+        merged_dict = unflatten(self._merged_styles, custom_splitter(SEPARATOR_FLATTEN))
         # TODO: check if the merged style file is still needed
         merged_style_path: Path = self.cache_dir / MERGED_STYLE_TOML
         toml = TomlDoc(obj=merged_dict)
@@ -232,7 +233,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
     def rebuild_dynamic_schema(self) -> None:
         """Rebuild the dynamic Marshmallow schema when needed, adding new fields that were found on the style."""
-        new_files_found: Dict[str, fields.Field] = OrderedDict()
+        new_files_found: Dict[str, fields.Field] = {}
 
         fixed_name_classes = self.load_fixed_name_plugins()
 

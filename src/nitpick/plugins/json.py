@@ -6,12 +6,12 @@ from typing import Iterator, Optional, Type
 from loguru import logger
 
 from nitpick import fields
-from nitpick.blender import BaseDoc, Comparison, DictBlender, JsonDoc
-from nitpick.constants import DOT
+from nitpick.blender import BaseDoc, Comparison, JsonDoc, flatten_quotes, unflatten_quotes
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.schemas import BaseNitpickSchema
+from nitpick.typedefs import JsonDict
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 KEY_CONTAINS_KEYS = "contains_keys"
@@ -41,7 +41,7 @@ class JsonPlugin(NitpickPlugin):
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules for missing keys and JSON content."""
         json_doc = JsonDoc(path=self.file_path)
-        blender: Optional[DictBlender] = DictBlender(json_doc.as_object, extend_lists=False) if self.autofix else None
+        blender: JsonDict = json_doc.as_object.copy() if self.autofix else {}
 
         comparison = Comparison(json_doc, self.expected_dict_from_contains_keys(), self.special_config)()
         if comparison.missing:
@@ -55,13 +55,13 @@ class JsonPlugin(NitpickPlugin):
             )
 
         if self.autofix and self.dirty and blender:
-            self.file_path.write_text(JsonDoc(obj=blender.mix()).reformatted)
+            self.file_path.write_text(JsonDoc(obj=unflatten_quotes(blender)).reformatted)
 
     def expected_dict_from_contains_keys(self):
         """Expected dict created from "contains_keys" values."""
-        blender = DictBlender(separator=DOT, flatten_on_add=False)
-        blender.add({key: VALUE_PLACEHOLDER for key in set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])})
-        return blender.mix()
+        return unflatten_quotes(
+            {key: VALUE_PLACEHOLDER for key in set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])}
+        )
 
     def expected_dict_from_contains_json(self):
         """Expected dict created from "contains_json" values."""
@@ -77,21 +77,21 @@ class JsonPlugin(NitpickPlugin):
                 continue
         return expected_config
 
-    def report(self, violation: ViolationEnum, blender: Optional[DictBlender], change: Optional[BaseDoc]):
+    def report(self, violation: ViolationEnum, blender: JsonDict, change: Optional[BaseDoc]):
         """Report a violation while optionally modifying the JSON dict."""
         if not change:
             return
         if blender:
-            blender.add(change.as_object)
+            blender.update(flatten_quotes(change.as_object))
             self.dirty = True
         yield self.reporter.make_fuss(violation, change.reformatted, prefix="", fixed=self.autofix)
 
     @property
     def initial_contents(self) -> str:
         """Suggest the initial content for this missing file."""
-        suggestion = DictBlender(self.expected_dict_from_contains_keys())
-        suggestion.add(self.expected_dict_from_contains_json())
-        return self.write_initial_contents(JsonDoc, suggestion.mix())
+        suggestion = flatten_quotes(self.expected_dict_from_contains_keys())
+        suggestion.update(flatten_quotes(self.expected_dict_from_contains_json()))
+        return self.write_initial_contents(JsonDoc, unflatten_quotes(suggestion))
 
 
 @hookimpl

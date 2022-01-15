@@ -7,8 +7,7 @@ import click
 import jmespath
 from identify import identify
 
-from nitpick.blender import DictBlender, TomlDoc, YamlDoc, search_json
-from nitpick.constants import DOT
+from nitpick.blender import TomlDoc, YamlDoc, flatten_quotes, search_json
 
 workflow = YamlDoc(path=Path(".github/workflows/python.yaml"))
 
@@ -56,7 +55,7 @@ def main():
         print(json.dumps(config, indent=2))
 
         click.secho("Flattened JSON", fg="yellow")
-        print(json.dumps(DictBlender(config, separator=DOT).flat_dict, indent=2))
+        print(json.dumps(flatten_quotes(config), indent=2))
 
     # find("jobs.build")
     # find("jobs.build.strategy.matrix")
