@@ -243,20 +243,22 @@ def custom_splitter(separator: str) -> Callable:
     return _inner_custom_splitter
 
 
-def toml_style_splitter(flat_key: str) -> Tuple[str, ...]:
-    """Splitter for TOML style files, in an attempt to remove empty TOML tables."""
-    original = flat_key.split(SEPARATOR_FLATTEN)
-    quoted = [quote_if_dotted(k) for k in original]
-
-    first = quoted.pop(0)
-    last = quoted.pop() if quoted else None
-
-    grouped = [first]
-    if quoted:
-        grouped.append(SEPARATOR_DOT.join(quoted))
-    if last:
-        grouped.append(last)
-    return tuple(grouped)
+# FIXME: to be used with tomlkit when merging styles
+# merged_dict = unflatten(self._merged_styles, toml_style_splitter)
+# def toml_style_splitter(flat_key: str) -> Tuple[str, ...]:
+#     """Splitter for TOML style files, in an attempt to remove empty TOML tables."""
+#     original = flat_key.split(SEPARATOR_FLATTEN)
+#     quoted = [quote_if_dotted(k) for k in original]
+#
+#     first = quoted.pop(0)
+#     last = quoted.pop() if quoted else None
+#
+#     grouped = [first]
+#     if quoted:
+#         grouped.append(SEPARATOR_DOT.join(quoted))
+#     if last:
+#         grouped.append(last)
+#     return tuple(grouped)
 
 
 def flatten_quotes(dict_: JsonDict, separator=SEPARATOR_DOT) -> JsonDict:
