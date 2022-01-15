@@ -1,3 +1,14 @@
+# [0.31.0](https://github.com/andreoliwa/nitpick/compare/v0.30.0...v0.31.0) (2022-01-15)
+
+### Bug Fixes
+
+- keys suggested in the order they are defined ([#442](https://github.com/andreoliwa/nitpick/issues/442)) ([09c30ab](https://github.com/andreoliwa/nitpick/commit/09c30aba1b3438c286f2a2fc143044ff62126b2d))
+- pin attrs to >=20.1.0, change imports ([0696d08](https://github.com/andreoliwa/nitpick/commit/0696d0813f2dd8e4e2776f506d31d1aff4ecb413))
+
+### Features
+
+- drop support for Python 3.6 ([#439](https://github.com/andreoliwa/nitpick/issues/439)) ([a02e0ce](https://github.com/andreoliwa/nitpick/commit/a02e0ce16e3e8fdbcc1caf23c33194ecd39a5dd3))
+
 # [0.30.0](https://github.com/andreoliwa/nitpick/compare/v0.29.0...v0.30.0) (2022-01-14)
 
 ### Bug Fixes
