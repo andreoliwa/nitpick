@@ -16,7 +16,7 @@ import dictdiffer
 import jmespath
 import toml
 import tomlkit
-from attrs import define
+from attr import define  # type: ignore[attr-defined]
 from autorepr import autorepr
 from flatten_dict import flatten, unflatten
 from jmespath.parser import ParsedResult

@@ -1183,7 +1183,7 @@ test = ["pytest", "pytest-cov", "testfixtures", "responses", "freezegun", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "9bbdf5d3c40a933073689cf1ab80cd3c7fe7aab14b7abab9abad26cbf75f52c8"
+content-hash = "4bd25ecf60718b979d4e15765690c13f16287d3d3beec14c0b0acde8f84361fd"
 
 [metadata.files]
 alabaster = [
