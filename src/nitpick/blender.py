@@ -215,7 +215,7 @@ def quote_reducer(separator: str) -> Callable:
 
 
 def quotes_splitter(flat_key: str) -> Tuple[str, ...]:
-    """Split keys keeping quotes strings together."""
+    """Split keys keeping quoted strings together."""
     return tuple(
         piece.replace(SEPARATOR_SPACE, SEPARATOR_DOT) if SEPARATOR_SPACE in piece else piece
         for piece in shlex.split(flat_key.replace(SEPARATOR_DOT, SEPARATOR_SPACE))
