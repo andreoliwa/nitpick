@@ -243,7 +243,10 @@ def custom_splitter(separator: str) -> Callable:
     return _inner_custom_splitter
 
 
-# FIXME: to be used with tomlkit when merging styles
+# TODO: use only tomlkit and remove uiri/toml
+#  - tomlkit preserves comments
+#  - uiri/toml looks abandoned https://github.com/uiri/toml/issues/361
+#  Code to be used with tomlkit when merging styles
 # merged_dict = unflatten(self._merged_styles, toml_style_splitter)
 # def toml_style_splitter(flat_key: str) -> Tuple[str, ...]:
 #     """Splitter for TOML style files, in an attempt to remove empty TOML tables."""
@@ -473,6 +476,8 @@ class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]
 class TomlDoc(BaseDoc):
     """TOML configuration format."""
 
+    # TODO: use only tomlkit and remove uiri/toml
+    #   remove __init__() completely
     def __init__(
         self,
         *,
@@ -480,7 +485,7 @@ class TomlDoc(BaseDoc):
         string: str = None,
         obj: JsonDict = None,
         use_tomlkit=False,
-    ) -> None:  # FIXME: remove init() once it works
+    ) -> None:
         super().__init__(path=path, string=string, obj=obj)
         self.use_tomlkit = use_tomlkit
 
@@ -494,7 +499,8 @@ class TomlDoc(BaseDoc):
             if self.use_tomlkit:
                 toml_obj = tomlkit.loads(self._string)
 
-                # FIXME: Removing empty tables on loads() didn't work.
+                # TODO: use only tomlkit and remove uiri/toml
+                #  Removing empty tables on loads() didn't work.
                 #  The empty tables are gone, but:
                 #  1. the output has 2 blank lines at the top
                 #  2. the underlying dict is different than expected, and tests fail:
@@ -518,17 +524,17 @@ class TomlDoc(BaseDoc):
             # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
             #  but comments are being lost when the TOML plugin does dict comparisons.
             if self.use_tomlkit:
-                # FIXME: removing empty tables here didn't work.
-                #  I created a bug on tomlkit: https://github.com/sdispater/tomlkit/issues/166
-                # remove_empty_tables = unflatten(
-                #     flatten(self._object, custom_reducer(SEPARATOR_FLATTEN)), toml_style_splitter
-                # )
-                self._reformatted = tomlkit.dumps(self._object, sort_keys=True)
-                # FIXME: another attempt would be to remove tables when dumping to TOML when setting self._reformatted:
+                # TODO: use only tomlkit and remove uiri/toml
+                #  Removing empty tables on dumps() didn't work.
+                #  Another attempt would be to remove tables when dumping to TOML when setting self._reformatted:
                 #  1. load a dict normally with loads()
                 #  2. clean up TomlDocument and its empty tables recursively, reusing the code with SingleKey above
                 #  3. dump the cleaned TomlDocument
                 #  It looks like some effort. I'll wait for https://github.com/sdispater/tomlkit/issues/166
+                # remove_empty_tables = unflatten(
+                #     flatten(self._object, custom_reducer(SEPARATOR_FLATTEN)), toml_style_splitter
+                # )
+                self._reformatted = tomlkit.dumps(self._object, sort_keys=True)
             else:
                 self._reformatted = toml.dumps(self._object)
         return True
