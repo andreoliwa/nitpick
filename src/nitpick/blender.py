@@ -497,8 +497,6 @@ class TomlDoc(BaseDoc):
         if self._string is not None:
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
             if self.use_tomlkit:
-                toml_obj = tomlkit.loads(self._string)
-
                 # TODO: use only tomlkit and remove uiri/toml
                 #  Removing empty tables on loads() didn't work.
                 #  The empty tables are gone, but:
@@ -508,6 +506,7 @@ class TomlDoc(BaseDoc):
                 #     '"pyproject.toml".tool.black: Unknown file. See '
                 #     'https://nitpick.rtfd.io/en/latest/plugins.html.']
 
+                # toml_obj = tomlkit.loads(self._string)
                 # if "tool.black" in self._string:
                 #     from tomlkit.items import KeyType, SingleKey
                 #
@@ -517,7 +516,7 @@ class TomlDoc(BaseDoc):
                 #     toml_obj.add(SingleKey('"pyproject.toml".tool.black', KeyType.Bare), black_dict)
                 #     result = tomlkit.dumps(toml_obj)
                 #     print(result)
-                self._object = toml_obj
+                self._object = tomlkit.loads(self._string)
             else:
                 self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(dict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
