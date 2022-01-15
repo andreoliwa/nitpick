@@ -137,8 +137,8 @@ def test_root_values_on_existing_file(tmp_path):
             368,
             " has missing values:",
             """
-            blabla: what
             fail_fast: true
+            blabla: what
             """,
         ),
         Fuss(
@@ -147,8 +147,8 @@ def test_root_values_on_existing_file(tmp_path):
             369,
             " has different values. Use this:",
             """
-            another_thing: yep
             something: true
+            another_thing: yep
             """,
         ),
     )

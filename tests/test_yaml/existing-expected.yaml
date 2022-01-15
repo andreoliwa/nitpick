@@ -31,8 +31,8 @@ root_key:
     - b: 2
     - a: string value
   a_nested:
-    int: 10
     list:
       - 0
       - 2
       - 1
+    int: 10

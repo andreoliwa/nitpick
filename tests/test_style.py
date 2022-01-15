@@ -76,14 +76,14 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         something = 123
 
         [isort]
-        known_first_party = tests
         line_length = 120
+        known_first_party = tests
         xxx = yyy{SUGGESTION_END}
         """
     ).cli_ls(
         f"""
-        {PYPROJECT_TOML}
         {SETUP_CFG}
+        {PYPROJECT_TOML}
         """
     )
 
@@ -148,8 +148,8 @@ def test_include_styles_overriding_values(offline, tmp_path):
         something = 123
 
         [isort]
-        known_first_party = tests
         line_length = 120
+        known_first_party = tests
         xxx = yyy{SUGGESTION_END}
         """
     )

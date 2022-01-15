@@ -11,7 +11,7 @@ import shlex
 from collections import OrderedDict  # FIXME: remove ordereddict?
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import dictdiffer
 import jmespath
@@ -204,11 +204,15 @@ def quote_if_dotted(key: str) -> str:
     return key
 
 
-def quote_reducer(key1: Optional[str], key2: str) -> str:
+def quote_reducer(separator: str) -> Callable:
     """Reducer used to unflatten dicts. Quote keys when they have dots."""
-    if key1 is None:
-        return quote_if_dotted(key2)
-    return f"{key1}{SEPARATOR_DOT}{quote_if_dotted(key2)}"
+
+    def _inner_quote_reducer(key1: Optional[str], key2: str) -> str:
+        if key1 is None:
+            return quote_if_dotted(key2)
+        return f"{key1}{separator}{quote_if_dotted(key2)}"
+
+    return _inner_quote_reducer
 
 
 def quotes_splitter(flat_key: str) -> Tuple[str, ...]:
@@ -219,9 +223,30 @@ def quotes_splitter(flat_key: str) -> Tuple[str, ...]:
     )
 
 
-def flatten_quotes(dict_: JsonDict) -> JsonDict:
+def custom_reducer(separator: str) -> Callable:
+    """Custom reducer for :py:meth:`flatten_dict.flatten_dict.flatten()` accepting a separator."""
+
+    def _inner_custom_reducer(key1, key2):
+        if key1 is None:
+            return key2
+        return f"{key1}{separator}{key2}"
+
+    return _inner_custom_reducer
+
+
+def custom_splitter(separator: str) -> Callable:
+    """Custom splitter for :py:meth:`flatten_dict.flatten_dict.unflatten()` accepting a separator."""
+
+    def _inner_custom_splitter(flat_key) -> Tuple[str, ...]:
+        keys = tuple(flat_key.split(separator))
+        return keys
+
+    return _inner_custom_splitter
+
+
+def flatten_quotes(dict_: JsonDict, separator=SEPARATOR_DOT) -> JsonDict:
     """Flatten a dict keeping quotes in keys."""
-    dict_with_quoted_keys = flatten(dict_, reducer=quote_reducer)
+    dict_with_quoted_keys = flatten(dict_, reducer=quote_reducer(separator))
     clean_dict = {}
     for key, value in dict_with_quoted_keys.items():  # type: str, Any
         key_with_stripped_ends = key.strip(DOUBLE_QUOTE)
@@ -235,93 +260,6 @@ def flatten_quotes(dict_: JsonDict) -> JsonDict:
 
 
 unflatten_quotes = partial(unflatten, splitter=quotes_splitter)
-
-
-class DictBlender:  # FIXME: remove all references
-    """A blender of dictionaries: keep adding dictionaries and mix them all at the end.
-
-    .. note::
-
-        This class intentionally doesn't inherit from the standard ``dict()``.
-        It's an unnecessary hassle to override and deal with all those magic dunder methods.
-
-    :param dict_: Any optional dict.
-    :param extend_lists: True if nested lists should be extended when the key is the same.
-        False if they should be replaced.
-    :param separator: Separator used for flatten and unflatten operations. Default is a unique special separator.
-    :param flatten_on_add: True if dictionaries should be flattened when added (default). False to add them "as is".
-    """
-
-    def __init__(
-        self,
-        dict_: JsonDict = None,
-        *,
-        extend_lists=True,
-        separator: str = SEPARATOR_FLATTEN,
-        flatten_on_add: bool = True,
-    ) -> None:
-        self._current_flat_dict: OrderedDict = OrderedDict()
-        self._current_lists: Dict[str, List[Any]] = {}
-        self.extend_lists = extend_lists
-        self.separator = separator
-        self.flatten_on_add = flatten_on_add
-        self.add(dict_ or {}, flatten_on_add=self.flatten_on_add)
-
-    @property
-    def flat_dict(self):
-        """Return a flat dictionary with the current content."""
-        return self._current_flat_dict
-
-    def add(self, other: JsonDict, *, flatten_on_add: Optional[bool] = None) -> "DictBlender":
-        """Add another dictionary to the existing data."""
-        if flatten_on_add is None:
-            flatten_on_add = self.flatten_on_add
-        new_dict = self._flatten(other) if flatten_on_add else other
-        self._current_flat_dict.update(new_dict)
-        return self
-
-    def _flatten(self, dict_: JsonDict, parent_key="") -> JsonDict:
-        """Flatten a nested dict.
-
-        Adapted from `this StackOverflow question <https://stackoverflow.com/a/6027615>`_.
-        """
-        elements: List[Tuple[str, Any]] = []
-        for key, value in dict_.items():
-            quoted_key = f"{DOUBLE_QUOTE}{key}{DOUBLE_QUOTE}" if self.separator in str(key) else key
-            new_key = str(parent_key) + self.separator + str(quoted_key) if parent_key else quoted_key
-            if isinstance(value, dict):
-                elements.extend(self._flatten(value, new_key).items())
-            elif isinstance(value, (list, tuple)) and self.extend_lists:
-                # If the value is a list or tuple, append to a previously existing list.
-                existing_list = self._current_lists.get(new_key, [])
-                existing_list.extend(list(value))
-                self._current_lists[new_key] = existing_list
-
-                elements.append((new_key, existing_list))
-            else:
-                elements.append((new_key, value))
-        return dict(elements)
-
-    def _unflatten(self, dict_: JsonDict, sort=True) -> OrderedDict:
-        """Turn back a flat dict created by the ``_flatten()`` method into a nested dict."""
-        elements: OrderedDict = OrderedDict()
-        for root_key, root_value in sorted(dict_.items()) if sort else dict_.items():
-            all_keys = quoted_split(root_key, self.separator)
-            sub_items = elements
-            for key in all_keys[:-1]:
-                try:
-                    sub_items = sub_items[key]
-                except KeyError:
-                    sub_items[key] = OrderedDict()
-                    sub_items = sub_items[key]
-
-            sub_items[all_keys[-1]] = root_value
-
-        return elements
-
-    def mix(self, sort=True) -> JsonDict:
-        """Mix all dictionaries, replacing values with identical keys and extending lists."""
-        return self._unflatten(self._current_flat_dict, sort)
 
 
 class Comparison:
