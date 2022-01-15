@@ -1,6 +1,5 @@
 """Style files."""
 import os
-from collections import OrderedDict
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -53,7 +52,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
     def __post_init__(self) -> None:
         """Initialize dependant fields."""
-        self._merged_styles: JsonDict = OrderedDict()
+        self._merged_styles: JsonDict = {}
         self._already_included: Set[str] = set()
         self._first_full_path: str = ""
         self._dynamic_schema_class: type = BaseStyleSchema
@@ -234,7 +233,7 @@ class Style:  # pylint: disable=too-many-instance-attributes
 
     def rebuild_dynamic_schema(self) -> None:
         """Rebuild the dynamic Marshmallow schema when needed, adding new fields that were found on the style."""
-        new_files_found: Dict[str, fields.Field] = OrderedDict()
+        new_files_found: Dict[str, fields.Field] = {}
 
         fixed_name_classes = self.load_fixed_name_plugins()
 

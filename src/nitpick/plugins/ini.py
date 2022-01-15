@@ -1,5 +1,4 @@
 """INI files."""
-from collections import OrderedDict
 from configparser import ConfigParser, DuplicateOptionError, Error, MissingSectionHeaderError, ParsingError
 from io import StringIO
 from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
@@ -60,7 +59,7 @@ class IniPlugin(NitpickPlugin):
         if all(isinstance(v, dict) for v in self.expected_config.values()):
             return
 
-        new_config = OrderedDict({TOP_SECTION: OrderedDict()})
+        new_config = dict({TOP_SECTION: {}})
         for key, value in self.expected_config.items():
             if isinstance(value, dict):
                 new_config[key] = value
@@ -255,7 +254,7 @@ class IniPlugin(NitpickPlugin):
     def show_missing_keys(self, section: str, values: List[Tuple[str, Any]]) -> Iterator[Fuss]:
         """Show the keys that are not present in a section."""
         parser = ConfigParser()
-        missing_dict = OrderedDict(values)
+        missing_dict = dict(values)
         parser[section] = missing_dict
         output = self.get_example_cfg(parser)
         self.add_options_before_space(section, missing_dict)
@@ -267,7 +266,7 @@ class IniPlugin(NitpickPlugin):
         else:
             yield self.reporter.make_fuss(Violations.MISSING_OPTION, output, self.autofix, section=section)
 
-    def add_options_before_space(self, section: str, options: OrderedDict) -> None:
+    def add_options_before_space(self, section: str, options: Dict) -> None:
         """Add new options before a blank line in the end of the section."""
         if not self.autofix:
             return

@@ -8,7 +8,6 @@ import abc
 import json
 import re
 import shlex
-from collections import OrderedDict  # FIXME: remove ordereddict?
 from functools import lru_cache, partial
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
@@ -474,16 +473,15 @@ class TomlDoc(BaseDoc):
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
             # TODO: I tried to replace toml by tomlkit, but lots of tests break.
-            #  The conversion to OrderedDict is not being done recursively (although I'm not sure this is a problem).
             if self.use_tomlkit:
                 self._object = tomlkit.loads(self._string)
             else:
-                self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(OrderedDict))  # type: ignore[call-arg,assignment]
+                self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(dict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
             # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
             #  but comments are being lost when the TOML plugin does dict comparisons.
             if self.use_tomlkit:
-                self._reformatted = tomlkit.dumps(OrderedDict(self._object), sort_keys=True)
+                self._reformatted = tomlkit.dumps(self._object, sort_keys=True)
             else:
                 self._reformatted = toml.dumps(self._object)
         return True
@@ -492,7 +490,7 @@ class TomlDoc(BaseDoc):
 def traverse_toml_tree(document: tomlkit.TOMLDocument, dictionary):
     """Traverse a TOML document recursively and change values, keeping its formatting and comments."""
     for key, value in dictionary.items():
-        if isinstance(value, (dict, OrderedDict)):
+        if isinstance(value, (dict,)):
             if key in document:
                 traverse_toml_tree(document[key], value)
             else:
@@ -546,7 +544,7 @@ class YamlDoc(BaseDoc):
 
 
 # Classes and their representation on ruamel.yaml
-for dict_class in (SortedDict, OrderedDict, items.Table, items.InlineTable):
+for dict_class in (SortedDict, items.Table, items.InlineTable):
     RoundTripRepresenter.add_representer(dict_class, RoundTripRepresenter.represent_dict)
 RoundTripRepresenter.add_representer(items.String, RoundTripRepresenter.represent_str)
 for list_class in (items.Array, items.AoT):
@@ -584,14 +582,14 @@ def replace_or_add_list_element(yaml_obj: YamlObject, element: Any, key: str, in
     return
 
 
-def traverse_yaml_tree(yaml_obj: YamlObject, change: Union[JsonDict, OrderedDict]):
+def traverse_yaml_tree(yaml_obj: YamlObject, change: JsonDict):
     """Traverse a YAML document recursively and change values, keeping its formatting and comments."""
     for key, value in change.items():
         if key not in yaml_obj:
             if isinstance(yaml_obj, dict):
                 yaml_obj[key] = value
             else:
-                # Key doesn't exist: we can insert the whole nested OrderedDict at once, no regrets
+                # Key doesn't exist: we can insert the whole nested dict at once, no regrets
                 last_pos = len(yaml_obj.keys()) + 1
                 yaml_obj.insert(last_pos, key, value)
             continue
@@ -614,7 +612,7 @@ class JsonDoc(BaseDoc):
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
-            self._object = flatten_quotes(json.loads(self._string, object_pairs_hook=OrderedDict))
+            self._object = flatten_quotes(json.loads(self._string))
         if self._object is not None:
             # Every file should end with a blank line
             self._reformatted = json.dumps(self._object, sort_keys=True, indent=2) + "\n"

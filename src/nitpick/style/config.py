@@ -1,5 +1,4 @@
 """Config validator."""
-from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Type
 
@@ -23,7 +22,7 @@ class ConfigValidator:
     def validate(self, config_dict: Dict) -> Tuple[Dict, Dict]:
         """Validate an already parsed toml file."""
         validation_errors = {}
-        toml_dict = OrderedDict()
+        toml_dict = {}
         for key, value_dict in config_dict.items():
             info = FileInfo.create(self.project, key)
             toml_dict[info.path_from_root] = value_dict
