@@ -1,20 +1,22 @@
-"""Write documentation files content from Python classes.
+"""Autofix documentation files content from Python classes.
 
 Run on the dev machine with "invoke doc", and commit on GitHub.
+This also runs as a local pre-commit hook.
 
 The ``include`` directive is not working on Read the Docs.
 It doesn't recognise the "styles" dir anywhere (on the root, under "docs", under "_static"...).
 Not even changing ``html_static_path`` on ``conf.py`` worked.
 """
 import sys
-from dataclasses import dataclass
+from collections import defaultdict
 from importlib import import_module
 from pathlib import Path
 from pprint import pprint
 from subprocess import check_output  # nosec
 from textwrap import dedent, indent
-from typing import List, Set, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 
+import attr
 import click
 from slugify import slugify
 from sortedcontainers import SortedDict
@@ -23,6 +25,7 @@ from nitpick import PROJECT_NAME, __version__
 from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PROJECT_OWNER, PYLINTRC, READ_THE_DOCS_URL, SETUP_CFG
 from nitpick.core import Nitpick
 from nitpick.style.fetchers.github import GitHubURL
+from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 
 RST_DIVIDER_FROM_HERE = ".. auto-generated-from-here"
 RST_DIVIDER_START = ".. auto-generated-start-{}"
@@ -34,8 +37,7 @@ MD_DIVIDER_END = "<!-- auto-generated-end-{} -->"
 DOCS_DIR: Path = Path(__file__).parent.absolute()
 STYLES_DIR: Path = DOCS_DIR.parent / "src" / "nitpick" / "resources"
 
-# TODO: keep target URLs here in this mapping, or in another mapping, or inside the style itself [nitpick.meta],
-#  and generate targets.rst instead of editing the file manually
+# FIXME: add name and URL to the style itself [nitpick.meta], and generate this mapping instead of editing manually
 STYLE_MAPPING = SortedDict(
     {
         "python/absent.toml": "Absent files",
@@ -90,7 +92,7 @@ CLI_MAPPING = [
 ]
 
 
-@dataclass(frozen=True)
+@attr.frozen()
 class FileType:
     """A file type handled by Nitpick."""
 
@@ -186,12 +188,12 @@ class DocFile:  # pylint: disable=too-few-public-methods
             self.divider_end = RST_DIVIDER_END
             self.divider_from_here = RST_DIVIDER_FROM_HERE
 
-    def write(self, blocks: List[str], divider_id: str = None) -> int:
+    def write(self, lines: List[str], divider: str = None) -> int:
         """Write content to the file."""
         old_content = self.file.read_text()
-        if divider_id:
-            start_marker = self.divider_start.format(divider_id)
-            end_marker = self.divider_end.format(divider_id)
+        if divider:
+            start_marker = self.divider_start.format(divider)
+            end_marker = self.divider_end.format(divider)
             start_position = old_content.index(start_marker) + len(start_marker) + 1
             end_position = old_content.index(end_marker) - 1
         else:
@@ -199,12 +201,12 @@ class DocFile:  # pylint: disable=too-few-public-methods
             end_position = 0
 
         new_content = old_content[:start_position]
-        new_content += "\n".join(blocks)
+        new_content += "\n".join(lines)
         if end_position:
             new_content += old_content[end_position:]
         new_content = new_content.strip() + "\n"
 
-        divider_message = f" (divider: {divider_id})" if divider_id else ""
+        divider_message = f" (divider: {divider})" if divider else ""
         if old_content != new_content:
             self.file.write_text(new_content)
             click.secho(f"File {self.file}{divider_message} generated", fg="yellow")
@@ -349,28 +351,56 @@ def write_config() -> int:
     blocks = [f"{index + 1}. ``{config_file}``" for index, config_file in enumerate(CONFIG_FILES)]
     blocks.insert(0, "")
     blocks.append("")
-    return DocFile("configuration.rst").write(blocks, divider_id="config-file")
+    return DocFile("configuration.rst").write(blocks, divider="config-file")
+
+
+def rst_table(header: Tuple[str, ...], rows: List[Tuple[str, ...]]) -> List[str]:
+    """Create a ReST table from header and rows."""
+    blocks = [".. list-table::\n   :header-rows: 1\n"]
+    num_columns = len(header)
+    for row in [header] + rows:
+        template = ("*" + " - {}\n " * num_columns).rstrip()
+        blocks.append(indent(template.format(*row), "   "))
+    return blocks
 
 
 def write_readme(file_types: Set[FileType], divider: str) -> int:
     """Write the README."""
-    # TODO: quickstart.rst has some parts of README.rst as a copy/paste/change
-    rows: List[Tuple[str, ...]] = [("File type", "``nitpick check``", "``nitpick fix``")]
+    # FIXME: quickstart.rst has some parts of README.rst as a copy/paste/change
+    rows: List[Tuple[str, ...]] = []
     for file_type in sorted(file_types):
         rows.append(file_type.row)
 
-    blocks = [".. list-table::\n   :header-rows: 1\n"]
-    for row in rows:
-        template = "* - {}\n  - {}\n  - {}"
-        blocks.append(indent(template.format(*row), "   "))
+    lines = rst_table(("File type", "``nitpick check``", "``nitpick fix``"), rows)
+    return DocFile("../README.rst").write(lines, divider)
 
-    return DocFile("../README.rst").write(blocks, divider_id=divider)
+
+@attr.frozen()
+class StyleLibraryRow:  # pylint: disable=too-few-public-methods
+    """Row in the style library."""
+
+    url: str
+
+
+def write_style_library(divider: str) -> int:
+    """Write the style library table."""
+    library: Dict[str, List[Tuple]] = defaultdict(list)
+    for path in sorted(builtin_styles()):  # type: Path
+        style = BuiltinStyle.from_path(path)
+        library[style.identify_tag].append(attr.astuple(StyleLibraryRow(style.url)))
+
+    lines = []
+    for tag, rows in library.items():
+        lines.extend(["", tag, "~" * len(tag), ""])
+        lines.extend(rst_table(("Style",), rows))
+    return DocFile("../README.rst").write(lines, divider)
 
 
 if __name__ == "__main__":
     sys.exit(
         write_readme(IMPLEMENTED_FILE_TYPES, "implemented")
         + write_readme(PLANNED_FILE_TYPES, "planned")
+        + write_style_library("style-library")
         + write_config()
         + write_examples()
         + write_plugins()

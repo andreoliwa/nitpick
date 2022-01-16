@@ -43,7 +43,7 @@ Plugins = Set[Type[NitpickPlugin]]
 
 
 @dataclass(repr=True)
-class Style:  # pylint: disable=too-many-instance-attributes
+class StyleManager:  # pylint: disable=too-many-instance-attributes
     """Include styles recursively from one another."""
 
     project: Project

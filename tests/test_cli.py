@@ -3,7 +3,7 @@ import pytest
 import responses
 
 from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML, READ_THE_DOCS_URL, TOOL_NITPICK_KEY
-from nitpick.style import Style
+from nitpick.style import StyleManager
 from nitpick.style.fetchers.github import GitHubProtocol
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
@@ -55,7 +55,7 @@ def test_create_basic_dot_nitpick_toml(tmp_path):
     responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
 
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
-    url = Style.get_default_style_url()
+    url = StyleManager.get_default_style_url()
     project.cli_init(
         f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {DOT_NITPICK_TOML}"
     ).assert_file_contents(
@@ -81,7 +81,7 @@ def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path):
         line-length = 120
         """
     )
-    url = Style.get_default_style_url()
+    url = StyleManager.get_default_style_url()
     project.cli_init(
         f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {PYPROJECT_TOML}"
     ).assert_file_contents(

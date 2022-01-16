@@ -15,7 +15,7 @@ Nitpick
 |pre-commit.ci status|
 |FOSSA Status|
 
-Command-line tool and `flake8 <https://github.com/PyCQA/flake8>`__
+Command-line tool and `flake8 <https://github.com/PyCQA/flake8>`_
 plugin to enforce the same settings across multiple language-independent
 projects.
 
@@ -25,18 +25,18 @@ over, in all of them.
 
 The CLI now has a ``nitpick fix`` command that modifies configuration
 files directly (pretty much like
-`black <https://github.com/psf/black>`__ and
-`isort <https://github.com/PyCQA/isort>`__ do with Python files).
+`black <https://github.com/psf/black>`_ and
+`isort <https://github.com/PyCQA/isort>`_ do with Python files).
 See the `CLI docs for more
-info <https://nitpick.rtfd.io/en/latest/cli.html>`__.
+info <https://nitpick.rtfd.io/en/latest/cli.html>`_.
 
 Many more features are planned for the future, check `the
-roadmap <https://github.com/andreoliwa/nitpick/projects/1>`__.
+roadmap <https://github.com/andreoliwa/nitpick/projects/1>`_.
 
-Style file
-----------
+The style file
+--------------
 
-A "nitpick code style" is a `TOML <https://github.com/toml-lang/toml>`__
+A "Nitpick code style" is a `TOML <https://github.com/toml-lang/toml>`_
 file with the settings that should be present in config files from other
 tools.
 
@@ -64,15 +64,15 @@ Example of a style:
 
 This style will assert that:
 
--  ... `black <https://github.com/psf/black>`__,
-   `isort <https://github.com/PyCQA/isort>`__ and
-   `flake8 <https://github.com/PyCQA/flake8>`__ have a line length of
+-  ... `black <https://github.com/psf/black>`_,
+   `isort <https://github.com/PyCQA/isort>`_ and
+   `flake8 <https://github.com/PyCQA/flake8>`_ have a line length of
    120;
--  ... `flake8 <https://github.com/PyCQA/flake8>`__ and
-   `isort <https://github.com/PyCQA/isort>`__ are configured as above in
+-  ... `flake8 <https://github.com/PyCQA/flake8>`_ and
+   `isort <https://github.com/PyCQA/isort>`_ are configured as above in
    ``setup.cfg``;
--  ... `Pylint <https://www.pylint.org>`__ is present as a
-   `Poetry <https://github.com/python-poetry/poetry>`__ dev dependency
+-  ... `Pylint <https://www.pylint.org>`_ is present as a
+   `Poetry <https://github.com/python-poetry/poetry>`_ dev dependency
    in ``pyproject.toml``.
 
 Supported file types
@@ -156,6 +156,86 @@ Planned
      - ❓
 .. auto-generated-end-planned
 
+Style Library (AKA Presets)
+---------------------------
+
+Nitpick has a builtin library of style presets, shipped as `Python resources <https://docs.python.org/3/library/importlib.html#module-importlib.resources>`_.
+
+This library contains building blocks for your your custom style.
+Just choose styles from the table below and create your own style, like LEGO.
+
+Read how to:
+
+- `...add multiple styles to the configuration file <https://nitpick.readthedocs.io/en/latest/configuration.html#multiple-styles>`_;
+- `...include styles inside a style <https://nitpick.readthedocs.io/en/latest/nitpick_section.html#nitpick-styles>`_.
+
+.. auto-generated-start-style-library
+
+any
+~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style
+   * - py://nitpick/resources/any/codeclimate
+   * - py://nitpick/resources/any/commitizen
+   * - py://nitpick/resources/any/commitlint
+   * - py://nitpick/resources/any/editorconfig
+   * - py://nitpick/resources/any/git-legal
+   * - py://nitpick/resources/any/hooks
+   * - py://nitpick/resources/any/markdownlint
+   * - py://nitpick/resources/any/prettier
+
+javascript
+~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style
+   * - py://nitpick/resources/javascript/package-json
+
+python
+~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style
+   * - py://nitpick/resources/python/310
+   * - py://nitpick/resources/python/37
+   * - py://nitpick/resources/python/38
+   * - py://nitpick/resources/python/39
+   * - py://nitpick/resources/python/absent
+   * - py://nitpick/resources/python/autoflake
+   * - py://nitpick/resources/python/bandit
+   * - py://nitpick/resources/python/black
+   * - py://nitpick/resources/python/flake8
+   * - py://nitpick/resources/python/github-workflow
+   * - py://nitpick/resources/python/hooks
+   * - py://nitpick/resources/python/ipython
+   * - py://nitpick/resources/python/isort
+   * - py://nitpick/resources/python/mypy
+   * - py://nitpick/resources/python/poetry
+   * - py://nitpick/resources/python/pylint
+   * - py://nitpick/resources/python/radon
+   * - py://nitpick/resources/python/readthedocs
+   * - py://nitpick/resources/python/sonar-python
+   * - py://nitpick/resources/python/stable
+   * - py://nitpick/resources/python/tox
+
+shell
+~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style
+   * - py://nitpick/resources/shell/bashate
+   * - py://nitpick/resources/shell/shellcheck
+.. auto-generated-end-style-library
+
 Quickstart
 ----------
 
@@ -163,7 +243,7 @@ Install
 ~~~~~~~
 
 Install in an isolated global environment with
-`pipx <https://github.com/pipxproject/pipx>`__::
+`pipx <https://github.com/pipxproject/pipx>`_::
 
     # Latest PyPI release
     pipx install nitpick
@@ -172,7 +252,7 @@ Install in an isolated global environment with
     pipx install git+https://github.com/andreoliwa/nitpick
 
 On macOS/Linux, install with
-`Homebrew <https://github.com/Homebrew/brew>`__::
+`Homebrew <https://github.com/Homebrew/brew>`_::
 
     # Latest PyPI release
     brew install andreoliwa/formulae/nitpick
@@ -185,7 +265,7 @@ On Arch Linux, install with yay::
     yay -Syu nitpick
 
 Add to your project with
-`Poetry <https://github.com/python-poetry/poetry>`__::
+`Poetry <https://github.com/python-poetry/poetry>`_::
 
     poetry add --dev nitpick
 
@@ -210,7 +290,7 @@ with at least one Python (``.py``) file::
     flake8 .
 
 Nitpick will download and use the opinionated `default style
-file <https://github.com/andreoliwa/nitpick/blob/v0.31.0/nitpick-style.toml>`__.
+file <https://github.com/andreoliwa/nitpick/blob/v0.31.0/nitpick-style.toml>`_.
 
 You can use it as a template to configure your own style.
 
@@ -245,15 +325,15 @@ More information
 
 Nitpick is being used by projects such as:
 
--  `wemake-services/wemake-python-styleguide <https://github.com/wemake-services/wemake-python-styleguide>`__
--  `dry-python/returns <https://github.com/dry-python/returns>`__
--  `sobolevn/django-split-settings <https://github.com/sobolevn/django-split-settings>`__
--  `catalyst-team/catalyst <https://github.com/catalyst-team/catalyst>`__
--  `alan-turing-institute/AutSPACEs <https://github.com/alan-turing-institute/AutSPACEs>`__
--  `pytest-dev/pytest-mimesis <https://github.com/pytest-dev/pytest-mimesis>`__
+-  `wemake-services/wemake-python-styleguide <https://github.com/wemake-services/wemake-python-styleguide>`_
+-  `dry-python/returns <https://github.com/dry-python/returns>`_
+-  `sobolevn/django-split-settings <https://github.com/sobolevn/django-split-settings>`_
+-  `catalyst-team/catalyst <https://github.com/catalyst-team/catalyst>`_
+-  `alan-turing-institute/AutSPACEs <https://github.com/alan-turing-institute/AutSPACEs>`_
+-  `pytest-dev/pytest-mimesis <https://github.com/pytest-dev/pytest-mimesis>`_
 
 For more details on styles and which configuration files are currently
-supported, `see the full documentation <https://nitpick.rtfd.io/>`__.
+supported, `see the full documentation <https://nitpick.rtfd.io/>`_.
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/nitpick.svg
    :target: https://pypi.org/project/nitpick
