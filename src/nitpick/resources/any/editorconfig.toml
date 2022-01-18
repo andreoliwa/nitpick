@@ -1,4 +1,6 @@
-# http://editorconfig.org/
+[nitpick.meta]
+name = "EditorConfig"
+url = "http://editorconfig.org/"
 
 [".editorconfig"]
 # top-most EditorConfig file

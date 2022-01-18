@@ -1,4 +1,7 @@
-# See https://pre-commit.com for more information
+[nitpick.meta]
+name = "pre-commit-hooks: Out-of-the-box hooks for pre-commit"
+url = "https://github.com/pre-commit/pre-commit-hooks"
+
 # See https://pre-commit.com/hooks.html for more hooks
 
 [nitpick.files.present]

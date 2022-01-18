@@ -62,9 +62,17 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
     setup_cfg = fields.Nested(IniSchema, data_key=SETUP_CFG)
 
 
+class NitpickMetaSchema(BaseNitpickSchema):
+    """Meta info about a specific TOML style file."""
+
+    name = fields.String()
+    url = fields.URL()
+
+
 class NitpickSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick]`` section on the style file."""
 
+    meta = fields.Nested(NitpickMetaSchema)
     minimum_version = fields.NonEmptyString()
     styles = fields.Nested(NitpickStylesSectionSchema)
     files = fields.Nested(NitpickFilesSectionSchema)

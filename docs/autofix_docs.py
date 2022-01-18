@@ -379,7 +379,8 @@ def write_readme(file_types: Set[FileType], divider: str) -> int:
 class StyleLibraryRow:  # pylint: disable=too-few-public-methods
     """Row in the style library."""
 
-    link: str
+    name: str
+    style: str
 
 
 def write_style_library(divider: str) -> int:
@@ -387,13 +388,24 @@ def write_style_library(divider: str) -> int:
     library: Dict[str, List[Tuple]] = defaultdict(list)
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
-        row = StyleLibraryRow(link=f"`{style.py_url} <{style.from_repo_root}>`_")
+        row = StyleLibraryRow(
+            name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
+            style=f"``{style.py_pretty_url}`` (`link <{style.from_repo_root}>`_)",
+        )
         library[style.identify_tag].append(attr.astuple(row))
 
     lines = []
     for tag, rows in library.items():
         lines.extend(["", tag, "~" * len(tag), ""])
-        lines.extend(rst_table(("Style",), rows))
+        lines.extend(
+            rst_table(
+                (
+                    "Name",
+                    "Style URL",
+                ),
+                rows,
+            )
+        )
     return DocFile("../README.rst").write(lines, divider)
 
 
@@ -403,7 +415,7 @@ if __name__ == "__main__":
         + write_readme(PLANNED_FILE_TYPES, "planned")
         + write_style_library("style-library")
         + write_config()
-        + write_examples()
+        + write_examples()  # FIXME: the style library replaces this
         + write_plugins()
         + write_cli()
     )

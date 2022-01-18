@@ -7,6 +7,7 @@ from typing import Iterable, Tuple
 from urllib.parse import urlparse
 
 import attr
+import tomlkit
 
 from nitpick import compat
 from nitpick.constants import DOT, SLASH
@@ -82,21 +83,38 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
     """A built-in style file in TOML format."""
 
     py_url: str
+    py_pretty_url: str
     from_repo_root: str
     from_resources_root: str
 
     pypackage_url: PythonPackageURL = attr.field(init=False)
     identify_tag: str = attr.field(init=False)
+    name: str = attr.field(init=False)
+    url: str = attr.field(init=False)
 
     @classmethod
     def from_path(cls, resource_path: Path) -> "BuiltinStyle":
         """Create a built-in style from a resource path."""
         path_without_ext = str(resource_path.with_suffix(""))
         bis = BuiltinStyle(
-            py_url=path_without_ext.replace(str(builtin_resources_root().parent.parent), "py:/"),
+            py_url=str(resource_path).replace(str(builtin_resources_root().parent.parent), "py:/"),
+            py_pretty_url=path_without_ext.replace(str(builtin_resources_root().parent.parent), "py:/"),
             from_repo_root=str(resource_path).replace(str(repo_root()), "").lstrip(SLASH),
             from_resources_root=path_without_ext.replace(str(builtin_resources_root()), "").lstrip(SLASH),
         )
         bis.pypackage_url = PythonPackageURL.parse_url(bis.py_url)
         bis.identify_tag = bis.from_resources_root.split(SLASH)[0]
+
+        toml_dict = tomlkit.loads(bis.pypackage_url.raw_content_url.read_text(encoding="UTF-8"))
+
+        try:
+            meta = toml_dict.get("nitpick", {}).get("meta", {})
+            bis.name = meta.get("name", bis.from_resources_root)
+            bis.url = meta.get("url", "")
+            # FIXME: break code when styles don't have [nitpick.meta]:
+            # meta = toml_dict["nitpick"]["meta"]
+            # bis.name = meta["name"]
+            # bis.url = meta["url"]
+        except KeyError as err:
+            raise KeyError(f"Style file missing [nitpick.meta] information: {bis}") from err
         return bis

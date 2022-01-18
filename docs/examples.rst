@@ -22,7 +22,10 @@ Contents of `resources/any/codeclimate.toml <https://github.com/andreoliwa/nitpi
 
 .. code-block:: toml
 
-    # https://codeclimate.com/
+    [nitpick.meta]
+    name = "CodeClimate"
+    url = "https://codeclimate.com/"
+
     # https://docs.codeclimate.com/docs/maintainability#section-checks
     # https://docs.codeclimate.com/docs/advanced-configuration#default-checks
     [".codeclimate.yml"]
@@ -48,6 +51,10 @@ Contents of `resources/any/commitizen.toml <https://github.com/andreoliwa/nitpic
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "Commitizen (Python)"
+    url = "https://github.com/commitizen-tools/commitizen"
+
     [[".pre-commit-config.yaml".repos]]
     repo = "https://github.com/commitizen-tools/commitizen"
 
@@ -63,6 +70,10 @@ commitlint_
 Contents of `resources/any/commitlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/any/commitlint.toml>`_:
 
 .. code-block::
+
+    [nitpick.meta]
+    name = "commitlint"
+    url = "https://github.com/conventional-changelog/commitlint"
 
     ["package.json".contains_json]
     commitlint = """
@@ -90,7 +101,9 @@ Contents of `resources/any/editorconfig.toml <https://github.com/andreoliwa/nitp
 
 .. code-block:: toml
 
-    # http://editorconfig.org/
+    [nitpick.meta]
+    name = "EditorConfig"
+    url = "http://editorconfig.org/"
 
     [".editorconfig"]
     # top-most EditorConfig file
@@ -133,6 +146,10 @@ Contents of `resources/any/git-legal.toml <https://github.com/andreoliwa/nitpick
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "Git.legal - CodeClimate Community Edition"
+    url = "https://github.com/kmewhort/git.legal-codeclimate"
+
     [".codeclimate.yml".plugins.git-legal]  # https://docs.codeclimate.com/docs/git-legal
     enabled = true
 
@@ -145,7 +162,10 @@ Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blo
 
 .. code-block:: toml
 
-    # See https://pre-commit.com for more information
+    [nitpick.meta]
+    name = "pre-commit-hooks: Out-of-the-box hooks for pre-commit"
+    url = "https://github.com/pre-commit/pre-commit-hooks"
+
     # See https://pre-commit.com/hooks.html for more hooks
 
     [nitpick.files.present]
