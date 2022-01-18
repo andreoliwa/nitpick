@@ -375,11 +375,11 @@ def write_readme(file_types: Set[FileType], divider: str) -> int:
     return DocFile("../README.rst").write(lines, divider)
 
 
-@attr.frozen()
+@attr.frozen(kw_only=True)
 class StyleLibraryRow:  # pylint: disable=too-few-public-methods
     """Row in the style library."""
 
-    url: str
+    link: str
 
 
 def write_style_library(divider: str) -> int:
@@ -387,7 +387,8 @@ def write_style_library(divider: str) -> int:
     library: Dict[str, List[Tuple]] = defaultdict(list)
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
-        library[style.identify_tag].append(attr.astuple(StyleLibraryRow(style.url)))
+        row = StyleLibraryRow(link=f"`{style.py_url} <{style.from_repo_root}>`_")
+        library[style.identify_tag].append(attr.astuple(row))
 
     lines = []
     for tag, rows in library.items():

@@ -14,14 +14,20 @@ from nitpick.style.fetchers.base import StyleFetcher
 
 
 @lru_cache()
-def builtin_resources_path() -> Path:
-    """Path to the built-in resources."""
+def builtin_resources_root() -> Path:
+    """Built-in resources root."""
     return compat.files("nitpick.resources")
+
+
+@lru_cache()
+def repo_root() -> Path:
+    """Repository root, 3 levels up from the resources root."""
+    return builtin_resources_root().parent.parent.parent
 
 
 def builtin_styles() -> Iterable[Path]:
     """List the built-in styles."""
-    yield from builtin_resources_path().glob("**/*.toml")
+    yield from builtin_resources_root().glob("**/*.toml")
 
 
 @dataclass(unsafe_hash=True)
@@ -75,19 +81,22 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
 class BuiltinStyle:  # pylint: disable=too-few-public-methods
     """A built-in style file in TOML format."""
 
-    url: str
-    path_from_root: str
+    py_url: str
+    from_repo_root: str
+    from_resources_root: str
+
     pypackage_url: PythonPackageURL = attr.field(init=False)
     identify_tag: str = attr.field(init=False)
 
     @classmethod
     def from_path(cls, resource_path: Path) -> "BuiltinStyle":
         """Create a built-in style from a resource path."""
-        full_path_without_extension = str(resource_path.with_suffix(""))
+        path_without_ext = str(resource_path.with_suffix(""))
         bis = BuiltinStyle(
-            url=full_path_without_extension.replace(str(builtin_resources_path().parent.parent), "py:/"),
-            path_from_root=full_path_without_extension.replace(str(builtin_resources_path()), "").lstrip("/"),
+            py_url=path_without_ext.replace(str(builtin_resources_root().parent.parent), "py:/"),
+            from_repo_root=str(resource_path).replace(str(repo_root()), "").lstrip(SLASH),
+            from_resources_root=path_without_ext.replace(str(builtin_resources_root()), "").lstrip(SLASH),
         )
-        bis.pypackage_url = PythonPackageURL.parse_url(bis.url)
-        bis.identify_tag = bis.path_from_root.split(SLASH)[0]
+        bis.pypackage_url = PythonPackageURL.parse_url(bis.py_url)
+        bis.identify_tag = bis.from_resources_root.split(SLASH)[0]
         return bis

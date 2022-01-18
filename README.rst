@@ -178,14 +178,14 @@ any
    :header-rows: 1
 
    * - Style
-   * - py://nitpick/resources/any/codeclimate
-   * - py://nitpick/resources/any/commitizen
-   * - py://nitpick/resources/any/commitlint
-   * - py://nitpick/resources/any/editorconfig
-   * - py://nitpick/resources/any/git-legal
-   * - py://nitpick/resources/any/hooks
-   * - py://nitpick/resources/any/markdownlint
-   * - py://nitpick/resources/any/prettier
+   * - `py://nitpick/resources/any/codeclimate <src/nitpick/resources/any/codeclimate.toml>`_
+   * - `py://nitpick/resources/any/commitizen <src/nitpick/resources/any/commitizen.toml>`_
+   * - `py://nitpick/resources/any/commitlint <src/nitpick/resources/any/commitlint.toml>`_
+   * - `py://nitpick/resources/any/editorconfig <src/nitpick/resources/any/editorconfig.toml>`_
+   * - `py://nitpick/resources/any/git-legal <src/nitpick/resources/any/git-legal.toml>`_
+   * - `py://nitpick/resources/any/hooks <src/nitpick/resources/any/hooks.toml>`_
+   * - `py://nitpick/resources/any/markdownlint <src/nitpick/resources/any/markdownlint.toml>`_
+   * - `py://nitpick/resources/any/prettier <src/nitpick/resources/any/prettier.toml>`_
 
 javascript
 ~~~~~~~~~~
@@ -194,7 +194,7 @@ javascript
    :header-rows: 1
 
    * - Style
-   * - py://nitpick/resources/javascript/package-json
+   * - `py://nitpick/resources/javascript/package-json <src/nitpick/resources/javascript/package-json.toml>`_
 
 python
 ~~~~~~
@@ -203,27 +203,27 @@ python
    :header-rows: 1
 
    * - Style
-   * - py://nitpick/resources/python/310
-   * - py://nitpick/resources/python/37
-   * - py://nitpick/resources/python/38
-   * - py://nitpick/resources/python/39
-   * - py://nitpick/resources/python/absent
-   * - py://nitpick/resources/python/autoflake
-   * - py://nitpick/resources/python/bandit
-   * - py://nitpick/resources/python/black
-   * - py://nitpick/resources/python/flake8
-   * - py://nitpick/resources/python/github-workflow
-   * - py://nitpick/resources/python/hooks
-   * - py://nitpick/resources/python/ipython
-   * - py://nitpick/resources/python/isort
-   * - py://nitpick/resources/python/mypy
-   * - py://nitpick/resources/python/poetry
-   * - py://nitpick/resources/python/pylint
-   * - py://nitpick/resources/python/radon
-   * - py://nitpick/resources/python/readthedocs
-   * - py://nitpick/resources/python/sonar-python
-   * - py://nitpick/resources/python/stable
-   * - py://nitpick/resources/python/tox
+   * - `py://nitpick/resources/python/310 <src/nitpick/resources/python/310.toml>`_
+   * - `py://nitpick/resources/python/37 <src/nitpick/resources/python/37.toml>`_
+   * - `py://nitpick/resources/python/38 <src/nitpick/resources/python/38.toml>`_
+   * - `py://nitpick/resources/python/39 <src/nitpick/resources/python/39.toml>`_
+   * - `py://nitpick/resources/python/absent <src/nitpick/resources/python/absent.toml>`_
+   * - `py://nitpick/resources/python/autoflake <src/nitpick/resources/python/autoflake.toml>`_
+   * - `py://nitpick/resources/python/bandit <src/nitpick/resources/python/bandit.toml>`_
+   * - `py://nitpick/resources/python/black <src/nitpick/resources/python/black.toml>`_
+   * - `py://nitpick/resources/python/flake8 <src/nitpick/resources/python/flake8.toml>`_
+   * - `py://nitpick/resources/python/github-workflow <src/nitpick/resources/python/github-workflow.toml>`_
+   * - `py://nitpick/resources/python/hooks <src/nitpick/resources/python/hooks.toml>`_
+   * - `py://nitpick/resources/python/ipython <src/nitpick/resources/python/ipython.toml>`_
+   * - `py://nitpick/resources/python/isort <src/nitpick/resources/python/isort.toml>`_
+   * - `py://nitpick/resources/python/mypy <src/nitpick/resources/python/mypy.toml>`_
+   * - `py://nitpick/resources/python/poetry <src/nitpick/resources/python/poetry.toml>`_
+   * - `py://nitpick/resources/python/pylint <src/nitpick/resources/python/pylint.toml>`_
+   * - `py://nitpick/resources/python/radon <src/nitpick/resources/python/radon.toml>`_
+   * - `py://nitpick/resources/python/readthedocs <src/nitpick/resources/python/readthedocs.toml>`_
+   * - `py://nitpick/resources/python/sonar-python <src/nitpick/resources/python/sonar-python.toml>`_
+   * - `py://nitpick/resources/python/stable <src/nitpick/resources/python/stable.toml>`_
+   * - `py://nitpick/resources/python/tox <src/nitpick/resources/python/tox.toml>`_
 
 shell
 ~~~~~
@@ -232,8 +232,8 @@ shell
    :header-rows: 1
 
    * - Style
-   * - py://nitpick/resources/shell/bashate
-   * - py://nitpick/resources/shell/shellcheck
+   * - `py://nitpick/resources/shell/bashate <src/nitpick/resources/shell/bashate.toml>`_
+   * - `py://nitpick/resources/shell/shellcheck <src/nitpick/resources/shell/shellcheck.toml>`_
 .. auto-generated-end-style-library
 
 Quickstart
