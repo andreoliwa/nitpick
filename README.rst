@@ -177,24 +177,24 @@ any
 .. list-table::
    :header-rows: 1
 
-   * - Name
-     - Style URL
-   * - `CodeClimate <https://codeclimate.com/>`_
-     - ``py://nitpick/resources/any/codeclimate`` (`link <src/nitpick/resources/any/codeclimate.toml>`_)
-   * - `Commitizen (Python) <https://github.com/commitizen-tools/commitizen>`_
-     - ``py://nitpick/resources/any/commitizen`` (`link <src/nitpick/resources/any/commitizen.toml>`_)
-   * - `commitlint <https://github.com/conventional-changelog/commitlint>`_
-     - ``py://nitpick/resources/any/commitlint`` (`link <src/nitpick/resources/any/commitlint.toml>`_)
-   * - `EditorConfig <http://editorconfig.org/>`_
-     - ``py://nitpick/resources/any/editorconfig`` (`link <src/nitpick/resources/any/editorconfig.toml>`_)
-   * - `Git.legal - CodeClimate Community Edition <https://github.com/kmewhort/git.legal-codeclimate>`_
-     - ``py://nitpick/resources/any/git-legal`` (`link <src/nitpick/resources/any/git-legal.toml>`_)
-   * - any/markdownlint
-     - ``py://nitpick/resources/any/markdownlint`` (`link <src/nitpick/resources/any/markdownlint.toml>`_)
-   * - `pre-commit hooks (generic) <https://github.com/pre-commit/pre-commit-hooks>`_
-     - ``py://nitpick/resources/any/pre-commit-hooks`` (`link <src/nitpick/resources/any/pre-commit-hooks.toml>`_)
-   * - any/prettier
-     - ``py://nitpick/resources/any/prettier`` (`link <src/nitpick/resources/any/prettier.toml>`_)
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/any/codeclimate`` (`link <src/nitpick/resources/any/codeclimate.toml>`_)
+     - `CodeClimate <https://codeclimate.com/>`_
+   * - ``py://nitpick/resources/any/commitizen`` (`link <src/nitpick/resources/any/commitizen.toml>`_)
+     - `Commitizen (Python) <https://github.com/commitizen-tools/commitizen>`_
+   * - ``py://nitpick/resources/any/commitlint`` (`link <src/nitpick/resources/any/commitlint.toml>`_)
+     - `commitlint <https://github.com/conventional-changelog/commitlint>`_
+   * - ``py://nitpick/resources/any/editorconfig`` (`link <src/nitpick/resources/any/editorconfig.toml>`_)
+     - `EditorConfig <http://editorconfig.org/>`_
+   * - ``py://nitpick/resources/any/git-legal`` (`link <src/nitpick/resources/any/git-legal.toml>`_)
+     - `Git.legal - CodeClimate Community Edition <https://github.com/kmewhort/git.legal-codeclimate>`_
+   * - ``py://nitpick/resources/any/markdownlint`` (`link <src/nitpick/resources/any/markdownlint.toml>`_)
+     - `Markdown lint <https://github.com/markdownlint/markdownlint>`_
+   * - ``py://nitpick/resources/any/pre-commit-hooks`` (`link <src/nitpick/resources/any/pre-commit-hooks.toml>`_)
+     - `pre-commit hooks for any project <https://github.com/pre-commit/pre-commit-hooks>`_
+   * - ``py://nitpick/resources/any/prettier`` (`link <src/nitpick/resources/any/prettier.toml>`_)
+     - `Prettier <https://github.com/prettier/prettier>`_
 
 javascript
 ~~~~~~~~~~
@@ -202,10 +202,10 @@ javascript
 .. list-table::
    :header-rows: 1
 
-   * - Name
-     - Style URL
-   * - javascript/package-json
-     - ``py://nitpick/resources/javascript/package-json`` (`link <src/nitpick/resources/javascript/package-json.toml>`_)
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/javascript/package-json`` (`link <src/nitpick/resources/javascript/package-json.toml>`_)
+     - `package.json <https://github.com/yarnpkg/website/blob/master/lang/en/docs/package-json.md>`_
 
 python
 ~~~~~~
@@ -213,50 +213,50 @@ python
 .. list-table::
    :header-rows: 1
 
-   * - Name
-     - Style URL
-   * - python/310
-     - ``py://nitpick/resources/python/310`` (`link <src/nitpick/resources/python/310.toml>`_)
-   * - python/37
-     - ``py://nitpick/resources/python/37`` (`link <src/nitpick/resources/python/37.toml>`_)
-   * - python/38
-     - ``py://nitpick/resources/python/38`` (`link <src/nitpick/resources/python/38.toml>`_)
-   * - python/39
-     - ``py://nitpick/resources/python/39`` (`link <src/nitpick/resources/python/39.toml>`_)
-   * - python/absent
-     - ``py://nitpick/resources/python/absent`` (`link <src/nitpick/resources/python/absent.toml>`_)
-   * - python/autoflake
-     - ``py://nitpick/resources/python/autoflake`` (`link <src/nitpick/resources/python/autoflake.toml>`_)
-   * - python/bandit
-     - ``py://nitpick/resources/python/bandit`` (`link <src/nitpick/resources/python/bandit.toml>`_)
-   * - python/black
-     - ``py://nitpick/resources/python/black`` (`link <src/nitpick/resources/python/black.toml>`_)
-   * - python/flake8
-     - ``py://nitpick/resources/python/flake8`` (`link <src/nitpick/resources/python/flake8.toml>`_)
-   * - python/github-workflow
-     - ``py://nitpick/resources/python/github-workflow`` (`link <src/nitpick/resources/python/github-workflow.toml>`_)
-   * - python/ipython
-     - ``py://nitpick/resources/python/ipython`` (`link <src/nitpick/resources/python/ipython.toml>`_)
-   * - python/isort
-     - ``py://nitpick/resources/python/isort`` (`link <src/nitpick/resources/python/isort.toml>`_)
-   * - python/mypy
-     - ``py://nitpick/resources/python/mypy`` (`link <src/nitpick/resources/python/mypy.toml>`_)
-   * - python/poetry
-     - ``py://nitpick/resources/python/poetry`` (`link <src/nitpick/resources/python/poetry.toml>`_)
-   * - pre-commit hooks (Python)
-     - ``py://nitpick/resources/python/pre-commit-hooks`` (`link <src/nitpick/resources/python/pre-commit-hooks.toml>`_)
-   * - python/pylint
-     - ``py://nitpick/resources/python/pylint`` (`link <src/nitpick/resources/python/pylint.toml>`_)
-   * - python/radon
-     - ``py://nitpick/resources/python/radon`` (`link <src/nitpick/resources/python/radon.toml>`_)
-   * - python/readthedocs
-     - ``py://nitpick/resources/python/readthedocs`` (`link <src/nitpick/resources/python/readthedocs.toml>`_)
-   * - python/sonar-python
-     - ``py://nitpick/resources/python/sonar-python`` (`link <src/nitpick/resources/python/sonar-python.toml>`_)
-   * - python/stable
-     - ``py://nitpick/resources/python/stable`` (`link <src/nitpick/resources/python/stable.toml>`_)
-   * - python/tox
-     - ``py://nitpick/resources/python/tox`` (`link <src/nitpick/resources/python/tox.toml>`_)
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/python/310`` (`link <src/nitpick/resources/python/310.toml>`_)
+     - Python 3.10
+   * - ``py://nitpick/resources/python/37`` (`link <src/nitpick/resources/python/37.toml>`_)
+     - Python 3.7
+   * - ``py://nitpick/resources/python/38`` (`link <src/nitpick/resources/python/38.toml>`_)
+     - Python 3.8
+   * - ``py://nitpick/resources/python/39`` (`link <src/nitpick/resources/python/39.toml>`_)
+     - Python 3.9
+   * - ``py://nitpick/resources/python/absent`` (`link <src/nitpick/resources/python/absent.toml>`_)
+     - Files that should not exist
+   * - ``py://nitpick/resources/python/autoflake`` (`link <src/nitpick/resources/python/autoflake.toml>`_)
+     - `autoflake <https://github.com/myint/autoflake>`_
+   * - ``py://nitpick/resources/python/bandit`` (`link <src/nitpick/resources/python/bandit.toml>`_)
+     - `Bandit <https://github.com/PyCQA/bandit>`_
+   * - ``py://nitpick/resources/python/black`` (`link <src/nitpick/resources/python/black.toml>`_)
+     - `Black <https://github.com/psf/black>`_
+   * - ``py://nitpick/resources/python/flake8`` (`link <src/nitpick/resources/python/flake8.toml>`_)
+     - `Flake8 <https://github.com/PyCQA/flake8>`_
+   * - ``py://nitpick/resources/python/github-workflow`` (`link <src/nitpick/resources/python/github-workflow.toml>`_)
+     - `GitHub Workflow for Python <https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions>`_
+   * - ``py://nitpick/resources/python/ipython`` (`link <src/nitpick/resources/python/ipython.toml>`_)
+     - `IPython <https://github.com/ipython/ipython>`_
+   * - ``py://nitpick/resources/python/isort`` (`link <src/nitpick/resources/python/isort.toml>`_)
+     - `isort <https://github.com/PyCQA/isort>`_
+   * - ``py://nitpick/resources/python/mypy`` (`link <src/nitpick/resources/python/mypy.toml>`_)
+     - `Mypy <https://github.com/python/mypy>`_
+   * - ``py://nitpick/resources/python/poetry`` (`link <src/nitpick/resources/python/poetry.toml>`_)
+     - `Poetry <https://github.com/python-poetry/poetry>`_
+   * - ``py://nitpick/resources/python/pre-commit-hooks`` (`link <src/nitpick/resources/python/pre-commit-hooks.toml>`_)
+     - `pre-commit hooks for Python projects <https://pre-commit.com/hooks>`_
+   * - ``py://nitpick/resources/python/pylint`` (`link <src/nitpick/resources/python/pylint.toml>`_)
+     - `Pylint <https://github.com/PyCQA/pylint>`_
+   * - ``py://nitpick/resources/python/radon`` (`link <src/nitpick/resources/python/radon.toml>`_)
+     - `Radon <https://github.com/rubik/radon>`_
+   * - ``py://nitpick/resources/python/readthedocs`` (`link <src/nitpick/resources/python/readthedocs.toml>`_)
+     - `Read the Docs <https://github.com/readthedocs/readthedocs.org>`_
+   * - ``py://nitpick/resources/python/sonar-python`` (`link <src/nitpick/resources/python/sonar-python.toml>`_)
+     - `SonarQube Python plugin <https://github.com/SonarSource/sonar-python>`_
+   * - ``py://nitpick/resources/python/stable`` (`link <src/nitpick/resources/python/stable.toml>`_)
+     - Current stable Python version
+   * - ``py://nitpick/resources/python/tox`` (`link <src/nitpick/resources/python/tox.toml>`_)
+     - `tox <https://github.com/tox-dev/tox>`_
 
 shell
 ~~~~~
@@ -264,12 +264,12 @@ shell
 .. list-table::
    :header-rows: 1
 
-   * - Name
-     - Style URL
-   * - shell/bashate
-     - ``py://nitpick/resources/shell/bashate`` (`link <src/nitpick/resources/shell/bashate.toml>`_)
-   * - shell/shellcheck
-     - ``py://nitpick/resources/shell/shellcheck`` (`link <src/nitpick/resources/shell/shellcheck.toml>`_)
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/shell/bashate`` (`link <src/nitpick/resources/shell/bashate.toml>`_)
+     - `bashate <https://github.com/openstack/bashate>`_
+   * - ``py://nitpick/resources/shell/shellcheck`` (`link <src/nitpick/resources/shell/shellcheck.toml>`_)
+     - `ShellCheck <https://github.com/koalaman/shellcheck>`_
 .. auto-generated-end-style-library
 
 Quickstart

@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "Bandit"
+url = "https://github.com/PyCQA/bandit"
+
 [[".pre-commit-config.yaml".repos]]
 repo = "https://github.com/PyCQA/bandit"
 

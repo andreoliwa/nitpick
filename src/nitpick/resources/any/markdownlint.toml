@@ -1,3 +1,6 @@
+[nitpick.meta]
+name = "Markdown lint"
+url = "https://github.com/markdownlint/markdownlint"
+
 [".codeclimate.yml".plugins.markdownlint]  # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
-# https://github.com/markdownlint/markdownlint
 enabled = false

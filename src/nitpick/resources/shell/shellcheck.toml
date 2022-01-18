@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "ShellCheck"
+url = "https://github.com/koalaman/shellcheck"
+
 [".codeclimate.yml".plugins.shellcheck]  # https://docs.codeclimate.com/docs/shellcheck
 # https://github.com/koalaman/shellcheck
 enabled = true

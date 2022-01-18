@@ -108,13 +108,10 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
         toml_dict = tomlkit.loads(bis.pypackage_url.raw_content_url.read_text(encoding="UTF-8"))
 
         try:
-            meta = toml_dict.get("nitpick", {}).get("meta", {})
-            bis.name = meta.get("name", bis.from_resources_root)
-            bis.url = meta.get("url", "")
-            # FIXME: break code when styles don't have [nitpick.meta]:
-            # meta = toml_dict["nitpick"]["meta"]
-            # bis.name = meta["name"]
-            # bis.url = meta["url"]
+            # Intentionally break the doc generation when styles don't have [nitpick.meta]name
+            meta = toml_dict["nitpick"]["meta"]
+            bis.name = meta["name"]
+            bis.url = meta.get("url")
         except KeyError as err:
-            raise KeyError(f"Style file missing [nitpick.meta] information: {bis}") from err
+            raise SyntaxError(f"Style file missing [nitpick.meta] information: {bis}") from err
         return bis

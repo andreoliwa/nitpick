@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "autoflake"
+url = "https://github.com/myint/autoflake"
+
 [[".pre-commit-config.yaml".repos]]
 repo = "https://github.com/myint/autoflake"
 

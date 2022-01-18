@@ -1,2 +1,6 @@
+[nitpick.meta]
+name = "Poetry"
+url = "https://github.com/python-poetry/poetry"
+
 [nitpick.files.present]
 "pyproject.toml" = "Install poetry and run 'poetry init' to create it"

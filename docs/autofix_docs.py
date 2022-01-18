@@ -366,7 +366,7 @@ def rst_table(header: Tuple[str, ...], rows: List[Tuple[str, ...]]) -> List[str]
 
 def write_readme(file_types: Set[FileType], divider: str) -> int:
     """Write the README."""
-    # FIXME: quickstart.rst has some parts of README.rst as a copy/paste/change
+    # TODO: quickstart.rst has some parts of README.rst as a copy/paste/change
     rows: List[Tuple[str, ...]] = []
     for file_type in sorted(file_types):
         rows.append(file_type.row)
@@ -379,8 +379,8 @@ def write_readme(file_types: Set[FileType], divider: str) -> int:
 class StyleLibraryRow:  # pylint: disable=too-few-public-methods
     """Row in the style library."""
 
-    name: str
     style: str
+    name: str
 
 
 def write_style_library(divider: str) -> int:
@@ -390,8 +390,8 @@ def write_style_library(divider: str) -> int:
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
         row = StyleLibraryRow(
-            name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
             style=f"``{style.py_pretty_url}`` (`link <{style.from_repo_root}>`_)",
+            name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
         )
         library[style.identify_tag].append(attr.astuple(row))
 
@@ -401,8 +401,8 @@ def write_style_library(divider: str) -> int:
         lines.extend(
             rst_table(
                 (
-                    "Name",
                     "Style URL",
+                    "Description",
                 ),
                 rows,
             )

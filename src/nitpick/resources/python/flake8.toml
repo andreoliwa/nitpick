@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "Flake8"
+url = "https://github.com/PyCQA/flake8"
+
 ["setup.cfg".flake8]
 # http://www.pydocstyle.org/en/2.1.1/error_codes.html
 # Ignoring W503: https://github.com/python/black#line-breaks--binary-operators

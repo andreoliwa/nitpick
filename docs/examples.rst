@@ -162,8 +162,11 @@ Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitp
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "Markdown lint"
+    url = "https://github.com/markdownlint/markdownlint"
+
     [".codeclimate.yml".plugins.markdownlint]  # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
-    # https://github.com/markdownlint/markdownlint
     enabled = false
 
 .. _example-pre-commit-hooks-for-any-language:
@@ -176,7 +179,7 @@ Contents of `resources/any/pre-commit-hooks.toml <https://github.com/andreoliwa/
 .. code-block:: toml
 
     [nitpick.meta]
-    name = "pre-commit hooks (generic)"
+    name = "pre-commit hooks for any project"
     url = "https://github.com/pre-commit/pre-commit-hooks"
 
     # See https://pre-commit.com/hooks.html for more hooks
@@ -202,6 +205,10 @@ Contents of `resources/any/prettier.toml <https://github.com/andreoliwa/nitpick/
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "Prettier"
+    url = "https://github.com/prettier/prettier"
+
     [[".pre-commit-config.yaml".repos]]
     repo = "https://github.com/pre-commit/mirrors-prettier"
 
@@ -218,6 +225,10 @@ Contents of `resources/javascript/package-json.toml <https://github.com/andreoli
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "package.json"
+    url = "https://github.com/yarnpkg/website/blob/master/lang/en/docs/package-json.md"
+
     ["package.json"]
     contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]
 
@@ -229,6 +240,9 @@ Python 3.10
 Contents of `resources/python/310.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/310.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Python 3.10"
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.10"
@@ -242,6 +256,9 @@ Contents of `resources/python/37.toml <https://github.com/andreoliwa/nitpick/blo
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "Python 3.7"
+
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.7"
 
@@ -253,6 +270,9 @@ Python 3.8
 Contents of `resources/python/38.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/38.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Python 3.8"
 
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.8"
@@ -266,6 +286,9 @@ Contents of `resources/python/39.toml <https://github.com/andreoliwa/nitpick/blo
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "Python 3.9"
+
     ["pyproject.toml".tool.poetry.dependencies]
     python = "^3.9"
 
@@ -277,6 +300,9 @@ Absent files
 Contents of `resources/python/absent.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/absent.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Files that should not exist"
 
     [nitpick.files.absent]
     "requirements.txt" = "Install poetry, run 'poetry init' to create pyproject.toml, and move dependencies to it"
@@ -295,6 +321,10 @@ Contents of `resources/python/autoflake.toml <https://github.com/andreoliwa/nitp
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "autoflake"
+    url = "https://github.com/myint/autoflake"
+
     [[".pre-commit-config.yaml".repos]]
     repo = "https://github.com/myint/autoflake"
 
@@ -310,6 +340,10 @@ bandit_
 Contents of `resources/python/bandit.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/bandit.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Bandit"
+    url = "https://github.com/PyCQA/bandit"
 
     [[".pre-commit-config.yaml".repos]]
     repo = "https://github.com/PyCQA/bandit"
@@ -331,6 +365,10 @@ black_
 Contents of `resources/python/black.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/black.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Black"
+    url = "https://github.com/psf/black"
 
     ["pyproject.toml".tool.black]
     line-length = 120
@@ -357,6 +395,10 @@ flake8_
 Contents of `resources/python/flake8.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/flake8.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Flake8"
+    url = "https://github.com/PyCQA/flake8"
 
     ["setup.cfg".flake8]
     # http://www.pydocstyle.org/en/2.1.1/error_codes.html
@@ -388,6 +430,10 @@ GitHub Workflow (Python)
 Contents of `resources/python/github-workflow.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/github-workflow.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "GitHub Workflow for Python"
+    url = "https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions"
 
     [".github/workflows/python.yaml"]
     name = "Python"
@@ -431,6 +477,10 @@ Contents of `resources/python/ipython.toml <https://github.com/andreoliwa/nitpic
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "IPython"
+    url = "https://github.com/ipython/ipython"
+
     ["pyproject.toml".tool.poetry.dev-dependencies]
     ipython = "*"
     ipdb = "*"
@@ -443,6 +493,10 @@ isort_
 Contents of `resources/python/isort.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/isort.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "isort"
+    url = "https://github.com/PyCQA/isort"
 
     ["setup.cfg".isort]
     line_length = 120
@@ -471,6 +525,10 @@ mypy_
 Contents of `resources/python/mypy.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/mypy.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Mypy"
+    url = "https://github.com/python/mypy"
 
     # https://mypy.readthedocs.io/en/latest/config_file.html
     ["setup.cfg".mypy]
@@ -506,6 +564,10 @@ Contents of `resources/python/poetry.toml <https://github.com/andreoliwa/nitpick
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "Poetry"
+    url = "https://github.com/python-poetry/poetry"
+
     [nitpick.files.present]
     "pyproject.toml" = "Install poetry and run 'poetry init' to create it"
 
@@ -519,7 +581,8 @@ Contents of `resources/python/pre-commit-hooks.toml <https://github.com/andreoli
 .. code-block:: toml
 
     [nitpick.meta]
-    name = "pre-commit hooks (Python)"
+    name = "pre-commit hooks for Python projects"
+    url = "https://pre-commit.com/hooks"
 
     [[".pre-commit-config.yaml".repos]]
     repo = "https://github.com/pre-commit/pygrep-hooks"
@@ -560,6 +623,10 @@ Pylint_
 Contents of `resources/python/pylint.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/pylint.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Pylint"
+    url = "https://github.com/PyCQA/pylint"
 
     ["pyproject.toml".tool.poetry.dependencies]
     pylint = {version = "*", optional = true}
@@ -643,6 +710,10 @@ Contents of `resources/python/radon.toml <https://github.com/andreoliwa/nitpick/
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "Radon"
+    url = "https://github.com/rubik/radon"
+
     [".codeclimate.yml".plugins.radon]  # https://docs.codeclimate.com/docs/radon
     enabled = true
     [".codeclimate.yml".plugins.radon.config]
@@ -657,6 +728,10 @@ ReadTheDocs_
 Contents of `resources/python/readthedocs.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/readthedocs.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Read the Docs"
+    url = "https://github.com/readthedocs/readthedocs.org"
 
     # https://docs.readthedocs.io/en/stable/config-file/v2.html
     [".readthedocs.yml"]
@@ -680,8 +755,11 @@ Contents of `resources/python/sonar-python.toml <https://github.com/andreoliwa/n
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "SonarQube Python plugin"
+    url = "https://github.com/SonarSource/sonar-python"
+
     [".codeclimate.yml".plugins.sonar-python]  # https://docs.codeclimate.com/docs/sonar-python
-    # https://github.com/SonarSource/sonar-python
     enabled = true
 
 .. _example-python-stable-version:
@@ -692,6 +770,9 @@ Python (stable version)
 Contents of `resources/python/stable.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/stable.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "Current stable Python version"
 
     [".readthedocs.yml".python]
     # ReadTheDocs still didn't upgrade to Python 3.9:
@@ -706,6 +787,10 @@ tox_
 Contents of `resources/python/tox.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/tox.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "tox"
+    url = "https://github.com/tox-dev/tox"
 
     ["tox.ini".tox]
     # https://tox.readthedocs.io/en/latest/config.html
@@ -745,6 +830,10 @@ Contents of `resources/shell/bashate.toml <https://github.com/andreoliwa/nitpick
 
 .. code-block:: toml
 
+    [nitpick.meta]
+    name = "bashate"
+    url = "https://github.com/openstack/bashate"
+
     [[".pre-commit-config.yaml".repos]]
     repo = "https://github.com/openstack/bashate"
 
@@ -762,6 +851,10 @@ shellcheck_
 Contents of `resources/shell/shellcheck.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/shell/shellcheck.toml>`_:
 
 .. code-block:: toml
+
+    [nitpick.meta]
+    name = "ShellCheck"
+    url = "https://github.com/koalaman/shellcheck"
 
     [".codeclimate.yml".plugins.shellcheck]  # https://docs.codeclimate.com/docs/shellcheck
     # https://github.com/koalaman/shellcheck

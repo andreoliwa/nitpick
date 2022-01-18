@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "Black"
+url = "https://github.com/psf/black"
+
 ["pyproject.toml".tool.black]
 line-length = 120
 
