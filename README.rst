@@ -189,10 +189,10 @@ any
      - ``py://nitpick/resources/any/editorconfig`` (`link <src/nitpick/resources/any/editorconfig.toml>`_)
    * - `Git.legal - CodeClimate Community Edition <https://github.com/kmewhort/git.legal-codeclimate>`_
      - ``py://nitpick/resources/any/git-legal`` (`link <src/nitpick/resources/any/git-legal.toml>`_)
-   * - `pre-commit-hooks: Out-of-the-box hooks for pre-commit <https://github.com/pre-commit/pre-commit-hooks>`_
-     - ``py://nitpick/resources/any/hooks`` (`link <src/nitpick/resources/any/hooks.toml>`_)
    * - any/markdownlint
      - ``py://nitpick/resources/any/markdownlint`` (`link <src/nitpick/resources/any/markdownlint.toml>`_)
+   * - `pre-commit hooks (generic) <https://github.com/pre-commit/pre-commit-hooks>`_
+     - ``py://nitpick/resources/any/pre-commit-hooks`` (`link <src/nitpick/resources/any/pre-commit-hooks.toml>`_)
    * - any/prettier
      - ``py://nitpick/resources/any/prettier`` (`link <src/nitpick/resources/any/prettier.toml>`_)
 
@@ -235,8 +235,6 @@ python
      - ``py://nitpick/resources/python/flake8`` (`link <src/nitpick/resources/python/flake8.toml>`_)
    * - python/github-workflow
      - ``py://nitpick/resources/python/github-workflow`` (`link <src/nitpick/resources/python/github-workflow.toml>`_)
-   * - python/hooks
-     - ``py://nitpick/resources/python/hooks`` (`link <src/nitpick/resources/python/hooks.toml>`_)
    * - python/ipython
      - ``py://nitpick/resources/python/ipython`` (`link <src/nitpick/resources/python/ipython.toml>`_)
    * - python/isort
@@ -245,6 +243,8 @@ python
      - ``py://nitpick/resources/python/mypy`` (`link <src/nitpick/resources/python/mypy.toml>`_)
    * - python/poetry
      - ``py://nitpick/resources/python/poetry`` (`link <src/nitpick/resources/python/poetry.toml>`_)
+   * - pre-commit hooks (Python)
+     - ``py://nitpick/resources/python/pre-commit-hooks`` (`link <src/nitpick/resources/python/pre-commit-hooks.toml>`_)
    * - python/pylint
      - ``py://nitpick/resources/python/pylint`` (`link <src/nitpick/resources/python/pylint.toml>`_)
    * - python/radon

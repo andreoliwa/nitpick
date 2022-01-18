@@ -1,3 +1,6 @@
+[nitpick.meta]
+name = "pre-commit hooks (Python)"
+
 [[".pre-commit-config.yaml".repos]]
 repo = "https://github.com/pre-commit/pygrep-hooks"
 

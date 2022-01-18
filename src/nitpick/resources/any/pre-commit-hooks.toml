@@ -1,5 +1,5 @@
 [nitpick.meta]
-name = "pre-commit-hooks: Out-of-the-box hooks for pre-commit"
+name = "pre-commit hooks (generic)"
 url = "https://github.com/pre-commit/pre-commit-hooks"
 
 # See https://pre-commit.com/hooks.html for more hooks

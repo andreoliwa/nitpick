@@ -153,17 +153,30 @@ Contents of `resources/any/git-legal.toml <https://github.com/andreoliwa/nitpick
     [".codeclimate.yml".plugins.git-legal]  # https://docs.codeclimate.com/docs/git-legal
     enabled = true
 
+.. _example-markdownlint:
+
+markdownlint_
+-------------
+
+Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/any/markdownlint.toml>`_:
+
+.. code-block:: toml
+
+    [".codeclimate.yml".plugins.markdownlint]  # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
+    # https://github.com/markdownlint/markdownlint
+    enabled = false
+
 .. _example-pre-commit-hooks-for-any-language:
 
 pre-commit_ hooks for any language
 ----------------------------------
 
-Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/any/hooks.toml>`_:
+Contents of `resources/any/pre-commit-hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/any/pre-commit-hooks.toml>`_:
 
 .. code-block:: toml
 
     [nitpick.meta]
-    name = "pre-commit-hooks: Out-of-the-box hooks for pre-commit"
+    name = "pre-commit hooks (generic)"
     url = "https://github.com/pre-commit/pre-commit-hooks"
 
     # See https://pre-commit.com/hooks.html for more hooks
@@ -179,19 +192,6 @@ Contents of `resources/any/hooks.toml <https://github.com/andreoliwa/nitpick/blo
 
     [[".pre-commit-config.yaml".repos.hooks]]
     id = "trailing-whitespace"
-
-.. _example-markdownlint:
-
-markdownlint_
--------------
-
-Contents of `resources/any/markdownlint.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/any/markdownlint.toml>`_:
-
-.. code-block:: toml
-
-    [".codeclimate.yml".plugins.markdownlint]  # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
-    # https://github.com/markdownlint/markdownlint
-    enabled = false
 
 .. _example-prettier:
 
@@ -422,46 +422,6 @@ Contents of `resources/python/github-workflow.toml <https://github.com/andreoliw
     name = "Install tox"
     run = "python -m pip install tox"
 
-.. _example-pre-commit-hooks-for-python:
-
-pre-commit_ hooks for Python
-----------------------------
-
-Contents of `resources/python/hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/hooks.toml>`_:
-
-.. code-block:: toml
-
-    [[".pre-commit-config.yaml".repos]]
-    repo = "https://github.com/pre-commit/pygrep-hooks"
-
-    [[".pre-commit-config.yaml".repos.hooks]]
-    id = "python-check-blanket-noqa"
-
-    [[".pre-commit-config.yaml".repos.hooks]]
-    id = "python-check-mock-methods"
-
-    [[".pre-commit-config.yaml".repos.hooks]]
-    id = "python-no-eval"
-
-    [[".pre-commit-config.yaml".repos.hooks]]
-    id = "python-no-log-warn"
-
-    [[".pre-commit-config.yaml".repos.hooks]]
-    id = "rst-backticks"
-
-    [[".pre-commit-config.yaml".repos]]
-    repo = "https://github.com/pre-commit/pre-commit-hooks"
-
-    [[".pre-commit-config.yaml".repos.hooks]]
-    id = "debug-statements"
-
-    [[".pre-commit-config.yaml".repos]]
-    repo = "https://github.com/asottile/pyupgrade"
-
-    [[".pre-commit-config.yaml".repos.hooks]]
-    id = "pyupgrade"
-    args = ["--py37-plus"]
-
 .. _example-ipython:
 
 IPython_
@@ -548,6 +508,49 @@ Contents of `resources/python/poetry.toml <https://github.com/andreoliwa/nitpick
 
     [nitpick.files.present]
     "pyproject.toml" = "Install poetry and run 'poetry init' to create it"
+
+.. _example-pre-commit-hooks-for-python:
+
+pre-commit_ hooks for Python
+----------------------------
+
+Contents of `resources/python/pre-commit-hooks.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/resources/python/pre-commit-hooks.toml>`_:
+
+.. code-block:: toml
+
+    [nitpick.meta]
+    name = "pre-commit hooks (Python)"
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/pre-commit/pygrep-hooks"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-check-blanket-noqa"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-check-mock-methods"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-no-eval"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "python-no-log-warn"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "rst-backticks"
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/pre-commit/pre-commit-hooks"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "debug-statements"
+
+    [[".pre-commit-config.yaml".repos]]
+    repo = "https://github.com/asottile/pyupgrade"
+
+    [[".pre-commit-config.yaml".repos.hooks]]
+    id = "pyupgrade"
+    args = ["--py37-plus"]
 
 .. _example-pylint:
 

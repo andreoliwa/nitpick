@@ -52,7 +52,7 @@ STYLE_MAPPING = SortedDict(
         "shell/bashate.toml": "bashate_",
         "any/commitizen.toml": "commitizen_",
         "any/commitlint.toml": "commitlint_",
-        "python/hooks.toml": "pre-commit_ hooks for Python",
+        "python/pre-commit-hooks.toml": "pre-commit_ hooks for Python",
         "python/pylint.toml": "Pylint_",
         "python/37.toml": "Python 3.7",
         "python/38.toml": "Python 3.8",
@@ -62,7 +62,7 @@ STYLE_MAPPING = SortedDict(
         "python/stable.toml": "Python (stable version)",
         "python/readthedocs.toml": "ReadTheDocs_",
         "any/git-legal.toml": "git-legal_",
-        "any/hooks.toml": "pre-commit_ hooks for any language",
+        "any/pre-commit-hooks.toml": "pre-commit_ hooks for any language",
         "any/markdownlint.toml": "markdownlint_",
         "python/bandit.toml": "bandit_",
         "any/codeclimate.toml": "codeclimate_",
@@ -385,6 +385,7 @@ class StyleLibraryRow:  # pylint: disable=too-few-public-methods
 
 def write_style_library(divider: str) -> int:
     """Write the style library table."""
+    # pylint: disable=no-member
     library: Dict[str, List[Tuple]] = defaultdict(list)
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
