@@ -45,7 +45,7 @@ Configure your own style
 
 After creating your own TOML_ file with your style, add it to your ``pyproject.toml`` file. See :ref:`configuration` for details.
 
-You can also check :ref:`some pre-configured examples <examples>`, and copy/paste/change configuration from them.
+You can also check :ref:`the style library <library>`, and use the styles to build your own.
 
 Default search order for a style
 --------------------------------

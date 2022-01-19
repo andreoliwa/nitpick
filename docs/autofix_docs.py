@@ -11,7 +11,6 @@ import sys
 from collections import defaultdict
 from importlib import import_module
 from pathlib import Path
-from pprint import pprint
 from subprocess import check_output  # nosec
 from textwrap import dedent, indent
 from typing import Dict, List, Set, Tuple, Union
@@ -19,7 +18,6 @@ from typing import Dict, List, Set, Tuple, Union
 import attr
 import click
 from slugify import slugify
-from sortedcontainers import SortedDict
 
 from nitpick import PROJECT_NAME, __version__
 from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PROJECT_OWNER, PYLINTRC, READ_THE_DOCS_URL, SETUP_CFG
@@ -35,45 +33,6 @@ MD_DIVIDER_START = "<!-- auto-generated-start-{} -->"
 MD_DIVIDER_END = "<!-- auto-generated-end-{} -->"
 
 DOCS_DIR: Path = Path(__file__).parent.absolute()
-STYLES_DIR: Path = DOCS_DIR.parent / "src" / "nitpick" / "resources"
-
-# FIXME: add name and URL to the style itself [nitpick.meta], and generate this mapping instead of editing manually
-STYLE_MAPPING = SortedDict(
-    {
-        "python/absent.toml": "Absent files",
-        "python/black.toml": "black_",
-        "any/editorconfig.toml": "EditorConfig_",
-        "python/flake8.toml": "flake8_",
-        "python/ipython.toml": "IPython_",
-        "python/isort.toml": "isort_",
-        "python/mypy.toml": "mypy_",
-        "javascript/package-json.toml": "package.json_",
-        "python/poetry.toml": "Poetry_",
-        "shell/bashate.toml": "bashate_",
-        "any/commitizen.toml": "commitizen_",
-        "any/commitlint.toml": "commitlint_",
-        "python/pre-commit-hooks.toml": "pre-commit_ hooks for Python",
-        "python/pylint.toml": "Pylint_",
-        "python/37.toml": "Python 3.7",
-        "python/38.toml": "Python 3.8",
-        "python/39.toml": "Python 3.9",
-        "python/310.toml": "Python 3.10",
-        "python/tox.toml": "tox_",
-        "python/stable.toml": "Python (stable version)",
-        "python/readthedocs.toml": "ReadTheDocs_",
-        "any/git-legal.toml": "git-legal_",
-        "any/pre-commit-hooks.toml": "pre-commit_ hooks for any language",
-        "any/markdownlint.toml": "markdownlint_",
-        "python/bandit.toml": "bandit_",
-        "any/codeclimate.toml": "codeclimate_",
-        "python/radon.toml": "radon_",
-        "python/sonar-python.toml": "sonar-python_",
-        "shell/shellcheck.toml": "shellcheck_",
-        "python/github-workflow.toml": "GitHub Workflow (Python)",
-        "python/autoflake.toml": "autoflake_",
-        "any/prettier.toml": "Prettier_",
-    }
-)
 CLI_MAPPING = [
     ("", "Main options", ""),
     (
@@ -157,7 +116,7 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any plain text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType("Any YAML file", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True),
-    FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
+    FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}libray.html#any", True, True),
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
     FileType(SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
 }
@@ -214,65 +173,6 @@ class DocFile:  # pylint: disable=too-few-public-methods
 
         click.secho(f"File {self.file}{divider_message} hasn't changed", fg="green")
         return 0
-
-
-def write_examples() -> int:
-    """Write examples with hardcoded TOML content."""
-    template = """
-        .. _example-{link}:
-
-        {header}
-        {dashes}
-
-        Contents of `{toml_file} <{url}>`_:
-
-        .. code-block::{language}
-
-        {toml_content}
-    """
-    clean_template = dedent(template).strip()
-    blocks = []
-    for toml_file, header in STYLE_MAPPING.items():
-        style_path = STYLES_DIR / toml_file
-        toml_content = style_path.read_text().strip()
-        if not toml_content:
-            # Skip empty TOML styles
-            continue
-
-        base_name = str(style_path.relative_to(STYLES_DIR.parent))
-        indented_lines = [("    " + line.rstrip()).rstrip() for line in toml_content.split("\n")]
-        blocks.append("")
-        blocks.append(
-            clean_template.format(
-                link=slugify(header),
-                header=header,
-                dashes="-" * len(header),
-                toml_file=base_name,
-                url=GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", base_name, "").url,
-                # Skip TOML with JSON inside, to avoid this error message:
-                # nitpick/docs/examples.rst:193: WARNING: Could not lex literal_block as "toml". Highlighting skipped.
-                language="" if "contains_json" in toml_content else " toml",
-                toml_content="\n".join(indented_lines),
-            )
-        )
-
-    rv = DocFile("examples.rst").write(blocks)
-
-    missing = SortedDict()
-    for existing_toml_path in sorted(STYLES_DIR.glob("**/*.toml")):
-        partial_name = str(existing_toml_path.relative_to(STYLES_DIR))
-        if partial_name not in STYLE_MAPPING:
-            missing[partial_name] = existing_toml_path.stem
-
-    if missing:
-        click.secho(
-            f"ERROR: Add missing style files to the 'STYLE_MAPPING' var in '{__file__}',"
-            f" as file/header pairs. Example:",
-            fg="red",
-        )
-        pprint(missing)
-        sys.exit(1)
-    return rv
 
 
 def write_plugins() -> int:
@@ -383,14 +283,13 @@ class StyleLibraryRow:  # pylint: disable=too-few-public-methods
     name: str
 
 
-def write_style_library(divider: str) -> int:
-    """Write the style library table."""
+def _build_library(url: str = "") -> List[str]:
     # pylint: disable=no-member
     library: Dict[str, List[Tuple]] = defaultdict(list)
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
         row = StyleLibraryRow(
-            style=f"``{style.py_pretty_url}`` (`link <{style.from_repo_root}>`_)",
+            style=f"``{style.py_pretty_url}`` (`link <{url + style.from_repo_root}>`_)",
             name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
         )
         library[style.identify_tag].append(attr.astuple(row))
@@ -407,7 +306,19 @@ def write_style_library(divider: str) -> int:
                 rows,
             )
         )
-    return DocFile("../README.rst").write(lines, divider)
+    return lines
+
+
+def write_style_library(divider: str) -> int:
+    """Write the style library table."""
+    # FIXME: change "<example" links
+    lines = _build_library()
+    rv = DocFile("../README.rst").write(lines, divider)
+
+    url = GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", "", "").url
+    lines = _build_library(url)
+    rv += DocFile("library.rst").write(lines)
+    return rv
 
 
 if __name__ == "__main__":
@@ -416,7 +327,6 @@ if __name__ == "__main__":
         + write_readme(PLANNED_FILE_TYPES, "planned")
         + write_style_library("style-library")
         + write_config()
-        + write_examples()  # FIXME: the style library replaces this
         + write_plugins()
         + write_cli()
     )
