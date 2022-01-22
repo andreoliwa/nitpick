@@ -311,7 +311,6 @@ def _build_library(url: str = "") -> List[str]:
 
 def write_style_library(divider: str) -> int:
     """Write the style library table."""
-    # FIXME: change "<example" links
     lines = _build_library()
     rv = DocFile("../README.rst").write(lines, divider)
 

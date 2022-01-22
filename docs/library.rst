@@ -2,8 +2,8 @@
 
 .. _library:
 
-Library
-=======
+Library (Presets)
+=================
 
 If you want to :ref:`configure your own style <configure-your-own-style>`, those are the some styles you can reuse.
 
