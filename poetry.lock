@@ -757,11 +757,11 @@ pytest = ">=2.7.0"
 
 [[package]]
 name = "pytest-socket"
-version = "0.4.1"
+version = "0.5.0"
 description = "Pytest Plugin to disable socket calls during tests"
 category = "main"
 optional = true
-python-versions = ">=3.6,<4.0"
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
 pytest = ">=3.6.3"
@@ -1183,7 +1183,7 @@ test = ["pytest", "pytest-cov", "testfixtures", "responses", "freezegun", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "4bd25ecf60718b979d4e15765690c13f16287d3d3beec14c0b0acde8f84361fd"
+content-hash = "37aadf1e967802d4afc61ef19ac538d94081e225d608f7284bb37bc5923b012d"
 
 [metadata.files]
 alabaster = [
@@ -1616,8 +1616,8 @@ pytest-datadir = [
     {file = "pytest_datadir-1.3.1-py2.py3-none-any.whl", hash = "sha256:1847ed0efe0bc54cac40ab3fba6d651c2f03d18dd01f2a582979604d32e7621e"},
 ]
 pytest-socket = [
-    {file = "pytest-socket-0.4.1.tar.gz", hash = "sha256:b5abcfd14d9c03e7d4e2875bb5e190af28bf5b4162d0a83e3d7aee6d79f1c85d"},
-    {file = "pytest_socket-0.4.1-py3-none-any.whl", hash = "sha256:e3bc6cc9c2534289c6a5b9748ca733f6ae8c8d34f1fdab5115ca17a47860bf5e"},
+    {file = "pytest-socket-0.5.0.tar.gz", hash = "sha256:1a3b92c4889118c688610a8d2991b51e2893e1e519db9e4226261ce5e24f70e2"},
+    {file = "pytest_socket-0.5.0-py3-none-any.whl", hash = "sha256:fc2bfe4020255431dd9583dd657aa8b75c4f9e0c53c46566cf06ce40fe9ea0ce"},
 ]
 pytest-testmon = [
     {file = "pytest-testmon-1.2.2.tar.gz", hash = "sha256:e69d5aeac4e371986f94e8ad06e56d70633870d026f2306fca44051f02fcb688"},
