@@ -89,9 +89,9 @@ responses = { version = "*", optional = true }
 freezegun = { version = "*", optional = true }
 pytest-testmon = { version = "*", optional = true }
 pytest-watch = { version = "*", optional = true }
-# TODO: 0.5.0 fails with AttributeError: 'DoctestItem' object has no attribute 'fixturenames'
-#  See https://github.com/miketheman/pytest-socket/issues/105
-pytest-socket = { version = "<0.5.0", optional = true }
+# TODO: Wait for a new pytest-socket release, then change spec to "*"
+#  See https://github.com/miketheman/pytest-socket/pull/109
+pytest-socket = { git = "https://github.com/miketheman/pytest-socket", rev = "bf16fbd378a42d94b683e001dc6fd81c610c3923" }
 pytest-datadir = { version = "*", optional = true }
 
 # Group: doc
