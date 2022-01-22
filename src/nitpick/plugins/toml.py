@@ -20,8 +20,7 @@ class TomlPlugin(NitpickPlugin):
     See also `the [tool.poetry] section of the pyproject.toml file
     <https://github.com/python-poetry/poetry/blob/master/docs/pyproject.md>`_.
 
-    Style example: `Python 3.8 version constraint
-    <https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/resources/python/38.toml>`_.
+    Style example: `Python 3.8 version constraint <https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/resources/python/38.toml>`_.
     There are :ref:`many other examples here <library>`.
     """
 

@@ -39,7 +39,7 @@ SEPARATOR_SPACE = " "
 # to avoid collision with existing key values (e.g. the default SEPARATOR_DOT separator "." can be part of a TOML key).
 SEPARATOR_FLATTEN = "$#@"
 
-#: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
+#: Special unique separator for :py:meth:`nitpick.blender.quoted_split()`.
 SEPARATOR_QUOTED_SPLIT = "#$@"
 
 

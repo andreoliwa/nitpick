@@ -1,3 +1,5 @@
+.. include:: targets.rst
+
 .. _configuration:
 
 Configuration

@@ -72,8 +72,6 @@ There are 3 available hook IDs:
 
 If you want to run Nitpick_ as a flake8_ plugin instead::
 
-.. code-block:: yaml
-
     repos:
       - repo: https://github.com/PyCQA/flake8
         rev: 4.0.1
