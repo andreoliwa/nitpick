@@ -106,7 +106,7 @@ doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv"]
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-pudb = "*"
+ipdb = "*"
 icecream = "*"
 
 [build-system]
