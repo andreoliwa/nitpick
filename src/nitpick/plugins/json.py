@@ -30,7 +30,7 @@ class JsonPlugin(NitpickPlugin):
     """Enforce configurations and autofix JSON files.
 
     Add the configurations for the file name you wish to check.
-    Style example: :ref:`the default config for package.json <example-package-json>`.
+    Style example: `the default config for package.json`_.
     """
 
     validation_schema = JsonFileSchema

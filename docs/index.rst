@@ -60,7 +60,7 @@ Many more features are planned for the future, check `the roadmap <https://githu
    quickstart
    styles
    configuration
-   examples
+   library
    nitpick_section
    cli
    flake8_plugin

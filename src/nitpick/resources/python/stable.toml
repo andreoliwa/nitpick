@@ -1,3 +1,6 @@
+[nitpick.meta]
+name = "Current stable Python version"
+
 [".readthedocs.yml".python]
 # ReadTheDocs still didn't upgrade to Python 3.9:
 # Problem in your project's configuration. Invalid "python.version"

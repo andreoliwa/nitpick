@@ -2,20 +2,21 @@ Nitpick
 =======
 
 |PyPI|
+|Supported Python versions|
 |GitHub Actions Python Workflow|
 |Documentation Status|
 |Coveralls|
 |Maintainability|
 |Test Coverage|
-|Supported Python versions|
+|pre-commit|
+|pre-commit.ci status|
 |Project License|
 |Code style: black|
 |Renovate|
 |semantic-release|
-|pre-commit.ci status|
 |FOSSA Status|
 
-Command-line tool and `flake8 <https://github.com/PyCQA/flake8>`__
+Command-line tool and `flake8 <https://github.com/PyCQA/flake8>`_
 plugin to enforce the same settings across multiple language-independent
 projects.
 
@@ -25,18 +26,18 @@ over, in all of them.
 
 The CLI now has a ``nitpick fix`` command that modifies configuration
 files directly (pretty much like
-`black <https://github.com/psf/black>`__ and
-`isort <https://github.com/PyCQA/isort>`__ do with Python files).
+`black <https://github.com/psf/black>`_ and
+`isort <https://github.com/PyCQA/isort>`_ do with Python files).
 See the `CLI docs for more
-info <https://nitpick.rtfd.io/en/latest/cli.html>`__.
+info <https://nitpick.rtfd.io/en/latest/cli.html>`_.
 
 Many more features are planned for the future, check `the
-roadmap <https://github.com/andreoliwa/nitpick/projects/1>`__.
+roadmap <https://github.com/andreoliwa/nitpick/projects/1>`_.
 
-Style file
-----------
+The style file
+--------------
 
-A "nitpick code style" is a `TOML <https://github.com/toml-lang/toml>`__
+A "Nitpick code style" is a `TOML <https://github.com/toml-lang/toml>`_
 file with the settings that should be present in config files from other
 tools.
 
@@ -64,15 +65,15 @@ Example of a style:
 
 This style will assert that:
 
--  ... `black <https://github.com/psf/black>`__,
-   `isort <https://github.com/PyCQA/isort>`__ and
-   `flake8 <https://github.com/PyCQA/flake8>`__ have a line length of
+-  ... `black <https://github.com/psf/black>`_,
+   `isort <https://github.com/PyCQA/isort>`_ and
+   `flake8 <https://github.com/PyCQA/flake8>`_ have a line length of
    120;
--  ... `flake8 <https://github.com/PyCQA/flake8>`__ and
-   `isort <https://github.com/PyCQA/isort>`__ are configured as above in
+-  ... `flake8 <https://github.com/PyCQA/flake8>`_ and
+   `isort <https://github.com/PyCQA/isort>`_ are configured as above in
    ``setup.cfg``;
--  ... `Pylint <https://www.pylint.org>`__ is present as a
-   `Poetry <https://github.com/python-poetry/poetry>`__ dev dependency
+-  ... `Pylint <https://www.pylint.org>`_ is present as a
+   `Poetry <https://github.com/python-poetry/poetry>`_ dev dependency
    in ``pyproject.toml``.
 
 Supported file types
@@ -112,7 +113,7 @@ Implemented
    * - `Any YAML file <https://nitpick.rtfd.io/en/latest/plugins.html#yaml-files>`_
      - ✅
      - ✅
-   * - `.editorconfig <https://nitpick.rtfd.io/en/latest/examples.html#example-editorconfig>`_
+   * - `.editorconfig <https://nitpick.rtfd.io/en/latest/libray.html#any>`_
      - ✅
      - ✅
    * - `.pylintrc <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_
@@ -156,6 +157,122 @@ Planned
      - ❓
 .. auto-generated-end-planned
 
+Style Library (Presets)
+-----------------------
+
+Nitpick has a builtin library of style presets, shipped as `Python resources <https://docs.python.org/3/library/importlib.html#module-importlib.resources>`_.
+
+This library contains building blocks for your your custom style.
+Just choose styles from the table below and create your own style, like LEGO.
+
+Read how to:
+
+- `...add multiple styles to the configuration file <https://nitpick.readthedocs.io/en/latest/configuration.html#multiple-styles>`_;
+- `...include styles inside a style <https://nitpick.readthedocs.io/en/latest/nitpick_section.html#nitpick-styles>`_.
+
+.. auto-generated-start-style-library
+
+any
+~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/any/codeclimate`` (`link <src/nitpick/resources/any/codeclimate.toml>`_)
+     - `CodeClimate <https://codeclimate.com/>`_
+   * - ``py://nitpick/resources/any/commitizen`` (`link <src/nitpick/resources/any/commitizen.toml>`_)
+     - `Commitizen (Python) <https://github.com/commitizen-tools/commitizen>`_
+   * - ``py://nitpick/resources/any/commitlint`` (`link <src/nitpick/resources/any/commitlint.toml>`_)
+     - `commitlint <https://github.com/conventional-changelog/commitlint>`_
+   * - ``py://nitpick/resources/any/editorconfig`` (`link <src/nitpick/resources/any/editorconfig.toml>`_)
+     - `EditorConfig <http://editorconfig.org/>`_
+   * - ``py://nitpick/resources/any/git-legal`` (`link <src/nitpick/resources/any/git-legal.toml>`_)
+     - `Git.legal - CodeClimate Community Edition <https://github.com/kmewhort/git.legal-codeclimate>`_
+   * - ``py://nitpick/resources/any/markdownlint`` (`link <src/nitpick/resources/any/markdownlint.toml>`_)
+     - `Markdown lint <https://github.com/markdownlint/markdownlint>`_
+   * - ``py://nitpick/resources/any/pre-commit-hooks`` (`link <src/nitpick/resources/any/pre-commit-hooks.toml>`_)
+     - `pre-commit hooks for any project <https://github.com/pre-commit/pre-commit-hooks>`_
+   * - ``py://nitpick/resources/any/prettier`` (`link <src/nitpick/resources/any/prettier.toml>`_)
+     - `Prettier <https://github.com/prettier/prettier>`_
+
+javascript
+~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/javascript/package-json`` (`link <src/nitpick/resources/javascript/package-json.toml>`_)
+     - `package.json <https://github.com/yarnpkg/website/blob/master/lang/en/docs/package-json.md>`_
+
+python
+~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/python/310`` (`link <src/nitpick/resources/python/310.toml>`_)
+     - Python 3.10
+   * - ``py://nitpick/resources/python/37`` (`link <src/nitpick/resources/python/37.toml>`_)
+     - Python 3.7
+   * - ``py://nitpick/resources/python/38`` (`link <src/nitpick/resources/python/38.toml>`_)
+     - Python 3.8
+   * - ``py://nitpick/resources/python/39`` (`link <src/nitpick/resources/python/39.toml>`_)
+     - Python 3.9
+   * - ``py://nitpick/resources/python/absent`` (`link <src/nitpick/resources/python/absent.toml>`_)
+     - Files that should not exist
+   * - ``py://nitpick/resources/python/autoflake`` (`link <src/nitpick/resources/python/autoflake.toml>`_)
+     - `autoflake <https://github.com/myint/autoflake>`_
+   * - ``py://nitpick/resources/python/bandit`` (`link <src/nitpick/resources/python/bandit.toml>`_)
+     - `Bandit <https://github.com/PyCQA/bandit>`_
+   * - ``py://nitpick/resources/python/black`` (`link <src/nitpick/resources/python/black.toml>`_)
+     - `Black <https://github.com/psf/black>`_
+   * - ``py://nitpick/resources/python/flake8`` (`link <src/nitpick/resources/python/flake8.toml>`_)
+     - `Flake8 <https://github.com/PyCQA/flake8>`_
+   * - ``py://nitpick/resources/python/github-workflow`` (`link <src/nitpick/resources/python/github-workflow.toml>`_)
+     - `GitHub Workflow for Python <https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions>`_
+   * - ``py://nitpick/resources/python/ipython`` (`link <src/nitpick/resources/python/ipython.toml>`_)
+     - `IPython <https://github.com/ipython/ipython>`_
+   * - ``py://nitpick/resources/python/isort`` (`link <src/nitpick/resources/python/isort.toml>`_)
+     - `isort <https://github.com/PyCQA/isort>`_
+   * - ``py://nitpick/resources/python/mypy`` (`link <src/nitpick/resources/python/mypy.toml>`_)
+     - `Mypy <https://github.com/python/mypy>`_
+   * - ``py://nitpick/resources/python/poetry`` (`link <src/nitpick/resources/python/poetry.toml>`_)
+     - `Poetry <https://github.com/python-poetry/poetry>`_
+   * - ``py://nitpick/resources/python/pre-commit-hooks`` (`link <src/nitpick/resources/python/pre-commit-hooks.toml>`_)
+     - `pre-commit hooks for Python projects <https://pre-commit.com/hooks>`_
+   * - ``py://nitpick/resources/python/pylint`` (`link <src/nitpick/resources/python/pylint.toml>`_)
+     - `Pylint <https://github.com/PyCQA/pylint>`_
+   * - ``py://nitpick/resources/python/radon`` (`link <src/nitpick/resources/python/radon.toml>`_)
+     - `Radon <https://github.com/rubik/radon>`_
+   * - ``py://nitpick/resources/python/readthedocs`` (`link <src/nitpick/resources/python/readthedocs.toml>`_)
+     - `Read the Docs <https://github.com/readthedocs/readthedocs.org>`_
+   * - ``py://nitpick/resources/python/sonar-python`` (`link <src/nitpick/resources/python/sonar-python.toml>`_)
+     - `SonarQube Python plugin <https://github.com/SonarSource/sonar-python>`_
+   * - ``py://nitpick/resources/python/stable`` (`link <src/nitpick/resources/python/stable.toml>`_)
+     - Current stable Python version
+   * - ``py://nitpick/resources/python/tox`` (`link <src/nitpick/resources/python/tox.toml>`_)
+     - `tox <https://github.com/tox-dev/tox>`_
+
+shell
+~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/shell/bashate`` (`link <src/nitpick/resources/shell/bashate.toml>`_)
+     - `bashate <https://github.com/openstack/bashate>`_
+   * - ``py://nitpick/resources/shell/shellcheck`` (`link <src/nitpick/resources/shell/shellcheck.toml>`_)
+     - `ShellCheck <https://github.com/koalaman/shellcheck>`_
+.. auto-generated-end-style-library
+
 Quickstart
 ----------
 
@@ -163,7 +280,7 @@ Install
 ~~~~~~~
 
 Install in an isolated global environment with
-`pipx <https://github.com/pipxproject/pipx>`__::
+`pipx <https://github.com/pipxproject/pipx>`_::
 
     # Latest PyPI release
     pipx install nitpick
@@ -172,7 +289,7 @@ Install in an isolated global environment with
     pipx install git+https://github.com/andreoliwa/nitpick
 
 On macOS/Linux, install with
-`Homebrew <https://github.com/Homebrew/brew>`__::
+`Homebrew <https://github.com/Homebrew/brew>`_::
 
     # Latest PyPI release
     brew install andreoliwa/formulae/nitpick
@@ -185,7 +302,7 @@ On Arch Linux, install with yay::
     yay -Syu nitpick
 
 Add to your project with
-`Poetry <https://github.com/python-poetry/poetry>`__::
+`Poetry <https://github.com/python-poetry/poetry>`_::
 
     poetry add --dev nitpick
 
@@ -210,7 +327,7 @@ with at least one Python (``.py``) file::
     flake8 .
 
 Nitpick will download and use the opinionated `default style
-file <https://github.com/andreoliwa/nitpick/blob/v0.31.0/nitpick-style.toml>`__.
+file <https://github.com/andreoliwa/nitpick/blob/v0.31.0/nitpick-style.toml>`_.
 
 You can use it as a template to configure your own style.
 
@@ -245,15 +362,15 @@ More information
 
 Nitpick is being used by projects such as:
 
--  `wemake-services/wemake-python-styleguide <https://github.com/wemake-services/wemake-python-styleguide>`__
--  `dry-python/returns <https://github.com/dry-python/returns>`__
--  `sobolevn/django-split-settings <https://github.com/sobolevn/django-split-settings>`__
--  `catalyst-team/catalyst <https://github.com/catalyst-team/catalyst>`__
--  `alan-turing-institute/AutSPACEs <https://github.com/alan-turing-institute/AutSPACEs>`__
--  `pytest-dev/pytest-mimesis <https://github.com/pytest-dev/pytest-mimesis>`__
+-  `wemake-services/wemake-python-styleguide <https://github.com/wemake-services/wemake-python-styleguide>`_
+-  `dry-python/returns <https://github.com/dry-python/returns>`_
+-  `sobolevn/django-split-settings <https://github.com/sobolevn/django-split-settings>`_
+-  `catalyst-team/catalyst <https://github.com/catalyst-team/catalyst>`_
+-  `alan-turing-institute/AutSPACEs <https://github.com/alan-turing-institute/AutSPACEs>`_
+-  `pytest-dev/pytest-mimesis <https://github.com/pytest-dev/pytest-mimesis>`_
 
 For more details on styles and which configuration files are currently
-supported, `see the full documentation <https://nitpick.rtfd.io/>`__.
+supported, `see the full documentation <https://nitpick.rtfd.io/>`_.
 
 .. |PyPI| image:: https://img.shields.io/pypi/v/nitpick.svg
    :target: https://pypi.org/project/nitpick
@@ -276,6 +393,9 @@ supported, `see the full documentation <https://nitpick.rtfd.io/>`__.
    :target: https://renovatebot.com/
 .. |semantic-release| image:: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
    :target: https://github.com/semantic-release/semantic-release
+.. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
+   :target: https://github.com/pre-commit/pre-commit
+   :alt: pre-commit
 .. |pre-commit.ci status| image:: https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/develop.svg
    :target: https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/develop
 .. |FOSSA Status| image:: https://app.fossa.com/api/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick.svg?type=shield

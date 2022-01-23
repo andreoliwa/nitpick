@@ -13,7 +13,7 @@ include = [
     "py://nitpick/resources/python/bandit",
     "py://nitpick/resources/python/black",
     "py://nitpick/resources/python/flake8",
-    "py://nitpick/resources/python/hooks",
+    "py://nitpick/resources/python/pre-commit-hooks",
     "py://nitpick/resources/python/isort",
     "py://nitpick/resources/python/mypy",
     "py://nitpick/resources/python/poetry",
@@ -30,7 +30,7 @@ include = [
     "py://nitpick/resources/any/commitizen",
     "py://nitpick/resources/any/editorconfig",
     "py://nitpick/resources/any/git-legal",
-    "py://nitpick/resources/any/hooks",
+    "py://nitpick/resources/any/pre-commit-hooks",
     "py://nitpick/resources/any/markdownlint",
 
     "py://nitpick/resources/shell/bashate",

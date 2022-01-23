@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "isort"
+url = "https://github.com/PyCQA/isort"
+
 ["setup.cfg".isort]
 line_length = 120
 skip = ".tox,build"

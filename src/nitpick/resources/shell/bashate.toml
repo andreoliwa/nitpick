@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "bashate"
+url = "https://github.com/openstack/bashate"
+
 [[".pre-commit-config.yaml".repos]]
 repo = "https://github.com/openstack/bashate"
 

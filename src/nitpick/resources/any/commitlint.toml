@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "commitlint"
+url = "https://github.com/conventional-changelog/commitlint"
+
 ["package.json".contains_json]
 commitlint = """
   {

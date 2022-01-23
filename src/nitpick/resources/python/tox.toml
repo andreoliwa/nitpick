@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "tox"
+url = "https://github.com/tox-dev/tox"
+
 ["tox.ini".tox]
 # https://tox.readthedocs.io/en/latest/config.html
 isolated_build = true

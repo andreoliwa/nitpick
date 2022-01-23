@@ -39,7 +39,7 @@ class IniPlugin(NitpickPlugin):
     - `tox.ini <https://github.com/tox-dev/tox>`_
     - `.pylintrc <https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options>`_
 
-    Style examples enforcing values on INI files: :ref:`flake8 configuration <example-flake8>`.
+    Style examples enforcing values on INI files: `flake8 configuration`_.
     """
 
     fixable = True

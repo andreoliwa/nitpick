@@ -1,2 +1,6 @@
+[nitpick.meta]
+name = "package.json"
+url = "https://github.com/yarnpkg/website/blob/master/lang/en/docs/package-json.md"
+
 ["package.json"]
 contains_keys = ["name", "version", "repository.type", "repository.url", "release.plugins"]

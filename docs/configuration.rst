@@ -1,3 +1,5 @@
+.. include:: targets.rst
+
 .. _configuration:
 
 Configuration
@@ -207,7 +209,9 @@ Using a relative path from another project in your hard drive:
 Multiple styles
 ---------------
 
-You can also use multiple styles and mix local files and URLs:
+You can also use multiple styles and mix local files and URLs.
+
+Example of usage: the ``[tool.nitpick]`` table on `Nitpick's own pyproject.toml <https://github.com/andreoliwa/nitpick/blob/v0.31.0/pyproject.toml#L1-L7>`_.
 
 .. code-block:: toml
 

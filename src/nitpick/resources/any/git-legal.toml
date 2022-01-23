@@ -1,2 +1,6 @@
+[nitpick.meta]
+name = "Git.legal - CodeClimate Community Edition"
+url = "https://github.com/kmewhort/git.legal-codeclimate"
+
 [".codeclimate.yml".plugins.git-legal]  # https://docs.codeclimate.com/docs/git-legal
 enabled = true

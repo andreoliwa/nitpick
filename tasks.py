@@ -49,9 +49,9 @@ class ToxCommands:
         yield from self.list_commands("testenv:report")
 
     @property
-    def generate_rst(self):
-        """Generate RST."""
-        return self.find_command("testenv:docs", "generate")
+    def autofix_docs(self):
+        """Autofix ReST documentation from docstrings and TOML."""
+        return self.find_command("testenv:docs", "autofix_docs")
 
     @property
     def api(self):
@@ -188,7 +188,7 @@ def doc(c, full=False, recreate=False, links=False, browse=False, debug=False):
         c.run("mkdir -p docs/_static")
         c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
 
-    c.run(f"poetry run {tox.generate_rst}")
+    c.run(f"poetry run {tox.autofix_docs}", warn=True)
     c.run(f"poetry run {tox.api}")
     if debug:
         c.run("poetry run sphinx-apidoc --help")

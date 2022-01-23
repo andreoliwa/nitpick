@@ -3,9 +3,13 @@
 # https://pre-commit.com/#creating-new-hooks
 # Thanks to https://github.com/sloria/environs/blob/master/.pre-commit-config.yaml
 
+# https://pre-commit.com/#top_level-default_language_version
+default_language_version:
+  python: python3.7
+
 # https://pre-commit.ci/#configuration
 ci:
-  skip: [local-nitpick, generate-docs, pylint]
+  skip: [local-nitpick, autofix-docs, pylint]
 
 repos:
   - repo: local
@@ -21,9 +25,9 @@ repos:
         always_run: true
         pass_filenames: false
         stages: [commit]
-      - id: generate-docs
-        name: Generate ReST documentation from docstrings and TOML
-        entry: poetry run python3 docs/generate_rst.py
+      - id: autofix-docs
+        name: Autofix ReST documentation from docstrings and TOML
+        entry: poetry run python3 docs/autofix_docs.py
         language: system
         always_run: true
         pass_filenames: false
@@ -109,8 +113,13 @@ repos:
         # https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
         # "using --install-types is problematic"
         # see https://github.com/pre-commit/mirrors-mypy#using-mypy-with-pre-commit
+        # attrs should be installed instead of types-attrs
+        # https://pypi.org/project/types-attrs/
+        # Note: The attrs package includes type annotations or type stubs since version 18.2.0.
+        # Please uninstall the types-attrs package if you use this or a newer version.
+        # See also https://github.com/python/mypy/issues/10084#issuecomment-778641361
         additional_dependencies:
-          [types-freezegun, types-toml, types-attrs, types-requests, types-python-slugify, types-dataclasses]
+          [types-freezegun, types-toml, attrs, types-requests, types-python-slugify, types-dataclasses]
   # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
   # Note for future attempts with pylint as a pre-commit hook:
   # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.

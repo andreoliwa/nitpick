@@ -1,3 +1,7 @@
+[nitpick.meta]
+name = "Read the Docs"
+url = "https://github.com/readthedocs/readthedocs.org"
+
 # https://docs.readthedocs.io/en/stable/config-file/v2.html
 [".readthedocs.yml"]
 version = 2

@@ -39,7 +39,7 @@ SEPARATOR_SPACE = " "
 # to avoid collision with existing key values (e.g. the default SEPARATOR_DOT separator "." can be part of a TOML key).
 SEPARATOR_FLATTEN = "$#@"
 
-#: Special unique separator for :py:meth:`nitpick.generic.quoted_split()`.
+#: Special unique separator for :py:meth:`nitpick.blender.quoted_split()`.
 SEPARATOR_QUOTED_SPLIT = "#$@"
 
 
@@ -124,7 +124,7 @@ class ElementDetail:  # pylint: disable=too-few-public-methods
         else:
             scalar = True
             key = compact = str(data)
-        return ElementDetail(data=data, key=key, index=index, scalar=scalar, compact=compact)  # type: ignore[call-arg]
+        return ElementDetail(data=data, key=key, index=index, scalar=scalar, compact=compact)
 
 
 @define
@@ -137,7 +137,7 @@ class ListDetail:  # pylint: disable=too-few-public-methods
     @classmethod
     def from_data(cls, data: ListOrCommentedSeq, jmes_key: str) -> "ListDetail":
         """Create a list detail from list data."""
-        return ListDetail(  # type: ignore[call-arg]
+        return ListDetail(
             data=data, elements=[ElementDetail.from_data(index, data, jmes_key) for index, data in enumerate(data)]
         )
 

@@ -1,28 +1,29 @@
-"""Write documentation files content from Python classes.
+"""Autofix documentation files content from Python classes.
 
 Run on the dev machine with "invoke doc", and commit on GitHub.
+This also runs as a local pre-commit hook.
 
 The ``include`` directive is not working on Read the Docs.
 It doesn't recognise the "styles" dir anywhere (on the root, under "docs", under "_static"...).
 Not even changing ``html_static_path`` on ``conf.py`` worked.
 """
 import sys
-from dataclasses import dataclass
+from collections import defaultdict
 from importlib import import_module
 from pathlib import Path
-from pprint import pprint
 from subprocess import check_output  # nosec
 from textwrap import dedent, indent
-from typing import List, Set, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 
+import attr
 import click
 from slugify import slugify
-from sortedcontainers import SortedDict
 
 from nitpick import PROJECT_NAME, __version__
 from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PROJECT_OWNER, PYLINTRC, READ_THE_DOCS_URL, SETUP_CFG
 from nitpick.core import Nitpick
 from nitpick.style.fetchers.github import GitHubURL
+from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 
 RST_DIVIDER_FROM_HERE = ".. auto-generated-from-here"
 RST_DIVIDER_START = ".. auto-generated-start-{}"
@@ -32,46 +33,6 @@ MD_DIVIDER_START = "<!-- auto-generated-start-{} -->"
 MD_DIVIDER_END = "<!-- auto-generated-end-{} -->"
 
 DOCS_DIR: Path = Path(__file__).parent.absolute()
-STYLES_DIR: Path = DOCS_DIR.parent / "src" / "nitpick" / "resources"
-
-# TODO: keep target URLs here in this mapping, or in another mapping, or inside the style itself [nitpick.meta],
-#  and generate targets.rst instead of editing the file manually
-STYLE_MAPPING = SortedDict(
-    {
-        "python/absent.toml": "Absent files",
-        "python/black.toml": "black_",
-        "any/editorconfig.toml": "EditorConfig_",
-        "python/flake8.toml": "flake8_",
-        "python/ipython.toml": "IPython_",
-        "python/isort.toml": "isort_",
-        "python/mypy.toml": "mypy_",
-        "javascript/package-json.toml": "package.json_",
-        "python/poetry.toml": "Poetry_",
-        "shell/bashate.toml": "bashate_",
-        "any/commitizen.toml": "commitizen_",
-        "any/commitlint.toml": "commitlint_",
-        "python/hooks.toml": "pre-commit_ hooks for Python",
-        "python/pylint.toml": "Pylint_",
-        "python/37.toml": "Python 3.7",
-        "python/38.toml": "Python 3.8",
-        "python/39.toml": "Python 3.9",
-        "python/310.toml": "Python 3.10",
-        "python/tox.toml": "tox_",
-        "python/stable.toml": "Python (stable version)",
-        "python/readthedocs.toml": "ReadTheDocs_",
-        "any/git-legal.toml": "git-legal_",
-        "any/hooks.toml": "pre-commit_ hooks for any language",
-        "any/markdownlint.toml": "markdownlint_",
-        "python/bandit.toml": "bandit_",
-        "any/codeclimate.toml": "codeclimate_",
-        "python/radon.toml": "radon_",
-        "python/sonar-python.toml": "sonar-python_",
-        "shell/shellcheck.toml": "shellcheck_",
-        "python/github-workflow.toml": "GitHub Workflow (Python)",
-        "python/autoflake.toml": "autoflake_",
-        "any/prettier.toml": "Prettier_",
-    }
-)
 CLI_MAPPING = [
     ("", "Main options", ""),
     (
@@ -90,7 +51,7 @@ CLI_MAPPING = [
 ]
 
 
-@dataclass(frozen=True)
+@attr.frozen()
 class FileType:
     """A file type handled by Nitpick."""
 
@@ -155,7 +116,7 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any plain text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType("Any YAML file", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True),
-    FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}examples.html#example-editorconfig", True, True),
+    FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}libray.html#any", True, True),
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
     FileType(SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
 }
@@ -186,12 +147,12 @@ class DocFile:  # pylint: disable=too-few-public-methods
             self.divider_end = RST_DIVIDER_END
             self.divider_from_here = RST_DIVIDER_FROM_HERE
 
-    def write(self, blocks: List[str], divider_id: str = None) -> int:
+    def write(self, lines: List[str], divider: str = None) -> int:
         """Write content to the file."""
         old_content = self.file.read_text()
-        if divider_id:
-            start_marker = self.divider_start.format(divider_id)
-            end_marker = self.divider_end.format(divider_id)
+        if divider:
+            start_marker = self.divider_start.format(divider)
+            end_marker = self.divider_end.format(divider)
             start_position = old_content.index(start_marker) + len(start_marker) + 1
             end_position = old_content.index(end_marker) - 1
         else:
@@ -199,12 +160,12 @@ class DocFile:  # pylint: disable=too-few-public-methods
             end_position = 0
 
         new_content = old_content[:start_position]
-        new_content += "\n".join(blocks)
+        new_content += "\n".join(lines)
         if end_position:
             new_content += old_content[end_position:]
         new_content = new_content.strip() + "\n"
 
-        divider_message = f" (divider: {divider_id})" if divider_id else ""
+        divider_message = f" (divider: {divider})" if divider else ""
         if old_content != new_content:
             self.file.write_text(new_content)
             click.secho(f"File {self.file}{divider_message} generated", fg="yellow")
@@ -212,65 +173,6 @@ class DocFile:  # pylint: disable=too-few-public-methods
 
         click.secho(f"File {self.file}{divider_message} hasn't changed", fg="green")
         return 0
-
-
-def write_examples() -> int:
-    """Write examples with hardcoded TOML content."""
-    template = """
-        .. _example-{link}:
-
-        {header}
-        {dashes}
-
-        Contents of `{toml_file} <{url}>`_:
-
-        .. code-block::{language}
-
-        {toml_content}
-    """
-    clean_template = dedent(template).strip()
-    blocks = []
-    for toml_file, header in STYLE_MAPPING.items():
-        style_path = STYLES_DIR / toml_file
-        toml_content = style_path.read_text().strip()
-        if not toml_content:
-            # Skip empty TOML styles
-            continue
-
-        base_name = str(style_path.relative_to(STYLES_DIR.parent))
-        indented_lines = [("    " + line.rstrip()).rstrip() for line in toml_content.split("\n")]
-        blocks.append("")
-        blocks.append(
-            clean_template.format(
-                link=slugify(header),
-                header=header,
-                dashes="-" * len(header),
-                toml_file=base_name,
-                url=GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", base_name, "").url,
-                # Skip TOML with JSON inside, to avoid this error message:
-                # nitpick/docs/examples.rst:193: WARNING: Could not lex literal_block as "toml". Highlighting skipped.
-                language="" if "contains_json" in toml_content else " toml",
-                toml_content="\n".join(indented_lines),
-            )
-        )
-
-    rv = DocFile("examples.rst").write(blocks)
-
-    missing = SortedDict()
-    for existing_toml_path in sorted(STYLES_DIR.glob("**/*.toml")):
-        partial_name = str(existing_toml_path.relative_to(STYLES_DIR))
-        if partial_name not in STYLE_MAPPING:
-            missing[partial_name] = existing_toml_path.stem
-
-    if missing:
-        click.secho(
-            f"ERROR: Add missing style files to the 'STYLE_MAPPING' var in '{__file__}',"
-            f" as file/header pairs. Example:",
-            fg="red",
-        )
-        pprint(missing)
-        sys.exit(1)
-    return rv
 
 
 def write_plugins() -> int:
@@ -349,30 +251,81 @@ def write_config() -> int:
     blocks = [f"{index + 1}. ``{config_file}``" for index, config_file in enumerate(CONFIG_FILES)]
     blocks.insert(0, "")
     blocks.append("")
-    return DocFile("configuration.rst").write(blocks, divider_id="config-file")
+    return DocFile("configuration.rst").write(blocks, divider="config-file")
+
+
+def rst_table(header: Tuple[str, ...], rows: List[Tuple[str, ...]]) -> List[str]:
+    """Create a ReST table from header and rows."""
+    blocks = [".. list-table::\n   :header-rows: 1\n"]
+    num_columns = len(header)
+    for row in [header] + rows:
+        template = ("*" + " - {}\n " * num_columns).rstrip()
+        blocks.append(indent(template.format(*row), "   "))
+    return blocks
 
 
 def write_readme(file_types: Set[FileType], divider: str) -> int:
     """Write the README."""
     # TODO: quickstart.rst has some parts of README.rst as a copy/paste/change
-    rows: List[Tuple[str, ...]] = [("File type", "``nitpick check``", "``nitpick fix``")]
+    rows: List[Tuple[str, ...]] = []
     for file_type in sorted(file_types):
         rows.append(file_type.row)
 
-    blocks = [".. list-table::\n   :header-rows: 1\n"]
-    for row in rows:
-        template = "* - {}\n  - {}\n  - {}"
-        blocks.append(indent(template.format(*row), "   "))
+    lines = rst_table(("File type", "``nitpick check``", "``nitpick fix``"), rows)
+    return DocFile("../README.rst").write(lines, divider)
 
-    return DocFile("../README.rst").write(blocks, divider_id=divider)
+
+@attr.frozen(kw_only=True)
+class StyleLibraryRow:  # pylint: disable=too-few-public-methods
+    """Row in the style library."""
+
+    style: str
+    name: str
+
+
+def _build_library(url: str = "") -> List[str]:
+    # pylint: disable=no-member
+    library: Dict[str, List[Tuple]] = defaultdict(list)
+    for path in sorted(builtin_styles()):  # type: Path
+        style = BuiltinStyle.from_path(path)
+        row = StyleLibraryRow(
+            style=f"``{style.py_pretty_url}`` (`link <{url + style.from_repo_root}>`_)",
+            name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
+        )
+        library[style.identify_tag].append(attr.astuple(row))
+
+    lines = []
+    for tag, rows in library.items():
+        lines.extend(["", tag, "~" * len(tag), ""])
+        lines.extend(
+            rst_table(
+                (
+                    "Style URL",
+                    "Description",
+                ),
+                rows,
+            )
+        )
+    return lines
+
+
+def write_style_library(divider: str) -> int:
+    """Write the style library table."""
+    lines = _build_library()
+    rv = DocFile("../README.rst").write(lines, divider)
+
+    url = GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", "", "").url
+    lines = _build_library(url)
+    rv += DocFile("library.rst").write(lines)
+    return rv
 
 
 if __name__ == "__main__":
     sys.exit(
         write_readme(IMPLEMENTED_FILE_TYPES, "implemented")
         + write_readme(PLANNED_FILE_TYPES, "planned")
+        + write_style_library("style-library")
         + write_config()
-        + write_examples()
         + write_plugins()
         + write_cli()
     )
