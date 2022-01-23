@@ -1,5 +1,10 @@
 .. include:: targets.rst
 
+.. _flake8 configuration: https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/python/flake8.toml
+.. _the default config for package.json: https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/javascript/package-json.toml
+.. _the default pre-commit hooks: https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/any/pre-commit-hooks.toml
+.. _Python 3.8 version constraint: https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/python/38.toml
+
 Plugins
 =======
 
@@ -26,7 +31,7 @@ Examples of ``.ini`` files handled by this plugin:
 - `tox.ini <https://github.com/tox-dev/tox>`_
 - `.pylintrc <https://pylint.readthedocs.io/en/latest/user_guide/run.html#command-line-options>`_
 
-Style examples enforcing values on INI files: `flake8 configuration <https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/resources/python/flake8.toml>`_.
+Style examples enforcing values on INI files: `flake8 configuration`_.
 
 .. _jsonplugin:
 
@@ -36,7 +41,7 @@ JSON files
 Enforce configurations and autofix JSON files.
 
 Add the configurations for the file name you wish to check.
-Style example: `the default config for package.json <https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/resources/javascript/package-json.toml>`_.
+Style example: `the default config for package.json`_.
 
 .. _textplugin:
 
@@ -67,7 +72,7 @@ E.g.: `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-
 See also `the [tool.poetry] section of the pyproject.toml file
 <https://github.com/python-poetry/poetry/blob/master/docs/pyproject.md>`_.
 
-Style example: `Python 3.8 version constraint <https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/resources/python/38.toml>`_.
+Style example: `Python 3.8 version constraint`_.
 There are :ref:`many other examples here <library>`.
 
 .. _yamlplugin:
@@ -78,7 +83,7 @@ YAML files
 Enforce configurations and autofix YAML files.
 
 - Example: `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
-- Style example: `the default pre-commit hooks <https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/resources/any/pre-commit-hooks.toml>`_.
+- Style example: `the default pre-commit hooks`_.
 
 .. warning::
 

@@ -188,7 +188,7 @@ def doc(c, full=False, recreate=False, links=False, browse=False, debug=False):
         c.run("mkdir -p docs/_static")
         c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
 
-    c.run(f"poetry run {tox.autofix_docs}")
+    c.run(f"poetry run {tox.autofix_docs}", warn=True)
     c.run(f"poetry run {tox.api}")
     if debug:
         c.run("poetry run sphinx-apidoc --help")

@@ -3,6 +3,10 @@
 # https://pre-commit.com/#creating-new-hooks
 # Thanks to https://github.com/sloria/environs/blob/master/.pre-commit-config.yaml
 
+# https://pre-commit.com/#top_level-default_language_version
+default_language_version:
+  python: python3.7
+
 # https://pre-commit.ci/#configuration
 ci:
   skip: [local-nitpick, autofix-docs, pylint]

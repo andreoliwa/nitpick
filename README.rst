@@ -2,17 +2,18 @@ Nitpick
 =======
 
 |PyPI|
+|Supported Python versions|
 |GitHub Actions Python Workflow|
 |Documentation Status|
 |Coveralls|
 |Maintainability|
 |Test Coverage|
-|Supported Python versions|
+|pre-commit|
+|pre-commit.ci status|
 |Project License|
 |Code style: black|
 |Renovate|
 |semantic-release|
-|pre-commit.ci status|
 |FOSSA Status|
 
 Command-line tool and `flake8 <https://github.com/PyCQA/flake8>`_
@@ -392,6 +393,9 @@ supported, `see the full documentation <https://nitpick.rtfd.io/>`_.
    :target: https://renovatebot.com/
 .. |semantic-release| image:: https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg
    :target: https://github.com/semantic-release/semantic-release
+.. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
+   :target: https://github.com/pre-commit/pre-commit
+   :alt: pre-commit
 .. |pre-commit.ci status| image:: https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/develop.svg
    :target: https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/develop
 .. |FOSSA Status| image:: https://app.fossa.com/api/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick.svg?type=shield
