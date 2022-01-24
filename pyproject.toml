@@ -48,6 +48,11 @@ yaml = "nitpick.plugins.yaml"
 
 [tool.poetry.dependencies]
 python = "^3.7"
+# TODO: importlib-metadata 4.10.1 downgrades these packages:
+#  • Updating importlib-metadata (4.2.0 -> 4.10.1)
+#  • Updating pycodestyle (2.8.0 -> 2.7.0)
+#  • Updating pyflakes (2.4.0 -> 2.3.1)
+#  • Updating flake8 (4.0.1 -> 3.9.2)
 flake8 = ">=3.0.0"
 attrs = ">=20.1.0" # attr.define introduced in this version
 tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
@@ -89,9 +94,7 @@ responses = { version = "*", optional = true }
 freezegun = { version = "*", optional = true }
 pytest-testmon = { version = "*", optional = true }
 pytest-watch = { version = "*", optional = true }
-# TODO: Wait for a new pytest-socket release, then change spec to "*"
-#  See https://github.com/miketheman/pytest-socket/pull/109
-pytest-socket = { git = "https://github.com/miketheman/pytest-socket", rev = "bf16fbd378a42d94b683e001dc6fd81c610c3923" }
+pytest-socket = "*"
 pytest-datadir = { version = "*", optional = true }
 
 # Group: doc
@@ -106,7 +109,7 @@ doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv"]
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
-ipdb = "*"
+pudb = "*"
 icecream = "*"
 
 [build-system]
