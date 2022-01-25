@@ -58,7 +58,7 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
 
     absent = fields.Dict(fields.NonEmptyString, fields.String())
     present = fields.Dict(fields.NonEmptyString, fields.String())
-    # TODO: load this schema dynamically, then add this next field setup_cfg
+    # TODO: refactor: load this schema dynamically, then add this next field setup_cfg
     setup_cfg = fields.Nested(IniSchema, data_key=SETUP_CFG)
 
 

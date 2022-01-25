@@ -24,7 +24,7 @@ build: .cache/make/pytest .cache/make/pre-commit # Quick build for local develop
 
 .delete-cache:
 	# Force a cache update before running "nitpick fix" in pre-commit
-	# TODO: the cache doesn't detect changes in TOML style files
+	# TODO: fix: the cache doesn't detect changes in TOML style files
 	rm -rf .cache/nitpick
 .PHONY: .delete-cache
 

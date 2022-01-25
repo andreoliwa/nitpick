@@ -133,9 +133,9 @@ def ls(context, files):  # pylint: disable=invalid-name
     if violations:
         for fuss in violations:
             click.echo(fuss.pretty)
-        raise Exit(error_exit_code)  # TODO: test ls with invalid style
+        raise Exit(error_exit_code)  # TODO: test: ls with invalid style
 
-    # TODO: test API .configured_files
+    # TODO: test: configured_files() API
     for file in nit.configured_files(*files):
         click.secho(relative_to_current_dir(file), fg="green" if file.exists() else "red")
 

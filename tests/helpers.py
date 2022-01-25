@@ -37,7 +37,7 @@ NBSP = "\xc2\xa0"
 SUGGESTION_BEGIN = "\x1b[32m"
 SUGGESTION_END = "\x1b[0m"
 
-# TODO: fix Windows tests
+# TODO: test: fix all Windows tests
 XFAIL_ON_WINDOWS = pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
 
 
@@ -212,7 +212,7 @@ class ProjectMock:
         """Save the default style file."""
         return self.save_file(NITPICK_STYLE_TOML, from_path_or_str(file_contents))
 
-    # TODO: remove this function, don't test real styles anymore to avoid breaking tests on Renovate updates
+    # TODO: test: remove this function, don't test real styles anymore to avoid breaking tests on Renovate updates
     def load_styles(self, *args: PathOrStr) -> "ProjectMock":
         """Load style files from the 'styles' dir, to be used on tests.
 

@@ -19,7 +19,7 @@ root:
     regions:
       - region: Bayern
         cities:
-          - city: Muenchen  # TODO: umlaut UTF-8 failing on CI on Windows
+          - city: Muenchen  # TODO: fix: umlaut UTF-8 is failing on Windows CI
             people:
               - name: Fritz
                 age: 60

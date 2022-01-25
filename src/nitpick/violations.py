@@ -97,7 +97,7 @@ class SharedViolations(ViolationEnum):
     DIFFERENT_VALUES = (9, "{prefix} has different values. Use this:", True)
 
 
-# TODO: the Reporter class should track a global list of codes with __new__(),
+# TODO: refactor: the Reporter class should have a metaclass to track a global list of codes on __new__(),
 #  to be used by the `nitpick violations` CLI command
 class Reporter:  # pylint: disable=too-few-public-methods
     """Error reporter."""

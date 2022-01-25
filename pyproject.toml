@@ -48,7 +48,7 @@ yaml = "nitpick.plugins.yaml"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-# TODO: importlib-metadata 4.10.1 downgrades these packages:
+# TODO: build: upgrading importlib-metadata to 4.10.1 downgrades the following packages:
 #  • Updating importlib-metadata (4.2.0 -> 4.10.1)
 #  • Updating pycodestyle (2.8.0 -> 2.7.0)
 #  • Updating pyflakes (2.4.0 -> 2.3.1)
@@ -56,7 +56,7 @@ python = "^3.7"
 flake8 = ">=3.0.0"
 attrs = ">=20.1.0" # attr.define introduced in this version
 tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
-toml = "*" # TODO: keep only tomlkit if possible, to have only one package to handle TOML
+toml = "*" # TODO: refactor: use only tomlkit and remove uiri/toml
 requests = "*"
 dictdiffer = "*"
 "ruamel.yaml" = "*"
@@ -81,7 +81,7 @@ importlib-resources = { version = "*", python = ">=3.7, <3.9" }
 flatten-dict = "*"
 dpath = "*"
 
-# TODO: Move to dependency groups once the feature is on a stable version of Poetry
+# TODO: chore: move to dependency groups once the feature is on a stable version of Poetry
 #  https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups
 # Group: lint
 pylint = { version = "*", optional = true }

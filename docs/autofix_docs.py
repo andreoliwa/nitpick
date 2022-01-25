@@ -266,7 +266,7 @@ def rst_table(header: Tuple[str, ...], rows: List[Tuple[str, ...]]) -> List[str]
 
 def write_readme(file_types: Set[FileType], divider: str) -> int:
     """Write the README."""
-    # TODO: quickstart.rst has some parts of README.rst as a copy/paste/change
+    # TODO: chore: quickstart.rst has some parts of README.rst as a copy/paste/change
     rows: List[Tuple[str, ...]] = []
     for file_type in sorted(file_types):
         rows.append(file_type.row)

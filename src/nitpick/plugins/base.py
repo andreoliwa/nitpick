@@ -27,7 +27,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
 
     __str__, __unicode__ = autotext("{self.info.path_from_root} ({self.__class__.__name__})")
 
-    filename = ""  # TODO: remove filename attribute after fixing dynamic/fixed schema loading
+    filename = ""  # TODO: refactor: remove filename attribute after fixing dynamic/fixed schema loading
     violation_base_code: int = 0
 
     #: Can this plugin modify its files directly? Are the files fixable?

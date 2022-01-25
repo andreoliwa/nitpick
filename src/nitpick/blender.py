@@ -243,7 +243,7 @@ def custom_splitter(separator: str) -> Callable:
     return _inner_custom_splitter
 
 
-# TODO: use only tomlkit and remove uiri/toml
+# TODO: refactor: use only tomlkit and remove uiri/toml
 #  - tomlkit preserves comments
 #  - uiri/toml looks abandoned https://github.com/uiri/toml/issues/361
 #  Code to be used with tomlkit when merging styles
@@ -407,7 +407,7 @@ class Comparison:
         if diff_nested:
             actual_data = cast(JsonDict, actual_element.data)
             expected_data = cast(JsonDict, expected_element.data)
-            # TODO: set value deep down the tree (try dpath-python). parent_key = 'regions[].cities[].people'
+            # TODO: fix: set value deep down the tree (try dpath-python). parent_key = 'regions[].cities[].people'
             expected_data[parent_key] = diff_nested
 
             new_nested_block = actual_data.copy()
@@ -476,7 +476,7 @@ class InlineTableTomlDecoder(toml.TomlDecoder):  # type: ignore[name-defined]
 class TomlDoc(BaseDoc):
     """TOML configuration format."""
 
-    # TODO: use only tomlkit and remove uiri/toml
+    # TODO: refactor: use only tomlkit and remove uiri/toml
     #   remove __init__() completely
     def __init__(
         self,
@@ -495,9 +495,10 @@ class TomlDoc(BaseDoc):
         if self.path is not None:
             self._string = Path(self.path).read_text(encoding="UTF-8")
         if self._string is not None:
-            # TODO: I tried to replace toml by tomlkit, but lots of tests break.
+            # TODO: refactor: use only tomlkit and remove uiri/toml
+            #  I tried to replace toml by tomlkit, but lots of tests break.
             if self.use_tomlkit:
-                # TODO: use only tomlkit and remove uiri/toml
+                # TODO: refactor: use only tomlkit and remove uiri/toml
                 #  Removing empty tables on loads() didn't work.
                 #  The empty tables are gone, but:
                 #  1. the output has 2 blank lines at the top
@@ -520,10 +521,10 @@ class TomlDoc(BaseDoc):
             else:
                 self._object = toml.loads(self._string, decoder=InlineTableTomlDecoder(dict))  # type: ignore[call-arg,assignment]
         if self._object is not None:
-            # TODO: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
+            # TODO: fix: tomlkit.dumps() renders comments and I didn't find a way to turn this off,
             #  but comments are being lost when the TOML plugin does dict comparisons.
             if self.use_tomlkit:
-                # TODO: use only tomlkit and remove uiri/toml
+                # TODO: refactor: use only tomlkit and remove uiri/toml
                 #  Removing empty tables on dumps() didn't work.
                 #  Another attempt would be to remove tables when dumping to TOML when setting self._reformatted:
                 #  1. load a dict normally with loads()

@@ -33,7 +33,7 @@ extension-pkg-whitelist = "pydantic"
 output-format = "colorized"
 
 [".pylintrc"."MESSAGES CONTROL"]
-# TODO: deal with character separated INI options in https://github.com/andreoliwa/nitpick/issues/271
+# TODO: fix: deal with character separated INI options in https://github.com/andreoliwa/nitpick/issues/271
 #  The "nitpick.files" section doesn't work out of the box for .pylintrc:
 #  [nitpick.files.".pylintrc"]
 #  comma_separated_values = ["MESSAGES CONTROL.disable"]
@@ -52,7 +52,7 @@ good-names = "i,j,k,e,ex,Run,_,id,rv,c"
 max-line-length = 120
 # Maximum number of lines in a module
 max-module-lines = 1000
-# TODO: deal with empty options (strings with spaces and quotes); maybe it's a ConfigParser/ConfigUpdater thing
+# TODO: fix: deal with empty options (strings with spaces and quotes); maybe it's a ConfigParser/ConfigUpdater thing
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1 tab).
 #indent-string = "    "
 # Number of spaces of indent required inside a hanging or continued line.

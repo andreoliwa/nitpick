@@ -20,7 +20,7 @@ plugins:
     enabled: false
   git-legal: # https://docs.codeclimate.com/docs/git-legal
     enabled: true
-  markdownlint: # https://docs.codeclimate.com/docs/markdownlint # TODO: enable it after configuring a style
+  markdownlint: # https://docs.codeclimate.com/docs/markdownlint # TODO: style: enable markdownlint after configuring it
     # https://github.com/markdownlint/markdownlint
     enabled: false
   pep8: # https://docs.codeclimate.com/docs/pep8 PEP8 already being checked by flake8 plugins on pre-commit

@@ -66,7 +66,7 @@ class JsonPlugin(NitpickPlugin):
     def expected_dict_from_contains_json(self):
         """Expected dict created from "contains_json" values."""
         expected_config = {}
-        # TODO: accept key as a jmespath expression, value is valid JSON
+        # TODO: feat: accept key as a jmespath expression, value is valid JSON
         for key, json_string in (self.expected_config.get(KEY_CONTAINS_JSON) or {}).items():
             try:
                 expected_config[key] = json.loads(json_string)

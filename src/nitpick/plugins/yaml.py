@@ -61,7 +61,7 @@ class YamlPlugin(NitpickPlugin):
         """Enforce rules for missing data in the YAML file."""
         if KEY_CONTAINS in self.expected_config:
             # If the expected configuration has this key, it means that this config is being handled by TextPlugin.
-            # TODO: A YAML file that has a "contains" key on its root cannot be handled as YAML... how to fix this?
+            # TODO: fix: allow a YAML file with a "contains" key on its root (how?)
             return
 
         yaml_doc = YamlDoc(path=self.file_path)

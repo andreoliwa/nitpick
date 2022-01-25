@@ -15,7 +15,7 @@ extras = "test"
 branch = true
 parallel = true
 source = "src/"
-# TODO: deal with multiline INI values in https://github.com/andreoliwa/nitpick/issues/271
+# TODO: fix: deal with multiline INI values in https://github.com/andreoliwa/nitpick/issues/271
 #omit = """tests/*
 #.tox/*
 #*/pypoetry/virtualenvs/*

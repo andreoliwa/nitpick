@@ -130,7 +130,7 @@ class IniPlugin(NitpickPlugin):
             parser[section] = expected_config
         return self.contents_without_top_section(self.get_example_cfg(parser))
 
-    # TODO: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
+    # TODO: refactor: convert the contents to dict (with IniConfig().sections?) and mimic other plugins doing dict diffs
     def enforce_rules(self) -> Iterator[Fuss]:
         """Enforce rules on missing sections and missing key/value pairs in an INI file."""
         try:
@@ -186,7 +186,7 @@ class IniPlugin(NitpickPlugin):
         """Enforce rules for a section."""
         expected_dict = self.expected_config[section]
         actual_dict = {k: v.value for k, v in self.updater[section].items()}
-        # TODO: add a class Ini(BaseDoc) and move this dictdiffer code there
+        # TODO: refactor: add a class Ini(BaseDoc) and move this dictdiffer code there
         for diff_type, key, values in dictdiffer.diff(actual_dict, expected_dict):
             if diff_type == dictdiffer.CHANGE:
                 if f"{section}.{key}" in self.comma_separated_values:
@@ -210,7 +210,7 @@ class IniPlugin(NitpickPlugin):
             self.updater[section][key].value += value_to_append
             self.dirty = True
         section_header = "" if section == TOP_SECTION else f"[{section}]\n"
-        # TODO: proper testing of top section with separated values in https://github.com/andreoliwa/nitpick/issues/271
+        # TODO: test: top section with separated values in https://github.com/andreoliwa/nitpick/issues/271
         yield self.reporter.make_fuss(
             Violations.MISSING_VALUES_IN_LIST,
             f"{section_header}{key} = (...){value_to_append}",

@@ -53,7 +53,7 @@ class TextPlugin(NitpickPlugin):
     validation_schema = TextSchema
 
     #: All other files are also text files, and they already have a suggested content message
-    # TODO: this is a hack to avoid rethinking the whole schema validation now (this will have to be done some day)
+    # TODO: refactor: rethink the whole schema validation and remove this attribute
     skip_empty_suggestion = True
 
     violation_base_code = 350

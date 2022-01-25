@@ -70,7 +70,8 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         """Clear the cache directory (on the project root or on the current directory)."""
         path: Path = self.project.root / CACHE_DIR_NAME / PROJECT_NAME
 
-        # TODO: check if the merged style file is still needed; if not, this line can be removed
+        # TODO: fix: check if the merged style file is still needed
+        #  if not, this line can be removed
         path.mkdir(parents=True, exist_ok=True)
 
         return path
@@ -137,7 +138,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         toml = TomlDoc(string=file_contents)
         try:
             read_toml_dict = toml.as_object
-        # TODO: replace by this error when using tomlkit only in the future:
+        # TODO: refactor: replace by this error when using tomlkit only in the future:
         #  except TOMLKitError as err:
         except TomlDecodeError as err:
             # If the TOML itself could not be parsed, we can't go on
@@ -193,7 +194,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
         merged_dict = unflatten(self._merged_styles, custom_splitter(SEPARATOR_FLATTEN))
-        # TODO: check if the merged style file is still needed
+        # TODO: fix: check if the merged style file is still needed
         merged_style_path: Path = self.cache_dir / MERGED_STYLE_TOML
         toml = TomlDoc(obj=merged_dict)
 
