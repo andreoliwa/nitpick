@@ -57,7 +57,15 @@ def test_each_builtin_style(tmp_path, datadir, path):
         style = "{style.py_url_without_ext}"
         """,
     )
+
+    # Run `nitpick fix` twice on the style
+    # First time: it should report violations and create new file(s)
     project.api_check_then_fix(*fusses)
+    if style.files:
+        project.assert_file_contents(*name_contents)
+
+    # Second time: it should not report any violation and should not change the existing file(s)
+    project.api_check_then_fix()
     if style.files:
         project.assert_file_contents(*name_contents)
     # TODO: test: special case for src/nitpick/resources/python/absent.toml
