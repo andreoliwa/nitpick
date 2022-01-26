@@ -9,7 +9,7 @@ from more_itertools import always_iterable
 from nitpick.constants import DOT
 from nitpick.exceptions import pretty_exception
 
-__all__ = ("Dict", "List", "String", "Nested", "Field", "URL")
+__all__ = ("Dict", "Field", "List", "Nested", "String", "URL")
 
 
 def is_valid_json(json_string: str) -> bool:

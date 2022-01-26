@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 hookspec = pluggy.HookspecMarker(PROJECT_NAME)
 hookimpl = pluggy.HookimplMarker(PROJECT_NAME)
 
-__all__ = ("hookspec", "hookimpl")
+__all__ = ("hookimpl", "hookspec")
 
 
 @hookspec
