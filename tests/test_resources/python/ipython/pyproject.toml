@@ -1,0 +1,3 @@
+[tool.poetry.dev-dependencies]
+ipython = "*"
+ipdb = "*"
