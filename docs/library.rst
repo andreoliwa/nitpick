@@ -83,6 +83,8 @@ python
      - `isort <https://github.com/PyCQA/isort>`_
    * - ``py://nitpick/resources/python/mypy`` (`link <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/python/mypy.toml>`_)
      - `Mypy <https://github.com/python/mypy>`_
+   * - ``py://nitpick/resources/python/poetry-editable`` (`link <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/python/poetry-editable.toml>`_)
+     - `Poetry (editable projects; PEP 600 support) <https://github.com/python-poetry/poetry>`_
    * - ``py://nitpick/resources/python/poetry`` (`link <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/python/poetry.toml>`_)
      - `Poetry <https://github.com/python-poetry/poetry>`_
    * - ``py://nitpick/resources/python/pre-commit-hooks`` (`link <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/python/pre-commit-hooks.toml>`_)

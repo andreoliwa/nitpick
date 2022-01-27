@@ -41,9 +41,6 @@ BUILTIN_STYLE_EXTRA_VIOLATIONS: Dict[str, List[Fuss]] = {
             "",
         )
     ],
-    "python/poetry": [
-        Fuss(False, PYPROJECT_TOML, 103, " should exist: Install poetry and run 'poetry init' to create it", "")
-    ],
 }
 
 
@@ -67,7 +64,10 @@ def test_each_builtin_style(tmp_path, datadir, builtin_style_path):
     name_contents = []
     for filename in style.files:
         expected_path = datadir / style.path_from_resources_root / filename
+
         if not expected_path.exists():
+            # Creates empty files on datadir, to help with the task of adding new built-in styles
+            # You just need to fill in the expected contents of each file
             fixture_path = Path(__file__).parent / "test_resources" / style.path_from_resources_root / filename
             fixture_path.parent.mkdir(parents=True, exist_ok=True)
             fixture_path.touch(exist_ok=True)
