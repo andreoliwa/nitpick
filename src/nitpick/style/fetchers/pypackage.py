@@ -111,7 +111,9 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
         # FIXME: windows debugging
         from icecream import ic
 
-        ic(bis.pypackage_url.raw_content_url)
+        ic(bis.pypackage_url.import_path)
+        ic(bis.pypackage_url.resource_name)
+        ic(bis.pypackage_url)
         toml_dict = tomlkit.loads(bis.pypackage_url.raw_content_url.read_text(encoding="UTF-8"))
 
         keys = list(toml_dict.keys())
