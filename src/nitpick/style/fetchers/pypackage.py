@@ -108,6 +108,10 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
         bis.pypackage_url = PythonPackageURL.parse_url(bis.py_url)
         bis.identify_tag = bis.path_from_resources_root.split(SLASH)[0]
 
+        # FIXME: windows debugging
+        from icecream import ic
+
+        ic(bis.pypackage_url.raw_content_url)
         toml_dict = tomlkit.loads(bis.pypackage_url.raw_content_url.read_text(encoding="UTF-8"))
 
         keys = list(toml_dict.keys())
