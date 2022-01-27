@@ -6,8 +6,8 @@ README.md
 
 # Prettier uses double quotes, ruamel.yaml uses single quotes
 tests/test_yaml*/*.yaml
-tests/test_resources*/*.yaml
 
 # The JSON generated with json.dumps() should not be prettified in tests, otherwise they fail
 tests/test_json/*.json
-tests/test_resources*/*.json
+
+tests/test_resources/*
