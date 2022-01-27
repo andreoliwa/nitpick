@@ -95,7 +95,6 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
     url: str = attr.field(init=False)
     files: list[str] = attr.field(init=False)
 
-    # FIXME: refactor: move this to __post_init__()?
     @classmethod
     def from_path(cls, resource_path: Path) -> BuiltinStyle:
         """Create a built-in style from a resource path."""
