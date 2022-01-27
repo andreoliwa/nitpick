@@ -103,8 +103,8 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
         bis = BuiltinStyle(
             py_url="py://" + SLASH.join(resource_path.relative_to(src_path).parts),
             py_url_without_ext="py://" + SLASH.join(without_extension.relative_to(src_path).parts),
-            path_from_repo_root=str(resource_path.relative_to(repo_root())),
-            path_from_resources_root=str(without_extension.relative_to(builtin_resources_root())),
+            path_from_repo_root=SLASH.join(resource_path.relative_to(repo_root()).parts),
+            path_from_resources_root=SLASH.join(without_extension.relative_to(builtin_resources_root()).parts),
         )
         bis.pypackage_url = PythonPackageURL.parse_url(bis.py_url)
         bis.identify_tag = bis.path_from_resources_root.split(SLASH)[0]
