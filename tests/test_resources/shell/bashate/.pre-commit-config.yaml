@@ -1,0 +1,7 @@
+repos:
+  - repo: https://github.com/openstack/bashate
+    hooks:
+      - id: bashate
+        args:
+          - -i
+          - E006

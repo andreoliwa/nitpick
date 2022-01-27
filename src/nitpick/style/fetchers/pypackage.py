@@ -1,15 +1,17 @@
 """Support for ``py`` schemes."""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import Iterable, Tuple
+from typing import Iterable
 from urllib.parse import urlparse
 
 import attr
 import tomlkit
 
-from nitpick import compat
+from nitpick import PROJECT_NAME, compat
 from nitpick.constants import DOT, SLASH
 from nitpick.style.fetchers.base import StyleFetcher
 
@@ -39,7 +41,7 @@ class PythonPackageURL:
     resource_name: str
 
     @classmethod
-    def parse_url(cls, url: str) -> "PythonPackageURL":
+    def parse_url(cls, url: str) -> PythonPackageURL:
         """Create an instance by parsing a URL string in any accepted format.
 
         See the code for ``test_parsing_python_package_urls()`` for more examples.
@@ -71,7 +73,7 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
     E.g. ``py://some_package/path/nitpick.toml``.
     """
 
-    protocols: Tuple[str, ...] = ("py", "pypackage")
+    protocols: tuple[str, ...] = ("py", "pypackage")
 
     def _do_fetch(self, url):
         package_url = PythonPackageURL.parse_url(url)
@@ -83,29 +85,35 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
     """A built-in style file in TOML format."""
 
     py_url: str
-    py_pretty_url: str
-    from_repo_root: str
-    from_resources_root: str
+    py_url_without_ext: str
+    path_from_repo_root: str
+    path_from_resources_root: str
 
     pypackage_url: PythonPackageURL = attr.field(init=False)
     identify_tag: str = attr.field(init=False)
     name: str = attr.field(init=False)
     url: str = attr.field(init=False)
+    files: list[str] = attr.field(init=False)
 
     @classmethod
-    def from_path(cls, resource_path: Path) -> "BuiltinStyle":
+    def from_path(cls, resource_path: Path) -> BuiltinStyle:
         """Create a built-in style from a resource path."""
-        path_without_ext = str(resource_path.with_suffix(""))
+        src_path = builtin_resources_root().parent.parent
+        without_extension = resource_path.with_suffix("")
         bis = BuiltinStyle(
-            py_url=str(resource_path).replace(str(builtin_resources_root().parent.parent), "py:/"),
-            py_pretty_url=path_without_ext.replace(str(builtin_resources_root().parent.parent), "py:/"),
-            from_repo_root=str(resource_path).replace(str(repo_root()), "").lstrip(SLASH),
-            from_resources_root=path_without_ext.replace(str(builtin_resources_root()), "").lstrip(SLASH),
+            py_url="py://" + SLASH.join(resource_path.relative_to(src_path).parts),
+            py_url_without_ext="py://" + SLASH.join(without_extension.relative_to(src_path).parts),
+            path_from_repo_root=SLASH.join(resource_path.relative_to(repo_root()).parts),
+            path_from_resources_root=SLASH.join(without_extension.relative_to(builtin_resources_root()).parts),
         )
         bis.pypackage_url = PythonPackageURL.parse_url(bis.py_url)
-        bis.identify_tag = bis.from_resources_root.split(SLASH)[0]
+        bis.identify_tag = bis.path_from_resources_root.split(SLASH)[0]
 
         toml_dict = tomlkit.loads(bis.pypackage_url.raw_content_url.read_text(encoding="UTF-8"))
+
+        keys = list(toml_dict.keys())
+        keys.remove(PROJECT_NAME)
+        bis.files = keys
 
         try:
             # Intentionally break the doc generation when styles don't have [nitpick.meta]name

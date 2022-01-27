@@ -1,0 +1,6 @@
+[tool.poetry.extras]
+lint = [ "pylint",]
+
+[tool.poetry.dependencies.pylint]
+version = "*"
+optional = true

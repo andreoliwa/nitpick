@@ -289,7 +289,7 @@ def _build_library(url: str = "") -> List[str]:
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
         row = StyleLibraryRow(
-            style=f"``{style.py_pretty_url}`` (`link <{url + style.from_repo_root}>`_)",
+            style=f"``{style.py_url_without_ext}`` (`link <{url + style.path_from_repo_root}>`_)",
             name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
         )
         library[style.identify_tag].append(attr.astuple(row))

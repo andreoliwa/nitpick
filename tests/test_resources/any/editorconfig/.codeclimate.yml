@@ -1,0 +1,3 @@
+plugins:
+  editorconfig:
+    enabled: true
