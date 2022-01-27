@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 
 import attr
 import tomlkit
+from icecream import ic
 
 from nitpick import PROJECT_NAME, compat
 from nitpick.constants import DOT, SLASH
@@ -47,11 +48,16 @@ class PythonPackageURL:
         See the code for ``test_parsing_python_package_urls()`` for more examples.
         """
         parsed_url = urlparse(url)
+        ic(parsed_url)
         package_name = parsed_url.netloc
+        ic(package_name)
         resource_path = parsed_url.path.strip("/").split("/")
+        ic(resource_path)
 
         import_path = DOT.join(chain((package_name,), resource_path[:-1]))
+        ic(import_path)
         resource_name = resource_path[-1]
+        ic(resource_name)
 
         return cls(import_path=import_path, resource_name=resource_name)
 
