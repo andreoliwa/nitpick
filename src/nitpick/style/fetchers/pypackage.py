@@ -10,7 +10,6 @@ from urllib.parse import urlparse
 
 import attr
 import tomlkit
-from icecream import ic
 
 from nitpick import PROJECT_NAME, compat
 from nitpick.constants import DOT, SLASH
@@ -99,27 +98,17 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
     @classmethod
     def from_path(cls, resource_path: Path) -> BuiltinStyle:
         """Create a built-in style from a resource path."""
-        ic(resource_path)
-        path_without_ext = str(resource_path.with_suffix(""))
-        ic(builtin_resources_root())
-        ic(builtin_resources_root().parent.parent)
-        ic(str(resource_path))
-        ic(resource_path.parts)
-        ic(resource_path.parents)
-        ic(str(resource_path).replace(str(builtin_resources_root().parent.parent), "py:/"))
+        src_path = builtin_resources_root().parent.parent
+        without_extension = resource_path.with_suffix("")
         bis = BuiltinStyle(
-            py_url=str(resource_path).replace(str(builtin_resources_root().parent.parent), "py:/"),
-            py_url_without_ext=path_without_ext.replace(str(builtin_resources_root().parent.parent), "py:/"),
-            path_from_repo_root=str(resource_path).replace(str(repo_root()), "").lstrip(SLASH),
-            path_from_resources_root=path_without_ext.replace(str(builtin_resources_root()), "").lstrip(SLASH),
+            py_url="py://" + SLASH.join(resource_path.relative_to(src_path).parts),
+            py_url_without_ext="py://" + SLASH.join(without_extension.relative_to(src_path).parts),
+            path_from_repo_root=str(resource_path.relative_to(repo_root())),
+            path_from_resources_root=str(without_extension.relative_to(builtin_resources_root())),
         )
         bis.pypackage_url = PythonPackageURL.parse_url(bis.py_url)
         bis.identify_tag = bis.path_from_resources_root.split(SLASH)[0]
 
-        # FIXME: windows debugging
-        ic(bis.pypackage_url.import_path)
-        ic(bis.pypackage_url.resource_name)
-        ic(bis.pypackage_url)
         toml_dict = tomlkit.loads(bis.pypackage_url.raw_content_url.read_text(encoding="UTF-8"))
 
         keys = list(toml_dict.keys())
