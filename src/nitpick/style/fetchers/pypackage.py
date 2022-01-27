@@ -103,6 +103,9 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
         path_without_ext = str(resource_path.with_suffix(""))
         ic(builtin_resources_root())
         ic(builtin_resources_root().parent.parent)
+        ic(str(resource_path))
+        ic(resource_path.parts)
+        ic(resource_path.parents)
         ic(str(resource_path).replace(str(builtin_resources_root().parent.parent), "py:/"))
         bis = BuiltinStyle(
             py_url=str(resource_path).replace(str(builtin_resources_root().parent.parent), "py:/"),
