@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Dict, List
 
 import pytest
-from icecream import ic
 from identify.identify import ALL_TAGS
 
 from nitpick.constants import (
@@ -78,7 +77,6 @@ def test_each_builtin_style(tmp_path, datadir, builtin_style_path):
         violations.append(Fuss(True, filename, code, " was not found. Create it with this content:", expected_contents))
         name_contents.extend([filename, expected_contents])
 
-    ic(style.path_from_resources_root)
     violations.extend(BUILTIN_STYLE_EXTRA_VIOLATIONS.get(style.path_from_resources_root, []))
 
     project = ProjectMock(tmp_path).save_file(
