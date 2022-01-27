@@ -48,16 +48,11 @@ class PythonPackageURL:
         See the code for ``test_parsing_python_package_urls()`` for more examples.
         """
         parsed_url = urlparse(url)
-        ic(parsed_url)
         package_name = parsed_url.netloc
-        ic(package_name)
         resource_path = parsed_url.path.strip("/").split("/")
-        ic(resource_path)
 
         import_path = DOT.join(chain((package_name,), resource_path[:-1]))
-        ic(import_path)
         resource_name = resource_path[-1]
-        ic(resource_name)
 
         return cls(import_path=import_path, resource_name=resource_name)
 
@@ -119,8 +114,6 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
         bis.identify_tag = bis.path_from_resources_root.split(SLASH)[0]
 
         # FIXME: windows debugging
-        from icecream import ic
-
         ic(bis.pypackage_url.import_path)
         ic(bis.pypackage_url.resource_name)
         ic(bis.pypackage_url)
