@@ -9,6 +9,7 @@ from flake8.main import cli
 from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.core import Nitpick
 from nitpick.enums import _OptionMixin
+from nitpick.style import StyleManager
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
@@ -116,7 +117,13 @@ def test_offline_recommend_using_flag(tmp_path, capsys):
     """Recommend using the flag on a connection error."""
     responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
 
-    ProjectMock(tmp_path).flake8()
+    url = StyleManager.get_default_style_url(True)
+    ProjectMock(tmp_path).pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = "{url}"
+        """
+    ).flake8()
     out, err = capsys.readouterr()
     assert out == ""
     assert (

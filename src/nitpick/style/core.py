@@ -36,6 +36,7 @@ from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.style.config import ConfigValidator
 from nitpick.style.fetchers import StyleFetcherManager
 from nitpick.style.fetchers.github import GitHubURL
+from nitpick.style.fetchers.pypackage import PythonPackageProtocol
 from nitpick.typedefs import JsonDict, StrOrIterable, StrOrList, mypy_property
 from nitpick.violations import Fuss, Reporter, StyleViolations
 
@@ -77,9 +78,11 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         return path
 
     @staticmethod
-    def get_default_style_url():
-        """Return the URL of the default style for the current version."""
-        return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", NITPICK_STYLE_TOML, None).long_protocol_url
+    def get_default_style_url(github=False):
+        """Return the URL of the default style/preset."""
+        if github:
+            return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", NITPICK_STYLE_TOML, None).long_protocol_url
+        return f"{PythonPackageProtocol.SHORT.value}://{PROJECT_NAME}/resources/presets/{PROJECT_NAME}"
 
     def find_initial_styles(self, configured_styles: StrOrIterable) -> Iterator[Fuss]:
         """Find the initial style(s) and include them."""
