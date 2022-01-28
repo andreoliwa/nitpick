@@ -17,7 +17,7 @@ from nitpick.constants import (
 )
 from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 from nitpick.violations import Fuss
-from tests.helpers import STYLES_DIR, ProjectMock
+from tests.helpers import STYLES_DIR, XFAIL_ON_WINDOWS, ProjectMock
 
 BUILTIN_STYLE_CODES = {
     SETUP_CFG: 321,
@@ -47,7 +47,7 @@ BUILTIN_STYLE_EXTRA_VIOLATIONS: Dict[str, List[Fuss]] = {
 def test_packages_named_after_identify_tags():
     """Test if the directories are packages and also "identify" tags."""
     for item in Path(STYLES_DIR).glob("**/*"):
-        if not item.is_dir() or item.name in {"__pycache__", "any"}:
+        if not item.is_dir() or item.name in {"__pycache__", "any", "presets"}:
             continue
 
         assert item.name in ALL_TAGS, f"The directory {item.name!r} is not a valid 'identify' tag"
@@ -56,9 +56,9 @@ def test_packages_named_after_identify_tags():
         assert init_py[0].is_file()
 
 
-@pytest.mark.parametrize("builtin_style_path", builtin_styles())
+@pytest.mark.parametrize("builtin_style_path", [s for s in builtin_styles() if "presets" not in s.parts])
 def test_each_builtin_style(tmp_path, datadir, builtin_style_path):
-    """Test each built-in style."""
+    """Test each built-in style (skip presets)."""
     style = BuiltinStyle.from_path(builtin_style_path)
     violations = []
     name_contents = []
@@ -103,3 +103,30 @@ def test_each_builtin_style(tmp_path, datadir, builtin_style_path):
     if style.files:
         project.assert_file_contents(*name_contents)
     # TODO: test: special case for src/nitpick/resources/python/absent.toml
+
+
+@XFAIL_ON_WINDOWS
+def test_default_style_is_applied(project_default, datadir):
+    """Test if the default style is applied on an empty project."""
+    # TODO: test: nitpick preset in a generic way, preparing for other presets to come
+    preset_dir = datadir / "preset" / "nitpick"
+    expected_setup_cfg = (preset_dir / "setup.cfg").read_text()
+    expected_editor_config = (preset_dir / ".editorconfig").read_text()
+    expected_tox_ini = (preset_dir / "tox.ini").read_text()
+    expected_pylintrc = (preset_dir / ".pylintrc").read_text()
+    project_default.api_check_then_fix(
+        Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
+        Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
+        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),
+        Fuss(True, PYLINTRC, 321, " was not found. Create it with this content:", expected_pylintrc),
+        partial_names=[SETUP_CFG, EDITOR_CONFIG, TOX_INI, PYLINTRC],
+    ).assert_file_contents(
+        SETUP_CFG,
+        expected_setup_cfg,
+        EDITOR_CONFIG,
+        expected_editor_config,
+        TOX_INI,
+        expected_tox_ini,
+        PYLINTRC,
+        expected_pylintrc,
+    )

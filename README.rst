@@ -208,6 +208,17 @@ javascript
    * - ``py://nitpick/resources/javascript/package-json`` (`link <src/nitpick/resources/javascript/package-json.toml>`_)
      - `package.json <https://github.com/yarnpkg/website/blob/master/lang/en/docs/package-json.md>`_
 
+presets
+~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - ``py://nitpick/resources/presets/nitpick`` (`link <src/nitpick/resources/presets/nitpick.toml>`_)
+     - `Default style file for Nitpick <https://nitpick.rtfd.io/>`_
+
 python
 ~~~~~~
 

@@ -3,7 +3,6 @@ import os
 import shutil
 
 import pytest
-import responses
 
 from nitpick.constants import (
     DOT_NITPICK_TOML,
@@ -122,11 +121,8 @@ def test_django_project_structure(tmp_path):
     ).api_check_then_fix()
 
 
-@responses.activate
 def test_when_no_config_file_the_default_style_is_requested(tmp_path, caplog):
     """There is a root dir (setup.py), but no config file."""
-    responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
-
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).api_check(offline=True)
     assert project.nitpick_instance.project.read_configuration() == Configuration(None, [], "")
     assert "Config file: none found" in caplog.text

@@ -9,6 +9,7 @@ from flake8.main import cli
 from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.core import Nitpick
 from nitpick.enums import _OptionMixin
+from nitpick.style import StyleManager
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 
@@ -104,19 +105,29 @@ def test_offline_flag_env_variable(tmpdir):
         assert Nitpick.singleton().offline is True
 
 
+def project_github(tmp_path):
+    """Project using a style from the Nitpick GitHub repo."""
+    github_url = StyleManager.get_default_style_url(True)
+    return ProjectMock(tmp_path).pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = "{github_url}"
+        """
+    )
+
+
 @responses.activate
 def test_offline_doesnt_raise_connection_error(tmp_path):
     """On offline mode, no requests are made, so no connection errors should be raised."""
     responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
-    ProjectMock(tmp_path).flake8(offline=True)
+    project_github(tmp_path).flake8(offline=True)
 
 
 @responses.activate
 def test_offline_recommend_using_flag(tmp_path, capsys):
     """Recommend using the flag on a connection error."""
     responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
-
-    ProjectMock(tmp_path).flake8()
+    project_github(tmp_path).flake8()
     out, err = capsys.readouterr()
     assert out == ""
     assert (

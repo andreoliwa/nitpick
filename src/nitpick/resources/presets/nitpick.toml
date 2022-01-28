@@ -1,0 +1,44 @@
+[nitpick.meta]
+name = "Default style file for Nitpick"
+url = "https://nitpick.rtfd.io/"
+
+[nitpick]
+minimum_version = "0.10.0"
+
+[nitpick.styles]
+include = [
+    # Suggest the current stable Python version for projects
+    "py://nitpick/resources/python/39",
+
+    "py://nitpick/resources/python/absent",
+    "py://nitpick/resources/python/bandit",
+    "py://nitpick/resources/python/black",
+    "py://nitpick/resources/python/flake8",
+    "py://nitpick/resources/python/pre-commit-hooks",
+    "py://nitpick/resources/python/isort",
+    "py://nitpick/resources/python/mypy",
+    "py://nitpick/resources/python/poetry",
+    "py://nitpick/resources/python/pylint",
+    "py://nitpick/resources/python/radon",
+    "py://nitpick/resources/python/readthedocs",
+    "py://nitpick/resources/python/sonar-python",
+    "py://nitpick/resources/python/tox",
+    "py://nitpick/resources/python/github-workflow",
+    "py://nitpick/resources/python/autoflake",
+
+    "py://nitpick/resources/any/prettier",
+    "py://nitpick/resources/any/codeclimate",
+    "py://nitpick/resources/any/commitizen",
+    "py://nitpick/resources/any/editorconfig",
+    "py://nitpick/resources/any/git-legal",
+    "py://nitpick/resources/any/pre-commit-hooks",
+    "py://nitpick/resources/any/markdownlint",
+
+    "py://nitpick/resources/shell/bashate",
+    "py://nitpick/resources/shell/shellcheck",
+
+    "py://nitpick/resources/javascript/package-json",
+]
+
+[nitpick.files."setup.cfg"]
+comma_separated_values = ["flake8.ignore", "flake8.exclude", "isort.skip", "isort.known_first_party"]
