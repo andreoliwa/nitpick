@@ -47,7 +47,7 @@ BUILTIN_STYLE_EXTRA_VIOLATIONS: Dict[str, List[Fuss]] = {
 def test_packages_named_after_identify_tags():
     """Test if the directories are packages and also "identify" tags."""
     for item in Path(STYLES_DIR).glob("**/*"):
-        if not item.is_dir() or item.name in {"__pycache__", "any"}:
+        if not item.is_dir() or item.name in {"__pycache__", "any", "presets"}:
             continue
 
         assert item.name in ALL_TAGS, f"The directory {item.name!r} is not a valid 'identify' tag"
@@ -56,9 +56,9 @@ def test_packages_named_after_identify_tags():
         assert init_py[0].is_file()
 
 
-@pytest.mark.parametrize("builtin_style_path", builtin_styles())
+@pytest.mark.parametrize("builtin_style_path", [s for s in builtin_styles() if "presets" not in s.parts])
 def test_each_builtin_style(tmp_path, datadir, builtin_style_path):
-    """Test each built-in style."""
+    """Test each built-in style (skip presets)."""
     style = BuiltinStyle.from_path(builtin_style_path)
     violations = []
     name_contents = []

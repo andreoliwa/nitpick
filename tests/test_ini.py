@@ -15,6 +15,7 @@ def test_setup_cfg_has_no_configuration(tmp_path):
     ProjectMock(tmp_path).style("").setup_cfg("").api_check_then_fix()
 
 
+# FIXME: refactor: move this to test_resources.py; try to make it generic
 @XFAIL_ON_WINDOWS
 def test_default_style_is_applied(project_default, datadir):
     """Test if the default style is applied on an empty project."""
