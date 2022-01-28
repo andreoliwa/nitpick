@@ -4,41 +4,15 @@ from unittest import mock
 
 from configupdater import ConfigUpdater
 
-from nitpick.constants import EDITOR_CONFIG, PYLINTRC, SETUP_CFG, TOX_INI
+from nitpick.constants import EDITOR_CONFIG, SETUP_CFG
 from nitpick.plugins.ini import IniPlugin, Violations
 from nitpick.violations import Fuss, SharedViolations
-from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
+from tests.helpers import ProjectMock
 
 
 def test_setup_cfg_has_no_configuration(tmp_path):
     """File should not be deleted unless explicitly asked."""
     ProjectMock(tmp_path).style("").setup_cfg("").api_check_then_fix()
-
-
-# FIXME: refactor: move this to test_resources.py; try to make it generic
-@XFAIL_ON_WINDOWS
-def test_default_style_is_applied(project_default, datadir):
-    """Test if the default style is applied on an empty project."""
-    expected_setup_cfg = (datadir / "1-expected-setup.cfg").read_text()
-    expected_editor_config = (datadir / "1-expected-editorconfig.ini").read_text()
-    expected_tox_ini = (datadir / "1-expected-tox.ini").read_text()
-    expected_pylintrc = (datadir / "1-expected-pylintrc.ini").read_text()
-    project_default.api_check_then_fix(
-        Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
-        Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
-        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),
-        Fuss(True, PYLINTRC, 321, " was not found. Create it with this content:", expected_pylintrc),
-        partial_names=[SETUP_CFG, EDITOR_CONFIG, TOX_INI, PYLINTRC],
-    ).assert_file_contents(
-        SETUP_CFG,
-        expected_setup_cfg,
-        EDITOR_CONFIG,
-        expected_editor_config,
-        TOX_INI,
-        expected_tox_ini,
-        PYLINTRC,
-        expected_pylintrc,
-    )
 
 
 def test_comma_separated_keys_on_style_file(tmp_path):
