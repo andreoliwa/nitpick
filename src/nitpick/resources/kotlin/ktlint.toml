@@ -1,0 +1,11 @@
+[nitpick.meta]
+name = "ktlint"
+url = "https://github.com/pinterest/ktlint"
+
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/macisamuele/language-formatters-pre-commit-hooks"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "pretty-format-kotlin"
+args = ["--autofix"]
+stages = ["commit"]
