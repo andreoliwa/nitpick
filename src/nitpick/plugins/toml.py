@@ -1,6 +1,8 @@
 """TOML files."""
+from __future__ import annotations
+
 from itertools import chain
-from typing import Iterator, Optional, Type
+from typing import Iterator
 
 from tomlkit import dumps, parse
 from tomlkit.toml_document import TOMLDocument
@@ -43,7 +45,7 @@ class TomlPlugin(NitpickPlugin):
         if self.autofix and self.dirty:
             self.file_path.write_text(dumps(document))
 
-    def report(self, violation: ViolationEnum, document: Optional[TOMLDocument], change: Optional[BaseDoc]):
+    def report(self, violation: ViolationEnum, document: TOMLDocument | None, change: BaseDoc | None):
         """Report a violation while optionally modifying the TOML document."""
         if not change:
             return
@@ -59,13 +61,13 @@ class TomlPlugin(NitpickPlugin):
 
 
 @hookimpl
-def plugin_class() -> Type["NitpickPlugin"]:
+def plugin_class() -> type[NitpickPlugin]:
     """Handle TOML files."""
     return TomlPlugin
 
 
 @hookimpl
-def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> type[NitpickPlugin] | None:
     """Handle TOML files."""
     if TomlPlugin.identify_tags & info.tags:
         return TomlPlugin

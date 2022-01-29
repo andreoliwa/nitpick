@@ -1,7 +1,9 @@
 """INI files."""
+from __future__ import annotations
+
 from configparser import ConfigParser, DuplicateOptionError, Error, MissingSectionHeaderError, ParsingError
 from io import StringIO
-from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type
+from typing import Any, Iterator
 
 import dictdiffer
 from configupdater import ConfigUpdater, Space
@@ -47,7 +49,7 @@ class IniPlugin(NitpickPlugin):
     violation_base_code = 320
 
     updater: ConfigUpdater
-    comma_separated_values: Set[str]
+    comma_separated_values: set[str]
 
     def post_init(self):
         """Post initialization after the instance was created."""
@@ -73,7 +75,7 @@ class IniPlugin(NitpickPlugin):
         return "editorconfig" in self.info.tags
 
     @property
-    def current_sections(self) -> Set[str]:
+    def current_sections(self) -> set[str]:
         """Current sections of the .ini file, including updated sections."""
         return set(self.updater.sections())
 
@@ -83,16 +85,16 @@ class IniPlugin(NitpickPlugin):
         return self.get_missing_output()
 
     @property
-    def expected_sections(self) -> Set[str]:
+    def expected_sections(self) -> set[str]:
         """Expected sections (from the style config)."""
         return set(self.expected_config.keys())
 
     @property
-    def missing_sections(self) -> Set[str]:
+    def missing_sections(self) -> set[str]:
         """Missing sections."""
         return self.expected_sections - self.current_sections
 
-    def write_file(self, file_exists: bool) -> Optional[Fuss]:
+    def write_file(self, file_exists: bool) -> Fuss | None:
         """Write the new file."""
         try:
             if self.needs_top_section:
@@ -120,7 +122,7 @@ class IniPlugin(NitpickPlugin):
 
         parser = ConfigParser()
         for section in sorted(missing, key=lambda s: "0" if s == TOP_SECTION else f"1{s}"):
-            expected_config: Dict = self.expected_config[section]
+            expected_config: dict = self.expected_config[section]
             if self.autofix:
                 if self.updater.last_block:
                     self.updater.last_block.add_after.space(1)
@@ -154,7 +156,7 @@ class IniPlugin(NitpickPlugin):
 
     def _read_file(self) -> Iterator[Fuss]:
         """Read the .ini file or special files like .editorconfig."""
-        parsing_err: Optional[Error] = None
+        parsing_err: Error | None = None
         try:
             self.updater.read(str(self.file_path))
         except MissingSectionHeaderError as err:
@@ -251,7 +253,7 @@ class IniPlugin(NitpickPlugin):
                 fixed=self.autofix,
             )
 
-    def show_missing_keys(self, section: str, values: List[Tuple[str, Any]]) -> Iterator[Fuss]:
+    def show_missing_keys(self, section: str, values: list[tuple[str, Any]]) -> Iterator[Fuss]:
         """Show the keys that are not present in a section."""
         parser = ConfigParser()
         missing_dict = dict(values)
@@ -266,7 +268,7 @@ class IniPlugin(NitpickPlugin):
         else:
             yield self.reporter.make_fuss(Violations.MISSING_OPTION, output, self.autofix, section=section)
 
-    def add_options_before_space(self, section: str, options: Dict) -> None:
+    def add_options_before_space(self, section: str, options: dict) -> None:
         """Add new options before a blank line in the end of the section."""
         if not self.autofix:
             return
@@ -292,13 +294,13 @@ class IniPlugin(NitpickPlugin):
 
 
 @hookimpl
-def plugin_class() -> Type["NitpickPlugin"]:
+def plugin_class() -> type[NitpickPlugin]:
     """Handle INI files."""
     return IniPlugin
 
 
 @hookimpl
-def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> type[NitpickPlugin] | None:
     """Handle INI files."""
     if IniPlugin.identify_tags & info.tags:
         return IniPlugin

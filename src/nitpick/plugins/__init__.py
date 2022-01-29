@@ -5,7 +5,9 @@
     The hook specifications and the plugin classes are still experimental and considered as an internal API.
     They might change at any time; use at your own risk.
 """
-from typing import TYPE_CHECKING, Optional, Type
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import pluggy
 
@@ -22,12 +24,12 @@ __all__ = ("hookimpl", "hookspec")
 
 
 @hookspec
-def plugin_class() -> Type["NitpickPlugin"]:
+def plugin_class() -> type[NitpickPlugin]:
     """Return your plugin class here (it should inherit from :py:class:`nitpick.plugins.base.NitpickPlugin`)."""
 
 
 @hookspec
-def can_handle(info: "FileInfo") -> Optional[Type["NitpickPlugin"]]:  # pylint: disable=unused-argument
+def can_handle(info: FileInfo) -> type[NitpickPlugin] | None:  # pylint: disable=unused-argument
     """Return a valid :py:class:`nitpick.plugins.base.NitpickPlugin` instance or ``None``.
 
     :return: A plugin instance if your plugin handles this file info (path or any of its ``identify`` tags).

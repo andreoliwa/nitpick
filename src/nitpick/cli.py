@@ -12,10 +12,11 @@ problems: the code will get executed twice:
 
 Also see (1) from https://click.palletsprojects.com/en/5.x/setuptools/#setuptools-integration
 """
+from __future__ import annotations
+
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
 
 import click
 from click.exceptions import Exit
@@ -59,7 +60,7 @@ def get_nitpick(context: click.Context) -> Nitpick:
     if context.parent:
         project = context.parent.params["project"]
         offline = context.parent.params["offline"]
-    project_root: Optional[Path] = Path(project) if project else None
+    project_root: Path | None = Path(project) if project else None
     return Nitpick.singleton().init(project_root, offline)
 
 

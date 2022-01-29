@@ -1,6 +1,8 @@
 """YAML files."""
+from __future__ import annotations
+
 from itertools import chain
-from typing import Iterator, Optional, Type, cast
+from typing import Iterator, cast
 
 from nitpick.blender import Comparison, YamlDoc, traverse_yaml_tree
 from nitpick.config import SpecialConfig
@@ -107,8 +109,8 @@ class YamlPlugin(NitpickPlugin):
         self,
         violation: ViolationEnum,
         yaml_object: YamlObject,
-        change: Optional[YamlDoc],
-        replacement: Optional[YamlDoc] = None,
+        change: YamlDoc | None,
+        replacement: YamlDoc | None = None,
     ):
         """Report a violation while optionally modifying the YAML document."""
         if not (change or replacement):
@@ -128,13 +130,13 @@ class YamlPlugin(NitpickPlugin):
 
 
 @hookimpl
-def plugin_class() -> Type["NitpickPlugin"]:
+def plugin_class() -> type[NitpickPlugin]:
     """Handle YAML files."""
     return YamlPlugin
 
 
 @hookimpl
-def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> type[NitpickPlugin] | None:
     """Handle YAML files."""
     if YamlPlugin.identify_tags & info.tags:
         return YamlPlugin

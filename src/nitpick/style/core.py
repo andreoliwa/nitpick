@@ -1,9 +1,11 @@
 """Style files."""
+from __future__ import annotations
+
 import os
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Iterator, Optional, Set, Tuple, Type
+from typing import Iterator, Set, Type
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import dpath.util
@@ -54,7 +56,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
     def __post_init__(self) -> None:
         """Initialize dependant fields."""
         self._merged_styles: JsonDict = {}
-        self._already_included: Set[str] = set()
+        self._already_included: set[str] = set()
         self._first_full_path: str = ""
         self._dynamic_schema_class: type = BaseStyleSchema
         self._style_fetcher_manager = StyleFetcherManager(self.offline, self.cache_dir, self.cache_option)
@@ -189,7 +191,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
             return path
         return f"{path}{TOML_EXTENSION}"
 
-    def get_style_path(self, style_uri: str) -> Tuple[Optional[Path], str]:
+    def get_style_path(self, style_uri: str) -> tuple[Path | None, str]:
         """Get the style path from the URI. Add the .toml extension if it's missing."""
         clean_style_uri = style_uri.strip()
         return self._style_fetcher_manager.fetch(clean_style_uri)
@@ -212,7 +214,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         return merged_dict
 
     @staticmethod
-    def file_field_pair(filename: str, base_file_class: Type[NitpickPlugin]) -> Dict[str, fields.Field]:
+    def file_field_pair(filename: str, base_file_class: type[NitpickPlugin]) -> dict[str, fields.Field]:
         """Return a schema field with info from a config file class."""
         unique_filename_with_underscore = slugify(filename, separator="_")
 
@@ -237,7 +239,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
 
     def rebuild_dynamic_schema(self) -> None:
         """Rebuild the dynamic Marshmallow schema when needed, adding new fields that were found on the style."""
-        new_files_found: Dict[str, fields.Field] = {}
+        new_files_found: dict[str, fields.Field] = {}
 
         fixed_name_classes = self.load_fixed_name_plugins()
 

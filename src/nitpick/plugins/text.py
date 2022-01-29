@@ -1,5 +1,7 @@
 """Text files."""
-from typing import Iterator, Optional, Type
+from __future__ import annotations
+
+from typing import Iterator
 
 from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
@@ -76,13 +78,13 @@ class TextPlugin(NitpickPlugin):
 
 
 @hookimpl
-def plugin_class() -> Type["NitpickPlugin"]:
+def plugin_class() -> type[NitpickPlugin]:
     """Handle text files."""
     return TextPlugin
 
 
 @hookimpl
-def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> type[NitpickPlugin] | None:
     """Handle text files."""
     if TextPlugin.identify_tags & info.tags:
         return TextPlugin

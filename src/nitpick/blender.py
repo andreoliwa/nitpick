@@ -4,13 +4,15 @@
 
     from nitpick.generic import *
 """
+from __future__ import annotations
+
 import abc
 import json
 import re
 import shlex
 from functools import lru_cache, partial
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, TypeVar, cast
 
 import dictdiffer
 import jmespath
@@ -26,6 +28,9 @@ from tomlkit import items
 
 from nitpick.config import SpecialConfig
 from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
+
+# Generic type for classes that inherit from BaseDoc
+TBaseDoc = TypeVar("TBaseDoc", bound="BaseDoc")
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
@@ -44,8 +49,8 @@ SEPARATOR_QUOTED_SPLIT = "#$@"
 
 
 def compare_lists_with_dictdiffer(
-    actual: Union[List, Dict], expected: Union[List, Dict], *, return_list: bool = True
-) -> Union[List, Dict]:
+    actual: list | dict, expected: list | dict, *, return_list: bool = True
+) -> list | dict:
     """Compare two lists using dictdiffer."""
     additions_and_changes = [change for change in dictdiffer.diff(actual, expected) if change[0] != "remove"]
     if not additions_and_changes:
@@ -61,7 +66,7 @@ def compare_lists_with_dictdiffer(
     return changed_dict
 
 
-def search_json(json_data: ElementData, jmespath_expression: Union[ParsedResult, str], default: Any = None) -> Any:
+def search_json(json_data: ElementData, jmespath_expression: ParsedResult | str, default: Any = None) -> Any:
     """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
 
     >>> data = {"root": {"app": [1, 2], "test": "something"}}
@@ -102,7 +107,7 @@ class ElementDetail:  # pylint: disable=too-few-public-methods
     """Detailed information about an element of a list."""
 
     data: ElementData
-    key: Union[str, List[str]]
+    key: str | list[str]
     index: int
     scalar: bool
     compact: str
@@ -113,7 +118,7 @@ class ElementDetail:  # pylint: disable=too-few-public-methods
         return cast(JsonDict, self.data)
 
     @classmethod
-    def from_data(cls, index: int, data: ElementData, jmes_key: str) -> "ElementDetail":
+    def from_data(cls, index: int, data: ElementData, jmes_key: str) -> ElementDetail:
         """Create an element detail from dict data."""
         if isinstance(data, (list, dict)):
             scalar = False
@@ -132,16 +137,16 @@ class ListDetail:  # pylint: disable=too-few-public-methods
     """Detailed info about a list."""
 
     data: ListOrCommentedSeq
-    elements: List[ElementDetail]
+    elements: list[ElementDetail]
 
     @classmethod
-    def from_data(cls, data: ListOrCommentedSeq, jmes_key: str) -> "ListDetail":
+    def from_data(cls, data: ListOrCommentedSeq, jmes_key: str) -> ListDetail:
         """Create a list detail from list data."""
         return ListDetail(
             data=data, elements=[ElementDetail.from_data(index, data, jmes_key) for index, data in enumerate(data)]
         )
 
-    def find_by_key(self, desired: ElementDetail) -> Optional[ElementDetail]:
+    def find_by_key(self, desired: ElementDetail) -> ElementDetail | None:
         """Find an element by key."""
         for actual in self.elements:
             if isinstance(desired.key, list):
@@ -160,7 +165,7 @@ def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     dict_[key] = value
 
 
-def quoted_split(string_: str, separator=SEPARATOR_DOT) -> List[str]:
+def quoted_split(string_: str, separator=SEPARATOR_DOT) -> list[str]:
     """Split a string by a separator, but considering quoted parts (single or double quotes).
 
     >>> quoted_split("my.key.without.quotes")
@@ -206,7 +211,7 @@ def quote_if_dotted(key: str) -> str:
 def quote_reducer(separator: str) -> Callable:
     """Reducer used to unflatten dicts. Quote keys when they have dots."""
 
-    def _inner_quote_reducer(key1: Optional[str], key2: str) -> str:
+    def _inner_quote_reducer(key1: str | None, key2: str) -> str:
         if key1 is None:
             return quote_if_dotted(key2)
         return f"{key1}{separator}{quote_if_dotted(key2)}"
@@ -214,7 +219,7 @@ def quote_reducer(separator: str) -> Callable:
     return _inner_quote_reducer
 
 
-def quotes_splitter(flat_key: str) -> Tuple[str, ...]:
+def quotes_splitter(flat_key: str) -> tuple[str, ...]:
     """Split keys keeping quoted strings together."""
     return tuple(
         piece.replace(SEPARATOR_SPACE, SEPARATOR_DOT) if SEPARATOR_SPACE in piece else piece
@@ -236,7 +241,7 @@ def custom_reducer(separator: str) -> Callable:
 def custom_splitter(separator: str) -> Callable:
     """Custom splitter for :py:meth:`flatten_dict.flatten_dict.unflatten()` accepting a separator."""
 
-    def _inner_custom_splitter(flat_key) -> Tuple[str, ...]:
+    def _inner_custom_splitter(flat_key) -> tuple[str, ...]:
         keys = tuple(flat_key.split(separator))
         return keys
 
@@ -285,7 +290,7 @@ unflatten_quotes = partial(unflatten, splitter=quotes_splitter)
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
-    def __init__(self, actual: "BaseDoc", expected: JsonDict, special_config: SpecialConfig) -> None:
+    def __init__(self, actual: TBaseDoc, expected: JsonDict, special_config: SpecialConfig) -> None:
         self.flat_actual = flatten_quotes(actual.as_object)
         self.flat_expected = flatten_quotes(expected)
 
@@ -298,21 +303,21 @@ class Comparison:
         self.special_config = special_config
 
     @property
-    def missing(self) -> Optional["BaseDoc"]:
+    def missing(self) -> TBaseDoc | None:
         """Missing data."""
         if not self.missing_dict:
             return None
         return self.doc_class(obj=(unflatten_quotes(self.missing_dict)))
 
     @property
-    def diff(self) -> Optional["BaseDoc"]:
+    def diff(self) -> TBaseDoc | None:
         """Different data."""
         if not self.diff_dict:
             return None
         return self.doc_class(obj=(unflatten_quotes(self.diff_dict)))
 
     @property
-    def replace(self) -> Optional["BaseDoc"]:
+    def replace(self) -> TBaseDoc | None:
         """Data to be replaced."""
         if not self.replace_dict:
             return None
@@ -323,7 +328,7 @@ class Comparison:
         """Return True is there is a difference or something missing."""
         return bool(self.missing or self.diff or self.replace)
 
-    def __call__(self) -> "Comparison":
+    def __call__(self) -> Comparison:
         """Compare two flattened dictionaries and compute missing and different items."""
         if self.flat_expected.items() <= self.flat_actual.items():
             return self
@@ -433,7 +438,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
         self._string = string
         self._object = obj
 
-        self._reformatted: Optional[str] = None
+        self._reformatted: str | None = None
 
     @abc.abstractmethod
     def load(self) -> bool:
@@ -445,7 +450,7 @@ class BaseDoc(metaclass=abc.ABCMeta):
         return self._string or ""
 
     @property
-    def as_object(self) -> Dict:
+    def as_object(self) -> dict:
         """String content converted to a Python object (dict, YAML object instance, etc.)."""
         if self._object is None:
             self.load()

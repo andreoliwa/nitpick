@@ -1,9 +1,11 @@
 """Base class for file checkers."""
+from __future__ import annotations
+
 import abc
 import fnmatch
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Iterator, Optional, Set, Type
+from typing import Iterator
 
 from autorepr import autotext
 from loguru import logger
@@ -35,10 +37,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
     #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JsonPlugin`).
-    validation_schema: Optional[Schema] = None
+    validation_schema: Schema | None = None
 
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
-    identify_tags: Set[str] = set()
+    identify_tags: set[str] = set()
 
     skip_empty_suggestion = False
 
@@ -134,7 +136,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         else:
             yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
-    def write_file(self, file_exists: bool) -> Optional[Fuss]:  # pylint: disable=unused-argument,no-self-use
+    def write_file(self, file_exists: bool) -> Fuss | None:  # pylint: disable=unused-argument,no-self-use
         """Hook to write the new file when autofix mode is on. Should be used by inherited classes."""
         return None
 
@@ -147,7 +149,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
     def initial_contents(self) -> str:
         """Suggested initial content when the file doesn't exist."""
 
-    def write_initial_contents(self, doc_class: Type[BaseDoc], expected_dict: Dict = None) -> str:
+    def write_initial_contents(self, doc_class: type[BaseDoc], expected_dict: dict = None) -> str:
         """Helper to write initial contents based on a format."""
         if not expected_dict:
             expected_dict = self.expected_config

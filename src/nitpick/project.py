@@ -1,9 +1,11 @@
 """A project to be nitpicked."""
+from __future__ import annotations
+
 import itertools
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Set, Union
+from typing import Iterable, Iterator
 
 import pluggy
 from autorepr import autorepr
@@ -38,7 +40,7 @@ from nitpick.typedefs import JsonDict, PathOrStr, mypy_property
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
 
 
-def glob_files(dir_: Path, file_patterns: Iterable[str]) -> Set[Path]:
+def glob_files(dir_: Path, file_patterns: Iterable[str]) -> set[Path]:
     """Search a directory looking for file patterns."""
     for pattern in file_patterns:
         found_files = list(dir_.glob(pattern))
@@ -47,7 +49,7 @@ def glob_files(dir_: Path, file_patterns: Iterable[str]) -> Set[Path]:
     return set()
 
 
-def confirm_project_root(dir_: Optional[PathOrStr] = None) -> Path:
+def confirm_project_root(dir_: PathOrStr | None = None) -> Path:
     """Confirm this is the root dir of the project (the one that has one of the ``ROOT_FILES``)."""
     possible_root_dir = Path(dir_ or Path.cwd())
     root_files = glob_files(possible_root_dir, ROOT_FILES)
@@ -98,8 +100,8 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
 class Configuration:
     """Configuration read from one of the ``CONFIG_FILES``."""
 
-    file: Optional[Path]
-    styles: Union[str, List[str]]
+    file: Path | None
+    styles: str | list[str]
     cache: str
 
 
@@ -132,7 +134,7 @@ class Project:
 
     def read_configuration(self) -> Configuration:
         """Search for a configuration file and validate it against a Marshmallow schema."""
-        config_file: Optional[Path] = None
+        config_file: Path | None = None
         for possible_file in CONFIG_FILES:
             path: Path = self.root / possible_file
             if not path.exists():

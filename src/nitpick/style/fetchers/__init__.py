@@ -1,4 +1,6 @@
 """Style fetchers with protocol support."""
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -24,7 +26,7 @@ class StyleFetcherManager:
     cache_option: str
 
     cache_repository: Repository = field(init=False)
-    fetchers: "FetchersType" = field(init=False)
+    fetchers: FetchersType = field(init=False)
 
     def __post_init__(self):
         """Initialize dependant properties."""
@@ -51,7 +53,7 @@ class StyleFetcherManager:
         return fetcher.fetch(url)
 
     @staticmethod
-    def _get_domain_scheme(url: str) -> Tuple[str, str]:
+    def _get_domain_scheme(url: str) -> tuple[str, str]:
         r"""Get domain and scheme from an URL or a file.
 
         >>> StyleFetcherManager._get_domain_scheme("/abc")
@@ -71,7 +73,7 @@ class StyleFetcherManager:
         return "", "file"
 
 
-def _get_fetchers(cache_repository, cache_option) -> "FetchersType":
+def _get_fetchers(cache_repository, cache_option) -> FetchersType:
     # pylint: disable=import-outside-toplevel
     from nitpick.style.fetchers.file import FileFetcher
     from nitpick.style.fetchers.github import GitHubFetcher

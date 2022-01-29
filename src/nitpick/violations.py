@@ -2,9 +2,11 @@
 
 Name inspired by `flake8's violations <https://flake8.pycqa.org/en/latest/user/error-codes.html>`_.
 """
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import click
 
@@ -40,7 +42,7 @@ class Fuss:
         filename_plus_line = f"{self.filename}:{self.lineno}: " if self.filename.strip() else ""
         return f"{filename_plus_line}{FLAKE8_PREFIX}{self.code:03}" f" {self.message.rstrip()}{self.colored_suggestion}"
 
-    def __lt__(self, other: "Fuss") -> bool:
+    def __lt__(self, other: Fuss) -> bool:
         """Sort Fuss instances."""
         return (
             self.filename < other.filename
@@ -105,8 +107,8 @@ class Reporter:  # pylint: disable=too-few-public-methods
     manual: int = 0
     fixed: int = 0
 
-    def __init__(self, info: "FileInfo" = None, violation_base_code: int = 0) -> None:
-        self.info: Optional["FileInfo"] = info
+    def __init__(self, info: FileInfo = None, violation_base_code: int = 0) -> None:
+        self.info: FileInfo | None = info
         self.violation_base_code = violation_base_code
 
     def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed=False, **kwargs) -> Fuss:

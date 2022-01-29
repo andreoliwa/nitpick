@@ -1,7 +1,9 @@
 """JSON files."""
+from __future__ import annotations
+
 import json
 from itertools import chain
-from typing import Iterator, Optional, Type
+from typing import Iterator
 
 from loguru import logger
 
@@ -77,7 +79,7 @@ class JsonPlugin(NitpickPlugin):
                 continue
         return expected_config
 
-    def report(self, violation: ViolationEnum, blender: JsonDict, change: Optional[BaseDoc]):
+    def report(self, violation: ViolationEnum, blender: JsonDict, change: BaseDoc | None):
         """Report a violation while optionally modifying the JSON dict."""
         if not change:
             return
@@ -95,13 +97,13 @@ class JsonPlugin(NitpickPlugin):
 
 
 @hookimpl
-def plugin_class() -> Type["NitpickPlugin"]:
+def plugin_class() -> type[NitpickPlugin]:
     """Handle JSON files."""
     return JsonPlugin
 
 
 @hookimpl
-def can_handle(info: FileInfo) -> Optional[Type["NitpickPlugin"]]:
+def can_handle(info: FileInfo) -> type[NitpickPlugin] | None:
     """Handle JSON files."""
     if JsonPlugin.identify_tags & info.tags:
         return JsonPlugin

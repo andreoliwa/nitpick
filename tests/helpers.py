@@ -1,10 +1,12 @@
 """Test helpers."""
+from __future__ import annotations
+
 import os
 import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import Dict, Iterable, List, Optional, Set, Union
+from typing import Iterable
 
 import pytest
 from click.testing import CliRunner
@@ -64,21 +66,21 @@ class ProjectMock:
 
     def __init__(self, tmp_path: Path, **kwargs) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
-        self._actual_violations: Set[Fuss] = set()
-        self._flake8_errors: List[Flake8Error] = []
-        self._flake8_errors_as_string: Set[str] = set()
+        self._actual_violations: set[Fuss] = set()
+        self._flake8_errors: list[Flake8Error] = []
+        self._flake8_errors_as_string: set[str] = set()
 
-        self.nitpick_instance: Optional[Nitpick] = None
+        self.nitpick_instance: Nitpick | None = None
         self.root_dir: Path = tmp_path
         self.cache_dir = self.root_dir / CACHE_DIR_NAME / PROJECT_NAME
-        self._mocked_response: Optional[RequestsMock] = None
-        self._remote_url: Optional[str] = None
-        self.files_to_lint: List[Path] = []
+        self._mocked_response: RequestsMock | None = None
+        self._remote_url: str | None = None
+        self.files_to_lint: list[Path] = []
 
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
 
-    def create_symlink(self, link_name: str, target_dir: Path, target_file: str = None) -> "ProjectMock":
+    def create_symlink(self, link_name: str, target_dir: Path, target_file: str = None) -> ProjectMock:
         """Create a symlink to a target file.
 
         :param link_name: Link file name.
@@ -94,7 +96,7 @@ class ProjectMock:
             self.files_to_lint.append(path)
         return self
 
-    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, autofix=False) -> "ProjectMock":
+    def _simulate_run(self, *partial_names: str, offline=False, api=True, flake8=True, autofix=False) -> ProjectMock:
         """Simulate a manual flake8 run and using the API.
 
         - Clear the singleton cache.
@@ -135,8 +137,8 @@ class ProjectMock:
         return self._simulate_run(*partial_names, api=True, flake8=False, autofix=True)
 
     def api_check_then_fix(
-        self, *expected_violations_when_fixing: Fuss, partial_names: Optional[Iterable[str]] = None
-    ) -> "ProjectMock":
+        self, *expected_violations_when_fixing: Fuss, partial_names: Iterable[str] | None = None
+    ) -> ProjectMock:
         """Assert that check mode does not change files, and that autofix mode changes them.
 
         Perform a series of calls and assertions:
@@ -167,7 +169,7 @@ class ProjectMock:
         """Return the full path for a file, based on the root dir."""
         return str(self.root_dir / filename)
 
-    def read_file(self, filename: PathOrStr) -> Optional[str]:
+    def read_file(self, filename: PathOrStr) -> str | None:
         """Read file contents.
 
         :param filename: Filename from project root.
@@ -178,11 +180,11 @@ class ProjectMock:
             return None
         return path.read_text()
 
-    def read_multiple_files(self, filenames: Iterable[PathOrStr]) -> Dict[PathOrStr, Optional[str]]:
+    def read_multiple_files(self, filenames: Iterable[PathOrStr]) -> dict[PathOrStr, str | None]:
         """Read multiple files and return a hash with filename (key) and contents (value)."""
         return {filename: self.read_file(filename) for filename in filenames}
 
-    def save_file(self, filename: PathOrStr, file_contents: PathOrStr, lint: bool = None) -> "ProjectMock":
+    def save_file(self, filename: PathOrStr, file_contents: PathOrStr, lint: bool = None) -> ProjectMock:
         """Save a file in the root dir with the desired contents and a new line at the end.
 
         Create the parent dirs if the file name contains a slash.
@@ -204,16 +206,16 @@ class ProjectMock:
         path.write_text(f"{clean}\n")
         return self
 
-    def touch_file(self, filename: PathOrStr) -> "ProjectMock":
+    def touch_file(self, filename: PathOrStr) -> ProjectMock:
         """Save an empty file (like the ``touch`` command)."""
         return self.save_file(filename, "")
 
-    def style(self, file_contents: PathOrStr) -> "ProjectMock":
+    def style(self, file_contents: PathOrStr) -> ProjectMock:
         """Save the default style file."""
         return self.save_file(NITPICK_STYLE_TOML, from_path_or_str(file_contents))
 
     # TODO: test: remove this function, don't test real styles anymore to avoid breaking tests on Renovate updates
-    def load_styles(self, *args: PathOrStr) -> "ProjectMock":
+    def load_styles(self, *args: PathOrStr) -> ProjectMock:
         """Load style files from the 'styles' dir, to be used on tests.
 
         If a style file is modified (file name or contents), tests might break.
@@ -224,7 +226,7 @@ class ProjectMock:
             self.named_style(filename, style_path.read_text())
         return self
 
-    def named_style(self, filename: PathOrStr, file_contents: PathOrStr) -> "ProjectMock":
+    def named_style(self, filename: PathOrStr, file_contents: PathOrStr) -> ProjectMock:
         """Save a style file with a name. Add the .toml extension if needed."""
         return self.save_file(self.ensure_toml_extension(filename), from_path_or_str(file_contents))
 
@@ -233,15 +235,15 @@ class ProjectMock:
         """Ensure a file name has the .toml extension."""
         return filename if str(filename).endswith(".toml") else f"{filename}.toml"
 
-    def setup_cfg(self, file_contents: PathOrStr) -> "ProjectMock":
+    def setup_cfg(self, file_contents: PathOrStr) -> ProjectMock:
         """Save setup.cfg."""
         return self.save_file(SETUP_CFG, from_path_or_str(file_contents))
 
-    def pyproject_toml(self, file_contents: PathOrStr) -> "ProjectMock":
+    def pyproject_toml(self, file_contents: PathOrStr) -> ProjectMock:
         """Save pyproject.toml."""
         return self.save_file(PYPROJECT_TOML, from_path_or_str(file_contents))
 
-    def pre_commit(self, file_contents: PathOrStr) -> "ProjectMock":
+    def pre_commit(self, file_contents: PathOrStr) -> ProjectMock:
         """Save .pre-commit-config.yaml."""
         return self.save_file(PRE_COMMIT_CONFIG_YAML, from_path_or_str(file_contents))
 
@@ -262,7 +264,7 @@ class ProjectMock:
         print("\nProject root:", self.root_dir)
         raise AssertionError(assertion_message or expected_error)
 
-    def _assert_error_count(self, expected_error: str, expected_count: int = None) -> "ProjectMock":
+    def _assert_error_count(self, expected_error: str, expected_count: int = None) -> ProjectMock:
         """Assert the error count is correct."""
         if expected_count is not None:
             actual = len(self._flake8_errors_as_string)
@@ -270,7 +272,7 @@ class ProjectMock:
                 self.raise_assertion_error(expected_error, f"Expected {expected_count} errors, got {actual}")
         return self
 
-    def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> "ProjectMock":
+    def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> ProjectMock:
         """Assert the error is in the error set."""
         expected_error = dedent(raw_error).strip()
         if expected_error not in self._flake8_errors_as_string:
@@ -278,11 +280,11 @@ class ProjectMock:
         self._assert_error_count(expected_error, expected_count)
         return self
 
-    def assert_single_error(self, raw_error: str) -> "ProjectMock":
+    def assert_single_error(self, raw_error: str) -> ProjectMock:
         """Assert there is only one error."""
         return self.assert_errors_contain(raw_error, 1)
 
-    def assert_no_errors(self) -> "ProjectMock":
+    def assert_no_errors(self) -> ProjectMock:
         """Assert that there are no errors."""
         if not self._flake8_errors_as_string:
             return self
@@ -290,19 +292,19 @@ class ProjectMock:
         self.raise_assertion_error("")
         return self
 
-    def assert_merged_style(self, toml_string: str) -> "ProjectMock":
+    def assert_merged_style(self, toml_string: str) -> ProjectMock:
         """Assert the contents of the merged style file."""
         expected = TomlDoc(path=self.cache_dir / MERGED_STYLE_TOML)
         actual = TomlDoc(string=dedent(toml_string))
         compare(expected.as_object, actual.as_object)
         return self
 
-    def assert_violations(self, *expected_violations: Fuss, disclaimer="") -> "ProjectMock":
+    def assert_violations(self, *expected_violations: Fuss, disclaimer="") -> ProjectMock:
         """Assert the exact set of violations."""
         manual: int = 0
         fixed: int = 0
 
-        stripped: Set[Fuss] = set()
+        stripped: set[Fuss] = set()
         for orig in expected_violations:
             if orig.fixed:
                 fixed += 1
@@ -339,7 +341,7 @@ class ProjectMock:
         if result.exception and not isinstance(result.exception, SystemExit):
             raise result.exception
 
-        actual: List[str] = result.output.splitlines()
+        actual: list[str] = result.output.splitlines()
 
         if isinstance(expected_str_or_lines, str):
             expected = dedent(expected_str_or_lines).strip().splitlines()
@@ -357,7 +359,7 @@ class ProjectMock:
         violations=0,
         exception_class=None,
         exit_code: int = None,
-    ) -> "ProjectMock":
+    ) -> ProjectMock:
         """Assert the expected CLI output for the chosen command."""
         if exit_code is None:
             exit_code = 1 if expected_str_or_lines else 0
@@ -387,19 +389,19 @@ class ProjectMock:
         compare(actual=actual, expected=expected)
         return self
 
-    def cli_ls(self, str_or_lines: StrOrList, *, exit_code: int = None) -> "ProjectMock":
+    def cli_ls(self, str_or_lines: StrOrList, *, exit_code: int = None) -> ProjectMock:
         """Run the ls command and assert the output."""
         result, actual, expected = self._simulate_cli("ls", str_or_lines, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def cli_init(self, str_or_lines: StrOrList, *, exit_code: int = None) -> "ProjectMock":
+    def cli_init(self, str_or_lines: StrOrList, *, exit_code: int = None) -> ProjectMock:
         """Run the init command and assert the output."""
         result, actual, expected = self._simulate_cli("init", str_or_lines, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def assert_file_contents(self, *name_contents: Union[PathOrStr, Optional[str]]) -> "ProjectMock":
+    def assert_file_contents(self, *name_contents: PathOrStr | str | None) -> ProjectMock:
         """Assert the file has the expected contents. Use `None` to indicate that the file doesn't exist."""
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
@@ -408,13 +410,13 @@ class ProjectMock:
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
         return self
 
-    def remote(self, mocked_response: RequestsMock, remote_url: str) -> "ProjectMock":
+    def remote(self, mocked_response: RequestsMock, remote_url: str) -> ProjectMock:
         """Set the mocked response and the remote URL."""
         self._mocked_response = mocked_response
         self._remote_url = remote_url
         return self
 
-    def assert_call_count(self, expected_count: int) -> "ProjectMock":
+    def assert_call_count(self, expected_count: int) -> ProjectMock:
         """Assert the expected request count on the mocked response object."""
         assert self._mocked_response and self._mocked_response.assert_call_count(self._remote_url, expected_count)
         return self

@@ -4,9 +4,11 @@
 
     from nitpick.generic import *
 """
+from __future__ import annotations
+
 import re
 from pathlib import Path
-from typing import Iterable, List, Optional, Tuple
+from typing import Iterable
 
 from nitpick.constants import DOT, PROJECT_NAME
 from nitpick.typedefs import PathOrStr
@@ -14,7 +16,7 @@ from nitpick.typedefs import PathOrStr
 URL_RE = re.compile(r"[a-z]+://[\$\w]\w*")
 
 
-def version_to_tuple(version: str = None) -> Tuple[int, ...]:
+def version_to_tuple(version: str = None) -> tuple[int, ...]:
     """Transform a version number into a tuple of integers, for comparison.
 
     >>> version_to_tuple("")
@@ -62,7 +64,7 @@ def is_url(url: str) -> bool:
     return bool(URL_RE.match(url))
 
 
-def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:
+def relative_to_current_dir(path_or_str: PathOrStr | None) -> str:
     """Return a relative path to the current dir or an absolute path."""
     if not path_or_str:
         return ""
@@ -75,7 +77,7 @@ def relative_to_current_dir(path_or_str: Optional[PathOrStr]) -> str:
     return str(path.absolute())
 
 
-def filter_names(iterable: Iterable, *partial_names: str) -> List[str]:
+def filter_names(iterable: Iterable, *partial_names: str) -> list[str]:
     """Filter names and keep only the desired partial names.
 
     Exclude the project name automatically.
