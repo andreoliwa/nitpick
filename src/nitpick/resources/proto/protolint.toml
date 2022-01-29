@@ -1,0 +1,9 @@
+[nitpick.meta]
+name = "protolint (Protobuf linter)"
+url = "https://github.com/yoheimuta/protolint"
+
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/yoheimuta/protolint"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "protolint-docker"

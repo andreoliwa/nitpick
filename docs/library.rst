@@ -71,6 +71,17 @@ presets
    * - `py://nitpick/resources/presets/nitpick <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/presets/nitpick.toml>`_
      - `Default style file for Nitpick <https://nitpick.rtfd.io/>`_
 
+proto
+~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - `py://nitpick/resources/proto/protolint <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/proto/protolint.toml>`_
+     - `protolint (Protobuf linter) <https://github.com/yoheimuta/protolint>`_
+
 python
 ~~~~~~
 
