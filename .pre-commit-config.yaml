@@ -9,7 +9,8 @@ default_language_version:
 
 # https://pre-commit.ci/#configuration
 ci:
-  skip: [local-nitpick, autofix-docs, pylint]
+  # TODO: ci: use shellcheck-py to run shellcheck on pre-commit.ci
+  skip: [local-nitpick, autofix-docs, pylint, shellcheck]
 
 repos:
   - repo: local
