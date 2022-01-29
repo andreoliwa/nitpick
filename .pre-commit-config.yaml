@@ -9,8 +9,7 @@ default_language_version:
 
 # https://pre-commit.ci/#configuration
 ci:
-  # TODO: ci: use shellcheck-py to run shellcheck on pre-commit.ci
-  skip: [local-nitpick, autofix-docs, pylint, shellcheck]
+  skip: [local-nitpick, autofix-docs, pylint]
 
 repos:
   - repo: local
@@ -144,6 +143,10 @@ repos:
       - id: bandit
         args: [--ini, setup.cfg]
         exclude: tests/
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.8.0.3
+    hooks:
+      - id: shellcheck
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: 2.1.5
     hooks:
