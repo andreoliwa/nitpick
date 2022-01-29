@@ -7,8 +7,10 @@ url = "https://github.com/koalaman/shellcheck"
 enabled = true
 
 [[".pre-commit-config.yaml".repos]]
-repo = "https://github.com/jumanjihouse/pre-commit-hooks"
+# This repo installs the "shellcheck" executable, and this is needed in order to run it on https://pre-commit.ci.
+# The previous hook I used (https://github.com/jumanjihouse/pre-commit-hooks) didn't do that, and fails with the error
+# "This check needs shellcheck from https://github.com/koalaman/shellcheck"
+repo = "https://github.com/shellcheck-py/shellcheck-py"
 
 [[".pre-commit-config.yaml".repos.hooks]]
-# https://github.com/jumanjihouse/pre-commit-hooks#shellcheck
 id = "shellcheck"
