@@ -137,6 +137,10 @@ repos:
       - id: bashate
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: anything
+    hooks:
+      - id: shellcheck
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v2.20.3
     hooks:

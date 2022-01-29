@@ -90,17 +90,6 @@ def test_use_another_attribute_as_unique_key(tmp_path, datadir):
     ).api_check().assert_violations()
 
 
-def test_pre_commit_with_multiple_repos_should_not_change_if_repos_exist(tmp_path, datadir):
-    """A real pre-commit config with multiple repos should not be changed if all the expected repos are there.."""
-    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml").style(
-        datadir / "real.toml"
-    ).api_check_then_fix(partial_names=[PRE_COMMIT_CONFIG_YAML]).assert_file_contents(
-        PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml"
-    ).api_check(
-        PRE_COMMIT_CONFIG_YAML
-    ).assert_violations()
-
-
 def test_repo_with_missing_key_value_pairs(tmp_path, datadir):
     """Test a repo (nested dict) with missing key/value pairs."""
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "hook-args.yaml").style(

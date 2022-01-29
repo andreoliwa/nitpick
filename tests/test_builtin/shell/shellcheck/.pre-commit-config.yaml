@@ -1,0 +1,4 @@
+repos:
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    hooks:
+      - id: shellcheck

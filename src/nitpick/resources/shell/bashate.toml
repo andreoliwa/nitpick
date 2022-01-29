@@ -1,5 +1,5 @@
 [nitpick.meta]
-name = "bashate"
+name = "bashate (code style for Bash)"
 url = "https://github.com/openstack/bashate"
 
 [[".pre-commit-config.yaml".repos]]

@@ -144,6 +144,8 @@ shell
    * - Style URL
      - Description
    * - `py://nitpick/resources/shell/bashate <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/shell/bashate.toml>`_
-     - `bashate <https://github.com/openstack/bashate>`_
+     - `bashate (code style for Bash) <https://github.com/openstack/bashate>`_
    * - `py://nitpick/resources/shell/shellcheck <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/shell/shellcheck.toml>`_
-     - `ShellCheck <https://github.com/koalaman/shellcheck>`_
+     - `ShellCheck (static analysis for shell scripts) <https://github.com/koalaman/shellcheck>`_
+   * - `py://nitpick/resources/shell/shfmt <https://github.com/andreoliwa/nitpick/blob/v0.31.0/src/nitpick/resources/shell/shfmt.toml>`_
+     - `shfmt (shell script formatter) <https://github.com/mvdan/sh>`_

@@ -1,0 +1,10 @@
+[nitpick.meta]
+name = "shfmt (shell script formatter)"
+url = "https://github.com/mvdan/sh"
+
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/jumanjihouse/pre-commit-hooks"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+# https://github.com/jumanjihouse/pre-commit-hooks#shfmt
+id = "shfmt"

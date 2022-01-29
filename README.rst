@@ -303,9 +303,11 @@ shell
    * - Style URL
      - Description
    * - `py://nitpick/resources/shell/bashate <src/nitpick/resources/shell/bashate.toml>`_
-     - `bashate <https://github.com/openstack/bashate>`_
+     - `bashate (code style for Bash) <https://github.com/openstack/bashate>`_
    * - `py://nitpick/resources/shell/shellcheck <src/nitpick/resources/shell/shellcheck.toml>`_
-     - `ShellCheck <https://github.com/koalaman/shellcheck>`_
+     - `ShellCheck (static analysis for shell scripts) <https://github.com/koalaman/shellcheck>`_
+   * - `py://nitpick/resources/shell/shfmt <src/nitpick/resources/shell/shfmt.toml>`_
+     - `shfmt (shell script formatter) <https://github.com/mvdan/sh>`_
 .. auto-generated-end-style-library
 
 Quickstart

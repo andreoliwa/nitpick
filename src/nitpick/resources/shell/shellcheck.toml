@@ -1,7 +1,14 @@
 [nitpick.meta]
-name = "ShellCheck"
+name = "ShellCheck (static analysis for shell scripts)"
 url = "https://github.com/koalaman/shellcheck"
 
 [".codeclimate.yml".plugins.shellcheck]  # https://docs.codeclimate.com/docs/shellcheck
 # https://github.com/koalaman/shellcheck
 enabled = true
+
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/jumanjihouse/pre-commit-hooks"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+# https://github.com/jumanjihouse/pre-commit-hooks#shellcheck
+id = "shellcheck"

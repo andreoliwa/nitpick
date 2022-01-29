@@ -1,4 +1,4 @@
-"""Resource tests."""
+"""Test built-in styles shipped as resources under the ``nitpick.resources`` module."""
 from pathlib import Path
 from typing import Dict, List
 
@@ -68,7 +68,7 @@ def test_each_builtin_style(tmp_path, datadir, builtin_style_path):
         if not expected_path.exists():
             # Creates empty files on datadir, to help with the task of adding new built-in styles
             # You just need to fill in the expected contents of each file
-            fixture_path = Path(__file__).parent / "test_resources" / style.path_from_resources_root / filename
+            fixture_path = Path(__file__).parent / "test_builtin" / style.path_from_resources_root / filename
             fixture_path.parent.mkdir(parents=True, exist_ok=True)
             fixture_path.touch(exist_ok=True)
 
@@ -130,3 +130,17 @@ def test_default_style_is_applied(project_default, datadir):
         PYLINTRC,
         expected_pylintrc,
     )
+
+
+def test_pre_commit_with_multiple_repos_should_not_change_if_repos_exist(tmp_path, datadir):
+    """A real pre-commit config with multiple repos should not be changed if all the expected repos are there.
+
+    This test belongs to ``test_builtin.py`` because "real.toml" has references to built-in styles.
+    """
+    ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml").style(
+        datadir / "real.toml"
+    ).api_check_then_fix(partial_names=[PRE_COMMIT_CONFIG_YAML]).assert_file_contents(
+        PRE_COMMIT_CONFIG_YAML, datadir / "real.yaml"
+    ).api_check(
+        PRE_COMMIT_CONFIG_YAML
+    ).assert_violations()
