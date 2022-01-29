@@ -147,10 +147,6 @@ repos:
     rev: v0.8.0.3
     hooks:
       - id: shellcheck
-  - repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 2.1.5
-    hooks:
-      - id: shellcheck
   - repo: https://github.com/openstack/bashate
     rev: 2.1.0
     hooks:
