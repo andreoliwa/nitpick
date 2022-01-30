@@ -113,7 +113,7 @@ Implemented
    * - `Any YAML file <https://nitpick.rtfd.io/en/latest/plugins.html#yaml-files>`_
      - ✅
      - ✅
-   * - `.editorconfig <https://nitpick.rtfd.io/en/latest/libray.html#any>`_
+   * - `.editorconfig <https://nitpick.rtfd.io/en/latest/library.html#any>`_
      - ✅
      - ✅
    * - `.pylintrc <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_

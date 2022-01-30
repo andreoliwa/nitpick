@@ -116,7 +116,7 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType("Any plain text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType("Any YAML file", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True),
-    FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}libray.html#any", True, True),
+    FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}library.html#any", True, True),
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
     FileType(SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
 }
