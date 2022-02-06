@@ -10,6 +10,7 @@ from urllib.parse import urljoin, urlsplit, urlunsplit
 
 import dpath.util
 from flatten_dict import flatten, unflatten
+from furl import furl
 from identify import identify
 from loguru import logger
 from more_itertools import always_iterable
@@ -27,6 +28,7 @@ from nitpick.constants import (
     PROJECT_NAME,
     PROJECT_OWNER,
     PYPROJECT_TOML,
+    SLASH,
     TOML_EXTENSION,
 )
 from nitpick.exceptions import QuitComplainingError, pretty_exception
@@ -36,9 +38,8 @@ from nitpick.plugins.info import FileInfo
 from nitpick.project import Project, glob_files
 from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.style.config import ConfigValidator
-from nitpick.style.fetchers import StyleFetcherManager
+from nitpick.style.fetchers import Scheme, StyleFetcherManager
 from nitpick.style.fetchers.github import GitHubURL
-from nitpick.style.fetchers.pypackage import PythonPackageProtocol
 from nitpick.typedefs import JsonDict, StrOrIterable, StrOrList, mypy_property
 from nitpick.violations import Fuss, Reporter, StyleViolations
 
@@ -84,7 +85,9 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         """Return the URL of the default style/preset."""
         if github:
             return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", NITPICK_STYLE_TOML).long_protocol_url
-        return f"{PythonPackageProtocol.SHORT.value}://{PROJECT_NAME}/resources/presets/{PROJECT_NAME}"
+
+        rv = furl(scheme=Scheme.PY, host=PROJECT_NAME, path=SLASH.join(["resources", "presets", PROJECT_NAME]))
+        return str(rv)
 
     def find_initial_styles(self, configured_styles: StrOrIterable) -> Iterator[Fuss]:
         """Find the initial style(s) and include them."""

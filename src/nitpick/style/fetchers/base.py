@@ -1,8 +1,10 @@
 """Base class for fetchers that wrap inner fetchers with caching ability."""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict
 
 from cachy import CacheManager
 from loguru import logger
@@ -22,8 +24,8 @@ class StyleFetcher:
     cache_option: str
 
     requires_connection = False
-    protocols: Tuple[str, ...] = ()
-    domains: Tuple[str, ...] = ()
+    protocols: tuple = ()
+    domains: tuple[str, ...] = ()
 
     def fetch(self, url) -> StyleInfo:
         """Fetch a style form cache or from a specific fetcher."""

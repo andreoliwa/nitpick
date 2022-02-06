@@ -3,7 +3,7 @@ import pytest
 
 from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML, READ_THE_DOCS_URL, TOOL_NITPICK_KEY
 from nitpick.style import StyleManager
-from nitpick.style.fetchers.pypackage import PythonPackageProtocol
+from nitpick.style.fetchers import Scheme
 from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
 
 
@@ -63,7 +63,7 @@ def test_create_basic_dot_nitpick_toml(tmp_path):
         style = ["{url}"]
         """,
     )
-    assert url.startswith(PythonPackageProtocol.SHORT.value)
+    assert url.startswith(f"{Scheme.PY}://")
 
 
 def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path):
@@ -89,4 +89,4 @@ def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path):
         style = ["{url}"]
         """,
     )
-    assert url.startswith(PythonPackageProtocol.SHORT.value)
+    assert url.startswith(f"{Scheme.PY}://")

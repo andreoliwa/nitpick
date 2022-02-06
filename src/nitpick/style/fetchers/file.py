@@ -1,7 +1,8 @@
 """Basic local file fetcher."""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple
 
 from nitpick.style.fetchers.base import StyleFetcher
 
@@ -10,7 +11,7 @@ from nitpick.style.fetchers.base import StyleFetcher
 class FileFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
     """Fetch a style from a local file."""
 
-    protocols: Tuple[str, ...] = ("file", "")
+    protocols: tuple = ("file", "")
 
     def _do_fetch(self, url):
         file_path = Path(url).expanduser()

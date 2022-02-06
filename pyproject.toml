@@ -81,6 +81,7 @@ importlib-resources = { version = "*", python = ">=3.7, <3.9" }
 flatten-dict = "*"
 dpath = "*"
 furl = "*"
+StrEnum = "*"
 
 # TODO: chore: move to dependency groups once the feature is on a stable version of Poetry
 #  https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups

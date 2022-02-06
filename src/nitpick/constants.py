@@ -9,9 +9,7 @@ TOML_EXTENSION = ".toml"
 DOT_NITPICK_TOML = f".nitpick{TOML_EXTENSION}"
 NITPICK_STYLE_TOML = f"nitpick-style{TOML_EXTENSION}"
 MERGED_STYLE_TOML = f"merged-style{TOML_EXTENSION}"
-SCHEME_HTTP = "http"
-SCHEME_HTTPS = "https"
-READ_THE_DOCS_URL = f"{SCHEME_HTTPS}://nitpick.rtfd.io/en/latest/"
+READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 
 # Special files
 # Python

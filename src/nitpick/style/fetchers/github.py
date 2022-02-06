@@ -3,25 +3,19 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from enum import Enum
+from enum import auto
 from functools import lru_cache
 
 from furl import furl
 from requests import Session, get as requests_get
 
-from nitpick.constants import GIT_AT_REFERENCE, SCHEME_HTTPS, SLASH
+from nitpick.constants import GIT_AT_REFERENCE, SLASH
+from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.http import HttpFetcher
 from nitpick.typedefs import mypy_property
 
 GITHUB_COM = "github.com"
 QUERY_STRING_TOKEN = "token"  # nosec
-
-
-class GitHubProtocol(Enum):
-    """Protocols for the GitHUb scheme."""
-
-    SHORT = "gh"
-    LONG = "github"
 
 
 @dataclass(unsafe_hash=True)
@@ -80,7 +74,7 @@ class GitHubURL:
     def url(self) -> str:
         """Default URL built from attributes."""
         rv = furl(
-            scheme=SCHEME_HTTPS,
+            scheme=Scheme.HTTPS,
             host=GITHUB_COM,
             path=SLASH.join([self.owner, self.repository, "blob", self.git_reference_or_default, self.path]),
             query_params=dict(self.query_string or {}),
@@ -91,7 +85,7 @@ class GitHubURL:
     def raw_content_url(self) -> str:
         """Raw content URL for this path."""
         rv = furl(
-            scheme=SCHEME_HTTPS,
+            scheme=Scheme.HTTPS,
             host="raw.githubusercontent.com",
             path=SLASH.join([self.owner, self.repository, self.git_reference_or_default, self.path]),
         )
@@ -131,28 +125,26 @@ class GitHubURL:
     def api_url(self) -> str:
         """API URL for this repo."""
         rv = furl(
-            scheme=SCHEME_HTTPS, host=f"api.{GITHUB_COM}", path=SLASH.join(["repos", self.owner, self.repository])
+            scheme=Scheme.HTTPS, host=f"api.{GITHUB_COM}", path=SLASH.join(["repos", self.owner, self.repository])
         )
         return str(rv)
 
     @property
     def short_protocol_url(self) -> str:
         """Short protocol URL (``gh``)."""
-        return self._build_url(GitHubProtocol.SHORT)
+        return self._build_url(Scheme.GH)
 
     @property
     def long_protocol_url(self) -> str:
         """Long protocol URL (``github``)."""
-        return self._build_url(GitHubProtocol.LONG)
+        return self._build_url(Scheme.GITHUB)
 
-    def _build_url(self, protocol: GitHubProtocol):
+    def _build_url(self, scheme: auto):
         if self.git_reference and self.git_reference != self.default_branch:
             at_reference = f"{GIT_AT_REFERENCE}{self.git_reference}"
         else:
             at_reference = ""
-        rv = furl(
-            scheme=protocol.value, host=self.owner, path=SLASH.join([f"{self.repository}{at_reference}", self.path])
-        )
+        rv = furl(scheme=scheme, host=self.owner, path=SLASH.join([f"{self.repository}{at_reference}", self.path]))
         return str(rv)
 
 
@@ -178,7 +170,7 @@ def get_default_branch(api_url: str) -> str:
 class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
-    protocols: tuple[str, ...] = (GitHubProtocol.SHORT.value, GitHubProtocol.LONG.value)
+    protocols: tuple = (Scheme.GH, Scheme.GITHUB)
     domains: tuple[str, ...] = (GITHUB_COM,)
 
     def _download(self, url, **kwargs) -> str:

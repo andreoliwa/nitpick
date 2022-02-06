@@ -1040,7 +1040,7 @@ test = ["pytest"]
 
 [[package]]
 name = "sphobjinv"
-version = "2.2"
+version = "2.2.1"
 description = "Sphinx objects.inv Inspection/Manipulation Tool"
 category = "main"
 optional = true
@@ -1050,6 +1050,19 @@ python-versions = ">=3.6"
 attrs = ">=19.2"
 certifi = "*"
 jsonschema = ">=3.0"
+
+[[package]]
+name = "strenum"
+version = "0.4.7"
+description = "An Enum that inherits from str."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+docs = ["sphinx", "sphinx-rtd-theme", "recommonmark"]
+release = ["twine"]
+test = ["pytest", "pytest-black", "pytest-cov", "pytest-pylint", "pylint"]
 
 [[package]]
 name = "testfixtures"
@@ -1216,7 +1229,7 @@ test = ["pytest", "pytest-cov", "testfixtures", "responses", "freezegun", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "9a595bb3ab87d3c64c44b2e80fed2875522446f8f32fb7949ae66775d957cccc"
+content-hash = "45ad55a867ae4f88bbc775c46abfc658cd94eff1d567992e8ce5a84de5e50ce8"
 
 [metadata.files]
 alabaster = [
@@ -1748,7 +1761,11 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
 sphobjinv = [
-    {file = "sphobjinv-2.2-py3-none-any.whl", hash = "sha256:5d04ccdb383fcdb5f5203d05b5637a6a0fabdd1c1977d97d74566848bb77d453"},
+    {file = "sphobjinv-2.2.1-py3-none-any.whl", hash = "sha256:7a15569084d85f383336a495c9559b78f1f19f18b2718547e29a49730acce9b1"},
+]
+strenum = [
+    {file = "StrEnum-0.4.7-py3-none-any.whl", hash = "sha256:28ede0075ea0d990144d334c03509f14ee33e2e732289cb6e496ed7bae73fd1f"},
+    {file = "StrEnum-0.4.7.tar.gz", hash = "sha256:6019e9cc1738af6a236c022b82184372178ecadf12438f11f5b680a02a462377"},
 ]
 testfixtures = [
     {file = "testfixtures-6.18.3-py2.py3-none-any.whl", hash = "sha256:6ddb7f56a123e1a9339f130a200359092bd0a6455e31838d6c477e8729bb7763"},
