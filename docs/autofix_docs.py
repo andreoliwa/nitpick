@@ -288,8 +288,12 @@ def _build_library(url: str = "") -> List[str]:
     library: Dict[str, List[Tuple]] = defaultdict(list)
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
+
+        # When run with tox (invoke ci-build), the path starts with "site-packages"
+        clean_root = style.path_from_repo_root.replace("site-packages/", "src/")
+
         row = StyleLibraryRow(
-            style=f"`{style.py_url_without_ext} <{url + style.path_from_repo_root}>`_",
+            style=f"`{style.py_url_without_ext} <{url + clean_root}>`_",
             name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
         )
         library[style.identify_tag].append(attr.astuple(row))

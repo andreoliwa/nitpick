@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
@@ -14,6 +13,7 @@ import tomlkit
 
 from nitpick import PROJECT_NAME, compat
 from nitpick.constants import DOT, SLASH
+from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
 
 
@@ -62,13 +62,6 @@ class PythonPackageURL:
         return compat.files(self.import_path).joinpath(self.resource_name)
 
 
-class PythonPackageProtocol(Enum):
-    """Protocols for the Python package scheme."""
-
-    SHORT = "py"
-    LONG = "pypackage"
-
-
 @dataclass(repr=True, unsafe_hash=True)
 class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
     """
@@ -81,7 +74,7 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
     E.g. ``py://some_package/path/nitpick.toml``.
     """
 
-    protocols: tuple[str, ...] = (PythonPackageProtocol.SHORT.value, PythonPackageProtocol.LONG.value)
+    protocols: tuple = (Scheme.PY, Scheme.PYPACKAGE)
 
     def _do_fetch(self, url):
         package_url = PythonPackageURL.parse_url(url)

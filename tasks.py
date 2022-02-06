@@ -71,16 +71,15 @@ class ToxCommands:
         )
 
     @staticmethod
-    def macos(c, enable: bool):
+    def config(c) -> str:
         """Enable/disable macOS on tox.ini."""
         if sys.platform != "darwin":
-            return
+            return ""
 
-        if enable:
-            # Hack to be able to run `invoke lint` on a macOS machine during development.
-            c.run("sed -i '' 's/platform = linux/platform = darwin/g' tox.ini")
-        else:
-            c.run("sed -i '' 's/platform = darwin/platform = linux/g' tox.ini")
+        temp_tox_ini = ".temp-tox.ini"
+        # Hack to be able to run `invoke lint` on a macOS machine during development.
+        c.run(f"sed 's/platform = linux/platform = darwin/g' tox.ini > {temp_tox_ini}")
+        return f"-c {temp_tox_ini}"
 
     def _python_versions_old_to_new(self) -> List[str]:
         """Python versions executed in tox."""
@@ -207,9 +206,8 @@ def doc(c, full=False, recreate=False, links=False, browse=False, debug=False):
 def ci_build(c, full=False, recreate=False, docs=True):
     """Simulate a CI build."""
     tox = ToxCommands()
-    tox.macos(c, True)
 
-    tox_cmd = "tox -r" if recreate else "tox"
+    tox_cmd = " ".join(["tox", tox.config(c), "-r" if recreate else ""])
     if full:
         c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
         c.run(tox_cmd)
@@ -220,19 +218,14 @@ def ci_build(c, full=False, recreate=False, docs=True):
         envs.append("report")
         c.run(f"{tox_cmd} -e {','.join(envs)}")
 
-    tox.macos(c, False)
-
 
 @task(help={"recreate": "Recreate tox environment"})
 def lint(c, recreate=False):
     """Lint using tox."""
     tox = ToxCommands()
-    tox.macos(c, True)
 
     tox_cmd = "tox -r" if recreate else "tox"
-    result = c.run(f"{tox_cmd} -e lint", warn=True)
-
-    tox.macos(c, False)
+    result = c.run(f"{tox_cmd}{tox.config(c)} -e lint", warn=True)
 
     # Exit only after restoring tox.ini
     if result.exited > 0:

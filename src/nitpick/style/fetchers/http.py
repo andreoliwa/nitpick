@@ -1,6 +1,7 @@
 """Base HTTP fetcher, other fetchers can inherit from this to wrap http errors."""
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Tuple
 
 import click
 import requests
@@ -8,6 +9,7 @@ from loguru import logger
 from requests.sessions import Session
 
 from nitpick.enums import OptionEnum
+from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
 
 
@@ -18,7 +20,7 @@ class HttpFetcher(StyleFetcher):
     _session: Session = field(init=False)
 
     requires_connection = True
-    protocols: Tuple[str, ...] = ("http", "https")
+    protocols: tuple = (Scheme.HTTP, Scheme.HTTPS)
 
     def __post_init__(self):
         """Sessions should be per class as children can have custom headers or authentication."""

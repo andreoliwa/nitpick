@@ -105,7 +105,7 @@ Comparing elements on lists
 
 .. note::
 
-    At the moment, this feature only works on `the YAML plugin <yamlplugin>`_.
+    At the moment, this feature only works on :ref:`the YAML plugin <yamlplugin>`_.
 
 On YAML files, a list (called a "sequence" in the YAML spec) can contain different elements:
 

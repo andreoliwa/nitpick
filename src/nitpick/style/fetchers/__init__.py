@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import auto
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Tuple
 from urllib.parse import urlparse, uses_netloc, uses_relative
 
 from cachy import CacheManager, Repository
+from strenum import LowercaseStrEnum
 
 from nitpick.generic import is_url
 
@@ -15,6 +17,17 @@ if TYPE_CHECKING:
     from nitpick.style.fetchers.base import FetchersType
 
 StyleInfo = Tuple[Optional[Path], str]
+
+
+class Scheme(LowercaseStrEnum):
+    """URL schemes."""
+
+    HTTP = auto()
+    HTTPS = auto()
+    PY = auto()
+    PYPACKAGE = auto()
+    GH = auto()
+    GITHUB = auto()
 
 
 @dataclass(repr=True)
