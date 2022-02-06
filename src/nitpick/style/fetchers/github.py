@@ -1,9 +1,10 @@
 """Support for ``gh`` and ``github`` schemes."""
+from __future__ import annotations
+
 import os
 from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
-from typing import Tuple
 from urllib.parse import parse_qs, urlparse
 
 from requests import Session, get as requests_get
@@ -53,7 +54,7 @@ class GitHubURL:
         return get_default_branch(self.api_url)
 
     @property
-    def credentials(self) -> Tuple:
+    def credentials(self) -> tuple:
         """Credentials encoded in this URL.
 
         A tuple of ``(api_token, '')`` if present, or empty tuple otherwise.  If
@@ -93,7 +94,7 @@ class GitHubURL:
         )
 
     @classmethod
-    def parse_url(cls, url: str) -> "GitHubURL":
+    def parse_url(cls, url: str) -> GitHubURL:
         """Create an instance by parsing a URL string in any accepted format.
 
         See the code for ``test_parsing_github_urls()`` for more examples.
@@ -163,8 +164,8 @@ def get_default_branch(api_url: str) -> str:
 class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
-    protocols: Tuple[str, ...] = (GitHubProtocol.SHORT.value, GitHubProtocol.LONG.value)
-    domains: Tuple[str, ...] = ("github.com",)
+    protocols: tuple[str, ...] = (GitHubProtocol.SHORT.value, GitHubProtocol.LONG.value)
+    domains: tuple[str, ...] = ("github.com",)
 
     def _download(self, url, **kwargs) -> str:
         github_url = GitHubURL.parse_url(url)
