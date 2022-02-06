@@ -586,8 +586,6 @@ def test_github_url_with_missing_envvar_has_empty_credential(monkeypatch):
     assert parsed.credentials == ()
 
 
-# TODO: fix: GithubURL should preserve other query string arguments
-@pytest.mark.xfail(reason="GithubURL currently doesnt preserve query args")
 def test_github_url_query_token_retains_other_queryparams(monkeypatch):
     """Querystring isn't modified by the token switcharoo."""
     parsed = GitHubURL.parse_url("https://github.com/foo/bar/blob/branch/filename.toml?leavemealone=ok")

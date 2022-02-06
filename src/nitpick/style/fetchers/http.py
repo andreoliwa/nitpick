@@ -7,6 +7,7 @@ import requests
 from loguru import logger
 from requests.sessions import Session
 
+from nitpick.constants import SCHEME_HTTP, SCHEME_HTTPS
 from nitpick.enums import OptionEnum
 from nitpick.style.fetchers.base import StyleFetcher
 
@@ -18,7 +19,7 @@ class HttpFetcher(StyleFetcher):
     _session: Session = field(init=False)
 
     requires_connection = True
-    protocols: Tuple[str, ...] = ("http", "https")
+    protocols: Tuple[str, ...] = (SCHEME_HTTP, SCHEME_HTTPS)
 
     def __post_init__(self):
         """Sessions should be per class as children can have custom headers or authentication."""

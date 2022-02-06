@@ -5,13 +5,16 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 from functools import lru_cache
-from urllib.parse import parse_qs, urlparse
 
+from furl import furl
 from requests import Session, get as requests_get
 
-from nitpick.constants import GIT_AT_REFERENCE
+from nitpick.constants import GIT_AT_REFERENCE, SCHEME_HTTPS, SLASH
 from nitpick.style.fetchers.http import HttpFetcher
 from nitpick.typedefs import mypy_property
+
+GITHUB_COM = "github.com"
+QUERY_STRING_TOKEN = "token"  # nosec
 
 
 class GitHubProtocol(Enum):
@@ -19,14 +22,6 @@ class GitHubProtocol(Enum):
 
     SHORT = "gh"
     LONG = "github"
-
-
-def _get_token_from_querystr(querystr) -> str:
-    """Get the value of ``token`` from querystring."""
-    if not querystr:
-        return ""
-    query_args = parse_qs(querystr)
-    return query_args.get("token", [""])[0]
 
 
 @dataclass(unsafe_hash=True)
@@ -37,12 +32,13 @@ class GitHubURL:
     repository: str
     git_reference: str
     path: str
-    auth_token: str
+    auth_token: str | None = None
+    query_string: tuple | None = None
 
     def __post_init__(self):
         """Remove the initial slash from the path."""
         self._session = Session()
-        self.path = self.path.lstrip("/")
+        self.path = self.path.lstrip(SLASH)
 
     @mypy_property
     @lru_cache()
@@ -69,11 +65,11 @@ class GitHubURL:
             env_token = os.getenv(self.auth_token[1:])
 
             if env_token:
-                return (env_token, "")
+                return env_token, ""
 
             return ()
 
-        return (self.auth_token, "")
+        return self.auth_token, ""
 
     @property
     def git_reference_or_default(self) -> str:
@@ -83,15 +79,23 @@ class GitHubURL:
     @property
     def url(self) -> str:
         """Default URL built from attributes."""
-        return f"https://github.com/{self.owner}/{self.repository}/blob/{self.git_reference_or_default}/{self.path}"
+        rv = furl(
+            scheme=SCHEME_HTTPS,
+            host=GITHUB_COM,
+            path=SLASH.join([self.owner, self.repository, "blob", self.git_reference_or_default, self.path]),
+            query_params=dict(self.query_string or {}),
+        )
+        return str(rv)
 
     @property
     def raw_content_url(self) -> str:
         """Raw content URL for this path."""
-        return (
-            f"https://raw.githubusercontent.com/{self.owner}/{self.repository}"
-            f"/{self.git_reference_or_default}/{self.path}"
+        rv = furl(
+            scheme=SCHEME_HTTPS,
+            host="raw.githubusercontent.com",
+            path=SLASH.join([self.owner, self.repository, self.git_reference_or_default, self.path]),
         )
+        return str(rv)
 
     @classmethod
     def parse_url(cls, url: str) -> GitHubURL:
@@ -99,14 +103,18 @@ class GitHubURL:
 
         See the code for ``test_parsing_github_urls()`` for more examples.
         """
-        parsed_url = urlparse(url)
+        parsed_url = furl(url)
         git_reference = ""
 
-        auth_token = parsed_url.username or _get_token_from_querystr(parsed_url.query)
+        auth_token = parsed_url.username or parsed_url.args.get(QUERY_STRING_TOKEN)
+
+        remaining_query_string = parsed_url.args.copy()
+        if QUERY_STRING_TOKEN in remaining_query_string:
+            del remaining_query_string[QUERY_STRING_TOKEN]
 
         if parsed_url.scheme in GitHubFetcher.protocols:
-            owner = parsed_url.hostname or ""
-            repo_with_git_reference, path = parsed_url.path.strip("/").split("/", 1)
+            owner = parsed_url.host or ""
+            repo_with_git_reference, path = str(parsed_url.path).strip(SLASH).split(SLASH, 1)
             if GIT_AT_REFERENCE in repo_with_git_reference:
                 repo, git_reference = repo_with_git_reference.split(GIT_AT_REFERENCE)
             else:
@@ -115,14 +123,17 @@ class GitHubURL:
             # github.com urls have a useless .../blob/... section, but
             # raw.githubusercontent.com doesn't, so take the first 2, then last 2 url
             # components to exclude the blob bit if present.
-            owner, repo, *_, git_reference, path = parsed_url.path.strip("/").split("/", 4)
+            owner, repo, *_, git_reference, path = str(parsed_url.path).strip(SLASH).split(SLASH, 4)
 
-        return cls(owner, repo, git_reference, path, auth_token)
+        return cls(owner, repo, git_reference, path, auth_token, tuple(remaining_query_string.items()))
 
     @property
     def api_url(self) -> str:
         """API URL for this repo."""
-        return f"https://api.github.com/repos/{self.owner}/{self.repository}"
+        rv = furl(
+            scheme=SCHEME_HTTPS, host=f"api.{GITHUB_COM}", path=SLASH.join(["repos", self.owner, self.repository])
+        )
+        return str(rv)
 
     @property
     def short_protocol_url(self) -> str:
@@ -139,7 +150,10 @@ class GitHubURL:
             at_reference = f"{GIT_AT_REFERENCE}{self.git_reference}"
         else:
             at_reference = ""
-        return f"{protocol.value}://{self.owner}/{self.repository}{at_reference}/{self.path}"
+        rv = furl(
+            scheme=protocol.value, host=self.owner, path=SLASH.join([f"{self.repository}{at_reference}", self.path])
+        )
+        return str(rv)
 
 
 @lru_cache()
@@ -165,7 +179,7 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
     protocols: tuple[str, ...] = (GitHubProtocol.SHORT.value, GitHubProtocol.LONG.value)
-    domains: tuple[str, ...] = ("github.com",)
+    domains: tuple[str, ...] = (GITHUB_COM,)
 
     def _download(self, url, **kwargs) -> str:
         github_url = GitHubURL.parse_url(url)

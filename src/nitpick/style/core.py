@@ -83,7 +83,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
     def get_default_style_url(github=False):
         """Return the URL of the default style/preset."""
         if github:
-            return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", NITPICK_STYLE_TOML, None).long_protocol_url
+            return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", NITPICK_STYLE_TOML).long_protocol_url
         return f"{PythonPackageProtocol.SHORT.value}://{PROJECT_NAME}/resources/presets/{PROJECT_NAME}"
 
     def find_initial_styles(self, configured_styles: StrOrIterable) -> Iterator[Fuss]:
