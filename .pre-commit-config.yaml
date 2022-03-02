@@ -45,7 +45,7 @@ repos:
       - id: pyupgrade
         args: [--py37-plus]
   - repo: https://github.com/aio-libs/sort-all # TODO: style(pre-commit): add sort-all
-    rev: v1.1.0
+    rev: v1.2.0
     hooks:
       - id: sort-all
         language_version: python3.8
@@ -138,13 +138,13 @@ repos:
         types: [python]
         exclude: tests/
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.2
+    rev: 1.7.3
     hooks:
       - id: bandit
         args: [--ini, setup.cfg]
         exclude: tests/
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.8.0.3
+    rev: v0.8.0.4
     hooks:
       - id: shellcheck
   - repo: https://github.com/openstack/bashate
@@ -154,7 +154,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v2.20.4
+    rev: v2.21.2
     hooks:
       - id: commitizen
         stages: [commit-msg]
