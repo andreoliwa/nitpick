@@ -8,10 +8,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, Tuple
 from urllib.parse import urlparse, uses_netloc, uses_relative
 
-from cachy import CacheManager, Repository
+from requests_cache import CachedSession
 from strenum import LowercaseStrEnum
 
+from nitpick.enums import CachingEnum
 from nitpick.generic import is_url
+from nitpick.style import parse_cache_option
 
 if TYPE_CHECKING:
     from nitpick.style.fetchers.base import FetchersType
@@ -38,13 +40,19 @@ class StyleFetcherManager:
     cache_dir: str
     cache_option: str
 
-    cache_repository: Repository = field(init=False)
+    session: CachedSession = field(init=False)
     fetchers: FetchersType = field(init=False)
 
     def __post_init__(self):
         """Initialize dependant properties."""
-        self.cache_repository = CacheManager({"stores": {"file": {"driver": "file", "path": self.cache_dir}}}).store()
-        self.fetchers = _get_fetchers(self.cache_repository, self.cache_option)
+        caching, expire_after = parse_cache_option(self.cache_option)
+        # honour caching headers on the response when an expiration time has
+        # been set meaning that the server can dictate cache expiration
+        # overriding the local expiration time. This may need to become a
+        # separate configuration option in future.
+        cache_control = caching is CachingEnum.EXPIRES
+        self.session = CachedSession(self.cache_dir / "styles", expire_after=expire_after, cache_control=cache_control)
+        self.fetchers = _get_fetchers(self.session)
 
     def fetch(self, url) -> StyleInfo:
         """Determine which fetcher to be used and fetch from it.
@@ -86,15 +94,16 @@ class StyleFetcherManager:
         return "", "file"
 
 
-def _get_fetchers(cache_repository, cache_option) -> FetchersType:
+def _get_fetchers(session: CachedSession) -> FetchersType:
     # pylint: disable=import-outside-toplevel
+    from nitpick.style.fetchers.base import StyleFetcher
     from nitpick.style.fetchers.file import FileFetcher
     from nitpick.style.fetchers.github import GitHubFetcher
     from nitpick.style.fetchers.http import HttpFetcher
     from nitpick.style.fetchers.pypackage import PythonPackageFetcher
 
-    def _factory(klass):
-        return klass(cache_repository, cache_option)
+    def _factory(klass: type[StyleFetcher]) -> StyleFetcher:
+        return klass(session) if klass.requires_connection else klass()
 
     fetchers = (_factory(FileFetcher), _factory(HttpFetcher), _factory(GitHubFetcher), _factory(PythonPackageFetcher))
     pairs = _fetchers_to_pairs(fetchers)
