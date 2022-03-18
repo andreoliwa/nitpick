@@ -44,6 +44,7 @@ Main options
       -p, --project DIRECTORY  Path to project root
       --offline                Offline mode: no style will be downloaded (no HTTP
                                requests at all)
+      --version                Show the version and exit.
       --help                   Show this message and exit.
 
     Commands:

@@ -49,6 +49,7 @@ FILES_ARGUMENT = click.argument("files", nargs=-1)
     default=False,
     help=OptionEnum.OFFLINE.value,
 )
+@click.version_option()
 def nitpick_cli(project: Path = None, offline=False):  # pylint: disable=unused-argument
     """Enforce the same settings across multiple language-independent projects."""
 
