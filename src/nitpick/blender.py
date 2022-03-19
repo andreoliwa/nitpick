@@ -560,8 +560,7 @@ def traverse_toml_tree(document: tomlkit.TOMLDocument, dictionary):
 class SensibleYAML(YAML):
     """YAML with sensible defaults but an inefficient dump to string.
 
-    `Output of dump() as a string
-    <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_
+    `Output of dump() as a string <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_.
     """
 
     def __init__(self):

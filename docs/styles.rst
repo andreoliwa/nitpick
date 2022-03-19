@@ -154,7 +154,7 @@ You can define your own list keys for your YAML files (or override the predefine
     For now, only two-level nesting is possible: parent and child keys.
 
 If you have suggestions for predefined list keys for other popular YAML files not covered by Nitpick_ (e.g.: GitLab CI config),
-feel free to `create an issue <https://github.com/andreoliwa/nitpick/issues/new/choose>`_ or submit a pull request.
+feel free to :issue:`create an issue <new/choose>` or submit a pull request.
 
 .. _breaking-changes:
 

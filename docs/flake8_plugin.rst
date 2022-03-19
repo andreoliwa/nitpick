@@ -1,12 +1,10 @@
 .. include:: targets.rst
 
-.. _bye_flake8: https://github.com/andreoliwa/nitpick/issues/166
-
 .. note::
 
   Try running Nitpick with the new :ref:`cli` instead of a flake8 plugin.
 
-  In the future, there are plans to `make flake8 an optional dependency <bye_flake8_>`_.
+  In the future, there are plans to :issue:`make flake8 an optional dependency <166>`.
 
 .. _flake8_plugin:
 
@@ -47,7 +45,7 @@ Currently, the default pre-commit_ hook uses flake8_ in an `unconventional and n
 
   flake8 --select=NIP
 
-This current default pre-commit hook (called ``nitpick``) is a placeholder for the future, `when flake8 will be only an optional dependency <bye_flake8_>`_.
+This current default pre-commit hook (called ``nitpick``) is a placeholder for the future, :issue:`when flake8 will be only an optional dependency <166>`.
 
 Why ``always_run: true``?
 ~~~~~~~~~~~~~~~~~~~~~~~~~

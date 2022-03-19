@@ -108,7 +108,7 @@ Style inside Python package
 
 The style file can be fetched from an installed Python package.
 
-Example of a use case: you create a custom flake8 extension and you also want to distribute a (versioned) Nitpick style bundled as a resource inside the Python package (`check out this issue: Get style file from python package · Issue #202 <https://github.com/andreoliwa/nitpick/issues/202#issuecomment-703345486>`_).
+Example of a use case: you create a custom flake8 extension and you also want to distribute a (versioned) Nitpick style bundled as a resource inside the Python package (:issue:`check out this issue: Get style file from python package · Issue #202 <202#issuecomment-703345486>`).
 
 Python package URL scheme is ``pypackage://`` or ``py://``:
 
