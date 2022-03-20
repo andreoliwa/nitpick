@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import pytest
 from freezegun import freeze_time
+from requests_cache.cache_control import DO_NOT_CACHE, NEVER_EXPIRE
 
 from nitpick.enums import CachingEnum
 from nitpick.style.cache import parse_cache_option
@@ -52,10 +53,10 @@ def test_never(project_remote):
 @pytest.mark.parametrize(
     "cache_option,expected_enum,expected_timedelta",
     [
-        ("never", CachingEnum.NEVER, timedelta()),
-        (" NEVER\n ", CachingEnum.NEVER, timedelta()),
-        ("forever", CachingEnum.FOREVER, timedelta()),
-        ("\t  Forever \n", CachingEnum.FOREVER, timedelta()),
+        ("never", CachingEnum.NEVER, DO_NOT_CACHE),
+        (" NEVER\n ", CachingEnum.NEVER, DO_NOT_CACHE),
+        ("forever", CachingEnum.FOREVER, NEVER_EXPIRE),
+        ("\t  Forever \n", CachingEnum.FOREVER, NEVER_EXPIRE),
         (" 15 minutes garbage", CachingEnum.EXPIRES, timedelta(minutes=15)),
         (" 20 minute ", CachingEnum.EXPIRES, timedelta(minutes=20)),
         (" 3 hours ", CachingEnum.EXPIRES, timedelta(hours=3)),

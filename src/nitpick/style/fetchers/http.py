@@ -1,12 +1,11 @@
 """Base HTTP fetcher, other fetchers can inherit from this to wrap http errors."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import click
 import requests
 from loguru import logger
-from requests.sessions import Session
 
 from nitpick.enums import OptionEnum
 from nitpick.style.fetchers import Scheme
@@ -17,18 +16,9 @@ from nitpick.style.fetchers.base import StyleFetcher
 class HttpFetcher(StyleFetcher):
     """Fetch a style from an http/https server."""
 
-    _session: Session = field(init=False)
-
     requires_connection = True
-    protocols: tuple = (Scheme.HTTP, Scheme.HTTPS)
 
-    def __post_init__(self):
-        """Sessions should be per class as children can have custom headers or authentication."""
-        self._session = Session()
-        self._post_hooks()
-
-    def _post_hooks(self):
-        """Dataclasses won't call post init here if another class extends it and override."""
+    protocols: tuple[str, ...] = (Scheme.HTTP, Scheme.HTTPS)  # type: ignore
 
     def _do_fetch(self, url) -> str:
         try:
@@ -47,6 +37,8 @@ class HttpFetcher(StyleFetcher):
 
     def _download(self, url, **kwargs) -> str:
         logger.info(f"Downloading style from {url}")
-        response = self._session.get(url, **kwargs)
+        if self.session is None:
+            raise RuntimeError("No session provided to fetcher")
+        response = self.session.get(url, **kwargs)
         response.raise_for_status()
         return response.text

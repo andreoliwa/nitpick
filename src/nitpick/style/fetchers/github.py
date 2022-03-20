@@ -7,7 +7,7 @@ from enum import auto
 from functools import lru_cache
 
 from furl import furl
-from requests import Session, get as requests_get
+from requests import get as requests_get
 
 from nitpick.constants import GIT_AT_REFERENCE, SLASH
 from nitpick.style.fetchers import Scheme
@@ -31,7 +31,6 @@ class GitHubURL:
 
     def __post_init__(self):
         """Remove the initial slash from the path."""
-        self._session = Session()
         self.path = self.path.lstrip(SLASH)
 
     @mypy_property
@@ -170,7 +169,7 @@ def get_default_branch(api_url: str) -> str:
 class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
-    protocols: tuple = (Scheme.GH, Scheme.GITHUB)
+    protocols: tuple[str, ...] = (Scheme.GH, Scheme.GITHUB)  # type: ignore
     domains: tuple[str, ...] = (GITHUB_COM,)
 
     def _download(self, url, **kwargs) -> str:
