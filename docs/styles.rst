@@ -52,9 +52,9 @@ Default search order for a style
 
 1. A file or URL configured in the ``pyproject.toml`` file, ``[tool.nitpick]`` section, ``style`` key, as described in :ref:`configuration`.
 
-2. Any `nitpick-style.toml`_ file found in the current directory (the one in which flake8_ runs from) or above.
+2. Any :gitref:`nitpick-style.toml` file found in the current directory (the one in which flake8_ runs from) or above.
 
-3. If no style is found, then the `default style file`_ from GitHub is used.
+3. If no style is found, then the :gitref:`default style file <nitpick-style.toml>` from GitHub is used.
 
 Style file syntax
 -----------------
@@ -70,7 +70,7 @@ E.g.: To configure the black_ formatter with a line length of 120, you use this 
     [tool.black]
     line-length = 120
 
-To enforce that all your projects use this same line length, add this to your `nitpick-style.toml`_ file:
+To enforce that all your projects use this same line length, add this to your :gitref:`nitpick-style.toml` file:
 
 .. code-block:: toml
 
@@ -88,7 +88,7 @@ To `configure mypy <https://mypy.readthedocs.io/en/latest/config_file.html#confi
     [mypy]
     ignore_missing_imports = true
 
-To enforce all your projects to ignore missing imports, add this to your `nitpick-style.toml`_ file:
+To enforce all your projects to ignore missing imports, add this to your :gitref:`nitpick-style.toml` file:
 
 .. code-block:: toml
 
@@ -154,7 +154,7 @@ You can define your own list keys for your YAML files (or override the predefine
     For now, only two-level nesting is possible: parent and child keys.
 
 If you have suggestions for predefined list keys for other popular YAML files not covered by Nitpick_ (e.g.: GitLab CI config),
-feel free to `create an issue <https://github.com/andreoliwa/nitpick/issues/new/choose>`_ or submit a pull request.
+feel free to :issue:`create an issue <new/choose>` or submit a pull request.
 
 .. _breaking-changes:
 

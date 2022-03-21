@@ -48,7 +48,7 @@ Nitpick is also a flake8_ plugin, so you can run this on a project with at least
 
     flake8 .
 
-Nitpick_ will download and use the opinionated `default style file`_.
+Nitpick_ will download and use the opinionated :gitref:`default style file <nitpick-style.toml>`.
 
 You can use it as a template to :ref:`configure-your-own-style`.
 

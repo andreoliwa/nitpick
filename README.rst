@@ -363,8 +363,7 @@ with at least one Python (``.py``) file::
 
     flake8 .
 
-Nitpick will download and use the opinionated `default style
-file <https://github.com/andreoliwa/nitpick/blob/v0.31.0/nitpick-style.toml>`_.
+Nitpick will download and use the opinionated `default style file <nitpick-style.toml>`_.
 
 You can use it as a template to configure your own style.
 
