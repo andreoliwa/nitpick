@@ -102,12 +102,13 @@ pytest-datadir = { version = "*", optional = true }
 sphinx = { version = "*", optional = true }
 sphinx_rtd_theme = { version = "*", optional = true }
 sphobjinv = { version = "*", optional = true }
+sphinx-gitref = { version = "*", optional = true }
 requests-cache = "*"
 
 [tool.poetry.extras]
 lint = ["pylint"]
 test = ["pytest", "pytest-cov", "testfixtures", "responses", "freezegun", "pytest-testmon", "pytest-watch", "pytest-socket", "pytest-datadir"]
-doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv"]
+doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv", "sphinx-gitref"]
 
 [tool.poetry.dev-dependencies]
 ipython = "*"

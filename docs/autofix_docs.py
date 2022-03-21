@@ -19,10 +19,8 @@ import attr
 import click
 from slugify import slugify
 
-from nitpick import PROJECT_NAME, __version__
-from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PROJECT_OWNER, PYLINTRC, READ_THE_DOCS_URL, SETUP_CFG
+from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PYLINTRC, READ_THE_DOCS_URL, SETUP_CFG
 from nitpick.core import Nitpick
-from nitpick.style.fetchers.github import GitHubURL
 from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 
 RST_DIVIDER_FROM_HERE = ".. auto-generated-from-here"
@@ -283,9 +281,10 @@ class StyleLibraryRow:  # pylint: disable=too-few-public-methods
     name: str
 
 
-def _build_library(url: str = "") -> List[str]:
+def _build_library(gitref: bool = True) -> List[str]:
     # pylint: disable=no-member
     library: Dict[str, List[Tuple]] = defaultdict(list)
+    pre, post = (":gitref:", "") if gitref else ("", "_")
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
 
@@ -293,7 +292,7 @@ def _build_library(url: str = "") -> List[str]:
         clean_root = style.path_from_repo_root.replace("site-packages/", "src/")
 
         row = StyleLibraryRow(
-            style=f"`{style.py_url_without_ext} <{url + clean_root}>`_",
+            style=f"{pre}`{style.py_url_without_ext} <{clean_root}>`{post}",
             name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
         )
         library[style.identify_tag].append(attr.astuple(row))
@@ -315,11 +314,10 @@ def _build_library(url: str = "") -> List[str]:
 
 def write_style_library(divider: str) -> int:
     """Write the style library table."""
-    lines = _build_library()
+    lines = _build_library(gitref=False)
     rv = DocFile("../README.rst").write(lines, divider)
 
-    url = GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", "", "").url
-    lines = _build_library(url)
+    lines = _build_library()
     rv += DocFile("library.rst").write(lines)
     return rv
 

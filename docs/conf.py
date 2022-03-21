@@ -5,6 +5,7 @@ This file does only contain a selection of the most common options. For a
 full list see the documentation:
 http://www.sphinx-doc.org/en/master/config
 """
+import os
 from typing import Dict
 
 # -- Path setup --------------------------------------------------------------
@@ -21,6 +22,11 @@ author = "W. Augusto Andreoli"
 version = "0.31.0"
 # The full version, including alpha/beta/rc tags
 release = version
+
+if os.getenv("GITHUB_ACTIONS") is not None:
+    # Tell sphinx-gitref to use the Github branch or tag name if running in a GH
+    # action workflow. See https://github.com/wildfish/sphinx-gitref#installation
+    gitref_branch = os.environ["GITHUB_REF_NAME"]
 
 
 # -- General configuration ---------------------------------------------------
@@ -54,6 +60,8 @@ extensions = [
     "sphinx.ext.todo",
     # http://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
     "sphinx.ext.viewcode",
+    # https://github.com/wildfish/sphinx-gitref
+    "sphinx_gitref",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

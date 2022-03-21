@@ -65,7 +65,7 @@ Multiple keys can be added.
 
 Styles can include other styles. Just provide a list of styles to include.
 
-Example of usage: `Nitpick's default style <https://github.com/andreoliwa/nitpick/blob/v0.31.0/nitpick-style.toml>`_.
+Example of usage: :gitref:`Nitpick's default style <nitpick-style.toml>`.
 
 .. code-block:: toml
 

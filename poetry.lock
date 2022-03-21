@@ -987,6 +987,18 @@ lint = ["flake8 (>=3.5.0)", "isort", "mypy (>=0.931)", "docutils-stubs", "types-
 test = ["pytest", "pytest-cov", "html5lib", "cython", "typed-ast"]
 
 [[package]]
+name = "sphinx-gitref"
+version = "0.2.1"
+description = "Link to source code and validate references in documentation"
+category = "main"
+optional = true
+python-versions = ">=3.6"
+
+[package.dependencies]
+docutils = "*"
+sphinx = "*"
+
+[[package]]
 name = "sphinx-rtd-theme"
 version = "1.0.0"
 description = "Read the Docs theme for Sphinx"
@@ -1267,14 +1279,14 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
-doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv"]
+doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv", "sphinx-gitref"]
 lint = ["pylint"]
 test = ["pytest", "pytest-cov", "testfixtures", "responses", "freezegun", "pytest-testmon", "pytest-watch", "pytest-socket", "pytest-datadir"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "b2da64bae19266c575921d91c841c78a74d3b332a579bf10e484e05d262105f7"
+content-hash = "9aa779aaa159d8715811caf900e8a87bc4d10d1f39fe4c94e8875158073b71e5"
 
 [metadata.files]
 alabaster = [
@@ -1773,6 +1785,10 @@ sortedcontainers = [
 sphinx = [
     {file = "Sphinx-4.4.0-py3-none-any.whl", hash = "sha256:5da895959511473857b6d0200f56865ed62c31e8f82dd338063b84ec022701fe"},
     {file = "Sphinx-4.4.0.tar.gz", hash = "sha256:6caad9786055cb1fa22b4a365c1775816b876f91966481765d7d50e9f0dd35cc"},
+]
+sphinx-gitref = [
+    {file = "sphinx-gitref-0.2.1.tar.gz", hash = "sha256:419c5e157d663e4b74d1d9e70f095da497f0b0c4ac7468f87a671824608c2b57"},
+    {file = "sphinx_gitref-0.2.1-py3-none-any.whl", hash = "sha256:cb54a6bec28e24b6fad89e26f15611b84b140e363f2462433a9d0698c5cfd6bc"},
 ]
 sphinx-rtd-theme = [
     {file = "sphinx_rtd_theme-1.0.0-py2.py3-none-any.whl", hash = "sha256:4d35a56f4508cfee4c4fb604373ede6feae2a306731d533f409ef5c3496fdbd8"},

@@ -26,7 +26,7 @@ class YamlPlugin(NitpickPlugin):
     """Enforce configurations and autofix YAML files.
 
     - Example: `.pre-commit-config.yaml <https://pre-commit.com/#pre-commit-configyaml---top-level>`_.
-    - Style example: `the default pre-commit hooks`_.
+    - Style example: :gitref:`the default pre-commit hooks <src/nitpick/resources/any/pre-commit-hooks.toml>`.
 
     .. warning::
 

@@ -43,7 +43,7 @@ Pre-commit hook and flake8
 
 Currently, the default pre-commit_ hook uses flake8_ in an `unconventional and not recommended way <https://github.com/pre-commit/pre-commit.com/pull/353#issuecomment-632224465>`_.
 
-`It calls flake8 directly <https://github.com/andreoliwa/nitpick/blob/develop/.pre-commit-hooks.yaml#L5>`_::
+:gitref:`It calls flake8 directly <.pre-commit-hooks.yaml#L5>`::
 
   flake8 --select=NIP
 
@@ -72,7 +72,7 @@ So basically the pre-commit hook would be useless to guarantee that your config 
 
 .. note::
 
-  To avoid this, use the `other pre-commit hooks <https://github.com/andreoliwa/nitpick/blob/develop/.pre-commit-hooks.yaml#L10>`_, the ones that call the Nitpick CLI directly instead of running ``flake8``.
+  To avoid this, use the :gitref:`other pre-commit hooks <.pre-commit-hooks.yaml#L10>`, the ones that call the Nitpick CLI directly instead of running ``flake8``.
 
 Root dir of the project
 -----------------------

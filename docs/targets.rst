@@ -1,8 +1,3 @@
-.. Different anchors pointing to the same URL:
-
-.. _nitpick-style.toml:
-.. _default style file: https://github.com/andreoliwa/nitpick/blob/v0.31.0/nitpick-style.toml
-
 .. Keep items sorted alphabetically from here (using Pycharm, even tough it's case-sensitive):
 
 .. _Bash: https://www.gnu.org/software/bash/
