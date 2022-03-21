@@ -59,11 +59,7 @@ TOOL_NITPICK_JMEX = jmespath.compile(TOOL_NITPICK_KEY)
 NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
 NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
 
-# Dot/slash is just a convention to indicate a local style file;
-# the same pair of characters should be used on Windows, even though the path separator is different
 DOT = "."
-SLASH = "/"
-DOT_SLASH = f"{DOT}{SLASH}"
 
 GIT_AT_REFERENCE = "@"
 

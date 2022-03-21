@@ -22,13 +22,13 @@ from responses import RequestsMock
 def project_default(tmp_path):
     """Project with the default Nitpick style."""
     from nitpick.constants import NITPICK_STYLE_TOML
-    from tests.helpers import ProjectMock
+    from tests.helpers import ProjectMock, tomlstring
 
     nitpick_style = Path(__file__).parent.parent / NITPICK_STYLE_TOML
     return ProjectMock(tmp_path).pyproject_toml(
         f"""
         [tool.nitpick]
-        style = "{nitpick_style}"
+        style = {tomlstring(nitpick_style)}
         """
     )
 
@@ -36,7 +36,7 @@ def project_default(tmp_path):
 @pytest.fixture()
 def project_remote(request, tmp_path):
     """Project with a remote style (loaded from a URL)."""
-    from tests.helpers import ProjectMock
+    from tests.helpers import ProjectMock, tomlstring
 
     remote_url = "https://example.com/remote-style.toml"
     remote_style = """
@@ -54,7 +54,7 @@ def project_remote(request, tmp_path):
         project.pyproject_toml(
             f"""
             [tool.nitpick]
-            style = "{remote_url}"
+            style = {tomlstring(remote_url)}
             {tool_nitpick}
 
             [tool.black]

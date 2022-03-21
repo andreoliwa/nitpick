@@ -44,12 +44,12 @@ class Fuss:
 
     def __lt__(self, other: Fuss) -> bool:
         """Sort Fuss instances."""
-        return (
-            self.filename < other.filename
-            and self.code < other.code
-            and self.message < other.message
-            and self.suggestion < other.suggestion
-            and self.lineno < other.lineno
+        return (self.filename, self.code, self.message, self.suggestion, self.lineno) < (
+            other.filename,
+            other.code,
+            other.message,
+            other.suggestion,
+            other.lineno,
         )
 
 

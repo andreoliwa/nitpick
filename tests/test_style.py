@@ -8,12 +8,13 @@ from unittest.mock import PropertyMock
 
 import pytest
 import responses
+from furl import furl
 
-from nitpick.constants import DOT_SLASH, PYPROJECT_TOML, READ_THE_DOCS_URL, SETUP_CFG, TOML_EXTENSION, TOX_INI
+from nitpick.constants import PYPROJECT_TOML, READ_THE_DOCS_URL, SETUP_CFG, TOML_EXTENSION, TOX_INI
 from nitpick.style.fetchers.github import GitHubURL
 from nitpick.style.fetchers.pypackage import PythonPackageURL
 from nitpick.violations import Fuss
-from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, XFAIL_ON_WINDOWS, ProjectMock, assert_conditions
+from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, ProjectMock, assert_conditions, tomlstring
 
 
 @pytest.mark.parametrize("offline", [False, True])
@@ -106,7 +107,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         "styles/isort2",
         f"""
         [nitpick.styles]
-        include = ["styles/isort2.toml", "flake8.toml"]
+        include = ["./isort2.toml", "../flake8.toml"]
         ["{SETUP_CFG}".isort]
         line_length = 120
         xxx = "yyy"
@@ -190,28 +191,27 @@ def test_minimum_version(mocked_version, offline, tmp_path):
 
 
 @pytest.mark.parametrize("offline", [False, True])
-@XFAIL_ON_WINDOWS
 def test_relative_and_other_root_dirs(offline, tmp_path):
     """Test styles in relative and in other root dirs."""
     another_dir: Path = tmp_path / "another_dir"
     project = (
         ProjectMock(tmp_path)
         .named_style(
-            f"{another_dir}/main",
+            another_dir / "main",
             """
             [nitpick.styles]
             include = "styles/pytest.toml"
             """,
         )
         .named_style(
-            f"{another_dir}/styles/pytest",
+            another_dir / "styles/pytest",
             """
             ["pyproject.toml".tool.pytest]
             some-option = 123
             """,
         )
         .named_style(
-            f"{another_dir}/styles/black",
+            another_dir / "styles/black",
             """
             ["pyproject.toml".tool.black]
             line-length = 99
@@ -219,7 +219,7 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
             """,
         )
         .named_style(
-            f"{another_dir}/poetry",
+            another_dir / "poetry",
             """
             ["pyproject.toml".tool.poetry]
             version = "1.0"
@@ -238,7 +238,7 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{another_dir}/main", "{another_dir}/styles/black"]
+        style = [{tomlstring(another_dir / "main")}, {tomlstring(another_dir / "styles/black")}]
         {common_pyproject}
         """
     ).flake8(offline=offline).assert_single_error(
@@ -249,31 +249,11 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
         """
     )
 
-    # Reuse the first full path that appears
-    project.pyproject_toml(
-        f"""
-        [tool.nitpick]
-        style = ["{another_dir}/main", "styles/black.toml"]
-        {common_pyproject}
-        """
-    ).api_check().assert_violations(
-        Fuss(
-            False,
-            PYPROJECT_TOML,
-            318,
-            " has missing values:",
-            """
-            [tool.black]
-            missing = "value"
-            """,
-        )
-    )
-
     # Allow relative paths
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{another_dir}/styles/black", "../poetry"]
+        style = [{tomlstring(another_dir / "styles/black")}, "./another_dir/poetry"]
         {common_pyproject}
         """
     ).flake8(offline=offline).assert_single_error(
@@ -329,7 +309,14 @@ def test_relative_style_on_urls(tmp_path):
     mapping = {
         "main": """
             [nitpick.styles]
-            include = "styles/pytest.toml"
+            include = "presets/python.toml"
+            """,
+        "presets/python": """
+            [nitpick.styles]
+            include = [
+                "../styles/pytest.toml",
+                "../styles/black.toml",
+            ]
             """,
         "styles/pytest": """
             ["pyproject.toml".tool.pytest]
@@ -339,10 +326,6 @@ def test_relative_style_on_urls(tmp_path):
             ["pyproject.toml".tool.black]
             line-length = 99
             missing = "value"
-            """,
-        "poetry": """
-            ["pyproject.toml".tool.poetry]
-            version = "1.0"
             """,
     }
     for filename, body in mapping.items():
@@ -360,7 +343,7 @@ def test_relative_style_on_urls(tmp_path):
     project.pyproject_toml(
         f"""
         [tool.nitpick]
-        style = ["{base_url}/main", "{base_url}/styles/black.toml"]
+        style = ["{base_url}/main"]
         {common_pyproject}
         """
     ).api_check().assert_violations(
@@ -372,49 +355,6 @@ def test_relative_style_on_urls(tmp_path):
             """
             [tool.black]
             missing = "value"
-            """,
-        )
-    )
-
-    # Reuse the first full path that appears
-    project.pyproject_toml(
-        f"""
-        [tool.nitpick]
-        style = ["{base_url}/main.toml", "styles/black"]
-        {common_pyproject}
-        """
-    ).api_check().assert_violations(
-        Fuss(
-            False,
-            PYPROJECT_TOML,
-            318,
-            " has missing values:",
-            """
-            [tool.black]
-            missing = "value"
-            """,
-        )
-    )
-
-    # Allow relative paths
-    project.pyproject_toml(
-        f"""
-        [tool.nitpick]
-        style = ["{base_url}/styles/black.toml", "../poetry"]
-        {common_pyproject}
-        """
-    ).api_check().assert_violations(
-        Fuss(
-            False,
-            PYPROJECT_TOML,
-            318,
-            " has missing values:",
-            """
-            [tool.black]
-            missing = "value"
-
-            [tool.poetry]
-            version = "1.0"
             """,
         )
     )
@@ -430,7 +370,7 @@ def test_local_style_should_override_settings(tmp_path):
     """
     responses.add(responses.GET, remote_url, dedent(remote_style), status=200)
 
-    local_file = "local-file.toml"
+    local_file = "./local-file.toml"
     local_style = """
         ["pyproject.toml".tool.black]
         line-length = 120
@@ -441,7 +381,7 @@ def test_local_style_should_override_settings(tmp_path):
         [tool.nitpick]
         style = [
           "{remote_url}",
-          "{DOT_SLASH}{local_file}",
+          "{local_file}",
         ]
 
         [tool.black]
@@ -502,13 +442,11 @@ def test_fetch_private_github_urls(tmp_path):
         "gh://andreoliwa/nitpick@develop/initial.toml",
         # Regular GitHub URL
         "https://github.com/andreoliwa/nitpick/blob/develop/initial.toml",
-        # Raw URL directly
-        "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
     ],
 )
 def test_github_url_without_token_has_no_credentials(style_url):
     """Check private GitHub URLs with a token in various places are parsed correctly."""
-    parsed = GitHubURL.parse_url(style_url)
+    parsed = GitHubURL.from_furl(furl(style_url))
     assert parsed.credentials == ()
 
 
@@ -529,7 +467,7 @@ def test_github_url_without_token_has_no_credentials(style_url):
 )
 def test_github_url_with_fixed_userinfo_token_has_correct_credential(url):
     """Check private GitHub URLs with a token in various places are parsed correctly."""
-    parsed = GitHubURL.parse_url(url)
+    parsed = GitHubURL.from_furl(furl(url))
     assert parsed.credentials == ("token", "")
 
 
@@ -551,7 +489,7 @@ def test_github_url_with_fixed_userinfo_token_has_correct_credential(url):
 def test_github_url_with_variable_userinfo_token_has_correct_credential(url, monkeypatch):
     """Check private GitHub URLs with a token in various places are parsed correctly."""
     monkeypatch.setenv("TOKEN", "envvar-token")
-    parsed = GitHubURL.parse_url(url)
+    parsed = GitHubURL.from_furl(furl(url))
     assert parsed.credentials == ("envvar-token", "")
 
 
@@ -575,24 +513,26 @@ def test_github_url_with_variable_userinfo_token_has_correct_credential(url, mon
 def test_github_url_with_variable_query_token_has_correct_credential(url, monkeypatch):
     """Check private GitHub URLs with a token in various places are parsed correctly."""
     monkeypatch.setenv("ENVVAR", "envvar-token")
-    parsed = GitHubURL.parse_url(url)
+    parsed = GitHubURL.from_furl(furl(url))
     assert parsed.credentials == ("envvar-token", "")
 
 
 def test_github_url_with_missing_envvar_has_empty_credential(monkeypatch):
     """Environment var that doesn't exist is replaced with empty string."""
     monkeypatch.delenv("MISSINGVAR", raising=False)
-    parsed = GitHubURL.parse_url("https://github.com/foo/bar/blob/branch/filename.toml?token=$MISSINGVAR")
+    parsed = GitHubURL.from_furl(furl("https://github.com/foo/bar/blob/branch/filename.toml?token=$MISSINGVAR"))
     assert parsed.credentials == ()
 
 
 def test_github_url_query_token_retains_other_queryparams(monkeypatch):
     """Querystring isn't modified by the token switcharoo."""
-    parsed = GitHubURL.parse_url("https://github.com/foo/bar/blob/branch/filename.toml?leavemealone=ok")
-    assert "leavemealone=ok" in parsed.url
-    parsed = GitHubURL.parse_url("https://github.com/foo/bar/blob/branch/filename.toml?token=somevar&leavemealone=ok")
+    parsed = GitHubURL.from_furl(furl("https://github.com/foo/bar/blob/branch/filename.toml?leavemealone=ok"))
+    assert ("leavemealone", "ok") in parsed.url.query.params.items()
+    parsed = GitHubURL.from_furl(
+        furl("https://github.com/foo/bar/blob/branch/filename.toml?token=somevar&leavemealone=ok")
+    )
     assert parsed.credentials == ("somevar", "")
-    assert "leavemealone=ok" in parsed.url
+    assert ("leavemealone", "ok") in parsed.url.query.params.items()
 
 
 @responses.activate
@@ -922,19 +862,18 @@ def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_
     """Test a GitHub URL and its parts, raw URL, API URL."""
     responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
 
-    gh = GitHubURL.parse_url(original_url)
+    gh = GitHubURL.from_furl(furl(original_url))
     assert gh.owner == "andreoliwa"
     assert gh.repository == "nitpick"
     assert gh.git_reference == git_reference
-    assert gh.path == "src/nitpick/__init__.py"
-    assert (
-        gh.raw_content_url
-        == f"https://raw.githubusercontent.com/andreoliwa/nitpick/{raw_git_reference}/src/nitpick/__init__.py"
+    assert gh.path == ("src", "nitpick", "__init__.py")
+    assert gh.raw_content_url == furl(
+        f"https://raw.githubusercontent.com/andreoliwa/nitpick/{raw_git_reference}/src/nitpick/__init__.py"
     )
-    assert gh.url == expected_url
-    assert gh.api_url == "https://api.github.com/repos/andreoliwa/nitpick"
-    assert gh.short_protocol_url == f"gh://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
-    assert gh.long_protocol_url == f"github://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py"
+    assert gh.url == furl(expected_url)
+    assert gh.api_url == furl("https://api.github.com/repos/andreoliwa/nitpick")
+    assert gh.short_protocol_url == furl(f"gh://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py")
+    assert gh.long_protocol_url == furl(f"github://andreoliwa/nitpick{at_reference}/src/nitpick/__init__.py")
 
 
 @pytest.mark.parametrize(
@@ -948,7 +887,7 @@ def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_
 )
 def test_parsing_python_package_urls(original_url, import_path, resource_name):
     """Test a resource URL of python package and its parts."""
-    pp = PythonPackageURL.parse_url(original_url)
+    pp = PythonPackageURL.from_furl(furl(original_url))
     assert pp.import_path == import_path
     assert pp.resource_name == resource_name
 
@@ -967,9 +906,9 @@ def test_parsing_python_package_urls(original_url, import_path, resource_name):
 )
 def test_raw_content_url_of_python_package(original_url, expected_content_path_suffix):
     """Test ``PythonPackageURL`` can return valid path."""
-    pp = PythonPackageURL.parse_url(original_url)
+    pp = PythonPackageURL.from_furl(furl(original_url))
     expected_content_path = Path(__file__).parent.parent / expected_content_path_suffix
-    assert pp.raw_content_url == expected_content_path
+    assert pp.content_path == expected_content_path
 
 
 def test_protocol_not_supported(tmp_path):
@@ -982,4 +921,4 @@ def test_protocol_not_supported(tmp_path):
     )
     with pytest.raises(RuntimeError) as exc_info:
         project.api_check()
-    assert str(exc_info.value) == "URI protocol 'abc' is not supported"
+    assert str(exc_info.value) == "URL protocol 'abc' is not supported"

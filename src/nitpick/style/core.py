@@ -1,12 +1,10 @@
 """Style files."""
 from __future__ import annotations
 
-import os
-from dataclasses import dataclass
-from functools import lru_cache
+from contextlib import suppress
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterator, Set, Type
-from urllib.parse import urljoin, urlsplit, urlunsplit
+from typing import Iterable, Iterator, Sequence, Set, Type
 
 import dpath.util
 from flatten_dict import flatten, unflatten
@@ -21,18 +19,15 @@ from nitpick import __version__, fields
 from nitpick.blender import SEPARATOR_FLATTEN, TomlDoc, custom_reducer, custom_splitter, search_json
 from nitpick.constants import (
     CACHE_DIR_NAME,
-    DOT_SLASH,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
     NITPICK_STYLES_INCLUDE_JMEX,
     PROJECT_NAME,
     PROJECT_OWNER,
     PYPROJECT_TOML,
-    SLASH,
-    TOML_EXTENSION,
 )
 from nitpick.exceptions import QuitComplainingError, pretty_exception
-from nitpick.generic import is_url
+from nitpick.generic import furl_path_to_python_path
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.project import Project, glob_files
@@ -40,13 +35,13 @@ from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.style.config import ConfigValidator
 from nitpick.style.fetchers import Scheme, StyleFetcherManager
 from nitpick.style.fetchers.github import GitHubURL
-from nitpick.typedefs import JsonDict, StrOrIterable, StrOrList, mypy_property
+from nitpick.typedefs import JsonDict
 from nitpick.violations import Fuss, Reporter, StyleViolations
 
 Plugins = Set[Type[NitpickPlugin]]
 
 
-@dataclass(repr=True)
+@dataclass()
 class StyleManager:  # pylint: disable=too-many-instance-attributes
     """Include styles recursively from one another."""
 
@@ -54,11 +49,13 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
     offline: bool
     cache_option: str
 
+    _cache_dir: Path = field(init=False)
+    _fixed_name_classes: set = field(init=False)
+
     def __post_init__(self) -> None:
         """Initialize dependant fields."""
         self._merged_styles: JsonDict = {}
         self._already_included: set[str] = set()
-        self._first_full_path: str = ""
         self._dynamic_schema_class: type = BaseStyleSchema
         self._style_fetcher_manager = StyleFetcherManager(self.offline, self.cache_dir, self.cache_option)
         self._config_validator = ConfigValidator(self.project)
@@ -68,66 +65,87 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         """Calculate hash on hashable items so lru_cache knows how to cache data from this class."""
         return hash((self.project, self.offline, self.cache_option))
 
-    @mypy_property
-    @lru_cache()
+    @property
     def cache_dir(self) -> Path:
         """Clear the cache directory (on the project root or on the current directory)."""
-        path: Path = self.project.root / CACHE_DIR_NAME / PROJECT_NAME
-
-        # TODO: fix: check if the merged style file is still needed
-        #  if not, this line can be removed
-        path.mkdir(parents=True, exist_ok=True)
-
+        try:
+            path = self._cache_dir
+        except AttributeError:
+            self._cache_dir = path = self.project.root / CACHE_DIR_NAME / PROJECT_NAME
+            # TODO: fix: check if the merged style file is still needed
+            #  if not, this line can be removed
+            path.mkdir(parents=True, exist_ok=True)
         return path
 
     @staticmethod
-    def get_default_style_url(github=False):
+    def get_default_style_url(github=False) -> furl:
         """Return the URL of the default style/preset."""
         if github:
-            return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", NITPICK_STYLE_TOML).long_protocol_url
+            return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", (NITPICK_STYLE_TOML,)).long_protocol_url
 
-        rv = furl(scheme=Scheme.PY, host=PROJECT_NAME, path=SLASH.join(["resources", "presets", PROJECT_NAME]))
-        return str(rv)
+        return furl(scheme=Scheme.PY, host=PROJECT_NAME, path=["resources", "presets", PROJECT_NAME])
 
-    def find_initial_styles(self, configured_styles: StrOrIterable) -> Iterator[Fuss]:
-        """Find the initial style(s) and include them."""
+    def find_initial_styles(self, configured_styles: Sequence[str], base: str | None = None) -> Iterator[Fuss]:
+        """Find the initial style(s) and include them.
+
+        base is the URL for the source of the initial styles, and is used to
+        resolve relative references. If omitted, defaults to the project root.
+
+        """
+        project_root = self.project.root
+
         if configured_styles:
-            chosen_styles: StrOrIterable = list(configured_styles)
-            log_message = f"Using styles configured in {PYPROJECT_TOML}"
+            chosen_styles = configured_styles
+            logger.info(f"Using styles configured in {PYPROJECT_TOML}: {chosen_styles}")
         else:
-            paths = glob_files(self.project.root, [NITPICK_STYLE_TOML])
+            paths = glob_files(project_root, [NITPICK_STYLE_TOML])
             if paths:
-                chosen_styles = str(sorted(paths)[0])
+                chosen_styles = [sorted(paths)[0].expanduser().resolve().as_uri()]
                 log_message = "Using local style found climbing the directory tree"
             else:
-                chosen_styles = self.get_default_style_url()
+                chosen_styles = [self.get_default_style_url()]
                 log_message = "Using default remote Nitpick style"
-        logger.info(f"{log_message}: {chosen_styles}")
+            logger.info(f"{log_message}: {chosen_styles[0]}")
 
-        yield from self.include_multiple_styles(chosen_styles)
+        base_url = furl(base or project_root.resolve().as_uri())
+        yield from self.include_multiple_styles(
+            self._style_fetcher_manager.normalize_url(ref, base_url) for ref in chosen_styles
+        )
 
-    def include_multiple_styles(self, chosen_styles: StrOrIterable) -> Iterator[Fuss]:
+    def include_multiple_styles(self, chosen_styles: Iterable[furl]) -> Iterator[Fuss]:
         """Include a list of styles (or just one) into this style tree."""
-        for style_uri in always_iterable(chosen_styles):
-            yield from self._include_style(style_uri)
+        for style_url in chosen_styles:
+            yield from self._include_style(style_url)
 
-    def _include_style(self, style_uri):
-        style_uri = self._normalize_style_uri(style_uri)
-        style_path, file_contents = self.get_style_path(style_uri)
-        if not style_path:
+    def _include_style(self, style_url: furl) -> Iterator[Fuss]:
+        if style_url.url in self._already_included:
+            return
+        self._already_included.add(style_url.url)
+
+        file_contents = self._style_fetcher_manager.fetch(style_url)
+        if file_contents is None:
             return
 
-        resolved_path = str(style_path.resolve())
-        if resolved_path in self._already_included:
-            return
-        self._already_included.add(resolved_path)
+        # generate a 'human readable' version of the URL; a relative path for local files
+        # and the URL otherwise.
+        display_name = style_url.url
+        if style_url.scheme == "file":
+            path = furl_path_to_python_path(style_url.path)
+            with suppress(ValueError):
+                path = path.relative_to(self.project.root)
+            display_name = str(path)
 
-        read_toml_dict = self._read_toml(file_contents, style_path)
+        read_toml_dict = self._read_toml(file_contents, display_name)
 
-        try:
-            display_name = str(style_path.relative_to(self.project.root))
-        except ValueError:
-            display_name = style_uri
+        # normalize sub-style URIs, before merging
+        sub_styles = [
+            self._style_fetcher_manager.normalize_url(ref, style_url)
+            for ref in always_iterable(search_json(read_toml_dict, NITPICK_STYLES_INCLUDE_JMEX, []))
+        ]
+        if sub_styles:
+            read_toml_dict.setdefault("nitpick", {}).setdefault("styles", {})["include"] = [
+                str(url) for url in sub_styles
+            ]
 
         toml_dict, validation_errors = self._config_validator.validate(read_toml_dict)
 
@@ -138,11 +156,9 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
 
         dpath.util.merge(self._merged_styles, flatten(toml_dict, custom_reducer(SEPARATOR_FLATTEN)))
 
-        sub_styles: StrOrList = search_json(toml_dict, NITPICK_STYLES_INCLUDE_JMEX, [])
-        if sub_styles:
-            yield from self.include_multiple_styles(sub_styles)
+        yield from self.include_multiple_styles(sub_styles)
 
-    def _read_toml(self, file_contents, style_path):
+    def _read_toml(self, file_contents: str, display_name: str) -> JsonDict:
         toml = TomlDoc(string=file_contents)
         try:
             read_toml_dict = toml.as_object
@@ -151,53 +167,11 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         except TomlDecodeError as err:
             # If the TOML itself could not be parsed, we can't go on
             raise QuitComplainingError(
-                Reporter(FileInfo(self.project, style_path.name)).make_fuss(
+                Reporter(FileInfo(self.project, display_name)).make_fuss(
                     StyleViolations.INVALID_TOML, exception=pretty_exception(err)
                 )
             ) from err
         return read_toml_dict
-
-    def _normalize_style_uri(self, uri):
-        is_current_uri_url = is_url(uri)
-        if is_current_uri_url:
-            self._first_full_path = uri
-            return self._append_toml_extension_url(uri)
-
-        uri = self._append_toml_extension(uri)
-
-        if not self._first_full_path:
-            self._first_full_path = str(Path(uri).resolve().parent) + "/"
-            return uri
-
-        if self._first_full_path and not uri.startswith(DOT_SLASH):
-            if os.path.isabs(uri):
-                return uri
-
-            return self._join_uri(uri)
-
-        return uri
-
-    def _join_uri(self, uri):
-        if is_url(self._first_full_path):
-            return urljoin(self._first_full_path, uri)
-
-        return str(Path(self._first_full_path).joinpath(uri))
-
-    def _append_toml_extension_url(self, url):
-        scheme, netloc, path, query, fragment = urlsplit(url)
-        path = self._append_toml_extension(path)
-        return urlunsplit((scheme, netloc, path, query, fragment))
-
-    @staticmethod
-    def _append_toml_extension(path):
-        if path.endswith(TOML_EXTENSION):
-            return path
-        return f"{path}{TOML_EXTENSION}"
-
-    def get_style_path(self, style_uri: str) -> tuple[Path | None, str]:
-        """Get the style path from the URI. Add the .toml extension if it's missing."""
-        clean_style_uri = style_uri.strip()
-        return self._style_fetcher_manager.fetch(clean_style_uri)
 
     def merge_toml_dict(self) -> JsonDict:
         """Merge all included styles into a TOML (actually JSON) dictionary."""
@@ -231,13 +205,16 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
             file_field = fields.Dict(fields.String, **kwargs)
         return {unique_filename_with_underscore: file_field}
 
-    @lru_cache()
     def load_fixed_name_plugins(self) -> Plugins:
         """Separate classes with fixed file names from classes with dynamic files names."""
-        fixed_name_classes: Plugins = set()
-        for plugin_class in self.project.plugin_manager.hook.plugin_class():  # pylint: disable=no-member
-            if plugin_class.filename:
-                fixed_name_classes.add(plugin_class)
+        try:
+            fixed_name_classes = self._fixed_name_classes
+        except AttributeError:
+            fixed_name_classes = self._fixed_name_classes = {
+                plugin_class
+                for plugin_class in self.project.plugin_manager.hook.plugin_class()  # pylint: disable=no-member
+                if plugin_class.filename
+            }
         return fixed_name_classes
 
     def rebuild_dynamic_schema(self) -> None:

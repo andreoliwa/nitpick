@@ -3,47 +3,41 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from enum import auto
 from functools import lru_cache
+from typing import cast
 
 from furl import furl
-from requests import get as requests_get
+from requests import Session
 
-from nitpick.constants import GIT_AT_REFERENCE, SLASH
+from nitpick.constants import GIT_AT_REFERENCE
 from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.http import HttpFetcher
-from nitpick.typedefs import mypy_property
 
 GITHUB_COM = "github.com"
+API_GITHUB_COM = "api.github.com"
+RAW_GITHUB_COM = "raw.githubusercontent.com"
 QUERY_STRING_TOKEN = "token"  # nosec
 
 
-@dataclass(unsafe_hash=True)
+@dataclass(frozen=True)
 class GitHubURL:
     """Represent a GitHub URL, created from a URL or from its parts."""
 
     owner: str
     repository: str
     git_reference: str
-    path: str
+    path: tuple[str, ...] = ()
     auth_token: str | None = None
-    query_string: tuple | None = None
-
-    def __post_init__(self):
-        """Remove the initial slash from the path."""
-        self.path = self.path.lstrip(SLASH)
-
-    @mypy_property
-    @lru_cache()
-    def default_branch(self) -> str:
-        """Default GitHub branch.
-
-        This property performs a HTTP request and it's memoized with ``lru_cache()``.
-        """
-        return get_default_branch(self.api_url)
+    query_params: tuple[tuple[str, str], ...] | None = None
 
     @property
-    def credentials(self) -> tuple:
+    def default_branch(self) -> str:
+        """Default GitHub branch."""
+        # get_default_branch() is memoized
+        return get_default_branch(self.api_url.url)
+
+    @property
+    def credentials(self) -> tuple[str, str] | tuple[()]:
         """Credentials encoded in this URL.
 
         A tuple of ``(api_token, '')`` if present, or empty tuple otherwise.  If
@@ -51,100 +45,86 @@ class GitHubURL:
         the value of the environment corresponding to the remaining part of the
         string.
         """
-        if not self.auth_token:
-            return ()
+        token = self.auth_token
+        if token is not None and token.startswith("$"):
+            token = os.getenv(token[1:])
 
-        if self.auth_token.startswith("$"):
-            env_token = os.getenv(self.auth_token[1:])
-
-            if env_token:
-                return env_token, ""
-
-            return ()
-
-        return self.auth_token, ""
+        return (token, "") if token else ()
 
     @property
     def git_reference_or_default(self) -> str:
         """Return the Git reference if informed, or return the default branch."""
-        return self.git_reference or str(self.default_branch)
+        return self.git_reference or self.default_branch
 
     @property
-    def url(self) -> str:
+    def url(self) -> furl:
         """Default URL built from attributes."""
-        rv = furl(
+        return furl(
             scheme=Scheme.HTTPS,
             host=GITHUB_COM,
-            path=SLASH.join([self.owner, self.repository, "blob", self.git_reference_or_default, self.path]),
-            query_params=dict(self.query_string or {}),
+            path=[self.owner, self.repository, "blob", self.git_reference_or_default, *self.path],
+            query_params=self.query_params,
         )
-        return str(rv)
 
     @property
-    def raw_content_url(self) -> str:
+    def raw_content_url(self) -> furl:
         """Raw content URL for this path."""
-        rv = furl(
+        return furl(
             scheme=Scheme.HTTPS,
-            host="raw.githubusercontent.com",
-            path=SLASH.join([self.owner, self.repository, self.git_reference_or_default, self.path]),
+            host=RAW_GITHUB_COM,
+            path=[self.owner, self.repository, self.git_reference_or_default, *self.path],
+            query_params=self.query_params,
         )
-        return str(rv)
 
     @classmethod
-    def parse_url(cls, url: str) -> GitHubURL:
-        """Create an instance by parsing a URL string in any accepted format.
+    def from_furl(cls, url: furl) -> GitHubURL:
+        """Create an instance from a parsed URL in any accepted format.
 
         See the code for ``test_parsing_github_urls()`` for more examples.
+
         """
-        parsed_url = furl(url)
-        git_reference = ""
+        auth_token = url.username or url.args.get(QUERY_STRING_TOKEN)
+        query_params = tuple((key, value) for key, value in url.args.items() if key != QUERY_STRING_TOKEN)
 
-        auth_token = parsed_url.username or parsed_url.args.get(QUERY_STRING_TOKEN)
+        if url.scheme in GitHubFetcher.protocols:
+            owner = url.host
+            repo_with_git_reference, *path = url.path.segments
+            repo, _, git_reference = repo_with_git_reference.partition(GIT_AT_REFERENCE)
+        else:  # github.com URL (raw.githubusercontent.com is handled by the HTTP fetcher)
+            # Skip the 'blob' component in the github.com URL.
+            owner, repo, _, git_reference, *path = url.path.segments
 
-        remaining_query_string = parsed_url.args.copy()
-        if QUERY_STRING_TOKEN in remaining_query_string:
-            del remaining_query_string[QUERY_STRING_TOKEN]
+        if path and path[-1] == "":
+            # strip trailing slashes
+            *path, _ = path
 
-        if parsed_url.scheme in GitHubFetcher.protocols:
-            owner = parsed_url.host or ""
-            repo_with_git_reference, path = str(parsed_url.path).strip(SLASH).split(SLASH, 1)
-            if GIT_AT_REFERENCE in repo_with_git_reference:
-                repo, git_reference = repo_with_git_reference.split(GIT_AT_REFERENCE)
-            else:
-                repo = repo_with_git_reference
-        else:
-            # github.com urls have a useless .../blob/... section, but
-            # raw.githubusercontent.com doesn't, so take the first 2, then last 2 url
-            # components to exclude the blob bit if present.
-            owner, repo, *_, git_reference, path = str(parsed_url.path).strip(SLASH).split(SLASH, 4)
-
-        return cls(owner, repo, git_reference, path, auth_token, tuple(remaining_query_string.items()))
+        return cls(owner, repo, git_reference, tuple(path), auth_token, query_params)
 
     @property
-    def api_url(self) -> str:
+    def api_url(self) -> furl:
         """API URL for this repo."""
-        rv = furl(
-            scheme=Scheme.HTTPS, host=f"api.{GITHUB_COM}", path=SLASH.join(["repos", self.owner, self.repository])
-        )
-        return str(rv)
+        return furl(scheme=Scheme.HTTPS, host=API_GITHUB_COM, path=["repos", self.owner, self.repository])
 
     @property
-    def short_protocol_url(self) -> str:
+    def short_protocol_url(self) -> furl:
         """Short protocol URL (``gh``)."""
-        return self._build_url(Scheme.GH)
+        return self._build_url(cast(str, Scheme.GH))
 
     @property
-    def long_protocol_url(self) -> str:
+    def long_protocol_url(self) -> furl:
         """Long protocol URL (``github``)."""
-        return self._build_url(Scheme.GITHUB)
+        return self._build_url(cast(str, Scheme.GITHUB))
 
-    def _build_url(self, scheme: auto):
+    def _build_url(self, scheme: str) -> furl:
         if self.git_reference and self.git_reference != self.default_branch:
             at_reference = f"{GIT_AT_REFERENCE}{self.git_reference}"
         else:
             at_reference = ""
-        rv = furl(scheme=scheme, host=self.owner, path=SLASH.join([f"{self.repository}{at_reference}", self.path]))
-        return str(rv)
+        return furl(scheme=scheme, host=self.owner, path=[f"{self.repository}{at_reference}", *self.path])
+
+
+# Dedicated Github API session, to reuse connections.
+API_SESSION = Session()
 
 
 @lru_cache()
@@ -157,23 +137,27 @@ def get_default_branch(api_url: str) -> str:
     This function is using ``lru_cache()`` as a simple memoizer, trying to avoid this rate limit error.
 
     Another option for the future: perform an authenticated request to GitHub.
-    That would require a ``requests.Session`` and some user credentials.
+    That would require some user credentials.
     """
-    response = requests_get(api_url)
+    response = API_SESSION.get(api_url)
     response.raise_for_status()
 
     return response.json()["default_branch"]
 
 
-@dataclass(repr=True, unsafe_hash=True)
+@dataclass(frozen=True)
 class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
     protocols: tuple[str, ...] = (Scheme.GH, Scheme.GITHUB)  # type: ignore
     domains: tuple[str, ...] = (GITHUB_COM,)
 
-    def _download(self, url, **kwargs) -> str:
-        github_url = GitHubURL.parse_url(url)
-        if github_url.credentials:
-            kwargs.setdefault("auth", github_url.credentials)
+    @staticmethod
+    def _normalize_scheme(scheme: str) -> str:
+        # Use github:// instead of gh:// in the canonical URL
+        return Scheme.GITHUB if scheme == Scheme.GH else scheme  # type: ignore
+
+    def _download(self, url: furl, **kwargs) -> str:
+        github_url = GitHubURL.from_furl(url)
+        kwargs.setdefault("auth", github_url.credentials)
         return super()._download(github_url.raw_content_url, **kwargs)

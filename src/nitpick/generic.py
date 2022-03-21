@@ -6,14 +6,14 @@
 """
 from __future__ import annotations
 
-import re
+import sys
 from pathlib import Path
 from typing import Iterable
 
+import furl
+
 from nitpick.constants import DOT, PROJECT_NAME
 from nitpick.typedefs import PathOrStr
-
-URL_RE = re.compile(r"[a-z]+://[\$\w]\w*")
 
 
 def version_to_tuple(version: str = None) -> tuple[int, ...]:
@@ -41,27 +41,6 @@ def version_to_tuple(version: str = None) -> tuple[int, ...]:
     if not clean_version:
         return ()
     return tuple(int(part) for part in clean_version.split(DOT))
-
-
-def is_url(url: str) -> bool:
-    """Return True if a string is a URL.
-
-    >>> is_url("")
-    False
-    >>> is_url("  ")
-    False
-    >>> is_url("http://example.com")
-    True
-    >>> is_url("github://andreoliwa/nitpick/styles/black")
-    True
-    >>> is_url("github://$VARNAME@andreoliwa/nitpick/styles/black")
-    True
-    >>> is_url("github://LitErAl@andreoliwa/nitpick/styles/black")
-    True
-    >>> is_url("github://notfirst$@andreoliwa/nitpick/styles/black")
-    True
-    """
-    return bool(URL_RE.match(url))
 
 
 def relative_to_current_dir(path_or_str: PathOrStr | None) -> str:
@@ -108,3 +87,25 @@ def filter_names(iterable: Iterable, *partial_names: str) -> list[str]:
         if include:
             rv.append(name)
     return rv
+
+
+if sys.platform == "win32":
+
+    def furl_path_to_python_path(path: furl.Path) -> Path:
+        """Convert a file URL to a path."""
+        drive, *segments = path.segments
+        return Path(f"{drive}/", *segments)
+
+    def get_scheme(url: str) -> str | None:
+        """Get the scheme of a URL, or None if there is no scheme."""
+        scheme = furl.get_scheme(url)
+        # Windows drive letters are not a valid scheme
+        return scheme if scheme and len(scheme) > 1 else None
+
+else:
+
+    def furl_path_to_python_path(path: furl.Path) -> Path:
+        """Convert a file URL to a path."""
+        return Path("/", *path.segments)
+
+    get_scheme = furl.get_scheme

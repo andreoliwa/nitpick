@@ -2,17 +2,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
-from typing import ClassVar, Dict
+from typing import ClassVar
 
+from furl import Path, furl
 from requests_cache import CachedSession
-from slugify import slugify
 
-from nitpick.generic import is_url
-from nitpick.style.fetchers import StyleInfo
+from nitpick.constants import TOML_EXTENSION
 
 
-@dataclass(repr=True)
+@dataclass(frozen=True)
 class StyleFetcher:
     """Base class of all fetchers, it encapsulates get/fetch from a specific source."""
 
@@ -28,22 +26,37 @@ class StyleFetcher:
         if self.requires_connection and self.session is None:
             raise ValueError("session is required")
 
-    def fetch(self, url) -> StyleInfo:
+    def preprocess_relative_url(self, url: str) -> str:  # pylint: disable=no-self-use
+        """Preprocess a relative URL.
+
+        Only called for urls that lack a scheme (at the very least), being resolved
+        against a base URL that matches this specific fetcher.
+
+        """
+        return url
+
+    def _normalize_path(self, path: Path) -> Path:  # pylint: disable=no-self-use
+        """Normalize the path component of a URL."""
+        if path.segments[-1].endswith(TOML_EXTENSION):
+            return path
+        return Path([*path.segments[:-1], f"{path.segments[-1]}.toml"])
+
+    def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use
+        """Normalize the scheme component of a URL."""
+        return scheme
+
+    def normalize(self, url: furl) -> furl:
+        """Normalize a URL.
+
+        Produces a canonical URL, meant to be used to uniquely identify a style resource.
+
+        - The base name has .toml appended if not already ending in that extension
+        - Individual fetchers can further normalize the path and scheme.
+
+        """
+        scheme, path = self._normalize_scheme(url.scheme), self._normalize_path(url.path.normalize())
+        return url.copy().set(scheme=scheme, path=path)
+
+    def fetch(self, url: furl) -> str:
         """Fetch a style from a specific fetcher."""
-        contents = self._do_fetch(url)
-        if not contents:
-            return None, ""
-        return self._get_output_path(url), contents
-
-    @staticmethod
-    def _get_output_path(url) -> Path:
-        if is_url(url):
-            return Path(slugify(url))
-
-        return Path(url)
-
-    def _do_fetch(self, url):
         raise NotImplementedError()
-
-
-FetchersType = Dict[str, "StyleFetcher"]

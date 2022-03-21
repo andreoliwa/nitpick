@@ -17,7 +17,7 @@ from nitpick.constants import (
 )
 from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 from nitpick.violations import Fuss
-from tests.helpers import STYLES_DIR, XFAIL_ON_WINDOWS, ProjectMock
+from tests.helpers import STYLES_DIR, ProjectMock
 
 BUILTIN_STYLE_CODES = {
     SETUP_CFG: 321,
@@ -105,7 +105,6 @@ def test_each_builtin_style(tmp_path, datadir, builtin_style_path):
     # TODO: test: special case for src/nitpick/resources/python/absent.toml
 
 
-@XFAIL_ON_WINDOWS
 def test_default_style_is_applied(project_default, datadir):
     """Test if the default style is applied on an empty project."""
     # TODO: test: nitpick preset in a generic way, preparing for other presets to come
