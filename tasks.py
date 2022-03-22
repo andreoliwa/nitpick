@@ -253,7 +253,7 @@ def reactions(c):
     https://docs.github.com/en/rest/reference/issues#get-an-issue
     https://developer.github.com/changes/2016-05-12-reactions-api-preview/
     """
-    result = c.run("gh api -X GET 'repos/andreoliwa/nitpick/issues' | jq -r '.[].number'", pty=False)
+    result = c.run("gh api -X GET 'repos/andreoliwa/nitpick/issues' --paginate --jq '.[].number'", pty=False)
     for issue in result.stdout.splitlines():
         result_users = c.run(
             f"gh api -X GET 'repos/andreoliwa/nitpick/issues/{int(issue)}/reactions'"
