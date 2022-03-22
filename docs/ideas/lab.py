@@ -5,9 +5,15 @@ from pprint import pprint
 
 import click
 import jmespath
+import tomlkit
+from flatten_dict import flatten
+from icecream import ic
 from identify import identify
 
 from nitpick.blender import TomlDoc, YamlDoc, flatten_quotes, search_json
+
+# from tomlkit import nl
+
 
 workflow = YamlDoc(path=Path(".github/workflows/python.yaml"))
 
@@ -38,6 +44,35 @@ def convert(path_from_root: str):
     toml_doc = TomlDoc(obj={path_from_root: which_doc.as_object}, use_tomlkit=True)
     print(toml_doc.reformatted)
     return toml_doc.reformatted
+
+
+@cli_lab.command()
+def dump():
+    """Trying not to dump empty tables with tomlkit."""
+    empty_table = {
+        "section": {"key": "value"},
+        "tool": {"black": {"line-length": 120}, "some": {"deep": {"nesting": [1, 2, 3]}}},
+    }
+
+    ic(flatten(empty_table))
+
+    print("\n>>> tomlkit.dumps() from dict")
+    print(tomlkit.dumps(empty_table))
+
+    print("\n>>> tomlkit.dumps() from objects")
+    doc = tomlkit.document()
+
+    doc["section"] = {"key": "value"}
+    # doc["section"].add(nl())
+
+    doc["tool"] = tomlkit.table(is_super_table=True)
+    doc["tool"]["black"] = {"line-length": 120}
+    # doc["tool"]["black"].add(nl())
+
+    doc["tool"]["some"] = tomlkit.table(is_super_table=True)
+    doc["tool"]["some"]["deep"] = {"nesting": [1, 2, 3]}
+
+    print(tomlkit.dumps(doc))
 
 
 def main():
