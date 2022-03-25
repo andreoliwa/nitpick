@@ -144,14 +144,15 @@ def ls(context, files):  # pylint: disable=invalid-name
 
 @nitpick_cli.command()
 @click.pass_context
-def init(context):
+@click.argument("style_urls", nargs=-1)
+def init(context, style_urls):
     """Create a [tool.nitpick] section in the configuration file if it doesn't exist already."""
     nit = get_nitpick(context)
     config = nit.project.read_configuration()
 
-    if config.file and PROJECT_NAME in TomlDoc(path=config.file).as_object[TOOL_KEY]:
+    if config.file and PROJECT_NAME in TomlDoc(path=config.file).as_object.get(TOOL_KEY, {}):
         click.secho(f"The config file {config.file.name} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")
         raise Exit(1)
 
-    nit.project.create_configuration(config)
+    nit.project.create_configuration(config, *style_urls)
     click.secho(f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {config.file.name}", fg="green")
