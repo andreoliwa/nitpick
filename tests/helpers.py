@@ -2,13 +2,12 @@
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import Iterable
+from typing import Any, Iterable
 
-import pytest
+import tomlkit
 from click.testing import CliRunner
 from more_itertools.more import always_iterable, windowed
 from responses import RequestsMock
@@ -39,9 +38,6 @@ NBSP = "\xc2\xa0"
 SUGGESTION_BEGIN = "\x1b[32m"
 SUGGESTION_END = "\x1b[0m"
 
-# TODO: test: fix all Windows tests
-XFAIL_ON_WINDOWS = pytest.mark.xfail(condition=sys.platform == "win32", reason="Different path separator on Windows")
-
 
 def assert_conditions(*args):
     """Assert all conditions are True."""
@@ -59,6 +55,15 @@ def from_path_or_str(file_contents: PathOrStr):
         return file_contents.read_text()
 
     return file_contents
+
+
+def tomlstring(value: Any) -> str:
+    """Create a fully-quoted TOML string from a path.
+
+    This ensures proper quoting of Windows paths and other values with backslashes.
+
+    """
+    return tomlkit.string(str(value)).as_string()
 
 
 class ProjectMock:
@@ -189,15 +194,14 @@ class ProjectMock:
 
         Create the parent dirs if the file name contains a slash.
 
-        :param filename: If it starts with a slash, then it's already a root.
-            If it doesn't, then we add the root dir before the partial name.
+        :param filename: If an absolute path, then it's already a root.
+            If it isn't, then we add the root dir before the partial name.
         :param file_contents: Contents to save in the file.
         :param lint: Should we lint the file or not? Python (.py) files are always linted.
         """
-        if str(filename).startswith("/"):
-            path: Path = Path(filename)
-        else:
-            path = self.root_dir / filename
+        path: Path = Path(filename)
+        if not path.is_absolute():
+            path = self.root_dir / path
         path.parent.mkdir(parents=True, exist_ok=True)
         if lint or path.suffix == ".py":
             self.files_to_lint.append(path)

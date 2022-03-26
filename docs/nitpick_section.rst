@@ -72,6 +72,28 @@ Example of usage: :gitref:`Nitpick's default style <nitpick-style.toml>`.
     [nitpick.styles]
     include = ["styles/python37", "styles/poetry"]
 
-The styles will be merged following the sequence in the list.
+The styles will be merged following the sequence in the list. The ``.toml``
+extension for each referenced file can be onitted.
+
+Relative references are resolved relative to the URI of the style doument they
+are included in according to the `normal rules of RFC 3986 <https://www.rfc-editor.org/rfc/rfc3986.html#section-5.2>`_.
+
+E.g. for a style file located at
+``gh://$GITHUB_TOKEN@foo_dev/bar_project@branchname/styles/foobar.toml`` the following
+strings all reference the exact same canonical location to include:
+
+.. code-block:: toml
+
+    [nitpick.styles]
+    include = [
+      "foobar.toml",
+      "../styles/foobar.toml",
+      "/bar_project@branchname/styles/foobar.toml",
+      "//$GITHUB_TOKEN@foo_dev/bar_project@branchname/styles/foobar.toml",
+    ]
+
+For style files on the local filesystem, the canonical path
+(after symbolic links have been resolved) of the style file is used as the
+base.
 
 If a key/value pair appears in more than one sub-style, it will be overridden; the last declared key/pair will prevail.

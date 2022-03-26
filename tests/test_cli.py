@@ -4,10 +4,9 @@ import pytest
 from nitpick.constants import DOT_NITPICK_TOML, PYPROJECT_TOML, READ_THE_DOCS_URL, TOOL_NITPICK_KEY
 from nitpick.style import StyleManager
 from nitpick.style.fetchers import Scheme
-from tests.helpers import XFAIL_ON_WINDOWS, ProjectMock
+from tests.helpers import ProjectMock
 
 
-@XFAIL_ON_WINDOWS
 def test_simple_error(tmp_path):
     """A simple error on the CLI."""
     project = (
@@ -28,7 +27,7 @@ def test_simple_error(tmp_path):
 
     project.cli_run(
         f"""
-        {str(project.root_dir)}/pyproject.toml:1: NIP318  has missing values:
+        {str(project.root_dir / "pyproject.toml")}:1: NIP318  has missing values:
         [tool.black]
         line-length = 100
         """
@@ -63,7 +62,7 @@ def test_create_basic_dot_nitpick_toml(tmp_path):
         style = ["{url}"]
         """,
     )
-    assert url.startswith(f"{Scheme.PY}://")
+    assert url.scheme == Scheme.PY
 
 
 def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path):
@@ -89,4 +88,4 @@ def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path):
         style = ["{url}"]
         """,
     )
-    assert url.startswith(f"{Scheme.PY}://")
+    assert url.scheme == Scheme.PY

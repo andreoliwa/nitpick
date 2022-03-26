@@ -3,16 +3,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
-from itertools import chain
 from pathlib import Path
-from typing import Iterable
-from urllib.parse import urlparse
+from typing import Iterable, cast
 
 import attr
 import tomlkit
+from furl import furl
 
 from nitpick import PROJECT_NAME, compat
-from nitpick.constants import DOT, SLASH
+from nitpick.constants import DOT
 from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
 
@@ -34,7 +33,7 @@ def builtin_styles() -> Iterable[Path]:
     yield from builtin_resources_root().glob("**/*.toml")
 
 
-@dataclass(unsafe_hash=True)
+@dataclass(frozen=True)
 class PythonPackageURL:
     """Represent a resource file in installed Python package."""
 
@@ -42,27 +41,28 @@ class PythonPackageURL:
     resource_name: str
 
     @classmethod
-    def parse_url(cls, url: str) -> PythonPackageURL:
-        """Create an instance by parsing a URL string in any accepted format.
+    def from_furl(cls, url: furl) -> PythonPackageURL:
+        """Create an instance from a parsed URL in any accepted format.
 
         See the code for ``test_parsing_python_package_urls()`` for more examples.
+
         """
-        parsed_url = urlparse(url)
-        package_name = parsed_url.netloc
-        resource_path = parsed_url.path.strip("/").split("/")
+        package_name = url.host
+        resource_path = url.path.segments
+        if resource_path and resource_path[-1] == "":
+            # strip trailing slash
+            *resource_path, _ = resource_path
 
-        import_path = DOT.join(chain((package_name,), resource_path[:-1]))
-        resource_name = resource_path[-1]
-
-        return cls(import_path=import_path, resource_name=resource_name)
+        *resource_path, resource_name = resource_path
+        return cls(import_path=DOT.join([package_name, *resource_path]), resource_name=resource_name)
 
     @property
-    def raw_content_url(self) -> compat.Traversable:
+    def content_path(self) -> Path:
         """Raw path of resource file."""
-        return compat.files(self.import_path).joinpath(self.resource_name)
+        return compat.files(self.import_path) / self.resource_name
 
 
-@dataclass(repr=True, unsafe_hash=True)
+@dataclass(frozen=True)
 class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
     """
     Fetch a style from an installed Python package.
@@ -74,19 +74,24 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
     E.g. ``py://some_package/path/nitpick.toml``.
     """
 
-    protocols: tuple = (Scheme.PY, Scheme.PYPACKAGE)
+    protocols: tuple[str, ...] = (Scheme.PY, Scheme.PYPACKAGE)  # type: ignore
 
-    def _do_fetch(self, url):
-        package_url = PythonPackageURL.parse_url(url)
-        return package_url.raw_content_url.read_text(encoding="UTF-8")
+    def _normalize_scheme(self, scheme: str) -> str:
+        # Always use the shorter py:// scheme name in the canonical URL.
+        return cast(str, Scheme.PY)
+
+    def fetch(self, url: furl) -> str:
+        """Fetch the style from a Python package."""
+        package_url = PythonPackageURL.from_furl(url)
+        return package_url.content_path.read_text(encoding="UTF-8")
 
 
 @attr.mutable(kw_only=True)
 class BuiltinStyle:  # pylint: disable=too-few-public-methods
     """A built-in style file in TOML format."""
 
-    py_url: str
-    py_url_without_ext: str
+    py_url: furl
+    py_url_without_ext: furl
     path_from_repo_root: str
     path_from_resources_root: str
 
@@ -99,18 +104,25 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
     @classmethod
     def from_path(cls, resource_path: Path) -> BuiltinStyle:
         """Create a built-in style from a resource path."""
-        src_path = builtin_resources_root().parent.parent
-        without_extension = resource_path.with_suffix("")
-        bis = BuiltinStyle(
-            py_url="py://" + SLASH.join(resource_path.relative_to(src_path).parts),
-            py_url_without_ext="py://" + SLASH.join(without_extension.relative_to(src_path).parts),
-            path_from_repo_root=SLASH.join(resource_path.relative_to(repo_root()).parts),
-            path_from_resources_root=SLASH.join(without_extension.relative_to(builtin_resources_root()).parts),
-        )
-        bis.pypackage_url = PythonPackageURL.parse_url(bis.py_url)
-        bis.identify_tag = bis.path_from_resources_root.split(SLASH)[0]
 
-        toml_dict = tomlkit.loads(bis.pypackage_url.raw_content_url.read_text(encoding="UTF-8"))
+        without_suffix = resource_path.with_suffix("")
+        src_path = builtin_resources_root().parent.parent
+        package_path = resource_path.relative_to(src_path)
+        from_resources_root = without_suffix.relative_to(builtin_resources_root())
+
+        root, *path_remainder = package_path.parts
+        path_remainder_without_suffix = (*path_remainder[:-1], without_suffix.parts[-1])
+
+        bis = BuiltinStyle(
+            py_url=furl(scheme=Scheme.PY, host=root, path=path_remainder),
+            py_url_without_ext=furl(scheme=Scheme.PY, host=root, path=path_remainder_without_suffix),
+            path_from_repo_root=resource_path.relative_to(repo_root()).as_posix(),
+            path_from_resources_root=from_resources_root.as_posix(),
+        )
+        bis.pypackage_url = PythonPackageURL.from_furl(bis.py_url)
+        bis.identify_tag = from_resources_root.parts[0]
+
+        toml_dict = tomlkit.loads(bis.pypackage_url.content_path.read_text(encoding="UTF-8"))
 
         keys = list(toml_dict.keys())
         keys.remove(PROJECT_NAME)
