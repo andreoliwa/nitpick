@@ -122,7 +122,7 @@ At the end of execution, this command displays:
 
 .. code-block::
 
-    Usage: nitpick init [OPTIONS]
+    Usage: nitpick init [OPTIONS] [STYLE_URLS]...
 
       Create a [tool.nitpick] section in the configuration file if it doesn't
       exist already.

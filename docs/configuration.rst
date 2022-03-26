@@ -20,7 +20,13 @@ The first file found will be used; the other files will be ignored.
 
 Run the ``nipick init`` CLI command to create a config file (:ref:`cli_cmd_init`).
 
-To configure your own style:
+To configure your own style, you can either use ``nitpick init``:
+
+.. code-block:: sh
+
+    $ nitpick init /path/to/your-style-file.toml
+
+or edit your configuration file and set the ``style`` option:
 
 .. code-block:: toml
 

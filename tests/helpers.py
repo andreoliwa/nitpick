@@ -399,9 +399,9 @@ class ProjectMock:
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def cli_init(self, str_or_lines: StrOrList, *, exit_code: int = None) -> ProjectMock:
+    def cli_init(self, str_or_lines: StrOrList, *args, exit_code: int = None) -> ProjectMock:
         """Run the init command and assert the output."""
-        result, actual, expected = self._simulate_cli("init", str_or_lines, exit_code=exit_code)
+        result, actual, expected = self._simulate_cli("init", str_or_lines, *args, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
