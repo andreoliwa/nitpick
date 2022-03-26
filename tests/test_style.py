@@ -442,6 +442,8 @@ def test_fetch_private_github_urls(tmp_path):
         "gh://andreoliwa/nitpick@develop/initial.toml",
         # Regular GitHub URL
         "https://github.com/andreoliwa/nitpick/blob/develop/initial.toml",
+        # Raw URL directly
+        "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
     ],
 )
 def test_github_url_without_token_has_no_credentials(style_url):
