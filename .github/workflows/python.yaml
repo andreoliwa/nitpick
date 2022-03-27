@@ -87,10 +87,11 @@ jobs:
           python3 --version
           python3 -m pip --version
           python3 -m pip install --upgrade pip setuptools
-      - name: Install pre-commit bumpversion
+      - name: Install pre-commit bumpversion twine
         run: |
-          python3 -m pip install --upgrade poetry pre-commit bumpversion
+          python3 -m pip install --upgrade poetry pre-commit bumpversion twine
           pre-commit --version
+          twine --version
           python3 -m pip freeze
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v2
