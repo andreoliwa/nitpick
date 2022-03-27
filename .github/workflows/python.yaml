@@ -87,11 +87,10 @@ jobs:
           python3 --version
           python3 -m pip --version
           python3 -m pip install --upgrade pip setuptools
-      - name: Install pre-commit bumpversion twine
+      - name: Install pre-commit bumpversion
         run: |
-          python3 -m pip install --upgrade poetry pre-commit bumpversion twine
+          python3 -m pip install --upgrade poetry pre-commit bumpversion
           pre-commit --version
-          twine --version
           python3 -m pip freeze
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v2
@@ -114,9 +113,9 @@ jobs:
             @semantic-release/exec@6.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_TEST_PASSWORD: ${{ secrets.TWINE_TEST_PASSWORD }}
+          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          PYPI_TEST_PASSWORD: ${{ secrets.PYPI_TEST_PASSWORD }}
       - name: New release published
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |

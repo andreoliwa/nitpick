@@ -15,7 +15,11 @@ set -e
 rm -rf dist/
 poetry build
 
+# The slash at the end is important
+# https://github.com/python-poetry/poetry/issues/742#issuecomment-609642943
+poetry config repositories.testpypi https://test.pypi.org/legacy/
+poetry config --list
+
 # Hide the password
 set +x
-# TODO: ci: use poetry publish instead of twine
-twine upload --verbose --disable-progress-bar --skip-existing --password "$TWINE_TEST_PASSWORD" -r testpypi dist/*
+poetry publish --repository testpypi --username "$PYPI_USERNAME" --password "$PYPI_TEST_PASSWORD"
