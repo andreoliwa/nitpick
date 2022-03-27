@@ -33,6 +33,7 @@
             "docs/conf.py",
             "docs/configuration.rst",
             "docs/quickstart.rst",
+            "mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml",
             "nitpick-style.toml",
             "package.json",
             "pyproject.toml",
