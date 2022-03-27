@@ -72,7 +72,7 @@ This style will assert that:
 -  ... `flake8 <https://github.com/PyCQA/flake8>`_ and
    `isort <https://github.com/PyCQA/isort>`_ are configured as above in
    ``setup.cfg``;
--  ... `Pylint <https://www.pylint.org>`_ is present as a
+-  ... `Pylint <https://www.pylint.org>`__ is present as a
    `Poetry <https://github.com/python-poetry/poetry>`_ dev dependency
    in ``pyproject.toml``.
 
