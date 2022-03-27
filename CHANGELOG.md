@@ -1,3 +1,18 @@
+# [0.32.0](https://github.com/andreoliwa/nitpick/compare/v0.31.0...v0.32.0) (2022-03-27)
+
+### Bug Fixes
+
+- **deps:** update dependency pytest-socket to a commit hash ([#440](https://github.com/andreoliwa/nitpick/issues/440)) ([61ac278](https://github.com/andreoliwa/nitpick/commit/61ac278a408ab1611b1c560dc3020c1a5eabb65b))
+- GitHub URL should preserve query args ([#453](https://github.com/andreoliwa/nitpick/issues/453)) ([a2b97b1](https://github.com/andreoliwa/nitpick/commit/a2b97b1f4fd7be9f01030f462a3ad1832853deed))
+- use built-in preset as default style ([#450](https://github.com/andreoliwa/nitpick/issues/450)) ([68fa2ce](https://github.com/andreoliwa/nitpick/commit/68fa2cee702f8ec83615ce00fe58a06169ea4788))
+
+### Features
+
+- add --version cli switch (thanks to [@mjpieters](https://github.com/mjpieters)) ([#468](https://github.com/andreoliwa/nitpick/issues/468)) ([6a85f79](https://github.com/andreoliwa/nitpick/commit/6a85f79882609393aa57a0f1b4292dd36d929087))
+- resolve relative URIs in nitpick.styles.include ([#470](https://github.com/andreoliwa/nitpick/issues/470)) ([ec934dc](https://github.com/andreoliwa/nitpick/commit/ec934dce512807ec74d43b371e102a497ccfc13d))
+- set initial style url(s) with nitpick init ([#473](https://github.com/andreoliwa/nitpick/issues/473)) ([0100f2b](https://github.com/andreoliwa/nitpick/commit/0100f2bc3b34fc058137872f1d4dfaed7f7e84f3))
+- switch to requests-cache for style caching ([#467](https://github.com/andreoliwa/nitpick/issues/467)) ([c586d7f](https://github.com/andreoliwa/nitpick/commit/c586d7f5d9146fdcd13c2af727644284cc67f443))
+
 # [0.31.0](https://github.com/andreoliwa/nitpick/compare/v0.30.0...v0.31.0) (2022-01-15)
 
 ### Bug Fixes

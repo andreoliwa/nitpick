@@ -61,7 +61,7 @@ If you use pre-commit_ on your project, add this to the ``.pre-commit-config.yam
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.31.0
+        rev: v0.32.0
         hooks:
           - id: nitpick
 
