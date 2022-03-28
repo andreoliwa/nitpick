@@ -93,10 +93,12 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
 
         """
         project_root = self.project.root
+        base_url = furl(base or project_root.resolve().as_uri())
 
         if configured_styles:
             chosen_styles = configured_styles
-            logger.info(f"Using styles configured in {PYPROJECT_TOML}: {chosen_styles}")
+            config_file = base_url.path.segments[-1] if base else PYPROJECT_TOML
+            logger.info(f"Using styles configured in {config_file}: {', '.join(chosen_styles)}")
         else:
             paths = glob_files(project_root, [NITPICK_STYLE_TOML])
             if paths:
@@ -107,7 +109,6 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
                 log_message = "Using default remote Nitpick style"
             logger.info(f"{log_message}: {chosen_styles[0]}")
 
-        base_url = furl(base or project_root.resolve().as_uri())
         yield from self.include_multiple_styles(
             self._style_fetcher_manager.normalize_url(ref, base_url) for ref in chosen_styles
         )

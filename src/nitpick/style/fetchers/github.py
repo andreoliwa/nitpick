@@ -34,21 +34,30 @@ class GitHubURL:
     def default_branch(self) -> str:
         """Default GitHub branch."""
         # get_default_branch() is memoized
-        return get_default_branch(self.api_url.url)
+        return get_default_branch(self.api_url.url, token=self.token)
+
+    @property
+    def token(self) -> str | None:
+        """Token encoded in this URL.
+
+        If present and it starts with a ``$``, it will be replaced with the
+        value of the environment corresponding to the remaining part of the
+        string.
+
+        """
+        token = self.auth_token
+        if token is not None and token.startswith("$"):
+            token = os.getenv(token[1:])
+        return token
 
     @property
     def credentials(self) -> tuple[str, str] | tuple[()]:
         """Credentials encoded in this URL.
 
-        A tuple of ``(api_token, '')`` if present, or empty tuple otherwise.  If
-        the value of ``api_token`` begins with ``$``, it will be replaced with
-        the value of the environment corresponding to the remaining part of the
-        string.
-        """
-        token = self.auth_token
-        if token is not None and token.startswith("$"):
-            token = os.getenv(token[1:])
+        A tuple of ``(api_token, '')`` if present, or empty tuple otherwise.
 
+        """
+        token = self.token
         return (token, "") if token else ()
 
     @property
@@ -128,18 +137,18 @@ API_SESSION = Session()
 
 
 @lru_cache()
-def get_default_branch(api_url: str) -> str:
+def get_default_branch(api_url: str, *, token: str | None = None) -> str:
     """Get the default branch from the GitHub repo using the API.
 
-    For now, the request is not authenticated on GitHub, so it might hit a rate limit with:
+    For now, for URLs without an authorization token embedded, the request is
+    not authenticated on GitHub, so it might hit a rate limit with:
     ``requests.exceptions.HTTPError: 403 Client Error: rate limit exceeded for url``
 
     This function is using ``lru_cache()`` as a simple memoizer, trying to avoid this rate limit error.
 
-    Another option for the future: perform an authenticated request to GitHub.
-    That would require some user credentials.
     """
-    response = API_SESSION.get(api_url)
+    headers = {"Authorization": f"token {token}"} if token else None
+    response = API_SESSION.get(api_url, headers=headers)
     response.raise_for_status()
 
     return response.json()["default_branch"]

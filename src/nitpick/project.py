@@ -10,7 +10,6 @@ import tomlkit
 from autorepr import autorepr
 from loguru import logger
 from marshmallow_polyfield import PolyField
-from more_itertools import peekable
 from more_itertools.more import always_iterable
 from pluggy import PluginManager
 from tomlkit.items import KeyType, SingleKey
@@ -182,7 +181,7 @@ class Project:
 
         style = StyleManager(self, offline, config.cache)
         base = config.file.expanduser().resolve().as_uri() if config.file else None
-        style_errors = list(style.find_initial_styles(peekable(always_iterable(config.styles)), base))
+        style_errors = list(style.find_initial_styles(list(always_iterable(config.styles)), base))
         if style_errors:
             raise QuitComplainingError(style_errors)
 
