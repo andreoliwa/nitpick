@@ -431,6 +431,40 @@ def test_fetch_private_github_urls(tmp_path):
     project.flake8(offline=True).assert_no_errors()
 
 
+@responses.activate
+def test_fetch_private_github_urls_no_branch(tmp_path):
+    """Fetch private GitHub URLs with a token on the query string."""
+    file_token = "query-string-token-generated-by-github-for-private-files"
+    gh_url = f"gh://{file_token}@user/private_repo/path/to/nitpick-style"
+    api_url = "https://api.github.com/repos/user/private_repo"
+    api_response = '{"default_branch": "branch"}'
+    full_raw_url = f"https://raw.githubusercontent.com/user/private_repo/branch/path/to/nitpick-style{TOML_EXTENSION}"
+    body = """
+        ["pyproject.toml".tool.black]
+        missing = "thing"
+    """
+    responses.add(responses.GET, api_url, api_response, status=200)
+    responses.add(responses.GET, full_raw_url, dedent(body), status=200)
+
+    project = ProjectMock(tmp_path).pyproject_toml(
+        f"""
+        [tool.nitpick]
+        style = "{gh_url}"
+        """
+    )
+    project.flake8(offline=False).assert_single_error(
+        f"""
+        NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
+        [tool.black]
+        missing = "thing"{SUGGESTION_END}
+        """
+    )
+    assert responses.calls[0].request.headers["Authorization"] == f"token {file_token}"
+    token_on_basic_auth = b64encode(f"{file_token}:".encode()).decode().strip()
+    assert responses.calls[1].request.headers["Authorization"] == f"Basic {token_on_basic_auth}"
+    project.flake8(offline=True).assert_no_errors()
+
+
 @pytest.mark.parametrize(
     "style_url",
     [
