@@ -4,9 +4,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-import furl
+from furl import furl
 
-from nitpick.generic import furl_path_to_python_path
+from nitpick.generic import url_to_python_path
 from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
 
@@ -32,10 +32,10 @@ class FileFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
         # cleanly against a file:// base. Relative paths should use POSIX conventions.
         return path.as_uri() if path.is_absolute() else path.as_posix()
 
-    def _normalize_path(self, path: furl.Path) -> furl.Path:
-        local_path = furl_path_to_python_path(super()._normalize_path(path))
-        return furl.furl(local_path.resolve().as_uri()).path
+    def _normalize_url_path(self, url: furl) -> furl:
+        local_path = url_to_python_path(super()._normalize_url_path(url))
+        return furl(local_path.resolve().as_uri())
 
-    def fetch(self, url: furl.furl) -> str:
+    def fetch(self, url: furl) -> str:
         """Fetch a style from a local file."""
-        return furl_path_to_python_path(url.path).read_text(encoding="UTF-8")
+        return url_to_python_path(url).read_text(encoding="UTF-8")

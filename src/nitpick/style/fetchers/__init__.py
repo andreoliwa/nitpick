@@ -11,7 +11,6 @@ from requests_cache import CachedSession
 from strenum import LowercaseStrEnum
 
 from nitpick.enums import CachingEnum
-from nitpick.generic import get_scheme
 from nitpick.style import parse_cache_option
 
 if TYPE_CHECKING:
@@ -40,6 +39,7 @@ class StyleFetcherManager:
 
     session: CachedSession = field(init=False)
     fetchers: dict[str, StyleFetcher] = field(init=False)
+    schemes: tuple[str] = field(init=False)
 
     def __post_init__(self):
         """Initialize dependant properties."""
@@ -52,7 +52,12 @@ class StyleFetcherManager:
         self.session = CachedSession(
             str(self.cache_dir / "styles"), expire_after=expire_after, cache_control=cache_control
         )
-        self.fetchers = _get_fetchers(self.session)
+        self.fetchers = fetchers = _get_fetchers(self.session)
+
+        # used to test if a string URL is relative or not. These strings
+        # *include the colon*.
+        protocols = {prot for fetcher in fetchers.values() for prot in fetcher.protocols}
+        self.schemes = tuple(f"{prot}:" for prot in protocols)
 
     def normalize_url(self, url: str | furl, base: furl) -> furl:
         """Normalize a style URL.
@@ -61,12 +66,8 @@ class StyleFetcherManager:
         to produce a canonical version of the URL.
 
         """
-        # special case: Windows paths can start with a drive letter, which looks
-        # like a URL scheme.
-        if isinstance(url, str):
-            scheme = get_scheme(url)
-            if not scheme or len(scheme) == 1:
-                url = self._fetcher_for(base).preprocess_relative_url(url)
+        if isinstance(url, str) and not url.startswith(self.schemes):
+            url = self._fetcher_for(base).preprocess_relative_url(url)
         absolute = base.copy().join(url)
         return self._fetcher_for(absolute).normalize(absolute)
 
