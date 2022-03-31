@@ -92,6 +92,18 @@ To start checking all your code against the default rules:
 
     pre-commit run --all-files
 
+Run as a MegaLinter plugin
+---------------------------
+
+If you use `MegaLinter <https://megalinter.github.io/>`_ you can run Nitpick as a plugin. Add the following two entries to your ``.mega-linter.yml`` configuration file:
+
+.. code-block:: yaml
+
+    PLUGINS:
+      - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.32.0/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
+    ENABLE_LINTERS:
+      - NITPICK
+
 Modify files directly
 ---------------------
 
