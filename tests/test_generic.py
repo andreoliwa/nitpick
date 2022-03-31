@@ -71,7 +71,7 @@ def test_relative_to_current_dir(home, cwd):
     ),
 )
 def test_url_to_windows_path(test_path):
-    """Verify that Path to URL to Path conversion preserses the path."""
+    """Verify that Path to URL to Path conversion preserves the path."""
     path = WindowsPath(test_path)
     url = furl(path.as_uri())
     assert _url_to_windows_path(url) == path
@@ -87,7 +87,7 @@ def test_url_to_windows_path(test_path):
     ),
 )
 def test_url_to_posix_path(test_path):
-    """Verify that Path to URL to Path conversion preserses the path."""
+    """Verify that Path to URL to Path conversion preserves the path."""
     path = PosixPath(test_path)
     url = furl(path.as_uri())
     assert _url_to_posix_path(url) == path
