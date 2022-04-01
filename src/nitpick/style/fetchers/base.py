@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar
 
-from furl import Path, furl
+from furl import furl
 from requests_cache import CachedSession
 
 from nitpick.constants import TOML_EXTENSION
@@ -35,11 +35,12 @@ class StyleFetcher:
         """
         return url
 
-    def _normalize_path(self, path: Path) -> Path:  # pylint: disable=no-self-use
+    def _normalize_url_path(self, url: furl) -> furl:  # pylint: disable=no-self-use
         """Normalize the path component of a URL."""
-        if path.segments[-1].endswith(TOML_EXTENSION):
-            return path
-        return Path([*path.segments[:-1], f"{path.segments[-1]}.toml"])
+        if not url.path.segments[-1].endswith(TOML_EXTENSION):
+            url = url.copy()
+            url.path.segments[-1] = f"{url.path.segments[-1]}{TOML_EXTENSION}"
+        return url
 
     def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use
         """Normalize the scheme component of a URL."""
@@ -54,8 +55,10 @@ class StyleFetcher:
         - Individual fetchers can further normalize the path and scheme.
 
         """
-        scheme, path = self._normalize_scheme(url.scheme), self._normalize_path(url.path.normalize())
-        return url.copy().set(scheme=scheme, path=path)
+        new_scheme = self._normalize_scheme(url.scheme)
+        if new_scheme != url.scheme:
+            url = url.copy().set(scheme=new_scheme)
+        return self._normalize_url_path(url)
 
     def fetch(self, url: furl) -> str:
         """Fetch a style from a specific fetcher."""

@@ -7,10 +7,10 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
+from pathlib import Path, PosixPath, WindowsPath
 from typing import Iterable
 
-import furl
+from furl import furl
 
 from nitpick.constants import DOT, PROJECT_NAME
 from nitpick.typedefs import PathOrStr
@@ -89,23 +89,26 @@ def filter_names(iterable: Iterable, *partial_names: str) -> list[str]:
     return rv
 
 
-if sys.platform == "win32":
+def _url_to_windows_path(url: furl) -> Path:
+    """Convert the segments of a file URL to a path."""
+    # ref: https://docs.microsoft.com/en-us/dotnet/standard/io/file-path-formats
+    # UNC file path, \\server\share\path..., with server stored as url.host
+    # DOS Path, drive_letter:\path...
+    share_or_drive, *segments = url.path.segments
+    share_or_drive = rf"\\{url.host}\{share_or_drive}" if url.host else rf"{share_or_drive}\\"
+    return WindowsPath(share_or_drive, *segments)
 
-    def furl_path_to_python_path(path: furl.Path) -> Path:
-        """Convert a file URL to a path."""
-        drive, *segments = path.segments
-        return Path(f"{drive}/", *segments)
 
-    def get_scheme(url: str) -> str | None:
-        """Get the scheme of a URL, or None if there is no scheme."""
-        scheme = furl.get_scheme(url)
-        # Windows drive letters are not a valid scheme
-        return scheme if scheme and len(scheme) > 1 else None
+def _url_to_posix_path(url: furl) -> Path:
+    """Convert the segments of a file URL to a path."""
+    # ref: https://unix.stackexchange.com/a/1919
+    # POSIX paths can start with //part/..., which some implementations
+    # (such as Cygwin) can interpret differently. furl(Path("//part/...").as_uri())
+    # retains the double slash (but doesn't treat it as a host), and in that case
+    # `first` will always be an empty string and `segments` will *not* be empty.
+    first, *segments = url.path.segments
+    slash_or_double_slash = "//" if not first and segments else "/"
+    return PosixPath(slash_or_double_slash, first, *segments)
 
-else:
 
-    def furl_path_to_python_path(path: furl.Path) -> Path:
-        """Convert a file URL to a path."""
-        return Path("/", *path.segments)
-
-    get_scheme = furl.get_scheme
+url_to_python_path = _url_to_windows_path if sys.platform == "win32" else _url_to_posix_path

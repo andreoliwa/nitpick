@@ -1,13 +1,15 @@
 """Generic functions tests."""
 import os
 import sys
-from pathlib import Path
+from pathlib import Path, PosixPath, WindowsPath
 from unittest import mock
 
+import pytest
+from furl import furl
 from testfixtures import compare
 
 from nitpick.constants import EDITOR_CONFIG, TOX_INI
-from nitpick.generic import relative_to_current_dir
+from nitpick.generic import _url_to_posix_path, _url_to_windows_path, relative_to_current_dir
 
 
 @mock.patch.object(Path, "cwd")
@@ -57,3 +59,35 @@ def test_relative_to_current_dir(home, cwd):
 
     for path, expected in examples.items():
         compare(actual=relative_to_current_dir(path), expected=expected, prefix=f"Path: {path}")
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows-only test")
+@pytest.mark.parametrize(
+    "test_path",
+    (
+        "C:\\",
+        r"C:\path\file.toml",
+        r"//server/share/path/file.toml",
+    ),
+)
+def test_url_to_windows_path(test_path):
+    """Verify that Path to URL to Path conversion preserves the path."""
+    path = WindowsPath(test_path)
+    url = furl(path.as_uri())
+    assert _url_to_windows_path(url) == path
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX-only test")
+@pytest.mark.parametrize(
+    "test_path",
+    (
+        "/",
+        "/path/to/file.toml",
+        "//double/slash/path.toml",
+    ),
+)
+def test_url_to_posix_path(test_path):
+    """Verify that Path to URL to Path conversion preserves the path."""
+    path = PosixPath(test_path)
+    url = furl(path.as_uri())
+    assert _url_to_posix_path(url) == path

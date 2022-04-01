@@ -27,7 +27,7 @@ from nitpick.constants import (
     PYPROJECT_TOML,
 )
 from nitpick.exceptions import QuitComplainingError, pretty_exception
-from nitpick.generic import furl_path_to_python_path
+from nitpick.generic import url_to_python_path
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
 from nitpick.project import Project, glob_files
@@ -131,7 +131,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         # and the URL otherwise.
         display_name = style_url.url
         if style_url.scheme == "file":
-            path = furl_path_to_python_path(style_url.path)
+            path = url_to_python_path(style_url)
             with suppress(ValueError):
                 path = path.relative_to(self.project.root)
             display_name = str(path)
