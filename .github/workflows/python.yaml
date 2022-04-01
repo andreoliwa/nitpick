@@ -48,7 +48,6 @@ jobs:
       # It fails with "Error: Lcov file not found."
       # Solution here: https://github.com/coverallsapp/github-action/issues/30#issuecomment-612523058
       - name: Coveralls
-        if: matrix.os == 'ubuntu-latest'
         uses: AndreMiras/coveralls-python-action@develop
         with:
           parallel: true
