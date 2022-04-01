@@ -48,6 +48,9 @@ jobs:
       # It fails with "Error: Lcov file not found."
       # Solution here: https://github.com/coverallsapp/github-action/issues/30#issuecomment-612523058
       - name: Coveralls
+        # TODO: ci: run code coverage on all platforms to fix missing coverage
+        #   Example: https://github.com/andreoliwa/nitpick/pull/479#issuecomment-1082074275
+        # This condition is needed otherwise it fails with "Error: Container action is only supported on Linux"
         if: matrix.os == 'ubuntu-latest'
         uses: AndreMiras/coveralls-python-action@develop
         with:
