@@ -551,7 +551,7 @@ def traverse_toml_tree(document: tomlkit.TOMLDocument, dictionary):
             if key in document:
                 traverse_toml_tree(document[key], value)
             else:
-                document.add(key, value)
+                document[key] = value
         else:
             document[key] = value
 
