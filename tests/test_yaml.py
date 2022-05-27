@@ -155,6 +155,7 @@ def test_maximum_two_level_nesting_on_lists_using_jmes_expression_as_list_key_fa
 
 
 def test_falsy_values_properly_reported(tmp_path, datadir):
+    """Test that falsy and truthy values are included in the report."""
     filename = "foo/file.yaml"
     project = ProjectMock(tmp_path).save_file(filename, datadir / "dict-falsy-values-actual.yaml")
     project.style(datadir / "dict-falsy-values-desired.toml").api_check_then_fix(
