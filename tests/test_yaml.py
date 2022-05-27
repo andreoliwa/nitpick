@@ -121,6 +121,7 @@ def test_objects_are_compared_by_hash_on_list_of_dicts_and_new_ones_are_added(tm
 
 def test_maximum_two_level_nesting_on_lists_using_jmes_expression_as_list_key_fails(tmp_path, datadir):
     """Test a maximum of two-level nesting on lists. Using a JMES expression as a list key will fail.
+
     Keys must have a maximum of 2 level for now: parent and nested keys.
     """
     filename = "an/arbitrary/file.yaml"
