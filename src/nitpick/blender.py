@@ -10,6 +10,7 @@ import abc
 import json
 import re
 import shlex
+from collections.abc import Iterable
 from functools import lru_cache, partial
 from pathlib import Path
 from typing import Any, Callable, TypeVar, cast
@@ -160,7 +161,7 @@ class ListDetail:  # pylint: disable=too-few-public-methods
 
 def set_key_if_not_empty(dict_: JsonDict, key: str, value: Any) -> None:
     """Update the dict if the value is valid."""
-    if not value:
+    if isinstance(value, Iterable) and not value:
         return
     dict_[key] = value
 

@@ -121,7 +121,6 @@ def test_objects_are_compared_by_hash_on_list_of_dicts_and_new_ones_are_added(tm
 
 def test_maximum_two_level_nesting_on_lists_using_jmes_expression_as_list_key_fails(tmp_path, datadir):
     """Test a maximum of two-level nesting on lists. Using a JMES expression as a list key will fail.
-
     Keys must have a maximum of 2 level for now: parent and nested keys.
     """
     filename = "an/arbitrary/file.yaml"
@@ -152,4 +151,28 @@ def test_maximum_two_level_nesting_on_lists_using_jmes_expression_as_list_key_fa
             """,
         ),
     ).assert_file_contents(filename, datadir / "jmes-list-key-expected.yaml")
+    project.api_check().assert_violations()
+
+
+def test_falsy_values_properly_reported(tmp_path, datadir):
+    filename = "foo/file.yaml"
+    project = ProjectMock(tmp_path).save_file(filename, datadir / "dict-falsy-values-actual.yaml")
+    project.style(datadir / "dict-falsy-values-desired.toml").api_check_then_fix(
+        Fuss(
+            True,
+            filename,
+            369,
+            " has different values. Use this:",
+            """
+            boolean_true_unmatch: true
+            boolean_false_unmatch: false
+            string_a_unmatch: string_a
+            string_b_unmatch: string_b
+            truthy_int_unmatch: 1
+            falsy_int_unmatch: 0
+            truthy_float_unmatch: 1.0
+            falsy_float_unmatch: 0.0
+            """,
+        ),
+    ).assert_file_contents(filename, datadir / "dict-falsy-values-expected.yaml")
     project.api_check().assert_violations()

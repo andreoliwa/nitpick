@@ -1,0 +1,16 @@
+boolean_true_match: true
+boolean_true_unmatch: true
+boolean_false_match: false
+boolean_false_unmatch: false
+string_a_match: 'string_a'
+string_a_unmatch: 'string_a'
+string_b_match: 'string_b'
+string_b_unmatch: 'string_b'
+truthy_int_match: 1
+truthy_int_unmatch: 1
+falsy_int_match: 0
+falsy_int_unmatch: 0
+truthy_float_match: 1.0
+truthy_float_unmatch: 1.0
+falsy_float_match: 0.0
+falsy_float_unmatch: 0.0
