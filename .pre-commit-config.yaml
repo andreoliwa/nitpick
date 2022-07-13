@@ -5,7 +5,7 @@
 
 # https://pre-commit.com/#top_level-default_language_version
 default_language_version:
-  python: python3.8
+  python: python3.7
 
 # https://pre-commit.ci/#configuration
 ci:
@@ -94,6 +94,7 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
+        language_version: python3.8
         additional_dependencies:
           [
             flake8-blind-except,
