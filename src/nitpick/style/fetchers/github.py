@@ -161,8 +161,7 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     protocols: tuple[str, ...] = (Scheme.GH, Scheme.GITHUB)  # type: ignore
     domains: tuple[str, ...] = (GITHUB_COM,)
 
-    @staticmethod
-    def _normalize_scheme(scheme: str) -> str:
+    def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use
         # Use github:// instead of gh:// in the canonical URL
         return Scheme.GITHUB if scheme == Scheme.GH else scheme  # type: ignore
 
