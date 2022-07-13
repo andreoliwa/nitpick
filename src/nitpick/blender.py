@@ -10,7 +10,7 @@ import abc
 import json
 import re
 import shlex
-from functools import lru_cache, partial
+from functools import partial
 from pathlib import Path
 from typing import Any, Callable, TypeVar, cast
 
@@ -494,7 +494,6 @@ class TomlDoc(BaseDoc):
         super().__init__(path=path, string=string, obj=obj)
         self.use_tomlkit = use_tomlkit
 
-    @lru_cache()
     def load(self) -> bool:
         """Load a TOML file by its path, a string or a dict."""
         if self.path is not None:
@@ -586,7 +585,6 @@ class YamlDoc(BaseDoc):
 
     updater: SensibleYAML
 
-    @lru_cache()
     def load(self) -> bool:
         """Load a YAML file by its path, a string or a dict."""
         self.updater = SensibleYAML()
@@ -663,7 +661,6 @@ def traverse_yaml_tree(yaml_obj: YamlObject, change: JsonDict):
 class JsonDoc(BaseDoc):
     """JSON configuration format."""
 
-    @lru_cache()
     def load(self) -> bool:
         """Load a JSON file by its path, a string or a dict."""
         if self.path is not None:
