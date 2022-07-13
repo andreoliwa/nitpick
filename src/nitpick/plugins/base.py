@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import abc
 import fnmatch
-from functools import lru_cache
 from pathlib import Path
 from typing import Iterator
 
@@ -83,7 +82,6 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         return SpecialConfig()
 
     @mypy_property
-    @lru_cache()
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
         return search_json(self.info.project.nitpick_section, f'files."{self.filename}"', {})
