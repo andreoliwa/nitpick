@@ -7,7 +7,7 @@
 default_language_version:
   python: python3.7
 
-# dummy https://pre-commit.ci/#configuration
+# https://pre-commit.ci/#configuration
 ci:
   skip: [local-nitpick, autofix-docs, pylint]
 
