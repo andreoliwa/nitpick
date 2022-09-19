@@ -4,7 +4,6 @@
   description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style"
   entry: nitpick fix
   language: python
-  stages: [commit]
 
 # This hook is kept for compatibility (or if one wants to be explicit): "nitpick" does the same as "nitpick-fix" now
 - id: nitpick-fix
@@ -12,11 +11,9 @@
   description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style"
   entry: nitpick fix
   language: python
-  stages: [commit]
 
 - id: nitpick-check
   name: "nitpick check (check files only)"
   description: "Only check configuration files (TOML/INI/JSON/etc.) and print the violations, according to the Nitpick style"
   entry: nitpick check
   language: python
-  stages: [commit]
