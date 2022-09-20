@@ -882,30 +882,30 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "requests-cache"
-version = "0.9.3"
+version = "0.9.6"
 description = "A transparent persistent cache for the requests library"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-appdirs = ">=1.4.4,<2.0.0"
-attrs = ">=21.2,<22.0"
-cattrs = ">=1.8,<2.0"
-requests = ">=2.22,<3.0"
-url-normalize = ">=1.4,<2.0"
-urllib3 = ">=1.25.5,<2.0.0"
+appdirs = ">=1.4.4"
+attrs = ">=21.2"
+cattrs = ">=1.8"
+requests = ">=2.22"
+url-normalize = ">=1.4"
+urllib3 = ">=1.25.5"
 
 [package.extras]
-dynamodb = ["boto3 (>=1.15,<2.0)", "botocore (>=1.18,<2.0)"]
-all = ["boto3 (>=1.15,<2.0)", "botocore (>=1.18,<2.0)", "pymongo (>=3,<5)", "redis (>=3,<5)", "itsdangerous (>=2.0,<3.0)", "pyyaml (>=5.4)", "ujson (>=4.0)"]
-mongodb = ["pymongo (>=3,<5)"]
-redis = ["redis (>=3,<5)"]
+dynamodb = ["boto3 (>=1.15)", "botocore (>=1.18)"]
+all = ["boto3 (>=1.15)", "botocore (>=1.18)", "pymongo (>=3)", "redis (>=3)", "itsdangerous (>=2.0)", "pyyaml (>=5.4)", "ujson (>=4.0)"]
+mongodb = ["pymongo (>=3)"]
+redis = ["redis (>=3)"]
 bson = ["bson (>=0.5)"]
-security = ["itsdangerous (>=2.0,<3.0)"]
+security = ["itsdangerous (>=2.0)"]
 yaml = ["pyyaml (>=5.4)"]
 json = ["ujson (>=4.0)"]
-docs = ["furo (>=2021.9.8)", "linkify-it-py (>=1.0.1,<2.0.0)", "myst-parser (>=0.15.1,<0.16.0)", "sphinx (==4.3.0)", "sphinx-autodoc-typehints (>=1.11,<2.0)", "sphinx-automodapi (>=0.13,<0.15)", "sphinx-copybutton (>=0.3,<0.5)", "sphinx-inline-tabs (>=2022.1.2b11)", "sphinx-notfound-page", "sphinx-panels (>=0.6,<0.7)", "sphinxcontrib-apidoc (>=0.3,<0.4)"]
+docs = ["furo (>=2021.9.8)", "linkify-it-py (>=1.0.1,<2.0.0)", "myst-parser (>=0.15.1,<0.16.0)", "sphinx (==4.3.0)", "sphinx-autodoc-typehints (>=1.11,<2.0)", "sphinx-automodapi (>=0.13,<0.15)", "sphinx-copybutton (>=0.3,<0.5)", "sphinx-inline-tabs (>=2022.1.2b11)", "sphinx-notfound-page (>=0.8)", "sphinx-panels (>=0.6,<0.7)", "sphinxcontrib-apidoc (>=0.3,<0.4)"]
 
 [[package]]
 name = "responses"
@@ -1301,7 +1301,7 @@ test = ["pytest", "pytest-cov", "testfixtures", "responses", "freezegun", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "9aa779aaa159d8715811caf900e8a87bc4d10d1f39fe4c94e8875158073b71e5"
+content-hash = "fd680832865ac52aa7923cc7324f520d00dc1e77adef05a808d7bf3dcc960f67"
 
 [metadata.files]
 alabaster = [
@@ -1766,8 +1766,8 @@ requests = [
     {file = "requests-2.27.1.tar.gz", hash = "sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61"},
 ]
 requests-cache = [
-    {file = "requests-cache-0.9.3.tar.gz", hash = "sha256:b32f8afba2439e1b3e12cba511c8f579271eff827f063210d62f9efa5bed6564"},
-    {file = "requests_cache-0.9.3-py3-none-any.whl", hash = "sha256:d8b32405b2725906aa09810f4796e54cc03029de269381b404c426bae927bada"},
+    {file = "requests-cache-0.9.6.tar.gz", hash = "sha256:b1672c99ccce9ee53b49504c9f6a6d6de5cf6a9956bda46cf7dda0a4a5fc1bb5"},
+    {file = "requests_cache-0.9.6-py3-none-any.whl", hash = "sha256:7397c0effb7e824c21e3f9fca8293cad01eb40152be67e53093f5399acd2d251"},
 ]
 responses = [
     {file = "responses-0.18.0-py3-none-any.whl", hash = "sha256:15c63ad16de13ee8e7182d99c9334f64fd81f1ee79f90748d527c28f7ca9dd51"},
