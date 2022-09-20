@@ -121,9 +121,9 @@ Python package URL scheme is ``pypackage://`` or ``py://``:
 .. code-block:: toml
 
     [tool.nitpick]
-    style = "pypackage://some_python_package.styles.nitpick-style.toml"
+    style = "pypackage://some_python_package/styles/nitpick-style.toml"
     # or
-    style = "py://some_python_package.styles.nitpick-style.toml"
+    style = "py://some_python_package/styles/nitpick-style.toml"
 
 Thanks to `@isac322 <https://github.com/isac322>`_ for this feature.
 
