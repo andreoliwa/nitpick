@@ -40,7 +40,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.38.0
+    rev: v2.38.2
     hooks:
       - id: pyupgrade
         args: [--py37-plus]
@@ -50,7 +50,7 @@ repos:
       - id: sort-all
         language_version: python3.8
   - repo: https://github.com/PyCQA/autoflake
-    rev: v1.6.0
+    rev: v1.6.1
     hooks:
       - id: autoflake
         args:
@@ -155,7 +155,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v2.34.0
+    rev: v2.35.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
