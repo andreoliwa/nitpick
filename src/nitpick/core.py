@@ -3,7 +3,7 @@ import os
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, List, Type
+from typing import TYPE_CHECKING, Iterator, List
 
 import click
 from loguru import logger
@@ -16,7 +16,7 @@ from nitpick.typedefs import PathOrStr
 from nitpick.violations import Fuss, ProjectViolations, Reporter
 
 if TYPE_CHECKING:
-    from nitpick.plugins import NitpickPlugin
+    pass
 
 
 class Nitpick:
