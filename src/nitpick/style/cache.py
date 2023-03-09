@@ -5,7 +5,7 @@ import re
 from datetime import timedelta
 
 from loguru import logger
-from requests_cache.cache_control import DO_NOT_CACHE, NEVER_EXPIRE
+from requests_cache.policy.expiration import DO_NOT_CACHE, NEVER_EXPIRE
 
 from nitpick.enums import CachingEnum
 
