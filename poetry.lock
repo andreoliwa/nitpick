@@ -1261,18 +1261,19 @@ pytest = ">=3.6.3"
 
 [[package]]
 name = "pytest-testmon"
-version = "1.2.2"
+version = "2.0.0"
 description = "selects tests affected by changed files and methods"
 category = "main"
 optional = true
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "pytest-testmon-1.2.2.tar.gz", hash = "sha256:e69d5aeac4e371986f94e8ad06e56d70633870d026f2306fca44051f02fcb688"},
+    {file = "pytest-testmon-2.0.0.tar.gz", hash = "sha256:e8157b24c60482d16f42316f2ed722bd34bc158c205da7f107f25dde6ced9fe7"},
+    {file = "pytest_testmon-2.0.0-py3-none-any.whl", hash = "sha256:965d73b822b4443765be4ee83ca2238dbcefbe7e8808f60ab28445232271673b"},
 ]
 
 [package.dependencies]
-coverage = ">=4,<7"
-pytest = ">=5,<7"
+coverage = ">=6,<8"
+pytest = ">=5,<8"
 
 [[package]]
 name = "pytest-watch"
