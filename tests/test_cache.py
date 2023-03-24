@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import pytest
 from freezegun import freeze_time
-from requests_cache.cache_control import DO_NOT_CACHE, NEVER_EXPIRE
+from requests_cache.policy.expiration import DO_NOT_CACHE, NEVER_EXPIRE
 
 from nitpick.enums import CachingEnum
 from nitpick.style.cache import parse_cache_option
