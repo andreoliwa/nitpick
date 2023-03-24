@@ -116,7 +116,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
             if fuss:
                 yield fuss
 
-    def post_init(self):
+    def post_init(self):  # noqa: B027
         """Hook for plugin initialization after the instance was created.
 
         The name mimics ``__post_init__()`` on dataclasses, without the magic double underscores:
@@ -147,7 +147,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
     def initial_contents(self) -> str:
         """Suggested initial content when the file doesn't exist."""
 
-    def write_initial_contents(self, doc_class: type[BaseDoc], expected_dict: dict = None) -> str:
+    def write_initial_contents(self, doc_class: type[BaseDoc], expected_dict: dict | None = None) -> str:
         """Helper to write initial contents based on a format."""
         if not expected_dict:
             expected_dict = self.expected_config

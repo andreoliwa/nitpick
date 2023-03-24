@@ -283,7 +283,7 @@ def lab(c, convert_file_name="", lab_help=False):
     - https://github.com/junegunn/fzf
     - https://github.com/sharkdp/fd
     """
-    extra_args: List[str] = []
+    extra_args = []
     if lab_help:
         extra_args.append("--help")
     if convert_file_name:

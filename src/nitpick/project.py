@@ -110,7 +110,7 @@ class Project:
     _plugin_manager: PluginManager
     _confirmed_root: Path
 
-    def __init__(self, root: PathOrStr = None) -> None:
+    def __init__(self, root: PathOrStr | None = None) -> None:
         self._chosen_root = root
 
         self.style_dict: JsonDict = {}

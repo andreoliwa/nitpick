@@ -16,7 +16,7 @@ from nitpick.constants import DOT, PROJECT_NAME
 from nitpick.typedefs import PathOrStr
 
 
-def version_to_tuple(version: str = None) -> tuple[int, ...]:
+def version_to_tuple(version: str | None = None) -> tuple[int, ...]:
     """Transform a version number into a tuple of integers, for comparison.
 
     >>> version_to_tuple("")
