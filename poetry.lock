@@ -348,14 +348,14 @@ files = [
 
 [[package]]
 name = "dpath"
-version = "2.0.6"
+version = "2.1.4"
 description = "Filesystem-like pathing and searching for dictionaries"
 category = "main"
 optional = false
-python-versions = ">=3"
+python-versions = ">=3.7"
 files = [
-    {file = "dpath-2.0.6-py3-none-any.whl", hash = "sha256:8c439bb1c3b3222427e9b8812701cd99a0ef3415ddbb7c03a2379f6989a03965"},
-    {file = "dpath-2.0.6.tar.gz", hash = "sha256:5a1ddae52233fbc8ef81b15fb85073a81126bb43698d3f3a1b6aaf561a46cdc0"},
+    {file = "dpath-2.1.4-py3-none-any.whl", hash = "sha256:3a4f6cc07e3a1b34bc73baa3a6854ee0a48fb2cf18a8c9b1911b66fd72afaa85"},
+    {file = "dpath-2.1.4.tar.gz", hash = "sha256:3380a77d0db4abf104125860ff6eb4bd07c97c65b81aad42a609717089a1bed0"},
 ]
 
 [[package]]
