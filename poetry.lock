@@ -851,14 +851,13 @@ tests = ["pytest", "pytz", "simplejson"]
 
 [[package]]
 name = "marshmallow-polyfield"
-version = "5.10"
+version = "5.11"
 description = "An unofficial extension to Marshmallow to allow for polymorphic fields"
 category = "main"
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "marshmallow-polyfield-5.10.tar.gz", hash = "sha256:75d0e31b725650e91428f975a66ed30f703cc6f9fcfe45b8436ee6d676921691"},
-    {file = "marshmallow_polyfield-5.10-py3-none-any.whl", hash = "sha256:a0a91730c6d21bfac1563990c7ba1413928e7499af669619d4fb38d1fb25c4e9"},
+    {file = "marshmallow-polyfield-5.11.tar.gz", hash = "sha256:8075a9cc490da4af58b902b4a40a99882dd031adb7aaa96abd147a4fcd53415f"},
 ]
 
 [package.dependencies]
