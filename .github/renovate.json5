@@ -1,0 +1,10 @@
+{
+  extends: ["config:base"],
+  // https://docs.renovatebot.com/configuration-options/#automerge
+  automerge: true,
+  ignoreDeps: ["jedi"],
+  // https://docs.renovatebot.com/configuration-options/#prconcurrentlimit
+  prConcurrentLimit: 3,
+  // https://docs.renovatebot.com/configuration-options/#branchconcurrentlimit
+  branchConcurrentLimit: 5,
+}
