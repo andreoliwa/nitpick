@@ -193,7 +193,7 @@ def test_minimum_version(mocked_version, offline, tmp_path):
 @pytest.mark.parametrize("offline", [False, True])
 def test_relative_and_other_root_dirs(offline, tmp_path):
     """Test styles in relative and in other root dirs."""
-    another_dir: Path = tmp_path / "another_dir"
+    another_dir = tmp_path / "another_dir"
     project = (
         ProjectMock(tmp_path)
         .named_style(
@@ -271,7 +271,7 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
 @pytest.mark.parametrize("offline", [False, True])
 def test_symlink_subdir(offline, tmp_path):
     """Test relative styles in subdirectories of a symlink dir."""
-    target_dir: Path = tmp_path / "target_dir"
+    target_dir = tmp_path / "target_dir"
     ProjectMock(tmp_path).named_style(
         f"{target_dir}/parent",
         """

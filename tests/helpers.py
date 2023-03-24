@@ -85,7 +85,7 @@ class ProjectMock:
         if kwargs.get("setup_py", True):
             self.save_file("setup.py", "x = 1")
 
-    def create_symlink(self, link_name: str, target_dir: Path, target_file: str = None) -> ProjectMock:
+    def create_symlink(self, link_name: str, target_dir: Path, target_file: str | None = None) -> ProjectMock:
         """Create a symlink to a target file.
 
         :param link_name: Link file name.
@@ -189,7 +189,7 @@ class ProjectMock:
         """Read multiple files and return a hash with filename (key) and contents (value)."""
         return {filename: self.read_file(filename) for filename in filenames}
 
-    def save_file(self, filename: PathOrStr, file_contents: PathOrStr, lint: bool = None) -> ProjectMock:
+    def save_file(self, filename: PathOrStr, file_contents: PathOrStr, lint: bool | None = None) -> ProjectMock:
         """Save a file in the root dir with the desired contents and a new line at the end.
 
         Create the parent dirs if the file name contains a slash.
@@ -251,7 +251,7 @@ class ProjectMock:
         """Save .pre-commit-config.yaml."""
         return self.save_file(PRE_COMMIT_CONFIG_YAML, from_path_or_str(file_contents))
 
-    def raise_assertion_error(self, expected_error: str, assertion_message: str = None):
+    def raise_assertion_error(self, expected_error: str, assertion_message: str | None = None):
         """Show detailed errors in case of an assertion failure."""
         if expected_error:
             print(f"Expected error:\n<<<{expected_error}>>>")
@@ -268,7 +268,7 @@ class ProjectMock:
         print("\nProject root:", self.root_dir)
         raise AssertionError(assertion_message or expected_error)
 
-    def _assert_error_count(self, expected_error: str, expected_count: int = None) -> ProjectMock:
+    def _assert_error_count(self, expected_error: str, expected_count: int | None = None) -> ProjectMock:
         """Assert the error count is correct."""
         if expected_count is not None:
             actual = len(self._flake8_errors_as_string)
@@ -276,7 +276,7 @@ class ProjectMock:
                 self.raise_assertion_error(expected_error, f"Expected {expected_count} errors, got {actual}")
         return self
 
-    def assert_errors_contain(self, raw_error: str, expected_count: int = None) -> ProjectMock:
+    def assert_errors_contain(self, raw_error: str, expected_count: int | None = None) -> ProjectMock:
         """Assert the error is in the error set."""
         expected_error = dedent(raw_error).strip()
         if expected_error not in self._flake8_errors_as_string:
@@ -333,7 +333,9 @@ class ProjectMock:
         compare(expected=manual, actual=Reporter.manual)
         return self
 
-    def _simulate_cli(self, command: str, expected_str_or_lines: StrOrList = None, *args: str, exit_code: int = None):
+    def _simulate_cli(
+        self, command: str, expected_str_or_lines: StrOrList | None = None, *args: str, exit_code: int | None = None
+    ):
         """Simulate the CLI by invoking a click command.
 
         1. If the command raised an exception that was not a common "system exit",
@@ -358,11 +360,11 @@ class ProjectMock:
 
     def cli_run(
         self,
-        expected_str_or_lines: StrOrList = None,
+        expected_str_or_lines: StrOrList | None = None,
         autofix=False,
         violations=0,
         exception_class=None,
-        exit_code: int = None,
+        exit_code: int | None = None,
     ) -> ProjectMock:
         """Assert the expected CLI output for the chosen command."""
         if exit_code is None:
@@ -393,13 +395,13 @@ class ProjectMock:
         compare(actual=actual, expected=expected)
         return self
 
-    def cli_ls(self, str_or_lines: StrOrList, *, exit_code: int = None) -> ProjectMock:
+    def cli_ls(self, str_or_lines: StrOrList, *, exit_code: int | None = None) -> ProjectMock:
         """Run the ls command and assert the output."""
         result, actual, expected = self._simulate_cli("ls", str_or_lines, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def cli_init(self, str_or_lines: StrOrList, *args, exit_code: int = None) -> ProjectMock:
+    def cli_init(self, str_or_lines: StrOrList, *args, exit_code: int | None = None) -> ProjectMock:
         """Run the init command and assert the output."""
         result, actual, expected = self._simulate_cli("init", str_or_lines, *args, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")

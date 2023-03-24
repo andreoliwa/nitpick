@@ -40,7 +40,7 @@ def convert(path_from_root: str):
     return toml_doc.reformatted
 
 
-def main():
+def main() -> None:
     """Play around."""
     for path in sorted(Path("docs/ideas/yaml").glob("*.toml")):
         click.secho(str(path), fg="green")

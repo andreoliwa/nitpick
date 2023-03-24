@@ -107,7 +107,7 @@ class Reporter:  # pylint: disable=too-few-public-methods
     manual: int = 0
     fixed: int = 0
 
-    def __init__(self, info: FileInfo = None, violation_base_code: int = 0) -> None:
+    def __init__(self, info: FileInfo | None = None, violation_base_code: int = 0) -> None:
         self.info: FileInfo | None = info
         self.violation_base_code = violation_base_code
 

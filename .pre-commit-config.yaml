@@ -77,6 +77,8 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
+        # To avoid ERROR: Package 'isort' requires a different Python: 3.7.12 not in '>=3.8.0'
+        language_version: python3.8
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
