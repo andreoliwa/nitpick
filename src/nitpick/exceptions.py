@@ -28,7 +28,9 @@ class Deprecation:
         """The pre-commit config should start with a dot on the config file."""
         if path_from_root == PRE_COMMIT_CONFIG_YAML[1:]:
             warnings.warn(
-                f'The section name for dotfiles should start with a dot: [".{path_from_root}"]', DeprecationWarning
+                f'The section name for dotfiles should start with a dot: [".{path_from_root}"]',
+                DeprecationWarning,
+                stacklevel=2,
             )
             return True
 
@@ -43,6 +45,7 @@ class Deprecation:
             warnings.warn(
                 "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly",
                 DeprecationWarning,
+                stacklevel=2,
             )
             return True
         return False
@@ -59,6 +62,7 @@ class Deprecation:
             f"The {KEY_REPOS}.{KEY_YAML} key is not supported anymore."
             " Check the documentation and please update your YAML styles",
             DeprecationWarning,
+            stacklevel=2,
         )
         return True
 

@@ -24,7 +24,7 @@ __all__ = ("hookimpl", "hookspec")
 
 
 @hookspec
-def plugin_class() -> type[NitpickPlugin]:
+def plugin_class() -> type[NitpickPlugin]:  # type: ignore[empty-body]
     """Return your plugin class here (it should inherit from :py:class:`nitpick.plugins.base.NitpickPlugin`)."""
 
 

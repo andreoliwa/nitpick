@@ -3,7 +3,7 @@ import os
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator, List, Type
+from typing import Iterator, List, Optional
 
 import click
 from loguru import logger
@@ -15,9 +15,6 @@ from nitpick.project import Project
 from nitpick.typedefs import PathOrStr
 from nitpick.violations import Fuss, ProjectViolations, Reporter
 
-if TYPE_CHECKING:
-    from nitpick.plugins import NitpickPlugin
-
 
 class Nitpick:
     """The Nitpick API."""
@@ -26,7 +23,7 @@ class Nitpick:
 
     project: Project
 
-    def __init__(self):
+    def __init__(self) -> None:
         if not self._allow_init:
             raise TypeError("This class cannot be instantiated directly. Use Nitpick.singleton().init(...) instead")
 
@@ -41,7 +38,7 @@ class Nitpick:
         Nitpick._allow_init = False
         return instance
 
-    def init(self, project_root: PathOrStr = None, offline: bool = None) -> "Nitpick":
+    def init(self, project_root: Optional[PathOrStr] = None, offline: Optional[bool] = None) -> "Nitpick":
         """Initialize attributes of the singleton."""
         self.project = Project(project_root)
 
@@ -114,7 +111,7 @@ class Nitpick:
             # 2.
             info = FileInfo.create(self.project, config_key)
             # pylint: disable=no-member
-            for plugin_class in self.project.plugin_manager.hook.can_handle(info=info):  # type: Type[NitpickPlugin]
+            for plugin_class in self.project.plugin_manager.hook.can_handle(info=info):
                 yield from plugin_class(info, config_dict, autofix).entry_point()
 
     def configured_files(self, *partial_names: str) -> List[Path]:

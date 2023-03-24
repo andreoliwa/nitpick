@@ -13,7 +13,7 @@ from importlib import import_module
 from pathlib import Path
 from subprocess import check_output  # nosec
 from textwrap import dedent, indent
-from typing import Dict, List, Set, Tuple, Union
+from typing import Optional, Dict, List, Set, Tuple, Union
 
 import attr
 import click
@@ -145,7 +145,7 @@ class DocFile:  # pylint: disable=too-few-public-methods
             self.divider_end = RST_DIVIDER_END
             self.divider_from_here = RST_DIVIDER_FROM_HERE
 
-    def write(self, lines: List[str], divider: str = None) -> int:
+    def write(self, lines: List[str], divider: Optional[str] = None) -> int:
         """Write content to the file."""
         old_content = self.file.read_text()
         if divider:

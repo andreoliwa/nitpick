@@ -66,7 +66,7 @@ def compare_lists_with_dictdiffer(
     return changed_dict
 
 
-def search_json(json_data: ElementData, jmespath_expression: ParsedResult | str, default: Any = None) -> Any:
+def search_json(json_data: ElementData, jmespath_expression: ParsedResult | str, default: Any | None = None) -> Any:
     """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
 
     >>> data = {"root": {"app": [1, 2], "test": "something"}}
@@ -433,7 +433,9 @@ class BaseDoc(metaclass=abc.ABCMeta):
 
     __repr__ = autorepr(["path"])
 
-    def __init__(self, *, path: PathOrStr = None, string: str = None, obj: JsonDict = None) -> None:
+    def __init__(
+        self, *, path: PathOrStr | None = None, string: str | None = None, obj: JsonDict | None = None
+    ) -> None:
         self.path = path
         self._string = string
         self._object = obj
@@ -486,9 +488,9 @@ class TomlDoc(BaseDoc):
     def __init__(
         self,
         *,
-        path: PathOrStr = None,
-        string: str = None,
-        obj: JsonDict = None,
+        path: PathOrStr | None = None,
+        string: str | None = None,
+        obj: JsonDict | None = None,
         use_tomlkit=False,
     ) -> None:
         super().__init__(path=path, string=string, obj=obj)
