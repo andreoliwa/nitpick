@@ -1711,20 +1711,20 @@ test = ["pylint", "pytest", "pytest-black", "pytest-cov", "pytest-pylint"]
 
 [[package]]
 name = "testfixtures"
-version = "6.18.3"
+version = "7.1.0"
 description = "A collection of helpers and mock objects for unit tests and doc tests."
 category = "main"
 optional = true
-python-versions = "*"
+python-versions = ">=3.6"
 files = [
-    {file = "testfixtures-6.18.3-py2.py3-none-any.whl", hash = "sha256:6ddb7f56a123e1a9339f130a200359092bd0a6455e31838d6c477e8729bb7763"},
-    {file = "testfixtures-6.18.3.tar.gz", hash = "sha256:2600100ae96ffd082334b378e355550fef8b4a529a6fa4c34f47130905c7426d"},
+    {file = "testfixtures-7.1.0-py3-none-any.whl", hash = "sha256:d37d8f4ccc7755ab614cc8fb54b2e8b9fe522ab5dcf11b9d141f9be633c200f5"},
+    {file = "testfixtures-7.1.0.tar.gz", hash = "sha256:456ce4f393160f27cd6840a5370ecf4a70f1721737f5e67a2af79e6c817804a4"},
 ]
 
 [package.extras]
 build = ["setuptools-git", "twine", "wheel"]
-docs = ["django", "django (<2)", "mock", "sphinx", "sybil", "twisted", "zope.component"]
-test = ["django", "django (<2)", "mock", "pytest (>=3.6)", "pytest-cov", "pytest-django", "sybil", "twisted", "zope.component"]
+docs = ["django", "furo", "sphinx", "sybil (>=3)", "twisted", "zope.component"]
+test = ["django", "mypy", "pytest (>=3.6)", "pytest-cov", "pytest-django", "sybil (>=3)", "twisted", "zope.component"]
 
 [[package]]
 name = "text-unidecode"
