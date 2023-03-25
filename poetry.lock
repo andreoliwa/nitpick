@@ -1239,14 +1239,14 @@ pytest = ">=3.6.3"
 
 [[package]]
 name = "pytest-testmon"
-version = "2.0.0"
+version = "2.0.1"
 description = "selects tests affected by changed files and methods"
 category = "main"
 optional = true
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-testmon-2.0.0.tar.gz", hash = "sha256:e8157b24c60482d16f42316f2ed722bd34bc158c205da7f107f25dde6ced9fe7"},
-    {file = "pytest_testmon-2.0.0-py3-none-any.whl", hash = "sha256:965d73b822b4443765be4ee83ca2238dbcefbe7e8808f60ab28445232271673b"},
+    {file = "pytest-testmon-2.0.1.tar.gz", hash = "sha256:ec5341ca0f0b5f19e2b9a28d713f473bf040b88ca2fc983c4d58248511b86100"},
+    {file = "pytest_testmon-2.0.1-py3-none-any.whl", hash = "sha256:271b571171d7b168820107aec7f0e01aa89c091ba1405c16b104028b8e3f8989"},
 ]
 
 [package.dependencies]
