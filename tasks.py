@@ -109,20 +109,28 @@ class ToxCommands:
         return f"py{no_dot}"
 
 
-@task(help={"deps": "Poetry dependencies", "hooks": "pre-commit hooks"})
-def install(c, deps=True, hooks=False):
+@task(
+    help={
+        "deps": "Poetry dependencies",
+        "hooks": "pre-commit hooks",
+        "version": "Desired Python version number. Default: minimum version from tox.ini",
+    }
+)
+def install(c, deps=True, hooks=False, version=""):
     """Install dependencies and pre-commit hooks.
 
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
-        version = ToxCommands().minimum_python_version
+        minimum = ToxCommands().minimum_python_version
+        if not version:
+            version = minimum
         print(
-            f"{COLOR_GREEN}Nitpick runs in Python {version} and later"
-            f", but development is done in {version}{COLOR_NONE}"
+            f"{COLOR_GREEN}Nitpick runs in Python {minimum} and later;"
+            f" setting up version {version} for development{COLOR_NONE}"
         )
         c.run(f"poetry env use python{version}")
-        c.run("poetry install -E test -E lint -E doc --remove-untracked")
+        c.run("poetry install -E test -E lint -E doc --sync")
     if hooks:
         c.run("pre-commit install -t pre-commit -t commit-msg --install-hooks")
         c.run("pre-commit gc")
