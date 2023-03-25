@@ -187,7 +187,7 @@ any
    * - `py://nitpick/resources/any/commitlint <src/nitpick/resources/any/commitlint.toml>`_
      - `commitlint <https://github.com/conventional-changelog/commitlint>`_
    * - `py://nitpick/resources/any/editorconfig <src/nitpick/resources/any/editorconfig.toml>`_
-     - `EditorConfig <http://editorconfig.org/>`_
+     - `EditorConfig <https://editorconfig.org/>`_
    * - `py://nitpick/resources/any/git-legal <src/nitpick/resources/any/git-legal.toml>`_
      - `Git.legal - CodeClimate Community Edition <https://github.com/kmewhort/git.legal-codeclimate>`_
    * - `py://nitpick/resources/any/markdownlint <src/nitpick/resources/any/markdownlint.toml>`_
