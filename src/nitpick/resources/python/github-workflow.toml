@@ -4,7 +4,7 @@ url = "https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-gi
 
 [".github/workflows/python.yaml"]
 name = "Python"
-on = ["push", "pull_request"]
+on = ["push"]
 
 [".github/workflows/python.yaml".jobs.build.strategy]
 fail-fast = false
