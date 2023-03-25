@@ -1744,13 +1744,14 @@ test = ["pytest"]
 
 [[package]]
 name = "sphobjinv"
-version = "2.2.1"
+version = "2.3.1"
 description = "Sphinx objects.inv Inspection/Manipulation Tool"
 category = "main"
 optional = true
 python-versions = ">=3.6"
 files = [
-    {file = "sphobjinv-2.2.1-py3-none-any.whl", hash = "sha256:7a15569084d85f383336a495c9559b78f1f19f18b2718547e29a49730acce9b1"},
+    {file = "sphobjinv-2.3.1-py3-none-any.whl", hash = "sha256:f3efe68bb0ba6e32cb50df064fe6349b8f94681589b400dea753a2860dd576b5"},
+    {file = "sphobjinv-2.3.1.tar.gz", hash = "sha256:1442a47fc93587a0177be95346904e388ef85a8366f90a1835a7c3eeeb122eb7"},
 ]
 
 [package.dependencies]
