@@ -2,7 +2,6 @@
 import os
 from enum import Enum
 
-import pytest
 import responses
 from flake8.main import cli
 
@@ -17,13 +16,22 @@ from tests.helpers import ProjectMock
 def _call_main(argv, retv=0):
     """Call flake8's main CLI entry point.
 
-    This is how flake8 itself runs CLI tests.
+    This is how flake8 itself used to run CLI tests.
     Copied from:
-    https://github.com/PyCQA/flake8/blob/master/tests/integration/test_main.py#L12-15
+    https://github.com/PyCQA/flake8/blame/5a85dd8ddb2dbd3027415594160c40e63b9b44e5/tests/integration/test_main.py#L13-L16
     """
-    with pytest.raises(SystemExit) as excinfo:
-        cli.main(argv)
-    assert excinfo.value.code == retv
+    # Since 5.0.0, flake8 is returning an exit code instead of raising SystemExit
+    # https://github.com/PyCQA/flake8/commit/81a4110338496714c0bf2bb0e8dd929461d9d492
+
+    # This change only affects nitpick's tests, not its code.
+    # No need to pin flake8 on pyproject.toml;
+    # nitpick uses a recent flake8 on poetry.lock
+    # but won't enforce the new version
+    # and will still work if the developer has an older flake8 version
+
+    # This is how flake8 tests the exit code nowadays:
+    # https://github.com/PyCQA/flake8/blob/45699b61ae4522864c60480c80d7c2ffb952d52e/tests/integration/test_main.py#L28
+    assert cli.main(argv) == retv
 
 
 def test_absent_files(tmp_path):
