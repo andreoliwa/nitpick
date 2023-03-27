@@ -19,7 +19,7 @@
         "@semantic-release/exec",
         {
           "prepareCmd": "bash ./ci-prepare-cmd.sh ${nextRelease.version}",
-          "publishCmd": "poetry build && echo poetry publish --username $PYPI_USERNAME --password $PYPI_PASSWORD"
+          "publishCmd": "poetry build && poetry publish --username $PYPI_USERNAME --password $PYPI_PASSWORD"
         }
       ],
       "@semantic-release/github",

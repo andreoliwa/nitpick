@@ -13,10 +13,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11"] # FIXME[AA]: , "3.10", "3.9", "3.8", "3.7"]
+        python-version: ["3.11", "3.10", "3.9", "3.8", "3.7"]
         # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
         # See https://github.com/actions/virtual-environments/issues/1816
-        os: [ubuntu-latest] # FIXME[AA]: , windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
       PYTHONUNBUFFERED: 1
@@ -41,8 +41,7 @@ jobs:
 
       - name: "Run tests on ${{ matrix.os }}"
         run: |
-          echo tox -e clean,$(echo py${{ matrix.python-version }} | tr -d .)${{env.LINT_DOCS}},report
-        # FIXME[AA]:
+          tox -e clean,$(echo py${{ matrix.python-version }} | tr -d .)${{env.LINT_DOCS}},report
 
       # https://github.com/marketplace/actions/coveralls-python
       # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
@@ -71,12 +70,12 @@ jobs:
 
   # This cannot be a separate workflow yet, because a workflow cannot depend on another workflow. See this topic:
   # Depend on another workflow - Code to Cloud / GitHub Actions - GitHub Support Community
-  # https://github.community/t/depend-on-another-workflow/16311
+  # https://github.com/orgs/community/discussions/26632
   release:
     needs: coveralls_finish
     # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif
     # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#determining-when-to-use-contexts
-    #    if: github.event_name == 'push' && github.ref == 'refs/heads/master' # FIXME[AA]:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -105,22 +104,23 @@ jobs:
         uses: cycjimmy/semantic-release-action@v3
         id: semantic # Need an `id` for output variables
         with:
-          # Don't pin version here... it didn't work
+          # Don't pin the version here... it didn't work
           # https://github.com/semantic-release/semantic-release/releases
           # semantic_version: 20.0.0
 
-          branches: |
-            ['fix-semantic-release-27-03-2023']
-
           # To debug, see these options:
           # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
-          dry_run: true # FIXME[AA]:
+          # dry_run: true
+
           # https://github.com/marketplace/actions/action-for-semantic-release#branches
+          # branches: |
+          #   ['you-debug-branch-name-here']
 
           # https://github.com/marketplace/actions/action-for-semantic-release#extra_plugins
           # https://github.com/semantic-release/changelog/releases
           # https://github.com/semantic-release/git/releases
           # https://github.com/semantic-release/exec/releases
+          # Don't pin versions anymore; let's see how this goes for the next releases
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
