@@ -92,6 +92,8 @@ python
      - Description
    * - :gitref:`py://nitpick/resources/python/310 <src/nitpick/resources/python/310.toml>`
      - Python 3.10
+   * - :gitref:`py://nitpick/resources/python/311 <src/nitpick/resources/python/311.toml>`
+     - Python 3.11
    * - :gitref:`py://nitpick/resources/python/37 <src/nitpick/resources/python/37.toml>`
      - Python 3.7
    * - :gitref:`py://nitpick/resources/python/38 <src/nitpick/resources/python/38.toml>`

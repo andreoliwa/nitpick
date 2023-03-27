@@ -251,6 +251,8 @@ python
      - Description
    * - `py://nitpick/resources/python/310 <src/nitpick/resources/python/310.toml>`_
      - Python 3.10
+   * - `py://nitpick/resources/python/311 <src/nitpick/resources/python/311.toml>`_
+     - Python 3.11
    * - `py://nitpick/resources/python/37 <src/nitpick/resources/python/37.toml>`_
      - Python 3.7
    * - `py://nitpick/resources/python/38 <src/nitpick/resources/python/38.toml>`_
