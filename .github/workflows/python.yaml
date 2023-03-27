@@ -41,7 +41,8 @@ jobs:
 
       - name: "Run tests on ${{ matrix.os }}"
         run: |
-          tox -e clean,$(echo py${{ matrix.python-version }} | tr -d .)${{env.LINT_DOCS}},report
+          echo tox -e clean,$(echo py${{ matrix.python-version }} | tr -d .)${{env.LINT_DOCS}},report
+        # FIXME[AA]:
 
       # https://github.com/marketplace/actions/coveralls-python
       # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
@@ -107,6 +108,9 @@ jobs:
           # Don't pin version here... it didn't work
           # https://github.com/semantic-release/semantic-release/releases
           # semantic_version: 20.0.0
+
+          branches: |
+            ['fix-semantic-release-27-03-2023']
 
           # To debug, see these options:
           # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
