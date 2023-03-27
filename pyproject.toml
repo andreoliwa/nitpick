@@ -81,6 +81,9 @@ flatten-dict = "*"
 dpath = "*"
 furl = "*"
 StrEnum = "*"
+# To avoid this error on python3.7: AttributeError: 'EntryPoints' object has no attribute 'get'
+# https://importlib-metadata.readthedocs.io/en/latest/history.html#v5-0-0
+importlib-metadata = {version = "<5.0", python = "<3.8"}
 
 # TODO: chore: move to dependency groups once the feature is on a stable version of Poetry
 #  https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups
