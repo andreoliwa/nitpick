@@ -6,6 +6,7 @@
     "url": "https://github.com/andreoliwa/nitpick.git"
   },
   "release": {
+    "dryRun": true,
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",

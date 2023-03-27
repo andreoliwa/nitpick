@@ -99,6 +99,7 @@ jobs:
           python3 -m pip freeze
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v3
+        id: semantic # Need an `id` for output variables
         with:
           # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
           # https://github.com/semantic-release/semantic-release/releases
@@ -106,7 +107,6 @@ jobs:
 
           # To debug, see these options:
           # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
-          dry_run: true
           # https://github.com/marketplace/actions/action-for-semantic-release#branches
 
           # https://github.com/marketplace/actions/action-for-semantic-release#extra_plugins
