@@ -139,3 +139,10 @@ jobs:
           echo "Patch = ${{ steps.semantic.outputs.new_release_patch_version }}"
           echo "Channel = ${{ steps.semantic.outputs.new_release_channel }}"
           echo "Notes = ${{ steps.semantic.outputs.new_release_notes }}"
+
+# TODO: the workflow might fail with "rate limit" error but the release itself apparently works.
+#  The follow-up actions are not executed though. See:
+#  HttpError: You have exceeded a secondary rate limit https://github.com/semantic-release/semantic-release/issues/2204
+#  Rate limit reached on big release https://github.com/semantic-release/semantic-release/issues/843
+#  replace custom throttling code with @octokit/plugin-throttling https://github.com/semantic-release/github/issues/299
+#  fix: use retry and throttle octokit plugins https://github.com/semantic-release/github/pull/487
