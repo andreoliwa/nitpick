@@ -1,3 +1,48 @@
+# [0.33.0](https://github.com/andreoliwa/nitpick/compare/v0.32.0...v0.33.0) (2023-03-27)
+
+### Bug Fixes
+
+- actually show chosen styles in log output ([#477](https://github.com/andreoliwa/nitpick/issues/477)) ([9a685ac](https://github.com/andreoliwa/nitpick/commit/9a685acf7517e97674516678a21288565a0c9781))
+- **deps:** update dependency attrs to v22 ([d3ad0e0](https://github.com/andreoliwa/nitpick/commit/d3ad0e04d62ea15aa9fd17bc3c23d2e7af85985e))
+- **deps:** update dependency click to v8.1.3 ([bd54df5](https://github.com/andreoliwa/nitpick/commit/bd54df5ca3c4bc148a4647f2e7d9a16547689da7))
+- **deps:** update dependency configupdater to v3.1.1 ([024fd16](https://github.com/andreoliwa/nitpick/commit/024fd1667f496d665bdeea5aaeafb474c2590b12))
+- **deps:** update dependency dpath to v2.1.5 ([#557](https://github.com/andreoliwa/nitpick/issues/557)) ([6a4fddd](https://github.com/andreoliwa/nitpick/commit/6a4fddd89ae8f121a61d868044ff2f37c0e61071))
+- **deps:** update dependency flake8 to v5 ([#559](https://github.com/andreoliwa/nitpick/issues/559)) ([1bc7b06](https://github.com/andreoliwa/nitpick/commit/1bc7b06ed5d915495c25950f4003ccd70d1d79c2))
+- **deps:** update dependency freezegun to v1.2.2 ([#543](https://github.com/andreoliwa/nitpick/issues/543)) ([9a67f5a](https://github.com/andreoliwa/nitpick/commit/9a67f5adff11a397b9dadc6a734a290f4f79a4a2))
+- **deps:** update dependency identify to v2.5.22 ([00dbdce](https://github.com/andreoliwa/nitpick/commit/00dbdcefa20db5954145250d67d82b91a683d941))
+- **deps:** update dependency importlib-resources to v5.12.0 ([68aae5c](https://github.com/andreoliwa/nitpick/commit/68aae5c47e7c2c01458bfc96cf75996fb9a3c15b))
+- **deps:** update dependency jmespath to v1 ([e51c957](https://github.com/andreoliwa/nitpick/commit/e51c957cc2d98bf81feab6fb6af75c6f3c12550d))
+- **deps:** update dependency marshmallow to v3.19.0 ([a314480](https://github.com/andreoliwa/nitpick/commit/a3144805435b2be38e6b5e891db45082bdb9843f))
+- **deps:** update dependency marshmallow-polyfield to v5.11 ([#545](https://github.com/andreoliwa/nitpick/issues/545)) ([b05092b](https://github.com/andreoliwa/nitpick/commit/b05092ba6800238d483f99641a1548036f2ae6b5))
+- **deps:** update dependency more-itertools to v8.14.0 ([#531](https://github.com/andreoliwa/nitpick/issues/531)) ([139ef6b](https://github.com/andreoliwa/nitpick/commit/139ef6b2b04fa7d2ddefb37f808d25ff631e8e83))
+- **deps:** update dependency pytest to v7 ([a080454](https://github.com/andreoliwa/nitpick/commit/a080454069222219d34b04fe074290f4ff14d3e5))
+- **deps:** update dependency pytest-cov to v4 ([db278d4](https://github.com/andreoliwa/nitpick/commit/db278d4e8c1564222df80a00a108a0f7b2004645))
+- **deps:** update dependency pytest-datadir to v1.4.1 ([c6d5cb4](https://github.com/andreoliwa/nitpick/commit/c6d5cb410b11b4138f5d8eba27585c96c9f9ad37))
+- **deps:** update dependency pytest-socket to v0.6.0 ([#534](https://github.com/andreoliwa/nitpick/issues/534)) ([2bdf0d6](https://github.com/andreoliwa/nitpick/commit/2bdf0d6f8b8c5ee0f676fb517ce378132843e05d))
+- **deps:** update dependency pytest-testmon to v1.4.5 ([392fce5](https://github.com/andreoliwa/nitpick/commit/392fce589e43d808faa64699261f04a5f89688d8))
+- **deps:** update dependency pytest-testmon to v2.0.1 ([81b300d](https://github.com/andreoliwa/nitpick/commit/81b300d28c145f73a9ecf7c1609f0dd8cbe82a96))
+- **deps:** update dependency pytest-testmon to v2.0.2 ([1e58ff2](https://github.com/andreoliwa/nitpick/commit/1e58ff28290f3493bf93c745057deff29dd22c9b))
+- **deps:** update dependency python-slugify to v8 ([77649bd](https://github.com/andreoliwa/nitpick/commit/77649bd66061c425e70464d97be9df6938d33de0))
+- **deps:** update dependency requests to v2.28.2 ([#536](https://github.com/andreoliwa/nitpick/issues/536)) ([0af1b14](https://github.com/andreoliwa/nitpick/commit/0af1b1483a37aa5169060985da7db0f9b6457873))
+- **deps:** update dependency requests-cache to v0.9.8 ([#518](https://github.com/andreoliwa/nitpick/issues/518)) ([2135344](https://github.com/andreoliwa/nitpick/commit/2135344a9569b57e43545731ce0f5834db57ccb8))
+- **deps:** update dependency requests-cache to v1.0.1 ([2104255](https://github.com/andreoliwa/nitpick/commit/210425508362a8e111ac81b9bfbf2d14f1c37cde))
+- **deps:** update dependency responses to v0.23.1 ([#537](https://github.com/andreoliwa/nitpick/issues/537)) ([796034c](https://github.com/andreoliwa/nitpick/commit/796034c33d412369caaccbfe8a5a0a9db67b9d36))
+- **deps:** update dependency sphinx to v4.5.0 ([#538](https://github.com/andreoliwa/nitpick/issues/538)) ([aee2267](https://github.com/andreoliwa/nitpick/commit/aee22675770420712b87e34d91d81517bb2c8906))
+- **deps:** update dependency sphinx to v5 ([#560](https://github.com/andreoliwa/nitpick/issues/560)) ([b7fcb67](https://github.com/andreoliwa/nitpick/commit/b7fcb67210e367b1186466551692192595df8d09))
+- **deps:** update dependency sphinx_rtd_theme to v1.2.0 ([f729818](https://github.com/andreoliwa/nitpick/commit/f729818e207ffaf9a7b2fb557a52ae56e900d839))
+- **deps:** update dependency sphobjinv to v2.3.1 ([33bea38](https://github.com/andreoliwa/nitpick/commit/33bea386fcf6a1d505449eff55f0118cc08689bd))
+- **deps:** update dependency strenum to v0.4.10 ([4aed308](https://github.com/andreoliwa/nitpick/commit/4aed30804a90a97d16ffc9b1ff5d1ac2a04fa29a))
+- **deps:** update dependency testfixtures to v6.18.5 ([311a5ca](https://github.com/andreoliwa/nitpick/commit/311a5caf0e6d79b99b855ae5716f67c3ec76363d))
+- **deps:** update dependency tomlkit to v0.11.6 ([a28e6d7](https://github.com/andreoliwa/nitpick/commit/a28e6d7cc7a779416bd51aa6004bcd07dd0d493c))
+- document.add does not work on Linux ([#487](https://github.com/andreoliwa/nitpick/issues/487)) ([07048bb](https://github.com/andreoliwa/nitpick/commit/07048bb4e7e4293ae26b7f0a675014013acb5bfa))
+- further improve file path handling ([#479](https://github.com/andreoliwa/nitpick/issues/479)) ([6cff555](https://github.com/andreoliwa/nitpick/commit/6cff5552c5f4acfcfd7c0344f554f6a2ce2a3103))
+- pass in token to fetch GH default branch ([#475](https://github.com/andreoliwa/nitpick/issues/475)) ([46ea598](https://github.com/andreoliwa/nitpick/commit/46ea598ae5a8793dc05597c7728928b6e2beca1d))
+
+### Features
+
+- add MegaLinter plugin ([#476](https://github.com/andreoliwa/nitpick/issues/476)) ([212a36a](https://github.com/andreoliwa/nitpick/commit/212a36ab3bb2a610947f2b1834bde6c97fb732e5))
+- add Python 3.11 ([2a7cbea](https://github.com/andreoliwa/nitpick/commit/2a7cbeab7948b17521b3470a71ce62e3932f3ea9))
+
 # [0.32.0](https://github.com/andreoliwa/nitpick/compare/v0.31.0...v0.32.0) (2022-03-27)
 
 ### Bug Fixes

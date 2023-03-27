@@ -11,7 +11,7 @@ line-length = 120
 
 [tool.poetry]
 name = "nitpick"
-version = "0.32.0"
+version = "0.33.0"
 description = "Enforce the same settings across multiple language-independent projects"
 authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
 license = "MIT"
