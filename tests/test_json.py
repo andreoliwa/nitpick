@@ -4,7 +4,7 @@ import warnings
 from nitpick.constants import PACKAGE_JSON, READ_THE_DOCS_URL
 from nitpick.plugins.json import JsonPlugin
 from nitpick.violations import Fuss, SharedViolations
-from tests.helpers import ProjectMock
+from tests.helpers import ProjectMock, filter_desired_warning
 
 
 def test_suggest_initial_contents(tmp_path, datadir):
@@ -185,8 +185,8 @@ def test_jsonfile_deprecated(tmp_path):
             """
         ).save_file("my.json", '{"x":1}').flake8().assert_no_errors()
 
-        assert len(captured) == 1
-        assert issubclass(captured[-1].category, DeprecationWarning)
-        assert "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly" in str(
-            captured[-1].message
+        filtered = filter_desired_warning(
+            captured, "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly"
         )
+        assert len(filtered) == 1
+        assert issubclass(filtered[0].category, DeprecationWarning)

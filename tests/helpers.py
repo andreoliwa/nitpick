@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
@@ -426,3 +427,14 @@ class ProjectMock:
         """Assert the expected request count on the mocked response object."""
         assert self._mocked_response and self._mocked_response.assert_call_count(self._remote_url, expected_count)
         return self
+
+
+def filter_desired_warning(captured: list[warnings.WarningMessage], desired_message: str):
+    """Filter only desired warnings.
+
+    For now, ignore dpath's DeprecationWarning:
+    The dpath.util package is being deprecated. All util functions have been moved to dpath package top level.
+
+    Once this package is actually deprecated, then I'll either pin dpath or handle ImportError.
+    """
+    return [item for item in captured if desired_message in str(item.message)]
