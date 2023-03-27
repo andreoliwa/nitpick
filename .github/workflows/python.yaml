@@ -104,7 +104,7 @@ jobs:
         with:
           # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
           # https://github.com/semantic-release/semantic-release/releases
-          semantic_version: 21.0.0
+          semantic_version: 20.0.0
 
           # To debug, see these options:
           # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
