@@ -13,10 +13,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.10", "3.9", "3.8", "3.7"]
+        python-version: ["3.11"] # FIXME[AA]: , "3.10", "3.9", "3.8", "3.7"]
         # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
         # See https://github.com/actions/virtual-environments/issues/1816
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest] # FIXME[AA]: , windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
       PYTHONUNBUFFERED: 1
@@ -59,6 +59,7 @@ jobs:
 
   # https://github.com/marketplace/actions/coveralls-python
   coveralls_finish:
+    name: Coveralls (finish)
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -74,7 +75,7 @@ jobs:
     needs: coveralls_finish
     # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif
     # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#determining-when-to-use-contexts
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    #    if: github.event_name == 'push' && github.ref == 'refs/heads/master' # FIXME[AA]:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -97,14 +98,15 @@ jobs:
           twine --version
           python3 -m pip freeze
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v2
+        uses: cycjimmy/semantic-release-action@v3
         with:
           # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
           # https://github.com/semantic-release/semantic-release/releases
-          semantic_version: 18.0.1
+          semantic_version: 21.0.0
 
           # To debug, see these options:
           # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
+          dry_run: true
           # https://github.com/marketplace/actions/action-for-semantic-release#branches
 
           # https://github.com/marketplace/actions/action-for-semantic-release#extra_plugins
@@ -112,7 +114,7 @@ jobs:
           # https://github.com/semantic-release/git/releases
           # https://github.com/semantic-release/exec/releases
           extra_plugins: |
-            @semantic-release/changelog@6.0.1
+            @semantic-release/changelog@6.0.3
             @semantic-release/git@10.0.1
             @semantic-release/exec@6.0.3
         env:
