@@ -3,7 +3,7 @@ import warnings
 
 from nitpick.plugins.yaml import YamlPlugin
 from nitpick.violations import Fuss, SharedViolations
-from tests.helpers import ProjectMock
+from tests.helpers import ProjectMock, filter_desired_warning
 
 
 def test_suggest_initial_contents(tmp_path, datadir):
@@ -88,12 +88,12 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
             """
         ).api_check().assert_violations()
 
-        assert len(captured) == 1
-        assert issubclass(captured[-1].category, DeprecationWarning)
-        assert (
-            "The repos.yaml key is not supported anymore."
-            " Check the documentation and please update your YAML styles" in str(captured[-1].message)
+        filtered = filter_desired_warning(
+            captured,
+            "The repos.yaml key is not supported anymore. Check the documentation and please update your YAML styles",
         )
+        assert len(filtered) == 1
+        assert issubclass(filtered[-1].category, DeprecationWarning)
 
 
 def test_objects_are_compared_by_hash_on_list_of_dicts_and_new_ones_are_added(tmp_path, datadir):

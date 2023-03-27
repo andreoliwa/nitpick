@@ -10,7 +10,7 @@ import pytest
 
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML, SETUP_CFG
 from nitpick.violations import Fuss
-from tests.helpers import ProjectMock
+from tests.helpers import ProjectMock, filter_desired_warning
 
 
 def test_pre_commit_has_no_configuration(tmp_path):
@@ -449,8 +449,7 @@ def test_pre_commit_section_without_dot_deprecated(tmp_path):
     with pytest.deprecated_call() as warning_list:
         project.flake8().assert_no_errors()
 
-    assert len(warning_list) == 1
-    assert (
-        str(warning_list[0].message)
-        == 'The section name for dotfiles should start with a dot: [".pre-commit-config.yaml"]'
+    filtered = filter_desired_warning(
+        warning_list, 'The section name for dotfiles should start with a dot: [".pre-commit-config.yaml"]'
     )
+    assert len(filtered) == 1
