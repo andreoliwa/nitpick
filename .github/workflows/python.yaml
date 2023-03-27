@@ -87,6 +87,7 @@ jobs:
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install pip/setuptools first
         run: |
+          npm --version
           python --version
           python3 --version
           python3 -m pip --version
@@ -98,7 +99,7 @@ jobs:
           twine --version
           python3 -m pip freeze
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v3.4.0
         id: semantic # Need an `id` for output variables
         with:
           # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
