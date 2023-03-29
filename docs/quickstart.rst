@@ -61,7 +61,7 @@ If you use pre-commit_ on your project, add this to the ``.pre-commit-config.yam
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.33.0
+        rev: v0.33.1
         hooks:
           - id: nitpick
 
@@ -100,7 +100,7 @@ If you use `MegaLinter <https://megalinter.github.io/>`_ you can run Nitpick as 
 .. code-block:: yaml
 
     PLUGINS:
-      - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.33.0/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
+      - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.33.1/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
     ENABLE_LINTERS:
       - NITPICK
 

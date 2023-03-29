@@ -1,3 +1,10 @@
+## [0.33.1](https://github.com/andreoliwa/nitpick/compare/v0.33.0...v0.33.1) (2023-03-29)
+
+### Bug Fixes
+
+- **deps:** pin requests-cache to >=1.0.0 ([bc72699](https://github.com/andreoliwa/nitpick/commit/bc726990f8a5ff7b5dcc703ac3316edfe8b5ba17))
+- **deps:** update dependency tomlkit to v0.11.7 ([8dff578](https://github.com/andreoliwa/nitpick/commit/8dff57858b2a796bce195b0e9893e34e56f6dc97))
+
 # [0.33.0](https://github.com/andreoliwa/nitpick/compare/v0.32.0...v0.33.0) (2023-03-27)
 
 ### Bug Fixes
