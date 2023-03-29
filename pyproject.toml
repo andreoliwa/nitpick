@@ -106,7 +106,7 @@ sphinx = { version = "*", optional = true }
 sphinx_rtd_theme = { version = "*", optional = true }
 sphobjinv = { version = "*", optional = true }
 sphinx-gitref = { version = "*", optional = true }
-requests-cache = ">=0.9.7" # This version uses requests_cache.policy.expiration
+requests-cache = ">=1.0.0" # This version uses requests_cache.policy.expiration
 
 [tool.poetry.extras]
 lint = ["pylint"]
