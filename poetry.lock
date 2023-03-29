@@ -2114,4 +2114,4 @@ test = ["freezegun", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "b8b8b18f9dafe0e045e02152b9c7b6cfe2a578d1167e1a8d624a3c04bb2a9fed"
+content-hash = "7a282a4343b7e8e99b5572e20b085d81a94c135a3ab982326df4933e6497a1d6"
