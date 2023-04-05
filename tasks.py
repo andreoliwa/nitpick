@@ -81,7 +81,8 @@ class ToxCommands:
         c.run(f"sed 's/platform = linux/platform = darwin/g' tox.ini > {temp_tox_ini}")
         return f"-c {temp_tox_ini}"
 
-    def _python_versions_old_to_new(self) -> List[str]:
+    @property
+    def python_versions(self) -> List[str]:
         """Python versions executed in tox."""
         versions = []
         for py_plus_version_without_dot in self._parser["tox"]["envlist"].split(","):
@@ -96,15 +97,16 @@ class ToxCommands:
     @property
     def minimum_python_version(self) -> str:
         """Minimum Python version."""
-        return self._python_versions_old_to_new()[0]
+        return self.python_versions[0]
 
     @property
     def stable_python_version(self) -> str:
-        """Stable Python version."""
-        return self._as_tox_env(self._python_versions_old_to_new()[-2])
+        """The Python version considered stable (by me) is the second to last in the list."""
+        return self.python_versions[-2]
 
     @staticmethod
-    def _as_tox_env(python_version_with_dot: str) -> str:
+    def as_tox_env(python_version_with_dot: str) -> str:
+        """Convert a Python version with dot to a tox environment name."""
         no_dot = python_version_with_dot.replace(".", "")
         return f"py{no_dot}"
 
@@ -210,8 +212,15 @@ def doc(c, full=False, recreate=False, links=False, browse=False, debug=False):
         c.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
 
 
-@task(help={"full": "Full build using tox", "recreate": "Recreate tox environment", "docs": "Generate Sphinx docs"})
-def ci_build(c, full=False, recreate=False, docs=True):
+@task(
+    help={
+        "full": "Full build using tox",
+        "recreate": "Recreate tox environment",
+        "docs": "Generate Sphinx docs",
+        "python": "Python version",
+    }
+)
+def ci_build(c, full=False, recreate=False, docs=True, python=""):
     """Simulate a CI build."""
     tox = ToxCommands()
 
@@ -219,12 +228,14 @@ def ci_build(c, full=False, recreate=False, docs=True):
     if full:
         c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
         c.run(tox_cmd)
-    else:
-        envs = ["clean", "lint", ToxCommands().stable_python_version]
-        if docs:
-            envs.append("docs")
-        envs.append("report")
-        c.run(f"{tox_cmd} -e {','.join(envs)}")
+        return
+
+    chosen_version = python or tox.stable_python_version
+    envs = ["clean", "lint", tox.as_tox_env(chosen_version)]
+    if docs:
+        envs.append("docs")
+    envs.append("report")
+    c.run(f"{tox_cmd} -e {','.join(envs)}")
 
 
 @task(help={"recreate": "Recreate tox environment"})
