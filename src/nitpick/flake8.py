@@ -69,7 +69,7 @@ class NitpickFlake8Extension:
         )
 
     @staticmethod
-    def parse_options(option_manager: OptionManager, options, args):  # pylint: disable=unused-argument
+    def parse_options(option_manager: OptionManager, options, args):  # pylint: disable=unused-argument # noqa: ARG004
         """Create the Nitpick app, set logging from the verbose flags, set offline mode.
 
         This function is called only once by flake8, so it's a good place to create the app.

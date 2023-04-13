@@ -152,9 +152,8 @@ class ListDetail:  # pylint: disable=too-few-public-methods
             if isinstance(desired.key, list):
                 if set(desired.key).issubset(set(actual.key)):
                     return actual
-            else:
-                if desired.key == actual.key:
-                    return actual
+            elif desired.key == actual.key:
+                return actual
         return None
 
 
@@ -242,8 +241,8 @@ def custom_splitter(separator: str) -> Callable:
     """Custom splitter for :py:meth:`flatten_dict.flatten_dict.unflatten()` accepting a separator."""
 
     def _inner_custom_splitter(flat_key) -> tuple[str, ...]:
-        keys = tuple(flat_key.split(separator))
-        return keys
+        """Return a tuple of keys split by the separator."""
+        return tuple(flat_key.split(separator))
 
     return _inner_custom_splitter
 
@@ -362,7 +361,7 @@ class Comparison:
 
         return self
 
-    def _compare_list_elements(  # pylint: disable=too-many-arguments
+    def _compare_list_elements(  # pylint: disable=too-many-arguments # noqa: PLR0913
         self, key: str, parent_key: str, child_key: str, actual_detail: ListDetail, expected_detail: ListDetail
     ) -> None:
         """Compare list elements by their keys or hashes."""

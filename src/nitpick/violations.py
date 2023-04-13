@@ -40,7 +40,7 @@ class Fuss:
     def pretty(self) -> str:
         """Message to be used on the CLI."""
         filename_plus_line = f"{self.filename}:{self.lineno}: " if self.filename.strip() else ""
-        return f"{filename_plus_line}{FLAKE8_PREFIX}{self.code:03}" f" {self.message.rstrip()}{self.colored_suggestion}"
+        return f"{filename_plus_line}{FLAKE8_PREFIX}{self.code:03} {self.message.rstrip()}{self.colored_suggestion}"
 
     def __lt__(self, other: Fuss) -> bool:
         """Sort Fuss instances."""

@@ -94,7 +94,8 @@ class StyleFetcherManager:
         if not fetcher:
             fetcher = self.fetchers.get(url.scheme)
         if not fetcher:
-            raise RuntimeError(f"URL protocol {url.scheme!r} is not supported")
+            msg = f"URL protocol {url.scheme!r} is not supported"
+            raise RuntimeError(msg)
         return fetcher
 
 

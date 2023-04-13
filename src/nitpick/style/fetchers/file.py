@@ -15,7 +15,7 @@ from nitpick.style.fetchers.base import StyleFetcher
 class FileFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
     """Fetch a style from a local file."""
 
-    protocols: tuple[str, ...] = (Scheme.FILE,)  # type: ignore
+    protocols: tuple[str, ...] = (Scheme.FILE,)  # type: ignore[assignment]
 
     def preprocess_relative_url(self, url: str) -> str:
         """Preprocess a relative URL.

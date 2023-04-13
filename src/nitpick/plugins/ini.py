@@ -290,8 +290,7 @@ class IniPlugin(NitpickPlugin):
         """Print an example of a config parser in a string instead of a file."""
         string_stream = StringIO()
         parser.write(string_stream)
-        output = string_stream.getvalue().strip()
-        return output
+        return string_stream.getvalue().strip()
 
 
 @hookimpl

@@ -134,7 +134,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         else:
             yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
-    def write_file(self, file_exists: bool) -> Fuss | None:  # pylint: disable=unused-argument,no-self-use
+    def write_file(  # pylint: disable=no-self-use
+        self,
+        file_exists: bool,  # pylint: disable=unused-argument # noqa: ARG002
+    ) -> Fuss | None:
         """Hook to write the new file when autofix mode is on. Should be used by inherited classes."""
         return None
 

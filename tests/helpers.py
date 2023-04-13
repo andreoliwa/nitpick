@@ -50,7 +50,8 @@ def assert_conditions(*args):
 def from_path_or_str(file_contents: PathOrStr):
     """Read file contents from a Path or string."""
     if file_contents is None:
-        raise RuntimeError("No path and no file contents.")
+        msg = "No path and no file contents."
+        raise RuntimeError(msg)
 
     if isinstance(file_contents, Path):
         return file_contents.read_text()
@@ -96,7 +97,8 @@ class ProjectMock:
         path: Path = self.root_dir / link_name
         full_source_path = Path(target_dir) / (target_file or link_name)
         if not full_source_path.exists():
-            raise RuntimeError(f"Source file does not exist: {full_source_path}")
+            msg = f"Source file does not exist: {full_source_path}"
+            raise RuntimeError(msg)
         path.symlink_to(full_source_path)
         if path.suffix == ".py":
             self.files_to_lint.append(path)
@@ -388,10 +390,9 @@ class ProjectMock:
             if actual[-1].startswith("Violations"):
                 del actual[-1]
 
-        if not violations and not expected_str_or_lines:
-            # Remove the "no violations" message
-            if actual[-1].startswith("No violations"):
-                del actual[-1]
+        # Remove the "no violations" message
+        if not violations and not expected_str_or_lines and actual[-1].startswith("No violations"):
+            del actual[-1]
 
         compare(actual=actual, expected=expected)
         return self

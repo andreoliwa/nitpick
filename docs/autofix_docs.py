@@ -61,7 +61,8 @@ class FileType:
     def __post_init__(self):
         """Warn about text that might render incorrectly."""
         if "`" in self.text:
-            raise RuntimeError(f"Remove all backticks from the text: {self.text}")
+            msg = f"Remove all backticks from the text: {self.text}"
+            raise RuntimeError(msg)
 
     def __lt__(self, other: "FileType") -> bool:
         """Sort instances.

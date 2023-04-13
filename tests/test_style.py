@@ -560,7 +560,7 @@ def test_github_url_with_missing_envvar_has_empty_credential(monkeypatch):
     assert parsed.credentials == ()
 
 
-def test_github_url_query_token_retains_other_queryparams(monkeypatch):
+def test_github_url_query_token_retains_other_queryparams():
     """Querystring isn't modified by the token switcharoo."""
     parsed = GitHubURL.from_furl(furl("https://github.com/foo/bar/blob/branch/filename.toml?leavemealone=ok"))
     assert ("leavemealone", "ok") in parsed.url.query.params.items()
@@ -717,7 +717,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
         (
             'style = [""]\nextra_values = "also raise warnings"',
             f"extra_values: Unknown configuration. See {READ_THE_DOCS_URL}configuration.html."
-            + "\nstyle.0: Shorter than minimum length 1.",
+            "\nstyle.0: Shorter than minimum length 1.",
         ),
         ('style = ""', "style: Shorter than minimum length 1."),
         ("style = 1", "style: Not a valid string."),
@@ -728,7 +728,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
     ]:
         project.pyproject_toml(f"[tool.nitpick]\n{style}").flake8(offline=offline).assert_errors_contain(
             "NIP001 File pyproject.toml has an incorrect style."
-            + f" Invalid data in [tool.nitpick]:{SUGGESTION_BEGIN}\n{error_message}{SUGGESTION_END}",
+            f" Invalid data in [tool.nitpick]:{SUGGESTION_BEGIN}\n{error_message}{SUGGESTION_END}",
             1,
         )
 

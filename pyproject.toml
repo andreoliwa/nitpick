@@ -125,15 +125,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 # https://beta.ruff.rs/docs/settings/#select
-select = [
-#    "ALL", # TODO: chore: configure all rules
-    "C9", # https://beta.ruff.rs/docs/rules/#mccabe-c90
-    "D", # https://beta.ruff.rs/docs/rules/#flake8-docstrings-d
-    "E", # https://beta.ruff.rs/docs/rules/#flake8-pyflakes-e
-    "F", # https://beta.ruff.rs/docs/rules/#flake8-pycodestyle-f
-    "Q", # https://beta.ruff.rs/docs/rules/#flake8-quotes-q
-    "W", # https://beta.ruff.rs/docs/rules/#flake8-pycodestyle-w
-]
+select = ["ALL"]
 
 # https://beta.ruff.rs/docs/settings/#ignore
 ignore = [
@@ -174,5 +166,15 @@ max-complexity = 10
 
 # https://beta.ruff.rs/docs/settings/#per-file-ignores
 [tool.ruff.per-file-ignores]
-"compat.py" = ["F401"] # imported but unused
-"tests/**" = ["S101"] # use of assert detected
+# F401 imported but unused
+# INP001 File `xxx.py` is part of an implicit namespace package. Add an `__init__.py`.
+# PLR0913 Too many arguments to function call
+# S101 use of assert detected
+# S105 Possible hardcoded password
+# T201 `print` found
+# T203 `pprint` found
+"compat.py" = ["F401"]
+"docs/**" = ["INP001", "T201", "T203"]
+"tests/**" = ["PLR0913", "S101", "S105", "T201", "T203"]
+"tests/data/**" = ["INP001"]
+"tasks.py" = ["PLR0913", "T201", "T203"]

@@ -38,6 +38,8 @@ from nitpick.style.fetchers.github import GitHubURL
 from nitpick.typedefs import JsonDict
 from nitpick.violations import Fuss, Reporter, StyleViolations
 
+MAX_ATTEMPTS = 5
+
 Plugins = Set[Type[NitpickPlugin]]
 
 
@@ -182,7 +184,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         toml = TomlDoc(obj=merged_dict)
 
         attempt = 1
-        while attempt < 5:
+        while attempt < MAX_ATTEMPTS:
             try:
                 merged_style_path.write_text(toml.reformatted)
                 break

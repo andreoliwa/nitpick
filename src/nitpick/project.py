@@ -222,4 +222,4 @@ class Project:
         doc.add(SingleKey(TOOL_NITPICK_KEY, KeyType.Bare), tool_nitpick)
 
         # config.file will always have a value at this point, but mypy can't see it.
-        config.file.write_text(tomlkit.dumps(doc, sort_keys=True))  # type: ignore
+        config.file.write_text(tomlkit.dumps(doc, sort_keys=True))

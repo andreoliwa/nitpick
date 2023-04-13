@@ -24,7 +24,8 @@ class StyleFetcher:
     def __post_init__(self):
         """Validate that session has been passed in for requires_connection == True."""
         if self.requires_connection and self.session is None:
-            raise ValueError("session is required")
+            msg = "session is required"
+            raise ValueError(msg)
 
     def preprocess_relative_url(self, url: str) -> str:  # pylint: disable=no-self-use
         """Preprocess a relative URL.
