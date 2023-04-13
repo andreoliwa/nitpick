@@ -113,10 +113,7 @@ class Reporter:  # pylint: disable=too-few-public-methods
 
     def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed=False, **kwargs) -> Fuss:
         """Make a fuss."""
-        if kwargs:
-            formatted = violation.message.format(**kwargs)
-        else:
-            formatted = violation.message
+        formatted = violation.message.format(**kwargs) if kwargs else violation.message
         base = self.violation_base_code if violation.add_code else 0
         Reporter.increment(fixed)
         # Remove right whitespace from suggestion (new lines, spaces, etc.)

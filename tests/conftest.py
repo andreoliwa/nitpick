@@ -64,7 +64,7 @@ def project_remote(request, tmp_path):
         yield project
 
 
-@pytest.fixture
+@pytest.fixture()
 def caplog(_caplog):  # noqa: F811
     """Override the caplog fixture to make pytest work with loguru.
 

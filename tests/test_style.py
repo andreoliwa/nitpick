@@ -848,7 +848,7 @@ def test_always_fetch_github_raw_url(style_url, tmp_path):
 
 @responses.activate
 @pytest.mark.parametrize(
-    "original_url, expected_url, git_reference, raw_git_reference, at_reference",
+    ("original_url", "expected_url", "git_reference", "raw_git_reference", "at_reference"),
     [
         (
             "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
@@ -913,7 +913,7 @@ def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_
 
 
 @pytest.mark.parametrize(
-    "original_url, import_path, resource_name",
+    ("original_url", "import_path", "resource_name"),
     [
         ("py://nitpick/styles/nitpick-style.toml", "nitpick.styles", "nitpick-style.toml"),
         ("py://some_package/nitpick.toml", "some_package", "nitpick.toml"),
@@ -929,7 +929,7 @@ def test_parsing_python_package_urls(original_url, import_path, resource_name):
 
 
 @pytest.mark.parametrize(
-    "original_url, expected_content_path_suffix",
+    ("original_url", "expected_content_path_suffix"),
     [
         ("py://tests/resources/empty-style.toml", "tests/resources/empty-style.toml"),
         ("py://tests/resources/nested_package/empty_style.toml", "tests/resources/nested_package/empty_style.toml"),

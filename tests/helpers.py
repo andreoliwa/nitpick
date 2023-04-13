@@ -44,7 +44,7 @@ def assert_conditions(*args):
     """Assert all conditions are True."""
     for arg in args:
         if not arg:
-            raise AssertionError()
+            raise AssertionError
 
 
 def from_path_or_str(file_contents: PathOrStr):
@@ -125,7 +125,7 @@ class ProjectMock:
                 if not (
                     line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension
                 ):
-                    raise AssertionError()
+                    raise AssertionError
                 self._flake8_errors_as_string.add(message)
 
         return self
@@ -425,7 +425,8 @@ class ProjectMock:
 
     def assert_call_count(self, expected_count: int) -> ProjectMock:
         """Assert the expected request count on the mocked response object."""
-        assert self._mocked_response and self._mocked_response.assert_call_count(self._remote_url, expected_count)
+        assert self._mocked_response
+        assert self._mocked_response.assert_call_count(self._remote_url, expected_count)
         return self
 
 

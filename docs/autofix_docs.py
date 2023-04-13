@@ -13,7 +13,7 @@ from importlib import import_module
 from pathlib import Path
 from subprocess import check_output  # nosec
 from textwrap import dedent, indent
-from typing import Optional, Dict, List, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import attr
 import click
@@ -256,7 +256,7 @@ def rst_table(header: Tuple[str, ...], rows: List[Tuple[str, ...]]) -> List[str]
     """Create a ReST table from header and rows."""
     blocks = [".. list-table::\n   :header-rows: 1\n"]
     num_columns = len(header)
-    for row in [header] + rows:
+    for row in [header, *rows]:
         template = ("*" + " - {}\n " * num_columns).rstrip()
         blocks.append(indent(template.format(*row), "   "))
     return blocks

@@ -232,7 +232,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
             self._dynamic_schema_class = type("DynamicStyleSchema", (self._dynamic_schema_class,), new_files_found)
 
     def _find_subclasses(self, data, handled_tags, new_files_found):
-        for possible_file in data.keys():
+        for possible_file in data:
             found_subclasses = []
             for file_tag in identify.tags_from_filename(possible_file):
                 handler_subclass = handled_tags.get(file_tag)

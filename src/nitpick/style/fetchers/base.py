@@ -62,4 +62,4 @@ class StyleFetcher:
 
     def fetch(self, url: furl) -> str:
         """Fetch a style from a specific fetcher."""
-        raise NotImplementedError()
+        raise NotImplementedError

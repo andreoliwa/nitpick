@@ -64,8 +64,7 @@ class PythonPackageURL:
 
 @dataclass(frozen=True)
 class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
-    """
-    Fetch a style from an installed Python package.
+    """Fetch a style from an installed Python package.
 
     URL schemes:
     - ``py://import/path/of/style/file/<style_file_name>``
