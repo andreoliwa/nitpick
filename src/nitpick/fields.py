@@ -34,7 +34,7 @@ class TrimmedLength(Length):  # pylint: disable=too-few-public-methods
 class NonEmptyString(fields.String):
     """A string field that must not be empty even after trimmed."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         validate = list(always_iterable(kwargs.pop("validate", None)))
         validate.append(TrimmedLength(min=1))
         super().__init__(validate=validate, **kwargs)
@@ -43,7 +43,7 @@ class NonEmptyString(fields.String):
 class JsonString(fields.String):
     """A string field with valid JSON content."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         validate = kwargs.pop("validate", [])
         validate.append(is_valid_json)
         super().__init__(validate=validate, **kwargs)

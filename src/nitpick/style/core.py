@@ -165,8 +165,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         toml = TomlDoc(string=file_contents)
         try:
             read_toml_dict = toml.as_object
-        # TODO: refactor: replace by this error when using tomlkit only in the future:
-        #  except TOMLKitError as err:
+        # TODO: refactor: replace by TOMLKitError when using tomlkit only in the future:
         except TomlDecodeError as err:
             # If the TOML itself could not be parsed, we can't go on
             raise QuitComplainingError(

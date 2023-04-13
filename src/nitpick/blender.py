@@ -563,7 +563,7 @@ class SensibleYAML(YAML):
     `Output of dump() as a string <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.map_indent = 2
         self.sequence_indent = 4

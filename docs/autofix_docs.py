@@ -194,7 +194,6 @@ def write_plugins() -> int:
     ):
         header = plugin_class.filename
         if not header:
-            # module_name = file_class.__module__
             module = import_module(plugin_class.__module__)
             header = (module.__doc__ or "").strip(" .")
 

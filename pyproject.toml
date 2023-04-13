@@ -129,11 +129,14 @@ select = ["ALL"]
 
 # https://beta.ruff.rs/docs/settings/#ignore
 ignore = [
-    # All rules
-    "ERA", # https://beta.ruff.rs/docs/rules/#eradicate-era
-    "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
-    "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
+    # Whole plugins
     "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
+
+    # TODO: chore: fix all the "ANN" 249 errors and remove this ignore
+    "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
+
+    # FIXME[AA]:
+    "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
     "TCH", # https://beta.ruff.rs/docs/rules/#flake8-type-checking-tch
 
     # Specific rules
@@ -166,6 +169,8 @@ max-complexity = 10
 
 # https://beta.ruff.rs/docs/settings/#per-file-ignores
 [tool.ruff.per-file-ignores]
+# ANN https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
+# ERA https://beta.ruff.rs/docs/rules/#eradicate-era
 # F401 imported but unused
 # INP001 File `xxx.py` is part of an implicit namespace package. Add an `__init__.py`.
 # PLR0913 Too many arguments to function call
@@ -174,7 +179,10 @@ max-complexity = 10
 # T201 `print` found
 # T203 `pprint` found
 "compat.py" = ["F401"]
-"docs/**" = ["INP001", "T201", "T203"]
-"tests/**" = ["PLR0913", "S101", "S105", "T201", "T203"]
+"docs/**" = ["ANN", "INP001", "T201", "T203"]
+"docs/conf.py" = ["ERA"]
+"docs/ideas/lab.py" = ["ERA"]
+"src/nitpick/blender.py" = ["ERA"]
+"tasks.py" = ["ANN", "PLR0913", "T201", "T203"]
+"tests/**" = ["ANN", "PLR0913", "S101", "S105", "T201", "T203"]
 "tests/data/**" = ["INP001"]
-"tasks.py" = ["PLR0913", "T201", "T203"]
