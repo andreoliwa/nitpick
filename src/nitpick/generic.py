@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path, PosixPath, WindowsPath
-from typing import Iterable
-
-from furl import furl
+from typing import TYPE_CHECKING, Iterable
 
 from nitpick.constants import DOT, PROJECT_NAME
-from nitpick.typedefs import PathOrStr
+
+if TYPE_CHECKING:
+    from furl import furl
+
+    from nitpick.typedefs import PathOrStr
 
 
 def version_to_tuple(version: str | None = None) -> tuple[int, ...]:

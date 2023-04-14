@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar
-
-from furl import furl
-from requests_cache import CachedSession
+from typing import TYPE_CHECKING, ClassVar
 
 from nitpick.constants import TOML_EXTENSION
+
+if TYPE_CHECKING:
+    from furl import furl
+    from requests_cache import CachedSession
 
 
 @dataclass(frozen=True)

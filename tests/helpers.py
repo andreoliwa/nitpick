@@ -2,16 +2,14 @@
 from __future__ import annotations
 
 import os
-import warnings
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 import tomlkit
 from click.testing import CliRunner
 from more_itertools.more import always_iterable, windowed
-from responses import RequestsMock
 from testfixtures import compare
 
 from nitpick.blender import TomlDoc
@@ -28,8 +26,14 @@ from nitpick.constants import (
 )
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
-from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
+
+if TYPE_CHECKING:
+    import warnings
+
+    from responses import RequestsMock
+
+    from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 
 STYLES_DIR: Path = Path(__file__).parent.parent / "src" / "nitpick" / "resources"
 

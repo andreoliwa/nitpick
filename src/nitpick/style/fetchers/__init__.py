@@ -3,10 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import auto
-from pathlib import Path
 from typing import TYPE_CHECKING, Iterable, Iterator
 
-from furl import furl
 from requests_cache import CachedSession
 from strenum import LowercaseStrEnum
 
@@ -14,6 +12,10 @@ from nitpick.enums import CachingEnum
 from nitpick.style import parse_cache_option
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
+    from furl import furl
+
     from nitpick.style.fetchers.base import StyleFetcher
 
 

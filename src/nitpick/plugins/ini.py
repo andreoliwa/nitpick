@@ -3,15 +3,17 @@ from __future__ import annotations
 
 from configparser import ConfigParser, DuplicateOptionError, Error, MissingSectionHeaderError, ParsingError
 from io import StringIO
-from typing import Any, Iterator
+from typing import TYPE_CHECKING, Any, Iterator
 
 import dictdiffer
 from configupdater import ConfigUpdater, Space
 
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.info import FileInfo
 from nitpick.violations import Fuss, ViolationEnum
+
+if TYPE_CHECKING:
+    from nitpick.plugins.info import FileInfo
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"
 SECTION_SEPARATOR = "."

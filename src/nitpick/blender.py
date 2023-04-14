@@ -12,7 +12,7 @@ import re
 import shlex
 from functools import partial
 from pathlib import Path
-from typing import Any, Callable, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
 
 import dictdiffer
 import jmespath
@@ -21,13 +21,16 @@ import tomlkit
 from attr import define  # type: ignore[attr-defined]
 from autorepr import autorepr
 from flatten_dict import flatten, unflatten
-from jmespath.parser import ParsedResult
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
 from tomlkit import items
 
-from nitpick.config import SpecialConfig
 from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
+
+if TYPE_CHECKING:
+    from jmespath.parser import ParsedResult
+
+    from nitpick.config import SpecialConfig
 
 # Generic type for classes that inherit from BaseDoc
 TBaseDoc = TypeVar("TBaseDoc", bound="BaseDoc")

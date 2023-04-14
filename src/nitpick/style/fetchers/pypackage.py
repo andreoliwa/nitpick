@@ -3,8 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
-from pathlib import Path
-from typing import Iterable, cast
+from typing import TYPE_CHECKING, Iterable, cast
 
 import attr
 import tomlkit
@@ -14,6 +13,9 @@ from nitpick import PROJECT_NAME, compat
 from nitpick.constants import DOT
 from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @lru_cache()

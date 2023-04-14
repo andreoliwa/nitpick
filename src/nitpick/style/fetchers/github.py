@@ -157,7 +157,7 @@ def get_default_branch(api_url: str, *, token: str | None = None) -> str:
 class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
-    protocols: tuple[str, ...] = (Scheme.GH, Scheme.GITHUB)  # type: ignore[assignment]
+    protocols: tuple[str, ...] = (Scheme.GH, Scheme.GITHUB)  # type: ignore[assignment,has-type]
     domains: tuple[str, ...] = (GITHUB_COM,)
 
     def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use

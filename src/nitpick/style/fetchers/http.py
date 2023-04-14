@@ -2,15 +2,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import click
 import requests
-from furl import furl
 from loguru import logger
 
 from nitpick.enums import OptionEnum
 from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
+
+if TYPE_CHECKING:
+    from furl import furl
 
 
 @dataclass(frozen=True)

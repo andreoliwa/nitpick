@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import Iterator, cast
+from typing import TYPE_CHECKING, Iterator, cast
 
 from nitpick.blender import Comparison, YamlDoc, traverse_yaml_tree
 from nitpick.config import SpecialConfig
@@ -10,10 +10,12 @@ from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.exceptions import Deprecation
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.info import FileInfo
 from nitpick.plugins.text import KEY_CONTAINS
-from nitpick.typedefs import JsonDict, YamlObject
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
+
+if TYPE_CHECKING:
+    from nitpick.plugins.info import FileInfo
+    from nitpick.typedefs import JsonDict, YamlObject
 
 KEY_REPOS = "repos"
 KEY_YAML = "yaml"

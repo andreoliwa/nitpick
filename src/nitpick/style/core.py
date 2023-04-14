@@ -3,8 +3,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Iterable, Iterator, Sequence, Set, Type
+from typing import TYPE_CHECKING, Iterable, Iterator, Sequence, Set, Type
 
 import dpath.util
 from flatten_dict import flatten, unflatten
@@ -35,8 +34,12 @@ from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.style.config import ConfigValidator
 from nitpick.style.fetchers import Scheme, StyleFetcherManager
 from nitpick.style.fetchers.github import GitHubURL
-from nitpick.typedefs import JsonDict
 from nitpick.violations import Fuss, Reporter, StyleViolations
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from nitpick.typedefs import JsonDict
 
 MAX_ATTEMPTS = 5
 

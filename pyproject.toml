@@ -129,17 +129,7 @@ select = ["ALL"]
 
 # https://beta.ruff.rs/docs/settings/#ignore
 ignore = [
-    # Whole plugins
-    "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
-
-    # TODO: chore: fix all the "ANN" 249 errors and remove this ignore
-    "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
-
-    # FIXME[AA]:
     "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
-    "TCH", # https://beta.ruff.rs/docs/rules/#flake8-type-checking-tch
-
-    # Specific rules
     "D107", # Missing docstring in `__init__`
     "D202", # No blank lines allowed after function docstring
     "D203", # 1 blank line required before class docstring
@@ -147,6 +137,10 @@ ignore = [
     "D401", # First line of docstring should be in imperative mood
     "E402", # Module level import not at top of file
     "E501", # Line too long
+    "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
+
+    # TODO: fix: add typing annotations (fix 249 errors and remove this ignore)
+    "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
 ]
 
 # https://beta.ruff.rs/docs/settings/#line-length
