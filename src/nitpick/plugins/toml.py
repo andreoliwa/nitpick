@@ -2,16 +2,19 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
 
 from tomlkit import dumps, parse
-from tomlkit.toml_document import TOMLDocument
 
 from nitpick.blender import BaseDoc, Comparison, TomlDoc, traverse_toml_tree
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.info import FileInfo
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
+
+if TYPE_CHECKING:
+    from tomlkit.toml_document import TOMLDocument
+
+    from nitpick.plugins.info import FileInfo
 
 
 class TomlPlugin(NitpickPlugin):

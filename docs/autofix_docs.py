@@ -13,7 +13,7 @@ from importlib import import_module
 from pathlib import Path
 from subprocess import check_output  # nosec
 from textwrap import dedent, indent
-from typing import Optional, Dict, List, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import attr
 import click
@@ -61,7 +61,8 @@ class FileType:
     def __post_init__(self):
         """Warn about text that might render incorrectly."""
         if "`" in self.text:
-            raise RuntimeError(f"Remove all backticks from the text: {self.text}")
+            msg = f"Remove all backticks from the text: {self.text}"
+            raise RuntimeError(msg)
 
     def __lt__(self, other: "FileType") -> bool:
         """Sort instances.
@@ -193,7 +194,6 @@ def write_plugins() -> int:
     ):
         header = plugin_class.filename
         if not header:
-            # module_name = file_class.__module__
             module = import_module(plugin_class.__module__)
             header = (module.__doc__ or "").strip(" .")
 
@@ -256,7 +256,7 @@ def rst_table(header: Tuple[str, ...], rows: List[Tuple[str, ...]]) -> List[str]
     """Create a ReST table from header and rows."""
     blocks = [".. list-table::\n   :header-rows: 1\n"]
     num_columns = len(header)
-    for row in [header] + rows:
+    for row in [header, *rows]:
         template = ("*" + " - {}\n " * num_columns).rstrip()
         blocks.append(indent(template.format(*row), "   "))
     return blocks

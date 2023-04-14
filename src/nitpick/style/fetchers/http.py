@@ -2,15 +2,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import click
 import requests
-from furl import furl
 from loguru import logger
 
 from nitpick.enums import OptionEnum
 from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
+
+if TYPE_CHECKING:
+    from furl import furl
 
 
 @dataclass(frozen=True)
@@ -19,7 +22,7 @@ class HttpFetcher(StyleFetcher):
 
     requires_connection = True
 
-    protocols: tuple[str, ...] = (Scheme.HTTP, Scheme.HTTPS)  # type: ignore
+    protocols: tuple[str, ...] = (Scheme.HTTP, Scheme.HTTPS)  # type: ignore[has-type]
 
     def fetch(self, url: furl) -> str:
         """Fetch the style from a web location."""
@@ -40,7 +43,8 @@ class HttpFetcher(StyleFetcher):
     def _download(self, url: furl, **kwargs) -> str:
         logger.info(f"Downloading style from {url}")
         if self.session is None:
-            raise RuntimeError("No session provided to fetcher")
+            msg = "No session provided to fetcher"
+            raise RuntimeError(msg)
         response = self.session.get(url.url, **kwargs)
         response.raise_for_status()
         return response.text

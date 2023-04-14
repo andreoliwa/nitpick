@@ -69,7 +69,7 @@ def test_no_python_file_root_dir(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "python_file,error", [("depth1.py", False), ("subdir/depth2.py", False), ("subdir/another/depth3.py", True)]
+    ("python_file", "error"), [("depth1.py", False), ("subdir/depth2.py", False), ("subdir/another/depth3.py", True)]
 )
 def test_at_least_one_python_file(python_file, error, tmp_path):
     """At least one Python file on the root dir, even if it's not a main file."""

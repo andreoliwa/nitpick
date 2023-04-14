@@ -25,7 +25,8 @@ class Nitpick:
 
     def __init__(self) -> None:
         if not self._allow_init:
-            raise TypeError("This class cannot be instantiated directly. Use Nitpick.singleton().init(...) instead")
+            msg = "This class cannot be instantiated directly. Use Nitpick.singleton().init(...) instead"
+            raise TypeError(msg)
 
         self.offline: bool = False
 

@@ -1,7 +1,7 @@
 """Text files."""
 from __future__ import annotations
 
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
 
 from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
@@ -9,9 +9,11 @@ from marshmallow.orderedset import OrderedSet
 from nitpick import fields
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.info import FileInfo
 from nitpick.schemas import help_message
 from nitpick.violations import Fuss, ViolationEnum
+
+if TYPE_CHECKING:
+    from nitpick.plugins.info import FileInfo
 
 TEXT_FILE_RTFD_PAGE = "plugins.html#text-files"
 KEY_CONTAINS = "contains"

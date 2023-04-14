@@ -40,7 +40,7 @@ class Fuss:
     def pretty(self) -> str:
         """Message to be used on the CLI."""
         filename_plus_line = f"{self.filename}:{self.lineno}: " if self.filename.strip() else ""
-        return f"{filename_plus_line}{FLAKE8_PREFIX}{self.code:03}" f" {self.message.rstrip()}{self.colored_suggestion}"
+        return f"{filename_plus_line}{FLAKE8_PREFIX}{self.code:03} {self.message.rstrip()}{self.colored_suggestion}"
 
     def __lt__(self, other: Fuss) -> bool:
         """Sort Fuss instances."""
@@ -113,10 +113,7 @@ class Reporter:  # pylint: disable=too-few-public-methods
 
     def make_fuss(self, violation: ViolationEnum, suggestion: str = "", fixed=False, **kwargs) -> Fuss:
         """Make a fuss."""
-        if kwargs:
-            formatted = violation.message.format(**kwargs)
-        else:
-            formatted = violation.message
+        formatted = violation.message.format(**kwargs) if kwargs else violation.message
         base = self.violation_base_code if violation.add_code else 0
         Reporter.increment(fixed)
         # Remove right whitespace from suggestion (new lines, spaces, etc.)

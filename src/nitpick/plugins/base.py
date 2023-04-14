@@ -3,19 +3,23 @@ from __future__ import annotations
 
 import abc
 import fnmatch
-from pathlib import Path
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
 
 from autorepr import autotext
 from loguru import logger
-from marshmallow import Schema
 
 from nitpick.blender import BaseDoc, flatten_quotes, search_json
 from nitpick.config import SpecialConfig
 from nitpick.constants import DUNDER_LIST_KEYS
-from nitpick.plugins.info import FileInfo
 from nitpick.typedefs import JsonDict, mypy_property
 from nitpick.violations import Fuss, Reporter, SharedViolations
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from marshmallow import Schema
+
+    from nitpick.plugins.info import FileInfo
 
 
 class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance-attributes
@@ -134,7 +138,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         else:
             yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
-    def write_file(self, file_exists: bool) -> Fuss | None:  # pylint: disable=unused-argument,no-self-use
+    def write_file(  # pylint: disable=no-self-use
+        self,
+        file_exists: bool,  # pylint: disable=unused-argument # noqa: ARG002
+    ) -> Fuss | None:
         """Hook to write the new file when autofix mode is on. Should be used by inherited classes."""
         return None
 

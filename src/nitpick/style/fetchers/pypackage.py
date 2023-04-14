@@ -3,8 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
-from pathlib import Path
-from typing import Iterable, cast
+from typing import TYPE_CHECKING, Iterable, cast
 
 import attr
 import tomlkit
@@ -14,6 +13,9 @@ from nitpick import PROJECT_NAME, compat
 from nitpick.constants import DOT
 from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @lru_cache()
@@ -49,7 +51,7 @@ class PythonPackageURL:
         """
         package_name = url.host
         resource_path = url.path.segments
-        if resource_path and resource_path[-1] == "":
+        if resource_path and not resource_path[-1]:
             # strip trailing slash
             *resource_path, _ = resource_path
 
@@ -64,8 +66,7 @@ class PythonPackageURL:
 
 @dataclass(frozen=True)
 class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
-    """
-    Fetch a style from an installed Python package.
+    """Fetch a style from an installed Python package.
 
     URL schemes:
     - ``py://import/path/of/style/file/<style_file_name>``
@@ -74,9 +75,9 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
     E.g. ``py://some_package/path/nitpick.toml``.
     """
 
-    protocols: tuple[str, ...] = (Scheme.PY, Scheme.PYPACKAGE)  # type: ignore
+    protocols: tuple[str, ...] = (Scheme.PY, Scheme.PYPACKAGE)  # type: ignore[assignment]
 
-    def _normalize_scheme(self, scheme: str) -> str:
+    def _normalize_scheme(self, scheme: str) -> str:  # noqa: ARG002
         # Always use the shorter py:// scheme name in the canonical URL.
         return cast(str, Scheme.PY)
 
@@ -134,5 +135,6 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
             bis.name = meta["name"]
             bis.url = meta.get("url")
         except KeyError as err:
-            raise SyntaxError(f"Style file missing [nitpick.meta] information: {bis}") from err
+            msg = f"Style file missing [nitpick.meta] information: {bis}"
+            raise SyntaxError(msg) from err
         return bis

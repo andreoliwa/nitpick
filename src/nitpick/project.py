@@ -4,7 +4,7 @@ from __future__ import annotations
 import itertools
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 import tomlkit
 from autorepr import autorepr
@@ -13,7 +13,6 @@ from marshmallow_polyfield import PolyField
 from more_itertools.more import always_iterable
 from pluggy import PluginManager
 from tomlkit.items import KeyType, SingleKey
-from tomlkit.toml_document import TOMLDocument
 
 from nitpick import fields, plugins
 from nitpick.blender import TomlDoc, search_json
@@ -33,8 +32,12 @@ from nitpick.constants import (
 from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
-from nitpick.typedefs import JsonDict, PathOrStr
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
+
+if TYPE_CHECKING:
+    from tomlkit.toml_document import TOMLDocument
+
+    from nitpick.typedefs import JsonDict, PathOrStr
 
 
 def glob_files(dir_: Path, file_patterns: Iterable[str]) -> set[Path]:
@@ -222,4 +225,4 @@ class Project:
         doc.add(SingleKey(TOOL_NITPICK_KEY, KeyType.Bare), tool_nitpick)
 
         # config.file will always have a value at this point, but mypy can't see it.
-        config.file.write_text(tomlkit.dumps(doc, sort_keys=True))  # type: ignore
+        config.file.write_text(tomlkit.dumps(doc, sort_keys=True))

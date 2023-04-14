@@ -248,7 +248,8 @@ def lint(c, recreate=False):
 
     # Exit only after restoring tox.ini
     if result.exited > 0:
-        raise Exit("pylint failed", 1)
+        msg = "pylint failed"
+        raise Exit(msg, 1)
 
 
 @task(help={"venv": "Remove the Poetry virtualenv and the tox dir"})
