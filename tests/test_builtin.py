@@ -19,6 +19,7 @@ from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 from nitpick.violations import Fuss
 from tests.helpers import STYLES_DIR, ProjectMock
 
+RESOURCES_DIR = Path(__file__).parent.parent / "src/nitpick/resources"
 BUILTIN_STYLE_CODES = {
     SETUP_CFG: 321,
     PRE_COMMIT_CONFIG_YAML: 361,
@@ -56,10 +57,13 @@ def test_packages_named_after_identify_tags():
         assert init_py[0].is_file()
 
 
-@pytest.mark.parametrize("builtin_style_path", [s for s in builtin_styles() if "presets" not in s.parts])
-def test_each_builtin_style(tmp_path, datadir, builtin_style_path):
+@pytest.mark.parametrize(
+    "relative_path",
+    sorted(str(s.relative_to(RESOURCES_DIR)) for s in builtin_styles() if "presets" not in s.parts),
+)
+def test_each_builtin_style(tmp_path, datadir, relative_path):
     """Test each built-in style (skip presets)."""
-    style = BuiltinStyle.from_path(builtin_style_path)
+    style = BuiltinStyle.from_path(RESOURCES_DIR / relative_path)
     violations = []
     name_contents = []
     for filename in style.files:

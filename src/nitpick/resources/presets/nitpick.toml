@@ -11,11 +11,8 @@ include = [
     "py://nitpick/resources/python/39",
 
     "py://nitpick/resources/python/absent",
-    "py://nitpick/resources/python/bandit",
     "py://nitpick/resources/python/black",
-    "py://nitpick/resources/python/flake8",
     "py://nitpick/resources/python/pre-commit-hooks",
-    "py://nitpick/resources/python/isort",
     "py://nitpick/resources/python/mypy",
     "py://nitpick/resources/python/poetry",
     "py://nitpick/resources/python/pylint",
@@ -24,7 +21,6 @@ include = [
     "py://nitpick/resources/python/sonar-python",
     "py://nitpick/resources/python/tox",
     "py://nitpick/resources/python/github-workflow",
-    "py://nitpick/resources/python/autoflake",
 
     "py://nitpick/resources/any/prettier",
     "py://nitpick/resources/any/codeclimate",
@@ -39,6 +35,3 @@ include = [
 
     "py://nitpick/resources/javascript/package-json",
 ]
-
-[nitpick.files."setup.cfg"]
-comma_separated_values = ["flake8.ignore", "flake8.exclude", "isort.skip", "isort.known_first_party"]

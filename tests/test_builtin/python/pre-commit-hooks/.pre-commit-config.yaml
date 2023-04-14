@@ -1,16 +1,8 @@
 repos:
   - repo: https://github.com/pre-commit/pygrep-hooks
     hooks:
-      - id: python-check-blanket-noqa
       - id: python-check-mock-methods
-      - id: python-no-eval
-      - id: python-no-log-warn
       - id: rst-backticks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     hooks:
       - id: debug-statements
-  - repo: https://github.com/asottile/pyupgrade
-    hooks:
-      - id: pyupgrade
-        args:
-          - --py37-plus
