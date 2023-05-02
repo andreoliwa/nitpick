@@ -64,7 +64,7 @@ class IniPlugin(NitpickPlugin):
         if all(isinstance(v, dict) for v in self.expected_config.values()):
             return
 
-        new_config = dict({TOP_SECTION: {}})
+        new_config = {TOP_SECTION: {}}
         for key, value in self.expected_config.items():
             if isinstance(value, dict):
                 new_config[key] = value
