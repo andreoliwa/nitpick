@@ -234,7 +234,7 @@ def write_cli() -> int:
             parts.append(command)
         parts.append("--help")
         print(" ".join(parts))
-        output = check_output(parts).decode().strip()  # nosec
+        output = check_output(parts).decode().strip()  # noqa: S603
         blocks.append(
             clean_template.format(
                 anchor=anchor, header=header, dashes="-" * len(header), long=dedent(long), help=indent(output, "    ")
