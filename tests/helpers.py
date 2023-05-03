@@ -413,12 +413,17 @@ class ProjectMock:
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def assert_file_contents(self, *name_contents: PathOrStr | str | None) -> ProjectMock:
+    def assert_file_contents(self, *name_contents: PathOrStr | str | None, lstrip=True) -> ProjectMock:
         """Assert the file has the expected contents. Use `None` to indicate that the file doesn't exist."""
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)
-            expected = None if file_contents is None else dedent(from_path_or_str(file_contents)).lstrip()
+            if file_contents is None:
+                expected = None
+            else:
+                expected = dedent(from_path_or_str(file_contents))
+                if lstrip:
+                    expected = expected.lstrip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
         return self
 
