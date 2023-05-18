@@ -47,6 +47,8 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest/
+# pytest-testmon
+.testmondata*
 
 # Translations
 *.mo
@@ -114,6 +116,3 @@ ENV/
 
 # macOS
 .DS_Store
-
-# pytest-testmon
-.testmondata
