@@ -69,4 +69,4 @@ class Deprecation:
 
 def pretty_exception(err: Exception, message: str = ""):
     """Return a pretty error message with the full path of the Exception."""
-    return f"{message} ({err.__module__}.{err.__class__.__name__}: {str(err)})"
+    return f"{message} ({err.__module__}.{err.__class__.__name__}: {err!s})"

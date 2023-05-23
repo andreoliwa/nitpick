@@ -193,7 +193,7 @@ def quoted_split(string_: str, separator=SEPARATOR_DOT) -> list[str]:
     )
 
     def remove_quotes(match):
-        return match.group(0).strip("".join([SINGLE_QUOTE, DOUBLE_QUOTE])).replace(separator, SEPARATOR_QUOTED_SPLIT)
+        return match.group(0).strip(f"{SINGLE_QUOTE}{DOUBLE_QUOTE}").replace(separator, SEPARATOR_QUOTED_SPLIT)
 
     return [
         part.replace(SEPARATOR_QUOTED_SPLIT, separator)
