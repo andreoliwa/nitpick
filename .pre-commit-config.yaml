@@ -40,7 +40,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.263
+    rev: v0.0.269
     hooks:
       - id: ruff
         args: [--fix]
@@ -70,7 +70,7 @@ repos:
       - id: prettier
         stages: [commit]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.2.0
+    rev: v1.3.0
     hooks:
       - id: mypy
         # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
@@ -109,7 +109,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: 3.2.0
+    rev: 3.2.2
     hooks:
       - id: commitizen
         stages: [commit-msg]
