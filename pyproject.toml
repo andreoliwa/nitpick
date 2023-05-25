@@ -129,6 +129,7 @@ select = ["ALL"]
 
 # https://beta.ruff.rs/docs/settings/#ignore
 ignore = [
+    "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann # TODO: fix: add typing annotations (fix 249 errors and remove this ignore)
     "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
     "D107", # Missing docstring in `__init__`
     "D202", # No blank lines allowed after function docstring
@@ -138,9 +139,8 @@ ignore = [
     "E402", # Module level import not at top of file
     "E501", # Line too long
     "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
-
-    # TODO: fix: add typing annotations (fix 249 errors and remove this ignore)
-    "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
+    "TD002", # Missing author in TO DO
+    "TD003", # Missing issue link on the line following this TO DO
 ]
 
 # https://beta.ruff.rs/docs/settings/#line-length
