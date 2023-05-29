@@ -1,3 +1,34 @@
+## [0.33.2](https://github.com/andreoliwa/nitpick/compare/v0.33.1...v0.33.2) (2023-05-29)
+
+### Bug Fixes
+
+- changed TOML lists are replaced (same behaviour as in YAML files) ([#577](https://github.com/andreoliwa/nitpick/issues/577)) ([dbd9ac7](https://github.com/andreoliwa/nitpick/commit/dbd9ac7d0daf479447675a696392424786fe6302))
+- **deps:** update dependency attrs to v23 ([07c9bdd](https://github.com/andreoliwa/nitpick/commit/07c9bdd434863160113b919e061d00ffa6012bc5))
+- **deps:** update dependency dpath to v2.1.6 ([4550476](https://github.com/andreoliwa/nitpick/commit/455047651f32aeda98802809c2bfef10e2b2bdba))
+- **deps:** update dependency identify to v2.5.23 ([6e66f66](https://github.com/andreoliwa/nitpick/commit/6e66f66f941814d7b71694766e6fc8459ae43ff8))
+- **deps:** update dependency identify to v2.5.24 ([2e5cb4b](https://github.com/andreoliwa/nitpick/commit/2e5cb4b390491aa5ff5adf5ce303253c0c90798b))
+- **deps:** update dependency loguru to v0.7.0 ([da24d3a](https://github.com/andreoliwa/nitpick/commit/da24d3a9c7b80df3f06f61b87edb091cbb9da86a))
+- **deps:** update dependency pylint to v2.17.4 ([ba8f68e](https://github.com/andreoliwa/nitpick/commit/ba8f68e54e18a793e72a197550a824c2c80d3ee4))
+- **deps:** update dependency pytest to v7.3.0 ([c7f71a0](https://github.com/andreoliwa/nitpick/commit/c7f71a0069b826d760c2b8167b7d8191445e2f8d))
+- **deps:** update dependency pytest to v7.3.1 ([0ca66ec](https://github.com/andreoliwa/nitpick/commit/0ca66ecf97038f98db4fe5f93bf7a6244f79ea22))
+- **deps:** update dependency pytest-cov to v4.1.0 ([ae11654](https://github.com/andreoliwa/nitpick/commit/ae116547319a1eac01eec2afb4748788fd6b68a7))
+- **deps:** update dependency pytest-testmon to v2.0.5 ([8548727](https://github.com/andreoliwa/nitpick/commit/8548727716c072fd1d5147b271d31668c0d9f3cc))
+- **deps:** update dependency pytest-testmon to v2.0.6 ([ecc305c](https://github.com/andreoliwa/nitpick/commit/ecc305cb94b790e302925bfbcad35453c7387bf1))
+- **deps:** update dependency pytest-testmon to v2.0.8 ([4a01477](https://github.com/andreoliwa/nitpick/commit/4a01477d00d13cc9d2fd4671cbc9a5e2ed50d2c9))
+- **deps:** update dependency requests to v2.29.0 ([6096405](https://github.com/andreoliwa/nitpick/commit/60964053d790616a68c2baf4a44ebe5c0139adb5))
+- **deps:** update dependency requests to v2.30.0 ([f930af7](https://github.com/andreoliwa/nitpick/commit/f930af78c6c9a5538297af73861112744c7efe57))
+- **deps:** update dependency requests to v2.31.0 ([82af708](https://github.com/andreoliwa/nitpick/commit/82af70842e18bbc1deb5efbe97bbe32f8a9237fd))
+- **deps:** update dependency ruamel.yaml to v0.17.22 ([544c264](https://github.com/andreoliwa/nitpick/commit/544c26447351239701554fa6f1b37d083affdf4d))
+- **deps:** update dependency ruamel.yaml to v0.17.23 ([1685e3f](https://github.com/andreoliwa/nitpick/commit/1685e3fa6462caacfa4b248b7b6a7296be3e5f2f))
+- **deps:** update dependency ruamel.yaml to v0.17.24 ([bd2e810](https://github.com/andreoliwa/nitpick/commit/bd2e8104d56d99366cbc43747a7daa2339f82c63))
+- **deps:** update dependency ruamel.yaml to v0.17.26 ([935328d](https://github.com/andreoliwa/nitpick/commit/935328d5b45364dd19927da20ad3ea68144a6503))
+- **deps:** update dependency ruamel.yaml to v0.17.27 ([5f12e41](https://github.com/andreoliwa/nitpick/commit/5f12e413e02886bc58e9701ba8449b4ff2d1fdab))
+- **deps:** update dependency ruamel.yaml to v0.17.28 ([c4fc365](https://github.com/andreoliwa/nitpick/commit/c4fc365078def85881c51938411d48db7d4acf48))
+- **deps:** update dependency sphinx to v7 ([45f9f63](https://github.com/andreoliwa/nitpick/commit/45f9f63703008fe52895769299f40c9fdd64fa19))
+- **deps:** update dependency sphinx_rtd_theme to v1.2.1 ([a3049cc](https://github.com/andreoliwa/nitpick/commit/a3049ccbf0d9311633eee0e61822bf03b75908af))
+- **deps:** update dependency tomlkit to v0.11.8 ([#579](https://github.com/andreoliwa/nitpick/issues/579)) ([2292285](https://github.com/andreoliwa/nitpick/commit/229228593f808d9013daa4ad0c5041cd71345fa4))
+- **deps:** update ruamel.yaml\* to work with Python 3.11 ([c410aeb](https://github.com/andreoliwa/nitpick/commit/c410aebb913f21ff55247a21eea1e52bec7deb50))
+
 ## [0.33.1](https://github.com/andreoliwa/nitpick/compare/v0.33.0...v0.33.1) (2023-03-29)
 
 ### Bug Fixes

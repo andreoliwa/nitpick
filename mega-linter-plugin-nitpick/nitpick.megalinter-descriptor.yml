@@ -13,7 +13,7 @@ linters:
     name: NITPICK
     install:
       dockerfile:
-        - RUN pip install nitpick==0.33.1
+        - RUN pip install nitpick==0.33.2
     examples:
       - "nitpick check"
       - "nitpick fix"
