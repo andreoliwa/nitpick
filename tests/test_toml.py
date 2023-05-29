@@ -29,12 +29,14 @@ def test_suggest_initial_contents(tmp_path):
         [section]
         key = "value"
         number = 10
+        list = [ "a", "b", "c",]
     """
     ProjectMock(tmp_path).style(
         f"""
         ["{filename}".section]
         key = "value"
         number = 10
+        list = ["a", "b", "c"]
         """
     ).api_check_then_fix(
         Fuss(
@@ -58,6 +60,9 @@ def test_missing_different_values_pyproject_toml(tmp_path):
 
         ["pyproject.toml".tool]
         missing = "value"
+
+        ["pyproject.toml".config]
+        list = ["a", "b", "c"]
         """
     ).pyproject_toml(
         """
@@ -65,6 +70,9 @@ def test_missing_different_values_pyproject_toml(tmp_path):
         x = 1  # comment for x
         yada = "before"  # comment for yada yada
         abc = "123" # comment for abc
+
+        [config]
+        list = ["a", "b"] # comment for list
         """
     ).api_check_then_fix(
         Fuss(
@@ -85,6 +93,9 @@ def test_missing_different_values_pyproject_toml(tmp_path):
             """
             [tool]
             missing = "value"
+
+            [config]
+            list = [ "c",]
             """,
         ),
     ).assert_file_contents(
@@ -94,6 +105,9 @@ def test_missing_different_values_pyproject_toml(tmp_path):
         x = 1  # comment for x
         yada = "after"  # comment for yada yada
         abc = "123" # comment for abc
+
+        [config]
+        list = ["a", "b", "c"] # comment for list
 
         [tool]
         missing = "value"
@@ -116,6 +130,7 @@ def test_missing_different_values_any_toml(tmp_path):
         ["{filename}".section]
         key = "new value"
         number = 5
+        list = ["a", "b", "c"]
         """
     ).api_check_then_fix(
         Fuss(
@@ -136,6 +151,7 @@ def test_missing_different_values_any_toml(tmp_path):
             """
             [section]
             number = 5
+            list = [ "a", "b", "c",]
             """,
         ),
     ).assert_file_contents(
@@ -145,5 +161,6 @@ def test_missing_different_values_any_toml(tmp_path):
         # Line comment
         key = "new value"
         number = 5
+        list = ["a", "b", "c"]
         """,
     )
