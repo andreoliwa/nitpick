@@ -5,10 +5,26 @@
 
 name: Python
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
+  # Adapted from https://github.com/marketplace/actions/skip-duplicate-actions
+  pre_job:
+    # continue-on-error: true # TODO: Uncomment once integration is finished
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          # https://github.com/marketplace/actions/skip-duplicate-actions#skip-concurrent-workflow-runs
+          concurrent_skipping: "same_content_newer"
+
   build:
+    needs: pre_job
+    if: needs.pre_job.outputs.should_skip != 'true'
     name: "${{ matrix.python-version }} ${{ matrix.os }}"
     strategy:
       fail-fast: false
