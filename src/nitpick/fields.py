@@ -11,6 +11,8 @@ from nitpick.exceptions import pretty_exception
 
 __all__ = ("Dict", "Field", "List", "Nested", "String", "URL")
 
+MAX_PARTS = 2
+
 
 def is_valid_json(json_string: str) -> bool:
     """Validate the string as JSON."""
@@ -32,7 +34,7 @@ class TrimmedLength(Length):  # pylint: disable=too-few-public-methods
 class NonEmptyString(fields.String):
     """A string field that must not be empty even after trimmed."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         validate = list(always_iterable(kwargs.pop("validate", None)))
         validate.append(TrimmedLength(min=1))
         super().__init__(validate=validate, **kwargs)
@@ -41,13 +43,13 @@ class NonEmptyString(fields.String):
 class JsonString(fields.String):
     """A string field with valid JSON content."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         validate = kwargs.pop("validate", [])
         validate.append(is_valid_json)
         super().__init__(validate=validate, **kwargs)
 
 
-def string_or_list_field(object_dict, parent_object_dict):  # pylint: disable=unused-argument
+def string_or_list_field(object_dict, parent_object_dict):  # pylint: disable=unused-argument # noqa: ARG001
     """Detect if the field is a string or a list."""
     if isinstance(object_dict, list):
         return fields.List(NonEmptyString(required=True, allow_none=False))
@@ -57,19 +59,23 @@ def string_or_list_field(object_dict, parent_object_dict):  # pylint: disable=un
 def validate_section_dot_field(section_field: str) -> bool:
     """Validate if the combination section/field has a dot separating them."""
     common = "Use <section_name>.<field_name>"
+    msg = ""
     if DOT not in section_field:
-        raise ValidationError(f"Dot is missing. {common}")
-    parts = section_field.split(DOT)
-    if len(parts) > 2:
-        raise ValidationError(f"There's more than one dot. {common}")
-    if not parts[0].strip():
-        raise ValidationError(f"Empty section name. {common}")
-    if not parts[1].strip():
-        raise ValidationError(f"Empty field name. {common}")
+        msg = f"Dot is missing. {common}"
+    else:
+        parts = section_field.split(DOT)
+        if len(parts) > MAX_PARTS:
+            msg = f"There's more than one dot. {common}"
+        elif not parts[0].strip():
+            msg = f"Empty section name. {common}"
+        elif not parts[1].strip():
+            msg = f"Empty field name. {common}"
+    if msg:
+        raise ValidationError(msg)
     return True
 
 
-def boolean_or_dict_field(object_dict, parent_object_dict):  # pylint: disable=unused-argument
+def boolean_or_dict_field(object_dict, parent_object_dict):  # pylint: disable=unused-argument # noqa: ARG001
     """Detect if the field is a boolean or a dict."""
     if isinstance(object_dict, dict):
         return fields.Dict

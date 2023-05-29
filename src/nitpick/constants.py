@@ -47,7 +47,8 @@ ROOT_FILES = (
     CARGO_STAR,
     GO_MOD,
     GO_SUM,
-) + ROOT_PYTHON_FILES
+    *ROOT_PYTHON_FILES,
+)
 CONFIG_FILES = (DOT_NITPICK_TOML, PYPROJECT_TOML)
 
 # Config sections and keys

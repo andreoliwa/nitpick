@@ -64,11 +64,11 @@ def test_relative_to_current_dir(home, cwd):
 @pytest.mark.skipif(os.name != "nt", reason="Windows-only test")
 @pytest.mark.parametrize(
     "test_path",
-    (
+    [
         "C:\\",
         r"C:\path\file.toml",
         r"//server/share/path/file.toml",
-    ),
+    ],
 )
 def test_url_to_windows_path(test_path):
     """Verify that Path to URL to Path conversion preserves the path."""
@@ -80,11 +80,11 @@ def test_url_to_windows_path(test_path):
 @pytest.mark.skipif(os.name == "nt", reason="POSIX-only test")
 @pytest.mark.parametrize(
     "test_path",
-    (
+    [
         "/",
         "/path/to/file.toml",
         "//double/slash/path.toml",
-    ),
+    ],
 )
 def test_url_to_posix_path(test_path):
     """Verify that Path to URL to Path conversion preserves the path."""

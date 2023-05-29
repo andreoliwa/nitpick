@@ -51,7 +51,7 @@ def test_never(project_remote):
 
 
 @pytest.mark.parametrize(
-    "cache_option,expected_enum,expected_timedelta",
+    ("cache_option", "expected_enum", "expected_timedelta"),
     [
         ("never", CachingEnum.NEVER, DO_NOT_CACHE),
         (" NEVER\n ", CachingEnum.NEVER, DO_NOT_CACHE),

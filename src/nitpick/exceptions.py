@@ -1,19 +1,23 @@
 """Nitpick exceptions."""
+from __future__ import annotations
+
 import warnings
-from typing import Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any
 
 from more_itertools import always_iterable
 
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML, PROJECT_NAME
-from nitpick.violations import Fuss
+
+if TYPE_CHECKING:
+    from nitpick.violations import Fuss
 
 
 class QuitComplainingError(Exception):
     """Quit complaining and exit the application."""
 
-    def __init__(self, violations: Union[Fuss, List[Fuss]]) -> None:
+    def __init__(self, violations: Fuss | list[Fuss]) -> None:
         super().__init__()
-        self.violations: List[Fuss] = list(always_iterable(violations))
+        self.violations: list[Fuss] = list(always_iterable(violations))
 
 
 class Deprecation:
@@ -37,7 +41,7 @@ class Deprecation:
         return False
 
     @staticmethod
-    def jsonfile_section(style_errors: Dict[str, Any]) -> bool:
+    def jsonfile_section(style_errors: dict[str, Any]) -> bool:
         """The [nitpick.JSONFile] is not needed anymore; JSON files are now detected by the extension."""
         has_nitpick_jsonfile_section = style_errors.get(PROJECT_NAME, {}).pop("JSONFile", None)
         if has_nitpick_jsonfile_section:
@@ -69,4 +73,4 @@ class Deprecation:
 
 def pretty_exception(err: Exception, message: str = ""):
     """Return a pretty error message with the full path of the Exception."""
-    return f"{message} ({err.__module__}.{err.__class__.__name__}: {str(err)})"
+    return f"{message} ({err.__module__}.{err.__class__.__name__}: {err!s})"

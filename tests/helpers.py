@@ -2,16 +2,14 @@
 from __future__ import annotations
 
 import os
-import warnings
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 import tomlkit
 from click.testing import CliRunner
 from more_itertools.more import always_iterable, windowed
-from responses import RequestsMock
 from testfixtures import compare
 
 from nitpick.blender import TomlDoc
@@ -28,8 +26,14 @@ from nitpick.constants import (
 )
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
-from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 from nitpick.violations import Fuss, Reporter
+
+if TYPE_CHECKING:
+    import warnings
+
+    from responses import RequestsMock
+
+    from nitpick.typedefs import Flake8Error, PathOrStr, StrOrList
 
 STYLES_DIR: Path = Path(__file__).parent.parent / "src" / "nitpick" / "resources"
 
@@ -44,13 +48,14 @@ def assert_conditions(*args):
     """Assert all conditions are True."""
     for arg in args:
         if not arg:
-            raise AssertionError()
+            raise AssertionError
 
 
 def from_path_or_str(file_contents: PathOrStr):
     """Read file contents from a Path or string."""
     if file_contents is None:
-        raise RuntimeError("No path and no file contents.")
+        msg = "No path and no file contents."
+        raise RuntimeError(msg)
 
     if isinstance(file_contents, Path):
         return file_contents.read_text()
@@ -96,7 +101,8 @@ class ProjectMock:
         path: Path = self.root_dir / link_name
         full_source_path = Path(target_dir) / (target_file or link_name)
         if not full_source_path.exists():
-            raise RuntimeError(f"Source file does not exist: {full_source_path}")
+            msg = f"Source file does not exist: {full_source_path}"
+            raise RuntimeError(msg)
         path.symlink_to(full_source_path)
         if path.suffix == ".py":
             self.files_to_lint.append(path)
@@ -125,7 +131,7 @@ class ProjectMock:
                 if not (
                     line == 0 and col == 0 and message.startswith(FLAKE8_PREFIX) and class_ is NitpickFlake8Extension
                 ):
-                    raise AssertionError()
+                    raise AssertionError
                 self._flake8_errors_as_string.add(message)
 
         return self
@@ -388,10 +394,9 @@ class ProjectMock:
             if actual[-1].startswith("Violations"):
                 del actual[-1]
 
-        if not violations and not expected_str_or_lines:
-            # Remove the "no violations" message
-            if actual[-1].startswith("No violations"):
-                del actual[-1]
+        # Remove the "no violations" message
+        if not violations and not expected_str_or_lines and actual[-1].startswith("No violations"):
+            del actual[-1]
 
         compare(actual=actual, expected=expected)
         return self
@@ -408,12 +413,17 @@ class ProjectMock:
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def assert_file_contents(self, *name_contents: PathOrStr | str | None) -> ProjectMock:
+    def assert_file_contents(self, *name_contents: PathOrStr | str | None, lstrip=True) -> ProjectMock:
         """Assert the file has the expected contents. Use `None` to indicate that the file doesn't exist."""
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)
-            expected = None if file_contents is None else dedent(from_path_or_str(file_contents)).lstrip()
+            if file_contents is None:
+                expected = None
+            else:
+                expected = dedent(from_path_or_str(file_contents))
+                if lstrip:
+                    expected = expected.lstrip()
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
         return self
 
@@ -425,7 +435,8 @@ class ProjectMock:
 
     def assert_call_count(self, expected_count: int) -> ProjectMock:
         """Assert the expected request count on the mocked response object."""
-        assert self._mocked_response and self._mocked_response.assert_call_count(self._remote_url, expected_count)
+        assert self._mocked_response
+        assert self._mocked_response.assert_call_count(self._remote_url, expected_count)
         return self
 
 

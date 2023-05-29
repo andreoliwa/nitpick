@@ -3,10 +3,8 @@ from __future__ import annotations
 
 from contextlib import suppress
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Iterable, Iterator, Sequence, Set, Type
+from typing import TYPE_CHECKING, Iterable, Iterator, Sequence, Set, Type
 
-import dpath.util
 from flatten_dict import flatten, unflatten
 from furl import furl
 from identify import identify
@@ -35,8 +33,21 @@ from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.style.config import ConfigValidator
 from nitpick.style.fetchers import Scheme, StyleFetcherManager
 from nitpick.style.fetchers.github import GitHubURL
-from nitpick.typedefs import JsonDict
 from nitpick.violations import Fuss, Reporter, StyleViolations
+
+try:
+    # DeprecationWarning: The dpath.util package is being deprecated.
+    # All util functions have been moved to dpath package top level.
+    from dpath import merge as dpath_merge
+except ImportError:
+    from dpath.util import merge as dpath_merge
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from nitpick.typedefs import JsonDict
+
+MAX_ATTEMPTS = 5
 
 Plugins = Set[Type[NitpickPlugin]]
 
@@ -155,7 +166,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
                 StyleViolations.INVALID_CONFIG, flatten_marshmallow_errors(validation_errors)
             )
 
-        dpath.util.merge(self._merged_styles, flatten(toml_dict, custom_reducer(SEPARATOR_FLATTEN)))
+        dpath_merge(self._merged_styles, flatten(toml_dict, custom_reducer(SEPARATOR_FLATTEN)))
 
         yield from self.include_multiple_styles(sub_styles)
 
@@ -163,8 +174,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         toml = TomlDoc(string=file_contents)
         try:
             read_toml_dict = toml.as_object
-        # TODO: refactor: replace by this error when using tomlkit only in the future:
-        #  except TOMLKitError as err:
+        # TODO: refactor: replace by TOMLKitError when using tomlkit only in the future:
         except TomlDecodeError as err:
             # If the TOML itself could not be parsed, we can't go on
             raise QuitComplainingError(
@@ -182,7 +192,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         toml = TomlDoc(obj=merged_dict)
 
         attempt = 1
-        while attempt < 5:
+        while attempt < MAX_ATTEMPTS:
             try:
                 merged_style_path.write_text(toml.reformatted)
                 break
@@ -232,7 +242,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
             self._dynamic_schema_class = type("DynamicStyleSchema", (self._dynamic_schema_class,), new_files_found)
 
     def _find_subclasses(self, data, handled_tags, new_files_found):
-        for possible_file in data.keys():
+        for possible_file in data:
             found_subclasses = []
             for file_tag in identify.tags_from_filename(possible_file):
                 handler_subclass = handled_tags.get(file_tag)

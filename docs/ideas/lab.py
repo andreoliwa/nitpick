@@ -33,7 +33,8 @@ def convert(path_from_root: str):
     if "yaml" in tags:
         which_doc = YamlDoc(path=path_from_root)
     else:
-        raise NotImplementedError(f"No conversion for these types: {tags}")
+        msg = f"No conversion for these types: {tags}"
+        raise NotImplementedError(msg)
 
     toml_doc = TomlDoc(obj={path_from_root: which_doc.as_object}, use_tomlkit=True)
     print(toml_doc.reformatted)

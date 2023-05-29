@@ -12,7 +12,7 @@ import re
 import shlex
 from functools import partial
 from pathlib import Path
-from typing import Any, Callable, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
 
 import dictdiffer
 import jmespath
@@ -21,13 +21,16 @@ import tomlkit
 from attr import define  # type: ignore[attr-defined]
 from autorepr import autorepr
 from flatten_dict import flatten, unflatten
-from jmespath.parser import ParsedResult
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
 from tomlkit import items
 
-from nitpick.config import SpecialConfig
 from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
+
+if TYPE_CHECKING:
+    from jmespath.parser import ParsedResult
+
+    from nitpick.config import SpecialConfig
 
 # Generic type for classes that inherit from BaseDoc
 TBaseDoc = TypeVar("TBaseDoc", bound="BaseDoc")
@@ -152,9 +155,8 @@ class ListDetail:  # pylint: disable=too-few-public-methods
             if isinstance(desired.key, list):
                 if set(desired.key).issubset(set(actual.key)):
                     return actual
-            else:
-                if desired.key == actual.key:
-                    return actual
+            elif desired.key == actual.key:
+                return actual
         return None
 
 
@@ -191,7 +193,7 @@ def quoted_split(string_: str, separator=SEPARATOR_DOT) -> list[str]:
     )
 
     def remove_quotes(match):
-        return match.group(0).strip("".join([SINGLE_QUOTE, DOUBLE_QUOTE])).replace(separator, SEPARATOR_QUOTED_SPLIT)
+        return match.group(0).strip(f"{SINGLE_QUOTE}{DOUBLE_QUOTE}").replace(separator, SEPARATOR_QUOTED_SPLIT)
 
     return [
         part.replace(SEPARATOR_QUOTED_SPLIT, separator)
@@ -242,8 +244,8 @@ def custom_splitter(separator: str) -> Callable:
     """Custom splitter for :py:meth:`flatten_dict.flatten_dict.unflatten()` accepting a separator."""
 
     def _inner_custom_splitter(flat_key) -> tuple[str, ...]:
-        keys = tuple(flat_key.split(separator))
-        return keys
+        """Return a tuple of keys split by the separator."""
+        return tuple(flat_key.split(separator))
 
     return _inner_custom_splitter
 
@@ -362,7 +364,7 @@ class Comparison:
 
         return self
 
-    def _compare_list_elements(  # pylint: disable=too-many-arguments
+    def _compare_list_elements(  # pylint: disable=too-many-arguments # noqa: PLR0913
         self, key: str, parent_key: str, child_key: str, actual_detail: ListDetail, expected_detail: ListDetail
     ) -> None:
         """Compare list elements by their keys or hashes."""
@@ -564,7 +566,7 @@ class SensibleYAML(YAML):
     `Output of dump() as a string <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.map_indent = 2
         self.sequence_indent = 4

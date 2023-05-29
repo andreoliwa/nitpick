@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar
-
-from furl import furl
-from requests_cache import CachedSession
+from typing import TYPE_CHECKING, ClassVar
 
 from nitpick.constants import TOML_EXTENSION
+
+if TYPE_CHECKING:
+    from furl import furl
+    from requests_cache import CachedSession
 
 
 @dataclass(frozen=True)
@@ -24,7 +25,8 @@ class StyleFetcher:
     def __post_init__(self):
         """Validate that session has been passed in for requires_connection == True."""
         if self.requires_connection and self.session is None:
-            raise ValueError("session is required")
+            msg = "session is required"
+            raise ValueError(msg)
 
     def preprocess_relative_url(self, url: str) -> str:  # pylint: disable=no-self-use
         """Preprocess a relative URL.
@@ -62,4 +64,4 @@ class StyleFetcher:
 
     def fetch(self, url: furl) -> str:
         """Fetch a style from a specific fetcher."""
-        raise NotImplementedError()
+        raise NotImplementedError

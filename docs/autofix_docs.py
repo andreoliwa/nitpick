@@ -7,13 +7,14 @@ The ``include`` directive is not working on Read the Docs.
 It doesn't recognise the "styles" dir anywhere (on the root, under "docs", under "_static"...).
 Not even changing ``html_static_path`` on ``conf.py`` worked.
 """
+from __future__ import annotations
+
 import sys
 from collections import defaultdict
 from importlib import import_module
 from pathlib import Path
 from subprocess import check_output  # nosec
 from textwrap import dedent, indent
-from typing import Optional, Dict, List, Set, Tuple, Union
 
 import attr
 import click
@@ -55,15 +56,16 @@ class FileType:
 
     text: str
     url: str
-    check: Union[bool, int]
-    autofix: Union[bool, int]
+    check: bool | int
+    autofix: bool | int
 
     def __post_init__(self):
         """Warn about text that might render incorrectly."""
         if "`" in self.text:
-            raise RuntimeError(f"Remove all backticks from the text: {self.text}")
+            msg = f"Remove all backticks from the text: {self.text}"
+            raise RuntimeError(msg)
 
-    def __lt__(self, other: "FileType") -> bool:
+    def __lt__(self, other: FileType) -> bool:
         """Sort instances.
 
         From the `docs <https://docs.python.org/3/howto/sorting.html#odd-and-ends>`_:
@@ -103,12 +105,12 @@ class FileType:
         return self._pretty("autofix")
 
     @property
-    def row(self) -> Tuple[str, str, str]:
+    def row(self) -> tuple[str, str, str]:
         """Tuple for a table row."""
         return self.text_with_url, self.check_str, self.autofix_str
 
 
-IMPLEMENTED_FILE_TYPES: Set[FileType] = {
+IMPLEMENTED_FILE_TYPES: set[FileType] = {
     FileType("Any INI file", f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
     FileType("Any JSON file", f"{READ_THE_DOCS_URL}plugins.html#json-files", True, True),
     FileType("Any plain text file", f"{READ_THE_DOCS_URL}plugins.html#text-files", True, False),
@@ -118,7 +120,7 @@ IMPLEMENTED_FILE_TYPES: Set[FileType] = {
     FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
     FileType(SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
 }
-PLANNED_FILE_TYPES: Set[FileType] = {
+PLANNED_FILE_TYPES: set[FileType] = {
     FileType("Any Markdown file", "", 280, 0),
     FileType("Any Terraform file", "", 318, 0),
     FileType(".dockerignore", "", 8, 8),
@@ -145,7 +147,7 @@ class DocFile:  # pylint: disable=too-few-public-methods
             self.divider_end = RST_DIVIDER_END
             self.divider_from_here = RST_DIVIDER_FROM_HERE
 
-    def write(self, lines: List[str], divider: Optional[str] = None) -> int:
+    def write(self, lines: list[str], divider: str | None = None) -> int:
         """Write content to the file."""
         old_content = self.file.read_text()
         if divider:
@@ -193,7 +195,6 @@ def write_plugins() -> int:
     ):
         header = plugin_class.filename
         if not header:
-            # module_name = file_class.__module__
             module = import_module(plugin_class.__module__)
             header = (module.__doc__ or "").strip(" .")
 
@@ -234,7 +235,7 @@ def write_cli() -> int:
             parts.append(command)
         parts.append("--help")
         print(" ".join(parts))
-        output = check_output(parts).decode().strip()  # nosec
+        output = check_output(parts).decode().strip()  # noqa: S603
         blocks.append(
             clean_template.format(
                 anchor=anchor, header=header, dashes="-" * len(header), long=dedent(long), help=indent(output, "    ")
@@ -252,20 +253,20 @@ def write_config() -> int:
     return DocFile("configuration.rst").write(blocks, divider="config-file")
 
 
-def rst_table(header: Tuple[str, ...], rows: List[Tuple[str, ...]]) -> List[str]:
+def rst_table(header: tuple[str, ...], rows: list[tuple[str, ...]]) -> list[str]:
     """Create a ReST table from header and rows."""
     blocks = [".. list-table::\n   :header-rows: 1\n"]
     num_columns = len(header)
-    for row in [header] + rows:
+    for row in [header, *rows]:
         template = ("*" + " - {}\n " * num_columns).rstrip()
         blocks.append(indent(template.format(*row), "   "))
     return blocks
 
 
-def write_readme(file_types: Set[FileType], divider: str) -> int:
+def write_readme(file_types: set[FileType], divider: str) -> int:
     """Write the README."""
     # TODO: chore: quickstart.rst has some parts of README.rst as a copy/paste/change
-    rows: List[Tuple[str, ...]] = []
+    rows: list[tuple[str, ...]] = []
     for file_type in sorted(file_types):
         rows.append(file_type.row)
 
@@ -281,9 +282,9 @@ class StyleLibraryRow:  # pylint: disable=too-few-public-methods
     name: str
 
 
-def _build_library(gitref: bool = True) -> List[str]:
+def _build_library(gitref: bool = True) -> list[str]:
     # pylint: disable=no-member
-    library: Dict[str, List[Tuple]] = defaultdict(list)
+    library: dict[str, list[tuple]] = defaultdict(list)
     pre, post = (":gitref:", "") if gitref else ("", "_")
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)

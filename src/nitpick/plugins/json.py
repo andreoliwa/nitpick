@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from itertools import chain
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
 
 from loguru import logger
 
@@ -11,10 +11,12 @@ from nitpick import fields
 from nitpick.blender import BaseDoc, Comparison, JsonDoc, flatten_quotes, unflatten_quotes
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.info import FileInfo
 from nitpick.schemas import BaseNitpickSchema
-from nitpick.typedefs import JsonDict
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
+
+if TYPE_CHECKING:
+    from nitpick.plugins.info import FileInfo
+    from nitpick.typedefs import JsonDict
 
 KEY_CONTAINS_KEYS = "contains_keys"
 KEY_CONTAINS_JSON = "contains_json"

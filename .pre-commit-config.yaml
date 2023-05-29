@@ -39,32 +39,18 @@ repos:
       - id: debug-statements
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.269
     hooks:
-      - id: pyupgrade
-        args: [--py37-plus]
+      - id: ruff
+        args: [--fix]
   - repo: https://github.com/aio-libs/sort-all # TODO: style(pre-commit): add sort-all
     rev: v1.2.0
     hooks:
       - id: sort-all
         language_version: python3.8
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.0.2
-    hooks:
-      - id: autoflake
-        args:
-          [
-            --in-place,
-            --remove-all-unused-imports,
-            --remove-unused-variables,
-            --remove-duplicate-keys,
-            --ignore-init-module-imports,
-            --exclude,
-            compat.py,
-          ]
   - repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 23.3.0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -73,46 +59,18 @@ repos:
     hooks:
       - id: blacken-docs
         additional_dependencies: [black==22.1.0]
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        # To avoid ERROR: Package 'isort' requires a different Python: 3.7.12 not in '>=3.8.0'
-        language_version: python3.8
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
-      - id: python-check-blanket-noqa
       - id: python-check-mock-methods
-      - id: python-no-eval
-      - id: python-no-log-warn
       - id: rst-backticks
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.6
+    rev: v3.0.0-alpha.9-for-vscode
     hooks:
       - id: prettier
         stages: [commit]
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-        language_version: python3.8
-        additional_dependencies:
-          [
-            flake8-blind-except,
-            flake8-bugbear,
-            flake8-comprehensions,
-            flake8-debugger,
-            flake8-docstrings,
-            flake8-isort,
-            flake8-polyfill,
-            flake8-pytest,
-            flake8-quotes,
-            flake8-typing-imports,
-            yesqa,
-          ]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.1.1
+    rev: v1.3.0
     hooks:
       - id: mypy
         # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
@@ -140,12 +98,6 @@ repos:
         language: system
         types: [python]
         exclude: tests/
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        args: [--ini, setup.cfg]
-        exclude: tests/
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.9.0.2
     hooks:
@@ -157,7 +109,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v2.42.1
+    rev: 3.2.2
     hooks:
       - id: commitizen
         stages: [commit-msg]

@@ -560,7 +560,7 @@ def test_github_url_with_missing_envvar_has_empty_credential(monkeypatch):
     assert parsed.credentials == ()
 
 
-def test_github_url_query_token_retains_other_queryparams(monkeypatch):
+def test_github_url_query_token_retains_other_queryparams():
     """Querystring isn't modified by the token switcharoo."""
     parsed = GitHubURL.from_furl(furl("https://github.com/foo/bar/blob/branch/filename.toml?leavemealone=ok"))
     assert ("leavemealone", "ok") in parsed.url.query.params.items()
@@ -717,7 +717,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
         (
             'style = [""]\nextra_values = "also raise warnings"',
             f"extra_values: Unknown configuration. See {READ_THE_DOCS_URL}configuration.html."
-            + "\nstyle.0: Shorter than minimum length 1.",
+            "\nstyle.0: Shorter than minimum length 1.",
         ),
         ('style = ""', "style: Shorter than minimum length 1."),
         ("style = 1", "style: Not a valid string."),
@@ -728,7 +728,7 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
     ]:
         project.pyproject_toml(f"[tool.nitpick]\n{style}").flake8(offline=offline).assert_errors_contain(
             "NIP001 File pyproject.toml has an incorrect style."
-            + f" Invalid data in [tool.nitpick]:{SUGGESTION_BEGIN}\n{error_message}{SUGGESTION_END}",
+            f" Invalid data in [tool.nitpick]:{SUGGESTION_BEGIN}\n{error_message}{SUGGESTION_END}",
             1,
         )
 
@@ -848,7 +848,7 @@ def test_always_fetch_github_raw_url(style_url, tmp_path):
 
 @responses.activate
 @pytest.mark.parametrize(
-    "original_url, expected_url, git_reference, raw_git_reference, at_reference",
+    ("original_url", "expected_url", "git_reference", "raw_git_reference", "at_reference"),
     [
         (
             "https://github.com/andreoliwa/nitpick/blob/develop/src/nitpick/__init__.py",
@@ -913,7 +913,7 @@ def test_parsing_github_urls(original_url, expected_url, git_reference, raw_git_
 
 
 @pytest.mark.parametrize(
-    "original_url, import_path, resource_name",
+    ("original_url", "import_path", "resource_name"),
     [
         ("py://nitpick/styles/nitpick-style.toml", "nitpick.styles", "nitpick-style.toml"),
         ("py://some_package/nitpick.toml", "some_package", "nitpick.toml"),
@@ -929,7 +929,7 @@ def test_parsing_python_package_urls(original_url, import_path, resource_name):
 
 
 @pytest.mark.parametrize(
-    "original_url, expected_content_path_suffix",
+    ("original_url", "expected_content_path_suffix"),
     [
         ("py://tests/resources/empty-style.toml", "tests/resources/empty-style.toml"),
         ("py://tests/resources/nested_package/empty_style.toml", "tests/resources/nested_package/empty_style.toml"),

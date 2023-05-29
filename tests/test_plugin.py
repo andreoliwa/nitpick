@@ -102,7 +102,7 @@ def test_flag_format_env_variable():
     os.environ["NITPICK_SOME_OPTION"] = "something"
     assert OtherFlags.SOME_OPTION.as_envvar() == "NITPICK_SOME_OPTION"
     assert OtherFlags.SOME_OPTION.get_environ() == "something"
-    assert OtherFlags.MULTI_WORD.get_environ() == ""
+    assert not OtherFlags.MULTI_WORD.get_environ()
 
 
 def test_offline_flag_env_variable(tmpdir):
@@ -143,7 +143,7 @@ def test_offline_recommend_using_flag(tmp_path, capsys):
     responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
     project_github(tmp_path).flake8()
     out, err = capsys.readouterr()
-    assert out == ""
+    assert not out
     assert (
         "could not be downloaded. Either your network is unreachable or the URL is broken."
         " Check the URL, fix your connection, or use  --nitpick-offline / NITPICK_OFFLINE=1" in err

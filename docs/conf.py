@@ -1,5 +1,4 @@
-"""
-Configuration file for the Sphinx documentation builder.
+"""Configuration file for the Sphinx documentation builder.
 
 This file does only contain a selection of the most common options. For a
 full list see the documentation:
@@ -15,7 +14,7 @@ from typing import Dict
 
 # -- Project information -----------------------------------------------------
 project = "nitpick"
-copyright = "2019, W. Augusto Andreoli"  # pylint: disable=redefined-builtin
+copyright = "2019, W. Augusto Andreoli"  # pylint: disable=redefined-builtin # noqa: A001
 author = "W. Augusto Andreoli"
 
 # The short X.Y version

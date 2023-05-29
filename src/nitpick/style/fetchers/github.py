@@ -16,7 +16,7 @@ from nitpick.style.fetchers.http import HttpFetcher
 GITHUB_COM = "github.com"
 API_GITHUB_COM = "api.github.com"
 RAW_GITHUB_COM = "raw.githubusercontent.com"
-QUERY_STRING_TOKEN = "token"  # nosec
+QUERY_STRING_TOKEN = "token"  # nosec # noqa: S105
 
 
 @dataclass(frozen=True)
@@ -33,8 +33,7 @@ class GitHubURL:
     @property
     def default_branch(self) -> str:
         """Default GitHub branch."""
-        # get_default_branch() is memoized
-        return get_default_branch(self.api_url.url, token=self.token)
+        return get_default_branch(self.api_url.url, token=self.token)  # function is memoized
 
     @property
     def token(self) -> str | None:
@@ -103,7 +102,7 @@ class GitHubURL:
             # Skip the 'blob' component in the github.com URL.
             owner, repo, _, git_reference, *path = url.path.segments
 
-        if path and path[-1] == "":
+        if path and not path[-1]:
             # strip trailing slashes
             *path, _ = path
 
@@ -158,12 +157,12 @@ def get_default_branch(api_url: str, *, token: str | None = None) -> str:
 class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitHub repositories."""
 
-    protocols: tuple[str, ...] = (Scheme.GH, Scheme.GITHUB)  # type: ignore
+    protocols: tuple[str, ...] = (Scheme.GH, Scheme.GITHUB)  # type: ignore[assignment,has-type]
     domains: tuple[str, ...] = (GITHUB_COM,)
 
     def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use
         # Use github:// instead of gh:// in the canonical URL
-        return Scheme.GITHUB if scheme == Scheme.GH else scheme  # type: ignore
+        return Scheme.GITHUB if scheme == Scheme.GH else scheme  # type: ignore[return-value]
 
     def _download(self, url: furl, **kwargs) -> str:
         github_url = GitHubURL.from_furl(url)

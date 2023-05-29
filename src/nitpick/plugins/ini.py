@@ -3,15 +3,17 @@ from __future__ import annotations
 
 from configparser import ConfigParser, DuplicateOptionError, Error, MissingSectionHeaderError, ParsingError
 from io import StringIO
-from typing import Any, Iterator
+from typing import TYPE_CHECKING, Any, Iterator
 
 import dictdiffer
 from configupdater import ConfigUpdater, Space
 
 from nitpick.plugins import hookimpl
 from nitpick.plugins.base import NitpickPlugin
-from nitpick.plugins.info import FileInfo
 from nitpick.violations import Fuss, ViolationEnum
+
+if TYPE_CHECKING:
+    from nitpick.plugins.info import FileInfo
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"
 SECTION_SEPARATOR = "."
@@ -62,7 +64,7 @@ class IniPlugin(NitpickPlugin):
         if all(isinstance(v, dict) for v in self.expected_config.values()):
             return
 
-        new_config = dict({TOP_SECTION: {}})
+        new_config = {TOP_SECTION: {}}
         for key, value in self.expected_config.items():
             if isinstance(value, dict):
                 new_config[key] = value
@@ -290,8 +292,7 @@ class IniPlugin(NitpickPlugin):
         """Print an example of a config parser in a string instead of a file."""
         string_stream = StringIO()
         parser.write(string_stream)
-        output = string_stream.getvalue().strip()
-        return output
+        return string_stream.getvalue().strip()
 
 
 @hookimpl

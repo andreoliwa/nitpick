@@ -122,3 +122,61 @@ icecream = "*"
 # https://github.com/python-poetry/poetry/issues/1993
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+# https://beta.ruff.rs/docs/settings/#select
+select = ["ALL"]
+
+# https://beta.ruff.rs/docs/settings/#ignore
+ignore = [
+    "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann # TODO: fix: add typing annotations (fix 249 errors and remove this ignore)
+    "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
+    "D107", # Missing docstring in `__init__`
+    "D202", # No blank lines allowed after function docstring
+    "D203", # 1 blank line required before class docstring
+    "D213", # Multi-line docstring summary should start at the second line
+    "D401", # First line of docstring should be in imperative mood
+    "E402", # Module level import not at top of file
+    "E501", # Line too long
+    "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
+    "TD002", # Missing author in TO DO
+    "TD003", # Missing issue link on the line following this TO DO
+]
+
+# https://beta.ruff.rs/docs/settings/#line-length
+line-length = 120
+
+# https://beta.ruff.rs/docs/settings/#target-version
+target-version = "py37"
+
+# https://beta.ruff.rs/docs/settings/#src
+src = ["src"]
+
+# https://beta.ruff.rs/docs/rules/#flake8-quotes-q
+[tool.ruff.flake8-quotes]
+inline-quotes = "double"
+
+# https://beta.ruff.rs/docs/rules/#mccabe-c90
+[tool.ruff.mccabe]
+# https://beta.ruff.rs/docs/settings/#max-complexity
+max-complexity = 10
+
+# https://beta.ruff.rs/docs/settings/#per-file-ignores
+[tool.ruff.per-file-ignores]
+# ANN https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
+# ERA https://beta.ruff.rs/docs/rules/#eradicate-era
+# F401 imported but unused
+# INP001 File `xxx.py` is part of an implicit namespace package. Add an `__init__.py`.
+# PLR0913 Too many arguments to function call
+# S101 use of assert detected
+# S105 Possible hardcoded password
+# T201 `print` found
+# T203 `pprint` found
+"compat.py" = ["F401"]
+"docs/**" = ["ANN", "INP001", "T201", "T203"]
+"docs/conf.py" = ["ERA"]
+"docs/ideas/lab.py" = ["ERA"]
+"src/nitpick/blender.py" = ["ERA"]
+"tasks.py" = ["ANN", "PLR0913", "T201", "T203"]
+"tests/**" = ["ANN", "PLR0913", "S101", "S105", "T201", "T203"]
+"tests/data/**" = ["INP001"]
