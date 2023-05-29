@@ -5,7 +5,6 @@ from contextlib import suppress
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterable, Iterator, Sequence, Set, Type
 
-import dpath.util
 from flatten_dict import flatten, unflatten
 from furl import furl
 from identify import identify
@@ -35,6 +34,13 @@ from nitpick.style.config import ConfigValidator
 from nitpick.style.fetchers import Scheme, StyleFetcherManager
 from nitpick.style.fetchers.github import GitHubURL
 from nitpick.violations import Fuss, Reporter, StyleViolations
+
+try:
+    # DeprecationWarning: The dpath.util package is being deprecated.
+    # All util functions have been moved to dpath package top level.
+    from dpath import merge as dpath_merge
+except ImportError:
+    from dpath.util import merge as dpath_merge
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -160,7 +166,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
                 StyleViolations.INVALID_CONFIG, flatten_marshmallow_errors(validation_errors)
             )
 
-        dpath.util.merge(self._merged_styles, flatten(toml_dict, custom_reducer(SEPARATOR_FLATTEN)))
+        dpath_merge(self._merged_styles, flatten(toml_dict, custom_reducer(SEPARATOR_FLATTEN)))
 
         yield from self.include_multiple_styles(sub_styles)
 
