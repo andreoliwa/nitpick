@@ -20,7 +20,7 @@ include = [
     "py://nitpick/resources/python/readthedocs",
     "py://nitpick/resources/python/sonar-python",
     "py://nitpick/resources/python/tox",
-#    "py://nitpick/resources/python/github-workflow", # TODO:
+    "py://nitpick/resources/python/github-workflow",
 
     "py://nitpick/resources/any/prettier",
     "py://nitpick/resources/any/codeclimate",

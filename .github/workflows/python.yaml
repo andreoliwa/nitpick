@@ -5,9 +5,7 @@
 
 name: Python
 
-on:
-  pull_request:
-  push:
+on: [push, pull_request]
 
 jobs:
   # Adapted from https://github.com/marketplace/actions/skip-duplicate-actions
