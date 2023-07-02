@@ -128,17 +128,9 @@ def install(c, deps=True, hooks=False, version=""):
         if not version:
             version = minimum
 
-        # pre-commit fails on 3.7:
-        # ModuleNotFoundError: No module named 'importlib.metadata'
-        # Support was dropped, but I couldn't find it in the documentation
-        explanation = ""
-        if version == "3.7":
-            version = "3.8"
-            explanation = " (3.7 is not supported by pre-commit https://github.com/pre-commit/pre-commit/pull/2655)"
-
         print(
             f"{COLOR_GREEN}Nitpick runs in Python {minimum} and later;"
-            f" setting up version {version} for development{explanation}{COLOR_NONE}"
+            f" setting up version {version} for development{COLOR_NONE}"
         )
         c.run(f"poetry env use python{version}")
         c.run("poetry install -E test -E lint -E doc --sync")

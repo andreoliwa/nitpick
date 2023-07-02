@@ -31,7 +31,7 @@ class Nitpick:
         self.offline: bool = False
 
     @classmethod
-    @lru_cache()
+    @lru_cache
     def singleton(cls) -> "Nitpick":
         """Return a single instance of the class."""
         Nitpick._allow_init = True

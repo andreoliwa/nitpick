@@ -70,7 +70,7 @@ Example of usage: :gitref:`Nitpick's default style <nitpick-style.toml>`.
 .. code-block:: toml
 
     [nitpick.styles]
-    include = ["styles/python37", "styles/poetry"]
+    include = ["styles/python38", "styles/poetry"]
 
 The styles will be merged following the sequence in the list. The ``.toml``
 extension for each referenced file can be onitted.

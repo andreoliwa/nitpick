@@ -2,7 +2,7 @@
 # Use the default style and override some things (like the Python version)
 style = [
     "nitpick-style",
-    "py://nitpick/resources/python/37.toml",
+    "py://nitpick/resources/python/38.toml",
     "py://nitpick/resources/python/stable.toml"
 ]
 
@@ -47,7 +47,7 @@ toml = "nitpick.plugins.toml"
 yaml = "nitpick.plugins.yaml"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 # TODO: build: upgrading importlib-metadata to 4.10.1 downgrades the following packages:
 #  • Updating importlib-metadata (4.2.0 -> 4.10.1)
 #  • Updating pycodestyle (2.8.0 -> 2.7.0)
@@ -76,14 +76,11 @@ pluggy = "*"
 autorepr = "*"
 loguru = "*"
 ConfigUpdater = "*"
-importlib-resources = { version = "*", python = ">=3.7, <3.9" }
+importlib-resources = { version = "*", python = ">=3.8, <3.9" }
 flatten-dict = "*"
 dpath = "*"
 furl = "*"
 StrEnum = "*"
-# To avoid this error on python3.7: AttributeError: 'EntryPoints' object has no attribute 'get'
-# https://importlib-metadata.readthedocs.io/en/latest/history.html#v5-0-0
-importlib-metadata = {version = "<5.0", python = "<3.8"}
 
 # TODO: chore: move to dependency groups once the feature is on a stable version of Poetry
 #  https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups
@@ -147,7 +144,7 @@ ignore = [
 line-length = 120
 
 # https://beta.ruff.rs/docs/settings/#target-version
-target-version = "py37"
+target-version = "py38"
 
 # https://beta.ruff.rs/docs/settings/#src
 src = ["src"]

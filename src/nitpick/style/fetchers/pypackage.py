@@ -18,13 +18,13 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-@lru_cache()
+@lru_cache
 def builtin_resources_root() -> Path:
     """Built-in resources root."""
     return compat.files("nitpick.resources")
 
 
-@lru_cache()
+@lru_cache
 def repo_root() -> Path:
     """Repository root, 3 levels up from the resources root."""
     return builtin_resources_root().parent.parent.parent
