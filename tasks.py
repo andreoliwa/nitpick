@@ -4,9 +4,11 @@ Helpful docs:
 - https://www.pyinvoke.org/
 - https://docs.pyinvoke.org/en/stable/api/runners.html#invoke.runners.Runner.run
 """
+from __future__ import annotations
+
 import sys
 from configparser import ConfigParser
-from typing import Iterator, List
+from typing import Iterator
 
 from invoke import Collection, Exit, task  # pylint: disable=import-error
 
@@ -77,12 +79,12 @@ class ToxCommands:
             return ""
 
         temp_tox_ini = ".temp-tox.ini"
-        # Hack to be able to run `invoke lint` on a macOS machine during development.
+        # Trick to be able to run `invoke lint` on a macOS machine during development.
         c.run(f"sed 's/platform = linux/platform = darwin/g' tox.ini > {temp_tox_ini}")
         return f"-c {temp_tox_ini}"
 
     @property
-    def python_versions(self) -> List[str]:
+    def python_versions(self) -> list[str]:
         """Python versions executed in tox."""
         versions = []
         for py_plus_version_without_dot in self._parser["tox"]["envlist"].split(","):

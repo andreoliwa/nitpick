@@ -196,7 +196,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
             try:
                 merged_style_path.write_text(toml.reformatted)
                 break
-            except OSError:
+            except OSError:  # noqa: PERF203
                 attempt += 1
 
         return merged_dict

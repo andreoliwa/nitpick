@@ -1,16 +1,21 @@
 """Config validator."""
-from dataclasses import dataclass
-from typing import Dict, List, Tuple, Type
+from __future__ import annotations
 
-from marshmallow import Schema
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
 from more_itertools import peekable
 
 from nitpick.constants import PROJECT_NAME
 from nitpick.exceptions import Deprecation
 from nitpick.plugins.info import FileInfo
-from nitpick.project import Project
 from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema
-from nitpick.typedefs import JsonDict
+
+if TYPE_CHECKING:
+    from marshmallow import Schema
+
+    from nitpick.project import Project
+    from nitpick.typedefs import JsonDict
 
 
 @dataclass(repr=True)  # TODO: refactor: use attrs instead
@@ -19,7 +24,7 @@ class ConfigValidator:
 
     project: Project
 
-    def validate(self, config_dict: Dict) -> Tuple[Dict, Dict]:
+    def validate(self, config_dict: dict) -> tuple[dict, dict]:
         """Validate an already parsed toml file."""
         validation_errors = {}
         toml_dict = {}
@@ -61,7 +66,7 @@ class ConfigValidator:
         return False, all_errors
 
     @staticmethod
-    def _validate_schema(schema: Type[Schema], path_from_root: str, original_data: JsonDict) -> Dict[str, List[str]]:
+    def _validate_schema(schema: type[Schema], path_from_root: str, original_data: JsonDict) -> dict[str, list[str]]:
         """Validate the schema for the file."""
         if not schema:
             return {}
