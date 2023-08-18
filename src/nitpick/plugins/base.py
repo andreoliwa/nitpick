@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import abc
 import fnmatch
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, ClassVar, Iterator
 
 from autorepr import autotext
 from loguru import logger
@@ -43,7 +43,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
     validation_schema: Schema | None = None
 
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
-    identify_tags: set[str] = set()
+    identify_tags: ClassVar = set()
 
     skip_empty_suggestion = False
 

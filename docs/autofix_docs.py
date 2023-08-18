@@ -266,9 +266,7 @@ def rst_table(header: tuple[str, ...], rows: list[tuple[str, ...]]) -> list[str]
 def write_readme(file_types: set[FileType], divider: str) -> int:
     """Write the README."""
     # TODO: chore: quickstart.rst has some parts of README.rst as a copy/paste/change
-    rows: list[tuple[str, ...]] = []
-    for file_type in sorted(file_types):
-        rows.append(file_type.row)
+    rows: list[tuple[str, ...]] = [file_type.row for file_type in sorted(file_types)]
 
     lines = rst_table(("File type", "``nitpick check``", "``nitpick fix``"), rows)
     return DocFile("../README.rst").write(lines, divider)

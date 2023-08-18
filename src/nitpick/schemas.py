@@ -1,5 +1,5 @@
 """Marshmallow schemas."""
-from typing import Dict
+from __future__ import annotations
 
 from marshmallow import Schema
 from marshmallow_polyfield import PolyField
@@ -10,7 +10,7 @@ from nitpick.blender import flatten_quotes
 from nitpick.constants import READ_THE_DOCS_URL, SETUP_CFG
 
 
-def flatten_marshmallow_errors(errors: Dict) -> str:
+def flatten_marshmallow_errors(errors: dict) -> str:
     """Flatten Marshmallow errors to a string."""
     formatted = []
     for field, data in SortedDict(flatten_quotes(errors)).items():
@@ -32,13 +32,15 @@ def help_message(sentence: str, help_page: str) -> str:
 class BaseNitpickSchema(Schema):
     """Base schema for all others, with default error messages."""
 
-    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html")}
+    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html")}  # noqa: RUF012
 
 
 class NitpickStylesSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick.styles]`` section on the style file."""
 
-    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#nitpick-styles")}
+    error_messages = {  # noqa: RUF012
+        "unknown": help_message("Unknown configuration", "nitpick_section.html#nitpick-styles")
+    }
 
     include = PolyField(deserialization_schema_selector=fields.string_or_list_field)
 
@@ -46,7 +48,9 @@ class NitpickStylesSectionSchema(BaseNitpickSchema):
 class IniSchema(BaseNitpickSchema):
     """Validation schema for INI files."""
 
-    error_messages = {"unknown": help_message("Unknown configuration", "nitpick_section.html#comma-separated-values")}
+    error_messages = {  # noqa: RUF012
+        "unknown": help_message("Unknown configuration", "nitpick_section.html#comma-separated-values")
+    }
 
     comma_separated_values = fields.List(fields.String(validate=fields.validate_section_dot_field))
 
@@ -54,7 +58,7 @@ class IniSchema(BaseNitpickSchema):
 class NitpickFilesSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[nitpick.files]`` section on the style file."""
 
-    error_messages = {"unknown": help_message("Unknown file", "nitpick_section.html#nitpick-files")}
+    error_messages = {"unknown": help_message("Unknown file", "nitpick_section.html#nitpick-files")}  # noqa: RUF012
 
     absent = fields.Dict(fields.NonEmptyString, fields.String())
     present = fields.Dict(fields.NonEmptyString, fields.String())
@@ -81,6 +85,6 @@ class NitpickSectionSchema(BaseNitpickSchema):
 class BaseStyleSchema(Schema):
     """Base validation schema for style files. Dynamic fields will be added to it later."""
 
-    error_messages = {"unknown": help_message("Unknown file", "plugins.html")}
+    error_messages = {"unknown": help_message("Unknown file", "plugins.html")}  # noqa: RUF012
 
     nitpick = fields.Nested(NitpickSectionSchema)

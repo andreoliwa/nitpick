@@ -4,8 +4,9 @@ This file does only contain a selection of the most common options. For a
 full list see the documentation:
 http://www.sphinx-doc.org/en/master/config
 """
+from __future__ import annotations
+
 import os
-from typing import Dict
 
 # -- Path setup --------------------------------------------------------------
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -189,7 +190,7 @@ htmlhelp_basename = "nitpickdoc"
 
 # -- Options for LaTeX output ------------------------------------------------
 
-latex_elements: Dict[str, str] = {
+latex_elements: dict[str, str] = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',

@@ -136,6 +136,7 @@ ignore = [
     "E402", # Module level import not at top of file
     "E501", # Line too long
     "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
+    "FIX002", #  Line contains TO-DO, consider resolving the issue
     "TD002", # Missing author in TO DO
     "TD003", # Missing issue link on the line following this TO DO
 ]
