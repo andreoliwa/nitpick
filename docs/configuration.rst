@@ -18,7 +18,9 @@ Possible configuration files (in order of precedence):
 
 The first file found will be used; the other files will be ignored.
 
-Run the ``nipick init`` CLI command to create a config file (:ref:`cli_cmd_init`).
+If no style is configured, Nitpick will fail with an error message.
+
+Run ``nipick init`` to create a config file (:ref:`cli_cmd_init`).
 
 To configure your own style, you can either use ``nitpick init``:
 
@@ -217,7 +219,7 @@ Multiple styles
 
 You can also use multiple styles and mix local files and URLs.
 
-Example of usage: the ``[tool.nitpick]`` table on :gitref:`Nitpick's own pyproject.toml <pyproject.toml#L1-L7>`.
+Example of usage: the ``[tool.nitpick]`` table on :gitref:`Nitpick's own pyproject.toml <pyproject.toml>`.
 
 .. code-block:: toml
 
