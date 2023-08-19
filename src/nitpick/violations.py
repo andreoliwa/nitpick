@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from nitpick.constants import CONFIG_FILES, FLAKE8_PREFIX, READ_THE_DOCS_URL
+from nitpick.constants import FLAKE8_PREFIX, RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY
 
 if TYPE_CHECKING:
     from nitpick.plugins.info import FileInfo
@@ -68,6 +68,7 @@ class StyleViolations(ViolationEnum):
     INVALID_DATA_TOOL_NITPICK = (1, " has an incorrect style. Invalid data in [{section}]:")
     INVALID_TOML = (1, " has an incorrect style. Invalid TOML{exception}")
     INVALID_CONFIG = (1, " has an incorrect style. Invalid config:")
+    NO_STYLE_CONFIGURED = (4, f"No style file configured.{RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY}")
 
 
 class ProjectViolations(ViolationEnum):
@@ -75,9 +76,7 @@ class ProjectViolations(ViolationEnum):
 
     NO_ROOT_DIR = (
         101,
-        "No root directory detected."
-        f" Create a configuration file ({', '.join(CONFIG_FILES)}) manually, or run 'nitpick init'."
-        f" See {READ_THE_DOCS_URL}configuration.html",
+        f"No root directory detected.{RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY}",
     )
     NO_PYTHON_FILE = (102, "No Python file was found on the root dir and subdir of {root!r}")
     MISSING_FILE = (103, " should exist{extra}")
@@ -141,7 +140,7 @@ class Reporter:  # pylint: disable=too-few-public-methods
         if cls.fixed:
             parts.append(f"✅ {cls.fixed} fixed")
         if cls.manual:
-            parts.append(f"❌ {cls.manual} to change manually")
+            parts.append(f"❌ {cls.manual} to fix manually")
         if not parts:
             return "No violations found. ✨ 🍰 ✨"
         return f"Violations: {', '.join(parts)}."

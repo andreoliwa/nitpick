@@ -13,6 +13,7 @@ from nitpick.constants import (
     PACKAGE_JSON,
     PRE_COMMIT_CONFIG_YAML,
     PYPROJECT_TOML,
+    RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY,
     SETUP_CFG,
     SETUP_PY,
     TOX_INI,
@@ -20,7 +21,6 @@ from nitpick.constants import (
 from nitpick.core import Nitpick
 from nitpick.exceptions import QuitComplainingError
 from nitpick.project import Configuration, confirm_project_root, find_main_python_file
-from nitpick.style import StyleManager
 from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
 
@@ -123,12 +123,12 @@ def test_django_project_structure(tmp_path):
 
 
 def test_when_no_config_file_the_default_style_is_requested(tmp_path, caplog):
-    """There is a root dir (setup.py), but no config file."""
-    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).api_check(offline=True)
-    style_url = StyleManager.get_default_style_url()
+    """There is a root dir (setup.py), but no style file. The user should explicitly set the style, no default will be used."""
+    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
+    error = f"NIP004 No style file configured.{RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY}"
+    project.flake8().assert_single_error(error).cli_run(error, exit_code=1)
     assert project.nitpick_instance.project.read_configuration() == Configuration(None, [], "")
     assert "Config file: none found {}" in caplog.messages
-    assert f"Using default remote Nitpick style: {style_url} {{}}" in caplog.messages
 
 
 @pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYPROJECT_TOML])

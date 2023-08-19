@@ -54,6 +54,10 @@ CONFIG_FILES = (DOT_NITPICK_TOML, PYPROJECT_TOML)
 # Config sections and keys
 TOOL_KEY = "tool"
 TOOL_NITPICK_KEY = f"{TOOL_KEY}.{PROJECT_NAME}"
+RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY = (
+    f" Run 'nitpick init' or configure a style manually ({', '.join(CONFIG_FILES)})."
+    f" See {READ_THE_DOCS_URL}configuration.html"
+)
 
 # JMESPath expressions
 TOOL_NITPICK_JMEX = jmespath.compile(TOOL_NITPICK_KEY)

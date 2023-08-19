@@ -37,12 +37,12 @@ def test_reporter():
     reporter.increment()
     assert reporter.manual == 1
     assert reporter.fixed == 0
-    assert reporter.get_counts() == "Violations: ❌ 1 to change manually."
+    assert reporter.get_counts() == "Violations: ❌ 1 to fix manually."
 
     reporter.increment(True)
     assert reporter.manual == 1
     assert reporter.fixed == 1
-    assert reporter.get_counts() == "Violations: ✅ 1 fixed, ❌ 1 to change manually."
+    assert reporter.get_counts() == "Violations: ✅ 1 fixed, ❌ 1 to fix manually."
 
     reporter.reset()
     assert reporter.manual == 0

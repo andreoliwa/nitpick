@@ -386,7 +386,7 @@ class ProjectMock:
             return self
 
         if violations:
-            expected.append(f"Violations: ❌ {violations} to change manually.")
+            expected.append(f"Violations: ❌ {violations} to fix manually.")
         elif expected_str_or_lines:
             # If the number of violations was not passed but a list of errors was,
             # remove the violation count from the actual results.
