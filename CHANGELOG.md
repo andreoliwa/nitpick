@@ -1,3 +1,10 @@
+# [0.34.0](https://github.com/andreoliwa/nitpick/compare/v0.33.2...v0.34.0) (2023-08-19)
+
+### Features
+
+- accept all types of GitHub tokens (personal and apps) ([#603](https://github.com/andreoliwa/nitpick/issues/603)) ([5d23b6c](https://github.com/andreoliwa/nitpick/commit/5d23b6c8be4e7bc6e5e1eb0ea0b95dcd17948e23))
+- drop support for Python 3.7 ([65178f3](https://github.com/andreoliwa/nitpick/commit/65178f3e4f1ba997306ff8b3405111e37978bd3f))
+
 ## [0.33.2](https://github.com/andreoliwa/nitpick/compare/v0.33.1...v0.33.2) (2023-05-29)
 
 ### Bug Fixes
