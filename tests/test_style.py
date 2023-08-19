@@ -1,6 +1,5 @@
 """Style tests."""
 import warnings
-from base64 import b64encode
 from pathlib import Path
 from textwrap import dedent
 from unittest import mock
@@ -426,8 +425,7 @@ def test_fetch_private_github_urls(tmp_path):
         missing = "thing"{SUGGESTION_END}
         """
     )
-    token_on_basic_auth = b64encode(f"{file_token}:".encode()).decode().strip()
-    assert responses.calls[0].request.headers["Authorization"] == f"Basic {token_on_basic_auth}"
+    assert responses.calls[0].request.headers["Authorization"] == f"token {file_token}"
     project.flake8(offline=True).assert_no_errors()
 
 
@@ -460,8 +458,7 @@ def test_fetch_private_github_urls_no_branch(tmp_path):
         """
     )
     assert responses.calls[0].request.headers["Authorization"] == f"token {file_token}"
-    token_on_basic_auth = b64encode(f"{file_token}:".encode()).decode().strip()
-    assert responses.calls[1].request.headers["Authorization"] == f"Basic {token_on_basic_auth}"
+    assert responses.calls[1].request.headers["Authorization"] == f"token {file_token}"
     project.flake8(offline=True).assert_no_errors()
 
 
@@ -480,10 +477,10 @@ def test_fetch_private_github_urls_no_branch(tmp_path):
         "https://raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
     ],
 )
-def test_github_url_without_token_has_no_credentials(style_url):
+def test_github_url_without_token_has_no_authorization_header(style_url):
     """Check private GitHub URLs with a token in various places are parsed correctly."""
     parsed = GitHubURL.from_furl(furl(style_url))
-    assert parsed.credentials == ()
+    assert parsed.authorization_header is None
 
 
 @pytest.mark.parametrize(
@@ -501,10 +498,10 @@ def test_github_url_without_token_has_no_credentials(style_url):
         "https://token@raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
     ],
 )
-def test_github_url_with_fixed_userinfo_token_has_correct_credential(url):
+def test_github_url_with_fixed_userinfo_token_has_correct_authorization_header(url):
     """Check private GitHub URLs with a token in various places are parsed correctly."""
     parsed = GitHubURL.from_furl(furl(url))
-    assert parsed.credentials == ("token", "")
+    assert parsed.authorization_header == {"Authorization": "token token"}
 
 
 @pytest.mark.parametrize(
@@ -522,11 +519,11 @@ def test_github_url_with_fixed_userinfo_token_has_correct_credential(url):
         "https://$TOKEN@raw.githubusercontent.com/andreoliwa/nitpick/develop/initial.toml",
     ],
 )
-def test_github_url_with_variable_userinfo_token_has_correct_credential(url, monkeypatch):
+def test_github_url_with_variable_userinfo_token_has_correct_authorization_header(url, monkeypatch):
     """Check private GitHub URLs with a token in various places are parsed correctly."""
     monkeypatch.setenv("TOKEN", "envvar-token")
     parsed = GitHubURL.from_furl(furl(url))
-    assert parsed.credentials == ("envvar-token", "")
+    assert parsed.authorization_header == {"Authorization": "token envvar-token"}
 
 
 @pytest.mark.parametrize(
@@ -546,18 +543,18 @@ def test_github_url_with_variable_userinfo_token_has_correct_credential(url, mon
         "github://$ENVVAR@andreoliwa/nitpick/initial.toml?token=$NOTUSED",
     ],
 )
-def test_github_url_with_variable_query_token_has_correct_credential(url, monkeypatch):
+def test_github_url_with_variable_query_token_has_correct_authorization_header(url, monkeypatch):
     """Check private GitHub URLs with a token in various places are parsed correctly."""
     monkeypatch.setenv("ENVVAR", "envvar-token")
     parsed = GitHubURL.from_furl(furl(url))
-    assert parsed.credentials == ("envvar-token", "")
+    assert parsed.authorization_header == {"Authorization": "token envvar-token"}
 
 
-def test_github_url_with_missing_envvar_has_empty_credential(monkeypatch):
+def test_github_url_with_missing_envvar_has_empty_authorization_header(monkeypatch):
     """Environment var that doesn't exist is replaced with empty string."""
     monkeypatch.delenv("MISSINGVAR", raising=False)
     parsed = GitHubURL.from_furl(furl("https://github.com/foo/bar/blob/branch/filename.toml?token=$MISSINGVAR"))
-    assert parsed.credentials == ()
+    assert parsed.authorization_header is None
 
 
 def test_github_url_query_token_retains_other_queryparams():
@@ -567,7 +564,7 @@ def test_github_url_query_token_retains_other_queryparams():
     parsed = GitHubURL.from_furl(
         furl("https://github.com/foo/bar/blob/branch/filename.toml?token=somevar&leavemealone=ok")
     )
-    assert parsed.credentials == ("somevar", "")
+    assert parsed.authorization_header == {"Authorization": "token somevar"}
     assert ("leavemealone", "ok") in parsed.url.query.params.items()
 
 

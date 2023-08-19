@@ -50,14 +50,10 @@ class GitHubURL:
         return token
 
     @property
-    def credentials(self) -> tuple[str, str] | tuple[()]:
-        """Credentials encoded in this URL.
-
-        A tuple of ``(api_token, '')`` if present, or empty tuple otherwise.
-
-        """
+    def authorization_header(self) -> dict[str, str] | None:
+        """Authorization header encoded in this URL."""
         token = self.token
-        return (token, "") if token else ()
+        return {"Authorization": f"token {token}"} if token else None
 
     @property
     def git_reference_or_default(self) -> str:
@@ -166,5 +162,5 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
 
     def _download(self, url: furl, **kwargs) -> str:
         github_url = GitHubURL.from_furl(url)
-        kwargs.setdefault("auth", github_url.credentials)
+        kwargs.setdefault("headers", github_url.authorization_header)
         return super()._download(github_url.raw_content_url, **kwargs)
