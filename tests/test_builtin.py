@@ -26,7 +26,7 @@ BUILTIN_STYLE_CODES = {
     PRE_COMMIT_CONFIG_YAML: 361,
     PYPROJECT_TOML: 311,
     ".codeclimate.yml": 361,
-    ".readthedocs.yml": 361,
+    ".readthedocs.yaml": 361,
     TOX_INI: 321,
     PYLINTRC: 321,
     ".github/workflows/python.yaml": 361,

@@ -3,14 +3,14 @@ name = "Read the Docs"
 url = "https://github.com/readthedocs/readthedocs.org"
 
 # https://docs.readthedocs.io/en/stable/config-file/v2.html
-[".readthedocs.yml"]
+[".readthedocs.yaml"]
 version = 2
 formats = "all"
 
-[".readthedocs.yml".sphinx]
+[".readthedocs.yaml".sphinx]
 configuration = "docs/conf.py"
 
-[[".readthedocs.yml".python.install]]
+[[".readthedocs.yaml".python.install]]
 method = "pip"
 path = "."
 extra_requirements = ["doc"]
