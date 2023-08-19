@@ -92,9 +92,8 @@ repos:
         additional_dependencies:
           [types-freezegun, types-toml, attrs, types-requests, types-python-slugify, types-dataclasses]
   # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
-  # Note for future attempts with pylint as a pre-commit hook:
-  # Using https://github.com/PyCQA/pylint doesn't work, it's a huge pain dealing with [MASTER]init-hook.
-  # This solution helped: https://github.com/pre-commit/pre-commit/issues/1309
+  # The recommended way is to use a local hook:
+  # https://pylint.pycqa.org/en/latest/user_guide/installation/pre-commit-integration.html
   - repo: local
     hooks:
       - id: pylint
