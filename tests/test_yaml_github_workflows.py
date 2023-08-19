@@ -58,7 +58,6 @@ def test_list_of_scalars_only_add_elements_that_do_not_exist(tmp_path, datadir):
                     os:
                       - ubuntu-latest
                     python-version:
-                      - '3.7'
                       - '3.10'
                       - '3.11'
             """,

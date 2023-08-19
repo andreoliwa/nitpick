@@ -4,9 +4,11 @@ Helpful docs:
 - https://www.pyinvoke.org/
 - https://docs.pyinvoke.org/en/stable/api/runners.html#invoke.runners.Runner.run
 """
+from __future__ import annotations
+
 import sys
 from configparser import ConfigParser
-from typing import Iterator, List
+from typing import Iterator
 
 from invoke import Collection, Exit, task  # pylint: disable=import-error
 
@@ -77,12 +79,12 @@ class ToxCommands:
             return ""
 
         temp_tox_ini = ".temp-tox.ini"
-        # Hack to be able to run `invoke lint` on a macOS machine during development.
+        # Trick to be able to run `invoke lint` on a macOS machine during development.
         c.run(f"sed 's/platform = linux/platform = darwin/g' tox.ini > {temp_tox_ini}")
         return f"-c {temp_tox_ini}"
 
     @property
-    def python_versions(self) -> List[str]:
+    def python_versions(self) -> list[str]:
         """Python versions executed in tox."""
         versions = []
         for py_plus_version_without_dot in self._parser["tox"]["envlist"].split(","):
@@ -128,17 +130,9 @@ def install(c, deps=True, hooks=False, version=""):
         if not version:
             version = minimum
 
-        # pre-commit fails on 3.7:
-        # ModuleNotFoundError: No module named 'importlib.metadata'
-        # Support was dropped, but I couldn't find it in the documentation
-        explanation = ""
-        if version == "3.7":
-            version = "3.8"
-            explanation = " (3.7 is not supported by pre-commit https://github.com/pre-commit/pre-commit/pull/2655)"
-
         print(
             f"{COLOR_GREEN}Nitpick runs in Python {minimum} and later;"
-            f" setting up version {version} for development{explanation}{COLOR_NONE}"
+            f" setting up version {version} for development{COLOR_NONE}"
         )
         c.run(f"poetry env use python{version}")
         c.run("poetry install -E test -E lint -E doc --sync")

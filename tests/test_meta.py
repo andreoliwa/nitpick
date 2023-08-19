@@ -22,11 +22,11 @@ def test_bumpversion_files_match_package_json():
     package_json = Path(REPO_ROOT / PACKAGE_JSON)
     package_json_dict = json.loads(package_json.read_text())
     package_json_git_files = set(
-        [
+        next(
             obj[1]["assets"]
             for obj in package_json_dict["release"]["plugins"]
             if isinstance(obj, list) and "/git" in obj[0]
-        ][0]
+        )
     )
 
     package_json_git_files.remove(".bumpversion.cfg")

@@ -1,9 +1,11 @@
 """The Nitpick application."""
+from __future__ import annotations
+
 import os
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import Iterator, List, Optional
+from typing import TYPE_CHECKING, Iterator
 
 import click
 from loguru import logger
@@ -12,8 +14,10 @@ from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import filter_names, relative_to_current_dir
 from nitpick.plugins.info import FileInfo
 from nitpick.project import Project
-from nitpick.typedefs import PathOrStr
 from nitpick.violations import Fuss, ProjectViolations, Reporter
+
+if TYPE_CHECKING:
+    from nitpick.typedefs import PathOrStr
 
 
 class Nitpick:
@@ -31,15 +35,15 @@ class Nitpick:
         self.offline: bool = False
 
     @classmethod
-    @lru_cache()
-    def singleton(cls) -> "Nitpick":
+    @lru_cache
+    def singleton(cls) -> Nitpick:
         """Return a single instance of the class."""
         Nitpick._allow_init = True
         instance = cls()
         Nitpick._allow_init = False
         return instance
 
-    def init(self, project_root: Optional[PathOrStr] = None, offline: Optional[bool] = None) -> "Nitpick":
+    def init(self, project_root: PathOrStr | None = None, offline: bool | None = None) -> Nitpick:
         """Initialize attributes of the singleton."""
         self.project = Project(project_root)
 
@@ -115,7 +119,7 @@ class Nitpick:
             for plugin_class in self.project.plugin_manager.hook.can_handle(info=info):
                 yield from plugin_class(info, config_dict, autofix).entry_point()
 
-    def configured_files(self, *partial_names: str) -> List[Path]:
+    def configured_files(self, *partial_names: str) -> list[Path]:
         """List of files configured in the Nitpick style. Filter only the selected partial names."""
         return [Path(self.project.root) / key for key in filter_names(self.project.style_dict, *partial_names)]
 

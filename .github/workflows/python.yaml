@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.10", "3.9", "3.8", "3.7"]
+        python-version: ["3.11", "3.10", "3.9", "3.8"]
         # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
         # See https://github.com/actions/virtual-environments/issues/1816
         os: [ubuntu-latest, windows-latest, macos-latest]

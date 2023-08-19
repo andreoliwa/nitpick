@@ -1,7 +1,7 @@
 """Text files."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, ClassVar, Iterator
 
 from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
@@ -22,14 +22,14 @@ KEY_CONTAINS = "contains"
 class TextItemSchema(Schema):
     """Validation schema for the object inside ``contains``."""
 
-    error_messages = {"unknown": help_message("Unknown configuration", TEXT_FILE_RTFD_PAGE)}
+    error_messages = {"unknown": help_message("Unknown configuration", TEXT_FILE_RTFD_PAGE)}  # noqa: RUF012
     line = fields.NonEmptyString()
 
 
 class TextSchema(Schema):
     """Validation schema for the text file TOML configuration."""
 
-    error_messages = {"unknown": help_message("Unknown configuration", TEXT_FILE_RTFD_PAGE)}
+    error_messages = {"unknown": help_message("Unknown configuration", TEXT_FILE_RTFD_PAGE)}  # noqa: RUF012
     contains = fields.List(fields.Nested(TextItemSchema))
 
 
@@ -53,7 +53,7 @@ class TextPlugin(NitpickPlugin):
         line = "def"
     """
 
-    identify_tags = {"text"}
+    identify_tags: ClassVar = {"text"}
     validation_schema = TextSchema
 
     #: All other files are also text files, and they already have a suggested content message

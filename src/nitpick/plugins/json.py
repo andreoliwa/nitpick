@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from itertools import chain
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, ClassVar, Iterator
 
 from loguru import logger
 
@@ -38,7 +38,7 @@ class JsonPlugin(NitpickPlugin):
     """
 
     validation_schema = JsonFileSchema
-    identify_tags = {"json"}
+    identify_tags: ClassVar = {"json"}
     violation_base_code = 340
     fixable = True
 
@@ -74,7 +74,7 @@ class JsonPlugin(NitpickPlugin):
         for key, json_string in (self.expected_config.get(KEY_CONTAINS_JSON) or {}).items():
             try:
                 expected_config[key] = json.loads(json_string)
-            except json.JSONDecodeError as err:
+            except json.JSONDecodeError as err:  # noqa: PERF203
                 # This should not happen, because the style was already validated before.
                 # Maybe the NIP??? code was disabled by the user?
                 logger.error(f"{err} on {KEY_CONTAINS_JSON} while checking {self.file_path}")

@@ -131,7 +131,7 @@ class GitHubURL:
 API_SESSION = Session()
 
 
-@lru_cache()
+@lru_cache
 def get_default_branch(api_url: str, *, token: str | None = None) -> str:
     """Get the default branch from the GitHub repo using the API.
 

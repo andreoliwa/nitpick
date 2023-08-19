@@ -1,6 +1,7 @@
 """Test built-in styles shipped as resources under the ``nitpick.resources`` module."""
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Dict, List
 
 import pytest
 from identify.identify import ALL_TAGS
@@ -32,7 +33,7 @@ BUILTIN_STYLE_CODES = {
     EDITOR_CONFIG: 321,
     PACKAGE_JSON: 341,
 }
-BUILTIN_STYLE_EXTRA_VIOLATIONS: Dict[str, List[Fuss]] = {
+BUILTIN_STYLE_EXTRA_VIOLATIONS: dict[str, list[Fuss]] = {
     "any/pre-commit-hooks": [
         Fuss(
             False,

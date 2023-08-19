@@ -90,7 +90,7 @@ def find_main_python_file(root_dir: Path) -> Path:
 class ToolNitpickSectionSchema(BaseNitpickSchema):
     """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
 
-    error_messages = {"unknown": help_message("Unknown configuration", "configuration.html")}
+    error_messages = {"unknown": help_message("Unknown configuration", "configuration.html")}  # noqa: RUF012
 
     style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
     cache = fields.NonEmptyString()

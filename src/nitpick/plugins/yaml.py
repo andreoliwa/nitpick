@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import TYPE_CHECKING, Iterator, cast
+from typing import TYPE_CHECKING, ClassVar, Iterator, cast
 
 from nitpick.blender import Comparison, YamlDoc, traverse_yaml_tree
 from nitpick.config import SpecialConfig
@@ -47,7 +47,7 @@ class YamlPlugin(NitpickPlugin):
         Nitpick will not validate hooks and missing keys as it did before; it's not the purpose of this package.
     """
 
-    identify_tags = {"yaml"}
+    identify_tags: ClassVar = {"yaml"}
     violation_base_code = 360
     fixable = True
 

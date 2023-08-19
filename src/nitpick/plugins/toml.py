@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import TYPE_CHECKING, Iterator, cast
+from typing import TYPE_CHECKING, ClassVar, Iterator, cast
 
 from tomlkit import dumps, parse
 
@@ -29,7 +29,7 @@ class TomlPlugin(NitpickPlugin):
     There are :ref:`many other examples here <library>`.
     """
 
-    identify_tags = {"toml"}
+    identify_tags: ClassVar = {"toml"}
     violation_base_code = 310
     fixable = True
 

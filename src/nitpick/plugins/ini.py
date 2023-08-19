@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from configparser import ConfigParser, DuplicateOptionError, Error, MissingSectionHeaderError, ParsingError
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any, ClassVar, Iterator
 
 import dictdiffer
 from configupdater import ConfigUpdater, Space
@@ -48,7 +48,7 @@ class IniPlugin(NitpickPlugin):
     """
 
     fixable = True
-    identify_tags = {"ini", "editorconfig"}
+    identify_tags: ClassVar = {"ini", "editorconfig"}
     violation_base_code = 320
 
     updater: ConfigUpdater

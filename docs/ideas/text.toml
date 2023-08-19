@@ -113,7 +113,7 @@ library identifier: "company-shared-pipelines@master", retriever: modernSCM([
 # Only one of block/line/lines should be accepted. Accepting more than one makes no sense.
 block = """
 
-FROM python:3.7
+FROM python:3.8
 
 ENV TERM xterm-256color
 ENV APP_USER=johndoe

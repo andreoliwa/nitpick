@@ -61,7 +61,7 @@ class NitpickFlake8Extension:
         return []
 
     @staticmethod
-    @lru_cache()  # To avoid calling this function twice in the same process
+    @lru_cache  # To avoid calling this function twice in the same process
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(
