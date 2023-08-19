@@ -115,8 +115,8 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
                 chosen_styles = [sorted(paths)[0].expanduser().resolve().as_uri()]
                 log_message = "Using local style found climbing the directory tree"
             else:
-                chosen_styles = [self.get_default_style_url()]
-                log_message = "Using default remote Nitpick style"
+                yield Reporter().make_fuss(StyleViolations.NO_STYLE_CONFIGURED)
+                return
             logger.info(f"{log_message}: {chosen_styles[0]}")
 
         yield from self.include_multiple_styles(

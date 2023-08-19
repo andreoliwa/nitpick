@@ -350,6 +350,13 @@ Or install it with pip::
 Run
 ~~~
 
+Nitpick_ will fail if no style is explicitly configured.
+Run this command to download and use the opinionated :gitref:`default style file <nitpick-style.toml>`:
+
+    nitpick init
+
+You can use it as a template to :ref:`configure-your-own-style`.
+
 To fix and modify your files directly::
 
     nitpick fix
@@ -358,14 +365,9 @@ To check for errors only::
 
     nitpick check
 
-Nitpick is also a ``flake8`` plugin, so you can run this on a project
-with at least one Python (``.py``) file::
+Nitpick is also a flake8_ plugin, so you can run this on a project with at least one Python (``.py``) file::
 
     flake8 .
-
-Nitpick will download and use the opinionated `default style file <nitpick-style.toml>`_.
-
-You can use it as a template to configure your own style.
 
 Run as a pre-commit hook
 ~~~~~~~~~~~~~~~~~~~~~~~~
