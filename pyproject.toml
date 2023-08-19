@@ -99,7 +99,7 @@ pytest-socket = "*"
 pytest-datadir = { version = "*", optional = true }
 
 # Group: doc
-sphinx = { version = "*", optional = true }
+sphinx = { version = "^6.2.1", optional = true } # https://github.com/kivy/kivy/issues/8230
 sphinx_rtd_theme = { version = "*", optional = true }
 sphobjinv = { version = "*", optional = true }
 sphinx-gitref = { version = "*", optional = true }

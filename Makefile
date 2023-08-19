@@ -2,7 +2,7 @@
 .PHONY: Makefile
 
 SRC := $(shell find docs src -type f -a -iname '*.py')
-DOCS := docs/*.rst *.rst *.md
+DOCS := docs/* *.rst *.md
 STYLES := $(shell find src/nitpick/resources -type f)
 TESTS := $(shell find tests -type f -iname '*.py')
 GITHUB = $(shell find .github -type f)
@@ -19,7 +19,7 @@ help:
 	invoke --list
 .PHONY: help
 
-build: .cache/make/pytest .cache/make/pre-commit # Quick build for local development
+build: .cache/make/doc .cache/make/pytest .cache/make/pre-commit # Quick build for local development
 .PHONY: build
 
 .delete-cache:
