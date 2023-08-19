@@ -1,7 +1,8 @@
 [nitpick.meta]
 name = "Current stable Python version"
 
-[".readthedocs.yaml".python]
-# ReadTheDocs still didn't upgrade to Python 3.9:
-# Problem in your project's configuration. Invalid "python.version"
-version = "3.8"
+[".readthedocs.yaml".build]
+os = "ubuntu-22.04"
+
+[".readthedocs.yaml".build.tools]
+python = "3.11"
