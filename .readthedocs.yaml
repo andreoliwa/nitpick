@@ -12,6 +12,8 @@ build:
 
 python:
   install:
+    # Needed to force RTD to install the latest Sphinx version
+    - requirements: docs/requirements.txt
     - method: pip
       path: .
       extra_requirements:
