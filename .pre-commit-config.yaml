@@ -44,6 +44,11 @@ repos:
     hooks:
       - id: ruff
         args: [--fix]
+  # Recommended by pylint, configurable, less destructive than https://github.com/PyCQA/docformatter
+  - repo: https://github.com/DanielNoord/pydocstringformatter
+    rev: v0.7.3
+    hooks:
+      - id: pydocstringformatter
   - repo: https://github.com/aio-libs/sort-all # TODO: style(pre-commit): add sort-all
     rev: v1.2.0
     hooks:

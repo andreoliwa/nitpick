@@ -42,7 +42,6 @@ class GitHubURL:
         If present and it starts with a ``$``, it will be replaced with the
         value of the environment corresponding to the remaining part of the
         string.
-
         """
         token = self.auth_token
         if token is not None and token.startswith("$"):
@@ -85,7 +84,6 @@ class GitHubURL:
         """Create an instance from a parsed URL in any accepted format.
 
         See the code for ``test_parsing_github_urls()`` for more examples.
-
         """
         auth_token = url.username or url.args.get(QUERY_STRING_TOKEN)
         query_params = tuple((key, value) for key, value in url.args.items() if key != QUERY_STRING_TOKEN)
@@ -140,7 +138,6 @@ def get_default_branch(api_url: str, *, token: str | None = None) -> str:
     ``requests.exceptions.HTTPError: 403 Client Error: rate limit exceeded for url``
 
     This function is using ``lru_cache()`` as a simple memoizer, trying to avoid this rate limit error.
-
     """
     headers = {"Authorization": f"token {token}"} if token else None
     response = API_SESSION.get(api_url, headers=headers)

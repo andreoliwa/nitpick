@@ -202,7 +202,10 @@ class IniPlugin(NitpickPlugin):
                 yield from self.show_missing_keys(section, values)
 
     def enforce_comma_separated_values(self, section, key, raw_actual: Any, raw_expected: Any) -> Iterator[Fuss]:
-        """Enforce sections and keys with comma-separated values. The values might contain spaces."""
+        """Enforce sections and keys with comma-separated values.
+
+        The values might contain spaces.
+        """
         actual_set = {s.strip() for s in raw_actual.split(",")}
         expected_set = {s.strip() for s in raw_expected.split(",")}
         missing = expected_set - actual_set

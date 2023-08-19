@@ -66,7 +66,6 @@ class StyleFetcherManager:
 
         The URL is made absolute against base, then passed to individual fetchers
         to produce a canonical version of the URL.
-
         """
         if isinstance(url, str) and not url.startswith(self.schemes):
             url = self._fetcher_for(base).preprocess_relative_url(url)
@@ -78,7 +77,6 @@ class StyleFetcherManager:
 
         Returns None when offline is True and the fetcher would otherwise
         require a connection.
-
         """
         fetcher = self._fetcher_for(url)
         if self.offline and fetcher.requires_connection:
@@ -90,7 +88,6 @@ class StyleFetcherManager:
         """Determine which fetcher to be used.
 
         Try a fetcher by domain first, then by protocol scheme.
-
         """
         fetcher = self.fetchers.get(url.host) if url.host else None
         if not fetcher:

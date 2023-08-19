@@ -24,7 +24,6 @@ class FileFetcher(StyleFetcher):  # pylint: disable=too-few-public-methods
         against a base URL that matches this specific fetcher.
 
         Relative paths are file paths; any ~ home reference is expanded at this point.
-
         """
         # We have to expand ~ values before trying to resolve a path as a file URL
         path = Path(url).expanduser()

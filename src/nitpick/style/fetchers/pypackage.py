@@ -47,7 +47,6 @@ class PythonPackageURL:
         """Create an instance from a parsed URL in any accepted format.
 
         See the code for ``test_parsing_python_package_urls()`` for more examples.
-
         """
         package_name = url.host
         resource_path = url.path.segments

@@ -299,7 +299,9 @@ def reactions(c):
     }
 )
 def lab(c, convert_file_name="", lab_help=False):
-    """Laboratory of experiments and ideas. You need to install certain tools if you want to use this command.
+    """Laboratory of experiments and ideas.
+
+    You need to install certain tools if you want to use this command.
 
     Pre-requisites:
     - https://github.com/andreoliwa/conjuring

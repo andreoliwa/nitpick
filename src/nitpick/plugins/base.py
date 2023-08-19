@@ -82,7 +82,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         self.special_config = spc
 
     def predefined_special_config(self) -> SpecialConfig:  # pylint: disable=no-self-use
-        """Create a predefined special configuration for this plugin. Each plugin can override this method."""
+        """Create a predefined special configuration for this plugin.
+
+        Each plugin can override this method.
+        """
         return SpecialConfig()
 
     @mypy_property
@@ -142,7 +145,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         self,
         file_exists: bool,  # pylint: disable=unused-argument # noqa: ARG002
     ) -> Fuss | None:
-        """Hook to write the new file when autofix mode is on. Should be used by inherited classes."""
+        """Hook to write the new file when autofix mode is on.
+
+        Should be used by inherited classes.
+        """
         return None
 
     @abc.abstractmethod

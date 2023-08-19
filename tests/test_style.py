@@ -91,7 +91,10 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
 
 @pytest.mark.parametrize("offline", [False, True])
 def test_include_styles_overriding_values(offline, tmp_path):
-    """One style file can include another (also recursively). Ignore styles that were already included."""
+    """One style file can include another (also recursively).
+
+    Ignore styles that were already included.
+    """
     ProjectMock(tmp_path).named_style(
         "isort1",
         f"""
@@ -602,7 +605,10 @@ def test_include_remote_style_from_local_style(tmp_path):
 
 @pytest.mark.parametrize("offline", [False, True])
 def test_merge_styles_into_single_file(offline, tmp_path):
-    """Merge all styles into a single TOML file on the cache dir. Also test merging lists (pre-commit repos)."""
+    """Merge all styles into a single TOML file on the cache dir.
+
+    Also test merging lists (pre-commit repos).
+    """
     warnings.simplefilter("ignore")  # "repos.yaml" key
     ProjectMock(tmp_path).named_style(
         "black",

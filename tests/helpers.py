@@ -67,7 +67,6 @@ def tomlstring(value: Any) -> str:
     """Create a fully-quoted TOML string from a path.
 
     This ensures proper quoting of Windows paths and other values with backslashes.
-
     """
     return tomlkit.string(str(value)).as_string()
 
@@ -238,7 +237,10 @@ class ProjectMock:
         return self
 
     def named_style(self, filename: PathOrStr, file_contents: PathOrStr) -> ProjectMock:
-        """Save a style file with a name. Add the .toml extension if needed."""
+        """Save a style file with a name.
+
+        Add the .toml extension if needed.
+        """
         return self.save_file(self.ensure_toml_extension(filename), from_path_or_str(file_contents))
 
     @staticmethod
@@ -414,7 +416,10 @@ class ProjectMock:
         return self
 
     def assert_file_contents(self, *name_contents: PathOrStr | str | None, lstrip=True) -> ProjectMock:
-        """Assert the file has the expected contents. Use `None` to indicate that the file doesn't exist."""
+        """Assert the file has the expected contents.
+
+        Use `None` to indicate that the file doesn't exist.
+        """
         assert len(name_contents) % 2 == 0, "Supply pairs of arguments: filename (PathOrStr) and file contents (str)"
         for filename, file_contents in windowed(name_contents, 2, step=2):
             actual = self.read_file(filename)

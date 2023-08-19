@@ -63,7 +63,10 @@ def test_suggest_initial_contents(tmp_path, datadir):
 
 
 def test_no_yaml_key(tmp_path):
-    """What was an invalid repo config before, now will be autofixed. Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`."""
+    """What was an invalid repo config before, now will be autofixed.
+
+    Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
+    """
     ProjectMock(tmp_path).style(
         '''
         [[".pre-commit-config.yaml".repos]]
@@ -235,7 +238,10 @@ def test_repo_does_not_exist(tmp_path):
 
 
 def test_missing_hooks_in_repo(tmp_path):
-    """Test missing hooks in repo. Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`."""
+    """Test missing hooks in repo.
+
+    Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
+    """
     ProjectMock(tmp_path).style(
         """
         [[".pre-commit-config.yaml".repos]]
@@ -278,7 +284,10 @@ def test_style_missing_hooks_in_repo(tmp_path):
 
 
 def test_style_missing_id_in_hook(tmp_path):
-    """Test style file is missing id in hook. Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`."""
+    """Test style file is missing id in hook.
+
+    Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
+    """
     ProjectMock(tmp_path).style(
         f'''
         [[".pre-commit-config.yaml".repos]]
@@ -351,7 +360,9 @@ def test_missing_hook_with_id(tmp_path):
 
 
 def test_missing_different_values(tmp_path, datadir, shared_datadir):
-    """Test missing and different values on the hooks. All "yaml" keys in the style are now ignored.
+    """Test missing and different values on the hooks.
+
+    All "yaml" keys in the style are now ignored.
 
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
     """

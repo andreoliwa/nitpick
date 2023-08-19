@@ -68,7 +68,10 @@ def test_list_of_scalars_only_add_elements_that_do_not_exist(tmp_path, datadir):
 
 
 def test_wildcard_expression_matches_multiple_keys(tmp_path, datadir):
-    """Test wildcard expressions that match multiple keys. E.g.: any "jobs.*.steps"."""
+    """Test wildcard expressions that match multiple keys.
+
+    E.g.: any "jobs.*.steps".
+    """
     filename = ".github/workflows/anything.yaml"
     ProjectMock(tmp_path).save_file(filename, datadir / "wildcard-actual.yaml").style(
         datadir / "wildcard-desired.toml"

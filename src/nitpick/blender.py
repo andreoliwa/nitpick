@@ -70,7 +70,9 @@ def compare_lists_with_dictdiffer(
 
 
 def search_json(json_data: ElementData, jmespath_expression: ParsedResult | str, default: Any | None = None) -> Any:
-    """Search a dictionary or list using a JMESPath expression. Return a default value if not found.
+    """Search a dictionary or list using a JMESPath expression.
+
+    Return a default value if not found.
 
     >>> data = {"root": {"app": [1, 2], "test": "something"}}
     >>> search_json(data, "root.app", None)
@@ -211,7 +213,10 @@ def quote_if_dotted(key: str) -> str:
 
 
 def quote_reducer(separator: str) -> Callable:
-    """Reducer used to unflatten dicts. Quote keys when they have dots."""
+    """Reducer used to unflatten dicts.
+
+    Quote keys when they have dots.
+    """
 
     def _inner_quote_reducer(key1: str | None, key2: str) -> str:
         if key1 is None:

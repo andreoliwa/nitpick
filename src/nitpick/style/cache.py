@@ -20,8 +20,7 @@ EXPIRES_DEFAULTS = {
 def parse_cache_option(cache_option: str) -> tuple[CachingEnum, timedelta | int]:
     """Parse the cache option provided on pyproject.toml.
 
-    If no cache if provided or is invalid, the default is *one hour*.
-
+    If no cache is provided or is invalid, the default is *one hour*.
     """
     clean_cache_option = cache_option.strip().upper() if cache_option else ""
     try:

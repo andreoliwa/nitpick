@@ -120,7 +120,10 @@ class Nitpick:
                 yield from plugin_class(info, config_dict, autofix).entry_point()
 
     def configured_files(self, *partial_names: str) -> list[Path]:
-        """List of files configured in the Nitpick style. Filter only the selected partial names."""
+        """List of files configured in the Nitpick style.
+
+        Filter only the selected partial names.
+        """
         return [Path(self.project.root) / key for key in filter_names(self.project.style_dict, *partial_names)]
 
     def echo(self, message: str):

@@ -33,7 +33,6 @@ class StyleFetcher:
 
         Only called for urls that lack a scheme (at the very least), being resolved
         against a base URL that matches this specific fetcher.
-
         """
         return url
 
@@ -55,7 +54,6 @@ class StyleFetcher:
 
         - The base name has .toml appended if not already ending in that extension
         - Individual fetchers can further normalize the path and scheme.
-
         """
         new_scheme = self._normalize_scheme(url.scheme)
         if new_scheme != url.scheme:

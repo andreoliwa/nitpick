@@ -101,7 +101,6 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
 
         base is the URL for the source of the initial styles, and is used to
         resolve relative references. If omitted, defaults to the project root.
-
         """
         project_root = self.project.root
         base_url = furl(base or project_root.resolve().as_uri())
