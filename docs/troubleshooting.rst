@@ -48,3 +48,25 @@ You might get this error while running ``make`` locally.
 
 1. Run ``invoke lint`` (or ``tox -e lint`` directly) to create this tox_ environment.
 2. Run ``make`` again.
+
+Missing ``rev`` key when using the default ``pre-commit`` styles
+----------------------------------------------------------------
+
+If you're using the default ``pre-commit`` styles, you might get this error:
+
+.. code-block:: shell
+
+    An error has occurred: InvalidConfigError:
+    ==> File .pre-commit-config.yaml
+    ==> At Config()
+    ==> At key: repos
+    ==> At Repository(repo='https://github.com/PyCQA/bandit')
+    =====> Missing required key: rev
+    Check the log at /Users/your-name/.cache/pre-commit/pre-commit.log
+
+This happens because the default styles don't have a ``rev`` key.
+Currently, this is not possible because the pre-commit plugin doesn't support it.
+
+To solve this, you can run ``pre-commit autoupdate`` to update the styles to the latest version, as `recommended in the official docs <https://pre-commit.com/#updating-hooks-automatically>`_.
+
+For more details, `check out this comment on the GitHub issue <https://github.com/andreoliwa/nitpick/issues/472#issuecomment-1079692929>`_.
