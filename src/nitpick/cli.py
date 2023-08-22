@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 import click
+import tomlkit
 from click.exceptions import Exit
 from loguru import logger
 
@@ -144,15 +145,30 @@ def ls(context, files):  # pylint: disable=invalid-name
 
 @nitpick_cli.command()
 @click.pass_context
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    default=False,
+    help="Overwrite the section if it already exists",
+)
 @click.argument("style_urls", nargs=-1)
-def init(context, style_urls):
-    """Create a [tool.nitpick] section in the configuration file if it doesn't exist already."""
+def init(context, force, style_urls):
+    """Create a [tool.nitpick] section in the configuration file."""
     nit = get_nitpick(context)
     config = nit.project.read_configuration()
 
-    if config.file and PROJECT_NAME in TomlDoc(path=config.file).as_object.get(TOOL_KEY, {}):
-        click.secho(f"The config file {config.file.name} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")
-        raise Exit(1)
+    if config.file:
+        tool_nitpick_toml = TomlDoc(path=config.file).as_object.get(TOOL_KEY, {}).get(PROJECT_NAME, {})
+        if tool_nitpick_toml and not force:
+            click.secho(f"{PROJECT_NAME} is already configured in {config.file.name!r}.", fg="yellow")
+            click.echo(f"[{TOOL_NITPICK_KEY}]")
+            click.echo(tomlkit.dumps(tool_nitpick_toml))
+            raise Exit(1)
 
     nit.project.create_configuration(config, *style_urls)
     click.secho(f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {config.file.name}", fg="green")
+
+    tool_nitpick_toml = TomlDoc(path=config.file).as_object.get(TOOL_KEY, {}).get(PROJECT_NAME, {})
+    click.echo(f"[{TOOL_NITPICK_KEY}]")
+    click.echo(tomlkit.dumps(tool_nitpick_toml))
