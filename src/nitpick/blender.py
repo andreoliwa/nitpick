@@ -10,6 +10,7 @@ import abc
 import json
 import re
 import shlex
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
@@ -23,7 +24,7 @@ from autorepr import autorepr
 from flatten_dict import flatten, unflatten
 from ruamel.yaml import YAML, RoundTripRepresenter, StringIO
 from sortedcontainers import SortedDict
-from tomlkit import items
+from tomlkit import TOMLDocument, items
 
 from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
 
@@ -551,6 +552,71 @@ class TomlDoc(BaseDoc):
             else:
                 self._reformatted = toml.dumps(self._object)
         return True
+
+
+@dataclass
+class TomlTable:
+    """A helper to write data on a TOML table using tomlkit to preserve existing content."""
+
+    path: Path
+    name: str
+    _doc: TOMLDocument = None
+    _table: items.Table = None
+    _created: bool = False
+
+    def _parse_file(self):
+        if self._doc is None:
+            if self.path.exists():
+                self._doc = tomlkit.loads(self.path.read_text(encoding="UTF-8"))
+            else:
+                self._doc = tomlkit.document()
+
+    def _get_table(self, *, create=False) -> items.Table | None:
+        if self._table is not None:
+            return self._table
+
+        self._parse_file()
+        current = self._doc
+        for part in self.name.split(SEPARATOR_DOT):
+            if part not in current:
+                if create:
+                    self._table = tomlkit.table()
+                    self._created = True
+                return self._table
+            current = current[part]
+
+        self._table = current
+        return self._table
+
+    @property
+    def exists(self) -> bool:
+        """Return True if the table exists."""
+        return self._get_table() is not None
+
+    def update_list(self, key: str, *args: str, comment: str = "") -> None:
+        """Update a list on the table with an optional comment."""
+        self._get_table(create=True)
+
+        normalized_array = tomlkit.array([tomlkit.string(item) for item in args])
+        if self._table.get(key):
+            # TODO(AA): add comment or update existing one
+            self._table[key] = normalized_array
+            return
+
+        if comment:
+            self._table.add(tomlkit.comment("\n# ".join(comment.splitlines())))
+        self._table.add(key, normalized_array)
+
+    def write_file(self):
+        """Write the TOML file."""
+        if self._created:
+            self._doc.add(items.SingleKey(self.name, items.KeyType.Bare), self._table)
+        self.path.write_text(tomlkit.dumps(self._doc), encoding="UTF-8")
+
+    @property
+    def as_toml(self) -> str:
+        """Return the table as a TOML string."""
+        return tomlkit.dumps(self._table).rstrip()
 
 
 def traverse_toml_tree(document: tomlkit.TOMLDocument, dictionary):

@@ -45,7 +45,13 @@ def test_config_file_already_has_tool_nitpick_section(tmp_path, config_file):
         style = ['/this/should/not/be/validated-yet.toml']
         """,
     )
-    project.cli_init(f"The config file {config_file} already has a [{TOOL_NITPICK_KEY}] section.", exit_code=1)
+    project.cli_init(
+        [
+            f"The config file {config_file!r} already has a [{TOOL_NITPICK_KEY}] section.",
+            "style = ['/this/should/not/be/validated-yet.toml']",
+        ],
+        exit_code=1,
+    )
 
 
 def test_create_basic_dot_nitpick_toml(tmp_path):
@@ -53,7 +59,7 @@ def test_create_basic_dot_nitpick_toml(tmp_path):
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
     url = StyleManager.get_default_style_url()
     project.cli_init(
-        f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {DOT_NITPICK_TOML}"
+        f"The [{TOOL_NITPICK_KEY}] section was created in the config file {DOT_NITPICK_TOML!r}\nstyle = ['{url}']"
     ).assert_file_contents(
         DOT_NITPICK_TOML,
         f"""
@@ -71,7 +77,10 @@ def test_init_empty_pyproject_toml(tmp_path):
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
     url = StyleManager.get_default_style_url()
     project.pyproject_toml("").cli_init(
-        f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {PYPROJECT_TOML}"
+        [
+            f"The [{TOOL_NITPICK_KEY}] section was created in the config file {PYPROJECT_TOML!r}",
+            "style = ['py://nitpick/resources/presets/nitpick']",
+        ]
     ).assert_file_contents(
         PYPROJECT_TOML,
         f"""
@@ -86,13 +95,16 @@ def test_init_empty_pyproject_toml(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "styles",
+    ("styles", "expected_styles"),
     [
-        (),  # no arguments, default style
-        ("https://github.com/andreoliwa/nitpick/blob/develop/initial.toml", "./local.toml"),
+        ((), "style = ['py://nitpick/resources/presets/nitpick']"),  # no arguments, default style
+        (
+            ("https://github.com/andreoliwa/nitpick/blob/develop/initial.toml", "./local.toml"),
+            "style = ['https://github.com/andreoliwa/nitpick/blob/develop/initial.toml', './local.toml']",
+        ),
     ],
 )
-def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path, styles):
+def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path, styles, expected_styles):
     """Add a [tool.nitpick] section to pyproject.toml."""
     project = ProjectMock(tmp_path).pyproject_toml(
         """
@@ -103,7 +115,8 @@ def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path, styles):
     expected = styles or [StyleManager.get_default_style_url()]
 
     project.cli_init(
-        f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {PYPROJECT_TOML}", *styles
+        f"The [{TOOL_NITPICK_KEY}] section was created in the config file {PYPROJECT_TOML!r}\n{expected_styles}",
+        *styles,
     ).assert_file_contents(
         PYPROJECT_TOML,
         f"""
