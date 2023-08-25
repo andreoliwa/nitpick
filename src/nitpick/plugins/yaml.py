@@ -17,11 +17,13 @@ if TYPE_CHECKING:
     from nitpick.plugins.info import FileInfo
     from nitpick.typedefs import JsonDict, YamlObject
 
+# keep-sorted start
+KEY_HOOKS = "hooks"
+KEY_ID = "id"
+KEY_REPO = "repo"
 KEY_REPOS = "repos"
 KEY_YAML = "yaml"
-KEY_HOOKS = "hooks"
-KEY_REPO = "repo"
-KEY_ID = "id"
+# keep-sorted end
 
 
 class YamlPlugin(NitpickPlugin):

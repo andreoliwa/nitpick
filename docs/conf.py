@@ -98,13 +98,15 @@ pygments_style = "sphinx"
 # Use this to inspect the inventory:
 # https://github.com/bskinn/sphobjinv
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3", None),
-    "marshmallow": ("https://marshmallow.readthedocs.io/en/stable", None),
-    "ruamel.yaml": ("https://yaml.readthedocs.io/en/latest", None),
-    "jmespath": ("https://jmespath.readthedocs.io/en/latest", None),
-    "configupdater": ("https://configupdater.readthedocs.io/en/latest/", None),
-    "pluggy": ("https://pluggy.readthedocs.io/en/latest/", None),
+    # keep-sorted start
     "click": ("https://click.palletsprojects.com/en/7.x/", None),
+    "configupdater": ("https://configupdater.readthedocs.io/en/latest/", None),
+    "jmespath": ("https://jmespath.readthedocs.io/en/latest", None),
+    "marshmallow": ("https://marshmallow.readthedocs.io/en/stable", None),
+    "pluggy": ("https://pluggy.readthedocs.io/en/latest/", None),
+    "python": ("https://docs.python.org/3", None),
+    "ruamel.yaml": ("https://yaml.readthedocs.io/en/latest", None),
+    # keep-sorted end
 }
 
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-nitpicky
@@ -120,6 +122,7 @@ nitpick_ignore = [
     (key, identifier)
     for key, identifiers in {
         "py:class": {
+            # keep-sorted start case=no
             "BaseDoc",
             "bool|tuple",
             "builtins.dict",
@@ -144,6 +147,7 @@ nitpick_ignore = [
             "tomlkit.toml_document.TOMLDocument",
             "Tuple[int, ...]",
             "ValidationError",
+            # keep-sorted end
         },
         "py:exc": {"ValidationError"},
     }.items()

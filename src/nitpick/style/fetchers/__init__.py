@@ -22,13 +22,15 @@ if TYPE_CHECKING:
 class Scheme(LowercaseStrEnum):
     """URL schemes."""
 
+    # keep-sorted start
     FILE = auto()
+    GH = auto()
+    GITHUB = auto()
     HTTP = auto()
     HTTPS = auto()
     PY = auto()
     PYPACKAGE = auto()
-    GH = auto()
-    GITHUB = auto()
+    # keep-sorted end
 
 
 @dataclass()

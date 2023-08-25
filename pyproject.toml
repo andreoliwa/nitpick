@@ -125,6 +125,7 @@ select = ["ALL"]
 
 # https://beta.ruff.rs/docs/settings/#ignore
 ignore = [
+    # keep-sorted start
     "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann # TODO: fix: add typing annotations (fix 249 errors and remove this ignore)
     "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
     "D107", # Missing docstring in `__init__`
@@ -138,6 +139,7 @@ ignore = [
     "FIX002", #  Line contains TO-DO, consider resolving the issue
     "TD002", # Missing author in TO DO
     "TD003", # Missing issue link on the line following this TO DO
+    # keep-sorted end
 ]
 
 # https://beta.ruff.rs/docs/settings/#line-length
@@ -169,6 +171,7 @@ max-complexity = 10
 # S105 Possible hardcoded password
 # T201 `print` found
 # T203 `pprint` found
+# keep-sorted start
 "compat.py" = ["F401"]
 "docs/**" = ["ANN", "INP001", "T201", "T203"]
 "docs/conf.py" = ["ERA"]
@@ -177,3 +180,4 @@ max-complexity = 10
 "tasks.py" = ["ANN", "PLR0913", "T201", "T203"]
 "tests/**" = ["ANN", "PLR0913", "S101", "S105", "T201", "T203"]
 "tests/data/**" = ["INP001"]
+# keep-sorted end

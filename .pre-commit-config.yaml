@@ -39,6 +39,10 @@ repos:
       - id: debug-statements
       - id: end-of-file-fixer
       - id: trailing-whitespace
+  - repo: https://github.com/google/keep-sorted
+    rev: v0.1.1
+    hooks:
+      - id: keep-sorted
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.0.285
     hooks:
