@@ -103,8 +103,17 @@ class ToxCommands:
 
     @property
     def stable_python_version(self) -> str:
-        """The Python version considered stable (by me) is the second to last in the list."""
-        return self.python_versions[-2]
+        """The Python version considered stable to develop Nitpick."""
+        # Python 3.11 doesn't work with poetry install:
+        #   • Installing wrapt (1.13.3): Failed
+        #
+        #   ChefBuildError
+        #
+        #   Backend subprocess exited when trying to invoke build_wheel
+        # Note: This error originates from the build backend, and is likely not a problem with poetry
+        # but with wrapt (1.13.3) not supporting PEP 517 builds. You can verify this by running
+        # 'pip wheel --use-pep517 "wrapt (==1.13.3)"'.
+        return "3.10"
 
     @staticmethod
     def as_tox_env(python_version_with_dot: str) -> str:
@@ -117,7 +126,7 @@ class ToxCommands:
     help={
         "deps": "Poetry dependencies",
         "hooks": "pre-commit hooks",
-        "version": "Desired Python version number. Default: minimum version from tox.ini",
+        "version": "Desired Python version number. Default: stable Python version",
     }
 )
 def install(c, deps=True, hooks=False, version=""):
@@ -126,9 +135,10 @@ def install(c, deps=True, hooks=False, version=""):
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
-        minimum = ToxCommands().minimum_python_version
+        tox = ToxCommands()
+        minimum = tox.minimum_python_version
         if not version:
-            version = minimum
+            version = tox.stable_python_version
 
         print(
             f"{COLOR_GREEN}Nitpick runs in Python {minimum} and later;"

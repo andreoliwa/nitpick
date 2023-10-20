@@ -60,6 +60,7 @@ def test_list_of_scalars_only_add_elements_that_do_not_exist(tmp_path, datadir):
                     python-version:
                       - '3.10'
                       - '3.11'
+                      - '3.12'
             """,
         ),
     ).assert_file_contents(

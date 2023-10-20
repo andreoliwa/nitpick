@@ -253,6 +253,8 @@ python
      - Python 3.10
    * - `py://nitpick/resources/python/311 <src/nitpick/resources/python/311.toml>`_
      - Python 3.11
+   * - `py://nitpick/resources/python/312 <src/nitpick/resources/python/312.toml>`_
+     - Python 3.12
    * - `py://nitpick/resources/python/38 <src/nitpick/resources/python/38.toml>`_
      - Python 3.8
    * - `py://nitpick/resources/python/39 <src/nitpick/resources/python/39.toml>`_

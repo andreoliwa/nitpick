@@ -1,0 +1,5 @@
+[nitpick.meta]
+name = "Python 3.12"
+
+["pyproject.toml".tool.poetry.dependencies]
+python = "^3.12"
