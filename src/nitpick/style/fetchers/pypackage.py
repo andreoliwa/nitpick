@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import TYPE_CHECKING, Iterable, cast
+from pathlib import Path
+from typing import Iterable, cast
 
 import attr
 import tomlkit
@@ -14,14 +15,11 @@ from nitpick.constants import DOT
 from nitpick.style.fetchers import Scheme
 from nitpick.style.fetchers.base import StyleFetcher
 
-if TYPE_CHECKING:
-    from pathlib import Path
-
 
 @lru_cache
 def builtin_resources_root() -> Path:
     """Built-in resources root."""
-    return compat.files("nitpick.resources")
+    return Path(str(compat.files("nitpick.resources")))
 
 
 @lru_cache
@@ -60,7 +58,7 @@ class PythonPackageURL:
     @property
     def content_path(self) -> Path:
         """Raw path of resource file."""
-        return compat.files(self.import_path) / self.resource_name
+        return Path(str(compat.files(self.import_path))) / self.resource_name
 
 
 @dataclass(frozen=True)

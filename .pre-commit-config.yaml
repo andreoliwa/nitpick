@@ -5,7 +5,7 @@
 
 # https://pre-commit.com/#top_level-default_language_version
 default_language_version:
-  python: python3.8
+  python: python3.11
 
 # https://pre-commit.ci/#configuration
 ci:
@@ -57,7 +57,6 @@ repos:
     rev: v1.2.0
     hooks:
       - id: sort-all
-        language_version: python3.8
   - repo: https://github.com/psf/black
     rev: 23.9.1
     hooks:
