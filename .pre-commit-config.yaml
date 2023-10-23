@@ -40,11 +40,11 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/google/keep-sorted
-    rev: v0.1.1
+    rev: v0.2.0
     hooks:
       - id: keep-sorted
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.292
+    rev: v0.1.1
     hooks:
       - id: ruff
         args: [--fix]
@@ -58,7 +58,7 @@ repos:
     hooks:
       - id: sort-all
   - repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 23.10.0
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -78,7 +78,7 @@ repos:
       - id: prettier
         stages: [commit]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.0
+    rev: v1.6.1
     hooks:
       - id: mypy
         # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
@@ -116,7 +116,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: 3.10.1
+    rev: 3.12.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
