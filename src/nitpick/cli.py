@@ -23,7 +23,7 @@ from click.exceptions import Exit
 from loguru import logger
 
 from nitpick.blender import TomlTable
-from nitpick.constants import DOT_NITPICK_TOML, PROJECT_NAME, READ_THE_DOCS_URL, TOOL_NITPICK_KEY
+from nitpick.constants import PROJECT_NAME, READ_THE_DOCS_URL, TOOL_NITPICK_KEY
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
@@ -157,10 +157,7 @@ def init(context, force, style_urls):
     """Create a [tool.nitpick] section in the configuration file."""
     nit = get_nitpick(context)
     # TODO(AA): test --force flag
-    # TODO(AA): replace both these lines with path = nit.project.which_config_file()
-    config = nit.project.read_configuration()
-    path = config.file or nit.project.root / DOT_NITPICK_TOML
-
+    path = nit.project.which_config_file(use_default=True)
     table = TomlTable(path, TOOL_NITPICK_KEY)
     if table.exists and not force:
         click.secho(f"The config file {path.name!r} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")

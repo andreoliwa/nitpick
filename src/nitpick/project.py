@@ -16,6 +16,7 @@ from nitpick import fields, plugins
 from nitpick.blender import TomlDoc, search_json
 from nitpick.constants import (
     CONFIG_FILES,
+    DOT_NITPICK_TOML,
     MANAGE_PY,
     NITPICK_MINIMUM_VERSION_JMEX,
     PROJECT_NAME,
@@ -134,22 +135,31 @@ class Project:
             manager.load_setuptools_entrypoints(PROJECT_NAME)
         return manager
 
-    def read_configuration(self) -> Configuration:
-        """Search for a configuration file and validate it against a Marshmallow schema."""
-        config_file: Path | None = None
-        for possible_file in CONFIG_FILES:
-            path: Path = self.root / possible_file
-            if not path.exists():
+    def which_config_file(self, *, use_default: bool) -> Path | None:
+        """Determine which config file to use."""
+        found: Path | None = None
+        for possible in CONFIG_FILES:
+            existing: Path = self.root / possible
+            if not existing.exists():
                 continue
 
-            if not config_file:
-                logger.info(f"Config file: reading from {path}")
-                config_file = path
+            if not found:
+                logger.info(f"Config file: reading from {existing}")
+                found = existing
             else:
-                logger.warning(f"Config file: ignoring existing {path}")
+                logger.warning(f"Config file: ignoring existing {existing}")
 
-        if not config_file:
+        if not found:
             logger.warning("Config file: none found")
+            if use_default:
+                return self.root / DOT_NITPICK_TOML
+
+        return found
+
+    def read_configuration(self) -> Configuration:
+        """Search for a configuration file and validate it against a Marshmallow schema."""
+        config_file = self.which_config_file(use_default=False)
+        if not config_file:
             return Configuration(None, [], "")
 
         toml_doc = TomlDoc(path=config_file)
