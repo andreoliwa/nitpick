@@ -19,6 +19,7 @@ readme = "README.rst"
 repository = "https://github.com/andreoliwa/nitpick"
 keywords = ["python3", "flake8", "linter", "styleguide"]
 classifiers = [
+    # keep-sorted start
     "Development Status :: 4 - Beta",
     "Environment :: Plugins",
     "Intended Audience :: Developers",
@@ -26,12 +27,15 @@ classifiers = [
     "Operating System :: Unix",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Software Development :: Quality Assurance",
+    # keep-sorted end
 ]
 
 [tool.poetry.urls]
-"Documentation" = "https://nitpick.rtfd.io/"
+# keep-sorted start
 "Changelog" = "https://github.com/andreoliwa/nitpick/blob/develop/CHANGELOG.md"
+"Documentation" = "https://nitpick.rtfd.io/"
 "Issue Tracker" = "https://github.com/andreoliwa/nitpick/issues"
+# keep-sorted end
 
 [tool.poetry.scripts]
 nitpick = "nitpick.cli:nitpick_cli"
@@ -162,6 +166,7 @@ max-complexity = 10
 
 # https://beta.ruff.rs/docs/settings/#per-file-ignores
 [tool.ruff.per-file-ignores]
+# keep-sorted start
 # ANN https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
 # ERA https://beta.ruff.rs/docs/rules/#eradicate-era
 # F401 imported but unused
@@ -171,7 +176,6 @@ max-complexity = 10
 # S105 Possible hardcoded password
 # T201 `print` found
 # T203 `pprint` found
-# keep-sorted start
 "compat.py" = ["F401"]
 "docs/**" = ["ANN", "INP001", "T201", "T203"]
 "docs/conf.py" = ["ERA"]
