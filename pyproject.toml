@@ -34,11 +34,10 @@ repository = "https://github.com/andreoliwa/nitpick"
 version = "0.34.0"
 
 [tool.poetry.dependencies]
-ConfigUpdater = "*"
-StrEnum = "*"
 attrs = ">=20.1.0" # attr.define introduced in this version
 autorepr = "*"
 click = "*"
+ConfigUpdater = "*"
 dictdiffer = "*"
 dpath = "*"
 # TODO: build: upgrading importlib-metadata to 4.10.1 downgrades the following packages:
@@ -85,6 +84,7 @@ sphinx = {optional = true, version = "*"}
 sphinx-gitref = {optional = true, version = "*"}
 sphinx_rtd_theme = {optional = true, version = "*"}
 sphobjinv = {optional = true, version = "*"}
+StrEnum = "*"
 testfixtures = {optional = true, version = "*"}
 toml = "*" # TODO: refactor: use only tomlkit and remove uiri/toml
 tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
@@ -174,5 +174,6 @@ max-complexity = 10
 
 [tool.tomlsort]
 all = true
+ignore_case = true
 in_place = true
 trailing_comma_inline_array = true

@@ -47,6 +47,9 @@ repos:
     rev: v0.23.1
     hooks:
       - id: toml-sort-fix
+        # Don't sort certain TOML files:
+        # - style-related files: used to generate YAML that might depend on the order
+        # - poetry.lock: auto-generated file
         exclude: (ideas/|resources/|tests/|poetry.lock)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.3
