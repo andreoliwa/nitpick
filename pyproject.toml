@@ -154,15 +154,17 @@ max-complexity = 10
 
 # https://beta.ruff.rs/docs/settings/#per-file-ignores
 [tool.ruff.per-file-ignores]
+# keep-sorted start
 # ANN https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
-# ERA https://beta.ruff.rs/docs/rules/#eradicate-era
 # F401 imported but unused
+# ERA https://beta.ruff.rs/docs/rules/#eradicate-era
 # INP001 File `xxx.py` is part of an implicit namespace package. Add an `__init__.py`.
 # PLR0913 Too many arguments to function call
 # S101 use of assert detected
 # S105 Possible hardcoded password
 # T201 `print` found
 # T203 `pprint` found
+# keep-sorted end
 "compat.py" = ["F401"]
 "docs/**" = ["ANN", "INP001", "T201", "T203"]
 "docs/conf.py" = ["ERA"]
