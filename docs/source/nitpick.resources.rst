@@ -19,3 +19,4 @@ Subpackages
    nitpick.resources.proto
    nitpick.resources.python
    nitpick.resources.shell
+   nitpick.resources.toml

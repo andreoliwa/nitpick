@@ -1,5 +1,6 @@
 Issues fixed by this pull request:
-Fix #
+
+- Fix #
 
 ## Proposed changes
 
