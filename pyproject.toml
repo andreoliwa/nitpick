@@ -1,159 +1,147 @@
-[tool.nitpick]
-# Use the default style and override some things (like the Python version)
-style = [
-    "nitpick-style",
-    "py://nitpick/resources/python/38.toml",
-    "py://nitpick/resources/python/stable.toml"
-]
+[build-system]
+build-backend = "poetry.core.masonry.api"
+# https://github.com/python-poetry/poetry/issues/1993
+requires = ["poetry-core>=1.0.8"]
 
 [tool.black]
 line-length = 120
 
-[tool.poetry]
-name = "nitpick"
-version = "0.34.0"
-description = "Enforce the same settings across multiple language-independent projects"
-authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
-license = "MIT"
-readme = "README.rst"
-repository = "https://github.com/andreoliwa/nitpick"
-keywords = ["python3", "flake8", "linter", "styleguide"]
-classifiers = [
-    # keep-sorted start
-    "Development Status :: 4 - Beta",
-    "Environment :: Plugins",
-    "Intended Audience :: Developers",
-    "Operating System :: MacOS",
-    "Operating System :: Unix",
-    "Programming Language :: Python :: 3 :: Only",
-    "Topic :: Software Development :: Quality Assurance",
-    # keep-sorted end
+[tool.nitpick]
+# Use the default style and override some things (like the Python version)
+style = [
+  "nitpick-style",
+  "py://nitpick/resources/python/38.toml",
+  "py://nitpick/resources/python/stable.toml",
 ]
 
-[tool.poetry.urls]
-# keep-sorted start
-"Changelog" = "https://github.com/andreoliwa/nitpick/blob/develop/CHANGELOG.md"
-"Documentation" = "https://nitpick.rtfd.io/"
-"Issue Tracker" = "https://github.com/andreoliwa/nitpick/issues"
-# keep-sorted end
+[tool.poetry]
+authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Plugins",
+  "Intended Audience :: Developers",
+  "Operating System :: MacOS",
+  "Operating System :: Unix",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Software Development :: Quality Assurance",
+]
+description = "Enforce the same settings across multiple language-independent projects"
+keywords = ["flake8", "linter", "python3", "styleguide"]
+license = "MIT"
+name = "nitpick"
+readme = "README.rst"
+repository = "https://github.com/andreoliwa/nitpick"
+version = "0.34.0"
 
-[tool.poetry.scripts]
-nitpick = "nitpick.cli:nitpick_cli"
+[tool.poetry.dependencies]
+attrs = ">=20.1.0" # attr.define introduced in this version
+autorepr = "*"
+click = "*"
+ConfigUpdater = "*"
+dictdiffer = "*"
+dpath = "*"
+# TODO: build: upgrading importlib-metadata to 4.10.1 downgrades the following packages:
+# • Updating importlib-metadata (4.2.0 -> 4.10.1)
+# • Updating pycodestyle (2.8.0 -> 2.7.0)
+# • Updating pyflakes (2.4.0 -> 2.3.1)
+# • Updating flake8 (4.0.1 -> 3.9.2)
+flake8 = ">=3.0.0"
+flatten-dict = "*"
+freezegun = {optional = true, version = "*"}
+furl = "*"
+identify = "*"
+importlib-resources = {python = ">=3.8, <3.9", version = "*"}
+jmespath = "*"
+loguru = "*"
+# Pin marshmallow to avoid error on "pip install -U nitpick":
+# marshmallow-polyfield 5.7 has requirement marshmallow>=3.0.0b10, but you'll have marshmallow 2.19.5 which is incompatible.
+marshmallow = {version = ">=3.0.0b10"}
+# Pin to avoid error on "flake8 ." when there is an invalid TOML style:
+# TypeError: _deserialize() got an unexpected keyword argument 'partial'
+marshmallow-polyfield = "^5.10"
+"more-itertools" = "*"
+pluggy = "*"
+# TODO: chore: move to dependency groups once the feature is on a stable version of Poetry
+# https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups
+# Group: lint
+pylint = {optional = true, version = "*"}
+# Group: test
+pytest = {optional = true, version = "*"}
+pytest-cov = {optional = true, version = "*"}
+pytest-datadir = {optional = true, version = "*"}
+pytest-socket = "*"
+pytest-testmon = {optional = true, version = "*"}
+pytest-watch = {optional = true, version = "*"}
+python = "^3.8"
+python-slugify = "*"
+requests = "*"
+requests-cache = ">=1.0.0" # This version uses requests_cache.policy.expiration
+responses = {optional = true, version = "*"}
+"ruamel.yaml" = "*"
+sortedcontainers = "*"
+# Group: doc
+sphinx = {optional = true, version = "*"}
+sphinx-gitref = {optional = true, version = "*"}
+sphinx_rtd_theme = {optional = true, version = "*"}
+sphobjinv = {optional = true, version = "*"}
+StrEnum = "*"
+testfixtures = {optional = true, version = "*"}
+toml = "*" # TODO: refactor: use only tomlkit and remove uiri/toml
+tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
+
+[tool.poetry.dev-dependencies]
+icecream = "*"
+ipython = "*"
+pudb = "*"
+
+[tool.poetry.extras]
+doc = ["sphinx", "sphinx-gitref", "sphinx_rtd_theme", "sphobjinv"]
+lint = ["pylint"]
+test = ["freezegun", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", "pytest-testmon", "pytest-watch", "responses", "testfixtures"]
 
 [tool.poetry.plugins."flake8.extension"]
 NIP = "nitpick.flake8:NitpickFlake8Extension"
 
 [tool.poetry.plugins.nitpick]
-text = "nitpick.plugins.text"
-json = "nitpick.plugins.json"
 ini = "nitpick.plugins.ini"
+json = "nitpick.plugins.json"
+text = "nitpick.plugins.text"
 toml = "nitpick.plugins.toml"
 yaml = "nitpick.plugins.yaml"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-# TODO: build: upgrading importlib-metadata to 4.10.1 downgrades the following packages:
-#  • Updating importlib-metadata (4.2.0 -> 4.10.1)
-#  • Updating pycodestyle (2.8.0 -> 2.7.0)
-#  • Updating pyflakes (2.4.0 -> 2.3.1)
-#  • Updating flake8 (4.0.1 -> 3.9.2)
-flake8 = ">=3.0.0"
-attrs = ">=20.1.0" # attr.define introduced in this version
-tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
-toml = "*" # TODO: refactor: use only tomlkit and remove uiri/toml
-requests = "*"
-dictdiffer = "*"
-"ruamel.yaml" = "*"
-python-slugify = "*"
-jmespath = "*"
-sortedcontainers = "*"
-click = "*"
-# Pin marshmallow to avoid error on "pip install -U nitpick":
-# marshmallow-polyfield 5.7 has requirement marshmallow>=3.0.0b10, but you'll have marshmallow 2.19.5 which is incompatible.
-marshmallow = { version = ">=3.0.0b10" }
-# Pin to avoid error on "flake8 ." when there is an invalid TOML style:
-# TypeError: _deserialize() got an unexpected keyword argument 'partial'
-marshmallow-polyfield = "^5.10"
-identify = "*"
-"more-itertools" = "*"
-pluggy = "*"
-autorepr = "*"
-loguru = "*"
-ConfigUpdater = "*"
-importlib-resources = { version = "*", python = ">=3.8, <3.9" }
-flatten-dict = "*"
-dpath = "*"
-furl = "*"
-StrEnum = "*"
+[tool.poetry.scripts]
+nitpick = "nitpick.cli:nitpick_cli"
 
-# TODO: chore: move to dependency groups once the feature is on a stable version of Poetry
-#  https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups
-# Group: lint
-pylint = { version = "*", optional = true }
-
-# Group: test
-pytest = { version = "*", optional = true }
-pytest-cov = { version = "*", optional = true }
-testfixtures = { version = "*", optional = true }
-responses = { version = "*", optional = true }
-freezegun = { version = "*", optional = true }
-pytest-testmon = { version = "*", optional = true }
-pytest-watch = { version = "*", optional = true }
-pytest-socket = "*"
-pytest-datadir = { version = "*", optional = true }
-
-# Group: doc
-sphinx = { version = "^6.2.1", optional = true } # https://github.com/kivy/kivy/issues/8230
-sphinx_rtd_theme = { version = "*", optional = true }
-sphobjinv = { version = "*", optional = true }
-sphinx-gitref = { version = "*", optional = true }
-requests-cache = ">=1.0.0" # This version uses requests_cache.policy.expiration
-
-[tool.poetry.extras]
-lint = ["pylint"]
-test = ["pytest", "pytest-cov", "testfixtures", "responses", "freezegun", "pytest-testmon", "pytest-watch", "pytest-socket", "pytest-datadir"]
-doc = ["sphinx", "sphinx_rtd_theme", "sphobjinv", "sphinx-gitref"]
-
-[tool.poetry.dev-dependencies]
-ipython = "*"
-pudb = "*"
-icecream = "*"
-
-[build-system]
-requires = ["poetry-core>=1.0.8"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.urls]
+"Changelog" = "https://github.com/andreoliwa/nitpick/blob/develop/CHANGELOG.md"
+"Documentation" = "https://nitpick.rtfd.io/"
+"Issue Tracker" = "https://github.com/andreoliwa/nitpick/issues"
 
 [tool.ruff]
-# https://beta.ruff.rs/docs/settings/#select
-select = ["ALL"]
-
 # https://beta.ruff.rs/docs/settings/#ignore
 ignore = [
-    # keep-sorted start
-    "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann # TODO: fix: add typing annotations (fix 249 errors and remove this ignore)
-    "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
-    "D107", # Missing docstring in `__init__`
-    "D202", # No blank lines allowed after function docstring
-    "D203", # 1 blank line required before class docstring
-    "D213", # Multi-line docstring summary should start at the second line
-    "D401", # First line of docstring should be in imperative mood
-    "E402", # Module level import not at top of file
-    "E501", # Line too long
-    "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
-    "FIX002", #  Line contains TO-DO, consider resolving the issue
-    "TD002", # Missing author in TO DO
-    "TD003", # Missing issue link on the line following this TO DO
-    # keep-sorted end
+  "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann # TODO: fix: add typing annotations (fix 249 errors and remove this ignore)
+  "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
+  "D107", # Missing docstring in `__init__`
+  "D202", # No blank lines allowed after function docstring
+  "D203", # 1 blank line required before class docstring
+  "D213", # Multi-line docstring summary should start at the second line
+  "D401", # First line of docstring should be in imperative mood
+  "E402", # Module level import not at top of file
+  "E501", # Line too long
+  "FBT", # https://beta.ruff.rs/docs/rules/#flake8-boolean-trap-fbt
+  "FIX002", # Line contains TO-DO, consider resolving the issue
+  "TD002", # Missing author in TO DO
+  "TD003", # Missing issue link on the line following this TO DO
 ]
-
 # https://beta.ruff.rs/docs/settings/#line-length
 line-length = 120
-
-# https://beta.ruff.rs/docs/settings/#target-version
-target-version = "py38"
-
+# https://beta.ruff.rs/docs/settings/#select
+select = ["ALL"]
 # https://beta.ruff.rs/docs/settings/#src
 src = ["src"]
+# https://beta.ruff.rs/docs/settings/#target-version
+target-version = "py38"
 
 # https://beta.ruff.rs/docs/rules/#flake8-quotes-q
 [tool.ruff.flake8-quotes]
@@ -168,14 +156,15 @@ max-complexity = 10
 [tool.ruff.per-file-ignores]
 # keep-sorted start
 # ANN https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
-# ERA https://beta.ruff.rs/docs/rules/#eradicate-era
 # F401 imported but unused
+# ERA https://beta.ruff.rs/docs/rules/#eradicate-era
 # INP001 File `xxx.py` is part of an implicit namespace package. Add an `__init__.py`.
 # PLR0913 Too many arguments to function call
 # S101 use of assert detected
 # S105 Possible hardcoded password
 # T201 `print` found
 # T203 `pprint` found
+# keep-sorted end
 "compat.py" = ["F401"]
 "docs/**" = ["ANN", "INP001", "T201", "T203"]
 "docs/conf.py" = ["ERA"]
@@ -184,4 +173,9 @@ max-complexity = 10
 "tasks.py" = ["ANN", "PLR0913", "T201", "T203"]
 "tests/**" = ["ANN", "PLR0913", "S101", "S105", "T201", "T203"]
 "tests/data/**" = ["INP001"]
-# keep-sorted end
+
+[tool.tomlsort]
+all = true
+ignore_case = true
+in_place = true
+trailing_comma_inline_array = true
