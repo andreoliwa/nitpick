@@ -47,7 +47,7 @@ repos:
     rev: v0.23.1
     hooks:
       - id: toml-sort-fix
-        exclude: (ideas|resources|tests)/
+        exclude: (ideas/|resources/|tests/|poetry.lock)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.3
     hooks:

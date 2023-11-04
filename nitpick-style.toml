@@ -5,5 +5,5 @@
 
 [nitpick.styles]
 include = [
-  "py://nitpick/resources/presets/nitpick"
+  "py://nitpick/resources/presets/nitpick",
 ]
