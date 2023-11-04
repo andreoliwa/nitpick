@@ -1,0 +1,4 @@
+repos:
+  - repo: https://github.com/pappasam/toml-sort
+    hooks:
+      - id: toml-sort-fix

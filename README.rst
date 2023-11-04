@@ -310,6 +310,17 @@ shell
      - `ShellCheck (static analysis for shell scripts) <https://github.com/koalaman/shellcheck>`_
    * - `py://nitpick/resources/shell/shfmt <src/nitpick/resources/shell/shfmt.toml>`_
      - `shfmt (shell script formatter) <https://github.com/mvdan/sh>`_
+
+toml
+~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - `py://nitpick/resources/toml/toml-sort <src/nitpick/resources/toml/toml-sort.toml>`_
+     - `TOML sort <https://github.com/pappasam/toml-sort>`_
 .. auto-generated-end-style-library
 
 Quickstart

@@ -151,3 +151,14 @@ shell
      - `ShellCheck (static analysis for shell scripts) <https://github.com/koalaman/shellcheck>`_
    * - :gitref:`py://nitpick/resources/shell/shfmt <src/nitpick/resources/shell/shfmt.toml>`
      - `shfmt (shell script formatter) <https://github.com/mvdan/sh>`_
+
+toml
+~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - :gitref:`py://nitpick/resources/toml/toml-sort <src/nitpick/resources/toml/toml-sort.toml>`
+     - `TOML sort <https://github.com/pappasam/toml-sort>`_

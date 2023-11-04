@@ -1,0 +1,15 @@
+[nitpick.meta]
+name = "TOML sort"
+url = "https://github.com/pappasam/toml-sort"
+
+[[".pre-commit-config.yaml".repos]]
+repo = "https://github.com/pappasam/toml-sort"
+
+[[".pre-commit-config.yaml".repos.hooks]]
+id = "toml-sort-fix"
+
+["pyproject.toml".tool.tomlsort]
+all = true
+ignore_case = true
+in_place = true
+trailing_comma_inline_array = true
