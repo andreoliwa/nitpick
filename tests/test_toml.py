@@ -1,5 +1,5 @@
 """TOML tests."""
-from nitpick.constants import PYPROJECT_TOML
+from nitpick.constants import PYTHON_PYPROJECT_TOML
 from nitpick.plugins.toml import TomlPlugin
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
@@ -17,8 +17,8 @@ def test_pyproject_toml_file_present(tmp_path):
         [nitpick.files.present]
         "pyproject.toml" = "Do something"
         """
-    ).api_check_then_fix(Fuss(False, PYPROJECT_TOML, 103, " should exist: Do something")).cli_run(
-        f"{PYPROJECT_TOML}:1: NIP103  should exist: Do something", violations=1
+    ).api_check_then_fix(Fuss(False, PYTHON_PYPROJECT_TOML, 103, " should exist: Do something")).cli_run(
+        f"{PYTHON_PYPROJECT_TOML}:1: NIP103  should exist: Do something", violations=1
     )
 
 
@@ -77,7 +77,7 @@ def test_missing_different_values_pyproject_toml(tmp_path):
     ).api_check_then_fix(
         Fuss(
             True,
-            PYPROJECT_TOML,
+            PYTHON_PYPROJECT_TOML,
             319,
             " has different values. Use this:",
             """
@@ -87,7 +87,7 @@ def test_missing_different_values_pyproject_toml(tmp_path):
         ),
         Fuss(
             True,
-            PYPROJECT_TOML,
+            PYTHON_PYPROJECT_TOML,
             318,
             " has missing values:",
             """
@@ -99,7 +99,7 @@ def test_missing_different_values_pyproject_toml(tmp_path):
             """,
         ),
     ).assert_file_contents(
-        PYPROJECT_TOML,
+        PYTHON_PYPROJECT_TOML,
         """
         [something]
         x = 1  # comment for x

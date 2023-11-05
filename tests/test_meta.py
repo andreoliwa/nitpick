@@ -5,7 +5,7 @@ from pathlib import Path
 
 from testfixtures import compare
 
-from nitpick.constants import PACKAGE_JSON
+from nitpick.constants import JAVASCRIPT_PACKAGE_JSON
 
 REPO_ROOT = Path(__file__).parent.parent
 
@@ -19,7 +19,7 @@ def test_bumpversion_files_match_package_json():
     bumpversion_cfg.read(REPO_ROOT / ".bumpversion.cfg")
     bumpversion_files = {section.split(":")[2] for section in bumpversion_cfg.sections() if ":file:" in section}
 
-    package_json = Path(REPO_ROOT / PACKAGE_JSON)
+    package_json = Path(REPO_ROOT / JAVASCRIPT_PACKAGE_JSON)
     package_json_dict = json.loads(package_json.read_text())
     package_json_git_files = set(
         next(

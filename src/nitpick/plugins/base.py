@@ -10,7 +10,7 @@ from loguru import logger
 
 from nitpick.blender import BaseDoc, flatten_quotes, search_json
 from nitpick.config import SpecialConfig
-from nitpick.constants import DUNDER_LIST_KEYS
+from nitpick.constants import CONFIG_DUNDER_LIST_KEYS
 from nitpick.typedefs import JsonDict, mypy_property
 from nitpick.violations import Fuss, Reporter, SharedViolations
 
@@ -70,7 +70,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
 
         # The user can override the default list keys (if any) by setting them on the style file.
         # pylint: disable=assigning-non-slot,no-member
-        spc.list_keys.from_style = self.expected_config.pop(DUNDER_LIST_KEYS, None) or {}
+        spc.list_keys.from_style = self.expected_config.pop(CONFIG_DUNDER_LIST_KEYS, None) or {}
         temp_dict.update(flatten_quotes(spc.list_keys.from_style))
 
         flat_config = flatten_quotes(self.expected_config)

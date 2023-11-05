@@ -1,7 +1,7 @@
 """JSON tests."""
 import warnings
 
-from nitpick.constants import PACKAGE_JSON, READ_THE_DOCS_URL
+from nitpick.constants import JAVASCRIPT_PACKAGE_JSON, READ_THE_DOCS_URL
 from nitpick.plugins.json import JsonPlugin
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock, filter_desired_warning
@@ -18,13 +18,13 @@ def test_suggest_initial_contents(tmp_path, datadir):
     ).api_check_then_fix(
         Fuss(
             True,
-            PACKAGE_JSON,
+            JAVASCRIPT_PACKAGE_JSON,
             341,
             " was not found. Create it with this content:",
             expected_package_json,
         )
     ).assert_file_contents(
-        PACKAGE_JSON, expected_package_json
+        JAVASCRIPT_PACKAGE_JSON, expected_package_json
     ).api_check_then_fix()
 
 
@@ -36,10 +36,10 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
         [tool.nitpick]
         style = ["package-json"]
         """
-    ).save_file(PACKAGE_JSON, datadir / "2-actual-package.json").api_check_then_fix(
+    ).save_file(JAVASCRIPT_PACKAGE_JSON, datadir / "2-actual-package.json").api_check_then_fix(
         Fuss(
             True,
-            PACKAGE_JSON,
+            JAVASCRIPT_PACKAGE_JSON,
             SharedViolations.MISSING_VALUES.code + JsonPlugin.violation_base_code,
             " has missing values:",
             """
@@ -56,7 +56,7 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
         ),
         Fuss(
             True,
-            PACKAGE_JSON,
+            JAVASCRIPT_PACKAGE_JSON,
             348,
             " has missing values:",
             """
@@ -70,7 +70,7 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
             """,
         ),
     ).assert_file_contents(
-        PACKAGE_JSON, expected_package_json
+        JAVASCRIPT_PACKAGE_JSON, expected_package_json
     ).api_check_then_fix()
 
 

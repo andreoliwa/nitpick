@@ -4,7 +4,7 @@ from unittest import mock
 
 from configupdater import ConfigUpdater
 
-from nitpick.constants import EDITOR_CONFIG, SETUP_CFG
+from nitpick.constants import EDITOR_CONFIG, PYTHON_SETUP_CFG
 from nitpick.plugins.ini import IniPlugin, Violations
 from nitpick.violations import Fuss, SharedViolations
 from tests.helpers import ProjectMock
@@ -19,10 +19,10 @@ def test_comma_separated_keys_on_style_file(tmp_path):
     """Comma separated keys on the style file."""
     ProjectMock(tmp_path).style(
         f"""
-        [nitpick.files."{SETUP_CFG}"]
+        [nitpick.files."{PYTHON_SETUP_CFG}"]
         comma_separated_values = ["food.eat", "food.drink"]
 
-        ["{SETUP_CFG}".food]
+        ["{PYTHON_SETUP_CFG}".food]
         eat = "salt,ham,eggs"
         drink = "water,bier,wine"
         """
@@ -35,7 +35,7 @@ def test_comma_separated_keys_on_style_file(tmp_path):
     ).api_check_then_fix(
         Fuss(
             True,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             Violations.MISSING_VALUES_IN_LIST.code,
             " has missing values in the 'eat' key. Include those values:",
             """
@@ -44,7 +44,7 @@ def test_comma_separated_keys_on_style_file(tmp_path):
             """,
         )
     ).assert_file_contents(
-        SETUP_CFG,
+        PYTHON_SETUP_CFG,
         """
         [food]
         eat = spam,eggs,cheese,ham,salt
@@ -77,13 +77,13 @@ def test_suggest_initial_contents(tmp_path):
     """
     ProjectMock(tmp_path).style(
         f"""
-        ["{SETUP_CFG}".mypy]
+        ["{PYTHON_SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         line_length = 120
 
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         max-line-length = 120
 
         ["generic.ini".your-section]
@@ -97,7 +97,7 @@ def test_suggest_initial_contents(tmp_path):
     ).api_check_then_fix(
         Fuss(
             True,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             SharedViolations.CREATE_FILE_WITH_SUGGESTION.code + IniPlugin.violation_base_code,
             " was not found. Create it with this content:",
             expected_setup_cfg,
@@ -117,7 +117,7 @@ def test_suggest_initial_contents(tmp_path):
             expected_editor_config,
         ),
     ).assert_file_contents(
-        SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini, EDITOR_CONFIG, expected_editor_config
+        PYTHON_SETUP_CFG, expected_setup_cfg, "generic.ini", expected_generic_ini, EDITOR_CONFIG, expected_editor_config
     )
 
 
@@ -130,19 +130,19 @@ def test_missing_sections(tmp_path):
         """
     ).style(
         f"""
-        ["{SETUP_CFG}".mypy]
+        ["{PYTHON_SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         line_length = 120
 
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         max-line-length = 120
         """
     ).api_check_then_fix(
         Fuss(
             True,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             Violations.MISSING_SECTIONS.code,
             " has some missing sections. Use this:",
             """
@@ -154,7 +154,7 @@ def test_missing_sections(tmp_path):
             """,
         )
     ).assert_file_contents(
-        SETUP_CFG,
+        PYTHON_SETUP_CFG,
         """
         [mypy]
         ignore_missing_imports = true
@@ -185,20 +185,20 @@ def test_missing_different_values(tmp_path):
         """
     ).style(
         f"""
-        ["{SETUP_CFG}".mypy]
+        ["{PYTHON_SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         line_length = 110
         name = "Mary"
 
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         max-line-length = 112
         """
     ).api_check_then_fix(
         Fuss(
             True,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [isort]line_length is 30 but it should be like this:",
             """
@@ -208,7 +208,7 @@ def test_missing_different_values(tmp_path):
         ),
         Fuss(
             True,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             Violations.MISSING_OPTION.code,
             ": section [flake8] has some missing key/value pairs. Use this:",
             """
@@ -218,7 +218,7 @@ def test_missing_different_values(tmp_path):
         ),
         Fuss(
             True,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             Violations.OPTION_HAS_DIFFERENT_VALUE.code,
             ": [isort]name is John but it should be like this:",
             """
@@ -227,7 +227,7 @@ def test_missing_different_values(tmp_path):
             """,
         ),
     ).assert_file_contents(
-        SETUP_CFG,
+        PYTHON_SETUP_CFG,
         """
         [mypy]
         # Line comment with hash (inline comments are not supported)
@@ -309,19 +309,19 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
     """Test an invalid configuration for comma_separated_values."""
     ProjectMock(tmp_path).style(
         f"""
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         max-line-length = 85
         max-complexity = 12
         ignore = "D100,D101,D102,D103,D104,D105,D106,D107,D202,E203,W503"
         select = "E241,C,E,F,W,B,B9"
 
-        [nitpick.files."{SETUP_CFG}"]
+        [nitpick.files."{PYTHON_SETUP_CFG}"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude"]
         """
     ).api_check().assert_violations(
         Fuss(
             False,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             321,
             " was not found. Create it with this content:",
             """
@@ -339,7 +339,7 @@ def test_invalid_section_dot_fields(tmp_path):
     """Test invalid section/field pairs."""
     ProjectMock(tmp_path).style(
         f"""
-        [nitpick.files."{SETUP_CFG}"]
+        [nitpick.files."{PYTHON_SETUP_CFG}"]
         comma_separated_values = ["no_dot", "multiple.dots.here", ".filed_only", "section_only."]
         """
     ).setup_cfg("").api_check().assert_violations(
@@ -349,10 +349,10 @@ def test_invalid_section_dot_fields(tmp_path):
             1,
             " has an incorrect style. Invalid config:",
             f"""
-            nitpick.files."{SETUP_CFG}".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
-            nitpick.files."{SETUP_CFG}".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
-            nitpick.files."{SETUP_CFG}".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
-            nitpick.files."{SETUP_CFG}".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>
+            nitpick.files."{PYTHON_SETUP_CFG}".comma_separated_values.0: Dot is missing. Use <section_name>.<field_name>
+            nitpick.files."{PYTHON_SETUP_CFG}".comma_separated_values.1: There's more than one dot. Use <section_name>.<field_name>
+            nitpick.files."{PYTHON_SETUP_CFG}".comma_separated_values.2: Empty section name. Use <section_name>.<field_name>
+            nitpick.files."{PYTHON_SETUP_CFG}".comma_separated_values.3: Empty field name. Use <section_name>.<field_name>
             """,
         )
     )
@@ -362,12 +362,12 @@ def test_invalid_sections_comma_separated_values(tmp_path):
     """Test invalid sections on comma_separated_values."""
     ProjectMock(tmp_path).style(
         f"""
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         ignore = "W503,E203,FI58,PT003,C408"
         exclude = "venv*,**/migrations/"
         per-file-ignores = "tests/**.py:FI18,setup.py:FI18"
 
-        [nitpick.files."{SETUP_CFG}"]
+        [nitpick.files."{PYTHON_SETUP_CFG}"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude", "falek8.per-file-ignores", "aaa.invalid-section"]
         """
     ).setup_cfg(
@@ -378,7 +378,7 @@ def test_invalid_sections_comma_separated_values(tmp_path):
         per-file-ignores = tests/**.py:FI18,setup.py:FI18,tests/**.py:BZ01
         """
     ).api_check_then_fix(
-        Fuss(False, SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
+        Fuss(False, PYTHON_SETUP_CFG, 325, ": invalid sections on comma_separated_values:", "aaa, falek8")
     )
 
 
@@ -386,13 +386,13 @@ def test_multiline_comment(tmp_path, datadir):
     """Test file with multiline comments should not raise a configparser.ParsingError."""
     ProjectMock(tmp_path).style(
         f"""
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         new = "value"
         """
     ).setup_cfg(datadir / "3-actual-setup.cfg").api_fix().assert_violations(
         Fuss(
             True,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             324,
             ": section [flake8] has some missing key/value pairs. Use this:",
             """
@@ -401,7 +401,7 @@ def test_multiline_comment(tmp_path, datadir):
             """,
         )
     ).assert_file_contents(
-        SETUP_CFG, datadir / "3-expected-setup.cfg"
+        PYTHON_SETUP_CFG, datadir / "3-expected-setup.cfg"
     )
 
 
@@ -415,19 +415,19 @@ def test_duplicated_option(tmp_path):
     project = ProjectMock(tmp_path)
     project.style(
         f"""
-        ["{SETUP_CFG}".abc]
+        ["{PYTHON_SETUP_CFG}".abc]
         hard = "as a rock"
         """
     ).setup_cfg(original_file).api_fix().assert_violations(
         Fuss(
             False,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             Violations.PARSING_ERROR.code,
-            f": parsing error (DuplicateOptionError): While reading from {project.path_for(SETUP_CFG)!r} "
+            f": parsing error (DuplicateOptionError): While reading from {project.path_for(PYTHON_SETUP_CFG)!r} "
             f"[line  3]: option 'easy' in section 'abc' already exists",
         )
     ).assert_file_contents(
-        SETUP_CFG, original_file
+        PYTHON_SETUP_CFG, original_file
     )
 
 
@@ -442,13 +442,13 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
         """
     ProjectMock(tmp_path).style(
         f"""
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         new = "value"
         """
     ).setup_cfg(original_file).api_fix().assert_violations(
         Fuss(
             True,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             324,
             ": section [flake8] has some missing key/value pairs. Use this:",
             """
@@ -458,12 +458,12 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
         ),
         Fuss(
             False,
-            SETUP_CFG,
+            PYTHON_SETUP_CFG,
             Violations.PARSING_ERROR.code,
             ": parsing error (ParsingError): Source contains parsing errors: 'simulating a captured error'",
         ),
     ).assert_file_contents(
-        SETUP_CFG, original_file
+        PYTHON_SETUP_CFG, original_file
     )
 
 

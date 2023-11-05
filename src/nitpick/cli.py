@@ -23,7 +23,7 @@ from click.exceptions import Exit
 from loguru import logger
 
 from nitpick.blender import TomlDoc
-from nitpick.constants import PROJECT_NAME, TOOL_KEY, TOOL_NITPICK_KEY
+from nitpick.constants import CONFIG_TOOL_KEY, CONFIG_TOOL_NITPICK_KEY, PROJECT_NAME
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
@@ -150,9 +150,11 @@ def init(context, style_urls):
     nit = get_nitpick(context)
     config = nit.project.read_configuration()
 
-    if config.file and PROJECT_NAME in TomlDoc(path=config.file).as_object.get(TOOL_KEY, {}):
-        click.secho(f"The config file {config.file.name} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")
+    if config.file and PROJECT_NAME in TomlDoc(path=config.file).as_object.get(CONFIG_TOOL_KEY, {}):
+        click.secho(
+            f"The config file {config.file.name} already has a [{CONFIG_TOOL_NITPICK_KEY}] section.", fg="yellow"
+        )
         raise Exit(1)
 
     nit.project.create_configuration(config, *style_urls)
-    click.secho(f"A [{TOOL_NITPICK_KEY}] section was created in the config file: {config.file.name}", fg="green")
+    click.secho(f"A [{CONFIG_TOOL_NITPICK_KEY}] section was created in the config file: {config.file.name}", fg="green")

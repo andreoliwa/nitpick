@@ -8,7 +8,7 @@ import warnings
 
 import pytest
 
-from nitpick.constants import PRE_COMMIT_CONFIG_YAML, SETUP_CFG
+from nitpick.constants import PRE_COMMIT_CONFIG_YAML, PYTHON_SETUP_CFG
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock, filter_desired_warning
 
@@ -294,7 +294,7 @@ def test_style_missing_id_in_hook(tmp_path):
         repo = "another"
         hooks = """
         - name: isort
-          entry: isort -sp {SETUP_CFG}
+          entry: isort -sp {PYTHON_SETUP_CFG}
         """
         '''
     ).pre_commit(

@@ -5,18 +5,18 @@ import shutil
 import pytest
 
 from nitpick.constants import (
+    CONFIG_RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY,
     DOT_NITPICK_TOML,
-    GO_MOD,
-    GO_SUM,
-    MANAGE_PY,
+    GOLANG_MOD,
+    GOLANG_SUM,
+    JAVASCRIPT_PACKAGE_JSON,
     NITPICK_STYLE_TOML,
-    PACKAGE_JSON,
     PRE_COMMIT_CONFIG_YAML,
-    PYPROJECT_TOML,
-    RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY,
-    SETUP_CFG,
-    SETUP_PY,
-    TOX_INI,
+    PYTHON_MANAGE_PY,
+    PYTHON_PYPROJECT_TOML,
+    PYTHON_SETUP_CFG,
+    PYTHON_SETUP_PY,
+    PYTHON_TOX_INI,
 )
 from nitpick.core import Nitpick
 from nitpick.exceptions import QuitComplainingError
@@ -114,9 +114,9 @@ def test_django_project_structure(tmp_path):
         "my_django_project/manage.py"
     ).style(
         f"""
-        ["{PYPROJECT_TOML}".tool.black]
+        ["{PYTHON_PYPROJECT_TOML}".tool.black]
         lines = 100
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         some = "thing"
         """
     ).api_check_then_fix()
@@ -125,13 +125,13 @@ def test_django_project_structure(tmp_path):
 def test_when_no_config_file_the_default_style_is_requested(tmp_path, caplog):
     """There is a root dir (setup.py), but no style file. The user should explicitly set the style, no default will be used."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
-    error = f"NIP004 No style file configured.{RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY}"
+    error = f"NIP004 No style file configured.{CONFIG_RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY}"
     project.flake8().assert_single_error(error).cli_run(error, exit_code=1)
     assert project.nitpick_instance.project.read_configuration() == Configuration(None, [], "")
     assert "Config file: none found {}" in caplog.messages
 
 
-@pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYPROJECT_TOML])
+@pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYTHON_PYPROJECT_TOML])
 def test_has_one_config_file(tmp_path, config_file, caplog):
     """There is a root dir (setup.py) and a single config file."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
@@ -160,7 +160,7 @@ def test_has_multiple_config_files(tmp_path, caplog):
         cache = "never"
         """,
     ).save_file(
-        PYPROJECT_TOML,
+        PYTHON_PYPROJECT_TOML,
         """
         [tool.nitpick]
         style = ["local_pyproj.toml"]
@@ -173,7 +173,7 @@ def test_has_multiple_config_files(tmp_path, caplog):
         project.root_dir / DOT_NITPICK_TOML, ["local_nit.toml"], "never"
     )
     assert f"Config file: reading from {project.root_dir / DOT_NITPICK_TOML} {{}}" in caplog.messages
-    assert f"Config file: ignoring existing {project.root_dir / PYPROJECT_TOML} {{}}" in caplog.messages
+    assert f"Config file: ignoring existing {project.root_dir / PYTHON_PYPROJECT_TOML} {{}}" in caplog.messages
     assert f"Using styles configured in {DOT_NITPICK_TOML}: local_nit.toml {{}}" in caplog.messages
 
 
@@ -182,19 +182,19 @@ def test_has_multiple_config_files(tmp_path, caplog):
     [
         DOT_NITPICK_TOML,
         PRE_COMMIT_CONFIG_YAML,
-        PYPROJECT_TOML,
-        SETUP_PY,
-        SETUP_CFG,
+        PYTHON_PYPROJECT_TOML,
+        PYTHON_SETUP_PY,
+        PYTHON_SETUP_CFG,
         "requirements.txt",
         "requirements_dev.txt",
         "Pipfile",
         "Pipfile.lock",
-        TOX_INI,
-        PACKAGE_JSON,
+        PYTHON_TOX_INI,
+        JAVASCRIPT_PACKAGE_JSON,
         "Cargo.toml",
         "Cargo.lock",
-        GO_MOD,
-        GO_SUM,
+        GOLANG_MOD,
+        GOLANG_SUM,
         NITPICK_STYLE_TOML,
     ],
 )
@@ -222,10 +222,10 @@ def test_find_root_django(tmp_path):
     """Find Django root with manage.py only: the root is where manage.py is."""
     apps_dir = tmp_path / "apps"
     apps_dir.mkdir(parents=True)
-    (apps_dir / MANAGE_PY).write_text("")
+    (apps_dir / PYTHON_MANAGE_PY).write_text("")
 
     assert confirm_project_root(apps_dir) == apps_dir
 
     # Search 2 levels of directories
-    assert find_main_python_file(tmp_path) == apps_dir / MANAGE_PY
-    assert find_main_python_file(apps_dir) == apps_dir / MANAGE_PY
+    assert find_main_python_file(tmp_path) == apps_dir / PYTHON_MANAGE_PY
+    assert find_main_python_file(apps_dir) == apps_dir / PYTHON_MANAGE_PY

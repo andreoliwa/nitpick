@@ -9,12 +9,12 @@ from identify.identify import ALL_TAGS
 from nitpick.constants import (
     DOT_NITPICK_TOML,
     EDITOR_CONFIG,
-    PACKAGE_JSON,
+    JAVASCRIPT_PACKAGE_JSON,
     PRE_COMMIT_CONFIG_YAML,
-    PYLINTRC,
-    PYPROJECT_TOML,
-    SETUP_CFG,
-    TOX_INI,
+    PYTHON_PYLINTRC,
+    PYTHON_PYPROJECT_TOML,
+    PYTHON_SETUP_CFG,
+    PYTHON_TOX_INI,
 )
 from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 from nitpick.violations import Fuss
@@ -22,16 +22,16 @@ from tests.helpers import STYLES_DIR, ProjectMock
 
 RESOURCES_DIR = Path(__file__).parent.parent / "src/nitpick/resources"
 BUILTIN_STYLE_CODES = {
-    SETUP_CFG: 321,
+    PYTHON_SETUP_CFG: 321,
     PRE_COMMIT_CONFIG_YAML: 361,
-    PYPROJECT_TOML: 311,
+    PYTHON_PYPROJECT_TOML: 311,
     ".codeclimate.yml": 361,
     ".readthedocs.yaml": 361,
-    TOX_INI: 321,
-    PYLINTRC: 321,
+    PYTHON_TOX_INI: 321,
+    PYTHON_PYLINTRC: 321,
     ".github/workflows/python.yaml": 361,
     EDITOR_CONFIG: 321,
-    PACKAGE_JSON: 341,
+    JAVASCRIPT_PACKAGE_JSON: 341,
 }
 BUILTIN_STYLE_EXTRA_VIOLATIONS: dict[str, list[Fuss]] = {
     "any/pre-commit-hooks": [
@@ -119,19 +119,19 @@ def test_default_style_is_applied(project_default, datadir):
     expected_tox_ini = (preset_dir / "tox.ini").read_text()
     expected_pylintrc = (preset_dir / ".pylintrc").read_text()
     project_default.api_check_then_fix(
-        Fuss(True, SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
+        Fuss(True, PYTHON_SETUP_CFG, 321, " was not found. Create it with this content:", expected_setup_cfg),
         Fuss(True, EDITOR_CONFIG, 321, " was not found. Create it with this content:", expected_editor_config),
-        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),
-        Fuss(True, PYLINTRC, 321, " was not found. Create it with this content:", expected_pylintrc),
-        partial_names=[SETUP_CFG, EDITOR_CONFIG, TOX_INI, PYLINTRC],
+        Fuss(True, PYTHON_TOX_INI, 321, " was not found. Create it with this content:", expected_tox_ini),
+        Fuss(True, PYTHON_PYLINTRC, 321, " was not found. Create it with this content:", expected_pylintrc),
+        partial_names=[PYTHON_SETUP_CFG, EDITOR_CONFIG, PYTHON_TOX_INI, PYTHON_PYLINTRC],
     ).assert_file_contents(
-        SETUP_CFG,
+        PYTHON_SETUP_CFG,
         expected_setup_cfg,
         EDITOR_CONFIG,
         expected_editor_config,
-        TOX_INI,
+        PYTHON_TOX_INI,
         expected_tox_ini,
-        PYLINTRC,
+        PYTHON_PYLINTRC,
         expected_pylintrc,
     )
 

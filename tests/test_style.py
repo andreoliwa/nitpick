@@ -9,7 +9,7 @@ import pytest
 import responses
 from furl import furl
 
-from nitpick.constants import PYPROJECT_TOML, READ_THE_DOCS_URL, SETUP_CFG, TOML_EXTENSION, TOX_INI
+from nitpick.constants import PYTHON_PYPROJECT_TOML, PYTHON_SETUP_CFG, PYTHON_TOX_INI, READ_THE_DOCS_URL, TOML_EXTENSION
 from nitpick.style.fetchers.github import GitHubURL
 from nitpick.style.fetchers.pypackage import PythonPackageURL
 from nitpick.violations import Fuss
@@ -22,7 +22,7 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
     ProjectMock(tmp_path).named_style(
         "isort1",
         f"""
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         line_length = 80
         known_first_party = "tests"
         xxx = "aaa"
@@ -30,14 +30,14 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
     ).named_style(
         "styles/isort2",
         f"""
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         line_length = 120
         xxx = "yyy"
         """,
     ).named_style(
         "flake8",
         f"""
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         inline-quotes = "double"
         something = 123
         """,
@@ -71,7 +71,7 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         """
     ).assert_errors_contain(
         f"""
-        NIP321 File {SETUP_CFG} was not found. Create it with this content:{SUGGESTION_BEGIN}
+        NIP321 File {PYTHON_SETUP_CFG} was not found. Create it with this content:{SUGGESTION_BEGIN}
         [flake8]
         inline-quotes = double
         something = 123
@@ -83,8 +83,8 @@ def test_multiple_styles_overriding_values(offline, tmp_path):
         """
     ).cli_ls(
         f"""
-        {SETUP_CFG}
-        {PYPROJECT_TOML}
+        {PYTHON_SETUP_CFG}
+        {PYTHON_PYPROJECT_TOML}
         """
     )
 
@@ -100,7 +100,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         f"""
         [nitpick.styles]
         include = "styles/isort2.toml"
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         line_length = 80
         known_first_party = "tests"
         xxx = "aaa"
@@ -110,7 +110,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         f"""
         [nitpick.styles]
         include = ["./isort2.toml", "../flake8.toml"]
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         line_length = 120
         xxx = "yyy"
         """,
@@ -119,7 +119,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         f"""
         [nitpick.styles]
         include = ["black.toml"]
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         inline-quotes = "double"
         something = 123
         """,
@@ -146,7 +146,7 @@ def test_include_styles_overriding_values(offline, tmp_path):
         """
     ).assert_errors_contain(
         f"""
-        NIP321 File {SETUP_CFG} was not found. Create it with this content:{SUGGESTION_BEGIN}
+        NIP321 File {PYTHON_SETUP_CFG} was not found. Create it with this content:{SUGGESTION_BEGIN}
         [flake8]
         inline-quotes = double
         something = 123
@@ -351,7 +351,7 @@ def test_relative_style_on_urls(tmp_path):
     ).api_check().assert_violations(
         Fuss(
             False,
-            PYPROJECT_TOML,
+            PYTHON_PYPROJECT_TOML,
             318,
             " has missing values:",
             """
@@ -392,7 +392,7 @@ def test_local_style_should_override_settings(tmp_path):
     ).named_style(local_file, local_style).api_check().assert_violations(
         Fuss(
             False,
-            PYPROJECT_TOML,
+            PYTHON_PYPROJECT_TOML,
             319,
             " has different values. Use this:",
             """
@@ -590,15 +590,15 @@ def test_include_remote_style_from_local_style(tmp_path):
         ]
         """
     )
-    project.assert_file_contents(TOX_INI, None).api_check_then_fix(
-        Fuss(True, TOX_INI, 321, " was not found. Create it with this content:", "[section]\nkey = value")
+    project.assert_file_contents(PYTHON_TOX_INI, None).api_check_then_fix(
+        Fuss(True, PYTHON_TOX_INI, 321, " was not found. Create it with this content:", "[section]\nkey = value")
     ).assert_file_contents(
-        TOX_INI,
+        PYTHON_TOX_INI,
         """
         [section]
         key = value
         """,
-        PYPROJECT_TOML,
+        PYTHON_PYPROJECT_TOML,
         None,
     )
 
@@ -657,7 +657,7 @@ def test_merge_styles_into_single_file(offline, tmp_path):
     ).named_style(
         "isort_overrides",
         f"""
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         another_key = "some value"
         multi_line_output = 6
         """,
@@ -673,7 +673,7 @@ def test_merge_styles_into_single_file(offline, tmp_path):
         ["pyproject.toml".tool.black]
         line-length = 120
 
-        ["{SETUP_CFG}".isort]
+        ["{PYTHON_SETUP_CFG}".isort]
         line_length = 120
         skip = ".tox,build"
         known_first_party = "tests"
@@ -740,7 +740,7 @@ def test_invalid_toml(tmp_path):
     """Invalid TOML should emit a NIP warning, not raise TomlDecodeError."""
     ProjectMock(tmp_path).style(
         f"""
-        ["{SETUP_CFG}".flake8]
+        ["{PYTHON_SETUP_CFG}".flake8]
         ignore = D100,D104,D202,E203,W503
         """
     ).api_check_then_fix(
@@ -838,7 +838,7 @@ def test_always_fetch_github_raw_url(style_url, tmp_path):
     ).api_check().assert_violations(
         Fuss(
             False,
-            PYPROJECT_TOML,
+            PYTHON_PYPROJECT_TOML,
             318,
             " has missing values:",
             """
