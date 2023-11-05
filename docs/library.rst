@@ -31,8 +31,6 @@ any
      - `EditorConfig <https://editorconfig.org/>`_
    * - :gitref:`py://nitpick/resources/any/git-legal <src/nitpick/resources/any/git-legal.toml>`
      - `Git.legal - CodeClimate Community Edition <https://github.com/kmewhort/git.legal-codeclimate>`_
-   * - :gitref:`py://nitpick/resources/any/markdownlint <src/nitpick/resources/any/markdownlint.toml>`
-     - `Markdown lint <https://github.com/markdownlint/markdownlint>`_
    * - :gitref:`py://nitpick/resources/any/pre-commit-hooks <src/nitpick/resources/any/pre-commit-hooks.toml>`
      - `pre-commit hooks for any project <https://github.com/pre-commit/pre-commit-hooks>`_
    * - :gitref:`py://nitpick/resources/any/prettier <src/nitpick/resources/any/prettier.toml>`
@@ -59,6 +57,17 @@ kotlin
      - Description
    * - :gitref:`py://nitpick/resources/kotlin/ktlint <src/nitpick/resources/kotlin/ktlint.toml>`
      - `ktlint <https://github.com/pinterest/ktlint>`_
+
+markdown
+~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - Style URL
+     - Description
+   * - :gitref:`py://nitpick/resources/markdown/markdownlint <src/nitpick/resources/markdown/markdownlint.toml>`
+     - `Markdown lint <https://github.com/markdownlint/markdownlint>`_
 
 presets
 ~~~~~~~
