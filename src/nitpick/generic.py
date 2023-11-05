@@ -6,11 +6,15 @@
 """
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path, PosixPath, WindowsPath
 from typing import TYPE_CHECKING, Iterable
 
-from nitpick.constants import DOT, PROJECT_NAME
+import click
+from gitignore_parser import parse_gitignore
+
+from nitpick.constants import DOT, GIT_CORE_EXCLUDES_FILE, GIT_DIR, GIT_IGNORE, PROJECT_NAME
 
 if TYPE_CHECKING:
     from furl import furl
@@ -114,3 +118,40 @@ def _url_to_posix_path(url: furl) -> Path:
 
 
 url_to_python_path = _url_to_windows_path if sys.platform == "win32" else _url_to_posix_path
+
+
+def glob_non_ignored_files(root_dir: Path, pattern: str = "**/*") -> Iterable[Path]:
+    """Glob all files in the root dir that are not ignored by Git."""
+
+    # FIXME(AA): add test
+    def is_globally_ignored(_: Path) -> bool:
+        return False
+
+    def is_locally_ignored(_: Path) -> bool:
+        return False
+
+    global_gitignore_path = None
+    git_dir = root_dir / GIT_DIR
+    if git_dir.is_dir():
+        try:
+            output = subprocess.check_output(
+                ["git", "config", "--get", GIT_CORE_EXCLUDES_FILE], universal_newlines=True
+            )
+            global_gitignore_path = Path(output.strip())
+        except subprocess.CalledProcessError:
+            click.secho(
+                f"The '{GIT_CORE_EXCLUDES_FILE}' configuration is not set or does not exist.", err=True, fg="yellow"
+            )
+        except FileNotFoundError:
+            click.secho("Git command not found. Please make sure Git is installed.", err=True, fg="red")
+        if global_gitignore_path and global_gitignore_path.is_file():
+            is_globally_ignored = parse_gitignore(global_gitignore_path)
+
+        local_gitignore_path = root_dir / GIT_IGNORE
+        if local_gitignore_path.is_file():
+            is_locally_ignored = parse_gitignore(local_gitignore_path)
+    for project_file in root_dir.glob(pattern):
+        if not project_file.is_file() or is_globally_ignored(project_file) or is_locally_ignored(project_file):
+            continue
+        yield project_file
+    return

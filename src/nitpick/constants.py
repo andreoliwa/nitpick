@@ -64,9 +64,14 @@ TOOL_NITPICK_JMEX = jmespath.compile(TOOL_NITPICK_KEY)
 NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
 NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
 
+# keep-sorted start
+ANY_BUILTIN_STYLE = "any"
 DOT = "."
-
 GIT_AT_REFERENCE = "@"
+GIT_CORE_EXCLUDES_FILE = "core.excludesfile"
+GIT_DIR = ".git"
+GIT_IGNORE = ".gitignore"
+# keep-sorted end
 
 # Special configurations for plugins
 DUNDER_LIST_KEYS = "__list_keys"

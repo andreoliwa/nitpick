@@ -517,6 +517,16 @@ orderedmultidict = ">=1.0.1"
 six = ">=1.8.0"
 
 [[package]]
+name = "gitignore-parser"
+version = "0.1.9"
+description = "A spec-compliant gitignore parser for Python 3.5+"
+optional = false
+python-versions = "*"
+files = [
+    {file = "gitignore_parser-0.1.9.tar.gz", hash = "sha256:270cb8cd09de410b8805c5f4183fd404c28f910dcbb94e1efc08226144fdff7d"},
+]
+
+[[package]]
 name = "icecream"
 version = "2.1.3"
 description = "Never use print() to debug again; inspect variables, expressions, and program execution with a single, simple function call."
@@ -2295,4 +2305,4 @@ test = ["freezegun", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "e3ce2db059d43cfc6b442f9091b278c406c0a90eed0140bd4d6e6c0327f9edf4"
+content-hash = "674ca6867e7cf1d210101a229e59130198f760a983ce001b8ff414aecf5ebd31"

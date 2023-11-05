@@ -20,15 +20,16 @@ from pathlib import Path
 
 import click
 from click.exceptions import Exit
+from identify import identify
 from loguru import logger
 
 from nitpick.blender import TomlTable
-from nitpick.constants import PROJECT_NAME, READ_THE_DOCS_URL, TOOL_NITPICK_KEY
+from nitpick.constants import ANY_BUILTIN_STYLE, PROJECT_NAME, READ_THE_DOCS_URL, TOOL_NITPICK_KEY
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
-from nitpick.generic import relative_to_current_dir
-from nitpick.style import StyleManager
+from nitpick.generic import glob_non_ignored_files, relative_to_current_dir
+from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 from nitpick.violations import Reporter
 
 VERBOSE_OPTION = click.option(
@@ -153,11 +154,12 @@ def ls(context, files):  # pylint: disable=invalid-name
     help="Overwrite the section if it already exists",
 )
 @click.argument("style_urls", nargs=-1)
-def init(context, force, style_urls):
+def init(context, force: bool, style_urls: list[str]) -> None:
     """Create a [tool.nitpick] section in the configuration file."""
     nit = get_nitpick(context)
     # TODO(AA): test --force flag
     path = nit.project.which_config_file(use_default=True)
+    assert path
     table = TomlTable(path, TOOL_NITPICK_KEY)
     if table.exists and not force:
         click.secho(f"The config file {path.name!r} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")
@@ -165,7 +167,17 @@ def init(context, force, style_urls):
         raise Exit(1)
 
     if not style_urls:
-        style_urls = (str(StyleManager.get_default_style_url()),)
+        tags: set[str] = {ANY_BUILTIN_STYLE}
+        for project_file_path in glob_non_ignored_files(nit.project.root):
+            tags.update(identify.tags_from_path(str(project_file_path)))
+        suggested_styles: set[str] = set()
+        for style_path in builtin_styles():
+            builtin_style = BuiltinStyle.from_path(style_path)
+            if builtin_style.identify_tag in tags:
+                suggested_styles.add(builtin_style.py_url_without_ext.url)
+        style_urls = sorted(suggested_styles)
+        # FIXME(AA): from here
+
     table.update_list(
         "style",
         *style_urls,
