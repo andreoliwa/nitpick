@@ -23,8 +23,10 @@ from click.exceptions import Exit
 from identify import identify
 from loguru import logger
 
+from nitpick.blender import TomlDoc
+from nitpick.constants import CONFIG_TOOL_KEY, CONFIG_TOOL_NITPICK_KEY, PROJECT_NAME
 from nitpick.blender import TomlTable
-from nitpick.constants import ANY_BUILTIN_STYLE, PROJECT_NAME, READ_THE_DOCS_URL, TOOL_NITPICK_KEY
+from nitpick.constants import ANY_BUILTIN_STYLE, READ_THE_DOCS_URL
 from nitpick.core import Nitpick
 from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
@@ -160,9 +162,9 @@ def init(context, force: bool, style_urls: list[str]) -> None:
     # TODO(AA): test --force flag
     path = nit.project.which_config_file(use_default=True)
     assert path
-    table = TomlTable(path, TOOL_NITPICK_KEY)
+    table = TomlTable(path, CONFIG_TOOL_NITPICK_KEY)
     if table.exists and not force:
-        click.secho(f"The config file {path.name!r} already has a [{TOOL_NITPICK_KEY}] section.", fg="yellow")
+        click.secho(f"The config file {path.name!r} already has a [{CONFIG_TOOL_NITPICK_KEY}] section.", fg="yellow")
         click.echo(table.as_toml)
         raise Exit(1)
 
@@ -185,5 +187,5 @@ def init(context, force: bool, style_urls: list[str]) -> None:
     )
     table.write_file()
     verb = "updated" if force else "created"
-    click.secho(f"The [{TOOL_NITPICK_KEY}] section was {verb} in the config file {path.name!r}", fg="green")
+    click.secho(f"The [{CONFIG_TOOL_NITPICK_KEY}] section was {verb} in the config file {path.name!r}", fg="green")
     click.echo(table.as_toml)

@@ -21,8 +21,8 @@ from nitpick.constants import (
     NITPICK_STYLE_TOML,
     PRE_COMMIT_CONFIG_YAML,
     PROJECT_NAME,
-    PYPROJECT_TOML,
-    SETUP_CFG,
+    PYTHON_PYPROJECT_TOML,
+    PYTHON_SETUP_CFG,
 )
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
@@ -250,11 +250,11 @@ class ProjectMock:
 
     def setup_cfg(self, file_contents: PathOrStr) -> ProjectMock:
         """Save setup.cfg."""
-        return self.save_file(SETUP_CFG, from_path_or_str(file_contents))
+        return self.save_file(PYTHON_SETUP_CFG, from_path_or_str(file_contents))
 
     def pyproject_toml(self, file_contents: PathOrStr) -> ProjectMock:
         """Save pyproject.toml."""
-        return self.save_file(PYPROJECT_TOML, from_path_or_str(file_contents))
+        return self.save_file(PYTHON_PYPROJECT_TOML, from_path_or_str(file_contents))
 
     def pre_commit(self, file_contents: PathOrStr) -> ProjectMock:
         """Save .pre-commit-config.yaml."""

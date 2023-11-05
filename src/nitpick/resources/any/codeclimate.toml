@@ -12,8 +12,8 @@ version = "2"
 threshold = 1000
 
 [".codeclimate.yml".checks.method-complexity.config]
-threshold = 10  # Same as [flake8]max-complexity
+threshold = 10 # Same as [flake8]max-complexity
 
-[".codeclimate.yml".plugins.fixme]  # https://docs.codeclimate.com/docs/fixme
+[".codeclimate.yml".plugins.fixme] # https://docs.codeclimate.com/docs/fixme
 # https://github.com/codeclimate/codeclimate-fixme
 enabled = false

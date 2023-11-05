@@ -17,12 +17,12 @@ from nitpick import __version__, fields
 from nitpick.blender import SEPARATOR_FLATTEN, TomlDoc, custom_reducer, custom_splitter, search_json
 from nitpick.constants import (
     CACHE_DIR_NAME,
+    JMEX_NITPICK_STYLES_INCLUDE,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
-    NITPICK_STYLES_INCLUDE_JMEX,
     PROJECT_NAME,
     PROJECT_OWNER,
-    PYPROJECT_TOML,
+    PYTHON_PYPROJECT_TOML,
 )
 from nitpick.exceptions import QuitComplainingError, pretty_exception
 from nitpick.generic import url_to_python_path
@@ -107,7 +107,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
 
         if configured_styles:
             chosen_styles = configured_styles
-            config_file = base_url.path.segments[-1] if base else PYPROJECT_TOML
+            config_file = base_url.path.segments[-1] if base else PYTHON_PYPROJECT_TOML
             logger.info(f"Using styles configured in {config_file}: {', '.join(chosen_styles)}")
         else:
             paths = glob_files(project_root, [NITPICK_STYLE_TOML])
@@ -151,7 +151,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
         # normalize sub-style URIs, before merging
         sub_styles = [
             self._style_fetcher_manager.normalize_url(ref, style_url)
-            for ref in always_iterable(search_json(read_toml_dict, NITPICK_STYLES_INCLUDE_JMEX, []))
+            for ref in always_iterable(search_json(read_toml_dict, JMEX_NITPICK_STYLES_INCLUDE, []))
         ]
         if sub_styles:
             read_toml_dict.setdefault("nitpick", {}).setdefault("styles", {})["include"] = [

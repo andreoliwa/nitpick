@@ -7,7 +7,7 @@ from sortedcontainers import SortedDict
 
 from nitpick import fields
 from nitpick.blender import flatten_quotes
-from nitpick.constants import READ_THE_DOCS_URL, SETUP_CFG
+from nitpick.constants import PYTHON_SETUP_CFG, READ_THE_DOCS_URL
 
 
 def flatten_marshmallow_errors(errors: dict) -> str:
@@ -63,7 +63,7 @@ class NitpickFilesSectionSchema(BaseNitpickSchema):
     absent = fields.Dict(fields.NonEmptyString, fields.String())
     present = fields.Dict(fields.NonEmptyString, fields.String())
     # TODO: refactor: load this schema dynamically, then add this next field setup_cfg
-    setup_cfg = fields.Nested(IniSchema, data_key=SETUP_CFG)
+    setup_cfg = fields.Nested(IniSchema, data_key=PYTHON_SETUP_CFG)
 
 
 class NitpickMetaSchema(BaseNitpickSchema):

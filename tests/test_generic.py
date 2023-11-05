@@ -8,7 +8,7 @@ import pytest
 from furl import furl
 from testfixtures import compare
 
-from nitpick.constants import EDITOR_CONFIG, TOX_INI
+from nitpick.constants import EDITOR_CONFIG, PYTHON_TOX_INI
 from nitpick.generic import _url_to_posix_path, _url_to_windows_path, relative_to_current_dir
 
 
@@ -32,7 +32,7 @@ def test_relative_to_current_dir(home, cwd):
         Path(project_dir): "",
         f"{home_dir}{sep}another": f"{home_dir}{sep}another",
         Path(f"{home_dir}{sep}bla{sep}bla"): f"{home_dir}{sep}bla{sep}bla",
-        f"{project_dir}{sep}{TOX_INI}": TOX_INI,
+        f"{project_dir}{sep}{PYTHON_TOX_INI}": PYTHON_TOX_INI,
         f"{project_dir}{sep}{EDITOR_CONFIG}": EDITOR_CONFIG,
         Path(f"{project_dir}{sep}apps{sep}manage.py"): f"apps{sep}manage.py",
         f"{home_dir}{sep}another{sep}one{sep}bites.py": f"{home_dir}{sep}another{sep}one{sep}bites.py",

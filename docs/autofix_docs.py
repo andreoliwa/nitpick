@@ -20,7 +20,7 @@ import attr
 import click
 from slugify import slugify
 
-from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PYLINTRC, READ_THE_DOCS_URL, SETUP_CFG
+from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PYTHON_PYLINTRC, PYTHON_SETUP_CFG, READ_THE_DOCS_URL
 from nitpick.core import Nitpick
 from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
 
@@ -117,8 +117,8 @@ IMPLEMENTED_FILE_TYPES: set[FileType] = {
     FileType("Any TOML file", f"{READ_THE_DOCS_URL}plugins.html#toml-files", True, True),
     FileType("Any YAML file", f"{READ_THE_DOCS_URL}plugins.html#yaml-files", True, True),
     FileType(EDITOR_CONFIG, f"{READ_THE_DOCS_URL}library.html#any", True, True),
-    FileType(PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
-    FileType(SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+    FileType(PYTHON_PYLINTRC, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
+    FileType(PYTHON_SETUP_CFG, f"{READ_THE_DOCS_URL}plugins.html#ini-files", True, True),
 }
 PLANNED_FILE_TYPES: set[FileType] = {
     FileType("Any Markdown file", "", 280, 0),

@@ -1,77 +1,64 @@
 """Constants."""
 import jmespath
 
-PROJECT_OWNER = "andreoliwa"
-PROJECT_NAME = "nitpick"
-FLAKE8_PREFIX = "NIP"
-CACHE_DIR_NAME = ".cache"
-TOML_EXTENSION = ".toml"
-DOT_NITPICK_TOML = f".nitpick{TOML_EXTENSION}"
-NITPICK_STYLE_TOML = f"nitpick-style{TOML_EXTENSION}"
-MERGED_STYLE_TOML = f"merged-style{TOML_EXTENSION}"
-READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
-
-# Special files
-# Python
-PYPROJECT_TOML = "pyproject.toml"
-SETUP_PY = "setup.py"
-SETUP_CFG = "setup.cfg"
-REQUIREMENTS_STAR_TXT = "requirements*.txt"
-PIPFILE_STAR = "Pipfile*"
-MANAGE_PY = "manage.py"
-ROOT_PYTHON_FILES = ("app.py", "wsgi.py", "autoapp.py", MANAGE_PY)
-TOX_INI = "tox.ini"
-PYLINTRC = ".pylintrc"
-# Tools
-PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
-EDITOR_CONFIG = ".editorconfig"
-# JavaScript
-PACKAGE_JSON = "package.json"
-# Rust
-CARGO_STAR = "Cargo.*"
-# Golang
-GO_MOD = "go.mod"
-GO_SUM = "go.sum"
-# All root files
-ROOT_FILES = (
-    DOT_NITPICK_TOML,
-    NITPICK_STYLE_TOML,
-    PRE_COMMIT_CONFIG_YAML,
-    PYPROJECT_TOML,
-    SETUP_PY,
-    SETUP_CFG,
-    REQUIREMENTS_STAR_TXT,
-    PIPFILE_STAR,
-    TOX_INI,
-    PACKAGE_JSON,
-    CARGO_STAR,
-    GO_MOD,
-    GO_SUM,
-    *ROOT_PYTHON_FILES,
-)
-CONFIG_FILES = (DOT_NITPICK_TOML, PYPROJECT_TOML)
-
-# Config sections and keys
-TOOL_KEY = "tool"
-TOOL_NITPICK_KEY = f"{TOOL_KEY}.{PROJECT_NAME}"
-RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY = (
-    f" Run 'nitpick init' or configure a style manually ({', '.join(CONFIG_FILES)})."
-    f" See {READ_THE_DOCS_URL}configuration.html"
-)
-
-# JMESPath expressions
-TOOL_NITPICK_JMEX = jmespath.compile(TOOL_NITPICK_KEY)
-NITPICK_STYLES_INCLUDE_JMEX = jmespath.compile("nitpick.styles.include")
-NITPICK_MINIMUM_VERSION_JMEX = jmespath.compile("nitpick.minimum_version")
-
 # keep-sorted start
-ANY_BUILTIN_STYLE = "any"
+CACHE_DIR_NAME = ".cache"
+CONFIG_DUNDER_LIST_KEYS = "__list_keys"
+CONFIG_TOOL_KEY = "tool"
 DOT = "."
+DOT_NITPICK_TOML = ".nitpick.toml"
+EDITOR_CONFIG = ".editorconfig"
+FLAKE8_PREFIX = "NIP"
 GIT_AT_REFERENCE = "@"
+GOLANG_MOD = "go.mod"
+GOLANG_SUM = "go.sum"
+JAVASCRIPT_PACKAGE_JSON = "package.json"
+JMEX_NITPICK_MINIMUM_VERSION = jmespath.compile("nitpick.minimum_version")
+JMEX_NITPICK_STYLES_INCLUDE = jmespath.compile("nitpick.styles.include")
+MERGED_STYLE_TOML = "merged-style.toml"
+NITPICK_STYLE_TOML = "nitpick-style.toml"
+PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
+PROJECT_NAME = "nitpick"
+PROJECT_OWNER = "andreoliwa"
+PYTHON_MANAGE_PY = "manage.py"
+PYTHON_PIPFILE_STAR = "Pipfile*"
+PYTHON_PYLINTRC = ".pylintrc"
+PYTHON_PYPROJECT_TOML = "pyproject.toml"
+PYTHON_REQUIREMENTS_STAR_TXT = "requirements*.txt"
+PYTHON_SETUP_CFG = "setup.cfg"
+PYTHON_SETUP_PY = "setup.py"
+PYTHON_TOX_INI = "tox.ini"
+READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
+RUST_CARGO_STAR = "Cargo.*"
+TOML_EXTENSION = ".toml"
+ANY_BUILTIN_STYLE = "any"
 GIT_CORE_EXCLUDES_FILE = "core.excludesfile"
 GIT_DIR = ".git"
 GIT_IGNORE = ".gitignore"
 # keep-sorted end
 
-# Special configurations for plugins
-DUNDER_LIST_KEYS = "__list_keys"
+# These depend on some constants above, so they can't be sorted automatically
+ROOT_PYTHON_FILES = ("app.py", "wsgi.py", "autoapp.py", PYTHON_MANAGE_PY)
+ROOT_FILES = (
+    DOT_NITPICK_TOML,
+    NITPICK_STYLE_TOML,
+    PRE_COMMIT_CONFIG_YAML,
+    PYTHON_PYPROJECT_TOML,
+    PYTHON_SETUP_PY,
+    PYTHON_SETUP_CFG,
+    PYTHON_REQUIREMENTS_STAR_TXT,
+    PYTHON_PIPFILE_STAR,
+    PYTHON_TOX_INI,
+    JAVASCRIPT_PACKAGE_JSON,
+    RUST_CARGO_STAR,
+    GOLANG_MOD,
+    GOLANG_SUM,
+    *ROOT_PYTHON_FILES,
+)
+CONFIG_FILES = (DOT_NITPICK_TOML, PYTHON_PYPROJECT_TOML)
+CONFIG_RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY = (
+    f" Run 'nitpick init' or configure a style manually ({', '.join(CONFIG_FILES)})."
+    f" See {READ_THE_DOCS_URL}configuration.html"
+)
+CONFIG_TOOL_NITPICK_KEY = f"{CONFIG_TOOL_KEY}.{PROJECT_NAME}"
+JMEX_TOOL_NITPICK = jmespath.compile(CONFIG_TOOL_NITPICK_KEY)

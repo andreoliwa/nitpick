@@ -2,8 +2,8 @@
 name = "Files that should not exist"
 
 [nitpick.files.absent]
-"requirements.txt" = "Install poetry, run 'poetry init' to create pyproject.toml, and move dependencies to it"
 ".isort.cfg" = "Move values to setup.cfg, section [isort]"
+".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
 "Pipfile" = "Use pyproject.toml instead"
 "Pipfile.lock" = "Use pyproject.toml instead"
-".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
+"requirements.txt" = "Install poetry, run 'poetry init' to create pyproject.toml, and move dependencies to it"
