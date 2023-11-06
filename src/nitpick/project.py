@@ -13,7 +13,7 @@ from marshmallow_polyfield import PolyField
 from more_itertools.more import always_iterable
 from pluggy import PluginManager
 from tomlkit import TOMLDocument
-from tomlkit.items import SingleKey, KeyType
+from tomlkit.items import KeyType, SingleKey
 
 from nitpick import fields, plugins
 from nitpick.blender import TomlDoc, search_json
@@ -139,7 +139,14 @@ class Project:
             manager.load_setuptools_entrypoints(PROJECT_NAME)
         return manager
 
-    def which_config_file(self, *, use_default: bool) -> Path | None:
+    def config_file_or_default(self) -> Path:
+        """Return a config file if found, or the default one."""
+        config_file = self.config_file()
+        if config_file:
+            return config_file
+        return self.root / DOT_NITPICK_TOML
+
+    def config_file(self) -> Path | None:
         """Determine which config file to use."""
         found: Path | None = None
         for possible in CONFIG_FILES:
@@ -155,14 +162,12 @@ class Project:
 
         if not found:
             logger.warning("Config file: none found")
-            if use_default:
-                return self.root / DOT_NITPICK_TOML
 
         return found
 
     def read_configuration(self) -> Configuration:
         """Search for a configuration file and validate it against a Marshmallow schema."""
-        config_file = self.which_config_file(use_default=False)
+        config_file = self.config_file()
         if not config_file:
             return Configuration(None, [], "")
 

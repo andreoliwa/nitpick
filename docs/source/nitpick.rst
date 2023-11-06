@@ -35,5 +35,6 @@ Submodules
    nitpick.generic
    nitpick.project
    nitpick.schemas
+   nitpick.tomlkit_ext
    nitpick.typedefs
    nitpick.violations

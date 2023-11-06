@@ -2,14 +2,20 @@
 import jmespath
 
 # keep-sorted start
+ANY_BUILTIN_STYLE = "any"
 CACHE_DIR_NAME = ".cache"
 CONFIG_DUNDER_LIST_KEYS = "__list_keys"
+CONFIG_KEY_IGNORE_STYLES = "ignore_styles"
+CONFIG_KEY_STYLE = "style"
 CONFIG_TOOL_KEY = "tool"
 DOT = "."
 DOT_NITPICK_TOML = ".nitpick.toml"
 EDITOR_CONFIG = ".editorconfig"
 FLAKE8_PREFIX = "NIP"
 GIT_AT_REFERENCE = "@"
+GIT_CORE_EXCLUDES_FILE = "core.excludesfile"
+GIT_DIR = ".git"
+GIT_IGNORE = ".gitignore"
 GOLANG_MOD = "go.mod"
 GOLANG_SUM = "go.sum"
 JAVASCRIPT_PACKAGE_JSON = "package.json"
@@ -31,10 +37,6 @@ PYTHON_TOX_INI = "tox.ini"
 READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 RUST_CARGO_STAR = "Cargo.*"
 TOML_EXTENSION = ".toml"
-ANY_BUILTIN_STYLE = "any"
-GIT_CORE_EXCLUDES_FILE = "core.excludesfile"
-GIT_DIR = ".git"
-GIT_IGNORE = ".gitignore"
 # keep-sorted end
 
 # These depend on some constants above, so they can't be sorted automatically
