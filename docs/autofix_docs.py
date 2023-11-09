@@ -22,7 +22,7 @@ from slugify import slugify
 
 from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PYTHON_PYLINTRC, PYTHON_SETUP_CFG, READ_THE_DOCS_URL
 from nitpick.core import Nitpick
-from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
+from nitpick.style import BuiltinStyle, builtin_styles
 
 RST_DIVIDER_FROM_HERE = ".. auto-generated-from-here"
 RST_DIVIDER_START = ".. auto-generated-start-{}"

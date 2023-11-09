@@ -3,8 +3,7 @@ import pytest
 import tomlkit
 
 from nitpick.constants import CONFIG_TOOL_NITPICK_KEY, DOT_NITPICK_TOML, PYTHON_PYPROJECT_TOML, READ_THE_DOCS_URL
-from nitpick.style import StyleManager
-from nitpick.style.fetchers import Scheme
+from nitpick.style import Scheme, StyleManager
 from tests.helpers import ProjectMock
 
 

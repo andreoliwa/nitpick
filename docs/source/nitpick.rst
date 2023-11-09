@@ -14,7 +14,6 @@ Subpackages
 
    nitpick.plugins
    nitpick.resources
-   nitpick.style
 
 Submodules
 ----------
@@ -28,11 +27,11 @@ Submodules
    nitpick.config
    nitpick.constants
    nitpick.core
-   nitpick.enums
    nitpick.exceptions
    nitpick.fields
    nitpick.flake8
    nitpick.generic
    nitpick.schemas
+   nitpick.style
    nitpick.typedefs
    nitpick.violations

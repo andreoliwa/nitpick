@@ -10,8 +10,7 @@ import responses
 from furl import furl
 
 from nitpick.constants import PYTHON_PYPROJECT_TOML, PYTHON_SETUP_CFG, PYTHON_TOX_INI, READ_THE_DOCS_URL, TOML_EXTENSION
-from nitpick.style.fetchers.github import GitHubURL
-from nitpick.style.fetchers.pypackage import PythonPackageURL
+from nitpick.style import GitHubURL, PythonPackageURL
 from nitpick.violations import Fuss
 from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, ProjectMock, assert_conditions, tomlstring
 

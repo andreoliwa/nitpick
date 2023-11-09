@@ -38,6 +38,7 @@ from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import filter_names, glob_files, relative_to_current_dir
 from nitpick.plugins.info import FileInfo
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
+from nitpick.style import StyleManager
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
 
 if TYPE_CHECKING:
@@ -285,9 +286,6 @@ class Project:
         """Merge one or multiple style files."""
         config = self.read_configuration()
 
-        # pylint: disable=import-outside-toplevel
-        from nitpick.style import StyleManager
-
         style = StyleManager(self, offline, config.cache)
         base = config.file.expanduser().resolve().as_uri() if config.file else None
         style_errors = list(style.find_initial_styles(list(always_iterable(config.styles)), base))
@@ -296,7 +294,7 @@ class Project:
 
         self.style_dict = style.merge_toml_dict()
 
-        from nitpick.flake8 import NitpickFlake8Extension
+        from nitpick.flake8 import NitpickFlake8Extension  # pylint: disable=import-outside-toplevel
 
         minimum_version = search_json(self.style_dict, JMEX_NITPICK_MINIMUM_VERSION, None)
         logger.debug(f"Minimum version: {minimum_version}")
@@ -313,8 +311,6 @@ class Project:
 
     def create_configuration(self, config: Configuration, *style_urls: str) -> None:
         """Create a configuration file."""
-        from nitpick.style import StyleManager  # pylint: disable=import-outside-toplevel
-
         if config.file:
             doc: TOMLDocument = tomlkit.parse(config.file.read_text())
         else:
