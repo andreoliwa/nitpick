@@ -16,7 +16,7 @@ from nitpick.constants import (
     PYTHON_SETUP_CFG,
     PYTHON_TOX_INI,
 )
-from nitpick.style.fetchers.pypackage import BuiltinStyle, builtin_styles
+from nitpick.style import BuiltinStyle, builtin_styles
 from nitpick.violations import Fuss
 from tests.helpers import STYLES_DIR, ProjectMock
 

@@ -22,33 +22,6 @@ if TYPE_CHECKING:
     from nitpick.typedefs import PathOrStr
 
 
-def version_to_tuple(version: str | None = None) -> tuple[int, ...]:
-    """Transform a version number into a tuple of integers, for comparison.
-
-    >>> version_to_tuple("")
-    ()
-    >>> version_to_tuple("  ")
-    ()
-    >>> version_to_tuple(None)
-    ()
-    >>> version_to_tuple("1.0.1")
-    (1, 0, 1)
-    >>> version_to_tuple(" 0.2 ")
-    (0, 2)
-    >>> version_to_tuple(" 2 ")
-    (2,)
-
-    :param version: String with the version number. It must be integers split by dots.
-    :return: Tuple with the version number.
-    """
-    if not version:
-        return ()
-    clean_version = version.strip()
-    if not clean_version:
-        return ()
-    return tuple(int(part) for part in clean_version.split(DOT))
-
-
 def relative_to_current_dir(path_or_str: PathOrStr | None) -> str:
     """Return a relative path to the current dir or an absolute path."""
     if not path_or_str:
@@ -118,6 +91,15 @@ def _url_to_posix_path(url: furl) -> Path:
 
 
 url_to_python_path = _url_to_windows_path if sys.platform == "win32" else _url_to_posix_path
+
+
+def glob_files(dir_: Path, file_patterns: Iterable[str]) -> set[Path]:
+    """Search a directory looking for file patterns."""
+    for pattern in file_patterns:
+        found_files = set(dir_.glob(pattern))
+        if found_files:
+            return found_files
+    return set()
 
 
 def glob_non_ignored_files(root_dir: Path, pattern: str = "**/*") -> Iterable[Path]:

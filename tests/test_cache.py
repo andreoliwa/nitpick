@@ -5,8 +5,8 @@ import pytest
 from freezegun import freeze_time
 from requests_cache.policy.expiration import DO_NOT_CACHE, NEVER_EXPIRE
 
-from nitpick.enums import CachingEnum
-from nitpick.style.cache import parse_cache_option
+from nitpick.constants import CachingEnum
+from nitpick.style import parse_cache_option
 
 
 @pytest.mark.tool_nitpick("cache = 'forever'")

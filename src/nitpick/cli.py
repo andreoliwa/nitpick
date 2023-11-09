@@ -31,9 +31,9 @@ from nitpick.constants import (
     CONFIG_KEY_TOOL,
     CONFIG_TOOL_NITPICK_KEY,
     PROJECT_NAME,
+    OptionEnum,
 )
 from nitpick.core import Nitpick
-from nitpick.enums import OptionEnum
 from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import relative_to_current_dir
 from nitpick.violations import Reporter

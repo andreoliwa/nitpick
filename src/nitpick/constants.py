@@ -1,5 +1,13 @@
 """Constants."""
+from __future__ import annotations
+
+import os
+import re
+from datetime import timedelta
+from enum import Enum, IntEnum, auto
+
 import jmespath
+from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE
 
 # keep-sorted start
 ANY_BUILTIN_STYLE = "any"
@@ -13,6 +21,10 @@ DOT = "."
 DOT_NITPICK_TOML = ".nitpick.toml"
 EDITOR_CONFIG = ".editorconfig"
 FLAKE8_PREFIX = "NIP"
+GITHUB_COM = "github.com"
+GITHUB_COM_API = "api.github.com"
+GITHUB_COM_QUERY_STRING_TOKEN = "token"  # nosec # noqa: S105
+GITHUB_COM_RAW = "raw.githubusercontent.com"
 GIT_AT_REFERENCE = "@"
 GIT_CORE_EXCLUDES_FILE = "core.excludesfile"
 GIT_DIR = ".git"
@@ -36,8 +48,10 @@ PYTHON_SETUP_CFG = "setup.cfg"
 PYTHON_SETUP_PY = "setup.py"
 PYTHON_TOX_INI = "tox.ini"
 READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
+REGEX_CACHE_UNIT = re.compile(r"(?P<number>\d+)\s+(?P<unit>(minute|hour|day|week))", re.IGNORECASE)
 RUST_CARGO_STAR = "Cargo.*"
 TOML_EXTENSION = ".toml"
+WRITE_STYLE_MAX_ATTEMPTS = 5
 # keep-sorted end
 
 # These depend on some constants above, so they can't be sorted automatically
@@ -65,3 +79,49 @@ CONFIG_RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY = (
 )
 CONFIG_TOOL_NITPICK_KEY = f"{CONFIG_TOOL_KEY}.{PROJECT_NAME}"
 JMEX_TOOL_NITPICK = jmespath.compile(CONFIG_TOOL_NITPICK_KEY)
+
+
+class _OptionMixin:
+    """Private mixin used to test the CLI options."""
+
+    name: str
+
+    def as_flake8_flag(self) -> str:
+        """Format the name of a flag to be used on the CLI."""
+        slug = self.name.lower().replace("_", "-")
+        return f"--{PROJECT_NAME}-{slug}"
+
+    def as_envvar(self) -> str:
+        """Format the name of an environment variable."""
+        return f"{PROJECT_NAME.upper()}_{self.name.upper()}"
+
+    def get_environ(self) -> str:
+        """Get the value of an environment variable."""
+        return os.environ.get(self.as_envvar(), "")
+
+
+class OptionEnum(_OptionMixin, Enum):
+    """Options to be used with the CLI."""
+
+    OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
+
+
+class CachingEnum(IntEnum):
+    """Caching modes for styles."""
+
+    #: Never cache, the style file(s) are always looked-up.
+    NEVER = auto()
+
+    #: Once the style(s) are cached, they never expire.
+    FOREVER = auto()
+
+    #: The cache expires after the configured amount of time (minutes/hours/days).
+    EXPIRES = auto()
+
+
+# TODO(AA): move this to the enum above
+CACHE_EXPIRATION_DEFAULTS = {
+    CachingEnum.NEVER: DO_NOT_CACHE,
+    CachingEnum.FOREVER: NEVER_EXPIRE,
+    CachingEnum.EXPIRES: timedelta(hours=1),
+}

@@ -9,11 +9,9 @@ from flake8.options.manager import OptionManager
 from loguru import logger
 
 from nitpick import __version__
-from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME
-from nitpick.core import Nitpick
-from nitpick.enums import OptionEnum
+from nitpick.constants import FLAKE8_PREFIX, PROJECT_NAME, OptionEnum
+from nitpick.core import Nitpick, find_main_python_file
 from nitpick.exceptions import QuitComplainingError
-from nitpick.project import find_main_python_file
 from nitpick.typedefs import Flake8Error
 from nitpick.violations import Fuss
 

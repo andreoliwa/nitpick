@@ -7,9 +7,8 @@ import pytest
 import responses
 from flake8.main import cli
 
-from nitpick.constants import READ_THE_DOCS_URL
+from nitpick.constants import READ_THE_DOCS_URL, _OptionMixin
 from nitpick.core import Nitpick
-from nitpick.enums import _OptionMixin
 from nitpick.style import StyleManager
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock

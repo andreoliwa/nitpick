@@ -10,7 +10,7 @@ from nitpick.constants import DOT
 from nitpick.exceptions import Deprecation
 
 if TYPE_CHECKING:
-    from nitpick.project import Project
+    from nitpick.core import Project
 
 
 @dataclass
