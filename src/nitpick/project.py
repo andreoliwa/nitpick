@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Iterable, Iterator
 
 import tomlkit
 from autorepr import autorepr
+from identify import identify
 from loguru import logger
 from marshmallow_polyfield import PolyField
 from more_itertools.more import always_iterable
@@ -18,6 +19,7 @@ from tomlkit.items import KeyType, SingleKey
 from nitpick import fields, plugins
 from nitpick.blender import TomlDoc, search_json
 from nitpick.constants import (
+    ANY_BUILTIN_STYLE,
     CONFIG_FILES,
     CONFIG_TOOL_NITPICK_KEY,
     DOT_NITPICK_TOML,
@@ -31,7 +33,7 @@ from nitpick.constants import (
     ROOT_PYTHON_FILES,
 )
 from nitpick.exceptions import QuitComplainingError
-from nitpick.generic import version_to_tuple
+from nitpick.generic import glob_non_ignored_files, version_to_tuple
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
 
@@ -239,3 +241,20 @@ class Project:
 
         # config.file will always have a value at this point, but mypy can't see it.
         config.file.write_text(tomlkit.dumps(doc, sort_keys=True))
+
+    def suggest_styles(self) -> list[str]:
+        """Suggest styles based on the files in the project root (skipping Git ignored files)."""
+        from nitpick.style.fetchers.pypackage import (  # pylint: disable=import-outside-toplevel
+            BuiltinStyle,
+            builtin_styles,
+        )
+
+        tags: set[str] = {ANY_BUILTIN_STYLE}
+        for project_file_path in glob_non_ignored_files(self.root):
+            tags.update(identify.tags_from_path(str(project_file_path)))
+        suggested_styles: set[str] = set()
+        for style_path in builtin_styles():
+            builtin_style = BuiltinStyle.from_path(style_path)
+            if builtin_style.identify_tag in tags:
+                suggested_styles.add(builtin_style.py_url_without_ext.url)
+        return sorted(suggested_styles)

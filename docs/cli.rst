@@ -127,5 +127,7 @@ At the end of execution, this command displays:
       Create a [tool.nitpick] section in the configuration file.
 
     Options:
-      -f, --force  Overwrite the section if it already exists
-      --help       Show this message and exit.
+      -f, --force    Overwrite the section if it already exists
+      -s, --suggest  Suggest styles based on the files in the project root
+                     (skipping Git ignored files)
+      --help         Show this message and exit.
