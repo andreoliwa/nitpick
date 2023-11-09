@@ -18,9 +18,8 @@ from nitpick.constants import (
     PYTHON_SETUP_PY,
     PYTHON_TOX_INI,
 )
-from nitpick.core import Nitpick
+from nitpick.core import Configuration, Nitpick, confirm_project_root, find_main_python_file
 from nitpick.exceptions import QuitComplainingError
-from nitpick.project import Configuration, confirm_project_root, find_main_python_file
 from nitpick.violations import ProjectViolations
 from tests.helpers import ProjectMock
 

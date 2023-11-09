@@ -14,7 +14,7 @@ from nitpick.schemas import BaseStyleSchema, NitpickSectionSchema
 if TYPE_CHECKING:
     from marshmallow import Schema
 
-    from nitpick.project import Project
+    from nitpick.core import Project
     from nitpick.typedefs import JsonDict
 
 

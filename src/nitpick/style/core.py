@@ -25,10 +25,9 @@ from nitpick.constants import (
     PYTHON_PYPROJECT_TOML,
 )
 from nitpick.exceptions import QuitComplainingError, pretty_exception
-from nitpick.generic import url_to_python_path
+from nitpick.generic import glob_files, url_to_python_path
 from nitpick.plugins.base import NitpickPlugin
 from nitpick.plugins.info import FileInfo
-from nitpick.project import Project, glob_files
 from nitpick.schemas import BaseStyleSchema, flatten_marshmallow_errors
 from nitpick.style.config import ConfigValidator
 from nitpick.style.fetchers import Scheme, StyleFetcherManager
@@ -45,6 +44,7 @@ except ImportError:
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from nitpick.core import Project
     from nitpick.typedefs import JsonDict
 
 MAX_ATTEMPTS = 5

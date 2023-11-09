@@ -33,7 +33,6 @@ Submodules
    nitpick.fields
    nitpick.flake8
    nitpick.generic
-   nitpick.project
    nitpick.schemas
    nitpick.typedefs
    nitpick.violations

@@ -114,3 +114,12 @@ def _url_to_posix_path(url: furl) -> Path:
 
 
 url_to_python_path = _url_to_windows_path if sys.platform == "win32" else _url_to_posix_path
+
+
+def glob_files(dir_: Path, file_patterns: Iterable[str]) -> set[Path]:
+    """Search a directory looking for file patterns."""
+    for pattern in file_patterns:
+        found_files = set(dir_.glob(pattern))
+        if found_files:
+            return found_files
+    return set()
