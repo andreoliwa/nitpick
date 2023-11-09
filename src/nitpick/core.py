@@ -15,6 +15,7 @@ from autorepr import autorepr
 from loguru import logger
 from marshmallow_polyfield import PolyField
 from more_itertools import always_iterable
+from packaging.version import parse as parse_version
 from pluggy import PluginManager
 from tomlkit import TOMLDocument
 from tomlkit.items import KeyType, SingleKey
@@ -34,7 +35,7 @@ from nitpick.constants import (
     ROOT_PYTHON_FILES,
 )
 from nitpick.exceptions import QuitComplainingError
-from nitpick.generic import filter_names, glob_files, relative_to_current_dir, version_to_tuple
+from nitpick.generic import filter_names, glob_files, relative_to_current_dir
 from nitpick.plugins.info import FileInfo
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
@@ -299,7 +300,7 @@ class Project:
 
         minimum_version = search_json(self.style_dict, JMEX_NITPICK_MINIMUM_VERSION, None)
         logger.debug(f"Minimum version: {minimum_version}")
-        if minimum_version and version_to_tuple(NitpickFlake8Extension.version) < version_to_tuple(minimum_version):
+        if minimum_version and parse_version(NitpickFlake8Extension.version) < parse_version(minimum_version):
             yield Reporter().make_fuss(
                 ProjectViolations.MINIMUM_VERSION,
                 project=PROJECT_NAME,

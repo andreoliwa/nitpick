@@ -18,33 +18,6 @@ if TYPE_CHECKING:
     from nitpick.typedefs import PathOrStr
 
 
-def version_to_tuple(version: str | None = None) -> tuple[int, ...]:
-    """Transform a version number into a tuple of integers, for comparison.
-
-    >>> version_to_tuple("")
-    ()
-    >>> version_to_tuple("  ")
-    ()
-    >>> version_to_tuple(None)
-    ()
-    >>> version_to_tuple("1.0.1")
-    (1, 0, 1)
-    >>> version_to_tuple(" 0.2 ")
-    (0, 2)
-    >>> version_to_tuple(" 2 ")
-    (2,)
-
-    :param version: String with the version number. It must be integers split by dots.
-    :return: Tuple with the version number.
-    """
-    if not version:
-        return ()
-    clean_version = version.strip()
-    if not clean_version:
-        return ()
-    return tuple(int(part) for part in clean_version.split(DOT))
-
-
 def relative_to_current_dir(path_or_str: PathOrStr | None) -> str:
     """Return a relative path to the current dir or an absolute path."""
     if not path_or_str:

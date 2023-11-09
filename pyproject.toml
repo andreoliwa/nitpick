@@ -60,6 +60,7 @@ marshmallow = {version = ">=3.0.0b10"}
 # TypeError: _deserialize() got an unexpected keyword argument 'partial'
 marshmallow-polyfield = "^5.10"
 "more-itertools" = "*"
+packaging = "*"
 pluggy = "*"
 # TODO: chore: move to dependency groups once the feature is on a stable version of Poetry
 # https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups
