@@ -827,7 +827,7 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
 
         try:
             # Intentionally break the doc generation when styles don't have [nitpick.meta]name
-            meta = toml_dict["nitpick"]["meta"]
+            meta = toml_dict["nitpick"]["meta"]  # pylint: disable=invalid-sequence-index
             bis.name = meta["name"]
             bis.url = meta.get("url")
         except KeyError as err:
