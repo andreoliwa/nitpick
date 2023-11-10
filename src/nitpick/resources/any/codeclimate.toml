@@ -8,7 +8,8 @@ url = "https://codeclimate.com/"
 version = "2"
 
 [".codeclimate.yml".checks.file-lines.config]
-# Pylint's default is also 1000: https://github.com/PyCQA/pylint/blob/master/pylint/checkers/format.py#L294-L300
+# Pylint's default is also 1000:
+# https://pylint.readthedocs.io/en/latest/user_guide/configuration/all-options.html#max-module-lines
 threshold = 1000
 
 [".codeclimate.yml".checks.method-complexity.config]

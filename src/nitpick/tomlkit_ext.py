@@ -24,7 +24,6 @@ TOMLKIT_DOT = "."
 # keep-sorted end
 
 
-# TODO(AA): check branch coverage and add tests for all cases
 def _replace_toml_document_getitem(original_method: Callable) -> Callable:
     """Replace the ::py:meth:`tomlkit.Container.__getitem__` method to allow dotted keys."""
 
@@ -139,7 +138,6 @@ def update_comment_before(table: Table, key: str, marker: str, comment: str) -> 
     hashed_lines = multiline_comment_with_markers(marker, comment)
     new_comment = tomlkit.comment(f"\n{TOMLKIT_COMMENT}".join(hashed_lines))
     if key_index is None:
-        # TODO(AA): test
         table.add(new_comment)
         return
 
@@ -157,13 +155,3 @@ def update_comment_before(table: Table, key: str, marker: str, comment: str) -> 
         # Insert the new comment before the key
         insert_point = key_index
     table.value.body.insert(insert_point, (None, new_comment))
-
-
-# TODO(AA): test valid start/end
-# TODO(AA): test missing start/valid end
-# TODO(AA): test valid start/missing end
-# TODO(AA): test missing start/missing end
-# TODO(AA): test multiple start
-# TODO(AA): test multiple end
-# TODO(AA): test searched key between start/end
-# TODO(AA): test another key between start/end

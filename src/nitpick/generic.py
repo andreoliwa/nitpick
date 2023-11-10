@@ -105,8 +105,6 @@ def glob_files(dir_: Path, file_patterns: Iterable[str]) -> set[Path]:
 def glob_non_ignored_files(root_dir: Path, pattern: str = "**/*") -> Iterable[Path]:
     """Glob all files in the root dir that are not ignored by Git."""
 
-    # TODO(AA): add test
-
     global_gitignore_path = None
     git_dir = root_dir / GIT_DIR
     if git_dir.is_dir():

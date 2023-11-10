@@ -91,3 +91,6 @@ def test_url_to_posix_path(test_path):
     path = PosixPath(test_path)
     url = furl(path.as_uri())
     assert _url_to_posix_path(url) == path
+
+
+# TODO(AA): test globbing non-ignored files

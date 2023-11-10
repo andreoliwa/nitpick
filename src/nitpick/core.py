@@ -210,6 +210,7 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
 
     style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
     cache = fields.NonEmptyString()
+    dont_suggest = fields.List(fields.NonEmptyString())
 
 
 @dataclass

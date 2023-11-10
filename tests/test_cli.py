@@ -132,3 +132,11 @@ def test_add_tool_nitpick_section_to_pyproject_toml(tmp_path, styles, expected_s
         style = {tomlkit.array([tomlkit.string(str(url)) for url in expected]).as_string()}
         """,
     )
+
+
+# TODO(AA): check branch coverage and add tests for all cases
+# TODO(AA): test init --force flag
+# TODO(AA): test init when there is a [tool.nitpick] section but no [tool.nitpick.style] key
+# TODO(AA): test init with no existing table
+# TODO(AA): test missing ignored styles array is created
+# TODO(AA): test create the ignored styles array only when suggesting styles

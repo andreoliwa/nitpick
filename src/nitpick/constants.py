@@ -13,7 +13,7 @@ from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE
 ANY_BUILTIN_STYLE = "any"
 CACHE_DIR_NAME = ".cache"
 CONFIG_DUNDER_LIST_KEYS = "__list_keys"
-CONFIG_KEY_IGNORE_STYLES = "ignore_styles"
+CONFIG_KEY_DONT_SUGGEST = "dont_suggest"
 CONFIG_KEY_STYLE = "style"
 CONFIG_KEY_TOOL = "tool"
 CONFIG_TOOL_KEY = "tool"
@@ -50,6 +50,7 @@ PYTHON_TOX_INI = "tox.ini"
 READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 REGEX_CACHE_UNIT = re.compile(r"(?P<number>\d+)\s+(?P<unit>(minute|hour|day|week))", re.IGNORECASE)
 RUST_CARGO_STAR = "Cargo.*"
+SUCCESS_EMOJIS = "✨ 🍰 ✨"
 TOML_EXTENSION = ".toml"
 WRITE_STYLE_MAX_ATTEMPTS = 5
 # keep-sorted end
@@ -119,7 +120,7 @@ class CachingEnum(IntEnum):
     EXPIRES = auto()
 
 
-# TODO(AA): move this to the enum above
+# TODO: move this to the enum above
 CACHE_EXPIRATION_DEFAULTS = {
     CachingEnum.NEVER: DO_NOT_CACHE,
     CachingEnum.FOREVER: NEVER_EXPIRE,
