@@ -111,7 +111,7 @@ toml = "nitpick.plugins.toml"
 yaml = "nitpick.plugins.yaml"
 
 [tool.poetry.scripts]
-nitpick = "nitpick.cli:nitpick_cli"
+nitpick = "nitpick.__main__:main"
 
 [tool.poetry.urls]
 "Changelog" = "https://github.com/andreoliwa/nitpick/blob/develop/CHANGELOG.md"
