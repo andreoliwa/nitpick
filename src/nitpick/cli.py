@@ -180,13 +180,6 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
     path = nit.project.config_file_or_default()
     doc = tomlkit_ext.load(path)
     tool_nitpick_table: tomlkit_ext.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
-    if tool_nitpick_table and not fix:
-        click.secho(
-            f"The config file {path.name!r} already has a [{CONFIG_TOOL_NITPICK_KEY}] table."
-            " Use --force to override it.",
-            fg="yellow",
-        )
-        return
     if not style_urls and not suggest:
         click.secho(
             "Nothing to do. 😴 Either pass at least one style URL"
@@ -210,24 +203,24 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
         doc.append(CONFIG_KEY_TOOL, super_table)
         tool_nitpick_table = doc.get(CONFIG_TOOL_NITPICK_KEY)
 
-    style_array: items.Array = tool_nitpick_table.get(CONFIG_KEY_STYLE)
-    if style_array is None:
-        style_array = tomlkit.array()
-        tool_nitpick_table.add(CONFIG_KEY_STYLE, style_array)
+    suggested_styles: items.Array = tool_nitpick_table.get(CONFIG_KEY_STYLE)
+    if suggested_styles is None:
+        suggested_styles = tomlkit.array()
+        tool_nitpick_table.add(CONFIG_KEY_STYLE, suggested_styles)
 
-    ignore_styles_array: items.Array = tool_nitpick_table.get(CONFIG_KEY_DONT_SUGGEST)
-    if ignore_styles_array is None:
-        ignore_styles_array = tomlkit.array()
+    ignored_styles: items.Array = tool_nitpick_table.get(CONFIG_KEY_DONT_SUGGEST)
+    if ignored_styles is None:
+        ignored_styles = tomlkit.array()
         if suggest:
             # Create the ignored styles array only when suggesting styles
-            tool_nitpick_table.add(CONFIG_KEY_DONT_SUGGEST, ignore_styles_array)
+            tool_nitpick_table.add(CONFIG_KEY_DONT_SUGGEST, ignored_styles)
 
-    added_count = 0
+    new_styles = []
     for style_url in style_urls:
-        if style_url in style_array or style_url in ignore_styles_array:
+        if style_url in suggested_styles or style_url in ignored_styles:
             continue
-        added_count += 1
-        style_array.add_line(style_url, indent="  ")
+        new_styles.append(style_url)
+        suggested_styles.add_line(style_url, indent="  ")
 
     if suggest:
         from nitpick import __version__  # pylint: disable=import-outside-toplevel
@@ -243,18 +236,27 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
             """,
         )
 
-    if added_count == 0:
+    if not new_styles:
         click.echo(
             f"All done! {EmojiEnum.STAR_CAKE.value} [{CONFIG_TOOL_NITPICK_KEY}] table left unchanged in {path.name!r}"
         )
         return
+    click.echo("New styles:")
+    for style in new_styles:
+        click.echo(f"- {style}")
+    count = len(new_styles)
+    message = f"{count} style{'s' if count > 1 else ''}"
+    if not fix:
+        click.secho(
+            f"Use --fix to append {message} to the [{CONFIG_TOOL_NITPICK_KEY}]"
+            f" table in the config file {path.name!r}.",
+            fg="yellow",
+        )
+        return
 
-    # TODO(AA): without --force, only print what would be done
     path.write_text(tomlkit.dumps(doc), encoding="UTF-8")
-    verb = "updated" if fix else "created"
-    click.secho(
-        f"The [{CONFIG_TOOL_NITPICK_KEY}] table was {verb} in {path.name!r}:"
-        f" {added_count} styles added. {EmojiEnum.STAR_CAKE.value}",
-        fg="green",
+    click.echo(
+        f"The [{CONFIG_TOOL_NITPICK_KEY}] table was updated in {path.name!r}:"
+        f" {message} appended. {EmojiEnum.STAR_CAKE.value}"
     )
-    raise Exit(1)  # Needed to be used as a pre-commit hook
+    raise Exit(1)  # Needed when executed as a pre-commit hook
