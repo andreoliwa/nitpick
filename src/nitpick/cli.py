@@ -247,6 +247,7 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
         click.echo(f"All done! [{CONFIG_TOOL_NITPICK_KEY}] table left unchanged in {path.name!r}")
         raise Exit(3)
 
+    # TODO(AA): without --force, only print what would be done
     path.write_text(tomlkit.dumps(doc), encoding="UTF-8")
     verb = "updated" if force else "created"
     click.secho(
