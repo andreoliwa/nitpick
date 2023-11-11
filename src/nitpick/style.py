@@ -46,7 +46,7 @@ from nitpick.constants import (
     TOML_EXTENSION,
     WRITE_STYLE_MAX_ATTEMPTS,
     CachingEnum,
-    OptionEnum,
+    Flake8OptionEnum,
 )
 from nitpick.exceptions import Deprecation, QuitComplainingError, pretty_exception
 from nitpick.generic import glob_files, url_to_python_path
@@ -698,7 +698,7 @@ class HttpFetcher(StyleFetcher):
             click.secho(
                 f"The URL {url} could not be downloaded. Either your network is unreachable or the URL is broken."
                 f" Check the URL, fix your connection, or use "
-                f" {OptionEnum.OFFLINE.as_flake8_flag()} / {OptionEnum.OFFLINE.as_envvar()}=1",
+                f" {Flake8OptionEnum.OFFLINE.as_flake8_flag()} / {Flake8OptionEnum.OFFLINE.as_envvar()}=1",
                 fg="red",
                 err=True,
             )
