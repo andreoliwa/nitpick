@@ -74,6 +74,18 @@ CONFIG_TOOL_NITPICK_KEY = f"{CONFIG_TOOL_KEY}.{PROJECT_NAME}"
 JMEX_TOOL_NITPICK = jmespath.compile(CONFIG_TOOL_NITPICK_KEY)
 
 
+class EmojiEnum(Enum):
+    """Emojis used in the CLI."""
+
+    # keep-sorted start
+    CONSTRUCTION = "🚧"
+    GREEN_CHECK = "✅"
+    QUESTION_MARK = "❓"
+    STAR_CAKE = "✨ 🍰 ✨"
+    X_RED_CROSS = "❌"
+    # keep-sorted end
+
+
 class _OptionMixin:
     """Private mixin used to test the CLI options."""
 

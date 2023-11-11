@@ -20,7 +20,15 @@ import attr
 import click
 from slugify import slugify
 
-from nitpick.constants import CONFIG_FILES, DOT, EDITOR_CONFIG, PYTHON_PYLINTRC, PYTHON_SETUP_CFG, READ_THE_DOCS_URL
+from nitpick.constants import (
+    CONFIG_FILES,
+    DOT,
+    EDITOR_CONFIG,
+    PYTHON_PYLINTRC,
+    PYTHON_SETUP_CFG,
+    READ_THE_DOCS_URL,
+    EmojiEnum,
+)
 from nitpick.core import Nitpick
 from nitpick.style import BuiltinStyle, builtin_styles
 
@@ -87,12 +95,12 @@ class FileType:
     def _pretty(self, attribute: str) -> str:
         value = getattr(self, attribute)
         if value is True:
-            return "✅"
+            return EmojiEnum.GREEN_CHECK.value
         if value is False:
-            return "❌"
+            return EmojiEnum.X_RED_CROSS.value
         if value == 0:
-            return "❓"
-        return f"`#{value} <https://github.com/andreoliwa/nitpick/issues/{value}>`_ 🚧"
+            return EmojiEnum.QUESTION_MARK.value
+        return f"`#{value} <https://github.com/andreoliwa/nitpick/issues/{value}>`_ {EmojiEnum.CONSTRUCTION.value}"
 
     @property
     def check_str(self) -> str:

@@ -5,6 +5,7 @@ import pytest
 from marshmallow import ValidationError
 from testfixtures import compare
 
+from nitpick.constants import EmojiEnum
 from nitpick.schemas import flatten_marshmallow_errors
 from nitpick.violations import Fuss, Reporter
 from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END
@@ -32,17 +33,20 @@ def test_reporter():
     reporter.reset()
     assert reporter.manual == 0
     assert reporter.fixed == 0
-    assert reporter.get_counts() == "No violations found. ✨ 🍰 ✨"
+    assert reporter.get_counts() == f"No violations found. {EmojiEnum.STAR_CAKE.value}"
 
     reporter.increment()
     assert reporter.manual == 1
     assert reporter.fixed == 0
-    assert reporter.get_counts() == "Violations: ❌ 1 to fix manually."
+    assert reporter.get_counts() == f"Violations: {EmojiEnum.X_RED_CROSS.value} 1 to fix manually."
 
     reporter.increment(True)
     assert reporter.manual == 1
     assert reporter.fixed == 1
-    assert reporter.get_counts() == "Violations: ✅ 1 fixed, ❌ 1 to fix manually."
+    assert (
+        reporter.get_counts()
+        == f"Violations: {EmojiEnum.GREEN_CHECK.value} 1 fixed, {EmojiEnum.X_RED_CROSS.value} 1 to fix manually."
+    )
 
     reporter.reset()
     assert reporter.manual == 0
@@ -51,7 +55,7 @@ def test_reporter():
     reporter.increment(True)
     assert reporter.manual == 0
     assert reporter.fixed == 1
-    assert reporter.get_counts() == "Violations: ✅ 1 fixed."
+    assert reporter.get_counts() == f"Violations: {EmojiEnum.GREEN_CHECK.value} 1 fixed."
 
 
 def test_flatten_marshmallow_errors():
