@@ -31,7 +31,7 @@ from nitpick.constants import (
     CONFIG_KEY_TOOL,
     CONFIG_TOOL_NITPICK_KEY,
     PROJECT_NAME,
-    SUCCESS_EMOJIS,
+    EmojiEnum,
     OptionEnum,
 )
 from nitpick.core import Nitpick
@@ -154,11 +154,11 @@ def ls(context, files):  # pylint: disable=invalid-name
 @nitpick_cli.command()
 @click.pass_context
 @click.option(
-    "--force",
+    "--fix",
     "-f",
     is_flag=True,
     default=False,
-    help="Overwrite the table if it already exists",
+    help="Autofix the files changed by the command; otherwise, just print what would be done",
 )
 @click.option(
     "--suggest",
@@ -171,22 +171,22 @@ def ls(context, files):  # pylint: disable=invalid-name
 # TODO(AA): fix complexity and too-many-locals after writing tests
 def init(  # noqa: C901 # pylint: disable=too-many-locals
     context,
-    force: bool,
+    fix: bool,  # pylint: disable=redefined-outer-name
     suggest: bool,
     style_urls: list[str],
 ) -> None:
-    """Create a [tool.nitpick] table in the configuration file."""
+    """Create or update the [tool.nitpick] table in the configuration file."""
     nit = get_nitpick(context)
     path = nit.project.config_file_or_default()
     doc = tomlkit_ext.load(path)
     tool_nitpick_table: tomlkit_ext.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
-    if tool_nitpick_table and not force:
+    if tool_nitpick_table and not fix:
         click.secho(
             f"The config file {path.name!r} already has a [{CONFIG_TOOL_NITPICK_KEY}] table."
             " Use --force to override it.",
             fg="yellow",
         )
-        raise Exit(1)
+        return
     if not style_urls and not suggest:
         click.secho(
             "Nothing to do. 😴 Either pass at least one style URL"
@@ -194,7 +194,7 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
             " (you can do both at the same time).",
             fg="yellow",
         )
-        raise Exit(2)
+        return
 
     # Convert tuple to list, so we can add styles to it
     style_urls = list(style_urls)
@@ -244,14 +244,17 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
         )
 
     if added_count == 0:
-        click.echo(f"All done! [{CONFIG_TOOL_NITPICK_KEY}] table left unchanged in {path.name!r}")
-        raise Exit(3)
+        click.echo(
+            f"All done! {EmojiEnum.STAR_CAKE.value} [{CONFIG_TOOL_NITPICK_KEY}] table left unchanged in {path.name!r}"
+        )
+        return
 
     # TODO(AA): without --force, only print what would be done
     path.write_text(tomlkit.dumps(doc), encoding="UTF-8")
-    verb = "updated" if force else "created"
+    verb = "updated" if fix else "created"
     click.secho(
         f"The [{CONFIG_TOOL_NITPICK_KEY}] table was {verb} in {path.name!r}:"
-        f" {added_count} styles added. {SUCCESS_EMOJIS}",
+        f" {added_count} styles added. {EmojiEnum.STAR_CAKE.value}",
         fg="green",
     )
+    raise Exit(1)  # Needed to be used as a pre-commit hook

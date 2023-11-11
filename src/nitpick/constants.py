@@ -50,7 +50,6 @@ PYTHON_TOX_INI = "tox.ini"
 READ_THE_DOCS_URL = "https://nitpick.rtfd.io/en/latest/"
 REGEX_CACHE_UNIT = re.compile(r"(?P<number>\d+)\s+(?P<unit>(minute|hour|day|week))", re.IGNORECASE)
 RUST_CARGO_STAR = "Cargo.*"
-SUCCESS_EMOJIS = "✨ 🍰 ✨"
 TOML_EXTENSION = ".toml"
 WRITE_STYLE_MAX_ATTEMPTS = 5
 # keep-sorted end
