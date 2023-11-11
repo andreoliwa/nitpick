@@ -23,7 +23,7 @@ from click.exceptions import Exit
 from loguru import logger
 
 from nitpick.blender import TomlDoc
-from nitpick.constants import CONFIG_TOOL_KEY, CONFIG_TOOL_NITPICK_KEY, PROJECT_NAME, OptionEnum
+from nitpick.constants import CONFIG_TOOL_KEY, CONFIG_TOOL_NITPICK_KEY, PROJECT_NAME, Flake8OptionEnum
 from nitpick.core import Nitpick
 from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import relative_to_current_dir
@@ -43,10 +43,10 @@ FILES_ARGUMENT = click.argument("files", nargs=-1)
     help="Path to project root",
 )
 @click.option(
-    f"--{OptionEnum.OFFLINE.name.lower()}",  # pylint: disable=no-member
+    f"--{Flake8OptionEnum.OFFLINE.name.lower()}",  # pylint: disable=no-member
     is_flag=True,
     default=False,
-    help=OptionEnum.OFFLINE.value,
+    help=Flake8OptionEnum.OFFLINE.value,
 )
 @click.version_option()
 def nitpick_cli(project: Path | None = None, offline=False):  # pylint: disable=unused-argument # noqa: ARG001

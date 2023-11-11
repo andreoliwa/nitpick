@@ -105,8 +105,8 @@ class _OptionMixin:
         return os.environ.get(self.as_envvar(), "")
 
 
-class OptionEnum(_OptionMixin, Enum):
-    """Options to be used with the CLI."""
+class Flake8OptionEnum(_OptionMixin, Enum):
+    """Options to be used with the ``flake8`` plugin/CLI."""
 
     OFFLINE = "Offline mode: no style will be downloaded (no HTTP requests at all)"
 
