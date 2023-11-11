@@ -23,6 +23,7 @@ from nitpick.constants import (
     PROJECT_NAME,
     PYTHON_PYPROJECT_TOML,
     PYTHON_SETUP_CFG,
+    EmojiEnum,
 )
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
@@ -386,7 +387,7 @@ class ProjectMock:
             return self
 
         if violations:
-            expected.append(f"Violations: ❌ {violations} to fix manually.")
+            expected.append(f"Violations: {EmojiEnum.X_RED_CROSS.value} {violations} to fix manually.")
         elif expected_str_or_lines:
             # If the number of violations was not passed but a list of errors was,
             # remove the violation count from the actual results.

@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from nitpick.constants import CONFIG_RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY, FLAKE8_PREFIX
+from nitpick.constants import CONFIG_RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY, FLAKE8_PREFIX, EmojiEnum
 
 if TYPE_CHECKING:
     from nitpick.plugins.info import FileInfo
@@ -138,9 +138,9 @@ class Reporter:  # pylint: disable=too-few-public-methods
         """String representation with error counts and emojis."""
         parts = []
         if cls.fixed:
-            parts.append(f"✅ {cls.fixed} fixed")
+            parts.append(f"{EmojiEnum.GREEN_CHECK.value} {cls.fixed} fixed")
         if cls.manual:
-            parts.append(f"❌ {cls.manual} to fix manually")
+            parts.append(f"{EmojiEnum.X_RED_CROSS.value} {cls.manual} to fix manually")
         if not parts:
-            return "No violations found. ✨ 🍰 ✨"
+            return f"No violations found. {EmojiEnum.STAR_CAKE.value}"
         return f"Violations: {', '.join(parts)}."
