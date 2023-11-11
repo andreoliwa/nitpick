@@ -40,6 +40,7 @@ STYLES_DIR: Path = Path(__file__).parent.parent / "src" / "nitpick" / "resources
 
 # Non-breaking space
 NBSP = "\xc2\xa0"
+BLANK_LINE = f"{NBSP}###$$${NBSP}"  # something fairly unique
 
 SUGGESTION_BEGIN = "\x1b[32m"
 SUGGESTION_END = "\x1b[0m"
@@ -435,7 +436,7 @@ class ProjectMock:
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def assert_file_contents(self, *name_contents: PathOrStr | str | None, lstrip=True) -> ProjectMock:
+    def assert_file_contents(self, *name_contents: PathOrStr | str | None, lstrip: bool = True) -> ProjectMock:
         """Assert the file has the expected contents.
 
         Use `None` to indicate that the file doesn't exist.
@@ -449,6 +450,7 @@ class ProjectMock:
                 expected = dedent(from_path_or_str(file_contents))
                 if lstrip:
                     expected = expected.lstrip()
+                expected = expected.replace(BLANK_LINE, "\n")
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
         return self
 
