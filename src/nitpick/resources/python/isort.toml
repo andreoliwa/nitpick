@@ -20,3 +20,6 @@ repo = "https://github.com/PyCQA/isort"
 
 [[".pre-commit-config.yaml".repos.hooks]]
 id = "isort"
+
+[nitpick.files."setup.cfg"]
+comma_separated_values = ["isort.skip", "isort.known_first_party"]
