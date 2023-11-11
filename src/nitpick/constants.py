@@ -88,6 +88,7 @@ class EmojiEnum(Enum):
     CONSTRUCTION = "🚧"
     GREEN_CHECK = "✅"
     QUESTION_MARK = "❓"
+    SLEEPY_FACE = "😴"
     STAR_CAKE = "✨ 🍰 ✨"
     X_RED_CROSS = "❌"
     # keep-sorted end

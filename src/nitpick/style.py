@@ -799,7 +799,7 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
     files: list[str] = attr.field(init=False)
 
     @classmethod
-    def from_path(cls, resource_path: Path) -> BuiltinStyle:
+    def from_path(cls, resource_path: Path) -> BuiltinStyle:  # pylint: disable=too-many-locals
         """Create a built-in style from a resource path."""
 
         without_suffix = resource_path.with_suffix("")
@@ -810,16 +810,21 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
         root, *path_remainder = package_path.parts
         path_remainder_without_suffix = (*path_remainder[:-1], without_suffix.parts[-1])
 
+        # TODO(AA): rename this class to Style, handle styles that are not resources,
+        #  then remove this ugly hack. This will be a massive refactoring...
+        # https://doc.pytest.org/en/latest/example/simple.html#pytest-current-test-environment-variable
+        running_pytest = "PYTEST_CURRENT_TEST" in os.environ
         bis = BuiltinStyle(
             py_url=furl(scheme=Scheme.PY, host=root, path=path_remainder),
             py_url_without_ext=furl(scheme=Scheme.PY, host=root, path=path_remainder_without_suffix),
-            path_from_repo_root=resource_path.relative_to(repo_root()).as_posix(),
+            path_from_repo_root="" if running_pytest else resource_path.relative_to(repo_root()).as_posix(),
             path_from_resources_root=from_resources_root.as_posix(),
         )
         bis.pypackage_url = PythonPackageURL.from_furl(bis.py_url)
         bis.identify_tag = from_resources_root.parts[0]
 
-        toml_dict = tomlkit.loads(bis.pypackage_url.content_path.read_text(encoding="UTF-8"))
+        content_path = resource_path if running_pytest else bis.pypackage_url.content_path
+        toml_dict = tomlkit.loads(content_path.read_text(encoding="UTF-8"))
 
         keys = list(toml_dict.keys())
         keys.remove(PROJECT_NAME)

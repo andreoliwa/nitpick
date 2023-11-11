@@ -182,7 +182,7 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
     tool_nitpick_table: tomlkit_ext.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
     if not style_urls and not suggest:
         click.secho(
-            "Nothing to do. 😴 Either pass at least one style URL"
+            f"Nothing to do. {EmojiEnum.SLEEPY_FACE.value} Either pass at least one style URL"
             " or use --suggest to add styles based on the files in the project root"
             " (you can do both at the same time).",
             fg="yellow",

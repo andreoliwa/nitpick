@@ -344,14 +344,18 @@ class ProjectMock:
         return self
 
     def _simulate_cli(
-        self, command: str, expected_str_or_lines: StrOrList | None = None, *args: str, exit_code: int | None = None
+        self,
+        command: str,
+        expected_str_or_lines: StrOrList | None = None,
+        *command_args: str,
+        exit_code: int | None = None,
     ):
         """Simulate the CLI by invoking a click command.
 
         1. If the command raised an exception that was not a common "system exit",
             this method will re-raise it, so the test can be fixed.
         """
-        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *args])
+        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *command_args])
 
         # 1.
         if result.exception and not isinstance(result.exception, SystemExit):
@@ -410,9 +414,24 @@ class ProjectMock:
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def cli_init(self, str_or_lines: StrOrList, *args, exit_code: int | None = None) -> ProjectMock:
+    def cli_init(
+        self,
+        expected_output: StrOrList,
+        *,
+        fix: bool = False,
+        suggest: bool = False,
+        style_urls: list[str] | None = None,
+        exit_code: int | None = None,
+    ) -> ProjectMock:
         """Run the init command and assert the output."""
-        result, actual, expected = self._simulate_cli("init", str_or_lines, *args, exit_code=exit_code)
+        command_args = []
+        if fix:
+            command_args.append("--fix")
+        if suggest:
+            command_args.append("--suggest")
+        if style_urls:
+            command_args.extend(style_urls)
+        result, actual, expected = self._simulate_cli("init", expected_output, *command_args, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
