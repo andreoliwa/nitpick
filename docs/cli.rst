@@ -5,10 +5,6 @@
 Command-line interface
 ======================
 
-.. note::
-
-    The CLI is experimental, still under active development.
-
 Nitpick_ has a CLI command to fix files automatically.
 
 1. It doesn't work for all the plugins yet. Currently, it works for:
@@ -21,6 +17,7 @@ Nitpick_ has a CLI command to fix files automatically.
 4. Run ``nitpick fix`` to modify files directly, or ``nitpick check`` to only display the violations.
 5. The flake8_ plugin only checks the files and doesn't make changes. This is the default for now; once the CLI becomes more stable, the "fix mode" will become the default.
 6. The output format aims to follow `pycodestyle (pep8) default output format <https://github.com/PyCQA/pycodestyle/blob/master/pycodestyle.py#L108>`_.
+7. You can set options through environment variables using the format ``NITPICK_command_option``. E.e: ``NITPICK_CHECK_VERBOSE=3 nitpick check``. For more details on how this works, see the `Click documentation about CLI options <https://click.palletsprojects.com/en/8.1.x/options/#values-from-environment-variables>`_.
 
 If you use Git, you can review the files before committing.
 

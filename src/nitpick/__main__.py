@@ -7,6 +7,13 @@ Why does this file exist, and why __main__? For more info, read:
 """
 # pragma: no cover
 from nitpick.cli import nitpick_cli
+from nitpick.constants import PROJECT_NAME
+
+
+def main() -> None:
+    """Entry point for the application script."""
+    nitpick_cli(auto_envvar_prefix=PROJECT_NAME)
+
 
 if __name__ == "__main__":
-    nitpick_cli()
+    main()
