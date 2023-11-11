@@ -176,10 +176,6 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
     style_urls: list[str],
 ) -> None:
     """Create or update the [tool.nitpick] table in the configuration file."""
-    nit = get_nitpick(context)
-    path = nit.project.config_file_or_default()
-    doc = tomlkit_ext.load(path)
-    tool_nitpick_table: tomlkit_ext.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
     if not style_urls and not suggest:
         click.secho(
             f"Nothing to do. {EmojiEnum.SLEEPY_FACE.value} Either pass at least one style URL"
@@ -189,6 +185,10 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
         )
         return
 
+    nit = get_nitpick(context)
+    path = nit.project.config_file_or_default()
+    doc = tomlkit_ext.load(path)
+    tool_nitpick_table: tomlkit_ext.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
     # Convert tuple to list, so we can add styles to it
     style_urls = list(style_urls)
 
