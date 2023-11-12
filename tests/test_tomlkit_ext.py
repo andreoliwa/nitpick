@@ -200,11 +200,15 @@ def test_multiple_start_markers_first_one_is_used() -> None:
     assert_comment(
         """
         [my.table]
+
         # before
+
         # here-start one
         # here-start two
         # here-end
+
         # after
+
         simple-key = 1
         another-key = "value"
         [another.table]
@@ -212,11 +216,15 @@ def test_multiple_start_markers_first_one_is_used() -> None:
         """,
         """
         [my.table]
+
         # before
+
         # here-start header
         # first line
         # here-end
+
         # after
+
         simple-key = 1
         another-key = "value"
         [another.table]
