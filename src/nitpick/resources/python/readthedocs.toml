@@ -7,6 +7,12 @@ url = "https://github.com/readthedocs/readthedocs.org"
 version = 2
 formats = "all"
 
+[".readthedocs.yaml".build]
+os = "ubuntu-22.04"
+
+[".readthedocs.yaml".build.tools]
+python = "3.11"
+
 [".readthedocs.yaml".sphinx]
 configuration = "docs/conf.py"
 

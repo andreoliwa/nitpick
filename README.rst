@@ -288,6 +288,8 @@ python
      - `Mypy <https://github.com/python/mypy>`_
    * - `py://nitpick/resources/python/poetry-editable <src/nitpick/resources/python/poetry-editable.toml>`_
      - `Poetry (editable projects; PEP 600 support) <https://github.com/python-poetry/poetry>`_
+   * - `py://nitpick/resources/python/poetry-venv <src/nitpick/resources/python/poetry-venv.toml>`_
+     - `Poetry (virtualenv in project) <https://github.com/python-poetry/poetry>`_
    * - `py://nitpick/resources/python/poetry <src/nitpick/resources/python/poetry.toml>`_
      - `Poetry <https://github.com/python-poetry/poetry>`_
    * - `py://nitpick/resources/python/pre-commit-hooks <src/nitpick/resources/python/pre-commit-hooks.toml>`_
@@ -300,8 +302,6 @@ python
      - `Read the Docs <https://github.com/readthedocs/readthedocs.org>`_
    * - `py://nitpick/resources/python/sonar-python <src/nitpick/resources/python/sonar-python.toml>`_
      - `SonarQube Python plugin <https://github.com/SonarSource/sonar-python>`_
-   * - `py://nitpick/resources/python/stable <src/nitpick/resources/python/stable.toml>`_
-     - Current stable Python version
    * - `py://nitpick/resources/python/tox <src/nitpick/resources/python/tox.toml>`_
      - `tox <https://github.com/tox-dev/tox>`_
 

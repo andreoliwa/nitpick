@@ -2,6 +2,10 @@
 name = "pre-commit hooks for Python projects"
 url = "https://pre-commit.com/hooks"
 
+[".pre-commit-config.yaml".default_language_version]
+# https://pre-commit.com/#top_level-default_language_version
+python = "python3.11"
+
 [[".pre-commit-config.yaml".repos]]
 repo = "https://github.com/pre-commit/pygrep-hooks"
 

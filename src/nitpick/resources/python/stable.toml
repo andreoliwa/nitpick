@@ -1,8 +1,0 @@
-[nitpick.meta]
-name = "Current stable Python version"
-
-[".readthedocs.yaml".build]
-os = "ubuntu-22.04"
-
-[".readthedocs.yaml".build.tools]
-python = "3.11"

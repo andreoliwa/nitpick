@@ -41,6 +41,7 @@ PROJECT_NAME = "nitpick"
 PROJECT_OWNER = "andreoliwa"
 PYTHON_MANAGE_PY = "manage.py"
 PYTHON_PIPFILE_STAR = "Pipfile*"
+PYTHON_POETRY_TOML = "poetry.toml"
 PYTHON_PYLINTRC = ".pylintrc"
 PYTHON_PYPROJECT_TOML = "pyproject.toml"
 PYTHON_REQUIREMENTS_STAR_TXT = "requirements*.txt"
@@ -57,21 +58,25 @@ WRITE_STYLE_MAX_ATTEMPTS = 5
 # These depend on some constants above, so they can't be sorted automatically
 ROOT_PYTHON_FILES = ("app.py", "wsgi.py", "autoapp.py", PYTHON_MANAGE_PY)
 ROOT_FILES = (
+    # keep-sorted start
+    *ROOT_PYTHON_FILES,
     DOT_NITPICK_TOML,
-    NITPICK_STYLE_TOML,
-    PRE_COMMIT_CONFIG_YAML,
-    PYTHON_PYPROJECT_TOML,
-    PYTHON_SETUP_PY,
-    PYTHON_SETUP_CFG,
-    PYTHON_REQUIREMENTS_STAR_TXT,
-    PYTHON_PIPFILE_STAR,
-    PYTHON_TOX_INI,
-    JAVASCRIPT_PACKAGE_JSON,
-    RUST_CARGO_STAR,
     GOLANG_MOD,
     GOLANG_SUM,
-    *ROOT_PYTHON_FILES,
+    JAVASCRIPT_PACKAGE_JSON,
+    NITPICK_STYLE_TOML,
+    PRE_COMMIT_CONFIG_YAML,
+    PYTHON_PIPFILE_STAR,
+    PYTHON_POETRY_TOML,
+    PYTHON_PYPROJECT_TOML,
+    PYTHON_REQUIREMENTS_STAR_TXT,
+    PYTHON_SETUP_CFG,
+    PYTHON_SETUP_PY,
+    PYTHON_TOX_INI,
+    RUST_CARGO_STAR,
+    # keep-sorted end
 )
+# Config files in the order they are searched for
 CONFIG_FILES = (DOT_NITPICK_TOML, PYTHON_PYPROJECT_TOML)
 CONFIG_RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY = (
     f" Run 'nitpick init' or configure a style manually ({', '.join(CONFIG_FILES)})."

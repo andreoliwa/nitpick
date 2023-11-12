@@ -1,0 +1,8 @@
+[nitpick.meta]
+name = "Poetry (virtualenv in project)"
+url = "https://github.com/python-poetry/poetry"
+
+["poetry.toml"]
+# https://python-poetry.org/docs/configuration/#virtualenvscreate
+virtualenvs.create = true
+virtualenvs.in-project = true

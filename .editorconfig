@@ -4,24 +4,17 @@ root = true
 
 # Unix-style newlines with a newline ending every file
 [*]
+charset = utf-8
 end_of_line = lf
-insert_final_newline = true
-indent_style = space
 indent_size = 4
-
-# Whitespace at the end of lines
+indent_style = space
+insert_final_newline = true
 trim_trailing_whitespace = true
 
-# Matches multiple files with brace expansion notation
-# Set default charset
-[*.{js,json}]
-charset = utf-8
-indent_size = 2
+[*.{bat,cmd,ps1}]
+end_of_line = crlf
 
-[*.py]
-charset = utf-8
-
-[*.{yml,yaml,md,rb}]
+[*.{js,json,json5,yml,yaml,md,rb}]
 indent_size = 2
 
 [Makefile]
