@@ -141,8 +141,6 @@ python
      - `Read the Docs <https://github.com/readthedocs/readthedocs.org>`_
    * - :gitref:`py://nitpick/resources/python/sonar-python <src/nitpick/resources/python/sonar-python.toml>`
      - `SonarQube Python plugin <https://github.com/SonarSource/sonar-python>`_
-   * - :gitref:`py://nitpick/resources/python/stable <src/nitpick/resources/python/stable.toml>`
-     - Current stable Python version
    * - :gitref:`py://nitpick/resources/python/tox <src/nitpick/resources/python/tox.toml>`
      - `tox <https://github.com/tox-dev/tox>`_
 
