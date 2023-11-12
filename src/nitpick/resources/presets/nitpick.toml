@@ -16,7 +16,6 @@ include = [
   "py://nitpick/resources/python/mypy",
   "py://nitpick/resources/python/poetry",
   "py://nitpick/resources/python/pylint",
-  "py://nitpick/resources/python/radon",
   "py://nitpick/resources/python/readthedocs",
   "py://nitpick/resources/python/sonar-python",
   "py://nitpick/resources/python/tox",
