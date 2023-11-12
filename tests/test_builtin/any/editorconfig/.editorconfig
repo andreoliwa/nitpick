@@ -1,20 +1,17 @@
 root = True
 
 [*]
+charset = utf-8
 end_of_line = lf
-insert_final_newline = True
-indent_style = space
 indent_size = 4
+indent_style = space
+insert_final_newline = True
 trim_trailing_whitespace = True
 
-[*.py]
-charset = utf-8
+[*.{bat,cmd,ps1}]
+end_of_line = crlf
 
-[*.{js,json}]
-charset = utf-8
-indent_size = 2
-
-[*.{yml,yaml,md,rb}]
+[*.{js,json,json5,yml,yaml,md,rb}]
 indent_size = 2
 
 [Makefile]
