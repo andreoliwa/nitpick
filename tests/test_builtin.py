@@ -11,6 +11,7 @@ from nitpick.constants import (
     EDITOR_CONFIG,
     JAVASCRIPT_PACKAGE_JSON,
     PRE_COMMIT_CONFIG_YAML,
+    PYTHON_POETRY_TOML,
     PYTHON_PYLINTRC,
     PYTHON_PYPROJECT_TOML,
     PYTHON_SETUP_CFG,
@@ -22,16 +23,19 @@ from tests.helpers import STYLES_DIR, ProjectMock
 
 RESOURCES_DIR = Path(__file__).parent.parent / "src/nitpick/resources"
 BUILTIN_STYLE_CODES = {
-    PYTHON_SETUP_CFG: 321,
-    PRE_COMMIT_CONFIG_YAML: 361,
-    PYTHON_PYPROJECT_TOML: 311,
+    # keep-sorted start
     ".codeclimate.yml": 361,
-    ".readthedocs.yaml": 361,
-    PYTHON_TOX_INI: 321,
-    PYTHON_PYLINTRC: 321,
     ".github/workflows/python.yaml": 361,
+    ".readthedocs.yaml": 361,
     EDITOR_CONFIG: 321,
     JAVASCRIPT_PACKAGE_JSON: 341,
+    PRE_COMMIT_CONFIG_YAML: 361,
+    PYTHON_POETRY_TOML: 311,
+    PYTHON_PYLINTRC: 321,
+    PYTHON_PYPROJECT_TOML: 311,
+    PYTHON_SETUP_CFG: 321,
+    PYTHON_TOX_INI: 321,
+    # keep-sorted end
 }
 BUILTIN_STYLE_EXTRA_VIOLATIONS: dict[str, list[Fuss]] = {
     "any/pre-commit-hooks": [

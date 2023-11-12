@@ -129,6 +129,8 @@ python
      - `Mypy <https://github.com/python/mypy>`_
    * - :gitref:`py://nitpick/resources/python/poetry-editable <src/nitpick/resources/python/poetry-editable.toml>`
      - `Poetry (editable projects; PEP 600 support) <https://github.com/python-poetry/poetry>`_
+   * - :gitref:`py://nitpick/resources/python/poetry-venv <src/nitpick/resources/python/poetry-venv.toml>`
+     - `Poetry (virtualenv in project) <https://github.com/python-poetry/poetry>`_
    * - :gitref:`py://nitpick/resources/python/poetry <src/nitpick/resources/python/poetry.toml>`
      - `Poetry <https://github.com/python-poetry/poetry>`_
    * - :gitref:`py://nitpick/resources/python/pre-commit-hooks <src/nitpick/resources/python/pre-commit-hooks.toml>`
