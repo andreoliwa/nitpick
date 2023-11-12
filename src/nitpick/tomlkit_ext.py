@@ -12,8 +12,9 @@ from typing import IO, TYPE_CHECKING, Callable, Iterable
 import tomlkit
 from tomlkit import TOMLDocument
 from tomlkit.exceptions import NonExistentKey
-from tomlkit.items import Array as ArrayOrig
-from tomlkit.items import Comment, Item, Key, Table, Whitespace
+from tomlkit.items import Comment, Key, Table, Whitespace
+
+from nitpick.constants import COMMENT_MARKER_END, COMMENT_MARKER_START
 
 if TYPE_CHECKING:
     from tomlkit.container import Container
@@ -59,23 +60,7 @@ def load(file_pointer: IO[str] | IO[bytes] | Path) -> TOMLDocument:
         if not file_pointer.exists():
             return tomlkit.document()
         return tomlkit.loads(file_pointer.read_text(encoding="UTF-8"))
-    return tomlkit.load(file_pointer.read())
-
-
-class Array(ArrayOrig):
-    """Drop-in replacement for :py:class:`tomlkit.items.Array`."""
-
-    def comment(self, comment: str) -> Item:
-        """Attach a comment to this item or remove it if empty.
-
-        This overrides the original method in ::py::class:`tomlkit.items.Item`.
-        """
-        if not comment.strip():
-            self._trivia.comment_ws = ""
-            self._trivia.comment = ""
-            return self
-
-        return super().comment(comment)
+    return tomlkit.load(file_pointer)
 
 
 def _find_key(container: Container, key: str) -> int | None:
@@ -99,10 +84,10 @@ def _find_markers_before(container: Container, marker: str, start_index: int) ->
             pass
         elif isinstance(pair_item, Comment):
             stripped = pair_item.trivia.comment.strip(TOMLKIT_COMMENT)
-            if stripped.startswith(f"{marker}-start"):
+            if stripped.startswith(f"{marker}{COMMENT_MARKER_START}"):
                 # If we have multiple (wrong) start markers, continue until the first one
                 marker_start = current_index
-            elif stripped.startswith(f"{marker}-end") and not marker_end:
+            elif stripped.startswith(f"{marker}{COMMENT_MARKER_END}") and not marker_end:
                 # If we have multiple (wrong) end markers, stop on the last one
                 marker_end = current_index
         else:
@@ -119,12 +104,10 @@ def multiline_comment_with_markers(marker: str, text: str) -> list[str]:
     lines: list[str] = []
     for raw_line in dedent(text).strip().splitlines():
         line = raw_line.lstrip(TOMLKIT_COMMENT)
-        if line:
-            if not lines:
-                line = f"{marker}-start {line}"
-            lines.append(f"{line}")
-    if lines:
-        lines.append(f"{marker}-end")
+        if not lines:
+            line = f"{marker}{COMMENT_MARKER_START} {line}"
+        lines.append(f"{line}")
+    lines.append(f"{marker}{COMMENT_MARKER_END}")
     return lines
 
 
@@ -133,6 +116,9 @@ def update_comment_before(table: Table, key: str, marker: str, comment: str) -> 
 
     Either replace an existing block or create a new one.
     """
+    if not comment.strip():
+        return
+
     container: Container = table.value
     key_index = _find_key(container, key)
     hashed_lines = multiline_comment_with_markers(marker, comment)
@@ -147,13 +133,9 @@ def update_comment_before(table: Table, key: str, marker: str, comment: str) -> 
     if marker_start is None:
         marker_start = previous_object_index + 1
 
-    if marker_start is not None and marker_end is not None:
-        # Remove the old comment
-        del table.value.body[marker_start : marker_end + 1]
-        insert_point = marker_start
-    else:
-        # Insert the new comment before the key
-        insert_point = key_index
+    # Remove the old comment
+    del table.value.body[marker_start : marker_end + 1]
+    insert_point = marker_start
     table.value.body.insert(insert_point, (None, new_comment))
 
 

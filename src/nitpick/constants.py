@@ -12,6 +12,8 @@ from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE
 # keep-sorted start
 ANY_BUILTIN_STYLE = "any"
 CACHE_DIR_NAME = ".cache"
+COMMENT_MARKER_END = "-end"
+COMMENT_MARKER_START = "-start"
 CONFIG_DUNDER_LIST_KEYS = "__list_keys"
 CONFIG_KEY_DONT_SUGGEST = "dont_suggest"
 CONFIG_KEY_STYLE = "style"
