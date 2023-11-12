@@ -155,3 +155,6 @@ def update_comment_before(table: Table, key: str, marker: str, comment: str) -> 
         # Insert the new comment before the key
         insert_point = key_index
     table.value.body.insert(insert_point, (None, new_comment))
+
+
+# TODO(AA): test: all cases of update_comment_before() (check the missing coverage)

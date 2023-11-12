@@ -93,4 +93,4 @@ def test_url_to_posix_path(test_path):
     assert _url_to_posix_path(url) == path
 
 
-# TODO(AA): test globbing non-ignored files
+# TODO(AA): test: globbing non-ignored files

@@ -168,7 +168,7 @@ def ls(context, files):  # pylint: disable=invalid-name
     help="Suggest styles based on the files in the project root (skipping Git ignored files)",
 )
 @click.argument("style_urls", nargs=-1)
-# TODO(AA): fix complexity and too-many-locals after writing tests
+# TODO(AA): refactor: fix complexity and too-many-locals after writing tests
 def init(  # noqa: C901 # pylint: disable=too-many-locals
     context,
     fix: bool,  # pylint: disable=redefined-outer-name

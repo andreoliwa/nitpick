@@ -54,7 +54,7 @@ def test_missing_style_and_suggest_option(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYTHON_PYPROJECT_TOML])
-@pytest.mark.skip(reason="WIP")  # TODO(AA): fix the test
+@pytest.mark.skip(reason="WIP")  # TODO(AA): test: remove the skip
 def test_config_file_already_has_tool_nitpick_section(tmp_path: Path, config_file: str) -> None:
     """Test if both config files already exist."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).save_file(
@@ -89,7 +89,7 @@ def style_dir_with_types(shared_datadir: Path) -> Generator[Path, None, None]:
         ("", True, BLANK_LINE, ""),
         # Existing table with other keys
         (f"[{CONFIG_TOOL_NITPICK_KEY}]\nabc = 1", True, "", f"{BLANK_LINE}abc = 1"),
-        # TODO(AA): test init when there is a [tool.nitpick] section but no [tool.nitpick.style] key
+        # TODO(AA): test: init when there is a [tool.nitpick] section but no [tool.nitpick.style] key
     ],
 )
 def test_create_update_tool_nitpick_table_on_config_files(
@@ -138,5 +138,5 @@ def test_create_update_tool_nitpick_table_on_config_files(
         assert not (tmp_path / DOT_NITPICK_TOML).exists()
 
 
-# TODO(AA): test create the ignored styles array only when suggesting styles
-# TODO(AA): style from CLI should be the first, before the suggested
+# TODO(AA): test: create the ignored styles array only when suggesting styles
+# TODO(AA): test: style from CLI should be the first, before the suggested

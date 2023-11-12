@@ -112,7 +112,7 @@ def glob_non_ignored_files(root_dir: Path, pattern: str = "**/*") -> Iterable[Pa
     if git_dir.is_dir():
         try:
             output = subprocess.check_output(
-                # TODO(AA): this path will not work on Windows; maybe read ~/.gitconfig directly instead?
+                # TODO(AA): fix: this path will not work on Windows; maybe read ~/.gitconfig directly instead?
                 ["/usr/local/bin/git", "config", "--get", GIT_CORE_EXCLUDES_FILE],  # noqa: S603
                 universal_newlines=True,
             )

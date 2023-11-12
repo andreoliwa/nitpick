@@ -810,7 +810,7 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
         root, *path_remainder = package_path.parts
         path_remainder_without_suffix = (*path_remainder[:-1], without_suffix.parts[-1])
 
-        # TODO(AA): rename this class to Style, handle styles that are not resources,
+        # TODO(AA): fix: rename this class to Style, handle styles that are not resources,
         #  then remove this ugly hack. This will be a massive refactoring...
         # https://doc.pytest.org/en/latest/example/simple.html#pytest-current-test-environment-variable
         running_pytest = "PYTEST_CURRENT_TEST" in os.environ
