@@ -1,3 +1,5 @@
+default_language_version:
+  python: python3.11
 repos:
   - repo: https://github.com/pre-commit/pygrep-hooks
     hooks:
