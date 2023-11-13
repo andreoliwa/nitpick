@@ -165,18 +165,6 @@ def test_glob_global_gitignore(some_directory: Path) -> None:
     }
 
 
-def test_system_has_global_gitignore() -> None:
-    """Test if the system has a global Git ignore file.
-
-    This test might be flaky:
-    - the developer might not have the file;
-    - the worker on GitHub Actions CI also might not have it.
-    """
-    path = get_global_gitignore_path()
-    print("Global Git ignore path:", path)
-    assert path is not None
-
-
 @pytest.mark.parametrize(
     ("exception", "message"),
     [

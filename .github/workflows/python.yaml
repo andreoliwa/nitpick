@@ -45,6 +45,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: "git config"
+        run: |
+          git config --list
+          git config --list --global
+
       # https://github.com/ymyzk/tox-gh-actions
       # This action didn't work: https://github.com/marketplace/actions/run-tox-gh-actions ¯\_(ツ)_/¯
       # Error: Unable to resolve action `ymyzk/tox-gh-actions@main`, unable to find version `main`
