@@ -1,15 +1,25 @@
 """Generic functions tests."""
+from __future__ import annotations
+
 import os
+import subprocess
 import sys
 from pathlib import Path, PosixPath, WindowsPath
+from typing import Generator
 from unittest import mock
 
 import pytest
 from furl import furl
 from testfixtures import compare
 
-from nitpick.constants import EDITOR_CONFIG, PYTHON_TOX_INI
-from nitpick.generic import _url_to_posix_path, _url_to_windows_path, relative_to_current_dir
+from nitpick.constants import EDITOR_CONFIG, GIT_DIR, GIT_IGNORE, PYTHON_TOX_INI
+from nitpick.generic import (
+    _url_to_posix_path,
+    _url_to_windows_path,
+    get_global_gitignore_path,
+    glob_non_ignored_files,
+    relative_to_current_dir,
+)
 
 
 @mock.patch.object(Path, "cwd")
@@ -93,4 +103,99 @@ def test_url_to_posix_path(test_path):
     assert _url_to_posix_path(url) == path
 
 
-# TODO(AA): test: globbing non-ignored files
+@pytest.fixture()
+def some_directory(tmp_path: Path, request) -> Generator[Path, None, None]:
+    """Create some directory with some files."""
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    (project_dir / "file1.txt").touch()
+    (project_dir / "README.md").touch()
+    src_dir = project_dir / "src"
+    src_dir.mkdir()
+    (src_dir / "module.py").touch()
+
+    if "local" in request.param:
+        (project_dir / GIT_DIR).mkdir()
+        (project_dir / GIT_IGNORE).write_text("*.txt")
+
+    output = ""
+    if "global" in request.param:
+        (project_dir / GIT_DIR).mkdir()
+        global_file = tmp_path / "some-global-gitignore-file"
+        global_file.write_text("*.md")
+        output = str(global_file) + os.linesep
+
+    with mock.patch("subprocess.check_output", return_value=output):
+        yield project_dir
+
+
+@pytest.mark.parametrize("some_directory", ["local"], indirect=True)
+def test_glob_local_gitignore(some_directory: Path) -> None:
+    """Test globbing non-ignored files."""
+    assert set(glob_non_ignored_files(some_directory)) == {
+        some_directory / GIT_IGNORE,
+        some_directory / "README.md",
+        some_directory / "src" / "module.py",
+    }
+    assert set(glob_non_ignored_files(some_directory, "*.md")) == {
+        some_directory / "README.md",
+    }
+    assert set(glob_non_ignored_files(some_directory, "*.txt")) == set()
+    assert set(glob_non_ignored_files(some_directory, "**/*.py")) == {
+        some_directory / "src" / "module.py",
+    }
+
+
+@pytest.mark.parametrize("some_directory", ["no_git_dir"], indirect=True)
+def test_glob_no_git_dir(some_directory: Path) -> None:
+    """Test globbing non-ignored files."""
+    assert set(glob_non_ignored_files(some_directory)) == {
+        some_directory / "file1.txt",
+        some_directory / "README.md",
+        some_directory / "src" / "module.py",
+    }
+
+
+@pytest.mark.parametrize("some_directory", ["global"], indirect=True)
+def test_glob_global_gitignore(some_directory: Path) -> None:
+    """Test globbing non-ignored files."""
+    assert set(glob_non_ignored_files(some_directory)) == {
+        some_directory / "file1.txt",
+        some_directory / "src" / "module.py",
+    }
+
+
+def test_system_has_global_gitignore() -> None:
+    """Test if the system has a global Git ignore file.
+
+    This test might be flaky:
+    - the developer might not have the file;
+    - the worker on GitHub Actions CI also might not have it.
+    """
+    path = get_global_gitignore_path()
+    print("Global Git ignore path:", path)
+    assert path is not None
+
+
+@pytest.mark.parametrize(
+    ("exception", "message"),
+    [
+        (
+            subprocess.CalledProcessError(1, "git"),
+            "The 'core.excludesFile' configuration is not set or does not exist.",
+        ),
+        (FileNotFoundError, "Git command not found. Please make sure Git is installed and on the PATH."),
+    ],
+)
+@mock.patch("subprocess.check_output")
+def test_error_when_calling_git_config(
+    mock_check_output,
+    capsys,
+    exception: Exception,
+    message: str,
+) -> None:
+    """Test error when calling git config."""
+    mock_check_output.side_effect = exception
+    assert get_global_gitignore_path() is None
+    captured = capsys.readouterr()
+    assert captured.err.strip().casefold() == message.strip().casefold()

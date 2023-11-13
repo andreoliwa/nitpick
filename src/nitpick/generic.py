@@ -102,38 +102,43 @@ def glob_files(dir_: Path, file_patterns: Iterable[str]) -> set[Path]:
     return set()
 
 
+def get_global_gitignore_path() -> Path | None:
+    """Get the path to the global Git ignore file."""
+    try:
+        output = subprocess.check_output(
+            # TODO(AA): fix: this command might not work on Windows; maybe read ~/.gitconfig directly instead?
+            ["git", "config", "--get", GIT_CORE_EXCLUDES_FILE],  # noqa: S603,S607
+            universal_newlines=True,
+        ).strip()
+        return Path(output) if output else None
+    except subprocess.CalledProcessError:
+        click.secho(
+            f"The '{GIT_CORE_EXCLUDES_FILE}' configuration is not set or does not exist.", err=True, fg="yellow"
+        )
+    except FileNotFoundError:
+        click.secho("Git command not found. Please make sure Git is installed and on the PATH.", err=True, fg="red")
+    return None
+
+
 def glob_non_ignored_files(root_dir: Path, pattern: str = "**/*") -> Iterable[Path]:
     """Glob all files in the root dir that are not ignored by Git."""
 
-    global_gitignore_path = None
     git_dir = root_dir / GIT_DIR
     is_locally_ignored = None
     is_globally_ignored = None
     if git_dir.is_dir():
-        try:
-            output = subprocess.check_output(
-                # TODO(AA): fix: this path will not work on Windows; maybe read ~/.gitconfig directly instead?
-                ["/usr/local/bin/git", "config", "--get", GIT_CORE_EXCLUDES_FILE],  # noqa: S603
-                universal_newlines=True,
-            )
-            global_gitignore_path = Path(output.strip())
-        except subprocess.CalledProcessError:
-            click.secho(
-                f"The '{GIT_CORE_EXCLUDES_FILE}' configuration is not set or does not exist.", err=True, fg="yellow"
-            )
-        except FileNotFoundError:
-            click.secho("Git command not found. Please make sure Git is installed.", err=True, fg="red")
-        if global_gitignore_path and global_gitignore_path.is_file():
-            is_globally_ignored = parse_gitignore(global_gitignore_path)
+        global_gitignore = get_global_gitignore_path()
+        if global_gitignore and global_gitignore.is_file():
+            is_globally_ignored = parse_gitignore(global_gitignore)
         local_gitignore_path = root_dir / GIT_IGNORE
         if local_gitignore_path.is_file():
             is_locally_ignored = parse_gitignore(local_gitignore_path)
 
     for project_file in root_dir.glob(pattern):
-        if not project_file.is_file():
-            continue
-        if is_globally_ignored and is_globally_ignored(project_file):
-            continue
-        if is_locally_ignored and is_locally_ignored(project_file):
+        if (
+            not project_file.is_file()
+            or (is_globally_ignored and is_globally_ignored(project_file))
+            or (is_locally_ignored and is_locally_ignored(project_file))
+        ):
             continue
         yield project_file

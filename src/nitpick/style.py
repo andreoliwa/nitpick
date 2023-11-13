@@ -58,7 +58,7 @@ try:
     # DeprecationWarning: The dpath.util package is being deprecated.
     # All util functions have been moved to dpath package top level.
     from dpath import merge as dpath_merge
-except ImportError:
+except ImportError:  # pragma: no cover
     from dpath.util import merge as dpath_merge
 
 GITHUB_API_SESSION = Session()  # Dedicated session to reuse connections
