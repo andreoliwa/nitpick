@@ -4,7 +4,7 @@ autorepr==0.3.0 ; python_version >= "3.8" and python_version < "4.0"
 babel==2.13.1 ; python_version >= "3.8" and python_version < "4.0"
 cattrs==23.1.2 ; python_version >= "3.8" and python_version < "4.0"
 certifi==2023.7.22 ; python_version >= "3.8" and python_version < "4.0"
-charset-normalizer==3.3.0 ; python_version >= "3.8" and python_version < "4.0"
+charset-normalizer==3.3.2 ; python_version >= "3.8" and python_version < "4.0"
 click==8.1.7 ; python_version >= "3.8" and python_version < "4.0"
 colorama==0.4.6 ; python_version >= "3.8" and python_version < "4.0" and (platform_system == "Windows" or sys_platform == "win32")
 configupdater==3.1.1 ; python_version >= "3.8" and python_version < "4.0"
