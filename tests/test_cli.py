@@ -53,26 +53,6 @@ def test_missing_style_and_suggest_option(tmp_path: Path) -> None:
     )
 
 
-@pytest.mark.parametrize("config_file", [DOT_NITPICK_TOML, PYTHON_PYPROJECT_TOML])
-@pytest.mark.skip(reason="WIP")  # TODO(AA): test: remove the skip
-def test_config_file_already_has_tool_nitpick_section(tmp_path: Path, config_file: str) -> None:
-    """Test if both config files already exist."""
-    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True).save_file(
-        config_file,
-        f"""
-        [{CONFIG_TOOL_NITPICK_KEY}]
-        style = ['/this/should/not/be/validated-yet.toml']
-        """,
-    )
-    project.cli_init(
-        [
-            f"The config file {config_file!r} already has a [{CONFIG_TOOL_NITPICK_KEY}] section.",
-            "style = ['/this/should/not/be/validated-yet.toml']",
-        ],
-        exit_code=1,
-    )
-
-
 @pytest.fixture()
 def style_dir_with_types(shared_datadir: Path) -> Generator[Path, None, None]:
     """A mocked directory with style files organised into "identify" subdirs."""
@@ -173,6 +153,27 @@ def test_create_the_ignored_styles_array_only_when_suggesting_styles(tmp_path: P
         )
     else:
         assert not (tmp_path / DOT_NITPICK_TOML).exists()
+
+
+@pytest.mark.parametrize("fix", [True, False])
+def test_dont_add_existing_style_again(tmp_path: Path, fix: bool) -> None:
+    """Don't add existing style again."""
+    unchanged = f"""
+        [{CONFIG_TOOL_NITPICK_KEY}]
+        style = ["my-style.toml"]
+    """
+    project = ProjectMock(tmp_path)
+    project.pyproject_toml(unchanged)
+    project.cli_init(
+        f"All done! {EmojiEnum.STAR_CAKE.value} [{CONFIG_TOOL_NITPICK_KEY}]"
+        f" table left unchanged in '{PYTHON_PYPROJECT_TOML}'",
+        fix=fix,
+        style_urls=["my-style.toml"],
+        exit_code=0,
+    ).assert_file_contents(
+        PYTHON_PYPROJECT_TOML,
+        unchanged,
+    )
 
 
 # TODO(AA): test: style from CLI should be the first, before the suggested
