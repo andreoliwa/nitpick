@@ -36,7 +36,7 @@ def test_repo_should_be_added_not_replaced(tmp_path, datadir):
 def test_overriding_list_key_with_empty_string_restores_default_behaviour(tmp_path, datadir):
     """Test overriding the default list key with nothing.
 
-    The default behaviour will be restored, and the new element will be appended at the end of the list.
+    The default behaviour will be restored, and the new element will be appended to the end of the list.
     """
     ProjectMock(tmp_path).save_file(PRE_COMMIT_CONFIG_YAML, datadir / "uk-actual.yaml").style(
         datadir / "uk-empty.toml"
