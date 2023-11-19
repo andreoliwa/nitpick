@@ -20,8 +20,8 @@ from packaging.version import parse as parse_version
 from pluggy import PluginManager
 from tomlkit import items
 
-from nitpick import PROJECT_NAME, fields, plugins, tomlkit_ext
-from nitpick.blender import TomlDoc, search_json
+from nitpick import fields, plugins, tomlkit_ext
+from nitpick.blender import search_json
 from nitpick.constants import (
     ANY_BUILTIN_STYLE,
     CONFIG_FILES,
@@ -31,7 +31,7 @@ from nitpick.constants import (
     CONFIG_TOOL_NITPICK_KEY,
     DOT_NITPICK_TOML,
     JMEX_NITPICK_MINIMUM_VERSION,
-    JMEX_TOOL_NITPICK,
+    PROJECT_NAME,
     PYTHON_MANAGE_PY,
     PYTHON_PYPROJECT_TOML,
     ROOT_FILES,
@@ -215,23 +215,15 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
 
 
 @dataclass
-class Configuration:  # TODO(AA): refactor: merge with ToolNitpickConfig
-    """Configuration read from one of the ``CONFIG_FILES``."""
-
-    file: Path | None
-    styles: str | list[str]
-    cache: str
-
-
-@dataclass
-class ToolNitpickConfig:
-    """Configuration read from the ``[tool.nitpick]`` section of the config file."""
+class Configuration:
+    """Configuration read from the ``[tool.nitpick]`` section from one of the ``CONFIG_FILES``."""
 
     file: Path
     doc: tomlkit.TOMLDocument
     table: items.Table
     styles: items.Array
     dont_suggest: items.Array
+    cache: str
 
 
 class Project:
@@ -295,28 +287,11 @@ class Project:
 
         return found
 
-    def read_configuration(self) -> Configuration:  # TODO(AA): refactor: merge with read_tool_nitpick_config()
-        """Search for a configuration file and validate it against a Marshmallow schema."""
-        config_file = self.config_file()
-        if not config_file:
-            return Configuration(None, [], "")
+    def read_configuration(self) -> Configuration:
+        """Return the ``[tool.nitpick]`` section from the configuration file.
 
-        toml_doc = TomlDoc(path=config_file)
-        config_dict = search_json(toml_doc.as_object, JMEX_TOOL_NITPICK, {})
-        validation_errors = ToolNitpickSectionSchema().validate(config_dict)
-        if not validation_errors:
-            return Configuration(config_file, config_dict.get("style", []), config_dict.get("cache", ""))
-
-        raise QuitComplainingError(
-            Reporter(FileInfo(self, PYTHON_PYPROJECT_TOML)).make_fuss(
-                StyleViolations.INVALID_DATA_TOOL_NITPICK,
-                flatten_marshmallow_errors(validation_errors),
-                section=CONFIG_TOOL_NITPICK_KEY,
-            )
-        )
-
-    def read_tool_nitpick_config(self) -> ToolNitpickConfig:
-        """Return the ``[tool.nitpick]`` section from the configuration file."""
+        Optionally, validate it against a Marshmallow schema.
+        """
         config_file = self.config_file_or_default()
         doc = tomlkit_ext.load(config_file)
         table: items.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
@@ -328,6 +303,16 @@ class Project:
             doc.append(CONFIG_KEY_TOOL, super_table)
             table = doc.get(CONFIG_TOOL_NITPICK_KEY)
 
+        validation_errors = ToolNitpickSectionSchema().validate(table)
+        if validation_errors:
+            raise QuitComplainingError(
+                Reporter(FileInfo(self, PYTHON_PYPROJECT_TOML)).make_fuss(
+                    StyleViolations.INVALID_DATA_TOOL_NITPICK,
+                    flatten_marshmallow_errors(validation_errors),
+                    section=CONFIG_TOOL_NITPICK_KEY,
+                )
+            )
+
         existing_styles: items.Array = table.get(CONFIG_KEY_STYLE)
         if existing_styles is None:
             existing_styles = tomlkit.array()
@@ -337,14 +322,13 @@ class Project:
         if ignored_styles is None:
             ignored_styles = tomlkit.array()
 
-        return ToolNitpickConfig(config_file, doc, table, existing_styles, ignored_styles)
+        return Configuration(config_file, doc, table, existing_styles, ignored_styles, table.get("cache", ""))
 
     def merge_styles(self, offline: bool) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
         config = self.read_configuration()
-
         style = StyleManager(self, offline, config.cache)
-        base = config.file.expanduser().resolve().as_uri() if config.file else None
+        base = config.file.expanduser().resolve().as_uri()
         style_errors = list(style.find_initial_styles(list(always_iterable(config.styles)), base))
         if style_errors:
             raise QuitComplainingError(style_errors)

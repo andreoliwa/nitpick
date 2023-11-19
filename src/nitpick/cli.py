@@ -183,7 +183,7 @@ def init(
         return
 
     nit = get_nitpick(context)
-    config = nit.project.read_tool_nitpick_config()
+    config = nit.project.read_configuration()
 
     # Create the ignored styles array only when suggesting styles
     if suggest and CONFIG_KEY_DONT_SUGGEST not in config.table:

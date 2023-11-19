@@ -121,12 +121,15 @@ def test_django_project_structure(tmp_path):
     ).api_check_then_fix()
 
 
-def test_when_no_config_file_the_default_style_is_requested(tmp_path, caplog):
-    """There is a root dir (setup.py), but no style file. The user should explicitly set the style, no default will be used."""
+def test_when_no_config_file_no_default_style_is_used(tmp_path, caplog):
+    """There is a root dir (setup.py), but no style file.
+
+    The user should explicitly set the style, no default will be used.
+    """
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
     error = f"NIP004 No style file configured.{CONFIG_RUN_NITPICK_INIT_OR_CONFIGURE_STYLE_MANUALLY}"
     project.flake8().assert_single_error(error).cli_run(error, exit_code=1)
-    assert project.nitpick_instance.project.read_configuration() == Configuration(None, [], "")
+    assert project.nitpick_instance.project.read_configuration()
     assert "Config file: none found {}" in caplog.messages
 
 
@@ -143,7 +146,14 @@ def test_has_one_config_file(tmp_path, config_file, caplog):
         """,
     ).api_check(offline=True)
     path = project.root_dir / config_file
-    assert project.nitpick_instance.project.read_configuration() == Configuration(path, ["local.toml"], "forever")
+    assert project.nitpick_instance.project.read_configuration() == Configuration(
+        path,
+        {"tool": {"nitpick": {"style": ["local.toml"], "cache": "forever"}}},
+        {"style": ["local.toml"], "cache": "forever"},
+        ["local.toml"],
+        [],
+        "forever",
+    )
     assert f"Config file: reading from {path} {{}}" in caplog.messages
     assert f"Using styles configured in {config_file}: local.toml {{}}" in caplog.messages
 
@@ -169,7 +179,12 @@ def test_has_multiple_config_files(tmp_path, caplog):
         offline=True
     )
     assert project.nitpick_instance.project.read_configuration() == Configuration(
-        project.root_dir / DOT_NITPICK_TOML, ["local_nit.toml"], "never"
+        project.root_dir / DOT_NITPICK_TOML,
+        {"tool": {"nitpick": {"style": ["local_nit.toml"], "cache": "never"}}},
+        {"style": ["local_nit.toml"], "cache": "never"},
+        ["local_nit.toml"],
+        [],
+        "never",
     )
     assert f"Config file: reading from {project.root_dir / DOT_NITPICK_TOML} {{}}" in caplog.messages
     assert f"Config file: ignoring existing {project.root_dir / PYTHON_PYPROJECT_TOML} {{}}" in caplog.messages

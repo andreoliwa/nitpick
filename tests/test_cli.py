@@ -68,7 +68,7 @@ def style_dir_with_types(shared_datadir: Path) -> Generator[Path, None, None]:
         # tomlkit keeps the blank line at the top when the file exists and is empty...
         ("", True, BLANK_LINE, ""),
         # Existing table with other keys but missing the "style" key
-        (f"[{CONFIG_TOOL_NITPICK_KEY}]\nabc = 1", True, "", f"{BLANK_LINE}abc = 1"),
+        (f'[{CONFIG_TOOL_NITPICK_KEY}]\ncache = "never"', True, "", f'{BLANK_LINE}cache = "never"'),
     ],
 )
 def test_create_update_tool_nitpick_table_on_config_files(
