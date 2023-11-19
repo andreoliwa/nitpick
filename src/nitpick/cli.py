@@ -22,13 +22,11 @@ import click
 import tomlkit
 from click.exceptions import Exit
 from loguru import logger
-from tomlkit import items
 
 from nitpick import tomlkit_ext
 from nitpick.constants import (
     CONFIG_KEY_DONT_SUGGEST,
     CONFIG_KEY_STYLE,
-    CONFIG_KEY_TOOL,
     CONFIG_TOOL_NITPICK_KEY,
     PROJECT_NAME,
     EmojiEnum,
@@ -168,8 +166,7 @@ def ls(context, files):  # pylint: disable=invalid-name
     help="Suggest styles based on the files in the project root (skipping Git ignored files)",
 )
 @click.argument("style_urls", nargs=-1)
-# TODO(AA): refactor: fix complexity and too-many-locals after writing tests
-def init(  # noqa: C901 # pylint: disable=too-many-locals
+def init(
     context,
     fix: bool,  # pylint: disable=redefined-outer-name
     suggest: bool,
@@ -186,47 +183,25 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
         return
 
     nit = get_nitpick(context)
-    path = nit.project.config_file_or_default()
-    doc = tomlkit_ext.load(path)
-    tool_nitpick_table: tomlkit_ext.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
+    config = nit.project.read_tool_nitpick_config(suggest)
+
     # Convert tuple to list, so we can add styles to it
     style_urls = list(style_urls)
-
     if suggest:
         style_urls.extend(nit.project.suggest_styles())
 
-    if not tool_nitpick_table:
-        super_table = tomlkit.table(True)
-        nitpick_table = tomlkit.table()
-        nitpick_table.update({CONFIG_KEY_STYLE: []})
-        super_table.append(PROJECT_NAME, nitpick_table)
-        doc.append(CONFIG_KEY_TOOL, super_table)
-        tool_nitpick_table = doc.get(CONFIG_TOOL_NITPICK_KEY)
-
-    suggested_styles: items.Array = tool_nitpick_table.get(CONFIG_KEY_STYLE)
-    if suggested_styles is None:
-        suggested_styles = tomlkit.array()
-        tool_nitpick_table.add(CONFIG_KEY_STYLE, suggested_styles)
-
-    ignored_styles: items.Array = tool_nitpick_table.get(CONFIG_KEY_DONT_SUGGEST)
-    if ignored_styles is None:
-        ignored_styles = tomlkit.array()
-        if suggest:
-            # Create the ignored styles array only when suggesting styles
-            tool_nitpick_table.add(CONFIG_KEY_DONT_SUGGEST, ignored_styles)
-
     new_styles = []
     for style_url in style_urls:
-        if style_url in suggested_styles or style_url in ignored_styles:
+        if style_url in config.styles or style_url in config.dont_suggest:
             continue
         new_styles.append(style_url)
-        suggested_styles.add_line(style_url, indent="  ")
+        config.styles.add_line(style_url, indent="  ")
 
     if suggest:
         from nitpick import __version__  # pylint: disable=import-outside-toplevel
 
         tomlkit_ext.update_comment_before(
-            tool_nitpick_table,
+            config.table,
             CONFIG_KEY_STYLE,
             PROJECT_NAME,
             f"""
@@ -238,7 +213,7 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
 
     if not new_styles:
         click.echo(
-            f"All done! {EmojiEnum.STAR_CAKE.value} [{CONFIG_TOOL_NITPICK_KEY}] table left unchanged in {path.name!r}"
+            f"All done! {EmojiEnum.STAR_CAKE.value} [{CONFIG_TOOL_NITPICK_KEY}] table left unchanged in {config.file.name!r}"
         )
         return
     click.echo("New styles:")
@@ -249,14 +224,14 @@ def init(  # noqa: C901 # pylint: disable=too-many-locals
     if not fix:
         click.secho(
             f"Use --fix to append {message} to the [{CONFIG_TOOL_NITPICK_KEY}]"
-            f" table in the config file {path.name!r}.",
+            f" table in the config file {config.file.name!r}.",
             fg="yellow",
         )
         return
 
-    path.write_text(tomlkit.dumps(doc), encoding="UTF-8")
+    config.file.write_text(tomlkit.dumps(config.doc), encoding="UTF-8")
     click.echo(
-        f"The [{CONFIG_TOOL_NITPICK_KEY}] table was updated in {path.name!r}:"
+        f"The [{CONFIG_TOOL_NITPICK_KEY}] table was updated in {config.file.name!r}:"
         f" {message} appended. {EmojiEnum.STAR_CAKE.value}"
     )
     raise Exit(1)  # Needed when executed as a pre-commit hook

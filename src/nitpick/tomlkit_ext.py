@@ -137,6 +137,3 @@ def update_comment_before(table: Table, key: str, marker: str, comment: str) -> 
     del table.value.body[marker_start : marker_end + 1]
     insert_point = marker_start
     table.value.body.insert(insert_point, (None, new_comment))
-
-
-# TODO(AA): test: all cases of update_comment_before() (check the missing coverage)

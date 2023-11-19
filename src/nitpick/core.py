@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Iterator
 
 import click
+import tomlkit
 from autorepr import autorepr
 from identify import identify
 from loguru import logger
@@ -17,12 +18,16 @@ from marshmallow_polyfield import PolyField
 from more_itertools import always_iterable
 from packaging.version import parse as parse_version
 from pluggy import PluginManager
+from tomlkit import items
 
-from nitpick import PROJECT_NAME, fields, plugins
+from nitpick import PROJECT_NAME, fields, plugins, tomlkit_ext
 from nitpick.blender import TomlDoc, search_json
 from nitpick.constants import (
     ANY_BUILTIN_STYLE,
     CONFIG_FILES,
+    CONFIG_KEY_DONT_SUGGEST,
+    CONFIG_KEY_STYLE,
+    CONFIG_KEY_TOOL,
     CONFIG_TOOL_NITPICK_KEY,
     DOT_NITPICK_TOML,
     JMEX_NITPICK_MINIMUM_VERSION,
@@ -210,12 +215,23 @@ class ToolNitpickSectionSchema(BaseNitpickSchema):
 
 
 @dataclass
-class Configuration:
+class Configuration:  # TODO(AA): refactor: merge with ToolNitpickConfig
     """Configuration read from one of the ``CONFIG_FILES``."""
 
     file: Path | None
     styles: str | list[str]
     cache: str
+
+
+@dataclass
+class ToolNitpickConfig:
+    """Configuration read from the ``[tool.nitpick]`` section of the config file."""
+
+    file: Path
+    doc: tomlkit.TOMLDocument
+    table: items.Table
+    styles: items.Array
+    dont_suggest: items.Array
 
 
 class Project:
@@ -279,7 +295,7 @@ class Project:
 
         return found
 
-    def read_configuration(self) -> Configuration:
+    def read_configuration(self) -> Configuration:  # TODO(AA): refactor: merge with read_tool_nitpick_config()
         """Search for a configuration file and validate it against a Marshmallow schema."""
         config_file = self.config_file()
         if not config_file:
@@ -298,6 +314,33 @@ class Project:
                 section=CONFIG_TOOL_NITPICK_KEY,
             )
         )
+
+    def read_tool_nitpick_config(self, suggest: bool) -> ToolNitpickConfig:
+        """Return the ``[tool.nitpick]`` section from the configuration file."""
+        config_file = self.config_file_or_default()
+        doc = tomlkit_ext.load(config_file)
+        table: items.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
+        if not table:
+            super_table = tomlkit.table(True)
+            nitpick_table = tomlkit.table()
+            nitpick_table.update({CONFIG_KEY_STYLE: []})
+            super_table.append(PROJECT_NAME, nitpick_table)
+            doc.append(CONFIG_KEY_TOOL, super_table)
+            table = doc.get(CONFIG_TOOL_NITPICK_KEY)
+
+        existing_styles: items.Array = table.get(CONFIG_KEY_STYLE)
+        if existing_styles is None:
+            existing_styles = tomlkit.array()
+            table.add(CONFIG_KEY_STYLE, existing_styles)
+
+        ignored_styles: items.Array = table.get(CONFIG_KEY_DONT_SUGGEST)
+        if ignored_styles is None:
+            ignored_styles = tomlkit.array()
+            if suggest:
+                # Create the ignored styles array only when suggesting styles
+                table.add(CONFIG_KEY_DONT_SUGGEST, ignored_styles)
+
+        return ToolNitpickConfig(config_file, doc, table, existing_styles, ignored_styles)
 
     def merge_styles(self, offline: bool) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
