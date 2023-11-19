@@ -102,7 +102,7 @@ def test_create_update_tool_nitpick_table_on_config_files(
 ) -> None:
     """If no config file is found, create a basic .nitpick.toml."""
     assert style_dir_with_types
-    project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=True)
+    project = ProjectMock(tmp_path)
     if pyproject_toml is None:
         config_file = DOT_NITPICK_TOML
     else:
@@ -117,7 +117,6 @@ def test_create_update_tool_nitpick_table_on_config_files(
         """,
         fix=fix,
         suggest=True,
-        exit_code=1 if fix else 0,
     )
     if fix:
         project.assert_file_contents(
@@ -138,5 +137,42 @@ def test_create_update_tool_nitpick_table_on_config_files(
         assert not (tmp_path / DOT_NITPICK_TOML).exists()
 
 
-# TODO(AA): test: create the ignored styles array only when suggesting styles
+@pytest.mark.parametrize(
+    ("fix", "footer"),
+    [
+        (
+            True,
+            f"The [{CONFIG_TOOL_NITPICK_KEY}] table was updated in {DOT_NITPICK_TOML!r}: 1 style appended. {EmojiEnum.STAR_CAKE.value}",
+        ),
+        (
+            False,
+            f"Use --fix to append 1 style to the [{CONFIG_TOOL_NITPICK_KEY}] table in the config file '{DOT_NITPICK_TOML}'.",
+        ),
+    ],
+)
+def test_create_the_ignored_styles_array_only_when_suggesting_styles(tmp_path: Path, fix: bool, footer: str) -> None:
+    """Create the ignored styles array only when suggesting styles."""
+    project = ProjectMock(tmp_path)
+    project.cli_init(
+        f"""
+        New styles:
+        - my-style.toml
+        {footer}
+        """,
+        fix=fix,
+        style_urls=["my-style.toml"],
+    )
+    if fix:
+        project.assert_file_contents(
+            DOT_NITPICK_TOML,
+            f"""
+            [{CONFIG_TOOL_NITPICK_KEY}]
+            style = [
+              "my-style.toml",]
+            """,
+        )
+    else:
+        assert not (tmp_path / DOT_NITPICK_TOML).exists()
+
+
 # TODO(AA): test: style from CLI should be the first, before the suggested

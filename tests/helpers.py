@@ -76,7 +76,7 @@ def tomlstring(value: Any) -> str:
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
-    def __init__(self, tmp_path: Path, **kwargs) -> None:
+    def __init__(self, tmp_path: Path, setup_py: bool = True, pyproject_toml: bool = False) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         self._actual_violations: set[Fuss] = set()
         self._flake8_errors: list[Flake8Error] = []
@@ -89,8 +89,10 @@ class ProjectMock:
         self._remote_url: str | None = None
         self.files_to_lint: list[Path] = []
 
-        if kwargs.get("setup_py", True):
+        if setup_py:
             self.save_file("setup.py", "x = 1")
+        if pyproject_toml:
+            self.pyproject_toml("")
 
     def create_symlink(self, link_name: str, target_dir: Path, target_file: str | None = None) -> ProjectMock:
         """Create a symlink to a target file.
@@ -432,6 +434,8 @@ class ProjectMock:
             command_args.append("--suggest")
         if style_urls:
             command_args.extend(style_urls)
+        if exit_code is None:
+            exit_code = 1 if fix else 0
         result, actual, expected = self._simulate_cli("init", expected_output, *command_args, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
