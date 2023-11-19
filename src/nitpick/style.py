@@ -787,44 +787,30 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
 class BuiltinStyle:  # pylint: disable=too-few-public-methods
     """A built-in style file in TOML format."""
 
-    py_url: furl
     py_url_without_ext: furl
-    path_from_repo_root: str
     path_from_resources_root: str
 
-    pypackage_url: PythonPackageURL = attr.field(init=False)
     identify_tag: str = attr.field(init=False)
     name: str = attr.field(init=False)
     url: str = attr.field(init=False)
     files: list[str] = attr.field(init=False)
 
     @classmethod
-    def from_path(cls, resource_path: Path) -> BuiltinStyle:  # pylint: disable=too-many-locals
-        """Create a built-in style from a resource path."""
-
+    def from_path(cls, resource_path: Path) -> BuiltinStyle:
+        """Create a style from its path."""
         without_suffix = resource_path.with_suffix("")
-        src_path = builtin_resources_root().parent.parent
-        package_path = resource_path.relative_to(src_path)
+        package_path = resource_path.relative_to(builtin_resources_root().parent.parent)
         from_resources_root = without_suffix.relative_to(builtin_resources_root())
 
         root, *path_remainder = package_path.parts
         path_remainder_without_suffix = (*path_remainder[:-1], without_suffix.parts[-1])
 
-        # TODO(AA): fix: rename this class to Style, handle styles that are not resources,
-        #  then remove this ugly hack. This will be a massive refactoring...
-        # https://doc.pytest.org/en/latest/example/simple.html#pytest-current-test-environment-variable
-        running_pytest = "PYTEST_CURRENT_TEST" in os.environ
         bis = BuiltinStyle(
-            py_url=furl(scheme=Scheme.PY, host=root, path=path_remainder),
             py_url_without_ext=furl(scheme=Scheme.PY, host=root, path=path_remainder_without_suffix),
-            path_from_repo_root="" if running_pytest else resource_path.relative_to(repo_root()).as_posix(),
             path_from_resources_root=from_resources_root.as_posix(),
         )
-        bis.pypackage_url = PythonPackageURL.from_furl(bis.py_url)
         bis.identify_tag = from_resources_root.parts[0]
-
-        content_path = resource_path if running_pytest else bis.pypackage_url.content_path
-        toml_dict = tomlkit.loads(content_path.read_text(encoding="UTF-8"))
+        toml_dict = tomlkit.loads(resource_path.read_text(encoding="UTF-8"))
 
         keys = list(toml_dict.keys())
         keys.remove(PROJECT_NAME)

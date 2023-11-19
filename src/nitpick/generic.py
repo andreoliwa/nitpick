@@ -106,7 +106,7 @@ def get_global_gitignore_path() -> Path | None:
     """Get the path to the global Git ignore file."""
     try:
         output = subprocess.check_output(
-            # TODO(AA): fix: this command might not work on Windows; maybe read ~/.gitconfig directly instead?
+            # TODO: fix: this command might not work on Windows; maybe read ~/.gitconfig directly instead?
             ["git", "config", "--get", GIT_CORE_EXCLUDES_FILE],  # noqa: S603,S607
             universal_newlines=True,
         ).strip()
