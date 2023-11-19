@@ -183,7 +183,11 @@ def init(
         return
 
     nit = get_nitpick(context)
-    config = nit.project.read_tool_nitpick_config(suggest)
+    config = nit.project.read_tool_nitpick_config()
+
+    # Create the ignored styles array only when suggesting styles
+    if suggest and CONFIG_KEY_DONT_SUGGEST not in config.table:
+        config.table.add(CONFIG_KEY_DONT_SUGGEST, config.dont_suggest)
 
     # Convert tuple to list, so we can add styles to it
     style_urls = list(style_urls)

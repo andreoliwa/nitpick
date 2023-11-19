@@ -315,7 +315,7 @@ class Project:
             )
         )
 
-    def read_tool_nitpick_config(self, suggest: bool) -> ToolNitpickConfig:
+    def read_tool_nitpick_config(self) -> ToolNitpickConfig:
         """Return the ``[tool.nitpick]`` section from the configuration file."""
         config_file = self.config_file_or_default()
         doc = tomlkit_ext.load(config_file)
@@ -336,9 +336,6 @@ class Project:
         ignored_styles: items.Array = table.get(CONFIG_KEY_DONT_SUGGEST)
         if ignored_styles is None:
             ignored_styles = tomlkit.array()
-            if suggest:
-                # Create the ignored styles array only when suggesting styles
-                table.add(CONFIG_KEY_DONT_SUGGEST, ignored_styles)
 
         return ToolNitpickConfig(config_file, doc, table, existing_styles, ignored_styles)
 
