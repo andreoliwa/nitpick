@@ -4,6 +4,7 @@ Eventually, some of the code here should/could be proposed as pull requests to t
 """
 from __future__ import annotations
 
+import os
 from functools import wraps
 from pathlib import Path
 from textwrap import dedent
@@ -122,7 +123,7 @@ def update_comment_before(table: Table, key: str, marker: str, comment: str) -> 
     container: Container = table.value
     key_index = _find_key(container, key)
     hashed_lines = multiline_comment_with_markers(marker, comment)
-    new_comment = tomlkit.comment(f"\n{TOMLKIT_COMMENT}".join(hashed_lines))
+    new_comment = tomlkit.comment(f"{os.linesep}{TOMLKIT_COMMENT}".join(hashed_lines))
     if key_index is None:
         table.add(new_comment)
         return
