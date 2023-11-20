@@ -165,14 +165,25 @@ def ls(context, files):  # pylint: disable=invalid-name
     default=False,
     help="Suggest styles based on the files in the project root (skipping Git ignored files)",
 )
+@click.option(
+    "--library",
+    "-l",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
+    help="Library dir to scan for style files (implies --suggest); if not provided, uses the built-in style library",
+)
 @click.argument("style_urls", nargs=-1)
 def init(
     context,
     fix: bool,  # pylint: disable=redefined-outer-name
     suggest: bool,
+    library: str | None,
     style_urls: list[str],
 ) -> None:
     """Create or update the [tool.nitpick] table in the configuration file."""
+    # If a library is provided, it implies --suggest
+    if library:
+        suggest = True
+
     if not style_urls and not suggest:
         click.secho(
             f"Nothing to do. {EmojiEnum.SLEEPY_FACE.value} Either pass at least one style URL"
@@ -185,25 +196,16 @@ def init(
     nit = get_nitpick(context)
     config = nit.project.read_configuration()
 
-    # Create the ignored styles array only when suggesting styles
-    if suggest and CONFIG_KEY_DONT_SUGGEST not in config.table:
-        config.table.add(CONFIG_KEY_DONT_SUGGEST, config.dont_suggest)
-
     # Convert tuple to list, so we can add styles to it
     style_urls = list(style_urls)
     if suggest:
-        style_urls.extend(nit.project.suggest_styles())
-
-    new_styles = []
-    for style_url in style_urls:
-        if style_url in config.styles or style_url in config.dont_suggest:
-            continue
-        new_styles.append(style_url)
-        config.styles.add_line(style_url, indent="  ")
-
-    if suggest:
         from nitpick import __version__  # pylint: disable=import-outside-toplevel
 
+        # Create the ignored styles array only when suggesting styles
+        if CONFIG_KEY_DONT_SUGGEST not in config.table:
+            config.table.add(CONFIG_KEY_DONT_SUGGEST, config.dont_suggest)
+
+        style_urls.extend(nit.project.suggest_styles(library))
         tomlkit_ext.update_comment_before(
             config.table,
             CONFIG_KEY_STYLE,
@@ -215,16 +217,24 @@ def init(
             """,
         )
 
+    new_styles = []
+    for style_url in style_urls:
+        if style_url in config.styles or style_url in config.dont_suggest:
+            continue
+        new_styles.append(style_url)
+        config.styles.add_line(style_url, indent="  ")
     if not new_styles:
         click.echo(
             f"All done! {EmojiEnum.STAR_CAKE.value} [{CONFIG_TOOL_NITPICK_KEY}] table left unchanged in {config.file.name!r}"
         )
         return
+
     click.echo("New styles:")
     for style in new_styles:
         click.echo(f"- {style}")
     count = len(new_styles)
     message = f"{count} style{'s' if count > 1 else ''}"
+
     if not fix:
         click.secho(
             f"Use --fix to append {message} to the [{CONFIG_TOOL_NITPICK_KEY}]"

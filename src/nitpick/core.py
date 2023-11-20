@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 import click
 import tomlkit
@@ -350,14 +350,22 @@ class Project:
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})
 
-    def suggest_styles(self) -> list[str]:
+    def suggest_styles(self, library_path_str: PathOrStr | None) -> list[str]:
         """Suggest styles based on the files in the project root (skipping Git ignored files)."""
-        tags: set[str] = {ANY_BUILTIN_STYLE}
+        all_tags: set[str] = {ANY_BUILTIN_STYLE}
         for project_file_path in glob_non_ignored_files(self.root):
-            tags.update(identify.tags_from_path(str(project_file_path)))
+            all_tags.update(identify.tags_from_path(str(project_file_path)))
+
+        if library_path_str:
+            library_dir = Path(library_path_str)
+            all_styles: Iterable[Path] = library_dir.glob("**/*.toml")
+        else:
+            library_dir = None
+            all_styles = builtin_styles()
+
         suggested_styles: set[str] = set()
-        for style_path in builtin_styles():
-            builtin_style = BuiltinStyle.from_path(style_path)
-            if builtin_style.identify_tag in tags:
-                suggested_styles.add(builtin_style.py_url_without_ext.url)
+        for style_path in all_styles:
+            style = BuiltinStyle.from_path(style_path, library_dir)
+            if style.identify_tag in all_tags:
+                suggested_styles.add(style.formatted)
         return sorted(suggested_styles)

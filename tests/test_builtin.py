@@ -92,7 +92,7 @@ def test_each_builtin_style(tmp_path, datadir, relative_path):
         DOT_NITPICK_TOML,
         f"""
         [tool.nitpick]
-        style = "{style.py_url_without_ext}"
+        style = "{style.formatted}"
         """,
     )
 

@@ -300,7 +300,7 @@ def _build_library(gitref: bool = True) -> list[str]:
         clean_root = path_from_repo_root.replace("site-packages/", "src/")
 
         row = StyleLibraryRow(
-            style=f"{pre}`{style.py_url_without_ext} <{clean_root}>`{post}",
+            style=f"{pre}`{style.formatted} <{clean_root}>`{post}",
             name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
         )
         library[style.identify_tag].append(attr.astuple(row))

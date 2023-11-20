@@ -124,8 +124,11 @@ At the end of execution, this command displays:
       Create or update the [tool.nitpick] table in the configuration file.
 
     Options:
-      -f, --fix      Autofix the files changed by the command; otherwise, just
-                     print what would be done
-      -s, --suggest  Suggest styles based on the files in the project root
-                     (skipping Git ignored files)
-      --help         Show this message and exit.
+      -f, --fix                Autofix the files changed by the command;
+                               otherwise, just print what would be done
+      -s, --suggest            Suggest styles based on the files in the project
+                               root (skipping Git ignored files)
+      -l, --library DIRECTORY  Library dir to scan for style files (implies
+                               --suggest); if not provided, uses the built-in
+                               style library
+      --help                   Show this message and exit.

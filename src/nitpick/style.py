@@ -787,7 +787,7 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
 class BuiltinStyle:  # pylint: disable=too-few-public-methods
     """A built-in style file in TOML format."""
 
-    py_url_without_ext: furl
+    formatted: str
     path_from_resources_root: str
 
     identify_tag: str = attr.field(init=False)
@@ -796,19 +796,26 @@ class BuiltinStyle:  # pylint: disable=too-few-public-methods
     files: list[str] = attr.field(init=False)
 
     @classmethod
-    def from_path(cls, resource_path: Path) -> BuiltinStyle:
+    def from_path(cls, resource_path: Path, library_dir: Path | None = None) -> BuiltinStyle:
         """Create a style from its path."""
         without_suffix = resource_path.with_suffix("")
-        package_path = resource_path.relative_to(builtin_resources_root().parent.parent)
-        from_resources_root = without_suffix.relative_to(builtin_resources_root())
-
-        root, *path_remainder = package_path.parts
-        path_remainder_without_suffix = (*path_remainder[:-1], without_suffix.parts[-1])
-
-        bis = BuiltinStyle(
-            py_url_without_ext=furl(scheme=Scheme.PY, host=root, path=path_remainder_without_suffix),
-            path_from_resources_root=from_resources_root.as_posix(),
-        )
+        if library_dir:
+            # Style in a directory
+            from_resources_root = without_suffix.relative_to(library_dir)
+            bis = BuiltinStyle(
+                formatted=str(without_suffix),
+                path_from_resources_root=from_resources_root.as_posix(),
+            )
+        else:
+            # Style from the built-in library
+            package_path = resource_path.relative_to(builtin_resources_root().parent.parent)
+            from_resources_root = without_suffix.relative_to(builtin_resources_root())
+            root, *path_remainder = package_path.parts
+            path_remainder_without_suffix = (*path_remainder[:-1], without_suffix.parts[-1])
+            bis = BuiltinStyle(
+                formatted=furl(scheme=Scheme.PY, host=root, path=path_remainder_without_suffix).url,
+                path_from_resources_root=from_resources_root.as_posix(),
+            )
         bis.identify_tag = from_resources_root.parts[0]
         toml_dict = tomlkit.loads(resource_path.read_text(encoding="UTF-8"))
 

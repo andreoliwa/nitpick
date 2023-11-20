@@ -423,6 +423,7 @@ class ProjectMock:
         *,
         fix: bool = False,
         suggest: bool = False,
+        library: str | Path | None = None,
         style_urls: list[str] | None = None,
         exit_code: int | None = None,
     ) -> ProjectMock:
@@ -432,6 +433,8 @@ class ProjectMock:
             command_args.append("--fix")
         if suggest:
             command_args.append("--suggest")
+        if library:
+            command_args.extend(["--library", str(library)])
         if style_urls:
             command_args.extend(style_urls)
         if exit_code is None:
