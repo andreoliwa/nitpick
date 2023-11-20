@@ -14,7 +14,7 @@ from nitpick.constants import (
     PYTHON_PYPROJECT_TOML,
     EmojiEnum,
 )
-from tests.helpers import BLANK_LINE, ProjectMock
+from tests.helpers import BLANK_LINE, OSAgnosticPaths, ProjectMock
 
 
 def test_simple_error(tmp_path: Path) -> None:
@@ -235,12 +235,13 @@ def test_added_style_should_be_the_first(
 def test_use_custom_library_dir(shared_datadir: Path, tmp_path: Path, fix: bool, footer: str) -> None:
     """Use a custom library directory."""
     project = ProjectMock(tmp_path).save_file("README.md", "Hello")
+    agnostic_paths = OSAgnosticPaths(
+        shared_datadir / "typed-style-dir", "any/editorconfig", "markdown/markdownlint", "python/black"
+    )
     project.cli_init(
         f"""
         New styles:
-        - {shared_datadir}/typed-style-dir/any/editorconfig
-        - {shared_datadir}/typed-style-dir/markdown/markdownlint
-        - {shared_datadir}/typed-style-dir/python/black
+        {agnostic_paths.as_bullets(2)}
         {footer}
         """,
         fix=fix,
@@ -256,9 +257,7 @@ def test_use_custom_library_dir(shared_datadir: Path, tmp_path: Path, fix: bool,
             # If you don't want a style, move it to the 'dont_suggest' key.
             # nitpick-end
             style = [
-              "{shared_datadir}/typed-style-dir/any/editorconfig",
-              "{shared_datadir}/typed-style-dir/markdown/markdownlint",
-              "{shared_datadir}/typed-style-dir/python/black",]
+            {agnostic_paths.as_toml_items(3)}]
             dont_suggest = []
             """,
         )

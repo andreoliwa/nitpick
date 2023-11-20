@@ -483,3 +483,25 @@ def filter_desired_warning(captured: list[warnings.WarningMessage], desired_mess
     Once this package is actually deprecated, then I'll either pin dpath or handle ImportError.
     """
     return [item for item in captured if desired_message in str(item.message)]
+
+
+class OSAgnosticPaths:
+    """A list of paths that can be used for tests both in Windows and Linux."""
+
+    def __init__(self, root_dir: Path, *partial_path: str):
+        self._files: list[Path] = []
+        for path in partial_path:
+            self._files.append(root_dir / path)
+
+    @staticmethod
+    def indented_line_break(tabs: int) -> str:
+        """Return a line break with the desired indentation."""
+        return os.linesep + (" " * 4 * tabs)
+
+    def as_bullets(self, tabs: int) -> str:
+        """Return a list of files as bullets."""
+        return self.indented_line_break(tabs).join(f"- {file!s}" for file in self._files)
+
+    def as_toml_items(self, tabs: int) -> str:
+        """Return a list of files as TOML items."""
+        return self.indented_line_break(tabs).join(f'  "{file!s}",' for file in self._files)
