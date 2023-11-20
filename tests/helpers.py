@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
@@ -495,15 +496,25 @@ class OSAgnosticPaths:
         for path in partial_path:
             self._files.append(furl(root_dir / path))
 
-    def _join(self, tabs: int, before: str, after: str = "") -> str:
+    @staticmethod
+    def _normalize(file: furl, double_backslash: bool) -> str:
+        """Double the backslash on Windows."""
+        if double_backslash and sys.platform == "win32":
+            return url_to_python_path(file).replace(os.sep, os.sep + os.sep)
+        return url_to_python_path(file)
+
+    def _join(self, tabs: int, before: str, after: str = "", double_backslash: bool = False) -> str:
         """Return a line break with the desired indentation."""
         prefix = os.linesep + (" " * 4 * tabs)
-        return prefix.join(f"{before}{url_to_python_path(file)}{after}" for file in self._files)
+        return prefix.join(f"{before}{self._normalize(file, double_backslash)}{after}" for file in self._files)
 
     def as_bullets(self, tabs: int) -> str:
         """Return a list of files as bullets."""
         return self._join(tabs, "- ")
 
     def as_toml_items(self, tabs: int) -> str:
-        """Return a list of files as TOML items."""
-        return self._join(tabs, '  "', '",')
+        """Return a list of files as TOML items.
+
+        On Windows, a double backslash is needed on the TOML file.
+        """
+        return self._join(tabs, '  "', '",', True)
