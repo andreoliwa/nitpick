@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Iterable
 
 import tomlkit
 from click.testing import CliRunner
+from furl import furl
 from more_itertools.more import always_iterable, windowed
 from testfixtures import compare
 
@@ -27,6 +28,7 @@ from nitpick.constants import (
 )
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
+from nitpick.generic import url_to_python_path
 from nitpick.violations import Fuss, Reporter
 
 if TYPE_CHECKING:
@@ -489,19 +491,19 @@ class OSAgnosticPaths:
     """A list of paths that can be used for tests both in Windows and Linux."""
 
     def __init__(self, root_dir: Path, *partial_path: str):
-        self._files: list[Path] = []
+        self._files: list[furl] = []
         for path in partial_path:
-            self._files.append(root_dir / path)
+            self._files.append(furl(root_dir / path))
 
-    @staticmethod
-    def indented_line_break(tabs: int) -> str:
+    def _join(self, tabs: int, before: str, after: str = "") -> str:
         """Return a line break with the desired indentation."""
-        return os.linesep + (" " * 4 * tabs)
+        prefix = os.linesep + (" " * 4 * tabs)
+        return prefix.join(f"{before}{url_to_python_path(file)}{after}" for file in self._files)
 
     def as_bullets(self, tabs: int) -> str:
         """Return a list of files as bullets."""
-        return self.indented_line_break(tabs).join(f"- {file!s}" for file in self._files)
+        return self._join(tabs, "- ")
 
     def as_toml_items(self, tabs: int) -> str:
         """Return a list of files as TOML items."""
-        return self.indented_line_break(tabs).join(f'  "{file!s}",' for file in self._files)
+        return self._join(tabs, '  "', '",')
