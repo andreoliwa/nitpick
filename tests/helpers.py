@@ -504,7 +504,7 @@ class OSAgnosticPaths:
 
     def _join(self, tabs: int, before: str, after: str = "", double_backslash: bool = False) -> str:
         """Return a line break with the desired indentation."""
-        prefix = os.linesep + (" " * 4 * tabs)
+        prefix = "\n" + (" " * 4 * tabs)
         return prefix.join(f"{before}{self._normalize(file, double_backslash)}{after}" for file in self._files)
 
     def as_bullets(self, tabs: int) -> str:
