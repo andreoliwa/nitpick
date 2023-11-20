@@ -25,7 +25,7 @@ from nitpick.blender import search_json
 from nitpick.constants import (
     ANY_BUILTIN_STYLE,
     CONFIG_FILES,
-    CONFIG_KEY_DONT_SUGGEST,
+    CONFIG_KEY_IGNORE_STYLES,
     CONFIG_KEY_STYLE,
     CONFIG_KEY_TOOL,
     CONFIG_TOOL_NITPICK_KEY,
@@ -205,18 +205,18 @@ def find_main_python_file(root_dir: Path) -> Path:
 
 
 class ToolNitpickSectionSchema(BaseNitpickSchema):
-    """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
+    """Validation schema for the ``[tool.nitpick]`` table on ``pyproject.toml``."""
 
     error_messages = {"unknown": help_message("Unknown configuration", "configuration.html")}  # noqa: RUF012
 
     style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
     cache = fields.NonEmptyString()
-    dont_suggest = fields.List(fields.NonEmptyString())
+    ignore_styles = fields.List(fields.NonEmptyString())
 
 
 @dataclass
 class Configuration:
-    """Configuration read from the ``[tool.nitpick]`` section from one of the ``CONFIG_FILES``."""
+    """Configuration read from the ``[tool.nitpick]`` table from one of the ``CONFIG_FILES``."""
 
     file: Path
     doc: tomlkit.TOMLDocument
@@ -288,7 +288,7 @@ class Project:
         return found
 
     def read_configuration(self) -> Configuration:
-        """Return the ``[tool.nitpick]`` section from the configuration file.
+        """Return the ``[tool.nitpick]`` table from the configuration file.
 
         Optionally, validate it against a Marshmallow schema.
         """
@@ -318,7 +318,7 @@ class Project:
             existing_styles = tomlkit.array()
             table.add(CONFIG_KEY_STYLE, existing_styles)
 
-        ignored_styles: items.Array = table.get(CONFIG_KEY_DONT_SUGGEST)
+        ignored_styles: items.Array = table.get(CONFIG_KEY_IGNORE_STYLES)
         if ignored_styles is None:
             ignored_styles = tomlkit.array()
 

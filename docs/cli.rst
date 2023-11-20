@@ -23,6 +23,29 @@ If you use Git, you can review the files before committing.
 
 The available commands are described below.
 
+Suggest styles based on project files
+-------------------------------------
+
+You can use the ``nitpick init --suggest`` command to suggest styles based on the files in your project.
+
+Nitpick will scan the files starting from the project root, skipping the ones ignored by Git, and suggest the styles that match the file types.
+
+By default, it will suggest the styles from the built-in library. You can use the ``--library`` option to scan a custom directory with styles.
+
+The directory structure of your custom library should be the same as the built-in library: ``<root_library_dir>/<file_type>/<your_style_name>.toml``.
+
+- ``file_type`` can be any tag reported by the `pre-commit/identify library <https://github.com/pre-commit/identify>`_ (e.g. ``python``, ``yaml``, ``markdown``, etc.);
+- use the special type ``any`` for styles that apply to all file types (e.g. trim trailing whitespace).
+
+The ``--suggest` command will display what would be changed. To apply these changes and autofix the config, run with the ``--fix`` option.
+
+To ignore styles, add them to the ``[tool.nitpick] ignore_styles`` key on the config file.
+
+Nitpick will consider the following Git ignore files:
+
+- ``.gitignore`` on the project root;
+- a global ignore file configured by ``git config --get core.excludesFile``.
+
 .. auto-generated-from-here
 
 .. _cli_cmd:
@@ -126,8 +149,8 @@ At the end of execution, this command displays:
     Options:
       -f, --fix                Autofix the files changed by the command;
                                otherwise, just print what would be done
-      -s, --suggest            Suggest styles based on the files in the project
-                               root (skipping Git ignored files)
+      -s, --suggest            Suggest styles based on the extension of project
+                               files (skipping Git ignored files)
       -l, --library DIRECTORY  Library dir to scan for style files (implies
                                --suggest); if not provided, uses the built-in
                                style library
