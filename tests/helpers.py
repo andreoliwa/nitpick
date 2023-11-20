@@ -29,7 +29,6 @@ from nitpick.constants import (
 )
 from nitpick.core import Nitpick
 from nitpick.flake8 import NitpickFlake8Extension
-from nitpick.generic import url_to_python_path
 from nitpick.violations import Fuss, Reporter
 
 if TYPE_CHECKING:
@@ -499,7 +498,7 @@ class OSAgnosticPaths:
     @staticmethod
     def _normalize(file: furl, double_backslash: bool) -> str:
         """Double the backslash on Windows."""
-        formatted = str(url_to_python_path(file))
+        formatted = str(file)
         if not (sys.platform == "win32" and double_backslash):
             return formatted
         return formatted.replace(os.sep, os.sep + os.sep)
