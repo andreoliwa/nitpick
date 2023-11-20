@@ -7,38 +7,45 @@ from dataclasses import dataclass
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 import click
 import tomlkit
 from autorepr import autorepr
+from identify import identify
 from loguru import logger
 from marshmallow_polyfield import PolyField
 from more_itertools import always_iterable
 from packaging.version import parse as parse_version
 from pluggy import PluginManager
-from tomlkit import TOMLDocument
-from tomlkit.items import KeyType, SingleKey
+from tomlkit import items
 
-from nitpick import PROJECT_NAME, fields, plugins
-from nitpick.blender import TomlDoc, search_json
+from nitpick import fields, plugins, tomlkit_ext
+from nitpick.blender import search_json
 from nitpick.constants import (
+    ANY_BUILTIN_STYLE,
     CONFIG_FILES,
+    CONFIG_KEY_IGNORE_STYLES,
+    CONFIG_KEY_STYLE,
+    CONFIG_KEY_TOOL,
     CONFIG_TOOL_NITPICK_KEY,
     DOT_NITPICK_TOML,
     JMEX_NITPICK_MINIMUM_VERSION,
-    JMEX_TOOL_NITPICK,
+    PROJECT_NAME,
     PYTHON_MANAGE_PY,
     PYTHON_PYPROJECT_TOML,
-    READ_THE_DOCS_URL,
     ROOT_FILES,
     ROOT_PYTHON_FILES,
 )
 from nitpick.exceptions import QuitComplainingError
-from nitpick.generic import filter_names, glob_files, relative_to_current_dir
+from nitpick.generic import filter_names, glob_files, glob_non_ignored_files, relative_to_current_dir
 from nitpick.plugins.info import FileInfo
 from nitpick.schemas import BaseNitpickSchema, flatten_marshmallow_errors, help_message
-from nitpick.style import StyleManager
+from nitpick.style import (
+    BuiltinStyle,
+    StyleManager,
+    builtin_styles,
+)
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
 
 if TYPE_CHECKING:
@@ -198,20 +205,24 @@ def find_main_python_file(root_dir: Path) -> Path:
 
 
 class ToolNitpickSectionSchema(BaseNitpickSchema):
-    """Validation schema for the ``[tool.nitpick]`` section on ``pyproject.toml``."""
+    """Validation schema for the ``[tool.nitpick]`` table on ``pyproject.toml``."""
 
     error_messages = {"unknown": help_message("Unknown configuration", "configuration.html")}  # noqa: RUF012
 
     style = PolyField(deserialization_schema_selector=fields.string_or_list_field)
     cache = fields.NonEmptyString()
+    ignore_styles = fields.List(fields.NonEmptyString())
 
 
 @dataclass
 class Configuration:
-    """Configuration read from one of the ``CONFIG_FILES``."""
+    """Configuration read from the ``[tool.nitpick]`` table from one of the ``CONFIG_FILES``."""
 
-    file: Path | None
-    styles: str | list[str]
+    file: Path
+    doc: tomlkit.TOMLDocument
+    table: items.Table
+    styles: items.Array
+    dont_suggest: items.Array
     cache: str
 
 
@@ -250,44 +261,74 @@ class Project:
             manager.load_setuptools_entrypoints(PROJECT_NAME)
         return manager
 
-    def read_configuration(self) -> Configuration:
-        """Search for a configuration file and validate it against a Marshmallow schema."""
-        config_file: Path | None = None
-        for possible_file in CONFIG_FILES:
-            path: Path = self.root / possible_file
-            if not path.exists():
+    def config_file_or_default(self) -> Path:
+        """Return a config file if found, or the default one."""
+        config_file = self.config_file()
+        if config_file:
+            return config_file
+        return self.root / DOT_NITPICK_TOML
+
+    def config_file(self) -> Path | None:
+        """Determine which config file to use."""
+        found: Path | None = None
+        for possible in CONFIG_FILES:
+            existing: Path = self.root / possible
+            if not existing.exists():
                 continue
 
-            if not config_file:
-                logger.info(f"Config file: reading from {path}")
-                config_file = path
+            if not found:
+                logger.info(f"Config file: reading from {existing}")
+                found = existing
             else:
-                logger.warning(f"Config file: ignoring existing {path}")
+                logger.warning(f"Config file: ignoring existing {existing}")
 
-        if not config_file:
+        if not found:
             logger.warning("Config file: none found")
-            return Configuration(None, [], "")
 
-        toml_doc = TomlDoc(path=config_file)
-        config_dict = search_json(toml_doc.as_object, JMEX_TOOL_NITPICK, {})
-        validation_errors = ToolNitpickSectionSchema().validate(config_dict)
-        if not validation_errors:
-            return Configuration(config_file, config_dict.get("style", []), config_dict.get("cache", ""))
+        return found
 
-        raise QuitComplainingError(
-            Reporter(FileInfo(self, PYTHON_PYPROJECT_TOML)).make_fuss(
-                StyleViolations.INVALID_DATA_TOOL_NITPICK,
-                flatten_marshmallow_errors(validation_errors),
-                section=CONFIG_TOOL_NITPICK_KEY,
+    def read_configuration(self) -> Configuration:
+        """Return the ``[tool.nitpick]`` table from the configuration file.
+
+        Optionally, validate it against a Marshmallow schema.
+        """
+        config_file = self.config_file_or_default()
+        doc = tomlkit_ext.load(config_file)
+        table: items.Table | None = doc.get(CONFIG_TOOL_NITPICK_KEY)
+        if not table:
+            super_table = tomlkit.table(True)
+            nitpick_table = tomlkit.table()
+            nitpick_table.update({CONFIG_KEY_STYLE: []})
+            super_table.append(PROJECT_NAME, nitpick_table)
+            doc.append(CONFIG_KEY_TOOL, super_table)
+            table = doc.get(CONFIG_TOOL_NITPICK_KEY)
+
+        validation_errors = ToolNitpickSectionSchema().validate(table)
+        if validation_errors:
+            raise QuitComplainingError(
+                Reporter(FileInfo(self, PYTHON_PYPROJECT_TOML)).make_fuss(
+                    StyleViolations.INVALID_DATA_TOOL_NITPICK,
+                    flatten_marshmallow_errors(validation_errors),
+                    section=CONFIG_TOOL_NITPICK_KEY,
+                )
             )
-        )
+
+        existing_styles: items.Array = table.get(CONFIG_KEY_STYLE)
+        if existing_styles is None:
+            existing_styles = tomlkit.array()
+            table.add(CONFIG_KEY_STYLE, existing_styles)
+
+        ignored_styles: items.Array = table.get(CONFIG_KEY_IGNORE_STYLES)
+        if ignored_styles is None:
+            ignored_styles = tomlkit.array()
+
+        return Configuration(config_file, doc, table, existing_styles, ignored_styles, table.get("cache", ""))
 
     def merge_styles(self, offline: bool) -> Iterator[Fuss]:
         """Merge one or multiple style files."""
         config = self.read_configuration()
-
         style = StyleManager(self, offline, config.cache)
-        base = config.file.expanduser().resolve().as_uri() if config.file else None
+        base = config.file.expanduser().resolve().as_uri()
         style_errors = list(style.find_initial_styles(list(always_iterable(config.styles)), base))
         if style_errors:
             raise QuitComplainingError(style_errors)
@@ -309,22 +350,22 @@ class Project:
         self.nitpick_section = self.style_dict.get("nitpick", {})
         self.nitpick_files_section = self.nitpick_section.get("files", {})
 
-    def create_configuration(self, config: Configuration, *style_urls: str) -> None:
-        """Create a configuration file."""
-        if config.file:
-            doc: TOMLDocument = tomlkit.parse(config.file.read_text())
+    def suggest_styles(self, library_path_str: PathOrStr | None) -> list[str]:
+        """Suggest styles based on the files in the project root (skipping Git ignored files)."""
+        all_tags: set[str] = {ANY_BUILTIN_STYLE}
+        for project_file_path in glob_non_ignored_files(self.root):
+            all_tags.update(identify.tags_from_path(str(project_file_path)))
+
+        if library_path_str:
+            library_dir = Path(library_path_str)
+            all_styles: Iterable[Path] = library_dir.glob("**/*.toml")
         else:
-            doc = tomlkit.document()
-            config.file = self.root / DOT_NITPICK_TOML
+            library_dir = None
+            all_styles = builtin_styles()
 
-        if not style_urls:
-            style_urls = (str(StyleManager.get_default_style_url()),)
-
-        tool_nitpick = tomlkit.table()
-        tool_nitpick.add(tomlkit.comment("Generated by the 'nitpick init' command"))
-        tool_nitpick.add(tomlkit.comment(f"More info at {READ_THE_DOCS_URL}configuration.html"))
-        tool_nitpick.add("style", tomlkit.array([tomlkit.string(url) for url in style_urls]))
-        doc.add(SingleKey(CONFIG_TOOL_NITPICK_KEY, KeyType.Bare), tool_nitpick)
-
-        # config.file will always have a value at this point, but mypy can't see it.
-        config.file.write_text(tomlkit.dumps(doc, sort_keys=True))
+        suggested_styles: set[str] = set()
+        for style_path in all_styles:
+            style = BuiltinStyle.from_path(style_path, library_dir)
+            if style.identify_tag in all_tags:
+                suggested_styles.add(style.formatted)
+        return sorted(suggested_styles)

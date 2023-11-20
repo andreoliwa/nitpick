@@ -5,6 +5,16 @@
   entry: nitpick fix
   language: python
 
+- id: nitpick-suggest
+  name: "nitpick init --suggest (auto fixing files)"
+  description: "Suggest new Nitpick styles based on the files in the project root (skipping Git ignored files)"
+  entry: nitpick init --fix --suggest
+  language: python
+  # This  hook should NOT be run for changed Git files, otherwise they will be considered style URLS
+  # and will be added to [tool.nitpick]style in pyproject.toml
+  pass_filenames: false
+  always_run: true
+
 # This hook is kept for compatibility (or if one wants to be explicit): "nitpick" does the same as "nitpick-fix" now
 - id: nitpick-fix
   name: "nitpick fix (auto fixing files)"

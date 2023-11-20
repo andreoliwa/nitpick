@@ -30,7 +30,7 @@ from nitpick.constants import (
     EmojiEnum,
 )
 from nitpick.core import Nitpick
-from nitpick.style import BuiltinStyle, builtin_styles
+from nitpick.style import BuiltinStyle, builtin_styles, repo_root
 
 RST_DIVIDER_FROM_HERE = ".. auto-generated-from-here"
 RST_DIVIDER_START = ".. auto-generated-start-{}"
@@ -296,10 +296,11 @@ def _build_library(gitref: bool = True) -> list[str]:
         style = BuiltinStyle.from_path(path)
 
         # When run with tox (invoke ci-build), the path starts with "site-packages"
-        clean_root = style.path_from_repo_root.replace("site-packages/", "src/")
+        path_from_repo_root = path.relative_to(repo_root()).as_posix()
+        clean_root = path_from_repo_root.replace("site-packages/", "src/")
 
         row = StyleLibraryRow(
-            style=f"{pre}`{style.py_url_without_ext} <{clean_root}>`{post}",
+            style=f"{pre}`{style.formatted} <{clean_root}>`{post}",
             name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
         )
         library[style.identify_tag].append(attr.astuple(row))

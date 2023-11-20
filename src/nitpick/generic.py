@@ -6,11 +6,15 @@
 """
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path, PosixPath, WindowsPath
 from typing import TYPE_CHECKING, Iterable
 
-from nitpick.constants import DOT, PROJECT_NAME
+import click
+from gitignore_parser import parse_gitignore
+
+from nitpick.constants import DOT, GIT_CORE_EXCLUDES_FILE, GIT_DIR, GIT_IGNORE, PROJECT_NAME
 
 if TYPE_CHECKING:
     from furl import furl
@@ -96,3 +100,45 @@ def glob_files(dir_: Path, file_patterns: Iterable[str]) -> set[Path]:
         if found_files:
             return found_files
     return set()
+
+
+def get_global_gitignore_path() -> Path | None:
+    """Get the path to the global Git ignore file."""
+    try:
+        output = subprocess.check_output(
+            # TODO: fix: this command might not work on Windows; maybe read ~/.gitconfig directly instead?
+            ["git", "config", "--get", GIT_CORE_EXCLUDES_FILE],  # noqa: S603,S607
+            universal_newlines=True,
+        ).strip()
+        return Path(output) if output else None
+    except subprocess.CalledProcessError:
+        click.secho(
+            f"The '{GIT_CORE_EXCLUDES_FILE}' configuration is not set or does not exist.", err=True, fg="yellow"
+        )
+    except FileNotFoundError:
+        click.secho("Git command not found. Please make sure Git is installed and on the PATH.", err=True, fg="red")
+    return None
+
+
+def glob_non_ignored_files(root_dir: Path, pattern: str = "**/*") -> Iterable[Path]:
+    """Glob all files in the root dir that are not ignored by Git."""
+
+    git_dir = root_dir / GIT_DIR
+    is_locally_ignored = None
+    is_globally_ignored = None
+    if git_dir.is_dir():
+        global_gitignore = get_global_gitignore_path()
+        if global_gitignore and global_gitignore.is_file():
+            is_globally_ignored = parse_gitignore(global_gitignore)
+        local_gitignore_path = root_dir / GIT_IGNORE
+        if local_gitignore_path.is_file():
+            is_locally_ignored = parse_gitignore(local_gitignore_path)
+
+    for project_file in root_dir.glob(pattern):
+        if (
+            not project_file.is_file()
+            or (is_globally_ignored and is_globally_ignored(project_file))
+            or (is_locally_ignored and is_locally_ignored(project_file))
+        ):
+            continue
+        yield project_file

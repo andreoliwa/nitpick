@@ -10,8 +10,14 @@ import jmespath
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE
 
 # keep-sorted start
+ANY_BUILTIN_STYLE = "any"
 CACHE_DIR_NAME = ".cache"
+COMMENT_MARKER_END = "-end"
+COMMENT_MARKER_START = "-start"
 CONFIG_DUNDER_LIST_KEYS = "__list_keys"
+CONFIG_KEY_IGNORE_STYLES = "ignore_styles"
+CONFIG_KEY_STYLE = "style"
+CONFIG_KEY_TOOL = "tool"
 CONFIG_TOOL_KEY = "tool"
 DOT = "."
 DOT_NITPICK_TOML = ".nitpick.toml"
@@ -22,6 +28,9 @@ GITHUB_COM_API = "api.github.com"
 GITHUB_COM_QUERY_STRING_TOKEN = "token"  # nosec # noqa: S105
 GITHUB_COM_RAW = "raw.githubusercontent.com"
 GIT_AT_REFERENCE = "@"
+GIT_CORE_EXCLUDES_FILE = "core.excludesFile"
+GIT_DIR = ".git"
+GIT_IGNORE = ".gitignore"
 GOLANG_MOD = "go.mod"
 GOLANG_SUM = "go.sum"
 JAVASCRIPT_PACKAGE_JSON = "package.json"
@@ -86,6 +95,7 @@ class EmojiEnum(Enum):
     CONSTRUCTION = "🚧"
     GREEN_CHECK = "✅"
     QUESTION_MARK = "❓"
+    SLEEPY_FACE = "😴"
     STAR_CAKE = "✨ 🍰 ✨"
     X_RED_CROSS = "❌"
     # keep-sorted end
@@ -129,7 +139,7 @@ class CachingEnum(IntEnum):
     EXPIRES = auto()
 
 
-# TODO(AA): move this to the enum above
+# TODO: move this to the enum above
 CACHE_EXPIRATION_DEFAULTS = {
     CachingEnum.NEVER: DO_NOT_CACHE,
     CachingEnum.FOREVER: NEVER_EXPIRE,

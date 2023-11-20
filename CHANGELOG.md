@@ -125,7 +125,7 @@
 
 - default pre-commit hook now runs "nitpick fix" ([cb4c242](https://github.com/andreoliwa/nitpick/commit/cb4c242607c6810c629dc7f5604920c1b64a070e))
 - **json:** autofix JSON files ([#429](https://github.com/andreoliwa/nitpick/issues/429)) ([4b58a03](https://github.com/andreoliwa/nitpick/commit/4b58a0380f88b01c99945817e7ff9b595ea362aa))
-- nitpick init adds a [tool.nitpick] section ([36f4065](https://github.com/andreoliwa/nitpick/commit/36f4065483b1ec4308bc28b815c82aa0abac104c))
+- nitpick init adds a [tool.nitpick] table ([36f4065](https://github.com/andreoliwa/nitpick/commit/36f4065483b1ec4308bc28b815c82aa0abac104c))
 - **yaml:** autofix .pre-commit-config.yaml (note: style changed!) ([#434](https://github.com/andreoliwa/nitpick/issues/434)) ([352b53d](https://github.com/andreoliwa/nitpick/commit/352b53d574e49ca683666fd40de3462d1396e575))
 - **yaml:** autofix GitHub Workflow files ([#437](https://github.com/andreoliwa/nitpick/issues/437)) ([6af77c4](https://github.com/andreoliwa/nitpick/commit/6af77c4293d8f964ccd249626d47c82440e6412f))
 - **yaml:** autofix YAML files ([#431](https://github.com/andreoliwa/nitpick/issues/431)) ([d8cc4b1](https://github.com/andreoliwa/nitpick/commit/d8cc4b1e80366d475c08316c54dc35393b4430dd))
@@ -289,7 +289,7 @@
 
 ### Features
 
-- **style:** validate the [nitpick.files] section ([96c1c31](https://github.com/andreoliwa/nitpick/commit/96c1c31))
+- **style:** validate the [nitpick.files] table ([96c1c31](https://github.com/andreoliwa/nitpick/commit/96c1c31))
 - show help with the documentation URL on validation errors ([83a8f89](https://github.com/andreoliwa/nitpick/commit/83a8f89))
 - validate [nitpick.files.present] and [nitpick.files.absent] ([ab068b5](https://github.com/andreoliwa/nitpick/commit/ab068b5))
 - validate configuration of JSON files ([e1192a4](https://github.com/andreoliwa/nitpick/commit/e1192a4))
@@ -324,7 +324,7 @@
 
 ### Features
 
-- **pyproject.toml:** validate [tool.nitpick] section ([765562a](https://github.com/andreoliwa/nitpick/commit/765562a))
+- **pyproject.toml:** validate [tool.nitpick] table ([765562a](https://github.com/andreoliwa/nitpick/commit/765562a))
 
 # [0.17.0](https://github.com/andreoliwa/nitpick/compare/v0.16.1...v0.17.0) (2019-08-08)
 
@@ -451,7 +451,7 @@
 ### Bug Fixes
 
 - keep showing other errors when pyproject.toml doesn't exist ([dc7f02f](https://github.com/andreoliwa/nitpick/commit/dc7f02f))
-- move nitpick config to an exclusive section on the style file ([cd64361](https://github.com/andreoliwa/nitpick/commit/cd64361))
+- move nitpick config to an exclusive table on the style file ([cd64361](https://github.com/andreoliwa/nitpick/commit/cd64361))
 - use only yield to return values ([af7d8d2](https://github.com/andreoliwa/nitpick/commit/af7d8d2))
 - use yaml.safe_load() ([b1df589](https://github.com/andreoliwa/nitpick/commit/b1df589))
 
@@ -467,7 +467,7 @@
 
 ### BREAKING CHANGES
 
-- Comma separated values was moved to a different section in the TOML file:
+- Comma separated values was moved to a different table in the TOML file:
 
 Before:
 ["setup.cfg".nitpick]
@@ -567,7 +567,7 @@ Now:
 - First warning, only on the main Python file ([0b30506](https://github.com/andreoliwa/nitpick/commit/0b30506))
 - Read config from pyproject.toml, cache data, run only on one Python ([265daa5](https://github.com/andreoliwa/nitpick/commit/265daa5))
 - Read style from TOML file/URL (or climb directory tree) ([84f19d6](https://github.com/andreoliwa/nitpick/commit/84f19d6))
-- Respect the files section on nitpick.toml ([9e36a02](https://github.com/andreoliwa/nitpick/commit/9e36a02))
+- Respect the files table on nitpick.toml ([9e36a02](https://github.com/andreoliwa/nitpick/commit/9e36a02))
 - Use nitpick's own default style file if none is provided ([4701b86](https://github.com/andreoliwa/nitpick/commit/4701b86))
 
 <a name="0.1.1"></a>

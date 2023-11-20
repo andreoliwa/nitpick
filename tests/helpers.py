@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
@@ -40,6 +41,7 @@ STYLES_DIR: Path = Path(__file__).parent.parent / "src" / "nitpick" / "resources
 
 # Non-breaking space
 NBSP = "\xc2\xa0"
+BLANK_LINE = f"{NBSP}###$$${NBSP}"  # something fairly unique
 
 SUGGESTION_BEGIN = "\x1b[32m"
 SUGGESTION_END = "\x1b[0m"
@@ -75,7 +77,7 @@ def tomlstring(value: Any) -> str:
 class ProjectMock:
     """A mocked Python project to help on tests."""
 
-    def __init__(self, tmp_path: Path, **kwargs) -> None:
+    def __init__(self, tmp_path: Path, setup_py: bool = True, pyproject_toml: bool = False) -> None:
         """Create the root dir and make it the current dir (needed by NitpickChecker)."""
         self._actual_violations: set[Fuss] = set()
         self._flake8_errors: list[Flake8Error] = []
@@ -88,8 +90,10 @@ class ProjectMock:
         self._remote_url: str | None = None
         self.files_to_lint: list[Path] = []
 
-        if kwargs.get("setup_py", True):
+        if setup_py:
             self.save_file("setup.py", "x = 1")
+        if pyproject_toml:
+            self.pyproject_toml("")
 
     def create_symlink(self, link_name: str, target_dir: Path, target_file: str | None = None) -> ProjectMock:
         """Create a symlink to a target file.
@@ -344,14 +348,18 @@ class ProjectMock:
         return self
 
     def _simulate_cli(
-        self, command: str, expected_str_or_lines: StrOrList | None = None, *args: str, exit_code: int | None = None
+        self,
+        command: str,
+        expected_str_or_lines: StrOrList | None = None,
+        *command_args: str,
+        exit_code: int | None = None,
     ):
         """Simulate the CLI by invoking a click command.
 
         1. If the command raised an exception that was not a common "system exit",
             this method will re-raise it, so the test can be fixed.
         """
-        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *args])
+        result = CliRunner().invoke(nitpick_cli, ["--project", str(self.root_dir), command, *command_args])
 
         # 1.
         if result.exception and not isinstance(result.exception, SystemExit):
@@ -410,13 +418,33 @@ class ProjectMock:
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def cli_init(self, str_or_lines: StrOrList, *args, exit_code: int | None = None) -> ProjectMock:
+    def cli_init(
+        self,
+        expected_output: StrOrList,
+        *,
+        fix: bool = False,
+        suggest: bool = False,
+        library: str | Path | None = None,
+        style_urls: list[str] | None = None,
+        exit_code: int | None = None,
+    ) -> ProjectMock:
         """Run the init command and assert the output."""
-        result, actual, expected = self._simulate_cli("init", str_or_lines, *args, exit_code=exit_code)
+        command_args = []
+        if fix:
+            command_args.append("--fix")
+        if suggest:
+            command_args.append("--suggest")
+        if library:
+            command_args.extend(["--library", str(library)])
+        if style_urls:
+            command_args.extend(style_urls)
+        if exit_code is None:
+            exit_code = 1 if fix else 0
+        result, actual, expected = self._simulate_cli("init", expected_output, *command_args, exit_code=exit_code)
         compare(actual=actual, expected=expected, prefix=f"Result: {result}")
         return self
 
-    def assert_file_contents(self, *name_contents: PathOrStr | str | None, lstrip=True) -> ProjectMock:
+    def assert_file_contents(self, *name_contents: PathOrStr | str | None, lstrip: bool = True) -> ProjectMock:
         """Assert the file has the expected contents.
 
         Use `None` to indicate that the file doesn't exist.
@@ -430,6 +458,7 @@ class ProjectMock:
                 expected = dedent(from_path_or_str(file_contents))
                 if lstrip:
                     expected = expected.lstrip()
+                expected = expected.replace(BLANK_LINE, "\n")
             compare(actual=actual, expected=expected, prefix=f"Filename: {filename}")
         return self
 
@@ -455,3 +484,36 @@ def filter_desired_warning(captured: list[warnings.WarningMessage], desired_mess
     Once this package is actually deprecated, then I'll either pin dpath or handle ImportError.
     """
     return [item for item in captured if desired_message in str(item.message)]
+
+
+class OSAgnosticPaths:
+    """A list of paths that can be used for tests both in Windows and Linux."""
+
+    def __init__(self, root_dir: Path, *partial_path: str):
+        self._files: list[Path] = []
+        for path in partial_path:
+            self._files.append(root_dir / path)
+
+    @staticmethod
+    def _normalize(file: Path, double_backslash: bool) -> str:
+        """Double the backslash on Windows."""
+        formatted = str(file)
+        if not (sys.platform == "win32" and double_backslash):
+            return formatted
+        return formatted.replace(os.sep, os.sep + os.sep)
+
+    def _join(self, tabs: int, before: str, after: str = "", double_backslash: bool = False) -> str:
+        """Return a line break with the desired indentation."""
+        prefix = "\n" + (" " * 4 * tabs)
+        return prefix.join(f"{before}{self._normalize(file, double_backslash)}{after}" for file in self._files)
+
+    def as_bullets(self, tabs: int) -> str:
+        """Return a list of files as bullets."""
+        return self._join(tabs, "- ")
+
+    def as_toml_items(self, tabs: int) -> str:
+        """Return a list of files as TOML items.
+
+        On Windows, a double backslash is needed on the TOML file.
+        """
+        return self._join(tabs, '  "', '",', True)

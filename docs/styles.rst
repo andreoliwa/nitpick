@@ -114,7 +114,7 @@ On YAML files, a list (called a "sequence" in the YAML spec) can contain differe
 - Other lists (sequences).
 
 The default behaviour for all lists: when applying a style, Nitpick_ searches
-if the element already exists in the list; if not found, the element is appended at the end of list.
+if the element already exists in the list; if not found, the element is appended to the end of list.
 
 1. With scalar values, Nitpick_ compares the elements by their exact value.
    Strings are compared in a case-sensitive manner, and spaces are considered.
@@ -124,7 +124,7 @@ On lists containing dicts, it is possible to define a custom "list key" used to 
 overriding the default compare mechanism above.
 
 If an element is found by its key, the other key/values are compared and Nitpick_ applies the difference.
-If the key doesn't exist, the new dict is appended at the end of the list.
+If the key doesn't exist, the new dict is appended to the end of the list.
 
 Some files have a predefined configuration:
 

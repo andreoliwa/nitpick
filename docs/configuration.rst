@@ -5,7 +5,7 @@
 Configuration
 =============
 
-:ref:`the-style-file` for your project should be configured in the ``[tool.nitpick]`` section of the configuration file.
+:ref:`the-style-file` for your project should be configured in the ``[tool.nitpick]`` table of the configuration file.
 
 Possible configuration files (in order of precedence):
 

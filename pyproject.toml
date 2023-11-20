@@ -48,6 +48,7 @@ flake8 = ">=3.0.0"
 flatten-dict = "*"
 freezegun = {optional = true, version = "*"}
 furl = "*"
+gitignore_parser = "*"
 identify = "*"
 importlib-resources = {python = ">=3.8, <3.9", version = "*"}
 jmespath = "*"

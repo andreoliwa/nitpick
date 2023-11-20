@@ -33,5 +33,6 @@ Submodules
    nitpick.generic
    nitpick.schemas
    nitpick.style
+   nitpick.tomlkit_ext
    nitpick.typedefs
    nitpick.violations
