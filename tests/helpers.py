@@ -499,9 +499,10 @@ class OSAgnosticPaths:
     @staticmethod
     def _normalize(file: furl, double_backslash: bool) -> str:
         """Double the backslash on Windows."""
-        if double_backslash and sys.platform == "win32":
-            return url_to_python_path(file).replace(os.sep, os.sep + os.sep)
-        return url_to_python_path(file)
+        formatted = str(url_to_python_path(file))
+        if not (sys.platform == "win32" and double_backslash):
+            return formatted
+        return formatted.replace(os.sep, os.sep + os.sep)
 
     def _join(self, tabs: int, before: str, after: str = "", double_backslash: bool = False) -> str:
         """Return a line break with the desired indentation."""
