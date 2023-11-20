@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, Iterable
 
 import tomlkit
 from click.testing import CliRunner
-from furl import furl
 from more_itertools.more import always_iterable, windowed
 from testfixtures import compare
 
@@ -491,12 +490,12 @@ class OSAgnosticPaths:
     """A list of paths that can be used for tests both in Windows and Linux."""
 
     def __init__(self, root_dir: Path, *partial_path: str):
-        self._files: list[furl] = []
+        self._files: list[Path] = []
         for path in partial_path:
-            self._files.append(furl(root_dir / path))
+            self._files.append(root_dir / path)
 
     @staticmethod
-    def _normalize(file: furl, double_backslash: bool) -> str:
+    def _normalize(file: Path, double_backslash: bool) -> str:
         """Double the backslash on Windows."""
         formatted = str(file)
         if not (sys.platform == "win32" and double_backslash):
