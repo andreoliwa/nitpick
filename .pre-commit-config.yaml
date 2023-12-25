@@ -101,7 +101,14 @@ repos:
         # Please uninstall the types-attrs package if you use this or a newer version.
         # See also https://github.com/python/mypy/issues/10084#issuecomment-778641361
         additional_dependencies:
-          [types-freezegun, types-toml, attrs, types-requests, types-python-slugify, types-dataclasses]
+          [
+            types-freezegun,
+            types-toml,
+            attrs,
+            types-requests,
+            types-python-slugify,
+            types-dataclasses,
+          ]
   # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
   # The recommended way is to use a local hook:
   # https://pylint.pycqa.org/en/latest/user_guide/installation/pre-commit-integration.html
