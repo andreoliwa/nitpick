@@ -13,6 +13,9 @@ pre-commit run --all-files prettier
 set -e
 
 rm -rf dist/
+# Remove certain markes from the .rst file, otherwise twine check will fail with:
+# ERROR `long_description` has syntax errors in markup and would not be rendered on PyPI.
+sed -i -e 's/:ref://' -e 's/:gitref://' README.rst
 poetry build
 
 # https://twine.readthedocs.io/en/latest/#twine-check
