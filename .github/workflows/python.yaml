@@ -144,7 +144,6 @@ jobs:
             @semantic-release/exec
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
           PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
           PYPI_TEST_PASSWORD: ${{ secrets.PYPI_TEST_PASSWORD }}
       - name: New release published

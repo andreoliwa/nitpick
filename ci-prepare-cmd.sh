@@ -28,4 +28,4 @@ poetry config --list
 
 # Hide the password
 set +x
-poetry publish --repository testpypi --username "$PYPI_USERNAME" --password "$PYPI_TEST_PASSWORD"
+poetry publish --repository testpypi --username __token__ --password "$PYPI_TEST_PASSWORD"
