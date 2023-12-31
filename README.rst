@@ -373,11 +373,11 @@ Run
 ~~~
 
 Nitpick_ will fail if no style is explicitly configured.
-Run this command to download and use the opinionated :gitref:`default style file <nitpick-style.toml>`:
+Run this command to download and use the opinionated `default style file <nitpick-style.toml>`:
 
     nitpick init
 
-You can use it as a template to :ref:`configure-your-own-style`.
+You can use it as a template to `configure-your-own-style`.
 
 To fix and modify your files directly::
 
@@ -399,7 +399,7 @@ this to the ``.pre-commit-config.yaml`` in your repository::
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.34.0
+        rev: v0.35.0
         hooks:
           - id: nitpick
 
@@ -425,7 +425,7 @@ If you use `MegaLinter <https://megalinter.github.io/>`_ you can run Nitpick as 
 .. code-block:: yaml
 
     PLUGINS:
-      - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.34.0/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
+      - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.35.0/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
     ENABLE_LINTERS:
       - NITPICK
 

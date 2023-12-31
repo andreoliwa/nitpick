@@ -1,3 +1,25 @@
+# [0.35.0](https://github.com/andreoliwa/nitpick/compare/v0.34.0...v0.35.0) (2023-12-31)
+
+### Bug Fixes
+
+- **deps:** update dependency click to v8.1.7 ([783741d](https://github.com/andreoliwa/nitpick/commit/783741dad71cf1a1e82faec55872dc347c297e35))
+- fail when no style is explicitly configured (don't use the default style) ([#606](https://github.com/andreoliwa/nitpick/issues/606)) ([f309354](https://github.com/andreoliwa/nitpick/commit/f30935440c4d4a1e87413a0ce4d0a6e875dcfd06))
+- **style:** better .editorconfig ([0b779d9](https://github.com/andreoliwa/nitpick/commit/0b779d967ae14a0ae4e47b426767ea48426a4d31))
+- **style:** comma_separated_values for flake8/isort ([7336dbc](https://github.com/andreoliwa/nitpick/commit/7336dbc397416a17df278e096d7807a099e314aa))
+- **style:** move "build" to readthedocs.toml ([676ac24](https://github.com/andreoliwa/nitpick/commit/676ac2450ab6e7fce597a020b7b260fe90e18206))
+- **style:** remove Radon from the Nitpick preset ([126b1c1](https://github.com/andreoliwa/nitpick/commit/126b1c10db033e66b2f2d4386bf8d4342d6557c4))
+- **style:** tag markdownlint.toml as a markdown style ([578bfb5](https://github.com/andreoliwa/nitpick/commit/578bfb5795f543e8590e86bac6174391249675d1))
+- **style:** use black mirror that's 2x faster ([67dc163](https://github.com/andreoliwa/nitpick/commit/67dc16353edd0f275ac68bb5cc75159574b5f426))
+
+### Features
+
+- add Python 3.12 ([#616](https://github.com/andreoliwa/nitpick/issues/616)) ([90ced4c](https://github.com/andreoliwa/nitpick/commit/90ced4cd2e308c4f0be2a284d7acff7bdf1a8448))
+- set CLI options with environment variables ([3575b9a](https://github.com/andreoliwa/nitpick/commit/3575b9a542281810c1ce980df50053ea1ec6a290))
+- **style:** add toml-sort ([#626](https://github.com/andreoliwa/nitpick/issues/626)) ([a4aeef7](https://github.com/andreoliwa/nitpick/commit/a4aeef7c9eaac86d6a33ddbd3b5735de11c065b0))
+- **style:** default Python version on pre-commit ([3557c1f](https://github.com/andreoliwa/nitpick/commit/3557c1f18d6be6886f0642e11333f1dff52ae9b7))
+- **style:** Poetry (virtualenv in project) ([f002b8b](https://github.com/andreoliwa/nitpick/commit/f002b8ba6fc79ed00d50426d70193bad4065db95))
+- suggest styles based on the file types in the project ([#629](https://github.com/andreoliwa/nitpick/issues/629)) ([e2bca24](https://github.com/andreoliwa/nitpick/commit/e2bca246e142b9e06766d0522e1cee24a8c1bc07))
+
 # [0.34.0](https://github.com/andreoliwa/nitpick/compare/v0.33.2...v0.34.0) (2023-08-19)
 
 ### Features
