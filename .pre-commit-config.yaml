@@ -52,7 +52,7 @@ repos:
         # - poetry.lock: auto-generated file
         exclude: (ideas/|resources/|tests/|poetry.lock)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.1.9
     hooks:
       - id: ruff
         args: [--fix]
@@ -66,7 +66,7 @@ repos:
     hooks:
       - id: sort-all
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 23.12.1
     hooks:
       - id: black
         args: [--safe, --quiet]
@@ -81,12 +81,12 @@ repos:
       - id: python-check-mock-methods
       - id: rst-backticks
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
         stages: [commit]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.0
+    rev: v1.8.0
     hooks:
       - id: mypy
         # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
@@ -101,7 +101,14 @@ repos:
         # Please uninstall the types-attrs package if you use this or a newer version.
         # See also https://github.com/python/mypy/issues/10084#issuecomment-778641361
         additional_dependencies:
-          [types-freezegun, types-toml, attrs, types-requests, types-python-slugify, types-dataclasses]
+          [
+            types-freezegun,
+            types-toml,
+            attrs,
+            types-requests,
+            types-python-slugify,
+            types-dataclasses,
+          ]
   # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
   # The recommended way is to use a local hook:
   # https://pylint.pycqa.org/en/latest/user_guide/installation/pre-commit-integration.html
@@ -124,7 +131,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: 3.12.0
+    rev: v3.13.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
