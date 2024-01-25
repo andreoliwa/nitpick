@@ -373,11 +373,11 @@ Run
 ~~~
 
 Nitpick_ will fail if no style is explicitly configured.
-Run this command to download and use the opinionated `default style file <nitpick-style.toml>`:
+Run this command to download and use the opinionated `default style file <nitpick-style.toml>`_:
 
     nitpick init
 
-You can use it as a template to `configure-your-own-style`.
+You can use it as a template to `configure-your-own-style`_.
 
 To fix and modify your files directly::
 
