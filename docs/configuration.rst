@@ -20,7 +20,7 @@ The first file found will be used; the other files will be ignored.
 
 If no style is configured, Nitpick will fail with an error message.
 
-Run ``nipick init`` to create a config file (:ref:`cli_cmd_init`).
+Run ``nitpick init`` to create a config file (:ref:`cli_cmd_init`).
 
 To configure your own style, you can either use ``nitpick init``:
 
@@ -41,6 +41,9 @@ Remote style
 ------------
 
 Use the URL of the remote file.
+
+Github
+~~~~~~
 
 If it's hosted on GitHub, use any of the following formats:
 
@@ -110,6 +113,85 @@ Or you can use an environment variable to avoid keeping secrets in plain text.
 
     A literal token cannot start with a ``$``.
     All tokens must not contain any ``@`` or ``:`` characters.
+
+Gitlab
+~~~~~~
+
+*Tested for GitLab.com and self-managed Gitlab, should work fine with Ultimate Gitlab.*
+
+Unlike GitHub, projects on GitLab can have a deep hierarchy of the form ``https://gitlab.com/group/*subgroups/project/*folders/file``.
+
+In the interface, GitLab uses the group URL and subgroup names to form the project path;
+In contrast, in the GitLab API the path to project is not important, the project number is used instead of the project path.
+
+So, if it's hosted on GitLab, you can use two options:
+ - For domain ``gitlab.com`` you can use either ``https://`` or ``gitlab://`` (or ``gl://``) schemes
+ - For a self-managed Gitlab you should use ``gitlab://`` (or ``gl://``) scheme pinned to a specific version
+
+Regardless of the chosen scheme, the corresponding raw valid URL will be generated.
+
+``https://`` scheme
+^^^^^^^^^^^^^^^^^^^
+
+Applicable only if your style repo is hosted on a domain ``gitlab.com``. The regular GitLab URL is used.
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "https://gitlab.com/my_group/sub_group/nitpick/-/blob/main/my_folder/.nitpick.toml"
+
+Or use the raw GitLab URL directly:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "https://gitlab.com/my_group/sub_group/nitpick/-/raw/main/my_folder/.nitpick.toml"
+
+If your style is on a private GitLab repo, you can provide the token directly on the URL.
+Or you can use an environment variable to avoid keeping secrets in plain text.
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "https://p5iCG5AJuDgY@gitlab.com/my_group/nitpick/-/blob/main/.nitpick.toml"
+    # or using an environment variable instead of plain text
+    style = "https://$GITLAB_TOKEN@gitlab.com/my_group/nitpick/-/blob/main/.nitpick.toml"
+
+``gitlab://`` scheme
+^^^^^^^^^^^^^^^^^^^^
+
+The GitLab URL scheme uses the GitLab API and can be used for any version of GitLab: Free, Premium (self-hosted) and Ultimate.
+
+Scheme uses GitLab API, and GitLab API uses the project number instead of the name.
+Project number can be obtained in the project settings.
+
+GitLab URL scheme (``gitlab://`` or ``gl://``) pinned to a specific version:
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    # gl|gitlab://[<TOKEN>@]<HOST>/<PROJECT_NUMBER>[@<BRANCH_NAME_OR_TAG_OR_COMMIT>]/<FILE_PATH>
+    style = "gitlab://my_gitlab.com/123456@main/my_folder/nitpick-style.toml"
+    # if no branch is provided, the default branch will be used
+    style = "gitlab://my_gitlab.com/123456/nitpick-style.toml"
+
+You must pass the hostname, project number and file path.
+Optionally you can pass the branch_name and the private token from your private GitLab repo as plain text (or use an environment variable)
+
+.. code-block:: toml
+
+    [tool.nitpick]
+    style = "gitlab://p5iCG5AJuDgY@my_gitlab.com/123456/.nitpick.toml"
+    # it has the same effect as providing the default branch explicitly
+    style = "gl://p5iCG5AJuDgY@my_gitlab.com/123456@default_branch/.nitpick.toml"
+    # pass custom branch and token through environment variable
+    style = "gl://$GITLAB_TOKEN@my_gitlab.com/123456@custom_branch/linters/nitpick/.nitpick.toml"
+
+.. note::
+
+    A literal token cannot start with a ``$``.
+    All tokens must not contain any ``@`` or ``:`` characters.
+
 
 Style inside Python package
 ---------------------------
