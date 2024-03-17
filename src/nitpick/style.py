@@ -807,8 +807,8 @@ class GitLabURL:
         """Create an instance from a parsed URL in accepted format.
 
         Gitlab GUI uses named path like:
-         - https://gitlab.com/group_URL/subgroup/project_name/-/blob/branch/folder/file
-         - https://gitlab.com/group_URL/sub_group/project_name/-/raw/branch/folder/file
+        - https://gitlab.com/group_URL/subgroup/project_name/-/blob/branch/folder/file
+        - https://gitlab.com/group_URL/sub_group/project_name/-/raw/branch/folder/file
         See the code for ``test_parsing_gitlab_http_api_urls()`` for more examples.
         """
         auth_token = url.username
