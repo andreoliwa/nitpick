@@ -9,7 +9,7 @@ from datetime import timedelta
 from enum import auto
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Iterable, Iterator, Literal, Sequence, cast
+from typing import TYPE_CHECKING, ClassVar, Iterable, Iterator, Literal, NoReturn, Sequence, cast
 
 import attr
 import click
@@ -65,7 +65,6 @@ except ImportError:  # pragma: no cover
     from dpath.util import merge as dpath_merge
 
 GIT_API_SESSION = Session()  # Dedicated session to reuse connections
-
 
 if TYPE_CHECKING:
     from marshmallow import Schema
@@ -133,6 +132,11 @@ def parse_cache_option(cache_option: str) -> tuple[CachingEnum, timedelta | int]
             logger.warning(f"Invalid cache option: {clean_cache_option}. Defaulting to 1 hour")
 
     return caching, expires_after
+
+
+def raise_gitlab_incorrect_url_error(url: furl) -> NoReturn:
+    message = "Неверный URL GitLab: {}".format(url)
+    raise ValueError(message)
 
 
 @dataclass()
@@ -749,7 +753,7 @@ class GitLabURL:
 
     scheme: str
     host: str
-    project: list[str, ...]
+    project: list[str]
     path: str
     git_reference: str | None
     auth_token: str | None = None
@@ -778,7 +782,7 @@ class GitLabURL:
         """Raw content URL for this path."""
         if self.scheme in GitLabFetcher.protocols:
             query_params = self.query_params
-            if self.git_reference:
+            if self.git_reference is not None:
                 # If the branch was not specified for the raw file, GitLab itself will substitute the HEAD branch
                 # https://docs.gitlab.com/ee/api/repository_files.html#get-raw-file-from-repository
                 query_params = (*query_params, (GITLAB_BRANCH_REFERENCE, self.git_reference))
@@ -814,9 +818,9 @@ class GitLabURL:
             dash_index = segments.index("-")
             blob_index = dash_index + 2  # "blob" or "raw" should immediately follow
             if segments[dash_index + 1] not in {"blob", "raw"}:
-                raise ValueError(f"Invalid GitLab URL: {url}")
-        except (ValueError, IndexError) as e:
-            raise ValueError(f"Invalid GitLab URL: {url}") from e
+                raise_gitlab_incorrect_url_error(url)
+        except (ValueError, IndexError):
+            raise_gitlab_incorrect_url_error(url)
 
         project = segments[:dash_index]  # Everything before the "-"
         # The error for git_reference will never be raised due to url normalization (always add .toml)
