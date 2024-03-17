@@ -11,7 +11,7 @@ import responses
 from furl import furl
 
 from nitpick.constants import PYTHON_PYPROJECT_TOML, PYTHON_SETUP_CFG, PYTHON_TOX_INI, READ_THE_DOCS_URL, TOML_EXTENSION
-from nitpick.style import GitHubURL, PythonPackageURL
+from nitpick.style import GitHubURL, GitLabURL, PythonPackageURL
 from nitpick.violations import Fuss
 from tests.helpers import SUGGESTION_BEGIN, SUGGESTION_END, ProjectMock, assert_conditions, tomlstring
 
@@ -961,3 +961,155 @@ def test_protocol_not_supported(tmp_path):
     with pytest.raises(RuntimeError) as exc_info:
         project.api_check()
     assert str(exc_info.value) == "URL protocol 'abc' is not supported"
+
+@pytest.mark.parametrize(
+    "style_url",
+    [
+
+        # Without commit reference (uses default branch)
+        "gitlab://my_gitlab.com/123/initial.toml",
+        "gl://my_gitlab/123/initial.toml",
+        # Explicit commit reference
+        "gitlab://my_gitlab.com/123@develop/initial.toml",
+        "gl://my_gitlab.com/123@develop/initial.toml",
+        # Regular gitlab URL
+        "https://gitlab.com/my_group/sub_group/nitpick/-/blob/main/my_folder/.nitpick.toml",
+        # Raw URL directly
+        "https://gitlab.com/my_group/sub_group/nitpick/-/raw/main/my_folder/.nitpick.toml",
+    ],
+)
+def test_gitlab_url_without_token_has_no_authorization_header(style_url):
+    """Check private gitlab URLs with a token in various places are parsed correctly."""
+    parsed = GitLabURL.from_furl(furl(style_url))
+    assert parsed.authorization_header is None
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        # Without commit reference (uses default branch)
+
+        "gitlab://token@my_gitlab.com/123/initial.toml",
+        "gl://token@my_gitlab/123/initial.toml",
+        # Explicit commit reference
+        "gitlab://token@my_gitlab.com/123@develop/initial.toml",
+        "gl://token@my_gitlab.com/123@develop/initial.toml",
+        # Regular gitlab URL
+        "https://token@gitlab.com/my_group/sub_group/nitpick/-/blob/main/my_folder/.nitpick.toml",
+        # Raw URL directly
+        "https://token@gitlab.com/my_group/sub_group/nitpick/-/raw/main/my_folder/.nitpick.toml",
+    ],
+)
+def test_gitlab_url_with_fixed_userinfo_token_has_correct_authorization_header(url):
+    """Check private gitlab URLs with a token in various places are parsed correctly."""
+    parsed = GitLabURL.from_furl(furl(url))
+    assert parsed.authorization_header == {"PRIVATE-TOKEN": "token"}
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        # Without commit reference (uses default branch)
+        "gitlab://$TOKEN@my_gitlab.com/123/initial.toml",
+        "gl://$TOKEN@my_gitlab/123/initial.toml",
+        # Explicit commit reference
+        "gitlab://$TOKEN@my_gitlab.com/123@develop/initial.toml",
+        "gl://$TOKEN@my_gitlab.com/123@develop/initial.toml",
+        # Regular gitlab URL
+        "https://$TOKEN@gitlab.com/my_group/sub_group/nitpick/-/blob/main/my_folder/.nitpick.toml",
+        # Raw URL directly
+        "https://$TOKEN@gitlab.com/my_group/sub_group/nitpick/-/raw/main/my_folder/.nitpick.toml",
+    ],
+)
+def test_gitlab_url_with_variable_userinfo_token_has_correct_authorization_header(url, monkeypatch):
+    """Check private gitlab URLs with a token in various places are parsed correctly."""
+    monkeypatch.setenv("TOKEN", "envvar-token")
+    parsed = GitLabURL.from_furl(furl(url))
+    assert parsed.authorization_header == {"PRIVATE-TOKEN": "envvar-token"}
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        # Without commit reference (uses default branch)
+        "gitlab://$MISSINGVAR@my_gitlab.com/123/initial.toml",
+        "gl://$MISSINGVAR@my_gitlab/123/initial.toml",
+        # Explicit commit reference
+        "gitlab://$MISSINGVAR@my_gitlab.com/123@develop/initial.toml",
+        "gl://$MISSINGVAR@my_gitlab.com/123@develop/initial.toml",
+        # Regular gitlab URL
+        "https://$MISSINGVAR@gitlab.com/my_group/sub_group/nitpick/-/blob/main/my_folder/.nitpick.toml",
+        # Raw URL directly
+        "https://$MISSINGVAR@gitlab.com/my_group/sub_group/nitpick/-/raw/main/my_folder/.nitpick.toml",
+    ],
+)
+def test_gitlab_url_with_missing_envvar_has_empty_authorization_header(url, monkeypatch):
+    """Environment var that doesn't exist is replaced with empty string."""
+    monkeypatch.delenv("MISSINGVAR", raising=False)
+    parsed = GitLabURL.from_furl(furl(url))
+    assert parsed.authorization_header is None
+
+
+@pytest.mark.parametrize(
+    ("original_url", "expected_url", "token_header"),
+    [
+        (
+            "https://gitlab.com/custom_group/sub_group/nitpick/-/blob/main/folder/.nitpick.toml",
+            "https://gitlab.com/custom_group/sub_group/nitpick/-/raw/main/folder/.nitpick.toml",
+            None,
+        ),
+        (
+            "https://gitlab.com/custom_group/sub_group/nitpick/-/raw/branch/test_folder/.nitpick.toml",
+            "https://gitlab.com/custom_group/sub_group/nitpick/-/raw/branch/test_folder/.nitpick.toml",
+            None,
+        ),
+        (
+            "https://gitlab.com/group/nitpick/-/blob/main/.nitpick.toml?ref_type=heads",
+            "https://gitlab.com/group/nitpick/-/raw/main/.nitpick.toml?ref_type=heads",
+            None,
+        ),
+        (
+            "https://token@gitlab.com/group/nitpick/-/blob/main/.nitpick.toml",
+            "https://gitlab.com/group/nitpick/-/raw/main/.nitpick.toml",
+            {"PRIVATE-TOKEN": "token"},
+        ),
+        (
+            "gitlab://token@git.my_gitlab.ru/123456/.nitpick.toml",
+            "https://git.my_gitlab.ru/api/v4/projects/123456/repository/files/.nitpick.toml/raw",
+            {"PRIVATE-TOKEN": "token"},
+        ),
+        (
+            "gl://token@git.my_gitlab.ru/123456/.nitpick.toml",
+            "https://git.my_gitlab.ru/api/v4/projects/123456/repository/files/.nitpick.toml/raw",
+            {"PRIVATE-TOKEN": "token"},
+        ),
+        (
+            "gitlab://token@git.my_gitlab.ru/123456@custom_branch/.nitpick.toml",
+            "https://git.my_gitlab.ru/api/v4/projects/123456/repository/files/.nitpick.toml/raw?ref=custom_branch",
+            {"PRIVATE-TOKEN": "token"},
+        ),
+        (
+            "gl://token@git.my_gitlab.ru/123456@custom_branch/.nitpick.toml",
+            "https://git.my_gitlab.ru/api/v4/projects/123456/repository/files/.nitpick.toml/raw?ref=custom_branch",
+            {"PRIVATE-TOKEN": "token"},
+        ),
+    ],
+)
+def test_parsing_gitlab_urls(original_url, expected_url, token_header):
+    """Test generate expected raw urls."""
+    gl = GitLabURL.from_furl(furl(original_url))
+
+    assert gl.raw_content_url == furl(expected_url)
+    assert gl.authorization_header == token_header
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://gitlab.com/custom_group/sub_group/nitpick/raw/branch/test_folder/.nitpick.toml",
+        "https://gitlab.com/custom_group/sub_group/nitpick/-/blobblob/main/folder/.nitpick.toml",
+    ],
+)
+def test_parsing_incorrect_gitlab_urls(url):
+    """Test for incorrect GitLab URLs."""
+    with pytest.raises(Exception, match=f"Invalid GitLab URL: {url}"):
+        GitLabURL.from_furl(furl(url))

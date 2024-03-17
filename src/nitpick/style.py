@@ -9,7 +9,7 @@ from datetime import timedelta
 from enum import auto
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Iterable, Iterator, Sequence, cast
+from typing import TYPE_CHECKING, ClassVar, Iterable, Iterator, Literal, Sequence, cast
 
 import attr
 import click
@@ -37,6 +37,8 @@ from nitpick.constants import (
     GITHUB_COM_API,
     GITHUB_COM_QUERY_STRING_TOKEN,
     GITHUB_COM_RAW,
+    GITLAB_COM,
+    GITLAB_BRANCH_REFERENCE,
     JMEX_NITPICK_STYLES_INCLUDE,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
@@ -62,7 +64,7 @@ try:
 except ImportError:  # pragma: no cover
     from dpath.util import merge as dpath_merge
 
-GITHUB_API_SESSION = Session()  # Dedicated session to reuse connections
+GIT_API_SESSION = Session()  # Dedicated session to reuse connections
 
 
 if TYPE_CHECKING:
@@ -101,7 +103,7 @@ def github_default_branch(api_url: str, *, token: str | None = None) -> str:
     This function is using ``lru_cache()`` as a simple memoizer, trying to avoid this rate limit error.
     """
     headers = {"Authorization": f"token {token}"} if token else None
-    response = GITHUB_API_SESSION.get(api_url, headers=headers)
+    response = GIT_API_SESSION.get(api_url, headers=headers)
     response.raise_for_status()
 
     return response.json()["default_branch"]
@@ -403,6 +405,8 @@ class Scheme(LowercaseStrEnum):
     FILE = auto()
     GH = auto()
     GITHUB = auto()
+    GL = auto()
+    GITLAB = auto()
     HTTP = auto()
     HTTPS = auto()
     PY = auto()
@@ -420,9 +424,9 @@ class StyleFetcherManager:
 
     session: CachedSession = field(init=False)
     fetchers: dict[str, StyleFetcher] = field(init=False)
-    schemes: tuple[str] = field(init=False)
+    schemes: tuple[str, ...] = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Initialize dependant properties."""
         caching, expire_after = parse_cache_option(self.cache_option)
         # honour caching headers on the response when an expiration time has
@@ -535,7 +539,13 @@ def _get_fetchers(session: CachedSession) -> dict[str, StyleFetcher]:
     def _factory(klass: type[StyleFetcher]) -> StyleFetcher:
         return klass(session) if klass.requires_connection else klass()
 
-    fetchers = (_factory(FileFetcher), _factory(HttpFetcher), _factory(GitHubFetcher), _factory(PythonPackageFetcher))
+    fetchers = (
+        _factory(FileFetcher),
+        _factory(HttpFetcher),
+        _factory(GitHubFetcher),
+        _factory(GitLabFetcher),
+        _factory(PythonPackageFetcher)
+    )
     return dict(_fetchers_to_pairs(fetchers))
 
 
@@ -731,6 +741,143 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
         github_url = GitHubURL.from_furl(url)
         kwargs.setdefault("headers", github_url.authorization_header)
         return super()._download(github_url.raw_content_url, **kwargs)
+
+
+@dataclass(frozen=True)
+class GitLabURL:
+    """Represent a GitLab URL, created from a URL or from its parts."""
+
+    scheme: str
+    host: str
+    project: list[str, ...]
+    path: str
+    git_reference: str | None
+    auth_token: str | None = None
+    query_params: tuple[tuple[str, str], ...] | None = None
+
+    @property
+    def token(self) -> str | None:
+        """Token encoded in this URL.
+
+        If present, and it starts with a ``$``, it will be replaced with the
+        value of the environment corresponding to the remaining part of the
+        string.
+        """
+        token = self.auth_token
+        if token is not None and token.startswith("$"):
+            token = os.getenv(token[1:])
+        return token
+
+    @property
+    def authorization_header(self) -> dict[Literal["PRIVATE-TOKEN"], str] | None:
+        """Authorization header encoded in this URL."""
+        return {"PRIVATE-TOKEN": self.token} if self.token else None
+
+    @property
+    def raw_content_url(self) -> furl:
+        """Raw content URL for this path."""
+        if self.scheme in GitLabFetcher.protocols:
+            query_params = self.query_params
+            if self.git_reference:
+                # If the branch was not specified for the raw file, GitLab itself will substitute the HEAD branch
+                # https://docs.gitlab.com/ee/api/repository_files.html#get-raw-file-from-repository
+                query_params = (*query_params, (GITLAB_BRANCH_REFERENCE, self.git_reference))
+
+            return furl(
+                scheme=Scheme.HTTPS,
+                host=self.host,
+                path=["api", "v4", "projects", *self.project, "repository", "files", self.path, "raw"],
+                query_params=query_params
+            )
+
+        return furl(
+            scheme=Scheme.HTTPS,
+            host=self.host,
+            path=[*self.project, "-", "raw", self.git_reference, *self.path],
+            query_params=self.query_params
+        )
+
+
+    @classmethod
+    def _from_http_scheme_furl(cls, url: furl) -> GitLabURL:
+        """
+        Create an instance from a parsed URL in accepted format.
+
+        Gitlab GUI uses named path like:
+         - https://gitlab.com/group_URL/subgroup/project_name/-/blob/branch/folder/file
+         - https://gitlab.com/group_URL/sub_group/project_name/-/raw/branch/folder/file
+        See the code for ``test_parsing_gitlab_http_api_urls()`` for more examples.
+        """
+        auth_token = url.username
+        query_params = tuple(url.args.items())
+
+        segments = url.path.segments
+        try:
+            dash_index = segments.index("-")
+            blob_index = dash_index + 2  # "blob" or "raw" should immediately follow
+            if segments[dash_index + 1] not in {"blob", "raw"}:
+                raise ValueError(f"Invalid GitLab URL: {url}")
+        except (ValueError, IndexError) as e:
+            raise ValueError(f"Invalid GitLab URL: {url}") from e
+
+        project = segments[:dash_index]  # Everything before the "-"
+        # The error for git_reference will never be raised due to url normalization (always add .toml)
+        git_reference = segments[blob_index]  # The first argument after "blob"
+        path = segments[blob_index + 1:]  # Everything after the git_reference
+
+        return cls(url.scheme, url.host, project, path, git_reference, auth_token, query_params)
+
+    @classmethod
+    def _from_gitlab_scheme_furl(cls, url: furl) -> GitLabURL:
+        """
+        Create an instance from a parsed URL in accepted format.
+
+        The Gitlab API does not pay attention to the groups and subgroups the project is in,
+        instead it uses the project number and use URL encoded full path to file:
+        https://gitlab.com/api/v4/projects/project_number/repository/files/folder%2Ffile/raw?ref=branch_name
+
+        Documentation https://docs.gitlab.com/ee/api/repository_files.html#get-raw-file-from-repository
+        See the code for ``test_parsing_gitlab_gl_api_urls()`` for more examples.
+        """
+        auth_token = url.username
+        query_params = tuple(url.args.items())
+
+        project_with_git_reference, *path = url.path.segments
+        project, _, git_reference = project_with_git_reference.partition(GIT_AT_REFERENCE)
+        project = [project]
+        path = '/'.join(path)
+
+        return cls(url.scheme, url.host, project, path, git_reference, auth_token, query_params)
+
+    @classmethod
+    def from_furl(cls, url: furl) -> GitLabURL:
+        """
+        Create an instance from a parsed URL in any accepted format.
+
+        The gitlab:// scheme uses the Gitlab API and takes a project number.
+        The https:// scheme uses the Gitlab site and takes the path to the project.
+        """
+        if url.scheme in GitLabFetcher.protocols:
+            return cls._from_gitlab_scheme_furl(url)
+        return cls._from_http_scheme_furl(url)
+
+
+@dataclass(frozen=True)
+class GitLabFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
+    """Fetch styles from GitLab repositories via API."""
+
+    protocols: tuple[str, ...] = (Scheme.GL, Scheme.GITLAB,)  # type: ignore[assignment,has-type]
+    domains: tuple[str, ...] = (GITLAB_COM,)
+
+    def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use
+        # Use gitlab:// instead of gl:// in the canonical URL
+        return Scheme.GITLAB if scheme == Scheme.GL else scheme  # type: ignore[return-value]
+
+    def _download(self, url: furl, **kwargs) -> str:
+        """Downloading style from url."""
+        gitlab_url = GitLabURL.from_furl(url)
+        kwargs.setdefault("headers", gitlab_url.authorization_header)
+        return super()._download(gitlab_url.raw_content_url, **kwargs)
 
 
 @dataclass(frozen=True)
