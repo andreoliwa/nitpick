@@ -962,10 +962,10 @@ def test_protocol_not_supported(tmp_path):
         project.api_check()
     assert str(exc_info.value) == "URL protocol 'abc' is not supported"
 
+
 @pytest.mark.parametrize(
     "style_url",
     [
-
         # Without commit reference (uses default branch)
         "gitlab://my_gitlab.com/123/initial.toml",
         "gl://my_gitlab/123/initial.toml",
@@ -988,7 +988,6 @@ def test_gitlab_url_without_token_has_no_authorization_header(style_url):
     "url",
     [
         # Without commit reference (uses default branch)
-
         "gitlab://token@my_gitlab.com/123/initial.toml",
         "gl://token@my_gitlab/123/initial.toml",
         # Explicit commit reference
@@ -1101,6 +1100,7 @@ def test_parsing_gitlab_urls(original_url, expected_url, token_header):
 
     assert gl.raw_content_url == furl(expected_url)
     assert gl.authorization_header == token_header
+
 
 @pytest.mark.parametrize(
     "url",

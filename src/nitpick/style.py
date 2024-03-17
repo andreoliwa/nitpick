@@ -37,8 +37,8 @@ from nitpick.constants import (
     GITHUB_COM_API,
     GITHUB_COM_QUERY_STRING_TOKEN,
     GITHUB_COM_RAW,
-    GITLAB_COM,
     GITLAB_BRANCH_REFERENCE,
+    GITLAB_COM,
     JMEX_NITPICK_STYLES_INCLUDE,
     MERGED_STYLE_TOML,
     NITPICK_STYLE_TOML,
@@ -405,8 +405,8 @@ class Scheme(LowercaseStrEnum):
     FILE = auto()
     GH = auto()
     GITHUB = auto()
-    GL = auto()
     GITLAB = auto()
+    GL = auto()
     HTTP = auto()
     HTTPS = auto()
     PY = auto()
@@ -544,7 +544,7 @@ def _get_fetchers(session: CachedSession) -> dict[str, StyleFetcher]:
         _factory(HttpFetcher),
         _factory(GitHubFetcher),
         _factory(GitLabFetcher),
-        _factory(PythonPackageFetcher)
+        _factory(PythonPackageFetcher),
     )
     return dict(_fetchers_to_pairs(fetchers))
 
@@ -787,21 +787,19 @@ class GitLabURL:
                 scheme=Scheme.HTTPS,
                 host=self.host,
                 path=["api", "v4", "projects", *self.project, "repository", "files", self.path, "raw"],
-                query_params=query_params
+                query_params=query_params,
             )
 
         return furl(
             scheme=Scheme.HTTPS,
             host=self.host,
             path=[*self.project, "-", "raw", self.git_reference, *self.path],
-            query_params=self.query_params
+            query_params=self.query_params,
         )
-
 
     @classmethod
     def _from_http_scheme_furl(cls, url: furl) -> GitLabURL:
-        """
-        Create an instance from a parsed URL in accepted format.
+        """Create an instance from a parsed URL in accepted format.
 
         Gitlab GUI uses named path like:
          - https://gitlab.com/group_URL/subgroup/project_name/-/blob/branch/folder/file
@@ -823,14 +821,13 @@ class GitLabURL:
         project = segments[:dash_index]  # Everything before the "-"
         # The error for git_reference will never be raised due to url normalization (always add .toml)
         git_reference = segments[blob_index]  # The first argument after "blob"
-        path = segments[blob_index + 1:]  # Everything after the git_reference
+        path = segments[blob_index + 1 :]  # Everything after the git_reference
 
         return cls(url.scheme, url.host, project, path, git_reference, auth_token, query_params)
 
     @classmethod
     def _from_gitlab_scheme_furl(cls, url: furl) -> GitLabURL:
-        """
-        Create an instance from a parsed URL in accepted format.
+        """Create an instance from a parsed URL in accepted format.
 
         The Gitlab API does not pay attention to the groups and subgroups the project is in,
         instead it uses the project number and use URL encoded full path to file:
@@ -845,14 +842,13 @@ class GitLabURL:
         project_with_git_reference, *path = url.path.segments
         project, _, git_reference = project_with_git_reference.partition(GIT_AT_REFERENCE)
         project = [project]
-        path = '/'.join(path)
+        path = "/".join(path)
 
         return cls(url.scheme, url.host, project, path, git_reference, auth_token, query_params)
 
     @classmethod
     def from_furl(cls, url: furl) -> GitLabURL:
-        """
-        Create an instance from a parsed URL in any accepted format.
+        """Create an instance from a parsed URL in any accepted format.
 
         The gitlab:// scheme uses the Gitlab API and takes a project number.
         The https:// scheme uses the Gitlab site and takes the path to the project.
@@ -866,7 +862,10 @@ class GitLabURL:
 class GitLabFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     """Fetch styles from GitLab repositories via API."""
 
-    protocols: tuple[str, ...] = (Scheme.GL, Scheme.GITLAB,)  # type: ignore[assignment,has-type]
+    protocols: tuple[str, ...] = (
+        Scheme.GL,
+        Scheme.GITLAB,
+    )  # type: ignore[assignment,has-type]
     domains: tuple[str, ...] = (GITLAB_COM,)
 
     def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use
