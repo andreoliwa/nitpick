@@ -136,7 +136,7 @@ def parse_cache_option(cache_option: str) -> tuple[CachingEnum, timedelta | int]
 
 def raise_gitlab_incorrect_url_error(url: furl) -> NoReturn:
     """Raise an error if the URL is not a valid GitLab URL."""
-    message = f"Неверный URL GitLab: {url}"
+    message = f"Invalid GitLab URL: {url}"
     raise ValueError(message)
 
 
@@ -756,7 +756,7 @@ class GitLabURL:
     host: str
     project: list[str]
     path: str
-    git_reference: str | None
+    git_reference: str
     auth_token: str | None = None
     query_params: tuple[tuple[str, str], ...] | None = None
 
@@ -783,7 +783,7 @@ class GitLabURL:
         """Raw content URL for this path."""
         if self.scheme in GitLabFetcher.protocols:
             query_params = self.query_params
-            if self.git_reference is not None:
+            if self.git_reference:
                 # If the branch was not specified for the raw file, GitLab itself will substitute the HEAD branch
                 # https://docs.gitlab.com/ee/api/repository_files.html#get-raw-file-from-repository
                 query_params = (*query_params, (GITLAB_BRANCH_REFERENCE, self.git_reference))
