@@ -786,7 +786,7 @@ class GitLabURL:
             if self.git_reference:
                 # If the branch was not specified for the raw file, GitLab itself will substitute the HEAD branch
                 # https://docs.gitlab.com/ee/api/repository_files.html#get-raw-file-from-repository
-                query_params = (*query_params, (GITLAB_BRANCH_REFERENCE, self.git_reference))
+                query_params += ((GITLAB_BRANCH_REFERENCE, self.git_reference),)
 
             return furl(
                 scheme=Scheme.HTTPS,
