@@ -135,7 +135,7 @@ def parse_cache_option(cache_option: str) -> tuple[CachingEnum, timedelta | int]
 
 
 def raise_gitlab_incorrect_url_error(url: furl) -> NoReturn:
-    message = "Неверный URL GitLab: {}".format(url)
+    message = f"Неверный URL GitLab: {url}"
     raise ValueError(message)
 
 
