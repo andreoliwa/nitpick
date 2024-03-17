@@ -757,8 +757,8 @@ class GitLabURL:
     project: list[str]
     path: str
     git_reference: str
+    query_params: tuple[tuple[str, str], ...]
     auth_token: str | None = None
-    query_params: tuple[tuple[str, str], ...] | None = None
 
     @property
     def token(self) -> str | None:
@@ -828,7 +828,15 @@ class GitLabURL:
         git_reference = segments[blob_index]  # The first argument after "blob"
         path = segments[blob_index + 1 :]  # Everything after the git_reference
 
-        return cls(url.scheme, url.host, project, path, git_reference, auth_token, query_params)
+        return cls(
+            scheme=url.scheme,
+            host=url.host,
+            project=project,
+            path=path,
+            git_reference=git_reference,
+            query_params=query_params,
+            auth_token=auth_token,
+        )
 
     @classmethod
     def _from_gitlab_scheme_furl(cls, url: furl) -> GitLabURL:
@@ -849,7 +857,15 @@ class GitLabURL:
         project = [project]
         path = "/".join(path)
 
-        return cls(url.scheme, url.host, project, path, git_reference, auth_token, query_params)
+        return cls(
+            scheme=url.scheme,
+            host=url.host,
+            project=project,
+            path=path,
+            git_reference=git_reference,
+            query_params=query_params,
+            auth_token=auth_token,
+        )
 
     @classmethod
     def from_furl(cls, url: furl) -> GitLabURL:
