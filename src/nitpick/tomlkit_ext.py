@@ -2,6 +2,7 @@
 
 Eventually, some of the code here should/could be proposed as pull requests to the original package.
 """
+
 from __future__ import annotations
 
 from functools import wraps

@@ -1,4 +1,5 @@
 """Test .pre-commit-config.yaml."""
+
 from nitpick.constants import PRE_COMMIT_CONFIG_YAML
 from nitpick.plugins.yaml import YamlPlugin
 from nitpick.violations import Fuss, SharedViolations

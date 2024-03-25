@@ -1,4 +1,5 @@
 """Test INI files."""
+
 from configparser import ParsingError
 from unittest import mock
 

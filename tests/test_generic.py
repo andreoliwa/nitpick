@@ -1,4 +1,5 @@
 """Generic functions tests."""
+
 from __future__ import annotations
 
 import os

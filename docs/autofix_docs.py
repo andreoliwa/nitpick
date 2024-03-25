@@ -7,6 +7,7 @@ The ``include`` directive is not working on Read the Docs.
 It doesn't recognise the "styles" dir anywhere (on the root, under "docs", under "_static"...).
 Not even changing ``html_static_path`` on ``conf.py`` worked.
 """
+
 from __future__ import annotations
 
 import sys

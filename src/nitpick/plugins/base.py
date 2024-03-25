@@ -1,4 +1,5 @@
 """Base class for file checkers."""
+
 from __future__ import annotations
 
 import abc
