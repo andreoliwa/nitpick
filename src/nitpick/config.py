@@ -1,4 +1,5 @@
 """Special configurations."""
+
 from attr import Factory, define  # type: ignore[attr-defined]
 
 from nitpick.typedefs import JsonDict

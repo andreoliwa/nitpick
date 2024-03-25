@@ -8,6 +8,7 @@ Imports from ``nitpick`` have to be here within the fixtures, otherwise they rai
     .tox/py38/lib/python3.8/site-packages/pytest_cov/plugin.py:271:
      PytestWarning: Failed to generate report: No data to report.
 """
+
 import logging
 from pathlib import Path
 from textwrap import dedent

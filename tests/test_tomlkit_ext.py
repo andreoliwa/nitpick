@@ -1,4 +1,5 @@
 """Test the tomlkit extensions."""
+
 from pathlib import Path
 from textwrap import dedent
 

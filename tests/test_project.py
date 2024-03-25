@@ -1,4 +1,5 @@
 """Config tests."""
+
 import os
 import shutil
 

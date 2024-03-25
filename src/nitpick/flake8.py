@@ -1,4 +1,5 @@
 """Flake8 plugin to check files."""
+
 import logging
 from functools import lru_cache
 from pathlib import Path

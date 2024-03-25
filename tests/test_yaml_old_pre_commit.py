@@ -4,6 +4,7 @@
 
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
 """
+
 import warnings
 
 import pytest

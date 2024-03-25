@@ -1,4 +1,5 @@
 """JSON tests."""
+
 import warnings
 
 from nitpick.constants import JAVASCRIPT_PACKAGE_JSON, READ_THE_DOCS_URL

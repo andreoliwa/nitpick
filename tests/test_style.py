@@ -1,4 +1,5 @@
 """Style tests."""
+
 import warnings
 from pathlib import Path
 from textwrap import dedent
