@@ -1,4 +1,5 @@
 """Style parsing and merging."""
+
 from __future__ import annotations
 
 import os

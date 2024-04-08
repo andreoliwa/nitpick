@@ -1,4 +1,5 @@
 """YAML files."""
+
 from __future__ import annotations
 
 from itertools import chain

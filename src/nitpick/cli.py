@@ -12,6 +12,7 @@ problems: the code will get executed twice:
 
 Also see (1) from https://click.palletsprojects.com/en/5.x/setuptools/#setuptools-integration
 """
+
 from __future__ import annotations
 
 import logging

@@ -5,6 +5,7 @@
     The hook specifications and the plugin classes are still experimental and considered as an internal API.
     They might change at any time; use at your own risk.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

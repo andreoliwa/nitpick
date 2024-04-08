@@ -1,4 +1,5 @@
 """Test GitHub workflows."""
+
 from nitpick.violations import Fuss
 from tests.helpers import ProjectMock
 

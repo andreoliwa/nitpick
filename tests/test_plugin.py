@@ -1,4 +1,5 @@
 """Plugin tests."""
+
 import os
 from enum import Enum
 

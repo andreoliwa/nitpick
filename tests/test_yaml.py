@@ -1,4 +1,5 @@
 """YAML tests."""
+
 import warnings
 
 from nitpick.plugins.yaml import YamlPlugin

@@ -1,4 +1,5 @@
 """Handle import compatibility issues."""
+
 # pylint: skip-file
 try:
     from importlib.abc import Traversable  # type: ignore[attr-defined]
