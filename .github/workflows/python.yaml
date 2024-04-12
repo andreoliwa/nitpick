@@ -59,8 +59,9 @@ jobs:
       - name: "Set tox env var on Windows"
         if: matrix.os == 'windows-latest'
         run: |
-          $TOX_ENV = "py${{ matrix['python-version'] -replace '\.', '' }}"
-          Write-Host "TOX_ENV=$TOX_ENV" >> $env:GITHUB_ENV
+          $pythonVersion = "${{ matrix.python-version }}"
+          $TOX_ENV = "py" + $pythonVersion.Replace('.', '')
+          echo "TOX_ENV=$TOX_ENV" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: "Set tox env var on Linux/macOS"
         if: matrix.os != 'windows-latest'
