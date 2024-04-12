@@ -56,9 +56,20 @@ jobs:
         run: |
           echo "LINT_DOCS=,lint,docs" >> $GITHUB_ENV
 
+      - name: "Set tox env var on Windows"
+        if: matrix.os == 'windows'
+        run: |
+          $TOX_ENV = "py${env:matrix_python_version.Replace('.', '')}"
+          Write-Host "TOX_ENV=$TOX_ENV" >> $env:GITHUB_ENV
+
+      - name: "Set tox env var on Linux/macOS"
+        if: matrix.os != 'windows'
+        run: |
+          echo "TOX_ENV=$(echo py${{ matrix.python-version }} | tr -d .)" >> $GITHUB_ENV
+
       - name: "Run tests on ${{ matrix.os }}"
         run: |
-          tox -e clean,$(echo py${{ matrix.python-version }} | tr -d .)${{env.LINT_DOCS}},report
+          tox -e clean,${{env.TOX_ENV}}${{env.LINT_DOCS}},report
 
       # https://github.com/marketplace/actions/coveralls-python
       # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
