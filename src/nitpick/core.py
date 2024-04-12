@@ -1,4 +1,5 @@
 """The Nitpick application and project-related utilities."""
+
 from __future__ import annotations
 
 import itertools

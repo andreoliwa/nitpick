@@ -1,4 +1,5 @@
 """Custom Marshmallow fields and validators."""
+
 import json
 
 from marshmallow import ValidationError, fields

@@ -1,4 +1,5 @@
 """Text file tests."""
+
 from nitpick.constants import READ_THE_DOCS_URL
 from nitpick.violations import Fuss
 from tests.helpers import NBSP, SUGGESTION_BEGIN, SUGGESTION_END, ProjectMock

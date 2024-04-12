@@ -1,4 +1,5 @@
 """Meta tests for sanity check purposes."""
+
 import json
 from configparser import ConfigParser
 from pathlib import Path

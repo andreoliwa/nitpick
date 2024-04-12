@@ -1,4 +1,5 @@
 """Main module."""
+
 from loguru import logger
 
 from nitpick.constants import PROJECT_NAME

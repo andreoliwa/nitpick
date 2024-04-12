@@ -1,4 +1,5 @@
 """Test cache."""
+
 from datetime import timedelta
 
 import pytest

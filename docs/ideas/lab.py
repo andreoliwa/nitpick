@@ -1,4 +1,5 @@
 """Laboratory of Nitpick ideas."""
+
 import json
 from pathlib import Path
 from pprint import pprint

@@ -1,4 +1,5 @@
 """Test built-in styles shipped as resources under the ``nitpick.resources`` module."""
+
 from __future__ import annotations
 
 from pathlib import Path

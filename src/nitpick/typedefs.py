@@ -1,4 +1,5 @@
 """Type definitions."""
+
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple, Type, Union
 

@@ -2,6 +2,7 @@
 
 Name inspired by `flake8's violations <https://flake8.pycqa.org/en/latest/user/error-codes.html>`_.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

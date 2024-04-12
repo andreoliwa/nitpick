@@ -1,4 +1,5 @@
 """INI files."""
+
 from __future__ import annotations
 
 from configparser import ConfigParser, DuplicateOptionError, Error, MissingSectionHeaderError, ParsingError
