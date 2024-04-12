@@ -57,13 +57,13 @@ jobs:
           echo "LINT_DOCS=,lint,docs" >> $GITHUB_ENV
 
       - name: "Set tox env var on Windows"
-        if: matrix.os == 'windows'
+        if: matrix.os == 'windows-latest'
         run: |
           $TOX_ENV = "py${env:matrix_python_version.Replace('.', '')}"
           Write-Host "TOX_ENV=$TOX_ENV" >> $env:GITHUB_ENV
 
       - name: "Set tox env var on Linux/macOS"
-        if: matrix.os != 'windows'
+        if: matrix.os != 'windows-latest'
         run: |
           echo "TOX_ENV=$(echo py${{ matrix.python-version }} | tr -d .)" >> $GITHUB_ENV
 
