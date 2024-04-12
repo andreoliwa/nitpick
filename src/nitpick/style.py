@@ -1,3 +1,4 @@
+# pylint: disable=too-many-lines # TODO: refactor: break this into separate modules in a follow-up PR
 """Style parsing and merging."""
 
 from __future__ import annotations
