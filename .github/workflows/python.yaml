@@ -51,14 +51,26 @@ jobs:
       - name: Install tox
         run: python -m pip install tox
 
-      - name: "Set lint/docs env var"
+      - name: "Set LINT_DOCS"
         if: matrix.python-version == '3.9'
         run: |
           echo "LINT_DOCS=,lint,docs" >> $GITHUB_ENV
 
+      - name: "Set TOX_ENV on Windows"
+        if: matrix.os == 'windows-latest'
+        run: |
+          $pythonVersion = "${{ matrix.python-version }}"
+          $TOX_ENV = "py" + $pythonVersion.Replace('.', '')
+          echo "TOX_ENV=$TOX_ENV" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: "Set TOX_ENV on Linux/macOS"
+        if: matrix.os != 'windows-latest'
+        run: |
+          echo "TOX_ENV=$(echo py${{ matrix.python-version }} | tr -d .)" >> $GITHUB_ENV
+
       - name: "Run tests on ${{ matrix.os }}"
         run: |
-          tox -e clean,$(echo py${{ matrix.python-version }} | tr -d .)${{env.LINT_DOCS}},report
+          tox -e clean,${{env.TOX_ENV}}${{env.LINT_DOCS}},report
 
       # https://github.com/marketplace/actions/coveralls-python
       # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
