@@ -1,9 +1,9 @@
 """Flake8 plugin to check files."""
 
 import logging
-from collections.abc import Iterator
 from functools import lru_cache
 from pathlib import Path
+from typing import Iterator
 
 import attr
 from flake8.options.manager import OptionManager
