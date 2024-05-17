@@ -119,7 +119,19 @@ nitpick = "nitpick.__main__:main"
 "Issue Tracker" = "https://github.com/andreoliwa/nitpick/issues"
 
 [tool.ruff]
-# https://beta.ruff.rs/docs/settings/#ignore
+# https://docs.astral.sh/ruff/settings/#line-length
+line-length = 120
+# https://docs.astral.sh/ruff/settings/#src
+src = ["src"]
+# https://docs.astral.sh/ruff/settings/#target-version
+target-version = "py38"
+
+[tool.ruff.format]
+# https://docs.astral.sh/ruff/settings/#format_skip-magic-trailing-comma
+skip-magic-trailing-comma = true
+
+[tool.ruff.lint]
+# https://docs.astral.sh/ruff/settings/#ignore
 ignore = [
   "ANN", # https://beta.ruff.rs/docs/rules/#flake8-annotations-ann # TODO: fix: add typing annotations (fix 249 errors and remove this ignore)
   "COM", # https://beta.ruff.rs/docs/rules/#flake8-commas-com
@@ -135,26 +147,20 @@ ignore = [
   "TD002", # Missing author in TO DO
   "TD003", # Missing issue link on the line following this TO DO
 ]
-# https://beta.ruff.rs/docs/settings/#line-length
-line-length = 120
-# https://beta.ruff.rs/docs/settings/#select
+# https://docs.astral.sh/ruff/settings/#select
 select = ["ALL"]
-# https://beta.ruff.rs/docs/settings/#src
-src = ["src"]
-# https://beta.ruff.rs/docs/settings/#target-version
-target-version = "py38"
 
 # https://beta.ruff.rs/docs/rules/#flake8-quotes-q
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 inline-quotes = "double"
 
 # https://beta.ruff.rs/docs/rules/#mccabe-c90
-[tool.ruff.mccabe]
-# https://beta.ruff.rs/docs/settings/#max-complexity
+[tool.ruff.lint.mccabe]
+# https://docs.astral.sh/ruff/settings/#max-complexity
 max-complexity = 10
 
-# https://beta.ruff.rs/docs/settings/#per-file-ignores
-[tool.ruff.per-file-ignores]
+# https://docs.astral.sh/ruff/settings/#per-file-ignores
+[tool.ruff.lint.per-file-ignores]
 # keep-sorted start
 # ANN https://beta.ruff.rs/docs/rules/#flake8-annotations-ann
 # F401 imported but unused
