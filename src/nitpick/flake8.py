@@ -53,18 +53,20 @@ class NitpickFlake8Extension:
         if current_python_file.absolute() != main_python_file.absolute():
             # Only report warnings once, for the main Python file of this project.
             logger.debug("Ignoring other Python file: {}", self.filename)
-            return []
+            return
 
         logger.debug("Nitpicking file through flake8: {}", self.filename)
         yield from nit.run()
-        return []
+        return
 
     @staticmethod
     @lru_cache  # To avoid calling this function twice in the same process
     def add_options(option_manager: OptionManager):
         """Add the offline option."""
         option_manager.add_option(
-            Flake8OptionEnum.OFFLINE.as_flake8_flag(), action="store_true", help=Flake8OptionEnum.OFFLINE.value
+            Flake8OptionEnum.OFFLINE.as_flake8_flag(),
+            action="store_true",
+            help=Flake8OptionEnum.OFFLINE.value,
         )
 
     @staticmethod
