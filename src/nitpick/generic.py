@@ -106,9 +106,9 @@ def glob_files(dir_: Path, file_patterns: Iterable[str]) -> set[Path]:
 def get_global_gitignore_path() -> Path | None:
     """Get the path to the global Git ignore file."""
     try:
-        output = subprocess.check_output(
+        output = subprocess.check_output(  # noqa: S603
             # TODO: fix: this command might not work on Windows; maybe read ~/.gitconfig directly instead?
-            ["git", "config", "--get", GIT_CORE_EXCLUDES_FILE],  # noqa: S603,S607
+            ["git", "config", "--get", GIT_CORE_EXCLUDES_FILE],  # noqa: S607
             universal_newlines=True,
         ).strip()
         return Path(output) if output else None
