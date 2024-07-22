@@ -370,7 +370,7 @@ class Comparison:
 
         return self
 
-    def _compare_list_elements(  # pylint: disable=too-many-arguments # noqa: PLR0913
+    def _compare_list_elements(  # pylint: disable=too-many-arguments
         self, key: str, parent_key: str, child_key: str, actual_detail: ListDetail, expected_detail: ListDetail
     ) -> None:
         """Compare list elements by their keys or hashes."""
