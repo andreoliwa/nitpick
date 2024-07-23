@@ -315,21 +315,21 @@ class Comparison:
         """Missing data."""
         if not self.missing_dict:
             return None
-        return self.doc_class(obj=(unflatten_quotes(self.missing_dict)))
+        return self.doc_class(obj=(unflatten_quotes(self.missing_dict)))  # type: ignore[return-value]
 
     @property
     def diff(self) -> TBaseDoc | None:
         """Different data."""
         if not self.diff_dict:
             return None
-        return self.doc_class(obj=(unflatten_quotes(self.diff_dict)))
+        return self.doc_class(obj=(unflatten_quotes(self.diff_dict)))  # type: ignore[return-value]
 
     @property
     def replace(self) -> TBaseDoc | None:
         """Data to be replaced."""
         if not self.replace_dict:
             return None
-        return self.doc_class(obj=unflatten_quotes(self.replace_dict))
+        return self.doc_class(obj=unflatten_quotes(self.replace_dict))  # type: ignore[return-value]
 
     @property
     def has_changes(self) -> bool:
