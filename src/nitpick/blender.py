@@ -315,21 +315,21 @@ class Comparison:
         """Missing data."""
         if not self.missing_dict:
             return None
-        return self.doc_class(obj=(unflatten_quotes(self.missing_dict)))
+        return self.doc_class(obj=(unflatten_quotes(self.missing_dict)))  # type: ignore[return-value]
 
     @property
     def diff(self) -> TBaseDoc | None:
         """Different data."""
         if not self.diff_dict:
             return None
-        return self.doc_class(obj=(unflatten_quotes(self.diff_dict)))
+        return self.doc_class(obj=(unflatten_quotes(self.diff_dict)))  # type: ignore[return-value]
 
     @property
     def replace(self) -> TBaseDoc | None:
         """Data to be replaced."""
         if not self.replace_dict:
             return None
-        return self.doc_class(obj=unflatten_quotes(self.replace_dict))
+        return self.doc_class(obj=unflatten_quotes(self.replace_dict))  # type: ignore[return-value]
 
     @property
     def has_changes(self) -> bool:
@@ -370,7 +370,7 @@ class Comparison:
 
         return self
 
-    def _compare_list_elements(  # pylint: disable=too-many-arguments # noqa: PLR0913
+    def _compare_list_elements(  # pylint: disable=too-many-arguments
         self, key: str, parent_key: str, child_key: str, actual_detail: ListDetail, expected_detail: ListDetail
     ) -> None:
         """Compare list elements by their keys or hashes."""
