@@ -27,3 +27,4 @@
   description: "Only check configuration files (TOML/INI/JSON/etc.) and print the violations, according to the Nitpick style"
   entry: nitpick check
   language: python
+  pass_filenames: false
