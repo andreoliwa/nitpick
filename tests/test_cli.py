@@ -56,7 +56,7 @@ def test_missing_style_and_suggest_option(tmp_path: Path) -> None:
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def style_dir_with_types(shared_datadir: Path) -> Generator[Path, None, None]:
     """A mocked directory with style files organised into "identify" subdirs."""
     with mock.patch("nitpick.style.builtin_resources_root") as mock_builtin_resources_root:

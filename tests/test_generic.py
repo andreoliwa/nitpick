@@ -104,7 +104,7 @@ def test_url_to_posix_path(test_path):
     assert _url_to_posix_path(url) == path
 
 
-@pytest.fixture()
+@pytest.fixture
 def some_directory(tmp_path: Path, request) -> Generator[Path, None, None]:
     """Create some directory with some files."""
     project_dir = tmp_path / "project"

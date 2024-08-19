@@ -19,7 +19,7 @@ from loguru import logger
 from responses import RequestsMock
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_default(tmp_path):
     """Project with the default Nitpick style."""
     from nitpick.constants import NITPICK_STYLE_TOML
@@ -34,7 +34,7 @@ def project_default(tmp_path):
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_remote(request, tmp_path):
     """Project with a remote style (loaded from a URL)."""
     from tests.helpers import ProjectMock, tomlstring
@@ -65,7 +65,7 @@ def project_remote(request, tmp_path):
         yield project
 
 
-@pytest.fixture()
+@pytest.fixture
 def caplog(_caplog):  # noqa: F811
     """Override the caplog fixture to make pytest work with loguru.
 
