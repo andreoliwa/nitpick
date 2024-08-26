@@ -58,7 +58,7 @@ FILES_ARGUMENT = click.argument("files", nargs=-1)
     help=Flake8OptionEnum.OFFLINE.value,
 )
 @click.version_option()
-def nitpick_cli(project: Path | None = None, offline=False):  # pylint: disable=unused-argument # noqa: ARG001
+def nitpick_cli(project: Path | None = None, offline=False):  # pylint: disable=unused-argument
     """Enforce the same settings across multiple language-independent projects."""
 
 
