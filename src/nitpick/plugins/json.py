@@ -65,7 +65,7 @@ class JsonPlugin(NitpickPlugin):
     def expected_dict_from_contains_keys(self):
         """Expected dict created from "contains_keys" values."""
         return unflatten_quotes(
-            {key: VALUE_PLACEHOLDER for key in set(self.expected_config.get(KEY_CONTAINS_KEYS) or [])}
+            dict.fromkeys(set(self.expected_config.get(KEY_CONTAINS_KEYS) or []), VALUE_PLACEHOLDER)
         )
 
     def expected_dict_from_contains_json(self):

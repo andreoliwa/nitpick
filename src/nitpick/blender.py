@@ -121,7 +121,7 @@ class ElementDetail:  # pylint: disable=too-few-public-methods
     @property
     def cast_to_dict(self) -> JsonDict:
         """Data cast to dict, for mypy."""
-        return cast(JsonDict, self.data)
+        return cast("JsonDict", self.data)
 
     @classmethod
     def from_data(cls, index: int, data: ElementData, jmes_key: str) -> ElementDetail:
@@ -394,7 +394,7 @@ class Comparison:
                 actual_element.cast_to_dict, expected_element.cast_to_dict, return_list=False
             )
             if diff:
-                new_block = cast(JsonDict, actual_element.data).copy()
+                new_block = cast("JsonDict", actual_element.data).copy()
                 new_block.update(diff)
                 display.append(new_block)
                 replace[actual_element.index] = new_block
@@ -418,8 +418,8 @@ class Comparison:
         expected_nested = search_json(expected_element.data, jmes_nested, [{}])
         diff_nested = compare_lists_with_dictdiffer(actual_nested, expected_nested, return_list=True)
         if diff_nested:
-            actual_data = cast(JsonDict, actual_element.data)
-            expected_data = cast(JsonDict, expected_element.data)
+            actual_data = cast("JsonDict", actual_element.data)
+            expected_data = cast("JsonDict", expected_element.data)
             # TODO: fix: set value deep down the tree (try dpath-python). parent_key = 'regions[].cities[].people'
             expected_data[parent_key] = diff_nested
 

@@ -43,12 +43,12 @@ class TomlPlugin(NitpickPlugin):
 
         document = parse(toml_doc.as_string) if self.autofix else None
         yield from chain(
-            self.report(SharedViolations.DIFFERENT_VALUES, document, cast(TomlDoc, comparison.diff)),
+            self.report(SharedViolations.DIFFERENT_VALUES, document, cast("TomlDoc", comparison.diff)),
             self.report(
                 SharedViolations.MISSING_VALUES,
                 document,
-                cast(TomlDoc, comparison.missing),
-                cast(TomlDoc, comparison.replace),
+                cast("TomlDoc", comparison.missing),
+                cast("TomlDoc", comparison.replace),
             ),
         )
         if self.autofix and self.dirty:
@@ -65,11 +65,11 @@ class TomlPlugin(NitpickPlugin):
         if not (change or replacement):
             return
         if self.autofix:
-            real_change = cast(TomlDoc, replacement or change)
+            real_change = cast("TomlDoc", replacement or change)
             traverse_toml_tree(document, real_change.as_object)
             self.dirty = True
 
-        to_display = cast(TomlDoc, change or replacement)
+        to_display = cast("TomlDoc", change or replacement)
         yield self.reporter.make_fuss(violation, to_display.reformatted.strip(), prefix="", fixed=self.autofix)
 
     @property
