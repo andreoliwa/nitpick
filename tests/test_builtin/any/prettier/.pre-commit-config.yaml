@@ -3,4 +3,4 @@ repos:
     hooks:
       - id: prettier
         stages:
-          - commit
+          - pre-commit
