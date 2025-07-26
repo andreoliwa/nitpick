@@ -77,12 +77,12 @@ class YamlPlugin(NitpickPlugin):
             return
 
         yield from chain(
-            self.report(SharedViolations.DIFFERENT_VALUES, yaml_doc.as_object, cast(YamlDoc, comparison.diff)),
+            self.report(SharedViolations.DIFFERENT_VALUES, yaml_doc.as_object, cast("YamlDoc", comparison.diff)),
             self.report(
                 SharedViolations.MISSING_VALUES,
                 yaml_doc.as_object,
-                cast(YamlDoc, comparison.missing),
-                cast(YamlDoc, comparison.replace),
+                cast("YamlDoc", comparison.missing),
+                cast("YamlDoc", comparison.replace),
             ),
         )
         if self.autofix and self.dirty:
@@ -121,11 +121,11 @@ class YamlPlugin(NitpickPlugin):
         if not (change or replacement):
             return
         if self.autofix:
-            real_change = cast(YamlDoc, replacement or change)
+            real_change = cast("YamlDoc", replacement or change)
             traverse_yaml_tree(yaml_object, real_change.as_object)
             self.dirty = True
 
-        to_display = cast(YamlDoc, change or replacement)
+        to_display = cast("YamlDoc", change or replacement)
         yield self.reporter.make_fuss(violation, to_display.reformatted.strip(), prefix="", fixed=self.autofix)
 
     @property

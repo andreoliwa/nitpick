@@ -336,7 +336,7 @@ class Project:
 
         self.style_dict = style.merge_toml_dict()
 
-        from nitpick.flake8 import NitpickFlake8Extension  # pylint: disable=import-outside-toplevel
+        from nitpick.flake8 import NitpickFlake8Extension  # pylint: disable=import-outside-toplevel  # noqa: PLC0415
 
         minimum_version = search_json(self.style_dict, JMEX_NITPICK_MINIMUM_VERSION, None)
         logger.debug(f"Minimum version: {minimum_version}")

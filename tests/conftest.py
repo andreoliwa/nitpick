@@ -22,8 +22,8 @@ from responses import RequestsMock
 @pytest.fixture
 def project_default(tmp_path):
     """Project with the default Nitpick style."""
-    from nitpick.constants import NITPICK_STYLE_TOML
-    from tests.helpers import ProjectMock, tomlstring
+    from nitpick.constants import NITPICK_STYLE_TOML  # noqa: PLC0415
+    from tests.helpers import ProjectMock, tomlstring  # noqa: PLC0415
 
     nitpick_style = Path(__file__).parent.parent / NITPICK_STYLE_TOML
     return ProjectMock(tmp_path).pyproject_toml(
@@ -37,7 +37,7 @@ def project_default(tmp_path):
 @pytest.fixture
 def project_remote(request, tmp_path):
     """Project with a remote style (loaded from a URL)."""
-    from tests.helpers import ProjectMock, tomlstring
+    from tests.helpers import ProjectMock, tomlstring  # noqa: PLC0415
 
     remote_url = "https://example.com/remote-style.toml"
     remote_style = """
@@ -78,7 +78,7 @@ def caplog(_caplog):  # noqa: F811
             logging.getLogger(record.name).handle(record)
 
     handler_id = logger.add(PropogateHandler(), format="{message} {extra}")
-    from nitpick import PROJECT_NAME
+    from nitpick import PROJECT_NAME  # noqa: PLC0415
 
     logger.enable(PROJECT_NAME)
     yield _caplog

@@ -173,7 +173,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
     def get_default_style_url(github=False) -> furl:
         """Return the URL of the default style/preset."""
         if github:
-            from nitpick import __version__  # pylint: disable=import-outside-toplevel
+            from nitpick import __version__  # pylint: disable=import-outside-toplevel  # noqa: PLC0415
 
             return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", (NITPICK_STYLE_TOML,)).long_protocol_url
 
@@ -667,12 +667,12 @@ class GitHubURL:
     @property
     def short_protocol_url(self) -> furl:
         """Short protocol URL (``gh``)."""
-        return self._build_url(cast(str, Scheme.GH))
+        return self._build_url(cast("str", Scheme.GH))
 
     @property
     def long_protocol_url(self) -> furl:
         """Long protocol URL (``github``)."""
-        return self._build_url(cast(str, Scheme.GITHUB))
+        return self._build_url(cast("str", Scheme.GITHUB))
 
     def _build_url(self, scheme: str) -> furl:
         if self.git_reference and self.git_reference != self.default_branch:
@@ -776,7 +776,7 @@ class PythonPackageFetcher(StyleFetcher):  # pylint: disable=too-few-public-meth
 
     def _normalize_scheme(self, scheme: str) -> str:  # noqa: ARG002
         # Always use the shorter py:// scheme name in the canonical URL.
-        return cast(str, Scheme.PY)
+        return cast("str", Scheme.PY)
 
     def fetch(self, url: furl) -> str:
         """Fetch the style from a Python package."""
