@@ -173,7 +173,7 @@ class StyleManager:  # pylint: disable=too-many-instance-attributes
     def get_default_style_url(github=False) -> furl:
         """Return the URL of the default style/preset."""
         if github:
-            from nitpick import __version__  # pylint: disable=import-outside-toplevel
+            from nitpick import __version__  # pylint: disable=import-outside-toplevel  # noqa: PLC0415
 
             return GitHubURL(PROJECT_OWNER, PROJECT_NAME, f"v{__version__}", (NITPICK_STYLE_TOML,)).long_protocol_url
 

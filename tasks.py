@@ -9,9 +9,12 @@ from __future__ import annotations
 
 import sys
 from configparser import ConfigParser
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
 
 from invoke import Collection, Exit, task  # pylint: disable=import-error
+
+if TYPE_CHECKING:
+    from invoke import Context
 
 COLOR_NONE = "\x1b[0m"
 COLOR_GREEN = "\x1b[32m"
@@ -74,7 +77,7 @@ class ToxCommands:
         )
 
     @staticmethod
-    def config(c) -> str:
+    def config(c: Context) -> str:
         """Enable/disable macOS on tox.ini."""
         if sys.platform != "darwin":
             return ""
@@ -130,7 +133,7 @@ class ToxCommands:
         "version": "Desired Python version number. Default: stable Python version",
     }
 )
-def install(c, deps=True, hooks=False, version=""):
+def install(c: Context, deps=True, hooks=False, version=""):
     """Install dependencies and pre-commit hooks.
 
     Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
@@ -161,7 +164,14 @@ def install(c, deps=True, hooks=False, version=""):
         "reset": "Force testmon to update its data before watching tests",
     }
 )
-def test(c, file="", coverage=False, browse=False, watch=False, reset=False):
+def test(
+    c: Context,
+    file: str = "",  # noqa: PT028
+    coverage: bool = False,  # noqa: PT028
+    browse: bool = False,  # noqa: PT028
+    watch: bool = False,  # noqa: PT028
+    reset: bool = False,  # noqa: PT028
+):
     """Run tests and coverage using the commands from tox config.
 
     `Testmon <https://github.com/tarpas/pytest-testmon>`_
@@ -176,7 +186,9 @@ def test(c, file="", coverage=False, browse=False, watch=False, reset=False):
 
     file_opt = ""
     if file:
-        from conjuring.grimoire import run_with_fzf  # pylint: disable=import-error,import-outside-toplevel
+        from conjuring.grimoire import (  # pylint: disable=import-error,import-outside-toplevel # noqa: PLC0415
+            run_with_fzf,
+        )
 
         chosen_file = run_with_fzf(c, "fd -H -t f test_.*.py", query=file)
         if not chosen_file:
@@ -201,7 +213,7 @@ def test(c, file="", coverage=False, browse=False, watch=False, reset=False):
         "debug": "Debug HTML generation to fix warnings",
     }
 )
-def doc(c, full=False, recreate=False, links=False, browse=False, debug=False):
+def doc(c: Context, full=False, recreate=False, links=False, browse=False, debug=False):
     """Build documentation."""
     tox = ToxCommands()
 
@@ -235,7 +247,7 @@ def doc(c, full=False, recreate=False, links=False, browse=False, debug=False):
         "python": "Python version",
     }
 )
-def ci_build(c, full=False, recreate=False, docs=True, python=""):
+def ci_build(c: Context, full=False, recreate=False, docs=True, python=""):
     """Simulate a CI build."""
     tox = ToxCommands()
 
@@ -254,7 +266,7 @@ def ci_build(c, full=False, recreate=False, docs=True, python=""):
 
 
 @task(help={"recreate": "Recreate tox environment"})
-def lint(c, recreate=False):
+def lint(c: Context, recreate=False):
     """Lint using tox."""
     tox = ToxCommands()
 
@@ -268,7 +280,7 @@ def lint(c, recreate=False):
 
 
 @task(help={"venv": "Remove the Poetry virtualenv and the tox dir"})
-def clean(c, venv=False):
+def clean(c: Context, venv=False):
     """Clean build output and temp files."""
     c.run("find . -type f -name '*.py[co]' -print -delete")
     c.run("find . -type d -name '__pycache__' -print -delete")
@@ -281,7 +293,7 @@ def clean(c, venv=False):
 
 
 @task
-def reactions(c):
+def reactions(c: Context):
     """List issues with reactions.
 
     https://github.blog/2021-03-11-scripting-with-github-cli/
@@ -310,7 +322,7 @@ def reactions(c):
         "lab_help": "Display the help for the lab CLI (a Click CLI within an Invoke CLI... CLI inception!)",
     }
 )
-def lab(c, convert_file_name="", lab_help=False):
+def lab(c: Context, convert_file_name="", lab_help=False):
     """Laboratory of experiments and ideas.
 
     You need to install certain tools if you want to use this command.
@@ -324,7 +336,9 @@ def lab(c, convert_file_name="", lab_help=False):
     if lab_help:
         extra_args.append("--help")
     if convert_file_name:
-        from conjuring.grimoire import run_with_fzf  # pylint: disable=import-error,import-outside-toplevel
+        from conjuring.grimoire import (  # pylint: disable=import-error,import-outside-toplevel # noqa: PLC0415
+            run_with_fzf,
+        )
 
         chosen_file = run_with_fzf(c, "fd -H -t f", query=convert_file_name)
         extra_args.extend(["convert", chosen_file])

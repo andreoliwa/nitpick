@@ -200,7 +200,7 @@ def init(
     # Convert tuple to list, so we can add styles to it
     style_urls = list(style_urls)
     if suggest:
-        from nitpick import __version__  # pylint: disable=import-outside-toplevel
+        from nitpick import __version__  # pylint: disable=import-outside-toplevel  # noqa: PLC0415
 
         # Create the ignored styles array only when suggesting styles
         if CONFIG_KEY_IGNORE_STYLES not in config.table:

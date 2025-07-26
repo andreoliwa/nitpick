@@ -61,7 +61,7 @@ class Deprecation:
 
         Slight breaking change in the TOML config format: ditching the old TOML config.
         """
-        from nitpick.plugins.yaml import KEY_REPOS, KEY_YAML  # pylint: disable=import-outside-toplevel
+        from nitpick.plugins.yaml import KEY_REPOS, KEY_YAML  # pylint: disable=import-outside-toplevel  # noqa: PLC0415
 
         warnings.warn(
             f"The {KEY_REPOS}.{KEY_YAML} key is not supported anymore."

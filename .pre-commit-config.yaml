@@ -54,7 +54,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.4
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix]
   # Recommended by pylint, configurable, less destructive than https://github.com/PyCQA/docformatter
   - repo: https://github.com/DanielNoord/pydocstringformatter

@@ -10,7 +10,7 @@ from more_itertools import always_iterable
 from nitpick.constants import DOT
 from nitpick.exceptions import pretty_exception
 
-__all__ = ("Dict", "Field", "List", "Nested", "String", "URL")
+__all__ = ("Dict", "Field", "List", "Nested", "String", "URL")  # noqa: RUF022
 
 MAX_PARTS = 2
 
