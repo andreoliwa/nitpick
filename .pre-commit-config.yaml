@@ -34,7 +34,7 @@ repos:
         types: [python, toml]
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: debug-statements
       - id: end-of-file-fixer
@@ -52,7 +52,7 @@ repos:
         # - poetry.lock: auto-generated file
         exclude: (ideas/|resources/|tests/|poetry.lock)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.7
+    rev: v0.12.8
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -121,7 +121,7 @@ repos:
         types: [python]
         exclude: tests/
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
   - repo: https://github.com/openstack/bashate
