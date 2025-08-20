@@ -1,4 +1,4 @@
-alabaster==0.7.13 ; python_version >= "3.8" and python_version < "4.0"
+alabaster==0.7.16 ; python_version >= "3.8" and python_version < "4.0"
 attrs==23.1.0 ; python_version >= "3.8" and python_version < "4.0"
 autorepr==0.3.0 ; python_version >= "3.8" and python_version < "4.0"
 babel==2.13.0 ; python_version >= "3.8" and python_version < "4.0"
