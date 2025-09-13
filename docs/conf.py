@@ -7,8 +7,6 @@ http://www.sphinx-doc.org/en/master/config
 
 from __future__ import annotations
 
-import os
-
 # -- Path setup --------------------------------------------------------------
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -24,10 +22,9 @@ version = "0.36.0"
 # The full version, including alpha/beta/rc tags
 release = version
 
-if os.getenv("GITHUB_ACTIONS") is not None:
-    # Tell sphinx-gitref to use the Github branch or tag name if running in a GH
-    # action workflow. See https://github.com/wildfish/sphinx-gitref#installation
-    gitref_branch = os.environ["GITHUB_REF_NAME"]
+# Removed sphinx-gitref configuration due to Python 3.12 compatibility issues
+# The extension uses deprecated readfp() method that was removed in Python 3.12
+# TODO: Re-enable when sphinx-gitref is updated for Python 3.12 compatibility
 
 
 # -- General configuration ---------------------------------------------------
@@ -61,8 +58,8 @@ extensions = [
     "sphinx.ext.todo",
     # http://www.sphinx-doc.org/en/master/usage/extensions/viewcode.html
     "sphinx.ext.viewcode",
-    # https://github.com/wildfish/sphinx-gitref
-    "sphinx_gitref",
+    # Removed sphinx_gitref due to Python 3.12 compatibility issues
+    # "sphinx_gitref",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
