@@ -25,7 +25,9 @@ jobs:
   build:
     needs: pre_job
     # Always run the build step when pushing to master
-    if: needs.pre_job.outputs.should_skip != 'true' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    if:
+      needs.pre_job.outputs.should_skip != 'true' || (github.event_name == 'push'
+      && github.ref == 'refs/heads/master')
     name: "${{ matrix.python-version }} ${{ matrix.os }}"
     strategy:
       fail-fast: false
@@ -39,9 +41,9 @@ jobs:
       PYTHONUNBUFFERED: 1
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -108,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
       # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path

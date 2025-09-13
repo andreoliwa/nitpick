@@ -22,11 +22,11 @@ PYTHONUNBUFFERED = 1
 
 [[".github/workflows/python.yaml".jobs.build.steps]]
 name = "Checkout"
-uses = "actions/checkout@v3"
+uses = "actions/checkout@v5"
 
 [[".github/workflows/python.yaml".jobs.build.steps]]
 name = "Set up Python ${{ matrix.python-version }}"
-uses = "actions/setup-python@v4"
+uses = "actions/setup-python@v6"
 
 [".github/workflows/python.yaml".jobs.build.steps.with]
 python-version = "${{ matrix.python-version }}"
