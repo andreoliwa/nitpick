@@ -90,15 +90,15 @@ testfixtures = {optional = true, version = "*"}
 toml = "*" # TODO: refactor: use only tomlkit and remove uiri/toml
 tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
 
-[tool.poetry.dev-dependencies]
-icecream = "*"
-ipython = "*"
-pudb = "*"
-
 [tool.poetry.extras]
 doc = ["sphinx", "sphinx-gitref", "sphinx_rtd_theme", "sphobjinv"]
 lint = ["pylint"]
 test = ["freezegun", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", "pytest-testmon", "pytest-watch", "responses", "testfixtures"]
+
+[tool.poetry.group.dev.dependencies]
+icecream = "*"
+ipython = "*"
+pudb = "*"
 
 [tool.poetry.plugins."flake8.extension"]
 NIP = "nitpick.flake8:NitpickFlake8Extension"

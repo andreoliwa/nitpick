@@ -377,7 +377,7 @@ Run this command to download and use the opinionated `default style file <nitpic
 
     nitpick init
 
-You can use it as a template to `configure-your-own-style`_.
+You can use it as a template to configure your own style.
 
 To fix and modify your files directly::
 
