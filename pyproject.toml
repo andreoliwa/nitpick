@@ -30,7 +30,7 @@ license = "MIT"
 name = "nitpick"
 readme = "README.rst"
 repository = "https://github.com/andreoliwa/nitpick"
-version = "0.35.0"
+version = "0.36.0"
 
 [tool.poetry.dependencies]
 attrs = ">=20.1.0" # attr.define introduced in this version

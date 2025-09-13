@@ -1,3 +1,13 @@
+# [0.36.0](https://github.com/andreoliwa/nitpick/compare/v0.35.0...v0.36.0) (2025-09-13)
+
+### Bug Fixes
+
+- **deps:** update dependency requests to v2.32.4 [security] ([#694](https://github.com/andreoliwa/nitpick/issues/694)) ([f2aaf18](https://github.com/andreoliwa/nitpick/commit/f2aaf18a1376325081d3c93e2f4dbe8a37949ca9))
+
+### Features
+
+- better file detection to allow more files with text plugin ([#702](https://github.com/andreoliwa/nitpick/issues/702)) ([b17e3d4](https://github.com/andreoliwa/nitpick/commit/b17e3d484f021df42fdf91200d24d83fab8dbdaa))
+
 # [0.35.0](https://github.com/andreoliwa/nitpick/compare/v0.34.0...v0.35.0) (2023-12-31)
 
 ### Bug Fixes
