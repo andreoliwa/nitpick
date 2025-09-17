@@ -44,7 +44,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
     validation_schema: Schema | None = None
 
     #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
-    identify_tags: ClassVar = set()
+    identify_tags: ClassVar[set[str]] = set()
 
     skip_empty_suggestion = False
 
