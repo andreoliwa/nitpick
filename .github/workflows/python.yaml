@@ -77,19 +77,14 @@ jobs:
         run: |
           tox -e clean,${{env.TOX_ENV}}${{env.LINT_DOCS}},report
 
-      # https://github.com/marketplace/actions/coveralls-python
-      # The official coverallsapp/github-action@master doesn't work: https://github.com/marketplace/actions/coveralls-github-action
-      # It fails with "Error: Lcov file not found."
-      # Solution here: https://github.com/coverallsapp/github-action/issues/30#issuecomment-612523058
-      - name: Coveralls
-        # TODO: ci: run code coverage on all platforms to fix missing coverage
-        #   Example: https://github.com/andreoliwa/nitpick/pull/479#issuecomment-1082074275
-        # This condition is needed otherwise it fails with "Error: Container action is only supported on Linux"
-        if: matrix.os == 'ubuntu-latest'
-        uses: AndreMiras/coveralls-python-action@develop
+      # https://github.com/marketplace/actions/coveralls-github-action
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@v2
         with:
+          flag-name: run-${{ join(matrix.*, '-') }}
           parallel: true
-          flag-name: Unit Test
+          # https://github.com/coverallsapp/coverage-reporter/issues/180
+          coverage-reporter-version: v0.6.15
 
   # https://github.com/marketplace/actions/coveralls-python
   coveralls_finish:
