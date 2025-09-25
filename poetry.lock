@@ -445,13 +445,13 @@ test = ["pytest (>=6)"]
 
 [[package]]
 name = "executing"
-version = "2.0.0"
+version = "2.2.1"
 description = "Get the currently executing AST node of a frame, and other information"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8"
 files = [
-    {file = "executing-2.0.0-py2.py3-none-any.whl", hash = "sha256:06df6183df67389625f4e763921c6cf978944721abf3e714000200aab95b0657"},
-    {file = "executing-2.0.0.tar.gz", hash = "sha256:0ff053696fdeef426cda5bd18eacd94f82c91f49823a2e9090124212ceea9b08"},
+    {file = "executing-2.2.1-py2.py3-none-any.whl", hash = "sha256:760643d3452b4d777d295bb167ccc74c64a81df23fb5e08eff250c425a4b2017"},
+    {file = "executing-2.2.1.tar.gz", hash = "sha256:3632cc370565f6648cc328b32435bd120a1e4ebb20c77e3fdde9a13cd1e533c4"},
 ]
 
 [package.extras]
@@ -528,19 +528,19 @@ files = [
 
 [[package]]
 name = "icecream"
-version = "2.1.3"
-description = "Never use print() to debug again; inspect variables, expressions, and program execution with a single, simple function call."
+version = "2.1.8"
+description = "Never use print() to debug again: inspect variables, expressions, and program execution with a single, simple function call."
 optional = false
 python-versions = "*"
 files = [
-    {file = "icecream-2.1.3-py2.py3-none-any.whl", hash = "sha256:757aec31ad4488b949bc4f499d18e6e5973c40cc4d4fc607229e78cfaec94c34"},
-    {file = "icecream-2.1.3.tar.gz", hash = "sha256:0aa4a7c3374ec36153a1d08f81e3080e83d8ac1eefd97d2f4fe9544e8f9b49de"},
+    {file = "icecream-2.1.8-py3-none-any.whl", hash = "sha256:10b1c39dcb54cb28eb487bac56c35dbf9c2b2f406d24340e1a615c3f17274852"},
+    {file = "icecream-2.1.8.tar.gz", hash = "sha256:37269bbc62b02f0d85bfaf3a0eb4df272c967fad059f7ddcdaee5303ea2b2a62"},
 ]
 
 [package.dependencies]
 asttokens = ">=2.0.1"
 colorama = ">=0.3.9"
-executing = ">=0.3.1"
+executing = ">=2.1.0"
 pygments = ">=2.2.0"
 
 [[package]]
@@ -2305,4 +2305,4 @@ test = ["freezegun", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "d76e87860c24701ebd8408aa6102ab15f488e7eb835ecfd14e66594fe2acdec5"
+content-hash = "8df0ed5d2d18d4a357fc462267fb45edaf5beb5d1960944246cfa53b1613ca84"
