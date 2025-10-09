@@ -1,9 +1,12 @@
 """Handle import compatibility issues."""
 
 # pylint: skip-file
+import sys
+from importlib.resources import files  # type: ignore[attr-defined]
+
 try:
-    from importlib.abc import Traversable  # type: ignore[attr-defined]
-    from importlib.resources import files  # type: ignore[attr-defined]
-except ImportError:  # pragma: no cover
-    from importlib_resources import files  # type: ignore[no-redef]
-    from importlib_resources.abc import Traversable  # type: ignore[no-redef]
+    # Python 3.11+ moved Traversable to importlib.resources.abc
+    from importlib.resources.abc import Traversable  # type: ignore[attr-defined]
+except ImportError:
+    # Python 3.9-3.13
+    from importlib.abc import Traversable  # type: ignore[no-redef]

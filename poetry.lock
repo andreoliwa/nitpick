@@ -520,15 +520,15 @@ six = ">=1.12,<2.0"
 
 [[package]]
 name = "freezegun"
-version = "1.2.2"
+version = "1.5.5"
 description = "Let your Python tests travel through time"
 optional = true
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 groups = ["main"]
 markers = "extra == \"test\""
 files = [
-    {file = "freezegun-1.2.2-py3-none-any.whl", hash = "sha256:ea1b963b993cb9ea195adbd893a48d573fda951b0da64f60883d7e988b606c9f"},
-    {file = "freezegun-1.2.2.tar.gz", hash = "sha256:cd22d1ba06941384410cd967d8a99d5ae2442f57dfafeff2fda5de8dc5c05446"},
+    {file = "freezegun-1.5.5-py3-none-any.whl", hash = "sha256:cd557f4a75cf074e84bc374249b9dd491eaeacd61376b9eb3c423282211619d2"},
+    {file = "freezegun-1.5.5.tar.gz", hash = "sha256:ac7742a6cc6c25a2c35e9292dfd554b897b517d2dec26891a2e8debf205cb94a"},
 ]
 
 [package.dependencies]
@@ -2392,4 +2392,4 @@ test = ["freezegun", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", 
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "511354fce56815e1e7e23ba34e6792066e70d5a605f1173c4936f6fc48ae3a29"
+content-hash = "1b40220a47511f149592441ca9e53466f3ff6ff2bd7c4a611ce940e30cba9252"
