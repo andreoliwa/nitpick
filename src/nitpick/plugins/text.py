@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar, Iterator
+from typing import TYPE_CHECKING, ClassVar
 
 from marshmallow import Schema
 from marshmallow.orderedset import OrderedSet
@@ -14,6 +14,8 @@ from nitpick.schemas import help_message
 from nitpick.violations import Fuss, ViolationEnum
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from nitpick.plugins.info import FileInfo
 
 TEXT_FILE_RTFD_PAGE = "plugins.html#text-files"

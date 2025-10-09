@@ -105,10 +105,10 @@ python
      - Python 3.11
    * - :gitref:`py://nitpick/resources/python/312 <src/nitpick/resources/python/312.toml>`
      - Python 3.12
-   * - :gitref:`py://nitpick/resources/python/38 <src/nitpick/resources/python/38.toml>`
-     - Python 3.8
-   * - :gitref:`py://nitpick/resources/python/39 <src/nitpick/resources/python/39.toml>`
-     - Python 3.9
+   * - :gitref:`py://nitpick/resources/python/313 <src/nitpick/resources/python/313.toml>`
+     - Python 3.13
+   * - :gitref:`py://nitpick/resources/python/314 <src/nitpick/resources/python/314.toml>`
+     - Python 3.14
    * - :gitref:`py://nitpick/resources/python/absent <src/nitpick/resources/python/absent.toml>`
      - Files that should not exist
    * - :gitref:`py://nitpick/resources/python/autoflake <src/nitpick/resources/python/autoflake.toml>`

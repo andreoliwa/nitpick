@@ -39,6 +39,8 @@ repos:
       - id: debug-statements
       - id: end-of-file-fixer
       - id: trailing-whitespace
+        # Exclude test files that need trailing whitespace to match YAML formatting
+        exclude: ^tests/test_yaml_pre_commit/(hook-args-add|hook-args-change)\.yaml$
   - repo: https://github.com/google/keep-sorted
     rev: v0.7.1
     hooks:
@@ -52,7 +54,7 @@ repos:
         # - poetry.lock: auto-generated file
         exclude: (ideas/|resources/|tests/|poetry.lock)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.13.3
+    rev: v0.14.0
     hooks:
       - id: ruff-check
         args: [--fix]

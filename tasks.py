@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import sys
 from configparser import ConfigParser
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING
 
 from invoke import Collection, Exit, task  # pylint: disable=import-error
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from invoke import Context
 
 COLOR_NONE = "\x1b[0m"

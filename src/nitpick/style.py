@@ -9,7 +9,7 @@ from datetime import timedelta
 from enum import auto
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Iterable, Iterator, Sequence, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 import attr
 import click
@@ -66,6 +66,8 @@ GITHUB_API_SESSION = Session()  # Dedicated session to reuse connections
 
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     from marshmallow import Schema
 
     from nitpick.core import Project

@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from pprint import pprint
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any
 
 import tomlkit
 from click.testing import CliRunner
@@ -33,6 +33,7 @@ from nitpick.violations import Fuss, Reporter
 
 if TYPE_CHECKING:
     import warnings
+    from collections.abc import Iterable
 
     from responses import RequestsMock
 

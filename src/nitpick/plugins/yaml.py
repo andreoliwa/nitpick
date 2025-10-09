@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import TYPE_CHECKING, ClassVar, Iterator, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from nitpick.blender import Comparison, YamlDoc, traverse_yaml_tree
 from nitpick.config import SpecialConfig
@@ -15,6 +15,8 @@ from nitpick.plugins.text import KEY_CONTAINS
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from nitpick.plugins.info import FileInfo
     from nitpick.typedefs import JsonDict, YamlObject
 

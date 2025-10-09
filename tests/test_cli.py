@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Generator
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -18,6 +18,9 @@ from nitpick.constants import (
     EmojiEnum,
 )
 from tests.helpers import BLANK_LINE, OSAgnosticPaths, ProjectMock
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 def test_simple_error(tmp_path: Path) -> None:

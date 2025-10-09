@@ -6,7 +6,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path, PosixPath, WindowsPath
-from typing import Generator
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
@@ -21,6 +21,9 @@ from nitpick.generic import (
     glob_non_ignored_files,
     relative_to_current_dir,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 
 @mock.patch.object(Path, "cwd")

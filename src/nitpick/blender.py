@@ -13,7 +13,7 @@ import re
 import shlex
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import dictdiffer
 import jmespath
@@ -27,6 +27,8 @@ from sortedcontainers import SortedDict
 from tomlkit import items
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from jmespath.parser import ParsedResult
 
     from nitpick.config import SpecialConfig

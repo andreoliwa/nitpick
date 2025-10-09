@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import TYPE_CHECKING, ClassVar, Iterator, cast
+from typing import TYPE_CHECKING, ClassVar, cast
 
 from tomlkit import dumps, parse
 
@@ -13,6 +13,8 @@ from nitpick.plugins.base import NitpickPlugin
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from tomlkit.toml_document import TOMLDocument
 
     from nitpick.plugins.info import FileInfo
@@ -26,7 +28,7 @@ class TomlPlugin(NitpickPlugin):
     See also `the [tool.poetry] section of the pyproject.toml file
     <https://github.com/python-poetry/poetry/blob/master/docs/pyproject.md>`_.
 
-    Style example: :gitref:`Python 3.8 version constraint <src/nitpick/resources/python/38.toml>`.
+    Style example: :gitref:`Python 3.10 version constraint <src/nitpick/resources/python/310.toml>`.
     There are :ref:`many other examples here <library>`.
     """
 

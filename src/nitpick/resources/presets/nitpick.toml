@@ -8,7 +8,7 @@ minimum_version = "0.10.0"
 [nitpick.styles]
 include = [
   # Suggest the current stable Python version for projects
-  "py://nitpick/resources/python/39",
+  "py://nitpick/resources/python/313",
 
   "py://nitpick/resources/python/absent",
   "py://nitpick/resources/python/black",

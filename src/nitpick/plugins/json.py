@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from itertools import chain
-from typing import TYPE_CHECKING, ClassVar, Iterator
+from typing import TYPE_CHECKING, ClassVar
 
 from loguru import logger
 
@@ -16,6 +16,8 @@ from nitpick.schemas import BaseNitpickSchema
 from nitpick.violations import Fuss, SharedViolations, ViolationEnum
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from nitpick.plugins.info import FileInfo
     from nitpick.typedefs import JsonDict
 

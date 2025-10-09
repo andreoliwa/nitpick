@@ -10,7 +10,7 @@ line-length = 120
 # Use the default style and override some things (like the Python version)
 style = [
   "nitpick-style",
-  "py://nitpick/resources/python/38.toml",
+  "py://nitpick/resources/python/310",
 ]
 
 [tool.poetry]
@@ -73,11 +73,12 @@ pytest-datadir = {optional = true, version = "*"}
 pytest-socket = "*"
 pytest-testmon = {optional = true, version = "*"}
 pytest-watch = {optional = true, version = "*"}
-python = "^3.8"
+python = "^3.10"
 python-slugify = "*"
 requests = "*"
 requests-cache = ">=1.0.0" # This version uses requests_cache.policy.expiration
 responses = {optional = true, version = "*"}
+ruamel-yaml-clib = ">=0.2.12"
 "ruamel.yaml" = "*"
 sortedcontainers = "*"
 # Group: doc
@@ -124,7 +125,7 @@ line-length = 120
 # https://docs.astral.sh/ruff/settings/#src
 src = ["src"]
 # https://docs.astral.sh/ruff/settings/#target-version
-target-version = "py38"
+target-version = "py310"
 
 [tool.ruff.format]
 # https://docs.astral.sh/ruff/settings/#format_skip-magic-trailing-comma

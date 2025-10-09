@@ -8,7 +8,7 @@ from __future__ import annotations
 from functools import wraps
 from pathlib import Path
 from textwrap import dedent
-from typing import IO, TYPE_CHECKING, Callable, Iterable
+from typing import IO, TYPE_CHECKING
 
 import tomlkit
 from tomlkit import TOMLDocument
@@ -18,6 +18,8 @@ from tomlkit.items import Comment, Key, Table, Whitespace
 from nitpick.constants import COMMENT_MARKER_END, COMMENT_MARKER_START
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
+
     from tomlkit.container import Container
 
 # keep-sorted start

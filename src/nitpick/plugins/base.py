@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import abc
 import fnmatch
-from typing import TYPE_CHECKING, ClassVar, Iterator
+from typing import TYPE_CHECKING, ClassVar
 
 from autorepr import autotext
 from loguru import logger
@@ -16,6 +16,7 @@ from nitpick.typedefs import JsonDict, mypy_property
 from nitpick.violations import Fuss, Reporter, SharedViolations
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
     from marshmallow import Schema

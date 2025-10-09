@@ -1,5 +1,5 @@
 [nitpick.meta]
-name = "Python 3.8"
+name = "Python 3.13"
 
 ["pyproject.toml".tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.13"

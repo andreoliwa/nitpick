@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING
 
 import click
 import tomlkit
@@ -50,6 +50,8 @@ from nitpick.style import (
 from nitpick.violations import Fuss, ProjectViolations, Reporter, StyleViolations
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
     from nitpick.typedefs import JsonDict, PathOrStr
 
 

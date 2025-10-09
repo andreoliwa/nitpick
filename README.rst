@@ -264,10 +264,10 @@ python
      - Python 3.11
    * - `py://nitpick/resources/python/312 <src/nitpick/resources/python/312.toml>`_
      - Python 3.12
-   * - `py://nitpick/resources/python/38 <src/nitpick/resources/python/38.toml>`_
-     - Python 3.8
-   * - `py://nitpick/resources/python/39 <src/nitpick/resources/python/39.toml>`_
-     - Python 3.9
+   * - `py://nitpick/resources/python/313 <src/nitpick/resources/python/313.toml>`_
+     - Python 3.13
+   * - `py://nitpick/resources/python/314 <src/nitpick/resources/python/314.toml>`_
+     - Python 3.14
    * - `py://nitpick/resources/python/absent <src/nitpick/resources/python/absent.toml>`_
      - Files that should not exist
    * - `py://nitpick/resources/python/autoflake <src/nitpick/resources/python/autoflake.toml>`_

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from configparser import ConfigParser, DuplicateOptionError, Error, MissingSectionHeaderError, ParsingError
 from io import StringIO
-from typing import TYPE_CHECKING, Any, ClassVar, Iterator
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import dictdiffer
 from configupdater import ConfigUpdater, Space
@@ -14,6 +14,8 @@ from nitpick.plugins.base import NitpickPlugin
 from nitpick.violations import Fuss, ViolationEnum
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from nitpick.plugins.info import FileInfo
 
 COMMA_SEPARATED_VALUES = "comma_separated_values"

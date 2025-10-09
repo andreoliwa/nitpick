@@ -10,7 +10,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path, PosixPath, WindowsPath
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 import click
 from gitignore_parser import parse_gitignore
@@ -18,6 +18,8 @@ from gitignore_parser import parse_gitignore
 from nitpick.constants import DOT, GIT_CORE_EXCLUDES_FILE, GIT_DIR, GIT_IGNORE, PROJECT_NAME
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from furl import furl
 
     from nitpick.typedefs import PathOrStr
