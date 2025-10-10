@@ -302,18 +302,18 @@ markers = {main = "platform_system == \"Windows\" or sys_platform == \"win32\" o
 
 [[package]]
 name = "configupdater"
-version = "3.1.1"
+version = "3.2"
 description = "Parser like ConfigParser but for updating configuration files"
 optional = false
 python-versions = ">=3.6"
 groups = ["main"]
 files = [
-    {file = "ConfigUpdater-3.1.1-py2.py3-none-any.whl", hash = "sha256:805986dbeba317886c7a8d348b2e34986dc9e3128cd3761ecc35decbd372b286"},
-    {file = "ConfigUpdater-3.1.1.tar.gz", hash = "sha256:46f0c74d73efa723776764b43c9739f68052495dd3d734319c1d0eb58511f15b"},
+    {file = "ConfigUpdater-3.2-py2.py3-none-any.whl", hash = "sha256:0f65a041627d7693840b4dd743581db4c441c97195298a29d075f91b79539df2"},
+    {file = "ConfigUpdater-3.2.tar.gz", hash = "sha256:9fdac53831c1b062929bf398b649b87ca30e7f1a735f3fbf482072804106306b"},
 ]
 
 [package.extras]
-testing = ["flake8", "pytest", "pytest-cov", "pytest-virtualenv", "pytest-xdist", "sphinx"]
+testing = ["flake8", "pytest", "pytest-cov", "pytest-randomly", "pytest-xdist", "sphinx"]
 
 [[package]]
 name = "coverage"
@@ -2554,4 +2554,4 @@ test = ["freezegun", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", 
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "fce1fe87c895315e7ee7236209795251da43034daef55e35fc8be7e840a25a49"
+content-hash = "1b40220a47511f149592441ca9e53466f3ff6ff2bd7c4a611ce940e30cba9252"

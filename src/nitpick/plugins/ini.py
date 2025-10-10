@@ -282,16 +282,29 @@ class IniPlugin(NitpickPlugin):
         if not self.autofix:
             return
 
-        space_removed = False
-        while isinstance(self.updater[section].last_block, Space):
-            space_removed = True
-            self.updater[section].last_block.detach()
+        section_obj = self.updater[section]
 
-        self.updater[section].update(options)
+        # Collect all trailing Space blocks
+        # We need to collect them first before detaching to avoid NotAttachedError
+        # when there are multiple consecutive spaces
+        trailing_spaces = []
+        for block in reversed(list(section_obj.iter_blocks())):
+            if isinstance(block, Space):
+                trailing_spaces.append(block)
+            else:
+                break  # Stop at the first non-Space block
+
+        # Detach all trailing spaces
+        space_removed = len(trailing_spaces) > 0
+        for space in trailing_spaces:
+            space.detach()
+
+        section_obj.update(options)
         self.dirty = True
 
+        # Add back a single space if we removed any
         if space_removed:
-            self.updater[section].last_block.add_after.space(1)
+            section_obj.last_block.add_after.space(1)
 
     @staticmethod
     def get_example_cfg(parser: ConfigParser) -> str:

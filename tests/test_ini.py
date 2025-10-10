@@ -496,3 +496,43 @@ def test_generic_ini_with_missing_header(tmp_path):
     ).assert_file_contents(
         "generic.ini", expected_generic_ini
     )
+
+
+def test_add_options_with_multiple_trailing_spaces(tmp_path):
+    """Test that adding options works correctly when there are multiple trailing spaces.
+
+    This is a regression test for the NotAttachedError bug that occurred when
+    trying to detach multiple consecutive Space blocks.
+    """
+    ProjectMock(tmp_path).setup_cfg(
+        """
+        [flake8]
+        max-line-length = 100
+
+
+        """
+    ).style(
+        f"""
+        ["{PYTHON_SETUP_CFG}".flake8]
+        max-line-length = 100
+        max-complexity = 10
+        """
+    ).api_check_then_fix(
+        Fuss(
+            True,
+            PYTHON_SETUP_CFG,
+            Violations.MISSING_OPTION.code,
+            ": section [flake8] has some missing key/value pairs. Use this:",
+            """
+            [flake8]
+            max-complexity = 10
+            """,
+        )
+    ).assert_file_contents(
+        PYTHON_SETUP_CFG,
+        """
+        [flake8]
+        max-line-length = 100
+        max-complexity = 10
+        """,
+    )
