@@ -83,7 +83,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
 
         self.special_config = spc
 
-    def predefined_special_config(self) -> SpecialConfig:  # pylint: disable=no-self-use
+    def predefined_special_config(self) -> SpecialConfig:
         """Create a predefined special configuration for this plugin.
 
         Each plugin can override this method.
@@ -143,7 +143,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         else:
             yield self.reporter.make_fuss(SharedViolations.CREATE_FILE)
 
-    def write_file(  # pylint: disable=no-self-use
+    def write_file(
         self,
         file_exists: bool,  # pylint: disable=unused-argument # noqa: ARG002
     ) -> Fuss | None:

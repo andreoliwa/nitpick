@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from nitpick.typedefs import ElementData, JsonDict, ListOrCommentedSeq, PathOrStr, YamlObject, YamlValue
 
 # Generic type for classes that inherit from BaseDoc
-TBaseDoc = TypeVar("TBaseDoc", bound="BaseDoc")
+BaseDocT = TypeVar("BaseDocT", bound="BaseDoc")
 
 SINGLE_QUOTE = "'"
 DOUBLE_QUOTE = '"'
@@ -299,7 +299,7 @@ unflatten_quotes = partial(unflatten, splitter=quotes_splitter)
 class Comparison:
     """A comparison between two dictionaries, computing missing items and differences."""
 
-    def __init__(self, actual: TBaseDoc, expected: JsonDict, special_config: SpecialConfig) -> None:
+    def __init__(self, actual: BaseDocT, expected: JsonDict, special_config: SpecialConfig) -> None:
         self.flat_actual = flatten_quotes(actual.as_object)
         self.flat_expected = flatten_quotes(expected)
 
@@ -312,21 +312,21 @@ class Comparison:
         self.special_config = special_config
 
     @property
-    def missing(self) -> TBaseDoc | None:
+    def missing(self) -> BaseDocT | None:
         """Missing data."""
         if not self.missing_dict:
             return None
-        return self.doc_class(obj=(unflatten_quotes(self.missing_dict)))  # type: ignore[return-value]
+        return self.doc_class(obj=unflatten_quotes(self.missing_dict))  # type: ignore[return-value]
 
     @property
-    def diff(self) -> TBaseDoc | None:
+    def diff(self) -> BaseDocT | None:
         """Different data."""
         if not self.diff_dict:
             return None
-        return self.doc_class(obj=(unflatten_quotes(self.diff_dict)))  # type: ignore[return-value]
+        return self.doc_class(obj=unflatten_quotes(self.diff_dict))  # type: ignore[return-value]
 
     @property
-    def replace(self) -> TBaseDoc | None:
+    def replace(self) -> BaseDocT | None:
         """Data to be replaced."""
         if not self.replace_dict:
             return None
@@ -360,18 +360,18 @@ class Comparison:
                     jmes_key = child_key
 
                 self._compare_list_elements(
-                    key,
-                    parent_key,
-                    child_key,
-                    ListDetail.from_data(actual, jmes_key),
-                    ListDetail.from_data(expected_value, jmes_key),
+                    key=key,
+                    parent_key=parent_key,
+                    child_key=child_key,
+                    actual_detail=ListDetail.from_data(actual, jmes_key),
+                    expected_detail=ListDetail.from_data(expected_value, jmes_key),
                 )
             elif expected_value != actual:
                 set_key_if_not_empty(self.diff_dict, key, expected_value)
 
         return self
 
-    def _compare_list_elements(  # pylint: disable=too-many-arguments
+    def _compare_list_elements(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self, key: str, parent_key: str, child_key: str, actual_detail: ListDetail, expected_detail: ListDetail
     ) -> None:
         """Compare list elements by their keys or hashes."""

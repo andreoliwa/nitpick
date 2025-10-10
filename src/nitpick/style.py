@@ -496,7 +496,7 @@ class StyleFetcher:
             msg = "session is required"
             raise ValueError(msg)
 
-    def preprocess_relative_url(self, url: str) -> str:  # pylint: disable=no-self-use
+    def preprocess_relative_url(self, url: str) -> str:
         """Preprocess a relative URL.
 
         Only called for urls that lack a scheme (at the very least), being resolved
@@ -504,14 +504,14 @@ class StyleFetcher:
         """
         return url
 
-    def _normalize_url_path(self, url: furl) -> furl:  # pylint: disable=no-self-use
+    def _normalize_url_path(self, url: furl) -> furl:
         """Normalize the path component of a URL."""
         if not url.path.segments[-1].endswith(TOML_EXTENSION):
             url = url.copy()
             url.path.segments[-1] = f"{url.path.segments[-1]}{TOML_EXTENSION}"
         return url
 
-    def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use
+    def _normalize_scheme(self, scheme: str) -> str:
         """Normalize the scheme component of a URL."""
         return scheme
 
@@ -725,7 +725,7 @@ class GitHubFetcher(HttpFetcher):  # pylint: disable=too-few-public-methods
     protocols: tuple[str, ...] = (Scheme.GH, Scheme.GITHUB)  # type: ignore[assignment,has-type]
     domains: tuple[str, ...] = (GITHUB_COM,)
 
-    def _normalize_scheme(self, scheme: str) -> str:  # pylint: disable=no-self-use
+    def _normalize_scheme(self, scheme: str) -> str:
         # Use github:// instead of gh:// in the canonical URL
         return Scheme.GITHUB if scheme == Scheme.GH else scheme  # type: ignore[return-value]
 

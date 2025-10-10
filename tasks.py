@@ -166,7 +166,7 @@ def install(c: Context, deps=True, hooks=False, version=""):
         "reset": "Force testmon to update its data before watching tests",
     }
 )
-def test(
+def test(  # pylint: disable=too-many-positional-arguments
     c: Context,
     file: str = "",  # noqa: PT028
     coverage: bool = False,  # noqa: PT028
@@ -215,7 +215,9 @@ def test(
         "debug": "Debug HTML generation to fix warnings",
     }
 )
-def doc(c: Context, full=False, recreate=False, links=False, browse=False, debug=False):
+def doc(
+    c: Context, full=False, recreate=False, links=False, browse=False, debug=False
+):  # pylint: disable=too-many-positional-arguments
     """Build documentation."""
     tox = ToxCommands()
 
@@ -273,7 +275,7 @@ def lint(c: Context, recreate=False):
     tox = ToxCommands()
 
     tox_cmd = "tox -r" if recreate else "tox"
-    result = c.run(f"{tox_cmd}{tox.config(c)} -e lint", warn=True)
+    result = c.run(f"{tox_cmd} {tox.config(c)} -e lint", warn=True)
 
     # Exit only after restoring tox.ini
     if result.exited > 0:
