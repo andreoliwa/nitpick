@@ -1,3 +1,14 @@
+# [0.37.0](https://github.com/andreoliwa/nitpick/compare/v0.36.0...v0.37.0) (2025-10-10)
+
+### Bug Fixes
+
+- crash on Python 3.14 due to Traversable ([72b1596](https://github.com/andreoliwa/nitpick/commit/72b1596f4a2ce076997f7dae7f809afac68753d6))
+- **ini:** bug with multiple trailing spaces ([d069aa3](https://github.com/andreoliwa/nitpick/commit/d069aa33946b9e4e400b9e5c722cfbbfc22b7ae5))
+
+### Features
+
+- remove Python 3.8/3.9, add 3.13/3.14 ([774ce4f](https://github.com/andreoliwa/nitpick/commit/774ce4f150acfd1025163ae250e7812bf470596c))
+
 # [0.36.0](https://github.com/andreoliwa/nitpick/compare/v0.35.0...v0.36.0) (2025-09-13)
 
 ### Bug Fixes

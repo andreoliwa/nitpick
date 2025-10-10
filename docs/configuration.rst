@@ -49,9 +49,9 @@ GitHub URL scheme (``github://`` or ``gh://``) pinned to a specific version:
 .. code-block:: toml
 
     [tool.nitpick]
-    style = "github://andreoliwa/nitpick@v0.36.0/nitpick-style.toml"
+    style = "github://andreoliwa/nitpick@v0.37.0/nitpick-style.toml"
     # or
-    style = "gh://andreoliwa/nitpick@v0.36.0/nitpick-style.toml"
+    style = "gh://andreoliwa/nitpick@v0.37.0/nitpick-style.toml"
 
 The ``@`` syntax is used to get a Git reference (commit, tag, branch).
 It is similar to the syntax used by ``pip`` and ``pipx``:
@@ -78,14 +78,14 @@ A regular GitHub URL also works. The corresponding raw URL will be used.
 .. code-block:: toml
 
     [tool.nitpick]
-    style = "https://github.com/andreoliwa/nitpick/blob/v0.36.0/nitpick-style.toml"
+    style = "https://github.com/andreoliwa/nitpick/blob/v0.37.0/nitpick-style.toml"
 
 Or use the raw GitHub URL directly:
 
 .. code-block:: toml
 
     [tool.nitpick]
-    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/v0.36.0/nitpick-style.toml"
+    style = "https://raw.githubusercontent.com/andreoliwa/nitpick/v0.37.0/nitpick-style.toml"
 
 You can also use the raw URL of a `GitHub Gist <https://gist.github.com>`_:
 
