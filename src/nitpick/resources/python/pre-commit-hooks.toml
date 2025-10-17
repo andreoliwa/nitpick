@@ -4,7 +4,7 @@ url = "https://pre-commit.com/hooks"
 
 [".pre-commit-config.yaml".default_language_version]
 # https://pre-commit.com/#top_level-default_language_version
-python = "python3.11"
+python = "python3.13"
 
 [[".pre-commit-config.yaml".repos]]
 repo = "https://github.com/pre-commit/pygrep-hooks"

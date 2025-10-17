@@ -9,7 +9,7 @@ ci:
 
 # https://pre-commit.com/#top_level-default_language_version
 default_language_version:
-  python: python3.11
+  python: python3.13
 
 repos:
   - repo: local
