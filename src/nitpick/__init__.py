@@ -6,6 +6,6 @@ from nitpick.constants import PROJECT_NAME
 from nitpick.core import Nitpick
 
 __all__ = ("Nitpick",)
-__version__ = "0.37.0"
+__version__ = "0.38.0"
 
 logger.disable(PROJECT_NAME)

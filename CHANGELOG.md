@@ -1,3 +1,9 @@
+# [0.38.0](https://github.com/andreoliwa/nitpick/compare/v0.37.0...v0.38.0) (2025-10-17)
+
+### Features
+
+- default pre-commit hook now fixes all files ([da5669c](https://github.com/andreoliwa/nitpick/commit/da5669c6d27d79106c3bf397961323ae3f6bfcec))
+
 # [0.37.0](https://github.com/andreoliwa/nitpick/compare/v0.36.0...v0.37.0) (2025-10-10)
 
 ### Bug Fixes

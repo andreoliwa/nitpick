@@ -399,7 +399,7 @@ this to the ``.pre-commit-config.yaml`` in your repository::
 
     repos:
       - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.37.0
+        rev: v0.38.0
         hooks:
           - id: nitpick-suggest
           - id: nitpick
@@ -427,7 +427,7 @@ If you use `MegaLinter <https://megalinter.github.io/>`_ you can run Nitpick as 
 .. code-block:: yaml
 
     PLUGINS:
-      - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.37.0/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
+      - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.38.0/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
     ENABLE_LINTERS:
       - NITPICK
 
