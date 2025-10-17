@@ -69,10 +69,10 @@ If you use pre-commit_ on your project, add this to the ``.pre-commit-config.yam
           - id: nitpick-suggest
           - id: nitpick
 
-There are 4 available hook IDs:
+There are a few hook IDs available:
 
-- ``nitpick`` and ``nitpick-fix`` both run the ``nitpick fix`` command;
-- ``nitpick-check`` runs ``nitpick check``;
+- ``nitpick``, ``nitpick-fix`` and ``nitpick-fix-all`` run the ``nitpick fix`` command;
+- ``nitpick-check`` and ``nitpick-check-all`` runs ``nitpick check``;
 - ``nitpick-suggest`` runs ``nitpick init --fix --suggest``;
 
 If you want to run Nitpick_ as a flake8_ plugin instead:

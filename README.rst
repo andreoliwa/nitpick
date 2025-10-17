@@ -401,12 +401,14 @@ this to the ``.pre-commit-config.yaml`` in your repository::
       - repo: https://github.com/andreoliwa/nitpick
         rev: v0.37.0
         hooks:
+          - id: nitpick-suggest
           - id: nitpick
 
-There are 3 available hook IDs:
+There are a few hook IDs available:
 
-- ``nitpick`` and ``nitpick-fix`` both run the ``nitpick fix`` command;
-- ``nitpick-check`` runs ``nitpick check``.
+- ``nitpick``, ``nitpick-fix`` and ``nitpick-fix-all`` run the ``nitpick fix`` command;
+- ``nitpick-check`` and ``nitpick-check-all`` runs ``nitpick check``;
+- ``nitpick-suggest`` runs ``nitpick init --fix --suggest``;
 
 If you want to run Nitpick as a flake8 plugin instead::
 

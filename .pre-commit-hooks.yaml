@@ -1,8 +1,45 @@
 # https://pre-commit.com/#creating-new-hooks
+
+# This is the new default: to fix all files, NOT passing filenames to the hook.
+# The usage of "pass_filenames: false`` is not recommended by the authors of pre-commit,
+#  but it's the only way to make Nitpick work as intended.
+# See this comment for more context: https://github.com/andreoliwa/nitpick/pull/673/files#r1714086075
+# If this breaks your workflow, choose one of the other hooks below with "pass_filenames: true".
+
 - id: nitpick
-  name: "nitpick fix (auto fixing files)"
-  description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style"
+  name: "nitpick fix (all files)"
+  description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style. All files are considered by pre-commit."
   entry: nitpick fix
+  pass_filenames: false
+  language: python
+
+# Same as nitpick, but with a more explicit name.
+- id: nitpick-fix-all
+  name: "nitpick fix (all files)"
+  description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style. All files are considered by pre-commit."
+  entry: nitpick fix
+  pass_filenames: false
+  language: python
+
+- id: nitpick-fix
+  name: "nitpick fix (modified files only)"
+  description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style. Only modified files are considered by pre-commit."
+  entry: nitpick fix
+  pass_filenames: true
+  language: python
+
+- id: nitpick-check-all
+  name: "nitpick check (all files)"
+  description: "Only check configuration files (TOML/INI/JSON/etc.) and print the violations, according to the Nitpick style. All files are considered by pre-commit."
+  entry: nitpick check
+  pass_filenames: false
+  language: python
+
+- id: nitpick-check
+  name: "nitpick check (modified files only)"
+  description: "Only check configuration files (TOML/INI/JSON/etc.) and print the violations, according to the Nitpick style. Only modified files are considered by pre-commit."
+  entry: nitpick check
+  pass_filenames: true
   language: python
 
 - id: nitpick-suggest
@@ -14,16 +51,3 @@
   # and will be added to [tool.nitpick]style in pyproject.toml
   pass_filenames: false
   always_run: true
-
-# This hook is kept for compatibility (or if one wants to be explicit): "nitpick" does the same as "nitpick-fix" now
-- id: nitpick-fix
-  name: "nitpick fix (auto fixing files)"
-  description: "Fix configuration files (TOML/INI/JSON/etc.) directly, according to the Nitpick style"
-  entry: nitpick fix
-  language: python
-
-- id: nitpick-check
-  name: "nitpick check (check files only)"
-  description: "Only check configuration files (TOML/INI/JSON/etc.) and print the violations, according to the Nitpick style"
-  entry: nitpick check
-  language: python

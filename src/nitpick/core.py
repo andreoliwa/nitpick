@@ -96,6 +96,7 @@ class Nitpick:
         """
         Reporter.reset()
 
+        logger.info("File names: {}", partial_names)
         try:
             yield from chain(
                 self.project.merge_styles(self.offline),
