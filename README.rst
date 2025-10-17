@@ -48,7 +48,7 @@ Example of a style:
     ["pyproject.toml".tool.black]
     line-length = 120
 
-    ["pyproject.toml".tool.poetry.dev-dependencies]
+    ["pyproject.toml".tool.poetry.group.dev.dependencies]
     pylint = "*"
 
     ["setup.cfg".flake8]

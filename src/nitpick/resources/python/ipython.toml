@@ -2,6 +2,6 @@
 name = "IPython"
 url = "https://github.com/ipython/ipython"
 
-["pyproject.toml".tool.poetry.dev-dependencies]
+["pyproject.toml".tool.poetry.group.dev.dependencies]
 ipython = "*"
 ipdb = "*"

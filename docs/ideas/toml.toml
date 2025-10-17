@@ -1,6 +1,6 @@
 # Keys are absent
 # See [Enforce absence of keys · Issue #10 · andreoliwa/nitpick](https://github.com/andreoliwa/nitpick/issues/10)
-["pyproject.toml".tool.poetry.dev-dependencies]
+["pyproject.toml".tool.poetry.group.dev.dependencies]
 pep257__exists = false
 pycodestyle__exists = false
 pur__exists = false

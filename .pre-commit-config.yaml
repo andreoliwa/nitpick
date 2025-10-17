@@ -86,6 +86,8 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
+        # To avoid "[error] No files matching the given patterns were found" when running locally
+        args: [--no-error-on-unmatched-pattern]
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.18.2
