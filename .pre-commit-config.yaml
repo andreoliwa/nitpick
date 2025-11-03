@@ -54,7 +54,7 @@ repos:
         # - poetry.lock: auto-generated file
         exclude: (ideas/|resources/|tests/|poetry.lock)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.2
+    rev: v0.14.3
     hooks:
       - id: ruff-check
         args: [--fix]
