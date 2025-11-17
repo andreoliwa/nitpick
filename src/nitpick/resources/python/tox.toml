@@ -20,7 +20,7 @@ source = "src/"
 #.tox/*
 #*/pypoetry/virtualenvs/*
 #"""
-# This config is needed by https://github.com/marketplace/actions/coveralls-python#usage
+# This config is useful for coverage reporting in CI environments with multiple test runs
 relative_files = true
 
 ["tox.ini"."coverage:report"]
