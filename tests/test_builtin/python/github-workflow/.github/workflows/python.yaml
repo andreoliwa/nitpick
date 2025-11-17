@@ -7,10 +7,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
         include:
           - name: lint
             os: ubuntu-latest
@@ -20,7 +16,13 @@ jobs:
             os: ubuntu-latest
             toxenv: docs
             python-version: '3.14'
-    name: ${{ matrix.name || matrix.os }}
+          - name: test-ubuntu
+            os: ubuntu-latest
+          - name: test-windows
+            os: windows-latest
+          - name: test-macos
+            os: macos-latest
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     env:
       PYTHONUNBUFFERED: 1

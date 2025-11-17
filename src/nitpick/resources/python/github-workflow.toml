@@ -9,10 +9,7 @@ on = ["push", "pull_request"]
 [".github/workflows/python.yaml".jobs.build.strategy]
 fail-fast = false
 
-[".github/workflows/python.yaml".jobs.build.strategy.matrix]
-os = ["ubuntu-latest", "windows-latest", "macos-latest"]
-
-# Separate lint and docs jobs using matrix include
+# Create 5 separate jobs using matrix include
 [[".github/workflows/python.yaml".jobs.build.strategy.matrix.include]]
 name = "lint"
 os = "ubuntu-latest"
@@ -25,8 +22,20 @@ os = "ubuntu-latest"
 toxenv = "docs"
 python-version = "3.14"
 
+[[".github/workflows/python.yaml".jobs.build.strategy.matrix.include]]
+name = "test-ubuntu"
+os = "ubuntu-latest"
+
+[[".github/workflows/python.yaml".jobs.build.strategy.matrix.include]]
+name = "test-windows"
+os = "windows-latest"
+
+[[".github/workflows/python.yaml".jobs.build.strategy.matrix.include]]
+name = "test-macos"
+os = "macos-latest"
+
 [".github/workflows/python.yaml".jobs.build]
-name = "${{ matrix.name || matrix.os }}"
+name = "${{ matrix.name }}"
 runs-on = "${{ matrix.os }}"
 
 [".github/workflows/python.yaml".jobs.build.env]

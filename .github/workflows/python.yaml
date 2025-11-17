@@ -25,11 +25,10 @@ jobs:
   build:
     needs: pre_job
     if: needs.pre_job.outputs.should_skip != 'true'
-    name: "${{ matrix.name || matrix.os }}"
+    name: "${{ matrix.name }}"
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - name: lint
             os: ubuntu-latest
@@ -39,6 +38,12 @@ jobs:
             os: ubuntu-latest
             toxenv: docs
             python-version: "3.14"
+          - name: test-ubuntu
+            os: ubuntu-latest
+          - name: test-windows
+            os: windows-latest
+          - name: test-macos
+            os: macos-latest
     runs-on: ${{ matrix.os }}
     env:
       PYTHONUNBUFFERED: 1
