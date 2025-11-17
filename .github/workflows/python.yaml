@@ -109,12 +109,12 @@ jobs:
         run: python -m pip install --upgrade pip tox
 
       # Run tox environments
-      # For test jobs: run all Python versions
+      # For test jobs: run all Python versions and generate coverage report
       # For lint/docs jobs: run only the specific environment
       - name: "Run tox"
         run: tox
         env:
-          TOXENV: ${{ matrix.toxenv || 'py310,py311,py312,py313,py314' }}
+          TOXENV: ${{ matrix.toxenv || 'py310,py311,py312,py313,py314,report' }}
 
       # https://github.com/codecov/codecov-action
       # Only upload coverage for test jobs (not lint/docs)
