@@ -12,9 +12,9 @@ Nitpick
 .. image:: https://readthedocs.org/projects/nitpick/badge/?version=latest
     :target: https://nitpick.rtfd.io/en/latest/?badge=latest
     :alt: Documentation Status
-.. image:: https://coveralls.io/repos/github/andreoliwa/nitpick/badge.svg
-    :target: https://coveralls.io/github/andreoliwa/nitpick
-    :alt: Coveralls
+.. image:: https://codecov.io/gh/andreoliwa/nitpick/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/andreoliwa/nitpick
+    :alt: Codecov
 .. image:: https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/maintainability
     :target: https://codeclimate.com/github/andreoliwa/nitpick
     :alt: Maintainability

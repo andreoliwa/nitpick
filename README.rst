@@ -5,7 +5,7 @@ Nitpick
 |Supported Python versions|
 |GitHub Actions Python Workflow|
 |Documentation Status|
-|Coveralls|
+|Codecov|
 |Maintainability|
 |Test Coverage|
 |pre-commit|
@@ -452,8 +452,8 @@ supported, `see the full documentation <https://nitpick.rtfd.io/>`_.
 .. |GitHub Actions Python Workflow| image:: https://github.com/andreoliwa/nitpick/workflows/Python/badge.svg
 .. |Documentation Status| image:: https://readthedocs.org/projects/nitpick/badge/?version=latest
    :target: https://nitpick.rtfd.io/en/latest/?badge=latest
-.. |Coveralls| image:: https://coveralls.io/repos/github/andreoliwa/nitpick/badge.svg
-   :target: https://coveralls.io/github/andreoliwa/nitpick
+.. |Codecov| image:: https://codecov.io/gh/andreoliwa/nitpick/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/andreoliwa/nitpick
 .. |Maintainability| image:: https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/maintainability
    :target: https://codeclimate.com/github/andreoliwa/nitpick
 .. |Test Coverage| image:: https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/test_coverage
