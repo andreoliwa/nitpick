@@ -25,13 +25,20 @@ jobs:
   build:
     needs: pre_job
     if: needs.pre_job.outputs.should_skip != 'true'
-    name: "${{ matrix.os }}"
+    name: "${{ matrix.name || matrix.os }}"
     strategy:
       fail-fast: false
       matrix:
-        # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
-        # See https://github.com/actions/virtual-environments/issues/1816
         os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - name: lint
+            os: ubuntu-latest
+            toxenv: lint
+            python-version: "3.14"
+          - name: docs
+            os: ubuntu-latest
+            toxenv: docs
+            python-version: "3.14"
     runs-on: ${{ matrix.os }}
     env:
       PYTHONUNBUFFERED: 1
@@ -39,33 +46,45 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      # Install all Python versions on each runner
-      # tox-gh-actions will automatically select the right environments to run
+      # For lint/docs jobs: install only Python 3.14
+      - name: Set up Python ${{ matrix.python-version }}
+        if: matrix.python-version
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      # For test jobs: install all Python versions
       - name: Set up Python 3.10
+        if: "!matrix.python-version"
         uses: actions/setup-python@v6
         with:
           python-version: "3.10"
           cache: "pip"
 
       - name: Set up Python 3.11
+        if: "!matrix.python-version"
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: "pip"
 
       - name: Set up Python 3.12
+        if: "!matrix.python-version"
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: "pip"
 
       - name: Set up Python 3.13
+        if: "!matrix.python-version"
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
           cache: "pip"
 
       - name: Set up Python 3.14
+        if: "!matrix.python-version"
         uses: actions/setup-python@v6
         with:
           python-version: "3.14"
@@ -81,17 +100,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tox-
 
-      # https://github.com/ymyzk/tox-gh-actions
-      - name: Install pip, tox and tox-gh-actions
-        run: python -m pip install --upgrade pip tox tox-gh-actions
+      - name: Install pip and tox
+        run: python -m pip install --upgrade pip tox
 
-      # tox-gh-actions will automatically run the appropriate environments
-      # based on the Python version and [gh-actions] configuration in tox.ini
-      - name: "Run tests with tox"
+      # Run tox environments
+      # For test jobs: run all Python versions
+      # For lint/docs jobs: run only the specific environment
+      - name: "Run tox"
         run: tox
+        env:
+          TOXENV: ${{ matrix.toxenv || 'py310,py311,py312,py313,py314' }}
 
       # https://github.com/codecov/codecov-action
+      # Only upload coverage for test jobs (not lint/docs)
       - name: Upload coverage to Codecov
+        if: "!matrix.toxenv"
         uses: codecov/codecov-action@v5
         with:
           flags: ${{ matrix.os }}
@@ -99,5 +122,3 @@ jobs:
           fail_ci_if_error: false
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Install tox and tox-gh-actions
-        run: python -m pip install tox tox-gh-actions
