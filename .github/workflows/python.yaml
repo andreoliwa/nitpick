@@ -24,10 +24,7 @@ jobs:
 
   build:
     needs: pre_job
-    # Always run the build step when pushing to master
-    if:
-      needs.pre_job.outputs.should_skip != 'true' || (github.event_name == 'push'
-      && github.ref == 'refs/heads/master')
+    if: needs.pre_job.outputs.should_skip != 'true'
     name: "${{ matrix.python-version }} ${{ matrix.os }}"
     strategy:
       fail-fast: false
@@ -107,85 +104,3 @@ jobs:
         uses: AndreMiras/coveralls-python-action@develop
         with:
           parallel-finished: true
-
-  # This cannot be a separate workflow yet, because a workflow cannot depend on another workflow. See this topic:
-  # Depend on another workflow - Code to Cloud / GitHub Actions - GitHub Support Community
-  # https://github.com/orgs/community/discussions/26632
-  release:
-    needs: coveralls_finish
-    # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsif
-    # https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#determining-when-to-use-contexts
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-      # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
-      - name: Add to PATH
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - name: Install pip/setuptools first
-        run: python3 -m pip install --upgrade pip setuptools
-      - name: Install pre-commit bumpversion twine
-        run: python3 -m pip install --upgrade poetry pre-commit bumpversion twine
-      - name: Display versions
-        run: |
-          node --version
-          npm --version
-          python --version
-          python3 --version
-          python3 -m pip --version
-          pre-commit --version
-          twine --version
-          python3 -m pip freeze
-      - name: Semantic Release
-        # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
-        uses: cycjimmy/semantic-release-action@v5
-        id: semantic # Need an `id` for output variables
-        with:
-          # Don't pin the version here... it didn't work
-          # https://github.com/semantic-release/semantic-release/releases
-          # semantic_version: 20.0.0
-
-          # To debug, see these options:
-          # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
-          # dry_run: true
-
-          # https://github.com/marketplace/actions/action-for-semantic-release#branches
-          # branches: |
-          #   ['you-debug-branch-name-here']
-
-          # https://github.com/marketplace/actions/action-for-semantic-release#extra_plugins
-          # https://github.com/semantic-release/changelog/releases
-          # https://github.com/semantic-release/git/releases
-          # https://github.com/semantic-release/exec/releases
-          # Don't pin versions anymore; let's see how this goes for the next releases
-          extra_plugins: |
-            @semantic-release/changelog
-            @semantic-release/git
-            @semantic-release/exec
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-          PYPI_TEST_PASSWORD: ${{ secrets.PYPI_TEST_PASSWORD }}
-      - name: New release published
-        if: steps.semantic.outputs.new_release_published == 'true'
-        run: |
-          echo "Release = ${{ steps.semantic.outputs.new_release_version }}"
-          echo "Major = ${{ steps.semantic.outputs.new_release_major_version }}"
-          echo "Minor = ${{ steps.semantic.outputs.new_release_minor_version }}"
-          echo "Patch = ${{ steps.semantic.outputs.new_release_patch_version }}"
-          echo "Channel = ${{ steps.semantic.outputs.new_release_channel }}"
-          echo "Notes = ${{ steps.semantic.outputs.new_release_notes }}"
-
-# TODO: the workflow might fail with "rate limit" error but the release itself apparently works.
-#  The follow-up actions are not executed though. See:
-#  HttpError: You have exceeded a secondary rate limit https://github.com/semantic-release/semantic-release/issues/2204
-#  Rate limit reached on big release https://github.com/semantic-release/semantic-release/issues/843
-#  replace custom throttling code with @octokit/plugin-throttling https://github.com/semantic-release/github/issues/299
-#  fix: use retry and throttle octokit plugins https://github.com/semantic-release/github/pull/487
