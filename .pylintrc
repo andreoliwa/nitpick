@@ -41,8 +41,6 @@ good-names = i,j,k,e,ex,Run,_,id,rv,c
 # Regular expression matching correct constant names
 const-rgx=(([A-Z_][A-Z0-9_]*)|([a-z_][a-z0-9_]*)|(__.*__)|register|urlpatterns)$
 
-bad-functions = map,filter
-
 [FORMAT]
 
 # Maximum number of characters on a single line.
