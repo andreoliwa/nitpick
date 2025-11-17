@@ -1,0 +1,85 @@
+# Manual release workflow
+# Trigger this workflow manually from the Actions tab to create a new release
+
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    # Only allow releases from the master branch
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
+      - name: Add to PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install pip/setuptools first
+        run: python3 -m pip install --upgrade pip setuptools
+      - name: Install pre-commit bumpversion twine
+        run: python3 -m pip install --upgrade poetry pre-commit bumpversion twine
+      - name: Display versions
+        run: |
+          node --version
+          npm --version
+          python --version
+          python3 --version
+          python3 -m pip --version
+          pre-commit --version
+          twine --version
+          python3 -m pip freeze
+      - name: Semantic Release
+        # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
+        uses: cycjimmy/semantic-release-action@v5
+        id: semantic # Need an `id` for output variables
+        with:
+          # Don't pin the version here... it didn't work
+          # https://github.com/semantic-release/semantic-release/releases
+          # semantic_version: 20.0.0
+
+          # To debug, see these options:
+          # https://github.com/marketplace/actions/action-for-semantic-release#dry_run
+          # dry_run: true
+
+          # https://github.com/marketplace/actions/action-for-semantic-release#branches
+          # branches: |
+          #   ['you-debug-branch-name-here']
+
+          # https://github.com/marketplace/actions/action-for-semantic-release#extra_plugins
+          # https://github.com/semantic-release/changelog/releases
+          # https://github.com/semantic-release/git/releases
+          # https://github.com/semantic-release/exec/releases
+          # Don't pin versions anymore; let's see how this goes for the next releases
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+            @semantic-release/exec
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          PYPI_TEST_PASSWORD: ${{ secrets.PYPI_TEST_PASSWORD }}
+      - name: New release published
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          echo "Release = ${{ steps.semantic.outputs.new_release_version }}"
+          echo "Major = ${{ steps.semantic.outputs.new_release_major_version }}"
+          echo "Minor = ${{ steps.semantic.outputs.new_release_minor_version }}"
+          echo "Patch = ${{ steps.semantic.outputs.new_release_patch_version }}"
+          echo "Channel = ${{ steps.semantic.outputs.new_release_channel }}"
+          echo "Notes = ${{ steps.semantic.outputs.new_release_notes }}"
+
+# TODO: the workflow might fail with "rate limit" error but the release itself apparently works.
+#  The follow-up actions are not executed though. See:
+#  HttpError: You have exceeded a secondary rate limit https://github.com/semantic-release/semantic-release/issues/2204
+#  Rate limit reached on big release https://github.com/semantic-release/semantic-release/issues/843
+#  replace custom throttling code with @octokit/plugin-throttling https://github.com/semantic-release/github/issues/299
+#  fix: use retry and throttle octokit plugins https://github.com/semantic-release/github/pull/487
