@@ -11,10 +11,9 @@ fail-fast = false
 
 [".github/workflows/python.yaml".jobs.build.strategy.matrix]
 os = ["ubuntu-latest", "windows-latest", "macos-latest"]
-python-version = ["3.14", "3.13", "3.12", "3.11", "3.10"]
 
 [".github/workflows/python.yaml".jobs.build]
-name = "${{ matrix.python-version }} ${{ matrix.os }}"
+name = "${{ matrix.os }}"
 runs-on = "${{ matrix.os }}"
 
 [".github/workflows/python.yaml".jobs.build.env]
@@ -24,13 +23,27 @@ PYTHONUNBUFFERED = 1
 name = "Checkout"
 uses = "actions/checkout@v5"
 
+# Multiple Python versions are set up on each runner for tox-gh-actions
 [[".github/workflows/python.yaml".jobs.build.steps]]
-name = "Set up Python ${{ matrix.python-version }}"
+name = "Set up Python 3.10"
 uses = "actions/setup-python@v6"
 
-[".github/workflows/python.yaml".jobs.build.steps.with]
-python-version = "${{ matrix.python-version }}"
+[[".github/workflows/python.yaml".jobs.build.steps]]
+name = "Set up Python 3.11"
+uses = "actions/setup-python@v6"
 
 [[".github/workflows/python.yaml".jobs.build.steps]]
-name = "Install tox"
-run = "python -m pip install tox"
+name = "Set up Python 3.12"
+uses = "actions/setup-python@v6"
+
+[[".github/workflows/python.yaml".jobs.build.steps]]
+name = "Set up Python 3.13"
+uses = "actions/setup-python@v6"
+
+[[".github/workflows/python.yaml".jobs.build.steps]]
+name = "Set up Python 3.14"
+uses = "actions/setup-python@v6"
+
+[[".github/workflows/python.yaml".jobs.build.steps]]
+name = "Install pip, tox and tox-gh-actions"
+run = "python -m pip install --upgrade pip tox tox-gh-actions"

@@ -25,11 +25,10 @@ jobs:
   build:
     needs: pre_job
     if: needs.pre_job.outputs.should_skip != 'true'
-    name: "${{ matrix.python-version }} ${{ matrix.os }}"
+    name: "${{ matrix.os }}"
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.14", "3.13", "3.12", "3.11", "3.10"]
         # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
         # See https://github.com/actions/virtual-environments/issues/1816
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -39,47 +38,66 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Set up Python ${{ matrix.python-version }}
+
+      # Install all Python versions on each runner
+      # tox-gh-actions will automatically select the right environments to run
+      - name: Set up Python 3.10
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"
+          cache: "pip"
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: "pip"
+
+      # Cache tox environments
+      - name: Cache tox environments
+        uses: actions/cache@v4
+        with:
+          path: .tox
+          key: ${{ runner.os }}-tox-${{ hashFiles('**/tox.ini',
+            '**/pyproject.toml', '**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-tox-
 
       # https://github.com/ymyzk/tox-gh-actions
-      # This action didn't work: https://github.com/marketplace/actions/run-tox-gh-actions ¯\_(ツ)_/¯
-      # Error: Unable to resolve action `ymyzk/tox-gh-actions@main`, unable to find version `main`
-      - name: Install tox
-        run: python -m pip install tox
+      - name: Install pip, tox and tox-gh-actions
+        run: python -m pip install --upgrade pip tox tox-gh-actions
 
-      - name: "Set LINT_DOCS"
-        if: matrix.python-version == '3.10'
-        run: |
-          echo "LINT_DOCS=,lint,docs" >> $GITHUB_ENV
-
-      - name: "Set TOX_ENV on Windows"
-        if: matrix.os == 'windows-latest'
-        run: |
-          $pythonVersion = "${{ matrix.python-version }}"
-          $TOX_ENV = "py" + $pythonVersion.Replace('.', '')
-          echo "TOX_ENV=$TOX_ENV" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: "Set TOX_ENV on Linux/macOS"
-        if: matrix.os != 'windows-latest'
-        run: |
-          echo "TOX_ENV=$(echo py${{ matrix.python-version }} | tr -d .)" >> $GITHUB_ENV
-
-      - name: "Run tests on ${{ matrix.os }}"
-        run: |
-          tox -e clean,${{env.TOX_ENV}}${{env.LINT_DOCS}},report
+      # tox-gh-actions will automatically run the appropriate environments
+      # based on the Python version and [gh-actions] configuration in tox.ini
+      - name: "Run tests with tox"
+        run: tox
 
       # https://github.com/codecov/codecov-action
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          flags: ${{ matrix.os }}-${{ matrix.python-version }}
-          name: ${{ matrix.os }}-${{ matrix.python-version }}
+          flags: ${{ matrix.os }}
+          name: ${{ matrix.os }}
           fail_ci_if_error: false
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Install tox and tox-gh-actions
+        run: python -m pip install tox tox-gh-actions
