@@ -25,61 +25,105 @@ jobs:
   build:
     needs: pre_job
     if: needs.pre_job.outputs.should_skip != 'true'
-    name: "${{ matrix.python-version }} ${{ matrix.os }}"
+    name: "${{ matrix.name }}"
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.14", "3.13", "3.12", "3.11", "3.10"]
-        # ubuntu-latest is being moved from ubuntu-18.04 to ubuntu-20.04
-        # See https://github.com/actions/virtual-environments/issues/1816
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - name: lint
+            os: ubuntu-latest
+            toxenv: lint
+            python-version: "3.14"
+          - name: docs
+            os: ubuntu-latest
+            toxenv: docs
+            python-version: "3.14"
+          - name: test-ubuntu
+            os: ubuntu-latest
+          - name: test-windows
+            os: windows-latest
+          - name: test-macos
+            os: macos-latest
     runs-on: ${{ matrix.os }}
     env:
       PYTHONUNBUFFERED: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      # For lint/docs jobs: install only Python 3.14
       - name: Set up Python ${{ matrix.python-version }}
+        if: matrix.python-version
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
+      # For test jobs: install all Python versions
+      - name: Set up Python 3.10
+        if: "!matrix.python-version"
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+          cache: "pip"
 
-      # https://github.com/ymyzk/tox-gh-actions
-      # This action didn't work: https://github.com/marketplace/actions/run-tox-gh-actions ¯\_(ツ)_/¯
-      # Error: Unable to resolve action `ymyzk/tox-gh-actions@main`, unable to find version `main`
-      - name: Install tox
-        run: python -m pip install tox
+      - name: Set up Python 3.11
+        if: "!matrix.python-version"
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
 
-      - name: "Set LINT_DOCS"
-        if: matrix.python-version == '3.10'
-        run: |
-          echo "LINT_DOCS=,lint,docs" >> $GITHUB_ENV
+      - name: Set up Python 3.12
+        if: "!matrix.python-version"
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
 
-      - name: "Set TOX_ENV on Windows"
-        if: matrix.os == 'windows-latest'
-        run: |
-          $pythonVersion = "${{ matrix.python-version }}"
-          $TOX_ENV = "py" + $pythonVersion.Replace('.', '')
-          echo "TOX_ENV=$TOX_ENV" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Set up Python 3.13
+        if: "!matrix.python-version"
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: "pip"
 
-      - name: "Set TOX_ENV on Linux/macOS"
-        if: matrix.os != 'windows-latest'
-        run: |
-          echo "TOX_ENV=$(echo py${{ matrix.python-version }} | tr -d .)" >> $GITHUB_ENV
+      - name: Set up Python 3.14
+        if: "!matrix.python-version"
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: "pip"
 
-      - name: "Run tests on ${{ matrix.os }}"
-        run: |
-          tox -e clean,${{env.TOX_ENV}}${{env.LINT_DOCS}},report
+      # Cache tox environments
+      - name: Cache tox environments
+        uses: actions/cache@v4
+        with:
+          path: .tox
+          key: ${{ runner.os }}-tox-${{ hashFiles('**/tox.ini',
+            '**/pyproject.toml', '**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-tox-
+
+      - name: Install pip and tox
+        run: python -m pip install --upgrade pip tox
+
+      # Run tox environments
+      # For test jobs: run all Python versions and generate coverage report
+      # For lint/docs jobs: run only the specific environment
+      - name: "Run tox"
+        run: tox
+        env:
+          TOXENV: ${{ matrix.toxenv || 'py310,py311,py312,py313,py314,report' }}
 
       # https://github.com/codecov/codecov-action
+      # Only upload coverage for test jobs (not lint/docs)
       - name: Upload coverage to Codecov
+        if: "!matrix.toxenv"
         uses: codecov/codecov-action@v5
         with:
-          flags: ${{ matrix.os }}-${{ matrix.python-version }}
-          name: ${{ matrix.os }}-${{ matrix.python-version }}
+          flags: ${{ matrix.os }}
+          name: ${{ matrix.os }}
           fail_ci_if_error: false
           files: ./coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}

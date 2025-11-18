@@ -1,5 +1,4 @@
 [BASIC]
-bad-functions = map,filter
 good-names = i,j,k,e,ex,Run,_,id,rv,c
 
 [FORMAT]

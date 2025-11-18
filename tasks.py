@@ -119,7 +119,7 @@ class ToxCommands:
         # Note: This error originates from the build backend, and is likely not a problem with poetry
         # but with wrapt (1.13.3) not supporting PEP 517 builds. You can verify this by running
         # 'pip wheel --use-pep517 "wrapt (==1.13.3)"'.
-        return "3.10"
+        return "3.14"
 
     @staticmethod
     def as_tox_env(python_version_with_dot: str) -> str:
