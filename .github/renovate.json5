@@ -9,6 +9,8 @@
     enabled: true,
   },
   ignoreDeps: ["jedi"],
+  // https://docs.renovatebot.com/configuration-options/#ignorepaths
+  ignorePaths: [".github/workflows/python.yaml"],
   // https://docs.renovatebot.com/configuration-options/#prconcurrentlimit
   prConcurrentLimit: 3,
   // https://docs.renovatebot.com/configuration-options/#branchconcurrentlimit

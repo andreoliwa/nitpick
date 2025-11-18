@@ -19,8 +19,8 @@ repos:
       # pre-commit.ci intentionally does not allow network access at runtime for free tier as this is easy to abuse (miners, etc.)
       # https://github.com/pre-commit-ci/issues/issues/47
       - id: local-nitpick
-        name: "nitpick fix (auto fixing files, local hook)"
-        entry: poetry run nitpick fix
+        name: "nitpick check (no auto fixing, local hook)"
+        entry: poetry run nitpick check
         language: system
         always_run: true
         pass_filenames: false
