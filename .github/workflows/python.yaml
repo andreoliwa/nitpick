@@ -25,9 +25,10 @@ jobs:
   build:
     needs: pre_job
     # Always run the build step when pushing to master
-    if:
-      needs.pre_job.outputs.should_skip != 'true' || (github.event_name == 'push'
-      && github.ref == 'refs/heads/master')
+    # Docs only run on master (it's very slow)
+    if: |
+      (needs.pre_job.outputs.should_skip != 'true' || github.ref == 'refs/heads/master')
+      && (matrix.name != 'docs' || github.ref == 'refs/heads/master')
     name: "${{ matrix.name }}"
     strategy:
       fail-fast: false
