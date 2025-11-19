@@ -54,54 +54,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      # For lint/docs jobs: install only Python 3.14
-      - name: Set up Python ${{ matrix.python-version }}
-        if: matrix.python-version
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-
-      # For test jobs: install all Python versions
-      - name: Set up Python 3.10
-        if: "!matrix.python-version"
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.10"
-          cache: "pip"
-
-      - name: Set up Python 3.11
-        if: "!matrix.python-version"
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Set up Python 3.12
-        if: "!matrix.python-version"
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: "pip"
-
-      - name: Set up Python 3.13
-        if: "!matrix.python-version"
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.13"
-          cache: "pip"
-
-      - name: Set up Python 3.14
-        if: "!matrix.python-version"
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.14"
-          cache: "pip"
-
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+
+      # For lint/docs jobs: install only the specified Python version
+      - name: Install Python ${{ matrix.python-version }}
+        if: matrix.python-version
+        run: uv python install ${{ matrix.python-version }}
+
+      # For test jobs: install all Python versions
+      - name: Install Python 3.10, 3.11, 3.12, 3.13, 3.14
+        if: "!matrix.python-version"
+        run: uv python install 3.10 3.11 3.12 3.13 3.14
 
       # Cache tox environments
       - name: Cache tox environments
@@ -113,8 +79,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tox-
 
-      - name: Install pip and tox
-        run: python -m pip install --upgrade pip tox
+      - name: Install tox
+        run: uv tool install tox
 
       # Run tox environments
       # For test jobs: run all Python versions and generate coverage report
