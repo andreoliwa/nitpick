@@ -13,16 +13,11 @@ pre-commit run --all-files prettier
 set -e
 
 rm -rf dist/
-poetry build
+uv build
 
 # https://twine.readthedocs.io/en/latest/#twine-check
 twine check dist/*
 
-# The slash at the end is important
-# https://github.com/python-poetry/poetry/issues/742#issuecomment-609642943
-poetry config repositories.testpypi https://test.pypi.org/legacy/
-poetry config --list
-
 # Hide the password
 set +x
-poetry publish --repository testpypi --username __token__ --password "$PYPI_TEST_PASSWORD"
+uv publish --repository testpypi --username __token__ --password "$PYPI_TEST_PASSWORD"

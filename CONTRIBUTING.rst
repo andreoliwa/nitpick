@@ -35,7 +35,7 @@ To set up Nitpick_ for local development:
     git clone git@github.com:your_name_here/nitpick.git
     cd nitpick
 
-3. Install Poetry_ globally using `the recommended way <https://python-poetry.org/docs/#installation>`_.
+3. Install uv_ globally using `the recommended way <https://docs.astral.sh/uv/getting-started/installation/>`_.
 
 4. Install Invoke_. You can use pipx_ to install it globally: ``pipx install invoke``.
 

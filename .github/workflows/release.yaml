@@ -23,10 +23,12 @@ jobs:
       # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
       - name: Add to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
       - name: Install pip/setuptools first
         run: python3 -m pip install --upgrade pip setuptools
       - name: Install pre-commit bumpversion twine
-        run: python3 -m pip install --upgrade poetry pre-commit bumpversion twine
+        run: python3 -m pip install --upgrade pre-commit bumpversion twine
       - name: Display versions
         run: |
           node --version

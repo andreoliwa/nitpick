@@ -20,14 +20,14 @@ repos:
       # https://github.com/pre-commit-ci/issues/issues/47
       - id: local-nitpick
         name: "nitpick check (no auto fixing, local hook)"
-        entry: poetry run nitpick check
+        entry: uv run nitpick check
         language: system
         always_run: true
         pass_filenames: false
         stages: [pre-commit]
       - id: autofix-docs
         name: Autofix ReST documentation from docstrings and TOML
-        entry: poetry run python3 docs/autofix_docs.py
+        entry: uv run python3 docs/autofix_docs.py
         language: system
         always_run: true
         pass_filenames: false
@@ -51,8 +51,8 @@ repos:
       - id: toml-sort-fix
         # Don't sort certain TOML files:
         # - style-related files: used to generate YAML that might depend on the order
-        # - poetry.lock: auto-generated file
-        exclude: (ideas/|resources/|tests/|poetry.lock)
+        # - uv.lock: auto-generated file
+        exclude: (ideas/|resources/|tests/|uv.lock)
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.5
     hooks:
