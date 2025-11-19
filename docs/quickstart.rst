@@ -90,14 +90,14 @@ To install the ``pre-commit`` and ``commit-msg`` Git hooks:
 
 .. code-block:: shell
 
-    pre-commit install --install-hooks
-    pre-commit install -t commit-msg
+    prek install --install-hooks
+    prek install -t commit-msg
 
 To start checking all your code against the default rules:
 
 .. code-block:: shell
 
-    pre-commit run --all-files
+    prek run --all-files
 
 Run as a MegaLinter plugin
 ---------------------------

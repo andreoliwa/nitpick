@@ -64,7 +64,7 @@ Suppose they change or add an option on their `isort.toml <https://github.com/we
 If the nitpick pre-commit hook had ``always_run: false`` and ``pass_filenames: true``, your local ``setup.cfg`` would only be verified:
 
 1. If a Python file was changed.
-2. If you ran ``pre-commit run --all-files``.
+2. If you ran ``prek run --all-files``.
 
 So basically the pre-commit hook would be useless to guarantee that your config files would always match the remote style... which is precisely the purpose of Nitpick.
 

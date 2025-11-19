@@ -6,10 +6,9 @@ VERSION=$1
 bumpversion --allow-dirty --no-commit --no-tag --new-version "$VERSION" patch
 
 # Clean up the files touched by bumpversion
-set +e  # Allow failure; if files are modified, pre-commit returns an exit code > 0
-pre-commit run --all-files end-of-file-fixer
-pre-commit run --all-files trailing-whitespace
-pre-commit run --all-files prettier
+set +e  # Allow failure; if files are modified, prek returns an exit code > 0
+# We need to run using the root config otherwise prek will read test fixtures and think this is a monorepo
+prek run --all-files --config .pre-commit-config.yaml end-of-file-fixer trailing-whitespace prettier
 set -e
 
 rm -rf dist/

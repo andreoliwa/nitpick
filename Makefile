@@ -33,7 +33,8 @@ build: .cache/make/doc .cache/make/pytest .cache/make/pre-commit # Quick build f
 	touch .cache/make/pytest
 
 .cache/make/pre-commit: .delete-cache $(ANY)
-	pre-commit run -a
+	# We need to run using the root config otherwise prek will read test fixtures and think this is a monorepo
+	prek run --all-files --config .pre-commit-config.yaml
 	touch .cache/make/pre-commit
 
 .cache/make/doc: $(DOCS) $(STYLES)
