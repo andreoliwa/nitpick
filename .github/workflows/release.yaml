@@ -23,6 +23,7 @@ jobs:
       # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
       - name: Add to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+        # TODO: ci: use uv only in the release workflow
       - name: Install uv
         uses: astral-sh/setup-uv@v5
       - name: Install pip/setuptools first
