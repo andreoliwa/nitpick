@@ -144,7 +144,7 @@ def install(c: Context, deps=True, hooks=False, version=""):
         c.run(f"uv python install {version}")
         c.run("uv sync --all-groups")
     if hooks:
-        c.run("pre-commit install -t pre-commit -t commit-msg --install-hooks")
+        c.run("prek install -t pre-commit -t commit-msg --install-hooks")
         c.run("pre-commit gc")
 
 

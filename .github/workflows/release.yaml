@@ -22,10 +22,9 @@ jobs:
           enable-cache: true
       - name: Install Python 3.14
         run: uv python install 3.14
-      # TODO: build: replace pre-commit by prek everywhere
-      - name: Install pre-commit bumpversion twine
+      - name: Install prek bumpversion twine
         run: |
-          uv tool install pre-commit
+          uv tool install prek
           uv tool install bumpversion
           uv tool install twine
       - name: Display versions
@@ -35,7 +34,7 @@ jobs:
           python --version
           python3 --version
           uv --version
-          pre-commit --version
+          prek --version
           twine --version
           uv tool list
       - name: Semantic Release

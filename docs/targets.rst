@@ -28,7 +28,7 @@
 .. _mypy: https://github.com/python/mypy
 .. _package.json: https://docs.npmjs.com/files/package.json
 .. _pipx: https://github.com/pipxproject/pipx
-.. _pre-commit: https://github.com/pre-commit/pre-commit
+.. _prek: https://github.com/j178/prek
 .. _prettier: https://github.com/prettier/prettier
 .. _pytest: https://github.com/pytest-dev/pytest
 .. _radon: https://github.com/rubik/radon
