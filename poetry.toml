@@ -1,4 +1,0 @@
-[virtualenvs]
-# https://python-poetry.org/docs/configuration/#virtualenvscreate
-create = true
-in-project = true

@@ -1,20 +1,38 @@
 [build-system]
-build-backend = "poetry.core.masonry.api"
-# https://github.com/python-poetry/poetry/issues/1993
-requires = ["poetry-core>=1.0.8"]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
 
-[tool.black]
-line-length = 120
-
-[tool.nitpick]
-# Use the default style and override some things (like the Python version)
-style = [
-  "nitpick-style",
-  "py://nitpick/resources/python/310",
+[dependency-groups]
+dev = [
+  "icecream",
+  "ipython",
+  "pudb",
+]
+doc = [
+  "sphinx",
+  "sphinx-gitref",
+  "sphinx_rtd_theme",
+  "sphobjinv",
+]
+lint = [
+  "pylint",
+]
+test = [
+  "freezegun>=1.5.2",
+  "pytest",
+  "pytest-cov",
+  "pytest-datadir",
+  "pytest-socket",
+  "pytest-testmon",
+  "pytest-watch",
+  "responses",
+  "testfixtures",
 ]
 
-[tool.poetry]
-authors = ["W. Augusto Andreoli <andreoliwa@gmail.com>"]
+[project]
+authors = [
+  {email = "andreoli@sent.com", name = "W. Augusto Andreoli"},
+]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Environment :: Plugins",
@@ -24,99 +42,79 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Topic :: Software Development :: Quality Assurance",
 ]
+dependencies = [
+  "attrs>=20.1.0", # attr.define introduced in this version
+  "autorepr",
+  "click",
+  "ConfigUpdater",
+  "dictdiffer",
+  "dpath",
+  # TODO: build: upgrading importlib-metadata to 4.10.1 downgrades the following packages:
+  # • Updating importlib-metadata (4.2.0 -> 4.10.1)
+  # • Updating pycodestyle (2.8.0 -> 2.7.0)
+  # • Updating pyflakes (2.4.0 -> 2.3.1)
+  # • Updating flake8 (4.0.1 -> 3.9.2)
+  "flake8>=3.0.0",
+  "flatten-dict",
+  "furl",
+  "gitignore_parser",
+  "identify",
+  "jmespath",
+  "loguru",
+  # Pin to avoid error on "flake8 ." when there is an invalid TOML style:
+  # TypeError: _deserialize() got an unexpected keyword argument 'partial'
+  "marshmallow-polyfield>=5.10,<6.0",
+  # Pin marshmallow to avoid error on "pip install -U nitpick":
+  # marshmallow-polyfield 5.7 has requirement marshmallow>=3.0.0b10, but you'll have marshmallow 2.19.5 which is incompatible.
+  "marshmallow>=3.0.0b10",
+  "more-itertools",
+  "packaging",
+  "pluggy",
+  "pytest-socket",
+  "python-slugify",
+  "requests",
+  "requests-cache>=1.0.0", # This version uses requests_cache.policy.expiration
+  "ruamel-yaml-clib>=0.2.12",
+  "ruamel.yaml",
+  "sortedcontainers",
+  "StrEnum",
+  "toml", # TODO: refactor: use only tomlkit and remove uiri/toml
+  "tomlkit>=0.8.0", # SingleKey() class introduced in this version
+]
 description = "Enforce the same settings across multiple language-independent projects"
 keywords = ["flake8", "linter", "python3", "styleguide"]
-license = "MIT"
+license = {text = "MIT"}
 name = "nitpick"
 readme = "README.rst"
-repository = "https://github.com/andreoliwa/nitpick"
+requires-python = ">=3.10"
 version = "0.38.0"
 
-[tool.poetry.dependencies]
-attrs = ">=20.1.0" # attr.define introduced in this version
-autorepr = "*"
-click = "*"
-ConfigUpdater = "*"
-dictdiffer = "*"
-dpath = "*"
-# TODO: build: upgrading importlib-metadata to 4.10.1 downgrades the following packages:
-# • Updating importlib-metadata (4.2.0 -> 4.10.1)
-# • Updating pycodestyle (2.8.0 -> 2.7.0)
-# • Updating pyflakes (2.4.0 -> 2.3.1)
-# • Updating flake8 (4.0.1 -> 3.9.2)
-flake8 = ">=3.0.0"
-flatten-dict = "*"
-freezegun = {optional = true, version = ">=1.5.2"}
-furl = "*"
-gitignore_parser = "*"
-identify = "*"
-jmespath = "*"
-loguru = "*"
-# Pin marshmallow to avoid error on "pip install -U nitpick":
-# marshmallow-polyfield 5.7 has requirement marshmallow>=3.0.0b10, but you'll have marshmallow 2.19.5 which is incompatible.
-marshmallow = {version = ">=3.0.0b10"}
-# Pin to avoid error on "flake8 ." when there is an invalid TOML style:
-# TypeError: _deserialize() got an unexpected keyword argument 'partial'
-marshmallow-polyfield = "^5.10"
-"more-itertools" = "*"
-packaging = "*"
-pluggy = "*"
-# TODO: chore: move to dependency groups once the feature is on a stable version of Poetry
-# https://python-poetry.org/docs/master/managing-dependencies/#dependency-groups
-# Group: lint
-pylint = {optional = true, version = "*"}
-# Group: test
-pytest = {optional = true, version = "*"}
-pytest-cov = {optional = true, version = "*"}
-pytest-datadir = {optional = true, version = "*"}
-pytest-socket = "*"
-pytest-testmon = {optional = true, version = "*"}
-pytest-watch = {optional = true, version = "*"}
-python = "^3.10"
-python-slugify = "*"
-requests = "*"
-requests-cache = ">=1.0.0" # This version uses requests_cache.policy.expiration
-responses = {optional = true, version = "*"}
-ruamel-yaml-clib = ">=0.2.12"
-"ruamel.yaml" = "*"
-sortedcontainers = "*"
-# Group: doc
-sphinx = {optional = true, version = "*"}
-sphinx-gitref = {optional = true, version = "*"}
-sphinx_rtd_theme = {optional = true, version = "*"}
-sphobjinv = {optional = true, version = "*"}
-StrEnum = "*"
-testfixtures = {optional = true, version = "*"}
-toml = "*" # TODO: refactor: use only tomlkit and remove uiri/toml
-tomlkit = ">=0.8.0" # SingleKey() class introduced in this version
-
-[tool.poetry.extras]
-doc = ["sphinx", "sphinx-gitref", "sphinx_rtd_theme", "sphobjinv"]
-lint = ["pylint"]
-test = ["freezegun", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", "pytest-testmon", "pytest-watch", "responses", "testfixtures"]
-
-[tool.poetry.group.dev.dependencies]
-icecream = "*"
-ipython = "*"
-pudb = "*"
-
-[tool.poetry.plugins."flake8.extension"]
+[project.entry-points."flake8.extension"]
 NIP = "nitpick.flake8:NitpickFlake8Extension"
 
-[tool.poetry.plugins.nitpick]
+[project.entry-points.nitpick]
 ini = "nitpick.plugins.ini"
 json = "nitpick.plugins.json"
 text = "nitpick.plugins.text"
 toml = "nitpick.plugins.toml"
 yaml = "nitpick.plugins.yaml"
 
-[tool.poetry.scripts]
+[project.scripts]
 nitpick = "nitpick.__main__:main"
 
-[tool.poetry.urls]
-"Changelog" = "https://github.com/andreoliwa/nitpick/blob/develop/CHANGELOG.md"
-"Documentation" = "https://nitpick.rtfd.io/"
+[project.urls]
+Changelog = "https://github.com/andreoliwa/nitpick/blob/develop/CHANGELOG.md"
+Documentation = "https://nitpick.rtfd.io/"
 "Issue Tracker" = "https://github.com/andreoliwa/nitpick/issues"
+Repository = "https://github.com/andreoliwa/nitpick"
+
+[tool.black]
+line-length = 120
+
+[tool.nitpick]
+# TODO: feat: default nitpick style should be "python-uv"; the previous preset should be renamed to "python-poetry"
+# style = ["nitpick-style"]
+style = ["python-no-poetry"]
 
 [tool.ruff]
 # https://docs.astral.sh/ruff/settings/#line-length

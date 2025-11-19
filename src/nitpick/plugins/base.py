@@ -12,7 +12,7 @@ from loguru import logger
 from nitpick.blender import BaseDoc, flatten_quotes, search_json
 from nitpick.config import SpecialConfig
 from nitpick.constants import CONFIG_DUNDER_LIST_KEYS
-from nitpick.typedefs import JsonDict, mypy_property
+from nitpick.typedefs import JsonDict, MypyProperty
 from nitpick.violations import Fuss, Reporter, SharedViolations
 
 if TYPE_CHECKING:
@@ -90,7 +90,7 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
         """
         return SpecialConfig()
 
-    @mypy_property
+    @MypyProperty
     def nitpick_file_dict(self) -> JsonDict:
         """Nitpick configuration for this file as a TOML dict, taken from the style file."""
         return search_json(self.info.project.nitpick_section, f'files."{self.filename}"', {})

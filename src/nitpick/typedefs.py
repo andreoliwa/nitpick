@@ -21,4 +21,4 @@ YamlValue = JsonDict | list[Any] | str | float
 
 # Decorated property not supported · Issue #1362 · python/mypy
 # https://github.com/python/mypy/issues/1362#issuecomment-562141376
-mypy_property: Any = property
+MypyProperty: Any = property

@@ -110,15 +110,6 @@ class ToxCommands:
     @property
     def stable_python_version(self) -> str:
         """The Python version considered stable to develop Nitpick."""
-        # Python 3.11 doesn't work with poetry install:
-        #   • Installing wrapt (1.13.3): Failed
-        #
-        #   ChefBuildError
-        #
-        #   Backend subprocess exited when trying to invoke build_wheel
-        # Note: This error originates from the build backend, and is likely not a problem with poetry
-        # but with wrapt (1.13.3) not supporting PEP 517 builds. You can verify this by running
-        # 'pip wheel --use-pep517 "wrapt (==1.13.3)"'.
         return "3.14"
 
     @staticmethod
@@ -130,7 +121,7 @@ class ToxCommands:
 
 @task(
     help={
-        "deps": "Poetry dependencies",
+        "deps": "uv dependencies",
         "hooks": "pre-commit hooks",
         "version": "Desired Python version number. Default: stable Python version",
     }
@@ -138,7 +129,7 @@ class ToxCommands:
 def install(c: Context, deps=True, hooks=False, version=""):
     """Install dependencies and pre-commit hooks.
 
-    Poetry install is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
+    uv sync is needed to create the Nitpick plugin entries on setuptools, used by pluggy.
     """
     if deps:
         tox = ToxCommands()
@@ -150,8 +141,8 @@ def install(c: Context, deps=True, hooks=False, version=""):
             f"{COLOR_GREEN}Nitpick runs in Python {minimum} and later;"
             f" setting up version {version} for development{COLOR_NONE}"
         )
-        c.run(f"poetry env use python{version}")
-        c.run("poetry install -E test -E lint -E doc --sync")
+        c.run(f"uv python install {version}")
+        c.run("uv sync --all-groups")
     if hooks:
         c.run("pre-commit install -t pre-commit -t commit-msg --install-hooks")
         c.run("pre-commit gc")
@@ -180,10 +171,10 @@ def test(  # pylint: disable=too-many-positional-arguments
     """
     tox = ToxCommands()
     if reset:
-        c.run(f"poetry run {tox.pytest_command} --testmon-noselect")
+        c.run(f"uv run {tox.pytest_command} --testmon-noselect")
         watch = True
     if watch:
-        c.run('poetry run ptw --runner "pytest --testmon"')
+        c.run('uv run ptw --runner "pytest --testmon"')
         return
 
     file_opt = ""
@@ -196,11 +187,11 @@ def test(  # pylint: disable=too-many-positional-arguments
         if not chosen_file:
             return
         file_opt = f" -- {chosen_file}"
-    c.run(f"poetry run {tox.pytest_command}{file_opt}")
+    c.run(f"uv run {tox.pytest_command}{file_opt}")
 
     if coverage:
         for cmd in tox.coverage_commands():
-            c.run(f"poetry run {cmd}")
+            c.run(f"uv run {cmd}")
 
     if browse:
         c.run("open htmlcov/index.html")
@@ -227,17 +218,17 @@ def doc(
         c.run("mkdir -p docs/_static")
         c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
 
-    c.run("poetry export --without-hashes -E doc > docs/requirements.txt")
-    c.run(f"poetry run {tox.autofix_docs}", warn=True)
-    c.run(f"poetry run {tox.api}")
+    c.run("uv export --no-hashes --group doc > docs/requirements.txt")
+    c.run(f"uv run {tox.autofix_docs}", warn=True)
+    c.run(f"uv run {tox.api}")
     if debug:
-        c.run("poetry run sphinx-apidoc --help")
+        c.run("uv run sphinx-apidoc --help")
 
     debug_options = "-nWT --keep-going -vvv" if debug else ""
-    c.run(f"poetry run {tox.html_docs} {debug_options}")
+    c.run(f"uv run {tox.html_docs} {debug_options}")
 
     if links:
-        c.run(f"poetry run {tox.check_links}", warn=True)
+        c.run(f"uv run {tox.check_links}", warn=True)
 
     if browse:
         c.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")
@@ -283,7 +274,7 @@ def lint(c: Context, recreate=False):
         raise Exit(msg, 1)
 
 
-@task(help={"venv": "Remove the Poetry virtualenv and the tox dir"})
+@task(help={"venv": "Remove the uv virtualenv and the tox dir"})
 def clean(c: Context, venv=False):
     """Clean build output and temp files."""
     c.run("find . -type f -name '*.py[co]' -print -delete")
@@ -291,9 +282,7 @@ def clean(c: Context, venv=False):
     c.run("find . -type d \\( -name '*.egg-info' -or -name 'pip-wheel-metadata' -or -name 'dist' \\) -print -delete")
     c.run(f"rm -rf .cache .mypy_cache {DOCS_BUILD_PATH} src/*.egg-info .pytest_cache .coverage htmlcov .testmondata")
     if venv:
-        c.run("rm -rf .tox")
-        version = ToxCommands().minimum_python_version
-        c.run(f"poetry env remove python{version}", warn=True)
+        c.run("rm -rf .tox .venv")
 
 
 @task
@@ -347,7 +336,7 @@ def lab(c: Context, convert_file_name="", lab_help=False):
         chosen_file = run_with_fzf(c, "fd -H -t f", query=convert_file_name)
         extra_args.extend(["convert", chosen_file])
 
-    c.run(f"poetry run python docs/ideas/lab.py {' '.join(extra_args)}")
+    c.run(f"uv run python docs/ideas/lab.py {' '.join(extra_args)}")
 
 
 namespace = Collection(install, test, doc, ci_build, lint, clean, reactions, lab)
