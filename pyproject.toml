@@ -112,8 +112,7 @@ Repository = "https://github.com/andreoliwa/nitpick"
 line-length = 120
 
 [tool.nitpick]
-# TODO: feat: the default nitpick style should use a new preset "python-uv";
-# the previous preset should be renamed to "python-poetry"
+# TODO: feat: default nitpick style should be "python-uv"; the previous preset should be renamed to "python-poetry"
 # style = ["nitpick-style"]
 style = ["python-no-poetry"]
 

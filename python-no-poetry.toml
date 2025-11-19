@@ -1,3 +1,5 @@
+# TODO: feat: default nitpick style should be "python-uv"; the previous preset should be renamed to "python-poetry"
+
 [nitpick]
 minimum_version = "0.10.0"
 
