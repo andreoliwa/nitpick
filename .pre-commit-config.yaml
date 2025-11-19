@@ -113,14 +113,14 @@ repos:
             types-python-slugify,
             types-dataclasses,
           ]
-  # Run pylint also with tox, because local repos don't seem to work well with https://pre-commit.ci/
   # The recommended way is to use a local hook:
   # https://pylint.pycqa.org/en/latest/user_guide/installation/pre-commit-integration.html
+  # Skipped on pre-commit.ci because local repos don't work well there
   - repo: local
     hooks:
       - id: pylint
         name: pylint
-        entry: .tox/lint/bin/pylint
+        entry: uv run pylint
         language: system
         types: [python]
         exclude: tests/
