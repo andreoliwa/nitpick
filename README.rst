@@ -361,9 +361,9 @@ On Arch Linux, install with yay::
     yay -Syu nitpick
 
 Add to your project with
-`Poetry <https://github.com/python-poetry/poetry>`_::
+`uv <https://docs.astral.sh/uv/>`_::
 
-    poetry add --dev nitpick
+    uv add --dev nitpick
 
 Or install it with pip::
 

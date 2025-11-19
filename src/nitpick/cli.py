@@ -38,10 +38,10 @@ from nitpick.exceptions import QuitComplainingError
 from nitpick.generic import relative_to_current_dir
 from nitpick.violations import Reporter
 
-VERBOSE_OPTION = click.option(
+verbose_option = click.option(
     "--verbose", "-v", count=True, default=False, help="Increase logging verbosity (-v = INFO, -vv = DEBUG)"
 )
-FILES_ARGUMENT = click.argument("files", nargs=-1)
+files_argument = click.argument("files", nargs=-1)
 
 
 @click.group()
@@ -101,8 +101,8 @@ def common_fix_or_check(context, verbose: int, files, check_only: bool) -> None:
 
 @nitpick_cli.command()
 @click.pass_context
-@VERBOSE_OPTION
-@FILES_ARGUMENT
+@verbose_option
+@files_argument
 def fix(context, verbose, files):
     """Fix files, modifying them directly.
 
@@ -113,8 +113,8 @@ def fix(context, verbose, files):
 
 @nitpick_cli.command()
 @click.pass_context
-@VERBOSE_OPTION
-@FILES_ARGUMENT
+@verbose_option
+@files_argument
 def check(context, verbose, files):
     """Don't modify files, just print the differences.
 
@@ -126,7 +126,7 @@ def check(context, verbose, files):
 
 @nitpick_cli.command()
 @click.pass_context
-@FILES_ARGUMENT
+@files_argument
 def ls(context, files):  # pylint: disable=invalid-name
     """List of files configured in the Nitpick style.
 

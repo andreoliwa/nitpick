@@ -1,0 +1,28 @@
+# TODO: feat: default nitpick style should be "python-uv"; the previous preset should be renamed to "python-poetry"
+
+[nitpick]
+minimum_version = "0.10.0"
+
+[nitpick.meta]
+name = "Python project without Poetry"
+url = "https://nitpick.rtfd.io/"
+
+[nitpick.styles]
+include = [
+  "py://nitpick/resources/any/codeclimate",
+  "py://nitpick/resources/any/commitizen",
+  "py://nitpick/resources/any/editorconfig",
+  "py://nitpick/resources/any/git-legal",
+  "py://nitpick/resources/any/pre-commit-hooks",
+  "py://nitpick/resources/any/prettier",
+  "py://nitpick/resources/javascript/package-json",
+  "py://nitpick/resources/markdown/markdownlint",
+  "py://nitpick/resources/python/absent",
+  "py://nitpick/resources/python/black",
+  "py://nitpick/resources/python/mypy",
+  "py://nitpick/resources/python/pre-commit-hooks",
+  "py://nitpick/resources/python/readthedocs",
+  "py://nitpick/resources/python/sonar-python",
+  "py://nitpick/resources/shell/bashate",
+  "py://nitpick/resources/shell/shellcheck",
+]
