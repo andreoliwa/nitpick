@@ -22,7 +22,6 @@ include = [
   "py://nitpick/resources/python/pre-commit-hooks",
   "py://nitpick/resources/python/readthedocs",
   "py://nitpick/resources/python/sonar-python",
-  "py://nitpick/resources/python/tox",
   "py://nitpick/resources/shell/bashate",
   "py://nitpick/resources/shell/shellcheck",
 ]

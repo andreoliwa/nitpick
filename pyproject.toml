@@ -8,6 +8,26 @@ dev = [
   "ipython",
   "pudb",
 ]
+doc = [
+  "sphinx",
+  "sphinx-gitref",
+  "sphinx_rtd_theme",
+  "sphobjinv",
+]
+lint = [
+  "pylint",
+]
+test = [
+  "freezegun>=1.5.2",
+  "pytest",
+  "pytest-cov",
+  "pytest-datadir",
+  "pytest-socket",
+  "pytest-testmon",
+  "pytest-watch",
+  "responses",
+  "testfixtures",
+]
 
 [project]
 authors = [
@@ -78,12 +98,6 @@ json = "nitpick.plugins.json"
 text = "nitpick.plugins.text"
 toml = "nitpick.plugins.toml"
 yaml = "nitpick.plugins.yaml"
-
-[project.optional-dependencies]
-dev = ["icecream", "ipython", "pudb"]
-doc = ["sphinx", "sphinx-gitref", "sphinx_rtd_theme", "sphobjinv"]
-lint = ["pylint"]
-test = ["freezegun>=1.5.2", "pytest", "pytest-cov", "pytest-datadir", "pytest-socket", "pytest-testmon", "pytest-watch", "responses", "testfixtures"]
 
 [project.scripts]
 nitpick = "nitpick.__main__:main"

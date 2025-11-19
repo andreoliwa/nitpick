@@ -841,7 +841,7 @@ dependencies = [
     { name = "tomlkit" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "icecream" },
     { name = "ipython", version = "8.37.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -871,14 +871,6 @@ test = [
     { name = "testfixtures", version = "10.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "icecream" },
-    { name = "ipython", version = "8.37.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "ipython", version = "9.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "pudb" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "attrs", specifier = ">=20.1.0" },
@@ -889,12 +881,9 @@ requires-dist = [
     { name = "dpath" },
     { name = "flake8", specifier = ">=3.0.0" },
     { name = "flatten-dict" },
-    { name = "freezegun", marker = "extra == 'test'", specifier = ">=1.5.2" },
     { name = "furl" },
     { name = "gitignore-parser" },
-    { name = "icecream", marker = "extra == 'dev'" },
     { name = "identify" },
-    { name = "ipython", marker = "extra == 'dev'" },
     { name = "jmespath" },
     { name = "loguru" },
     { name = "marshmallow", specifier = ">=3.0.0b10" },
@@ -902,38 +891,41 @@ requires-dist = [
     { name = "more-itertools" },
     { name = "packaging" },
     { name = "pluggy" },
-    { name = "pudb", marker = "extra == 'dev'" },
-    { name = "pylint", marker = "extra == 'lint'" },
-    { name = "pytest", marker = "extra == 'test'" },
-    { name = "pytest-cov", marker = "extra == 'test'" },
-    { name = "pytest-datadir", marker = "extra == 'test'" },
     { name = "pytest-socket" },
-    { name = "pytest-socket", marker = "extra == 'test'" },
-    { name = "pytest-testmon", marker = "extra == 'test'" },
-    { name = "pytest-watch", marker = "extra == 'test'" },
     { name = "python-slugify" },
     { name = "requests" },
     { name = "requests-cache", specifier = ">=1.0.0" },
-    { name = "responses", marker = "extra == 'test'" },
     { name = "ruamel-yaml" },
     { name = "ruamel-yaml-clib", specifier = ">=0.2.12" },
     { name = "sortedcontainers" },
-    { name = "sphinx", marker = "extra == 'doc'" },
-    { name = "sphinx-gitref", marker = "extra == 'doc'" },
-    { name = "sphinx-rtd-theme", marker = "extra == 'doc'" },
-    { name = "sphobjinv", marker = "extra == 'doc'" },
     { name = "strenum" },
-    { name = "testfixtures", marker = "extra == 'test'" },
     { name = "toml" },
     { name = "tomlkit", specifier = ">=0.8.0" },
 ]
-provides-extras = ["doc", "lint", "test", "dev"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "icecream" },
     { name = "ipython" },
     { name = "pudb" },
+]
+doc = [
+    { name = "sphinx" },
+    { name = "sphinx-gitref" },
+    { name = "sphinx-rtd-theme" },
+    { name = "sphobjinv" },
+]
+lint = [{ name = "pylint" }]
+test = [
+    { name = "freezegun", specifier = ">=1.5.2" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-datadir" },
+    { name = "pytest-socket" },
+    { name = "pytest-testmon" },
+    { name = "pytest-watch" },
+    { name = "responses" },
+    { name = "testfixtures" },
 ]
 
 [[package]]

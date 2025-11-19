@@ -142,7 +142,7 @@ def install(c: Context, deps=True, hooks=False, version=""):
             f" setting up version {version} for development{COLOR_NONE}"
         )
         c.run(f"uv python install {version}")
-        c.run("uv sync --all-extras")
+        c.run("uv sync --all-groups")
     if hooks:
         c.run("pre-commit install -t pre-commit -t commit-msg --install-hooks")
         c.run("pre-commit gc")
@@ -218,7 +218,7 @@ def doc(
         c.run("mkdir -p docs/_static")
         c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
 
-    c.run("uv export --no-hashes --extra doc > docs/requirements.txt")
+    c.run("uv export --no-hashes --group doc > docs/requirements.txt")
     c.run(f"uv run {tox.autofix_docs}", warn=True)
     c.run(f"uv run {tox.api}")
     if debug:
