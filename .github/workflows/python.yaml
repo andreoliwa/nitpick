@@ -72,6 +72,15 @@ jobs:
       # Cache tox environments
       - name: Cache tox environments
         uses: actions/cache@v4
+
+        # Caching step sometimes fail on test-macos:
+        #  Error: The template is not valid. .github/workflows/python.yaml (Line: 77, Col: 16):
+        #  hashFiles('**/tox.ini, **/pyproject.toml, **/uv.lock') failed. Fail to hash files
+        #  under directory '/Users/runner/work/nitpick/nitpick'
+        # Maybe it's a race condition.
+        # Let's ignore the error and don't use the cache.
+        continue-on-error: true
+
         with:
           path: .tox
           key: ${{ runner.os }}-tox-${{ hashFiles('**/tox.ini', '**/pyproject.toml', '**/uv.lock') }}
