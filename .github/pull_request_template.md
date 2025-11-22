@@ -8,7 +8,7 @@ Issues fixed by this pull request:
 
 ## Checklist
 
-- [ ] Read the [contribution guidelines](https://nitpick.rtfd.io/en/latest/contributing.html)
+- [ ] Read the [contribution guidelines](https://nitpick.rtfd.io/latest/contributing.html)
 - [ ] Run `make` locally before pushing commits
 - [ ] Add tests for the relevant parts:
   - [ ] API

@@ -28,7 +28,7 @@ class TomlPlugin(NitpickPlugin):
     See also [the [tool.poetry] section of the pyproject.toml file](https://github.com/python-poetry/poetry/blob/master/docs/pyproject.md).
 
     Style example: [Python 3.10 version constraint](https://github.com/andreoliwa/nitpick/blob/master/src/nitpick/resources/python/310.toml).
-    There are [many other examples in the library](https://nitpick.rtfd.io/en/latest/library.html).
+    There are [many other examples in the library](https://nitpick.rtfd.io/latest/library.html).
     """
 
     identify_tags: ClassVar = {"toml"}

@@ -6,7 +6,7 @@ versions](https://img.shields.io/pypi/pyversions/nitpick.svg)](https://pypi.org/
 ![GitHub Actions Python
 Workflow](https://github.com/andreoliwa/nitpick/workflows/Python/badge.svg)
 [![Documentation
-Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.rtfd.io/en/latest/?badge=latest)
+Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.rtfd.io/latest/?badge=latest)
 [![Codecov](https://codecov.io/gh/andreoliwa/nitpick/branch/master/graph/badge.svg)](https://codecov.io/gh/andreoliwa/nitpick)
 [![Maintainability](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/maintainability)](https://codeclimate.com/github/andreoliwa/nitpick)
 [![Test
@@ -35,7 +35,7 @@ The CLI now has a `nitpick fix` command that modifies configuration
 files directly (pretty much like [black](https://github.com/psf/black)
 and [isort](https://github.com/PyCQA/isort) do with Python files). See
 the [CLI docs for more
-info](https://nitpick.rtfd.io/en/latest/cli.html).
+info](https://nitpick.rtfd.io/latest/cli.html).
 
 Many more features are planned for the future, check [the
 roadmap](https://github.com/andreoliwa/nitpick/projects/1).
@@ -96,14 +96,14 @@ These are the file types currently handled by Nitpick.
 <!-- auto-generated-start-implemented -->
 | File type | `nitpick check` | `nitpick fix` |
 | --- | --- | --- |
-| `Any INI file <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
-| `Any JSON file <https://nitpick.rtfd.io/en/latest/plugins.html#json-files>`_ | ✅ | ✅ |
-| `Any plain text file <https://nitpick.rtfd.io/en/latest/plugins.html#text-files>`_ | ✅ | ❌ |
-| `Any TOML file <https://nitpick.rtfd.io/en/latest/plugins.html#toml-files>`_ | ✅ | ✅ |
-| `Any YAML file <https://nitpick.rtfd.io/en/latest/plugins.html#yaml-files>`_ | ✅ | ✅ |
-| `.editorconfig <https://nitpick.rtfd.io/en/latest/library.html#any>`_ | ✅ | ✅ |
-| `.pylintrc <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
-| `setup.cfg <https://nitpick.rtfd.io/en/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
+| `Any INI file <https://nitpick.rtfd.io/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
+| `Any JSON file <https://nitpick.rtfd.io/latest/plugins.html#json-files>`_ | ✅ | ✅ |
+| `Any plain text file <https://nitpick.rtfd.io/latest/plugins.html#text-files>`_ | ✅ | ❌ |
+| `Any TOML file <https://nitpick.rtfd.io/latest/plugins.html#toml-files>`_ | ✅ | ✅ |
+| `Any YAML file <https://nitpick.rtfd.io/latest/plugins.html#yaml-files>`_ | ✅ | ✅ |
+| `.editorconfig <https://nitpick.rtfd.io/latest/library.html#any>`_ | ✅ | ✅ |
+| `.pylintrc <https://nitpick.rtfd.io/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
+| `setup.cfg <https://nitpick.rtfd.io/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
 <!-- auto-generated-end-implemented -->
 
 ### Planned
@@ -343,5 +343,5 @@ enough time or hands to work on them.
 
 If you want to contribute with the project, set up your development
 environment following the steps on the [contribution
-guidelines](https://nitpick.rtfd.io/en/latest/contributing.html) and
+guidelines](https://nitpick.rtfd.io/latest/contributing.html) and
 send your pull request.

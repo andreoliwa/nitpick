@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/nitpick.svg)](https://pypi.org/project/nitpick/)
 [![GitHub Workflow](https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml/badge.svg)](https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml)
-[![Documentation Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.rtfd.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.rtfd.io/latest/?badge=latest)
 [![Codecov](https://codecov.io/gh/andreoliwa/nitpick/branch/master/graph/badge.svg)](https://codecov.io/gh/andreoliwa/nitpick)
 [![Maintainability](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/maintainability)](https://codeclimate.com/github/andreoliwa/nitpick)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick)

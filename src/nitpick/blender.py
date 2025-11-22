@@ -520,7 +520,7 @@ class TomlDoc(BaseDoc):
                 #  2. the underlying dict is different than expected, and tests fail:
                 #     'NIP001  has an incorrect style. Invalid config:',
                 #     '"pyproject.toml".tool.black: Unknown file. See '
-                #     'https://nitpick.rtfd.io/en/latest/plugins.html.']
+                #     'https://nitpick.rtfd.io/latest/plugins.html.']
 
                 # toml_obj = tomlkit.loads(self._string)
                 # if "tool.black" in self._string:

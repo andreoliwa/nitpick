@@ -22,6 +22,6 @@ If you found an issue, write a comment or upvote it with a thumbs-up 👍🏻.
 <!--- If suggesting a change/improvement, explain the difference from current behaviour -->
 <!--- Not obligatory, but suggest a possible solution and/or ideas on how to implement the addition or change -->
 
-For more information, see the [CONTRIBUTING](https://nitpick.rtfd.io/en/latest/contributing.html) guide.
+For more information, see the [CONTRIBUTING](https://nitpick.rtfd.io/latest/contributing.html) guide.
 
 <!-- Thanks to https://github.com/stevemao/github-issue-templates/ for the original template -->
