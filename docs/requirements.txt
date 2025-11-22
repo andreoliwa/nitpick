@@ -82,7 +82,7 @@ imagesize==1.4.1
     # via sphinx
 iniconfig==2.3.0
     # via pytest
-ipython==8.37.0 ; python_full_version < '3.11'
+ipython==9.7.0 ; python_full_version < '3.11'
 ipython==9.7.0 ; python_full_version >= '3.11'
 ipython-pygments-lexers==1.1.1 ; python_full_version >= '3.11'
     # via ipython
