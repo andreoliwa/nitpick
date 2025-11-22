@@ -1,0 +1,149 @@
+site_name: Nitpick
+site_description: Command-line tool and flake8 plugin to enforce the same settings across multiple language-independent projects
+site_url: https://nitpick.rtfd.io/
+repo_url: https://github.com/andreoliwa/nitpick
+repo_name: andreoliwa/nitpick
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: green
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: green
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - announce.dismiss # Allow users to dismiss announcement banners
+    - content.action.edit # Show edit button on pages
+    - content.code.annotate # Enable code annotations with comments
+    - content.code.copy # Add copy button to code blocks
+    - content.tooltips # Enable tooltips for abbreviations and links
+    - navigation.expand # Expand navigation sections by default
+    - navigation.footer # Show previous/next page links in footer
+    - navigation.indexes # Enable index pages for sections
+    - navigation.instant # Instant loading without full page reload
+    - navigation.instant.prefetch # Prefetch pages on hover for faster navigation
+    - navigation.instant.progress # Show progress indicator during page loads
+    - navigation.path # Show breadcrumb navigation path
+    - navigation.sections # Render top-level sections as groups
+    - navigation.top # Add "back to top" button
+    - navigation.tracking # Update URL with active anchor
+    - search.highlight # Highlight search terms in results
+    - search.share # Add share button to search
+    - search.suggest # Show search suggestions as you type
+    - toc.follow # Sidebar scrolls to show active heading
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+
+markdown_extensions:
+  - abbr # Support for abbreviations with tooltips
+  - admonition # Call-out blocks (note, warning, tip, etc.)
+  - attr_list # Add HTML attributes to elements
+  - def_list # Definition lists
+  - footnotes # Footnote support
+  - md_in_html # Allow Markdown inside HTML blocks
+  - tables # Table support
+  - toc: # Table of contents
+      permalink: true # Add permalink anchors to headings
+      toc_depth: 3 # Include h1-h3 in TOC
+  - pymdownx.arithmatex: # Math notation support
+      generic: true
+  - pymdownx.betterem: # Better emphasis handling
+      smart_enable: all
+  - pymdownx.caret # Superscript with ^^text^^
+  - pymdownx.details # Collapsible details blocks
+  - pymdownx.emoji: # Emoji support
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight: # Syntax highlighting for code blocks
+      anchor_linenums: true # Add anchors to line numbers
+      line_spans: __span # Wrap lines in spans for styling
+      pygments_lang_class: true # Add language class to code blocks
+  - pymdownx.inlinehilite # Inline code highlighting
+  - pymdownx.keys # Keyboard key styling (++ctrl+alt+del++)
+  - pymdownx.mark # Highlight text with ==mark==
+  - pymdownx.smartsymbols # Smart symbols (arrows, fractions, etc.)
+  - pymdownx.snippets # Include external file snippets
+  - pymdownx.superfences # Nested code blocks and custom fences
+  - pymdownx.tabbed: # Tabbed content blocks
+      alternate_style: true # Use alternate tab style
+  - pymdownx.tasklist: # Task lists with checkboxes
+      custom_checkbox: true # Use custom checkbox styling
+  - pymdownx.tilde # Subscript with ~~text~~ and strikethrough
+
+plugins:
+  - search: # Built-in search functionality
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;' # Smart word separator for better search
+  - autorefs # Automatic cross-references between pages
+  - mkdocstrings: # Auto-generate API documentation from docstrings
+      handlers:
+        python:
+          paths: [src] # Source code location
+          options:
+            docstring_style: google # Use Google-style docstrings
+            docstring_section_style: spacy # Use spaCy section style
+            show_root_heading: true # Show module/class name as heading
+            show_root_full_path: false # Don't show full import path
+            show_source: true # Show source code link
+            show_bases: true # Show base classes
+            show_submodules: false # Don't auto-document submodules
+            members_order: source # Order members as in source code
+            heading_level: 2 # Start headings at h2
+            merge_init_into_class: true # Merge __init__ docs into class
+            separate_signature: true # Show signature separately from description
+            show_signature_annotations: true # Show type annotations in signatures
+            signature_crossrefs: true # Make signature types clickable links
+  - git-revision-date-localized: # Show last update dates on pages
+      enable_creation_date: true # Also show creation date
+      type: timeago # Show relative time (e.g., "2 days ago")
+      enable_git_follow: false # Disable git follow to avoid timestamp quirks
+  - minify: # Minify HTML/CSS/JS for faster page loads
+      minify_html: true
+      minify_js: true
+      minify_css: true
+      htmlmin_opts:
+        remove_comments: true # Remove HTML comments
+      cache_safe: true # Enable caching
+  - redirects: # Handle URL redirects for backward compatibility
+      redirect_maps: {} # No redirects configured yet
+
+extra:
+  social: # Social media links in footer
+    - icon: fontawesome/brands/github
+      link: https://github.com/andreoliwa/nitpick
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/nitpick/
+  version: # Version selector configuration
+    provider: mike # Use mike for version management
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - User Guide:
+      - Styles: styles.md
+      - Configuration: configuration.md
+      - Style Library: library.md
+      - Nitpick Section: nitpick_section.md
+      - Plugins: plugins.md
+      - Troubleshooting: troubleshooting.md
+  - Reference:
+      - CLI: cli.md
+      - Flake8 Plugin: flake8_plugin.md
+      - API:
+          - Overview: api/index.md
+          - CLI: api/cli.md
+          - Plugins: api/plugins.md
+  - Contributing: contributing.md

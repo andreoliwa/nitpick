@@ -9,10 +9,13 @@ dev = [
   "pudb",
 ]
 doc = [
-  "sphinx",
-  "sphinx-gitref",
-  "sphinx_rtd_theme",
-  "sphobjinv",
+  "mkdocs-git-revision-date-localized-plugin>=1.5.0", # Show last update dates on pages
+  "mkdocs-linkcheck>=1.0.6", # Check for broken links in documentation
+  "mkdocs-material>=9.7.0", # Modern Material Design theme for MkDocs
+  "mkdocs-minify-plugin>=0.8.0", # Minify HTML/CSS/JS for faster page loads
+  "mkdocs-redirects>=1.2.2", # Handle URL redirects for backward compatibility
+  "mkdocstrings[python]>=0.30.1", # Auto-generate API docs from Python docstrings
+  "pymdown-extensions>=10.17.1", # Markdown extensions for code blocks, tabs, admonitions, etc.
 ]
 lint = [
   "pylint",
@@ -85,7 +88,7 @@ description = "Enforce the same settings across multiple language-independent pr
 keywords = ["flake8", "linter", "python3", "styleguide"]
 license = {text = "MIT"}
 name = "nitpick"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.10"
 version = "0.38.0"
 

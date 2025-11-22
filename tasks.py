@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 COLOR_NONE = "\x1b[0m"
 COLOR_GREEN = "\x1b[32m"
 COLOR_BOLD_RED = "\x1b[1;31m"
-DOCS_BUILD_PATH = "docs/_build"
+DOCS_BUILD_PATH = "site"
 
 # pylint: disable=too-many-arguments
 
@@ -62,20 +62,17 @@ class ToxCommands:
         return self.find_command("testenv:docs", "autofix_docs")
 
     @property
-    def api(self):
-        """Generate API docs."""
-        return self.find_command("testenv:docs", "apidoc")
-
-    @property
     def check_links(self):
-        """Generate API docs."""
+        """Check documentation links."""
         return self.find_command("testenv:docs", "linkcheck").replace("{toxworkdir}", DOCS_BUILD_PATH)
 
     @property
-    def html_docs(self):
-        """Generate HTML docs."""
+    def mkdocs_build(self):
+        """Build MkDocs documentation."""
         return (
-            self.find_command("testenv:docs", "html").replace("{posargs}", "").replace("{toxworkdir}", DOCS_BUILD_PATH)
+            self.find_command("testenv:docs", "mkdocs build")
+            .replace("{posargs}", "")
+            .replace("{toxworkdir}", DOCS_BUILD_PATH)
         )
 
     @staticmethod
@@ -144,8 +141,8 @@ def install(c: Context, deps=True, hooks=False, version=""):
         c.run(f"uv python install {version}")
         c.run("uv sync --all-groups")
     if hooks:
-        c.run("prek install -t pre-commit -t commit-msg --install-hooks")
-        c.run("pre-commit gc")
+        # We need to run using the root config otherwise prek will read test fixtures and think this is a monorepo
+        c.run("prek install --config .pre-commit-config.yaml -t pre-commit -t commit-msg --install-hooks")
 
 
 @task(
@@ -200,13 +197,13 @@ def test(  # pylint: disable=too-many-positional-arguments
 @task(
     help={
         "full": "Run all steps",
-        "recreate": "Delete and recreate RST for source files",
+        "recreate": "Delete and recreate MD files for source files",
         "links": "Check links",
         "browse": "Browse the HTML index",
         "debug": "Debug HTML generation to fix warnings",
     }
 )
-def doc(
+def docs(
     c: Context, full=False, recreate=False, links=False, browse=False, debug=False
 ):  # pylint: disable=too-many-positional-arguments
     """Build documentation."""
@@ -215,17 +212,14 @@ def doc(
     if full:
         recreate = links = True
     if recreate:
-        c.run("mkdir -p docs/_static")
-        c.run(f"rm -rf {DOCS_BUILD_PATH} docs/source")
+        c.run("mkdir -p docs/stylesheets")
+        c.run(f"rm -rf {DOCS_BUILD_PATH}")
 
     c.run("uv export --no-hashes --group doc > docs/requirements.txt")
     c.run(f"uv run {tox.autofix_docs}", warn=True)
-    c.run(f"uv run {tox.api}")
-    if debug:
-        c.run("uv run sphinx-apidoc --help")
 
-    debug_options = "-nWT --keep-going -vvv" if debug else ""
-    c.run(f"uv run {tox.html_docs} {debug_options}")
+    verbose_flag = "--verbose" if debug else ""
+    c.run(f"uv run {tox.mkdocs_build} {verbose_flag}")
 
     if links:
         c.run(f"uv run {tox.check_links}", warn=True)
@@ -242,7 +236,7 @@ def doc(
         "python": "Python version",
     }
 )
-def ci_build(c: Context, full=False, recreate=False, docs=True, python=""):
+def ci_build(c: Context, full=False, recreate=False, docs_=True, python=""):
     """Simulate a CI build."""
     tox = ToxCommands()
 
@@ -254,7 +248,7 @@ def ci_build(c: Context, full=False, recreate=False, docs=True, python=""):
 
     chosen_version = python or tox.stable_python_version
     envs = ["clean", "lint", tox.as_tox_env(chosen_version)]
-    if docs:
+    if docs_:
         envs.append("docs")
     envs.append("report")
     c.run(f"{tox_cmd} -e {','.join(envs)}")
@@ -339,7 +333,7 @@ def lab(c: Context, convert_file_name="", lab_help=False):
     c.run(f"uv run python docs/ideas/lab.py {' '.join(extra_args)}")
 
 
-namespace = Collection(install, test, doc, ci_build, lint, clean, reactions, lab)
+namespace = Collection(install, test, docs, ci_build, lint, clean, reactions, lab)
 namespace.configure(
     {
         "run": {

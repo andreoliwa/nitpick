@@ -54,6 +54,6 @@ If you found an issue, write a comment or upvote it with a thumbs-up 👍🏻.
   cat $(which flake8)
   ```
 
-For more information, see the [CONTRIBUTING](https://github.com/andreoliwa/nitpick/blob/master/CONTRIBUTING.rst) guide.
+For more information, see the [CONTRIBUTING](https://nitpick.rtfd.io/en/latest/contributing.html) guide.
 
 <!-- Thanks to https://github.com/stevemao/github-issue-templates/ for the original template -->

@@ -1,8 +1,8 @@
 # https://docs.readthedocs.io/en/stable/config-file/v2.html
 # https://blog.readthedocs.com/migrate-configuration-v2/
 version: 2
-sphinx:
-  configuration: docs/conf.py
+mkdocs:
+  configuration: mkdocs.yml
 formats: all
 
 build:
@@ -12,7 +12,7 @@ build:
 
 python:
   install:
-    # Needed to force RTD to install the latest Sphinx version
+    # TODO: do we still need this? Needed to force RTD to install the latest Sphinx version
     - requirements: docs/requirements.txt
     - method: pip
       path: .
