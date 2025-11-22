@@ -53,22 +53,28 @@ Nitpick is also a [flake8](https://github.com/PyCQA/flake8) plugin, so you can r
 
 ## Run as a pre-commit hook
 
-If you use [pre-commit](https://pre-commit.com/) on your project, add this to the `.pre-commit-config.yaml` in your repository:
+If you use [pre-commit](https://pre-commit.com/) on your project, add this to the `.pre-commit-config.yaml` in your repository.
+
+There are a few hook IDs available.
+The recommendation is to choose `nitpick-suggest` and one of the fix/check hooks.
 
 ```yaml
 repos:
   - repo: https://github.com/andreoliwa/nitpick
     rev: v0.38.0
     hooks:
+      # This hook runs the `nitpick init --fix --suggest` command
       - id: nitpick-suggest
+
+      # Choose only one of the "fix" or "check" hooks.
+      # These hooks run the `nitpick fix` command
       - id: nitpick
+      # - id: nitpick-fix-all # same as nitpick
+      # - id: nitpick-fix
+      # These hooks run the `nitpick check` command
+      # - id: nitpick-check-all
+      # - id: nitpick-check
 ```
-
-There are a few hook IDs available:
-
-- `nitpick`, `nitpick-fix` and `nitpick-fix-all` run the `nitpick fix` command;
-- `nitpick-check` and `nitpick-check-all` runs `nitpick check`;
-- `nitpick-suggest` runs `nitpick init --fix --suggest`;
 
 If you want to run [Nitpick](https://github.com/andreoliwa/nitpick) as a [flake8](https://github.com/PyCQA/flake8) plugin instead:
 
@@ -113,4 +119,4 @@ ENABLE_LINTERS:
 nitpick fix
 ```
 
-Read more details here: [cli](cli.md).
+Read more details here: [Command-line interface](cli.md).

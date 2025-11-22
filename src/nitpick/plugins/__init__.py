@@ -31,8 +31,8 @@ def plugin_class() -> type[NitpickPlugin]:  # type: ignore[empty-body]
 
 @hookspec
 def can_handle(info: FileInfo) -> type[NitpickPlugin] | None:  # pylint: disable=unused-argument
-    """Return a valid :py:class:`nitpick.plugins.base.NitpickPlugin` instance or ``None``.
+    """Return a valid [NitpickPlugin][] instance or `None`.
 
-    :return: A plugin instance if your plugin handles this file info (path or any of its ``identify`` tags).
-        Return ``None`` if your plugin doesn't handle this file or file type.
+    :return: A plugin instance if your plugin handles this file info (path or any of its `identify` tags).
+        Return `None` if your plugin doesn't handle this file or file type.
     """

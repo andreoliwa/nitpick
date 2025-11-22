@@ -93,7 +93,7 @@ plugins:
         python:
           paths: [src] # Source code location
           options:
-            docstring_style: google # Use Google-style docstrings
+            docstring_style: numpy # Use NumPy-style docstrings (closest to PEP 257)
             docstring_section_style: spacy # Use spaCy section style
             show_root_heading: true # Show module/class name as heading
             show_root_full_path: false # Don't show full import path

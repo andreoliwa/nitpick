@@ -29,7 +29,7 @@ TOMLKIT_DOT = "."
 
 
 def _replace_toml_document_getitem(original_method: Callable) -> Callable:
-    """Replace the ::py:meth:`tomlkit.Container.__getitem__` method to allow dotted keys."""
+    """Replace the [tomlkit.Container.__getitem__][] method to allow dotted keys."""
 
     @wraps(original_method)
     def inner_getitem(self, key: str | Iterable[str]) -> Container | None:
@@ -57,7 +57,7 @@ def load(file_pointer: IO[str] | IO[bytes] | Path) -> TOMLDocument:
 
     Return an empty document if the file doesn't exist.
 
-    Drop-in replacement for :py:meth:`tomlkit.api.load`.
+    Drop-in replacement for [tomlkit.api.load][].
     """
     if isinstance(file_pointer, Path):
         if not file_pointer.exists():

@@ -39,15 +39,14 @@ class Violations(ViolationEnum):
 class IniPlugin(NitpickPlugin):
     """Enforce configurations and autofix INI files.
 
-    Examples of ``.ini`` files handled by this plugin:
+    Examples of `.ini` files handled by this plugin:
 
-    - `setup.cfg <https://docs.python.org/3/distutils/configfile.html>`_
-    - `.editorconfig <https://editorconfig.org/>`_
-    - `tox.ini <https://github.com/tox-dev/tox>`_
-    - `.pylintrc <https://pylint.readthedocs.io/en/latest/user_guide/usage/run.html#command-line-options>`_
+    - [setup.cfg](https://setuptools.pypa.io/en/latest/setuptools.html#setup-cfg-only-projects)
+    - [.editorconfig](https://editorconfig.org/)
+    - [tox.ini](https://github.com/tox-dev/tox)
+    - [.pylintrc](https://pylint.readthedocs.io/en/latest/user_guide/usage/run.html#command-line-options)
 
-    Style examples enforcing values on INI files: :gitref:`flake8 configuration
-    <src/nitpick/resources/python/flake8.toml>`.
+    Style examples enforcing values on INI files: [flake8 configuration](https://github.com/andreoliwa/nitpick/blob/master/src/nitpick/resources/python/flake8.toml).
     """
 
     fixable = True

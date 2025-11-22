@@ -45,11 +45,11 @@ SEPARATOR_COMMA = ","
 SEPARATOR_COLON = ":"
 SEPARATOR_SPACE = " "
 
-#: Special unique separator for :py:meth:`flatten()` and :py:meth:`unflatten()`,
+#: Special unique separator for [flatten()][flatten_dict.flatten_dict.flatten] and [unflatten()][flatten_dict.flatten_dict.unflatten],
 # to avoid collision with existing key values (e.g. the default SEPARATOR_DOT separator "." can be part of a TOML key).
 SEPARATOR_FLATTEN = "$#@"
 
-#: Special unique separator for :py:meth:`nitpick.blender.quoted_split()`.
+#: Special unique separator for [quoted_split()][nitpick.blender.quoted_split].
 SEPARATOR_QUOTED_SPLIT = "#$@"
 
 
@@ -237,7 +237,7 @@ def quotes_splitter(flat_key: str) -> tuple[str, ...]:
 
 
 def custom_reducer(separator: str) -> Callable:
-    """Custom reducer for :py:meth:`flatten_dict.flatten_dict.flatten()` accepting a separator."""
+    """Custom reducer for [flatten()][flatten_dict.flatten_dict.flatten] accepting a separator."""
 
     def _inner_custom_reducer(key1, key2):
         if key1 is None:
@@ -248,7 +248,7 @@ def custom_reducer(separator: str) -> Callable:
 
 
 def custom_splitter(separator: str) -> Callable:
-    """Custom splitter for :py:meth:`flatten_dict.flatten_dict.unflatten()` accepting a separator."""
+    """Custom splitter for [unflatten()][flatten_dict.flatten_dict.unflatten] accepting a separator."""
 
     def _inner_custom_splitter(flat_key) -> tuple[str, ...]:
         """Return a tuple of keys split by the separator."""
@@ -570,7 +570,7 @@ def traverse_toml_tree(document: tomlkit.TOMLDocument, dictionary):
 class SensibleYAML(YAML):
     """YAML with sensible defaults but an inefficient dump to string.
 
-    `Output of dump() as a string <https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string>`_.
+    [Output of dump() as a string](https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string).
     """
 
     def __init__(self) -> None:

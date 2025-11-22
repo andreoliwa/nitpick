@@ -41,10 +41,10 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
     fixable: bool = False
 
     #: Nested validation field for this file, to be applied in runtime when the validation schema is rebuilt.
-    #: Useful when you have a strict configuration for a file type (e.g. :py:class:`nitpick.plugins.json.JsonPlugin`).
+    #: Useful when you have a strict configuration for a file type (e.g. [JsonPlugin][nitpick.plugins.json.JsonPlugin]).
     validation_schema: Schema | None = None
 
-    #: Which ``identify`` tags this :py:class:`nitpick.plugins.base.NitpickPlugin` child recognises.
+    #: Which `identify` tags this [NitpickPlugin][] child recognises.
     identify_tags: ClassVar[set[str]] = set()
 
     skip_empty_suggestion = False
@@ -128,8 +128,8 @@ class NitpickPlugin(metaclass=abc.ABCMeta):  # pylint: disable=too-many-instance
     def post_init(self):  # noqa: B027
         """Hook for plugin initialization after the instance was created.
 
-        The name mimics ``__post_init__()`` on dataclasses, without the magic double underscores:
-        `Post-init processing <https://docs.python.org/3/library/dataclasses.html#post-init-processing>`_
+        The name mimics `__post_init__()` on dataclasses, without the magic double underscores.
+        See the [dataclasses documentation](https://docs.python.org/3/library/dataclasses.html#post-init-processing) for more details.
         """
 
     def _suggest_when_file_not_found(self):
