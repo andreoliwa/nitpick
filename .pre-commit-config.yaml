@@ -82,7 +82,6 @@ repos:
     rev: v1.10.0
     hooks:
       - id: python-check-mock-methods
-      - id: rst-backticks
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8
     hooks:
