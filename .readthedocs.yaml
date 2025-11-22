@@ -9,12 +9,7 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.11"
-
-python:
-  install:
-    # TODO: do we still need this? Needed to force RTD to install the latest Sphinx version
-    - requirements: docs/requirements.txt
-    - method: pip
-      path: .
-      extra_requirements:
-        - doc
+  commands:
+    - pip install uv
+    - uv sync --group doc
+    - uv run mkdocs build --site-dir $READTHEDOCS_OUTPUT/html
