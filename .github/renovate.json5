@@ -1,6 +1,6 @@
 {
   extends: [
-    "config:base",
+    "config:recommended",
     // https://docs.renovatebot.com/presets-group/#groupallnonmajor
     // Groups all non-major (minor & patch) updates into a single PR
     "group:allNonMajor",
