@@ -1,23 +1,12 @@
 {
-  extends: [
-    "config:base",
-    // https://docs.renovatebot.com/presets-group/#groupallnonmajor
-    // Groups all non-major (minor & patch) updates into a single PR
-    "group:allNonMajor",
-  ],
-  // https://docs.renovatebot.com/configuration-options/#automerge
+  extends: ["config:recommended", "group:allNonMajor"],
   automerge: true,
-  // https://docs.renovatebot.com/configuration-options/#automergetype
   automergeType: "branch",
-  // https://docs.renovatebot.com/modules/manager/pre-commit/
   "pre-commit": {
     enabled: true,
   },
   ignoreDeps: ["jedi"],
-  // https://docs.renovatebot.com/configuration-options/#ignorepaths
   ignorePaths: [".github/workflows/python.yaml"],
-  // https://docs.renovatebot.com/configuration-options/#prconcurrentlimit
   prConcurrentLimit: 3,
-  // https://docs.renovatebot.com/configuration-options/#branchconcurrentlimit
   branchConcurrentLimit: 5,
 }
