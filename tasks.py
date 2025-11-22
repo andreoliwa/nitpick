@@ -215,7 +215,6 @@ def docs(
         c.run("mkdir -p docs/stylesheets")
         c.run(f"rm -rf {DOCS_BUILD_PATH}")
 
-    c.run("uv export --no-hashes --group doc > docs/requirements.txt")
     c.run(f"uv run {tox.autofix_docs}", warn=True)
 
     verbose_flag = "--verbose" if debug else ""
