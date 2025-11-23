@@ -2,7 +2,7 @@
 
 ## Install
 
-Install in an isolated environment with [pipx](https://github.com/pipxproject/pipx):
+Install in an isolated global environment with [pipx](https://github.com/pipxproject/pipx):
 
     # Latest PyPI release
     pipx install nitpick
@@ -21,6 +21,10 @@ On Arch Linux, install with yay:
 
     yay -Syu nitpick
 
+Add to your project with [uv](https://docs.astral.sh/uv/):
+
+    uv add --dev nitpick
+
 Add to your project with [Poetry](https://github.com/python-poetry/poetry):
 
     poetry add --dev nitpick
@@ -31,11 +35,10 @@ Or install it with pip:
 
 ## Run
 
-[Nitpick](https://github.com/andreoliwa/nitpick) will fail if no style is explicitly configured. Run this command to download and use the opinionated [default style file](https://github.com/andreoliwa/nitpick/blob/master/nitpick-style.toml):
+Nitpick will fail if no style is explicitly configured. Run this command to download and use the opinionated
+[default style file]({{ github_url('nitpick-style.toml') }}):
 
-```bash
-nitpick init
-```
+    nitpick init
 
 You can use it as a template to configure your own style.
 
@@ -47,13 +50,15 @@ To check for errors only:
 
     nitpick check
 
-Nitpick is also a [flake8](https://github.com/PyCQA/flake8) plugin, so you can run this on a project with at least one Python (`.py`) file:
+Nitpick is also a [flake8](https://github.com/PyCQA/flake8) plugin, so
+you can run this on a project with at least one Python (`.py`) file:
 
     flake8 .
 
 ## Run as a pre-commit hook
 
-If you use [pre-commit](https://pre-commit.com/) on your project, add this to the `.pre-commit-config.yaml` in your repository.
+If you use [pre-commit](https://pre-commit.com/) on your project, add
+this to the `.pre-commit-config.yaml` in your repository:
 
 There are a few hook IDs available.
 The recommendation is to choose `nitpick-suggest` and one of the fix/check hooks.
@@ -76,7 +81,7 @@ repos:
       # - id: nitpick-check
 ```
 
-If you want to run [Nitpick](https://github.com/andreoliwa/nitpick) as a [flake8](https://github.com/PyCQA/flake8) plugin instead:
+If you want to run Nitpick as a [flake8](https://github.com/PyCQA/flake8) plugin instead:
 
 ```yaml
 repos:
@@ -87,22 +92,20 @@ repos:
         additional_dependencies: [nitpick]
 ```
 
-To install the `pre-commit` and `commit-msg` Git hooks:
+To install the `pre-commit` and `commit-msg` Git hooks
+using [prek (pre-commit re-engineered in Rust)](https://github.com/j178/prek):
 
-```shell
-prek install --install-hooks
-prek install -t commit-msg
-```
+    prek install --install-hooks
+    prek install -t commit-msg
 
 To start checking all your code against the default rules:
 
-```shell
-prek run --all-files
-```
+    prek run --all-files
 
 ## Run as a MegaLinter plugin
 
-If you use [MegaLinter](https://megalinter.github.io/) you can run Nitpick as a plugin. Add the following two entries to your `.mega-linter.yml` configuration file:
+If you use [MegaLinter](https://megalinter.github.io/) you can run
+Nitpick as a plugin. Add the following two entries to your `.mega-linter.yml` configuration file:
 
 ```yaml
 PLUGINS:
@@ -110,13 +113,3 @@ PLUGINS:
 ENABLE_LINTERS:
   - NITPICK
 ```
-
-## Modify files directly
-
-[Nitpick](https://github.com/andreoliwa/nitpick) includes a CLI to apply your style and modify the configuration files directly:
-
-```shell
-nitpick fix
-```
-
-Read more details here: [Command-line interface](cli.md).

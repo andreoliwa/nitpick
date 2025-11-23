@@ -74,7 +74,7 @@ class FileType:
     def __lt__(self, other: FileType) -> bool:
         """Sort instances.
 
-        From the `docs <https://docs.python.org/3/howto/sorting.html#odd-and-ends>`_:
+        From the [docs](https://docs.python.org/3/howto/sorting.html#odd-and-ends):
 
         > It is easy to add a standard sort order to a class by defining an __lt__() method
         """
@@ -87,8 +87,8 @@ class FileType:
 
     @property
     def text_with_url(self) -> str:
-        """Text with URL in reStructuredText."""
-        return f"`{self.text} <{self.url}>`_" if self.url else self.text
+        """Text with URL in Markdown."""
+        return f"[{self.text}]({self.url})" if self.url else self.text
 
     def _pretty(self, attribute: str) -> str:
         value = getattr(self, attribute)
@@ -98,7 +98,7 @@ class FileType:
             return EmojiEnum.X_RED_CROSS.value
         if value == 0:
             return EmojiEnum.QUESTION_MARK.value
-        return f"`#{value} <https://github.com/andreoliwa/nitpick/issues/{value}>`_ {EmojiEnum.CONSTRUCTION.value}"
+        return f"[#{value}](https://github.com/andreoliwa/nitpick/issues/{value}) {EmojiEnum.CONSTRUCTION.value}"
 
     @property
     def check_str(self) -> str:
@@ -339,11 +339,20 @@ def write_style_library(divider: str) -> int:
     return rv
 
 
+def copy_quickstart() -> int:
+    """Copy the quickstart section to README.md."""
+    quickstart_file = DOCS_DIR / "quickstart.md"
+    content = quickstart_file.read_text().replace("{{ github_url('nitpick-style.toml') }}", "nitpick-style.toml")
+    lines = content.splitlines()
+    return DocFile("../README.md").write(lines, "quickstart")
+
+
 if __name__ == "__main__":
     sys.exit(
         write_readme(IMPLEMENTED_FILE_TYPES, "implemented")
         + write_readme(PLANNED_FILE_TYPES, "planned")
         + write_style_library("style-library")
+        + copy_quickstart()
         + write_config()
         + write_plugins()
         + write_cli()

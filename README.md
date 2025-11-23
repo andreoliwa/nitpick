@@ -8,20 +8,16 @@ Workflow](https://github.com/andreoliwa/nitpick/workflows/Python/badge.svg)
 [![Documentation
 Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.rtfd.io/latest/?badge=latest)
 [![Codecov](https://codecov.io/gh/andreoliwa/nitpick/branch/master/graph/badge.svg)](https://codecov.io/gh/andreoliwa/nitpick)
-[![Maintainability](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/maintainability)](https://codeclimate.com/github/andreoliwa/nitpick)
 [![Test
 Coverage](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![pre-commit.ci
-status](https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/develop.svg)](https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/develop)
+status](https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/master.svg)](https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/master)
 [![Project
 License](https://img.shields.io/pypi/l/nitpick.svg)](https://pypi.org/project/nitpick/)
 [![Code style:
 black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com/)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
-[![FOSSA
-Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fandreoliwa%2Fnitpick?ref=badge_shield)
 
 Command-line tool and [flake8](https://github.com/PyCQA/flake8) plugin
 to enforce the same settings across multiple language-independent
@@ -96,14 +92,14 @@ These are the file types currently handled by Nitpick.
 <!-- auto-generated-start-implemented -->
 | File type | `nitpick check` | `nitpick fix` |
 | --- | --- | --- |
-| `Any INI file <https://nitpick.rtfd.io/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
-| `Any JSON file <https://nitpick.rtfd.io/latest/plugins.html#json-files>`_ | ✅ | ✅ |
-| `Any plain text file <https://nitpick.rtfd.io/latest/plugins.html#text-files>`_ | ✅ | ❌ |
-| `Any TOML file <https://nitpick.rtfd.io/latest/plugins.html#toml-files>`_ | ✅ | ✅ |
-| `Any YAML file <https://nitpick.rtfd.io/latest/plugins.html#yaml-files>`_ | ✅ | ✅ |
-| `.editorconfig <https://nitpick.rtfd.io/latest/library.html#any>`_ | ✅ | ✅ |
-| `.pylintrc <https://nitpick.rtfd.io/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
-| `setup.cfg <https://nitpick.rtfd.io/latest/plugins.html#ini-files>`_ | ✅ | ✅ |
+| [Any INI file](https://nitpick.rtfd.io/latest/plugins.html#ini-files) | ✅ | ✅ |
+| [Any JSON file](https://nitpick.rtfd.io/latest/plugins.html#json-files) | ✅ | ✅ |
+| [Any plain text file](https://nitpick.rtfd.io/latest/plugins.html#text-files) | ✅ | ❌ |
+| [Any TOML file](https://nitpick.rtfd.io/latest/plugins.html#toml-files) | ✅ | ✅ |
+| [Any YAML file](https://nitpick.rtfd.io/latest/plugins.html#yaml-files) | ✅ | ✅ |
+| [.editorconfig](https://nitpick.rtfd.io/latest/library.html#any) | ✅ | ✅ |
+| [.pylintrc](https://nitpick.rtfd.io/latest/plugins.html#ini-files) | ✅ | ✅ |
+| [setup.cfg](https://nitpick.rtfd.io/latest/plugins.html#ini-files) | ✅ | ✅ |
 <!-- auto-generated-end-implemented -->
 
 ### Planned
@@ -111,13 +107,13 @@ These are the file types currently handled by Nitpick.
 <!-- auto-generated-start-planned -->
 | File type | `nitpick check` | `nitpick fix` |
 | --- | --- | --- |
-| Any Markdown file | `#280 <https://github.com/andreoliwa/nitpick/issues/280>`_ 🚧 | ❓ |
-| Any Terraform file | `#318 <https://github.com/andreoliwa/nitpick/issues/318>`_ 🚧 | ❓ |
-| Dockerfile | `#272 <https://github.com/andreoliwa/nitpick/issues/272>`_ 🚧 | `#272 <https://github.com/andreoliwa/nitpick/issues/272>`_ 🚧 |
-| .dockerignore | `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_ 🚧 | `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_ 🚧 |
-| .gitignore | `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_ 🚧 | `#8 <https://github.com/andreoliwa/nitpick/issues/8>`_ 🚧 |
-| Jenkinsfile | `#278 <https://github.com/andreoliwa/nitpick/issues/278>`_ 🚧 | ❓ |
-| Makefile | `#277 <https://github.com/andreoliwa/nitpick/issues/277>`_ 🚧 | ❓ |
+| Any Markdown file | [#280](https://github.com/andreoliwa/nitpick/issues/280) 🚧 | ❓ |
+| Any Terraform file | [#318](https://github.com/andreoliwa/nitpick/issues/318) 🚧 | ❓ |
+| Dockerfile | [#272](https://github.com/andreoliwa/nitpick/issues/272) 🚧 | [#272](https://github.com/andreoliwa/nitpick/issues/272) 🚧 |
+| .dockerignore | [#8](https://github.com/andreoliwa/nitpick/issues/8) 🚧 | [#8](https://github.com/andreoliwa/nitpick/issues/8) 🚧 |
+| .gitignore | [#8](https://github.com/andreoliwa/nitpick/issues/8) 🚧 | [#8](https://github.com/andreoliwa/nitpick/issues/8) 🚧 |
+| Jenkinsfile | [#278](https://github.com/andreoliwa/nitpick/issues/278) 🚧 | ❓ |
+| Makefile | [#277](https://github.com/andreoliwa/nitpick/issues/277) 🚧 | ❓ |
 <!-- auto-generated-end-planned -->
 
 ## Style Library (Presets)
@@ -131,9 +127,9 @@ choose styles from the table below and create your own style, like LEGO.
 Read how to:
 
 - [...add multiple styles to the configuration
-  file](https://nitpick.readthedocs.io/en/latest/configuration.html#multiple-styles);
+  file](https://nitpick.readthedocs.io/latest/configuration.html#multiple-styles);
 - [...include styles inside a
-  style](https://nitpick.readthedocs.io/en/latest/nitpick_section.html#nitpick-styles).
+  style](https://nitpick.readthedocs.io/latest/nitpick_section.html#nitpick-styles).
 
 <!-- auto-generated-start-style-library -->
 
@@ -222,12 +218,12 @@ Read how to:
 | [py://nitpick/resources/toml/toml-sort](src/nitpick/resources/toml/toml-sort.toml) | [TOML sort](https://github.com/pappasam/toml-sort) |
 <!-- auto-generated-end-style-library -->
 
-## Quickstart
+<!-- auto-generated-start-quickstart -->
+# Quickstart
 
-### Install
+## Install
 
-Install in an isolated global environment with
-[pipx](https://github.com/pipxproject/pipx):
+Install in an isolated global environment with [pipx](https://github.com/pipxproject/pipx):
 
     # Latest PyPI release
     pipx install nitpick
@@ -235,10 +231,8 @@ Install in an isolated global environment with
     # Development branch from GitHub
     pipx install git+https://github.com/andreoliwa/nitpick
 
-On macOS/Linux, install with
-[Homebrew](https://github.com/Homebrew/brew):
+On macOS/Linux, install the latest release with [Homebrew](https://github.com/Homebrew/brew):
 
-    # Latest PyPI release
     brew install andreoliwa/formulae/nitpick
 
     # Development branch from GitHub
@@ -252,17 +246,20 @@ Add to your project with [uv](https://docs.astral.sh/uv/):
 
     uv add --dev nitpick
 
+Add to your project with [Poetry](https://github.com/python-poetry/poetry):
+
+    poetry add --dev nitpick
+
 Or install it with pip:
 
     pip install -U nitpick
 
-### Run
+## Run
 
-[Nitpick](#nitpick) will fail if no style is explicitly configured. Run
-this command to download and use the opinionated [default style
-file](nitpick-style.toml):
+Nitpick will fail if no style is explicitly configured. Run this command to download and use the opinionated
+[default style file](nitpick-style.toml):
 
-> nitpick init
+    nitpick init
 
 You can use it as a template to configure your own style.
 
@@ -279,46 +276,65 @@ you can run this on a project with at least one Python (`.py`) file:
 
     flake8 .
 
-### Run as a pre-commit hook
+## Run as a pre-commit hook
 
 If you use [pre-commit](https://pre-commit.com/) on your project, add
 this to the `.pre-commit-config.yaml` in your repository:
 
-    repos:
-      - repo: https://github.com/andreoliwa/nitpick
-        rev: v0.38.0
-        hooks:
-          - id: nitpick-suggest
-          - id: nitpick
+There are a few hook IDs available.
+The recommendation is to choose `nitpick-suggest` and one of the fix/check hooks.
 
-There are a few hook IDs available:
+```yaml
+repos:
+  - repo: https://github.com/andreoliwa/nitpick
+    rev: v0.38.0
+    hooks:
+      # This hook runs the `nitpick init --fix --suggest` command
+      - id: nitpick-suggest
 
-- `nitpick`, `nitpick-fix` and `nitpick-fix-all` run the `nitpick fix`
-  command;
-- `nitpick-check` and `nitpick-check-all` runs `nitpick check`;
-- `nitpick-suggest` runs `nitpick init --fix --suggest`;
+      # Choose only one of the "fix" or "check" hooks.
+      # These hooks run the `nitpick fix` command
+      - id: nitpick
+      # - id: nitpick-fix-all # same as nitpick
+      # - id: nitpick-fix
+      # These hooks run the `nitpick check` command
+      # - id: nitpick-check-all
+      # - id: nitpick-check
+```
 
-If you want to run Nitpick as a flake8 plugin instead:
+If you want to run Nitpick as a [flake8](https://github.com/PyCQA/flake8) plugin instead:
 
-    repos:
-      - repo: https://github.com/PyCQA/flake8
-        rev: 4.0.1
-        hooks:
-          - id: flake8
-            additional_dependencies: [nitpick]
+```yaml
+repos:
+  - repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies: [nitpick]
+```
 
-### Run as a MegaLinter plugin
+To install the `pre-commit` and `commit-msg` Git hooks
+using [prek (pre-commit re-engineered in Rust)](https://github.com/j178/prek):
+
+    prek install --install-hooks
+    prek install -t commit-msg
+
+To start checking all your code against the default rules:
+
+    prek run --all-files
+
+## Run as a MegaLinter plugin
 
 If you use [MegaLinter](https://megalinter.github.io/) you can run
-Nitpick as a plugin. Add the following two entries to your
-`.mega-linter.yml` configuration file:
+Nitpick as a plugin. Add the following two entries to your `.mega-linter.yml` configuration file:
 
-``` yaml
+```yaml
 PLUGINS:
   - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.38.0/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
 ENABLE_LINTERS:
   - NITPICK
 ```
+<!-- auto-generated-end-quickstart -->
 
 ## More information
 
