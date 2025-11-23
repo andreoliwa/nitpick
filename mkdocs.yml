@@ -10,9 +10,11 @@ edit_uri: edit/master/docs/
 #  - PRE_COMMIT.md
 #  - TROUBLESHOOTING.md
 # Exclude uppercase .md files (cached artifacts from RST conversion)
+# Exclude README.md to avoid conflict with index.md (both would generate the same URL)
 exclude_docs: |
   PRE_COMMIT.md
   TROUBLESHOOTING.md
+  README.md
 
 theme:
   name: material
