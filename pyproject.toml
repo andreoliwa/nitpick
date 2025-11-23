@@ -11,6 +11,7 @@ dev = [
 doc = [
   "mkdocs-git-revision-date-localized-plugin>=1.5.0", # Show last update dates on pages
   "mkdocs-linkcheck>=1.0.6", # Check for broken links in documentation
+  "mkdocs-macros-plugin>=1.5.0",
   "mkdocs-material>=9.7.0", # Modern Material Design theme for MkDocs
   "mkdocs-minify-plugin>=0.8.0", # Minify HTML/CSS/JS for faster page loads
   "mkdocs-redirects>=1.2.2", # Handle URL redirects for backward compatibility

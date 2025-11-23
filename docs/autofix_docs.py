@@ -307,7 +307,8 @@ def _build_library(gitref: bool = True) -> list[str]:
         clean_root = path.relative_to(repo_root()).as_posix().replace("site-packages/", "src/")
 
         # Markdown link format with GitHub URL
-        github_url = f"https://github.com/andreoliwa/nitpick/blob/master/{clean_root}" if gitref else clean_root
+        # Use macro syntax for version-aware URLs in docs, or relative path for README
+        github_url = f"{{{{ github_url('{clean_root}') }}}}" if gitref else clean_root
         style_link = f"[{style.formatted}]({github_url})"
         name_link = f"[{style.name}]({style.url})" if style.url else style.name
 

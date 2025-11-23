@@ -87,6 +87,10 @@ markdown_extensions:
 plugins:
   - search: # Built-in search functionality
       separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;' # Smart word separator for better search
+  - macros: # Macros for dynamic content (e.g., version-aware GitHub URLs)
+      module_name: docs/main
+      j2_comment_start_string: "{##"
+      j2_comment_end_string: "##}"
   - autorefs # Automatic cross-references between pages
   - mkdocstrings: # Auto-generate API documentation from docstrings
       handlers:
