@@ -1,0 +1,22 @@
+/* Custom styles for Nitpick documentation */
+
+:root {
+    --md-primary-fg-color: #009688;
+    --md-accent-fg-color: #4caf50;
+}
+
+/* Code block improvements */
+.highlight pre {
+    border-radius: 0.2rem;
+}
+
+/* Admonition customization */
+.md-typeset .admonition,
+.md-typeset details {
+    border-left: 0.2rem solid;
+}
+
+/* Table improvements */
+.md-typeset table:not([class]) {
+    font-size: 0.85rem;
+}

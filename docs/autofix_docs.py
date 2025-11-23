@@ -10,12 +10,13 @@ Not even changing ``html_static_path`` on ``conf.py`` worked.
 
 from __future__ import annotations
 
+import re
 import sys
 from collections import defaultdict
 from importlib import import_module
 from pathlib import Path
 from subprocess import check_output  # nosec
-from textwrap import dedent, indent
+from textwrap import dedent
 
 import attr
 import click
@@ -33,10 +34,7 @@ from nitpick.constants import (
 from nitpick.core import Nitpick
 from nitpick.style import BuiltinStyle, builtin_styles, repo_root
 
-RST_DIVIDER_FROM_HERE = ".. auto-generated-from-here"
-RST_DIVIDER_START = ".. auto-generated-start-{}"
-RST_DIVIDER_END = ".. auto-generated-end-{}"
-
+MD_DIVIDER_FROM_HERE = "<!-- auto-generated-from-here -->"
 MD_DIVIDER_START = "<!-- auto-generated-start-{} -->"
 MD_DIVIDER_END = "<!-- auto-generated-end-{} -->"
 
@@ -77,7 +75,7 @@ class FileType:
     def __lt__(self, other: FileType) -> bool:
         """Sort instances.
 
-        From the `docs <https://docs.python.org/3/howto/sorting.html#odd-and-ends>`_:
+        From the [docs](https://docs.python.org/3/howto/sorting.html#odd-and-ends):
 
         > It is easy to add a standard sort order to a class by defining an __lt__() method
         """
@@ -90,8 +88,8 @@ class FileType:
 
     @property
     def text_with_url(self) -> str:
-        """Text with URL in reStructuredText."""
-        return f"`{self.text} <{self.url}>`_" if self.url else self.text
+        """Text with URL in Markdown."""
+        return f"[{self.text}]({self.url})" if self.url else self.text
 
     def _pretty(self, attribute: str) -> str:
         value = getattr(self, attribute)
@@ -101,7 +99,7 @@ class FileType:
             return EmojiEnum.X_RED_CROSS.value
         if value == 0:
             return EmojiEnum.QUESTION_MARK.value
-        return f"`#{value} <https://github.com/andreoliwa/nitpick/issues/{value}>`_ {EmojiEnum.CONSTRUCTION.value}"
+        return f"[#{value}](https://github.com/andreoliwa/nitpick/issues/{value}) {EmojiEnum.CONSTRUCTION.value}"
 
     @property
     def check_str(self) -> str:
@@ -143,18 +141,34 @@ nit = Nitpick.singleton().init()
 
 
 class DocFile:  # pylint: disable=too-few-public-methods
-    """A document file (REST or Markdown)."""
+    """A Markdown document file."""
 
     def __init__(self, filename: str) -> None:
         self.file: Path = (DOCS_DIR / filename).resolve(True)
-        if self.file.suffix == ".md":
-            self.divider_start = MD_DIVIDER_START
-            self.divider_end = MD_DIVIDER_END
-            self.divider_from_here = MD_DIVIDER_START
-        else:
-            self.divider_start = RST_DIVIDER_START
-            self.divider_end = RST_DIVIDER_END
-            self.divider_from_here = RST_DIVIDER_FROM_HERE
+        self.divider_start = MD_DIVIDER_START
+        self.divider_end = MD_DIVIDER_END
+        self.divider_from_here = MD_DIVIDER_FROM_HERE
+
+    @staticmethod
+    def _normalize_for_comparison(content: str) -> str:
+        """Normalize content for comparison by removing whitespace differences.
+
+        This allows us to compare content semantically, ignoring formatting differences
+        that prettier might introduce (like table column alignment and separator row dashes).
+        Uses regex to normalize whitespace and dashes while preserving punctuation and case.
+        """
+        normalized_lines = []
+        for raw_line in content.splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            # Replace multiple whitespace chars (spaces, tabs, newlines) with single space
+            normalized = re.sub(r"[ \t\n]+", " ", line)
+            # Replace multiple dashes with single dash
+            normalized = re.sub(r"-+", "-", normalized)
+            if normalized:
+                normalized_lines.append(normalized)
+        return "\n".join(normalized_lines)
 
     def write(self, lines: list[str], divider: str | None = None) -> int:
         """Write content to the file."""
@@ -168,29 +182,32 @@ class DocFile:  # pylint: disable=too-few-public-methods
             start_position = old_content.index(self.divider_from_here) + len(self.divider_from_here) + 1
             end_position = 0
 
-        new_content = old_content[:start_position]
-        new_content += "\n".join(lines)
-        if end_position:
-            new_content += old_content[end_position:]
-        new_content = new_content.strip() + "\n"
+        # Extract the old section content for comparison
+        old_section = old_content[start_position:end_position] if end_position else old_content[start_position:]
+        new_section = "\n".join(lines)
 
         divider_message = f" (divider: {divider})" if divider else ""
-        if old_content != new_content:
+
+        # Compare normalized versions to ignore whitespace differences (e.g., prettier formatting)
+        if self._normalize_for_comparison(old_section) != self._normalize_for_comparison(new_section):
+            new_content = old_content[:start_position]
+            new_content += new_section
+            if end_position:
+                new_content += old_content[end_position:]
+            new_content = new_content.strip() + "\n"
+
             self.file.write_text(new_content)
-            click.secho(f"File {self.file}{divider_message} generated", fg="yellow")
+            click.secho(f"Generated {self.file}{divider_message}", fg="yellow")
             return 1
 
-        click.secho(f"File {self.file}{divider_message} hasn't changed", fg="green")
+        click.secho(f"The file {self.file}{divider_message} hasn't changed", fg="green")
         return 0
 
 
 def write_plugins() -> int:
-    """Write plugins.rst with the docstrings from :py:class:`nitpick.plugins.base.NitpickPlugin` classes."""
+    """Write plugins.md with the docstrings from :py:class:`nitpick.plugins.base.NitpickPlugin` classes."""
     template = """
-        .. _{link}:
-
-        {header}
-        {dashes}
+        ## {header} {{#{link}}}
 
         {description}
     """
@@ -212,32 +229,29 @@ def write_plugins() -> int:
             clean_template.format(
                 link=slugify(plugin_class.__name__),
                 header=header,
-                dashes="-" * len(header),
-                description=dedent(f"    {plugin_class.__doc__}").strip(),
+                description=dedent(plugin_class.__doc__).strip(),
             )
         )
-    return DocFile("plugins.rst").write(blocks)
+    return DocFile("plugins.md").write(blocks)
 
 
 def write_cli() -> int:
     """Write CLI docs."""
     template = """
-        .. _cli_cmd{anchor}:
+        ## {header} {{#cli_cmd{anchor}}}
 
-        {header}
-        {dashes}
         {long}
 
-        .. code-block::
-
+        ```
         {help}
+        ```
     """
     clean_template = dedent(template).strip()
     blocks = []
 
     for command, short, long in CLI_MAPPING:
         anchor = f"_{command}" if command else ""
-        header = f"``{command}``: {short}" if command else short
+        header = f"`{command}`: {short}" if command else short
         blocks.append("")
         parts = ["nitpick"]
         if command:
@@ -245,40 +259,37 @@ def write_cli() -> int:
         parts.append("--help")
         print(" ".join(parts))
         output = check_output(parts).decode().strip()  # noqa: S603
-        blocks.append(
-            clean_template.format(
-                anchor=anchor, header=header, dashes="-" * len(header), long=dedent(long), help=indent(output, "    ")
-            )
-        )
+        blocks.append(clean_template.format(anchor=anchor, header=header, long=dedent(long).strip(), help=output))
 
-    return DocFile("cli.rst").write(blocks)
+    return DocFile("cli.md").write(blocks)
 
 
 def write_config() -> int:
     """Write config file names."""
-    blocks = [f"{index + 1}. ``{config_file}``" for index, config_file in enumerate(CONFIG_FILES)]
+    blocks = [f"{index + 1}. `{config_file}`" for index, config_file in enumerate(CONFIG_FILES)]
     blocks.insert(0, "")
     blocks.append("")
-    return DocFile("configuration.rst").write(blocks, divider="config-file")
+    return DocFile("configuration.md").write(blocks, divider="config-file")
 
 
-def rst_table(header: tuple[str, ...], rows: list[tuple[str, ...]]) -> list[str]:
-    """Create a ReST table from header and rows."""
-    blocks = [".. list-table::\n   :header-rows: 1\n"]
-    num_columns = len(header)
-    for row in [header, *rows]:
-        template = ("*" + " - {}\n " * num_columns).rstrip()
-        blocks.append(indent(template.format(*row), "   "))
+def md_table(header: tuple[str, ...], rows: list[tuple[str, ...]]) -> list[str]:
+    """Create a Markdown table from header and rows."""
+    blocks = []
+    # Header row
+    blocks.append("| " + " | ".join(header) + " |")
+    # Separator row
+    blocks.append("| " + " | ".join(["---"] * len(header)) + " |")
+    # Data rows
+    blocks.extend("| " + " | ".join(row) + " |" for row in rows)
     return blocks
 
 
 def write_readme(file_types: set[FileType], divider: str) -> int:
     """Write the README."""
-    # TODO: chore: quickstart.rst has some parts of README.rst as a copy/paste/change
     rows: list[tuple[str, ...]] = [file_type.row for file_type in sorted(file_types)]
 
-    lines = rst_table(("File type", "``nitpick check``", "``nitpick fix``"), rows)
-    return DocFile("../README.rst").write(lines, divider)
+    lines = md_table(("File type", "`nitpick check`", "`nitpick fix`"), rows)
+    return DocFile("../README.md").write(lines, divider)
 
 
 @attr.frozen(kw_only=True)
@@ -292,25 +303,25 @@ class StyleLibraryRow:  # pylint: disable=too-few-public-methods
 def _build_library(gitref: bool = True) -> list[str]:
     # pylint: disable=no-member
     library: dict[str, list[tuple]] = defaultdict(list)
-    pre, post = (":gitref:", "") if gitref else ("", "_")
     for path in sorted(builtin_styles()):  # type: Path
         style = BuiltinStyle.from_path(path)
 
         # When run with tox (invoke ci-build), the path starts with "site-packages"
-        path_from_repo_root = path.relative_to(repo_root()).as_posix()
-        clean_root = path_from_repo_root.replace("site-packages/", "src/")
+        clean_root = path.relative_to(repo_root()).as_posix().replace("site-packages/", "src/")
 
-        row = StyleLibraryRow(
-            style=f"{pre}`{style.formatted} <{clean_root}>`{post}",
-            name=f"`{style.name} <{style.url}>`_" if style.url else style.name,
-        )
-        library[style.identify_tag].append(attr.astuple(row))
+        # Markdown link format with GitHub URL
+        # Use macro syntax for version-aware URLs in docs, or relative path for README
+        github_url = f"{{{{ github_url('{clean_root}') }}}}" if gitref else clean_root
+        style_link = f"[{style.formatted}]({github_url})"
+        name_link = f"[{style.name}]({style.url})" if style.url else style.name
+
+        library[style.identify_tag].append(attr.astuple(StyleLibraryRow(style=style_link, name=name_link)))
 
     lines = []
     for tag, rows in library.items():
-        lines.extend(["", tag, "~" * len(tag), ""])
+        lines.extend(["", f"## {tag}", ""])
         lines.extend(
-            rst_table(
+            md_table(
                 (
                     "Style URL",
                     "Description",
@@ -324,11 +335,36 @@ def _build_library(gitref: bool = True) -> list[str]:
 def write_style_library(divider: str) -> int:
     """Write the style library table."""
     lines = _build_library(gitref=False)
-    rv = DocFile("../README.rst").write(lines, divider)
+    rv = DocFile("../README.md").write(lines, divider)
 
-    lines = _build_library()
-    rv += DocFile("library.rst").write(lines)
+    lines = _build_library(gitref=True)
+    rv += DocFile("library.md").write(lines, divider)
     return rv
+
+
+def copy_intro() -> int:
+    """Copy the intro section from index.md to README.md."""
+    index_file = DOCS_DIR / "index.md"
+    content = index_file.read_text()
+
+    # Find the position of "!!! note" and extract content before it
+    note_marker = "!!! note"
+    note_position = content.find(note_marker)
+    intro_content = content if note_position == -1 else content[:note_position].rstrip()
+
+    # Replace doc-specific links with README-appropriate links
+    intro_content = intro_content.replace("(cli.md)", "(https://nitpick.rtfd.io/latest/cli.html)")
+
+    lines = intro_content.splitlines()
+    return DocFile("../README.md").write(lines, "intro")
+
+
+def copy_quickstart() -> int:
+    """Copy the quickstart section to README.md."""
+    quickstart_file = DOCS_DIR / "quickstart.md"
+    content = quickstart_file.read_text().replace("{{ github_url('nitpick-style.toml') }}", "nitpick-style.toml")
+    lines = content.splitlines()
+    return DocFile("../README.md").write(lines, "quickstart")
 
 
 if __name__ == "__main__":
@@ -336,6 +372,8 @@ if __name__ == "__main__":
         write_readme(IMPLEMENTED_FILE_TYPES, "implemented")
         + write_readme(PLANNED_FILE_TYPES, "planned")
         + write_style_library("style-library")
+        + copy_intro()
+        + copy_quickstart()
         + write_config()
         + write_plugins()
         + write_cli()

@@ -20,8 +20,6 @@ include = [
   "py://nitpick/resources/python/absent",
   "py://nitpick/resources/python/black",
   "py://nitpick/resources/python/mypy",
-  "py://nitpick/resources/python/pre-commit-hooks",
-  "py://nitpick/resources/python/readthedocs",
   "py://nitpick/resources/python/sonar-python",
   "py://nitpick/resources/shell/bashate",
   "py://nitpick/resources/shell/shellcheck",

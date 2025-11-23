@@ -45,15 +45,15 @@ class Violations(ViolationEnum):
 class TextPlugin(NitpickPlugin):
     """Enforce configuration on text files.
 
-    To check if ``some.txt`` file contains the lines ``abc`` and ``def`` (in any order):
+    To check if `some.txt` file contains the lines `abc` and `def` (in any order):
 
-    .. code-block:: toml
+    ```toml
+    [["some.txt".contains]]
+    line = "abc"
 
-        [["some.txt".contains]]
-        line = "abc"
-
-        [["some.txt".contains]]
-        line = "def"
+    [["some.txt".contains]]
+    line = "def"
+    ```
     """
 
     identify_tags: ClassVar = {"text"}

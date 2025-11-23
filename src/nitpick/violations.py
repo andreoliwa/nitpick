@@ -1,6 +1,6 @@
 """Violation codes.
 
-Name inspired by `flake8's violations <https://flake8.pycqa.org/en/latest/user/error-codes.html>`_.
+Name inspired by [flake8's violations](https://flake8.pycqa.org/en/latest/user/error-codes.html).
 """
 
 from __future__ import annotations
@@ -21,8 +21,7 @@ if TYPE_CHECKING:
 class Fuss:
     """Nitpick makes a fuss when configuration doesn't match.
 
-    Fields inspired on :py:class:`SyntaxError` and `pyflakes.messages.Message
-    <https://github.com/PyCQA/pyflakes/blob/master/pyflakes/messages.py#L6>`_.
+    Fields inspired on [SyntaxError][] and [pyflakes.messages.Message](https://github.com/PyCQA/pyflakes/blob/master/pyflakes/messages.py#L6).
     """
 
     fixed: bool

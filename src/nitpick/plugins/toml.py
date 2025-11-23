@@ -23,13 +23,12 @@ if TYPE_CHECKING:
 class TomlPlugin(NitpickPlugin):
     """Enforce configurations and autofix TOML files.
 
-    E.g.: `pyproject.toml (PEP 518) <https://www.python.org/dev/peps/pep-0518/#file-format>`_.
+    E.g.: [pyproject.toml (PEP 518)](https://www.python.org/dev/peps/pep-0518/#file-format).
 
-    See also `the [tool.poetry] section of the pyproject.toml file
-    <https://github.com/python-poetry/poetry/blob/master/docs/pyproject.md>`_.
+    See also [the [tool.poetry] section of the pyproject.toml file](https://github.com/python-poetry/poetry/blob/master/docs/pyproject.md).
 
-    Style example: :gitref:`Python 3.10 version constraint <src/nitpick/resources/python/310.toml>`.
-    There are :ref:`many other examples here <library>`.
+    Style example: [Python 3.10 version constraint](https://github.com/andreoliwa/nitpick/blob/master/src/nitpick/resources/python/310.toml).
+    There are [many other examples in the library](https://nitpick.rtfd.io/latest/library.html).
     """
 
     identify_tags: ClassVar = {"toml"}
