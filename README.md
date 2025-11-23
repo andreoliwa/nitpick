@@ -116,7 +116,7 @@ These are the file types currently handled by Nitpick.
 | Makefile | [#277](https://github.com/andreoliwa/nitpick/issues/277) 🚧 | ❓ |
 <!-- auto-generated-end-planned -->
 
-## Style Library (Presets)
+# Style Library (Presets)
 
 Nitpick has a builtin library of style presets, shipped as [Python
 resources](https://docs.python.org/3/library/importlib.html#module-importlib.resources).
