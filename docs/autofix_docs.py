@@ -10,6 +10,7 @@ Not even changing ``html_static_path`` on ``conf.py`` worked.
 
 from __future__ import annotations
 
+import re
 import sys
 from collections import defaultdict
 from importlib import import_module
@@ -154,15 +155,17 @@ class DocFile:  # pylint: disable=too-few-public-methods
 
         This allows us to compare content semantically, ignoring formatting differences
         that prettier might introduce (like table column alignment and separator row dashes).
-        Uses slugify to normalize each line, which removes whitespace and special characters.
+        Uses regex to normalize whitespace and dashes while preserving punctuation and case.
         """
         normalized_lines = []
         for raw_line in content.splitlines():
             line = raw_line.strip()
             if not line:
                 continue
-            # Use slugify to normalize the line (removes whitespace, lowercases, etc.)
-            normalized = slugify(line)
+            # Replace multiple whitespace chars (spaces, tabs, newlines) with single space
+            normalized = re.sub(r"[ \t\n]+", " ", line)
+            # Replace multiple dashes with single dash
+            normalized = re.sub(r"-+", "-", normalized)
             if normalized:
                 normalized_lines.append(normalized)
         return "\n".join(normalized_lines)
@@ -194,10 +197,10 @@ class DocFile:  # pylint: disable=too-few-public-methods
             new_content = new_content.strip() + "\n"
 
             self.file.write_text(new_content)
-            click.secho(f"File {self.file}{divider_message} generated", fg="yellow")
+            click.secho(f"Generated {self.file}{divider_message}", fg="yellow")
             return 1
 
-        click.secho(f"File {self.file}{divider_message} hasn't changed", fg="green")
+        click.secho(f"The file {self.file}{divider_message} hasn't changed", fg="green")
         return 0
 
 
@@ -263,7 +266,7 @@ def write_cli() -> int:
 
 def write_config() -> int:
     """Write config file names."""
-    blocks = [f"{index + 1}. ``{config_file}``" for index, config_file in enumerate(CONFIG_FILES)]
+    blocks = [f"{index + 1}. `{config_file}`" for index, config_file in enumerate(CONFIG_FILES)]
     blocks.insert(0, "")
     blocks.append("")
     return DocFile("configuration.md").write(blocks, divider="config-file")
