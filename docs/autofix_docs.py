@@ -342,6 +342,23 @@ def write_style_library(divider: str) -> int:
     return rv
 
 
+def copy_intro() -> int:
+    """Copy the intro section from index.md to README.md."""
+    index_file = DOCS_DIR / "index.md"
+    content = index_file.read_text()
+
+    # Find the position of "!!! note" and extract content before it
+    note_marker = "!!! note"
+    note_position = content.find(note_marker)
+    intro_content = content if note_position == -1 else content[:note_position].rstrip()
+
+    # Replace doc-specific links with README-appropriate links
+    intro_content = intro_content.replace("(cli.md)", "(https://nitpick.rtfd.io/latest/cli.html)")
+
+    lines = intro_content.splitlines()
+    return DocFile("../README.md").write(lines, "intro")
+
+
 def copy_quickstart() -> int:
     """Copy the quickstart section to README.md."""
     quickstart_file = DOCS_DIR / "quickstart.md"
@@ -355,6 +372,7 @@ if __name__ == "__main__":
         write_readme(IMPLEMENTED_FILE_TYPES, "implemented")
         + write_readme(PLANNED_FILE_TYPES, "planned")
         + write_style_library("style-library")
+        + copy_intro()
         + copy_quickstart()
         + write_config()
         + write_plugins()
