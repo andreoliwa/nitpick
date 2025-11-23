@@ -17,6 +17,7 @@ doc = [
   "mkdocs-redirects>=1.2.2", # Handle URL redirects for backward compatibility
   "mkdocstrings[python]>=0.30.1", # Auto-generate API docs from Python docstrings
   "pymdown-extensions>=10.17.1", # Markdown extensions for code blocks, tabs, admonitions, etc.
+  "ruff", # Required by mkdocstrings for formatting signatures
 ]
 lint = [
   "pylint",
