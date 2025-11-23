@@ -62,9 +62,14 @@ class ToxCommands:
         return self.find_command("testenv:docs", "autofix_docs")
 
     @property
-    def check_links(self):
-        """Check documentation links."""
-        return self.find_command("testenv:docs", "linkcheck").replace("{toxworkdir}", DOCS_BUILD_PATH)
+    def check_links_markdown(self):
+        """Check documentation links in markdown source files."""
+        return self.find_command("testenv:docs", "mkdocs-linkcheck")
+
+    @property
+    def check_links_html(self):
+        """Check documentation links in built HTML files."""
+        return self.find_command("testenv:docs", "lychee").replace("{toxworkdir}", DOCS_BUILD_PATH)
 
     @property
     def mkdocs_build(self):
@@ -221,7 +226,10 @@ def docs(
     c.run(f"uv run {tox.mkdocs_build} {verbose_flag}")
 
     if links:
-        c.run(f"uv run {tox.check_links}", warn=True)
+        print(f"{COLOR_GREEN}Checking links in markdown source files...{COLOR_NONE}")
+        c.run(f"uv run {tox.check_links_markdown}", warn=True)
+        print(f"{COLOR_GREEN}Checking links in built HTML files...{COLOR_NONE}")
+        c.run(tox.check_links_html, warn=True)
 
     if browse:
         c.run(f"open {DOCS_BUILD_PATH}/docs_out/index.html")

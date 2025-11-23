@@ -1,41 +1,25 @@
+<!-- auto-generated-start-intro -->
 # Nitpick
 
 [![PyPI](https://img.shields.io/pypi/v/nitpick.svg)](https://pypi.org/project/nitpick)
-[![Supported Python
-versions](https://img.shields.io/pypi/pyversions/nitpick.svg)](https://pypi.org/project/nitpick/)
-![GitHub Actions Python
-Workflow](https://github.com/andreoliwa/nitpick/workflows/Python/badge.svg)
-[![Documentation
-Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.rtfd.io/latest/?badge=latest)
-[![Codecov](https://codecov.io/gh/andreoliwa/nitpick/branch/master/graph/badge.svg)](https://codecov.io/gh/andreoliwa/nitpick)
-[![Test
-Coverage](https://api.codeclimate.com/v1/badges/61e0cdc48e24e76a0460/test_coverage)](https://codeclimate.com/github/andreoliwa/nitpick)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
-[![pre-commit.ci
-status](https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/master.svg)](https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/master)
-[![Project
-License](https://img.shields.io/pypi/l/nitpick.svg)](https://pypi.org/project/nitpick/)
-[![Code style:
-black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+[![GitHub Workflow](https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml/badge.svg)](https://github.com/andreoliwa/nitpick/actions/workflows/python.yaml)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/nitpick.svg)](https://pypi.org/project/nitpick/)
+[![Documentation Status](https://readthedocs.org/projects/nitpick/badge/?version=latest)](https://nitpick.rtfd.io/latest/)
+[![Codecov](https://codecov.io/gh/andreoliwa/nitpick/branch/master/graph/badge.svg)](https://codecov.io/gh/andreoliwa/nitpick/tree/master)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/andreoliwa/nitpick/master.svg)](https://results.pre-commit.ci/latest/github/andreoliwa/nitpick/master)
+[![Project License](https://img.shields.io/pypi/l/nitpick.svg)](https://pypi.org/project/nitpick/)
 
-Command-line tool and [flake8](https://github.com/PyCQA/flake8) plugin
-to enforce the same settings across multiple language-independent
-projects.
+Command-line tool and [flake8](https://github.com/PyCQA/flake8) plugin to enforce the same settings across multiple language-independent projects.
 
-Useful if you maintain multiple projects and are tired of
-copying/pasting the same INI/TOML/YAML/JSON keys and values over and
-over, in all of them.
+Useful if you maintain multiple projects and are tired of copying/pasting the same INI/TOML/YAML/JSON keys and values over and over, in all of them.
 
-The CLI now has a `nitpick fix` command that modifies configuration
-files directly (pretty much like [black](https://github.com/psf/black)
-and [isort](https://github.com/PyCQA/isort) do with Python files). See
-the [CLI docs for more
-info](https://nitpick.rtfd.io/latest/cli.html).
+The CLI now has a `nitpick fix` command that modifies configuration files directly
+(pretty much like [black](https://github.com/psf/black) and [isort](https://github.com/PyCQA/isort) do with Python files).
+See the [CLI documentation](https://nitpick.rtfd.io/latest/cli.html) for more info.
 
-Many more features are planned for the future, check [the
-roadmap](https://github.com/andreoliwa/nitpick/projects/1).
+Many more features are planned for the future, check [the roadmap](https://github.com/andreoliwa/nitpick/projects/1).
 
+<!-- auto-generated-end-intro -->
 ## The style file
 
 A "Nitpick code style" is a [TOML](https://github.com/toml-lang/toml)
@@ -340,12 +324,9 @@ ENABLE_LINTERS:
 
 Nitpick is being used by projects such as:
 
-- [wemake-services/wemake-python-styleguide](https://github.com/wemake-services/wemake-python-styleguide)
-- [dry-python/returns](https://github.com/dry-python/returns)
 - [sobolevn/django-split-settings](https://github.com/sobolevn/django-split-settings)
 - [catalyst-team/catalyst](https://github.com/catalyst-team/catalyst)
 - [alan-turing-institute/AutSPACEs](https://github.com/alan-turing-institute/AutSPACEs)
-- [pytest-dev/pytest-mimesis](https://github.com/pytest-dev/pytest-mimesis)
 
 For more details on styles and which configuration files are currently
 supported, [see the full documentation](https://nitpick.rtfd.io/).
