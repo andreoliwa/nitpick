@@ -1,6 +1,10 @@
 site_name: Nitpick
 site_description: Command-line tool and flake8 plugin to enforce the same settings across multiple language-independent projects
-site_url: https://nitpick.rtfd.io/
+# ReadTheDocs serves versioned docs at /latest/, /stable/, etc.
+# The site_url must include the version path so MkDocs generates correct canonical URLs.
+# Without /latest/, canonical URLs would be https://nitpick.rtfd.io/cli/ (404)
+# instead of https://nitpick.rtfd.io/latest/cli/ (correct).
+site_url: https://nitpick.rtfd.io/latest/
 repo_url: https://github.com/andreoliwa/nitpick
 repo_name: andreoliwa/nitpick
 edit_uri: edit/master/docs/
