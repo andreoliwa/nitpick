@@ -75,7 +75,6 @@ jobs:
           echo "Minor = ${{ steps.semantic.outputs.new_release_minor_version }}"
           echo "Patch = ${{ steps.semantic.outputs.new_release_patch_version }}"
           echo "Channel = ${{ steps.semantic.outputs.new_release_channel }}"
-          echo "Notes = ${{ steps.semantic.outputs.new_release_notes }}"
 
 # TODO: the workflow might fail with "rate limit" error but the release itself apparently works.
 #  The follow-up actions are not executed though. See:
