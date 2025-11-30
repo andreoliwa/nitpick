@@ -37,6 +37,7 @@ GOLANG_SUM = "go.sum"
 JAVASCRIPT_PACKAGE_JSON = "package.json"
 JMEX_NITPICK_MINIMUM_VERSION = jmespath.compile("nitpick.minimum_version")
 JMEX_NITPICK_STYLES_INCLUDE = jmespath.compile("nitpick.styles.include")
+MAKEFILE = "Makefile"
 MERGED_STYLE_TOML = "merged-style.toml"
 NITPICK_STYLE_TOML = "nitpick-style.toml"
 PRE_COMMIT_CONFIG_YAML = ".pre-commit-config.yaml"
@@ -60,13 +61,16 @@ WRITE_STYLE_MAX_ATTEMPTS = 5
 
 # These depend on some constants above, so they can't be sorted automatically
 ROOT_PYTHON_FILES = ("app.py", "wsgi.py", "autoapp.py", PYTHON_MANAGE_PY)
-ROOT_FILES = (
+ROOT_FILES_DIRS = (
     # keep-sorted start
     *ROOT_PYTHON_FILES,
     DOT_NITPICK_TOML,
+    GIT_DIR,
+    GIT_IGNORE,
     GOLANG_MOD,
     GOLANG_SUM,
     JAVASCRIPT_PACKAGE_JSON,
+    MAKEFILE,
     NITPICK_STYLE_TOML,
     PRE_COMMIT_CONFIG_YAML,
     PYTHON_PIPFILE_STAR,

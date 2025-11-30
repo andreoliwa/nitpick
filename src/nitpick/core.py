@@ -35,7 +35,7 @@ from nitpick.constants import (
     PROJECT_NAME,
     PYTHON_MANAGE_PY,
     PYTHON_PYPROJECT_TOML,
-    ROOT_FILES,
+    ROOT_FILES_DIRS,
     ROOT_PYTHON_FILES,
 )
 from nitpick.exceptions import QuitComplainingError
@@ -173,7 +173,7 @@ class Nitpick:
 def confirm_project_root(dir_: PathOrStr | None = None) -> Path:
     """Confirm this is the root dir of the project (the one that has one of the ``ROOT_FILES``)."""
     possible_root_dir = Path(dir_ or Path.cwd()).resolve()
-    root_files = glob_files(possible_root_dir, ROOT_FILES)
+    root_files = glob_files(possible_root_dir, ROOT_FILES_DIRS)
     logger.debug(f"Root files found: {root_files}")
 
     if root_files:
