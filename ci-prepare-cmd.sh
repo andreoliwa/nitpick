@@ -17,6 +17,6 @@ uv build
 # https://twine.readthedocs.io/en/latest/#twine-check
 twine check dist/*
 
-# Hide the password
+# Hide the token
 set +x
-uv publish --repository testpypi --username __token__ --password "$PYPI_TEST_PASSWORD"
+uv publish --publish-url https://test.pypi.org/legacy/ --token "$PYPI_TEST_PASSWORD"
