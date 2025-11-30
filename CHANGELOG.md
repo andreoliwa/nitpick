@@ -1,3 +1,14 @@
+## [0.38.1](https://github.com/andreoliwa/nitpick/compare/v0.38.0...v0.38.1) (2025-11-30)
+
+### Bug Fixes
+
+- .git/.gitignore/Makefile as project root ([4aa753f](https://github.com/andreoliwa/nitpick/commit/4aa753f14d90dfdb4ca68d7809703b469ff36882))
+
+### Reverts
+
+- Revert "chore(deps): update dependency python to 3.14 ([#722](https://github.com/andreoliwa/nitpick/issues/722))" ([7a54001](https://github.com/andreoliwa/nitpick/commit/7a540010513988fd36b894786d2ecd0a3cdff37c))
+- Revert "ci: docs only run on master" ([fb185b2](https://github.com/andreoliwa/nitpick/commit/fb185b2d633f927c64c17a1b7ce0d5662c04c8ab))
+
 # [0.38.0](https://github.com/andreoliwa/nitpick/compare/v0.37.0...v0.38.0) (2025-10-17)
 
 ### Features

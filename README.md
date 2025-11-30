@@ -271,7 +271,7 @@ The recommendation is to choose `nitpick-suggest` and one of the fix/check hooks
 ```yaml
 repos:
   - repo: https://github.com/andreoliwa/nitpick
-    rev: v0.38.0
+    rev: v0.38.1
     hooks:
       # This hook runs the `nitpick init --fix --suggest` command
       - id: nitpick-suggest
@@ -314,7 +314,7 @@ Nitpick as a plugin. Add the following two entries to your `.mega-linter.yml` co
 
 ```yaml
 PLUGINS:
-  - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.38.0/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
+  - https://raw.githubusercontent.com/andreoliwa/nitpick/v0.38.1/mega-linter-plugin-nitpick/nitpick.megalinter-descriptor.yml
 ENABLE_LINTERS:
   - NITPICK
 ```
