@@ -25,7 +25,7 @@ jobs:
       - name: Install prek bumpversion twine
         run: |
           uv tool install prek
-          uv tool install bumpversion
+          uv tool install bump2version
           uv tool install twine
       - name: Display versions
         run: |
