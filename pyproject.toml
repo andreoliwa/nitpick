@@ -177,7 +177,6 @@ max-complexity = 10
 # keep-sorted end
 "compat.py" = ["F401"]
 "docs/**" = ["ANN", "INP001", "T201", "T203"]
-"docs/conf.py" = ["ERA"]
 "docs/ideas/lab.py" = ["ERA"]
 "src/nitpick/blender.py" = ["ERA"]
 "tasks.py" = ["ANN", "PLR0913", "T201", "T203"]
