@@ -85,9 +85,9 @@ jobs:
 
         with:
           path: .tox
-          key: ${{ runner.os }}-tox-${{ hashFiles('**/tox.ini', '**/pyproject.toml', '**/uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-tox-
+          # Include Python version in cache key to invalidate when Python versions are updated
+          # No restore-keys to avoid using stale caches with incompatible Python versions
+          key: ${{ runner.os }}-tox-${{ matrix.python-version || '3.10-3.11-3.12-3.13-3.14' }}-${{ hashFiles('**/tox.ini', '**/pyproject.toml', '**/uv.lock') }}
 
       - name: Install tox
         run: uv tool install tox
