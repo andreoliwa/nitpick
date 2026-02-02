@@ -24,12 +24,10 @@ def test_pre_commit_has_no_configuration(tmp_path):
 
 def test_pre_commit_referenced_in_style(tmp_path):
     """Only check files if they have configured styles."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [".pre-commit-config.yaml"]
         fail_fast = true
-        """
-    ).pre_commit("").api_check_then_fix(
+        """).pre_commit("").api_check_then_fix(
         Fuss(True, PRE_COMMIT_CONFIG_YAML, 368, " has missing values:", "fail_fast: true")
     )
 
@@ -68,8 +66,7 @@ def test_no_yaml_key(tmp_path):
 
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
     """
-    ProjectMock(tmp_path).style(
-        '''
+    ProjectMock(tmp_path).style('''
         [[".pre-commit-config.yaml".repos]]
         missing_yaml_key = """
           - repo: https://github.com/PyCQA/isort
@@ -77,8 +74,7 @@ def test_no_yaml_key(tmp_path):
             hooks:
               - id: isort
         """
-        '''
-    ).api_check_then_fix(
+        ''').api_check_then_fix(
         Fuss(
             True,
             PRE_COMMIT_CONFIG_YAML,
@@ -94,14 +90,12 @@ def test_no_yaml_key(tmp_path):
 
 def test_root_values_on_missing_file(tmp_path):
     """Test values on the root of the config file when it's missing."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [".pre-commit-config.yaml"]
         bla_bla = "oh yeah"
         fail_fast = true
         whatever = "1"
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         Fuss(
             True,
             PRE_COMMIT_CONFIG_YAML,
@@ -118,15 +112,13 @@ def test_root_values_on_missing_file(tmp_path):
 
 def test_root_values_on_existing_file(tmp_path):
     """Test values on the root of the config file when there is a file."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [".pre-commit-config.yaml"]
         fail_fast = true
         blabla = "what"
         something = true
         another_thing = "yep"
-        """
-    ).pre_commit(
+        """).pre_commit(
         """
         repos:
         - hooks:
@@ -160,30 +152,24 @@ def test_root_values_on_existing_file(tmp_path):
 
 def test_missing_repos(tmp_path):
     """Test missing repos on file."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [".pre-commit-config.yaml"]
         fail_fast = true
-        """
-    ).pre_commit(
+        """).pre_commit(
         """
         grepos:
         - hooks:
           - id: whatever
         """
-    ).api_check_then_fix(
-        Fuss(True, PRE_COMMIT_CONFIG_YAML, 368, " has missing values:", "fail_fast: true")
-    )
+    ).api_check_then_fix(Fuss(True, PRE_COMMIT_CONFIG_YAML, 368, " has missing values:", "fail_fast: true"))
 
 
 def test_missing_repo_key(tmp_path):
     """Test missing repo key on the style file."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [[".pre-commit-config.yaml".repos]]
         grepo = "glocal"
-        """
-    ).pre_commit(
+        """).pre_commit(
         """
         repos:
         - hooks:
@@ -213,12 +199,10 @@ def test_missing_repo_key(tmp_path):
 
 def test_repo_does_not_exist(tmp_path):
     """Test repo does not exist on the pre-commit file."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [[".pre-commit-config.yaml".repos]]
         repo = "local"
-        """
-    ).pre_commit(
+        """).pre_commit(
         """
         repos:
         - hooks:
@@ -243,12 +227,10 @@ def test_missing_hooks_in_repo(tmp_path):
 
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
     """
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [[".pre-commit-config.yaml".repos]]
         repo = "whatever"
-        """
-    ).pre_commit(
+        """).pre_commit(
         """
         repos:
         - repo: whatever
@@ -258,12 +240,10 @@ def test_missing_hooks_in_repo(tmp_path):
 
 def test_style_missing_hooks_in_repo(tmp_path):
     """Test style file is missing hooks in repo."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [[".pre-commit-config.yaml".repos]]
         repo = "another"
-        """
-    ).pre_commit(
+        """).pre_commit(
         """
         repos:
         - repo: another
@@ -289,16 +269,14 @@ def test_style_missing_id_in_hook(tmp_path):
 
     Read the warning on :py:class:`nitpick.plugins.yaml.YamlPlugin`.
     """
-    ProjectMock(tmp_path).style(
-        f'''
+    ProjectMock(tmp_path).style(f'''
         [[".pre-commit-config.yaml".repos]]
         repo = "another"
         hooks = """
         - name: isort
           entry: isort -sp {PYTHON_SETUP_CFG}
         """
-        '''
-    ).pre_commit(
+        ''').pre_commit(
         """
         repos:
         - repo: another
@@ -328,8 +306,7 @@ def test_style_missing_id_in_hook(tmp_path):
 
 def test_missing_hook_with_id(tmp_path):
     """Test missing hook with specific id."""
-    ProjectMock(tmp_path).style(
-        '''
+    ProjectMock(tmp_path).style('''
         [[".pre-commit-config.yaml".repos]]
         repo = "other"
         hooks = """
@@ -337,8 +314,7 @@ def test_missing_hook_with_id(tmp_path):
           name: black
           entry: black
         """
-        '''
-    ).pre_commit(
+        ''').pre_commit(
         """
         repos:
         - repo: other
@@ -447,16 +423,10 @@ def test_missing_different_values(tmp_path, datadir, shared_datadir):
 
 def test_pre_commit_section_without_dot_deprecated(tmp_path):
     """A pre-commit section without dot is deprecated."""
-    project = (
-        ProjectMock(tmp_path)
-        .style(
-            """
+    project = ProjectMock(tmp_path).style("""
         ["pre-commit-config.yaml"]
         fail_fast = true
-        """
-        )
-        .pre_commit("fail_fast: true")
-    )
+        """).pre_commit("fail_fast: true")
 
     with pytest.deprecated_call() as warning_list:
         project.flake8().assert_no_errors()
