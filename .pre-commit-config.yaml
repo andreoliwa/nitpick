@@ -130,7 +130,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.13.0
+    rev: v4.12.1
     hooks:
       - id: commitizen
         stages: [commit-msg]

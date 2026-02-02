@@ -11,12 +11,10 @@ from tests.helpers import ProjectMock, filter_desired_warning
 def test_suggest_initial_contents(tmp_path, datadir):
     """Suggest initial contents for missing JSON file."""
     expected_package_json = (datadir / "1-expected-package.json").read_text()
-    ProjectMock(tmp_path).named_style("package-json", datadir / "package-json-style.toml").pyproject_toml(
-        """
+    ProjectMock(tmp_path).named_style("package-json", datadir / "package-json-style.toml").pyproject_toml("""
         [tool.nitpick]
         style = ["package-json"]
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         Fuss(
             True,
             JAVASCRIPT_PACKAGE_JSON,
@@ -24,20 +22,16 @@ def test_suggest_initial_contents(tmp_path, datadir):
             " was not found. Create it with this content:",
             expected_package_json,
         )
-    ).assert_file_contents(
-        JAVASCRIPT_PACKAGE_JSON, expected_package_json
-    ).api_check_then_fix()
+    ).assert_file_contents(JAVASCRIPT_PACKAGE_JSON, expected_package_json).api_check_then_fix()
 
 
 def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path, datadir):
     """Test missing and different values with "contains_json" and "contains_keys"."""
     expected_package_json = (datadir / "2-expected-package.json").read_text()
-    ProjectMock(tmp_path).named_style("package-json", datadir / "package-json-style.toml").pyproject_toml(
-        """
+    ProjectMock(tmp_path).named_style("package-json", datadir / "package-json-style.toml").pyproject_toml("""
         [tool.nitpick]
         style = ["package-json"]
-        """
-    ).save_file(JAVASCRIPT_PACKAGE_JSON, datadir / "2-actual-package.json").api_check_then_fix(
+        """).save_file(JAVASCRIPT_PACKAGE_JSON, datadir / "2-actual-package.json").api_check_then_fix(
         Fuss(
             True,
             JAVASCRIPT_PACKAGE_JSON,
@@ -70,9 +64,7 @@ def test_missing_different_values_with_contains_json_with_contains_keys(tmp_path
             }
             """,
         ),
-    ).assert_file_contents(
-        JAVASCRIPT_PACKAGE_JSON, expected_package_json
-    ).api_check_then_fix()
+    ).assert_file_contents(JAVASCRIPT_PACKAGE_JSON, expected_package_json).api_check_then_fix()
 
 
 def test_missing_different_values_with_contains_json_without_contains_keys(tmp_path, datadir):
@@ -148,15 +140,13 @@ def test_invalid_json(tmp_path, datadir):
 
 def test_json_configuration(tmp_path):
     """Test configuration for JSON files."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         ["your.json".has]
         an_extra = "key"
 
         ["their.json"]
         x = 1
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         Fuss(
             False,
             "nitpick-style.toml",
@@ -176,15 +166,13 @@ def test_jsonfile_deprecated(tmp_path):
         # Cause all warnings to always be triggered.
         warnings.simplefilter("always")
 
-        ProjectMock(tmp_path).style(
-            """
+        ProjectMock(tmp_path).style("""
             [nitpick.JSONFile]
             file_names = ["my.json"]
 
             ["my.json"]
             contains_keys = ["x"]
-            """
-        ).save_file("my.json", '{"x":1}').flake8().assert_no_errors()
+            """).save_file("my.json", '{"x":1}').flake8().assert_no_errors()
 
         filtered = filter_desired_warning(
             captured, "The [nitpick.JSONFile] section is not needed anymore; just declare your JSON files directly"

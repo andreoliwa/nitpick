@@ -26,12 +26,10 @@ def project_default(tmp_path):
     from tests.helpers import ProjectMock, tomlstring  # noqa: PLC0415
 
     nitpick_style = Path(__file__).parent.parent / NITPICK_STYLE_TOML
-    return ProjectMock(tmp_path).pyproject_toml(
-        f"""
+    return ProjectMock(tmp_path).pyproject_toml(f"""
         [tool.nitpick]
         style = {tomlstring(nitpick_style)}
-        """
-    )
+        """)
 
 
 @pytest.fixture
@@ -52,16 +50,14 @@ def project_remote(request, tmp_path):
         mocked_response.add(mocked_response.GET, remote_url, dedent(remote_style), status=200)
 
         project = ProjectMock(tmp_path)
-        project.pyproject_toml(
-            f"""
+        project.pyproject_toml(f"""
             [tool.nitpick]
             style = {tomlstring(remote_url)}
             {tool_nitpick}
 
             [tool.black]
             line-length = 100
-            """
-        ).remote(mocked_response, remote_url)
+            """).remote(mocked_response, remote_url)
         yield project
 
 
