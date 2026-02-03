@@ -55,7 +55,7 @@ repos:
         # - uv.lock: auto-generated file
         exclude: (ideas/|resources/|tests/|uv.lock)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.14
+    rev: v0.15.0
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -130,7 +130,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.13.0
+    rev: v4.13.2
     hooks:
       - id: commitizen
         stages: [commit-msg]
