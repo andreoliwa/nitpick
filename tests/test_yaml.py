@@ -80,14 +80,12 @@ def test_repos_yaml_key_deprecated(tmp_path, shared_datadir):
         # Cause all warnings to always be triggered.
         warnings.simplefilter("always")
 
-        ProjectMock(tmp_path).style(shared_datadir / "pre-commit-config-with-old-repos-yaml-key.toml").pre_commit(
-            """
+        ProjectMock(tmp_path).style(shared_datadir / "pre-commit-config-with-old-repos-yaml-key.toml").pre_commit("""
             repos:
               - repo: not checked yet
                 hooks:
                   - id: my-hook
-            """
-        ).api_check().assert_violations()
+            """).api_check().assert_violations()
 
         filtered = filter_desired_warning(
             captured,

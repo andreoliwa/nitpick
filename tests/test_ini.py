@@ -18,16 +18,14 @@ def test_setup_cfg_has_no_configuration(tmp_path):
 
 def test_comma_separated_keys_on_style_file(tmp_path):
     """Comma separated keys on the style file."""
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         [nitpick.files."{PYTHON_SETUP_CFG}"]
         comma_separated_values = ["food.eat", "food.drink"]
 
         ["{PYTHON_SETUP_CFG}".food]
         eat = "salt,ham,eggs"
         drink = "water,bier,wine"
-        """
-    ).setup_cfg(
+        """).setup_cfg(
         """
         [food]
         eat = spam,eggs,cheese
@@ -76,8 +74,7 @@ def test_suggest_initial_contents(tmp_path):
         end_of_line = lf
         insert_final_newline = True
     """
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         ["{PYTHON_SETUP_CFG}".mypy]
         ignore_missing_imports = true
 
@@ -94,8 +91,7 @@ def test_suggest_initial_contents(tmp_path):
         ["{EDITOR_CONFIG}"."*"]
         end_of_line = "lf"
         insert_final_newline = true
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         Fuss(
             True,
             PYTHON_SETUP_CFG,
@@ -124,12 +120,10 @@ def test_suggest_initial_contents(tmp_path):
 
 def test_missing_sections(tmp_path):
     """Test missing sections."""
-    ProjectMock(tmp_path).setup_cfg(
-        """
+    ProjectMock(tmp_path).setup_cfg("""
         [mypy]
         ignore_missing_imports = true
-        """
-    ).style(
+        """).style(
         f"""
         ["{PYTHON_SETUP_CFG}".mypy]
         ignore_missing_imports = true
@@ -171,8 +165,7 @@ def test_missing_sections(tmp_path):
 
 def test_missing_different_values(tmp_path):
     """Test different and missing keys/values."""
-    ProjectMock(tmp_path).setup_cfg(
-        """
+    ProjectMock(tmp_path).setup_cfg("""
         [mypy]
         # Line comment with hash (inline comments are not supported)
         ignore_missing_imports = true
@@ -183,8 +176,7 @@ def test_missing_different_values(tmp_path):
         [flake8]
         ; Line comment with semicolon
         xxx = "aaa"
-        """
-    ).style(
+        """).style(
         f"""
         ["{PYTHON_SETUP_CFG}".mypy]
         ignore_missing_imports = true
@@ -308,8 +300,7 @@ def test_missing_different_values_editorconfig_with_root(tmp_path, datadir):
 
 def test_invalid_configuration_comma_separated_values(tmp_path):
     """Test an invalid configuration for comma_separated_values."""
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         ["{PYTHON_SETUP_CFG}".flake8]
         max-line-length = 85
         max-complexity = 12
@@ -318,8 +309,7 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
 
         [nitpick.files."{PYTHON_SETUP_CFG}"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude"]
-        """
-    ).api_check().assert_violations(
+        """).api_check().assert_violations(
         Fuss(
             False,
             PYTHON_SETUP_CFG,
@@ -338,12 +328,10 @@ def test_invalid_configuration_comma_separated_values(tmp_path):
 
 def test_invalid_section_dot_fields(tmp_path):
     """Test invalid section/field pairs."""
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         [nitpick.files."{PYTHON_SETUP_CFG}"]
         comma_separated_values = ["no_dot", "multiple.dots.here", ".filed_only", "section_only."]
-        """
-    ).setup_cfg("").api_check().assert_violations(
+        """).setup_cfg("").api_check().assert_violations(
         Fuss(
             False,
             "nitpick-style.toml",
@@ -361,8 +349,7 @@ def test_invalid_section_dot_fields(tmp_path):
 
 def test_invalid_sections_comma_separated_values(tmp_path):
     """Test invalid sections on comma_separated_values."""
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         ["{PYTHON_SETUP_CFG}".flake8]
         ignore = "W503,E203,FI58,PT003,C408"
         exclude = "venv*,**/migrations/"
@@ -370,8 +357,7 @@ def test_invalid_sections_comma_separated_values(tmp_path):
 
         [nitpick.files."{PYTHON_SETUP_CFG}"]
         comma_separated_values = ["flake8.ignore", "flake8.exclude", "falek8.per-file-ignores", "aaa.invalid-section"]
-        """
-    ).setup_cfg(
+        """).setup_cfg(
         """
         [flake8]
         exclude = venv*,**/migrations/
@@ -385,12 +371,10 @@ def test_invalid_sections_comma_separated_values(tmp_path):
 
 def test_multiline_comment(tmp_path, datadir):
     """Test file with multiline comments should not raise a configparser.ParsingError."""
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         ["{PYTHON_SETUP_CFG}".flake8]
         new = "value"
-        """
-    ).setup_cfg(datadir / "3-actual-setup.cfg").api_fix().assert_violations(
+        """).setup_cfg(datadir / "3-actual-setup.cfg").api_fix().assert_violations(
         Fuss(
             True,
             PYTHON_SETUP_CFG,
@@ -401,9 +385,7 @@ def test_multiline_comment(tmp_path, datadir):
             new = value
             """,
         )
-    ).assert_file_contents(
-        PYTHON_SETUP_CFG, datadir / "3-expected-setup.cfg"
-    )
+    ).assert_file_contents(PYTHON_SETUP_CFG, datadir / "3-expected-setup.cfg")
 
 
 def test_duplicated_option(tmp_path):
@@ -414,12 +396,10 @@ def test_duplicated_option(tmp_path):
         easy = as sunday morning
         """
     project = ProjectMock(tmp_path)
-    project.style(
-        f"""
+    project.style(f"""
         ["{PYTHON_SETUP_CFG}".abc]
         hard = "as a rock"
-        """
-    ).setup_cfg(original_file).api_fix().assert_violations(
+        """).setup_cfg(original_file).api_fix().assert_violations(
         Fuss(
             False,
             PYTHON_SETUP_CFG,
@@ -427,9 +407,7 @@ def test_duplicated_option(tmp_path):
             f": parsing error (DuplicateOptionError): While reading from {project.path_for(PYTHON_SETUP_CFG)!r} "
             f"[line  3]: option 'easy' in section 'abc' already exists",
         )
-    ).assert_file_contents(
-        PYTHON_SETUP_CFG, original_file
-    )
+    ).assert_file_contents(PYTHON_SETUP_CFG, original_file)
 
 
 @mock.patch.object(ConfigUpdater, "update_file")
@@ -441,12 +419,10 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
         [flake8]
         existing = value
         """
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         ["{PYTHON_SETUP_CFG}".flake8]
         new = "value"
-        """
-    ).setup_cfg(original_file).api_fix().assert_violations(
+        """).setup_cfg(original_file).api_fix().assert_violations(
         Fuss(
             True,
             PYTHON_SETUP_CFG,
@@ -463,9 +439,7 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
             Violations.PARSING_ERROR.code,
             ": parsing error (ParsingError): Source contains parsing errors: 'simulating a captured error'",
         ),
-    ).assert_file_contents(
-        PYTHON_SETUP_CFG, original_file
-    )
+    ).assert_file_contents(PYTHON_SETUP_CFG, original_file)
 
 
 def test_generic_ini_with_missing_header(tmp_path):
@@ -478,13 +452,11 @@ def test_generic_ini_with_missing_header(tmp_path):
         your_string = value
     """
     project = ProjectMock(tmp_path)
-    project.save_file("generic.ini", expected_generic_ini).style(
-        """
+    project.save_file("generic.ini", expected_generic_ini).style("""
         ["generic.ini".your-section]
         your_string = "value"
         your_number = 100
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         Fuss(
             False,
             "generic.ini",
@@ -493,9 +465,7 @@ def test_generic_ini_with_missing_header(tmp_path):
             f"file: {project.path_for('generic.ini')!r}, line: 1\n"
             "'this_key_is_invalid = for a generic .ini (it should always have a section)\\n'",
         )
-    ).assert_file_contents(
-        "generic.ini", expected_generic_ini
-    )
+    ).assert_file_contents("generic.ini", expected_generic_ini)
 
 
 def test_add_options_with_multiple_trailing_spaces(tmp_path):
@@ -504,14 +474,12 @@ def test_add_options_with_multiple_trailing_spaces(tmp_path):
     This is a regression test for the NotAttachedError bug that occurred when
     trying to detach multiple consecutive Space blocks.
     """
-    ProjectMock(tmp_path).setup_cfg(
-        """
+    ProjectMock(tmp_path).setup_cfg("""
         [flake8]
         max-line-length = 100
 
 
-        """
-    ).style(
+        """).style(
         f"""
         ["{PYTHON_SETUP_CFG}".flake8]
         max-line-length = 100
