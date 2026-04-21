@@ -237,13 +237,11 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
     """
 
     # Use full path on initial styles
-    project.pyproject_toml(
-        f"""
+    project.pyproject_toml(f"""
         [tool.nitpick]
         style = [{tomlstring(another_dir / "main")}, {tomlstring(another_dir / "styles/black")}]
         {common_pyproject}
-        """
-    ).flake8(offline=offline).assert_single_error(
+        """).flake8(offline=offline).assert_single_error(
         f"""
         NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
@@ -252,13 +250,11 @@ def test_relative_and_other_root_dirs(offline, tmp_path):
     )
 
     # Allow relative paths
-    project.pyproject_toml(
-        f"""
+    project.pyproject_toml(f"""
         [tool.nitpick]
         style = [{tomlstring(another_dir / "styles/black")}, "./another_dir/poetry"]
         {common_pyproject}
-        """
-    ).flake8(offline=offline).assert_single_error(
+        """).flake8(offline=offline).assert_single_error(
         f"""
         NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
@@ -342,13 +338,11 @@ def test_relative_style_on_urls(tmp_path):
         some-option = 123
     """
     # Use full path on initial styles
-    project.pyproject_toml(
-        f"""
+    project.pyproject_toml(f"""
         [tool.nitpick]
         style = ["{base_url}/main"]
         {common_pyproject}
-        """
-    ).api_check().assert_violations(
+        """).api_check().assert_violations(
         Fuss(
             False,
             PYTHON_PYPROJECT_TOML,
@@ -378,8 +372,7 @@ def test_local_style_should_override_settings(tmp_path):
         line-length = 120
     """
 
-    ProjectMock(tmp_path).pyproject_toml(
-        f"""
+    ProjectMock(tmp_path).pyproject_toml(f"""
         [tool.nitpick]
         style = [
           "{remote_url}",
@@ -388,8 +381,7 @@ def test_local_style_should_override_settings(tmp_path):
 
         [tool.black]
         line-length = 80
-        """
-    ).named_style(local_file, local_style).api_check().assert_violations(
+        """).named_style(local_file, local_style).api_check().assert_violations(
         Fuss(
             False,
             PYTHON_PYPROJECT_TOML,
@@ -415,19 +407,15 @@ def test_fetch_private_github_urls(tmp_path):
     """
     responses.add(responses.GET, full_raw_url, dedent(body), status=200)
 
-    project = ProjectMock(tmp_path).pyproject_toml(
-        f"""
+    project = ProjectMock(tmp_path).pyproject_toml(f"""
         [tool.nitpick]
         style = "{gh_url}?token={file_token}"
-        """
-    )
-    project.flake8(offline=False).assert_single_error(
-        f"""
+        """)
+    project.flake8(offline=False).assert_single_error(f"""
         NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
         missing = "thing"{SUGGESTION_END}
-        """
-    )
+        """)
     assert responses.calls[0].request.headers["Authorization"] == f"token {file_token}"
     project.flake8(offline=True).assert_no_errors()
 
@@ -447,19 +435,15 @@ def test_fetch_private_github_urls_no_branch(tmp_path):
     responses.add(responses.GET, api_url, api_response, status=200)
     responses.add(responses.GET, full_raw_url, dedent(body), status=200)
 
-    project = ProjectMock(tmp_path).pyproject_toml(
-        f"""
+    project = ProjectMock(tmp_path).pyproject_toml(f"""
         [tool.nitpick]
         style = "{gh_url}"
-        """
-    )
-    project.flake8(offline=False).assert_single_error(
-        f"""
+        """)
+    project.flake8(offline=False).assert_single_error(f"""
         NIP318 File pyproject.toml has missing values:{SUGGESTION_BEGIN}
         [tool.black]
         missing = "thing"{SUGGESTION_END}
-        """
-    )
+        """)
     assert responses.calls[0].request.headers["Authorization"] == f"token {file_token}"
     assert responses.calls[1].request.headers["Authorization"] == f"token {file_token}"
     project.flake8(offline=True).assert_no_errors()
@@ -582,14 +566,12 @@ def test_include_remote_style_from_local_style(tmp_path):
     """
     responses.add(responses.GET, url_with_extension, dedent(body), status=200)
 
-    project = ProjectMock(tmp_path).style(
-        f"""
+    project = ProjectMock(tmp_path).style(f"""
         [nitpick.styles]
         include = [
             "{remote_style}"
         ]
-        """
-    )
+        """)
     project.assert_file_contents(PYTHON_TOX_INI, None).api_check_then_fix(
         Fuss(True, PYTHON_TOX_INI, 321, " was not found. Create it with this content:", "[section]\nkey = value")
     ).assert_file_contents(
@@ -738,12 +720,10 @@ def test_invalid_tool_nitpick_on_pyproject_toml(offline, tmp_path):
 
 def test_invalid_toml(tmp_path):
     """Invalid TOML should emit a NIP warning, not raise TomlDecodeError."""
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         ["{PYTHON_SETUP_CFG}".flake8]
         ignore = D100,D104,D202,E203,W503
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         Fuss(
             False,
             "nitpick-style.toml",
@@ -830,12 +810,10 @@ def test_always_fetch_github_raw_url(style_url, tmp_path):
 
     responses.add(responses.GET, "https://api.github.com/repos/andreoliwa/nitpick", '{"default_branch": "develop"}')
 
-    ProjectMock(tmp_path).pyproject_toml(
-        f"""
+    ProjectMock(tmp_path).pyproject_toml(f"""
         [tool.nitpick]
         style = ["{style_url}"]
-        """
-    ).api_check().assert_violations(
+        """).api_check().assert_violations(
         Fuss(
             False,
             PYTHON_PYPROJECT_TOML,
@@ -952,12 +930,10 @@ def test_raw_content_url_of_python_package(original_url, expected_content_path_s
 
 def test_protocol_not_supported(tmp_path):
     """Test unsupported protocols."""
-    project = ProjectMock(tmp_path).pyproject_toml(
-        """
+    project = ProjectMock(tmp_path).pyproject_toml("""
         [tool.nitpick]
         style = ["abc://www.example.com/style.toml"]
-        """
-    )
+        """)
     with pytest.raises(RuntimeError) as exc_info:
         project.api_check()
     assert str(exc_info.value) == "URL protocol 'abc' is not supported"

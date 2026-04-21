@@ -13,12 +13,10 @@ def test_pyproject_has_no_configuration(tmp_path):
 
 def test_pyproject_toml_file_present(tmp_path):
     """Suggest poetry init when pyproject.toml does not exist."""
-    ProjectMock(tmp_path, pyproject_toml=False).style(
-        """
+    ProjectMock(tmp_path, pyproject_toml=False).style("""
         [nitpick.files.present]
         "pyproject.toml" = "Do something"
-        """
-    ).api_check_then_fix(Fuss(False, PYTHON_PYPROJECT_TOML, 103, " should exist: Do something")).cli_run(
+        """).api_check_then_fix(Fuss(False, PYTHON_PYPROJECT_TOML, 103, " should exist: Do something")).cli_run(
         f"{PYTHON_PYPROJECT_TOML}:1: NIP103  should exist: Do something", violations=1
     )
 
@@ -32,14 +30,12 @@ def test_suggest_initial_contents(tmp_path):
         number = 10
         list = [ "a", "b", "c",]
     """
-    ProjectMock(tmp_path).style(
-        f"""
+    ProjectMock(tmp_path).style(f"""
         ["{filename}".section]
         key = "value"
         number = 10
         list = ["a", "b", "c"]
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         Fuss(
             True,
             filename,
@@ -47,15 +43,12 @@ def test_suggest_initial_contents(tmp_path):
             " was not found. Create it with this content:",
             expected_toml,
         )
-    ).assert_file_contents(
-        filename, expected_toml
-    )
+    ).assert_file_contents(filename, expected_toml)
 
 
 def test_missing_different_values_pyproject_toml(tmp_path):
     """Test missing and different values on pyproject.toml."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         ["pyproject.toml".something]
         yada = "after"
 
@@ -64,8 +57,7 @@ def test_missing_different_values_pyproject_toml(tmp_path):
 
         ["pyproject.toml".config]
         list = ["a", "b", "c"]
-        """
-    ).pyproject_toml(
+        """).pyproject_toml(
         """
         [something]
         x = 1  # comment for x
