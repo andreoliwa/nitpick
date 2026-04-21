@@ -39,7 +39,7 @@ jobs:
           uv tool list
       - name: Semantic Release
         # https://github.com/marketplace/actions/action-for-semantic-release#semantic_version
-        uses: cycjimmy/semantic-release-action@v5
+        uses: cycjimmy/semantic-release-action@v6.0.0
         id: semantic # Need an `id` for output variables
         with:
           # Don't pin the version here... it didn't work
