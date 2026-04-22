@@ -78,18 +78,14 @@ def test_at_least_one_python_file(python_file, error, tmp_path):
     """At least one Python file on the root dir, even if it's not a main file."""
     project = (
         ProjectMock(tmp_path, setup_py=False)
-        .style(
-            """
+        .style("""
             ["pyproject.toml".tool.black]
             lines = 100
-            """
-        )
-        .pyproject_toml(
-            """
+            """)
+        .pyproject_toml("""
             [tool.black]
             lines = 100
-            """
-        )
+            """)
         .save_file(python_file, "", lint=True)
         .flake8()
     )
@@ -103,19 +99,15 @@ def test_at_least_one_python_file(python_file, error, tmp_path):
 
 def test_django_project_structure(tmp_path):
     """Django project with pyproject.toml in the parent dir of manage.py's dir."""
-    ProjectMock(tmp_path, setup_py=False).pyproject_toml(
-        """
+    ProjectMock(tmp_path, setup_py=False).pyproject_toml("""
         [tool.black]
         lines = 100
-        """
-    ).setup_cfg(
+        """).setup_cfg(
         """
         [flake8]
         some = thing
         """
-    ).touch_file(
-        "my_django_project/manage.py"
-    ).style(
+    ).touch_file("my_django_project/manage.py").style(
         f"""
         ["{PYTHON_PYPROJECT_TOML}".tool.black]
         lines = 100

@@ -42,13 +42,11 @@ def _call_main(argv, retv=0):
 
 def test_absent_files(tmp_path):
     """Test absent files from the style configuration."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [nitpick.files.absent]
         xxx = "Remove this"
         yyy = "Remove that"
-        """
-    ).touch_file("xxx").touch_file("yyy").api_check_then_fix(
+        """).touch_file("xxx").touch_file("yyy").api_check_then_fix(
         Fuss(False, "xxx", 104, " should be deleted: Remove this"),
         Fuss(False, "yyy", 104, " should be deleted: Remove that"),
     )
@@ -56,12 +54,10 @@ def test_absent_files(tmp_path):
 
 def test_missing_message(tmp_path):
     """Test if the breaking style change "missing_message" key points to the correct help page."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [nitpick.files."pyproject.toml"]
         missing_message = "Install poetry and run 'poetry init' to create it"
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         # pylint: disable=line-too-long
         Fuss(
             False,
@@ -75,14 +71,12 @@ def test_missing_message(tmp_path):
 
 def test_present_files(tmp_path):
     """Test present files from the style configuration."""
-    ProjectMock(tmp_path).style(
-        """
+    ProjectMock(tmp_path).style("""
         [nitpick.files.present]
         ".editorconfig" = "Create this file"
         ".env" = ""
         "another-file.txt" = ""
-        """
-    ).api_check_then_fix(
+        """).api_check_then_fix(
         Fuss(False, ".editorconfig", 103, " should exist: Create this file"),
         Fuss(False, ".env", 103, " should exist"),
         Fuss(False, "another-file.txt", 103, " should exist"),
@@ -122,12 +116,10 @@ def test_offline_flag_env_variable(tmpdir):
 def project_github(tmp_path):
     """Project using a style from the Nitpick GitHub repo."""
     github_url = StyleManager.get_default_style_url(True)
-    return ProjectMock(tmp_path).pyproject_toml(
-        f"""
+    return ProjectMock(tmp_path).pyproject_toml(f"""
         [tool.nitpick]
         style = "{github_url}"
-        """
-    )
+        """)
 
 
 @responses.activate

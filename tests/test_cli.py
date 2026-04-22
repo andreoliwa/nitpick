@@ -27,27 +27,21 @@ def test_simple_error(tmp_path: Path) -> None:
     """A simple error on the CLI."""
     project = (
         ProjectMock(tmp_path)
-        .style(
-            """
+        .style("""
             ["pyproject.toml".tool.black]
             line-length = 100
-            """
-        )
-        .pyproject_toml(
-            """
+            """)
+        .pyproject_toml("""
             [tool.blabla]
             something = 22
-            """
-        )
+            """)
     )
 
-    project.cli_run(
-        f"""
+    project.cli_run(f"""
         {project.root_dir / "pyproject.toml"!s}:1: NIP318  has missing values:
         [tool.black]
         line-length = 100
-        """
-    )
+        """)
 
 
 def test_missing_style_and_suggest_option(tmp_path: Path) -> None:
