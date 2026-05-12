@@ -85,7 +85,7 @@ repos:
         args: [--no-error-on-unmatched-pattern]
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.0.0
+    rev: v2.1.0
     hooks:
       - id: mypy
         # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
@@ -130,7 +130,7 @@ repos:
         # https://docs.openstack.org/bashate/latest/man/bashate.html#options
         args: [-i, E006]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.15.1
+    rev: v4.16.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
