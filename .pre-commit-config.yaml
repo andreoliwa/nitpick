@@ -43,7 +43,7 @@ repos:
         # Exclude test files that need trailing whitespace to match YAML formatting
         exclude: ^tests/test_yaml_pre_commit/(hook-args-add|hook-args-change)\.yaml$
   - repo: https://github.com/google/keep-sorted
-    rev: v0.9.0
+    rev: v0.9.1
     hooks:
       - id: keep-sorted
   - repo: https://github.com/pappasam/toml-sort
