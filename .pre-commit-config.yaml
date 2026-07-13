@@ -85,7 +85,7 @@ repos:
         args: [--no-error-on-unmatched-pattern]
         stages: [pre-commit]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.2.0
+    rev: v2.3.0
     hooks:
       - id: mypy
         # https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-show-error-codes
