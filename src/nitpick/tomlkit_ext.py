@@ -13,7 +13,7 @@ from typing import IO, TYPE_CHECKING
 import tomlkit
 from tomlkit import TOMLDocument
 from tomlkit.exceptions import NonExistentKey
-from tomlkit.items import Comment, Key, Table, Whitespace
+from tomlkit.items import Comment, Key, Table, Trivia, Whitespace
 
 from nitpick.constants import COMMENT_MARKER_END, COMMENT_MARKER_START
 
@@ -38,12 +38,20 @@ def _replace_toml_document_getitem(original_method: Callable) -> Callable:
         This is a case that is not handled by tomlkit, it fails with an error.
         """
         if isinstance(key, str) and TOMLKIT_DOT in key:
-            current = self
-            for subkey in key.split(TOMLKIT_DOT):
-                current = current.get(subkey)
-                if current is None:
-                    raise NonExistentKey(subkey)
-            return current
+            # Prefer an exact key (e.g. ".editorconfig") over dotted-path lookup.
+            # tomlkit>=0.15 uses __getitem__ during equality, so leading-dot keys
+            # must not be split into an empty first segment.
+            try:
+                return original_method(self, key)
+            except NonExistentKey:
+                current = self
+                for subkey in key.split(TOMLKIT_DOT):
+                    if not subkey:
+                        raise
+                    current = current.get(subkey)
+                    if current is None:
+                        raise NonExistentKey(subkey)
+                return current
         return original_method(self, key)
 
     return inner_getitem
@@ -125,7 +133,11 @@ def update_comment_before(table: Table, key: str, marker: str, comment: str) -> 
     container: Container = table.value
     key_index = _find_key(container, key)
     hashed_lines = multiline_comment_with_markers(marker, comment)
-    new_comment = tomlkit.comment(f"\n{TOMLKIT_COMMENT}".join(hashed_lines))
+    # Build the comment text ourselves. tomlkit.comment() used to prefix only the
+    # first line with "# "; 0.15.1+ prefixes every line. Pre-joining with "# "
+    # then produced "# # ..." on continuation lines.
+    rendered = TOMLKIT_COMMENT + f"\n{TOMLKIT_COMMENT}".join(hashed_lines)
+    new_comment = Comment(Trivia(comment_ws="  ", comment=rendered))
     if key_index is None:
         table.add(new_comment)
         return
