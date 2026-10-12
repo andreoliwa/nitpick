@@ -36,7 +36,7 @@ test = [
 
 [project]
 authors = [
-  {email = "andreoli@sent.com", name = "W. Augusto Andreoli"},
+  { email = "andreoli@sent.com", name = "W. Augusto Andreoli" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -88,7 +88,7 @@ dependencies = [
 ]
 description = "Enforce the same settings across multiple language-independent projects"
 keywords = ["flake8", "linter", "python3", "styleguide"]
-license = {text = "MIT"}
+license = { text = "MIT" }
 name = "nitpick"
 readme = "README.md"
 requires-python = ">=3.10"
