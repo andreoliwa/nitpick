@@ -150,6 +150,45 @@ def test_glob_local_gitignore(some_directory: Path) -> None:
     }
 
 
+def test_glob_nested_gitignore_overrides_parent_rules(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Nested .gitignore rules should override parent rules for project-file scans."""
+    monkeypatch.setattr("nitpick.generic.get_global_gitignore_path", lambda: None)
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    (project_dir / GIT_DIR).mkdir()
+    (project_dir / GIT_IGNORE).write_text("*.py\n")
+
+    generated_dir = project_dir / "generated"
+    generated_dir.mkdir()
+    (generated_dir / GIT_IGNORE).write_text("!keep.py\n")
+    (generated_dir / "ignored.py").touch()
+    (generated_dir / "keep.py").touch()
+
+    assert set(glob_non_ignored_files(project_dir)) == {
+        project_dir / GIT_IGNORE,
+        generated_dir / GIT_IGNORE,
+        generated_dir / "keep.py",
+    }
+
+
+def test_glob_does_not_apply_nested_rules_under_ignored_directory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A nested .gitignore cannot re-include files below an ignored parent directory."""
+    monkeypatch.setattr("nitpick.generic.get_global_gitignore_path", lambda: None)
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    (project_dir / GIT_DIR).mkdir()
+    (project_dir / GIT_IGNORE).write_text("generated/\n")
+
+    generated_dir = project_dir / "generated"
+    generated_dir.mkdir()
+    (generated_dir / GIT_IGNORE).write_text("!keep.py\n")
+    (generated_dir / "keep.py").touch()
+
+    assert set(glob_non_ignored_files(project_dir)) == {project_dir / GIT_IGNORE}
+
+
 @pytest.mark.parametrize("some_directory", ["no_git_dir"], indirect=True)
 def test_glob_no_git_dir(some_directory: Path) -> None:
     """Test globbing non-ignored files."""
