@@ -385,7 +385,9 @@ def test_multiline_comment(tmp_path, datadir):
             new = value
             """,
         )
-    ).assert_file_contents(PYTHON_SETUP_CFG, datadir / "3-expected-setup.cfg")
+    ).assert_file_contents(
+        PYTHON_SETUP_CFG, datadir / "3-expected-setup.cfg"
+    )
 
 
 def test_duplicated_option(tmp_path):
@@ -407,7 +409,9 @@ def test_duplicated_option(tmp_path):
             f": parsing error (DuplicateOptionError): While reading from {project.path_for(PYTHON_SETUP_CFG)!r} "
             f"[line  3]: option 'easy' in section 'abc' already exists",
         )
-    ).assert_file_contents(PYTHON_SETUP_CFG, original_file)
+    ).assert_file_contents(
+        PYTHON_SETUP_CFG, original_file
+    )
 
 
 @mock.patch.object(ConfigUpdater, "update_file")
@@ -439,7 +443,9 @@ def test_simulate_parsing_error_when_saving(update_file, tmp_path):
             Violations.PARSING_ERROR.code,
             ": parsing error (ParsingError): Source contains parsing errors: 'simulating a captured error'",
         ),
-    ).assert_file_contents(PYTHON_SETUP_CFG, original_file)
+    ).assert_file_contents(
+        PYTHON_SETUP_CFG, original_file
+    )
 
 
 def test_generic_ini_with_missing_header(tmp_path):
@@ -465,7 +471,9 @@ def test_generic_ini_with_missing_header(tmp_path):
             f"file: {project.path_for('generic.ini')!r}, line: 1\n"
             "'this_key_is_invalid = for a generic .ini (it should always have a section)\\n'",
         )
-    ).assert_file_contents("generic.ini", expected_generic_ini)
+    ).assert_file_contents(
+        "generic.ini", expected_generic_ini
+    )
 
 
 def test_add_options_with_multiple_trailing_spaces(tmp_path):
