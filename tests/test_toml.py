@@ -43,7 +43,9 @@ def test_suggest_initial_contents(tmp_path):
             " was not found. Create it with this content:",
             expected_toml,
         )
-    ).assert_file_contents(filename, expected_toml)
+    ).assert_file_contents(
+        filename, expected_toml
+    )
 
 
 def test_missing_different_values_pyproject_toml(tmp_path):
