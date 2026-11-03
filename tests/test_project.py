@@ -46,14 +46,16 @@ def test_no_root_dir_with_python_file(tmp_path, shared_datadir):
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False)
     project.files_to_lint.append(hello_py)
     error = f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}"
-    project.flake8().assert_single_error(error).cli_run(error, exit_code=2).cli_ls(error, exit_code=2)
+    project.flake8().assert_single_error(error).cli_run(error, exit_code=2).cli_ls(error, exit_code=2).cli_init(
+        error, suggest=True, exit_code=2
+    )
 
 
 def test_no_root_dir_no_python_file(tmp_path):
     """No root dir, no Python file."""
     project = ProjectMock(tmp_path, pyproject_toml=False, setup_py=False)
     error = f"NIP101 {ProjectViolations.NO_ROOT_DIR.message}"
-    project.cli_run(error, exit_code=2).cli_ls(error, exit_code=2)
+    project.cli_run(error, exit_code=2).cli_ls(error, exit_code=2).cli_init(error, suggest=True, exit_code=2)
 
 
 def test_multiple_root_dirs(tmp_path):
