@@ -107,7 +107,9 @@ def test_django_project_structure(tmp_path):
         [flake8]
         some = thing
         """
-    ).touch_file("my_django_project/manage.py").style(
+    ).touch_file(
+        "my_django_project/manage.py"
+    ).style(
         f"""
         ["{PYTHON_PYPROJECT_TOML}".tool.black]
         lines = 100
