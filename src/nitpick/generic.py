@@ -13,7 +13,7 @@ from pathlib import Path, PosixPath, WindowsPath
 from typing import TYPE_CHECKING
 
 import click
-from gitignore_parser import parse_gitignore
+from gitignore_parser import parse_gitignore, rule_from_pattern
 
 from nitpick.constants import DOT, GIT_CORE_EXCLUDES_FILE, GIT_DIR, GIT_IGNORE, PROJECT_NAME
 
@@ -123,25 +123,48 @@ def get_global_gitignore_path() -> Path | None:
     return None
 
 
+def _is_git_ignored(path: Path, local_rules: list, global_ignore) -> bool:
+    """Determine whether a path is ignored by the most specific matching Git rule."""
+    absolute_path = path.absolute()
+    local_is_ignored = None
+    for rule in local_rules:
+        base_path = rule.base_path
+        if base_path and absolute_path.is_relative_to(base_path) and rule.match(absolute_path):
+            local_is_ignored = not rule.negation
+
+    if local_is_ignored is not None:
+        return local_is_ignored
+    return bool(global_ignore and global_ignore(absolute_path))
+
+
+def _local_gitignore_rules(root_dir: Path, global_ignore) -> list:
+    """Read applicable .gitignore rules from the root down, preserving override order."""
+    rules = []
+    ignore_files = sorted(root_dir.glob(f"**/{GIT_IGNORE}"), key=lambda path: len(path.relative_to(root_dir).parts))
+    for ignore_file in ignore_files:
+        base_path = ignore_file.parent.absolute()
+        if _is_git_ignored(base_path, rules, global_ignore):
+            continue
+
+        lines = ignore_file.read_text(encoding="utf-8").splitlines()
+        for line_number, line in enumerate(lines, start=1):
+            rule = rule_from_pattern(line, base_path=base_path, source=(str(ignore_file), line_number))
+            if rule:
+                rules.append(rule)
+    return rules
+
+
 def glob_non_ignored_files(root_dir: Path, pattern: str = "**/*") -> Iterable[Path]:
     """Glob all files in the root dir that are not ignored by Git."""
 
-    git_dir = root_dir / GIT_DIR
-    is_locally_ignored = None
     is_globally_ignored = None
-    if git_dir.is_dir():
+    local_ignore_rules = []
+    if (root_dir / GIT_DIR).is_dir():
         global_gitignore = get_global_gitignore_path()
         if global_gitignore and global_gitignore.is_file():
             is_globally_ignored = parse_gitignore(global_gitignore)
-        local_gitignore_path = root_dir / GIT_IGNORE
-        if local_gitignore_path.is_file():
-            is_locally_ignored = parse_gitignore(local_gitignore_path)
+        local_ignore_rules = _local_gitignore_rules(root_dir, is_globally_ignored)
 
     for project_file in root_dir.glob(pattern):
-        if (
-            not project_file.is_file()
-            or (is_globally_ignored and is_globally_ignored(project_file))
-            or (is_locally_ignored and is_locally_ignored(project_file))
-        ):
-            continue
-        yield project_file
+        if project_file.is_file() and not _is_git_ignored(project_file, local_ignore_rules, is_globally_ignored):
+            yield project_file
